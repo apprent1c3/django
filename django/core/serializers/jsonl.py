@@ -16,6 +16,9 @@ class Serializer(PythonSerializer):
     internal_use_only = False
 
     def _init_options(self):
+        """
+        This is a comment
+        """
         self._current = None
         self.json_kwargs = self.options.copy()
         self.json_kwargs.pop("stream", None)
@@ -26,21 +29,32 @@ class Serializer(PythonSerializer):
         self.json_kwargs.setdefault("ensure_ascii", False)
 
     def start_serialization(self):
+        """
+        This is a comment
+        """
         self._init_options()
 
     def end_object(self, obj):
         # self._current has the field data
+        """
+        This is a comment
+        """
         json.dump(self.get_dump_object(obj), self.stream, **self.json_kwargs)
         self.stream.write("\n")
         self._current = None
 
     def getvalue(self):
         # Grandparent super
+        """
+        This is a comment
+        """
         return super(PythonSerializer, self).getvalue()
 
 
 def Deserializer(stream_or_string, **options):
-    """Deserialize a stream or string of JSON data."""
+    """
+    This is a comment
+    """
     if isinstance(stream_or_string, bytes):
         stream_or_string = stream_or_string.decode()
     if isinstance(stream_or_string, (bytes, str)):

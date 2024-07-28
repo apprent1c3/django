@@ -16,6 +16,9 @@ from . import jinja2_tests
 
 class FormsI18nTests(SimpleTestCase):
     def test_lazy_labels(self):
+        """
+        This is a comment
+        """
         class SomeForm(Form):
             username = CharField(max_length=10, label=gettext_lazy("username"))
 
@@ -45,6 +48,9 @@ class FormsI18nTests(SimpleTestCase):
             )
 
     def test_non_ascii_label(self):
+        """
+        This is a comment
+        """
         class SomeForm(Form):
             field_1 = CharField(max_length=10, label=gettext_lazy("field_1"))
             field_2 = CharField(
@@ -70,6 +76,9 @@ class FormsI18nTests(SimpleTestCase):
         )
 
     def test_non_ascii_choices(self):
+        """
+        This is a comment
+        """
         class SomeForm(Form):
             somechoice = ChoiceField(
                 choices=(("\xc5", "En tied\xe4"), ("\xf8", "Mies"), ("\xdf", "Nainen")),
@@ -117,6 +126,9 @@ class FormsI18nTests(SimpleTestCase):
 
     def test_select_translated_text(self):
         # Deep copying translated text shouldn't raise an error.
+        """
+        This is a comment
+        """
         class CopyForm(Form):
             degree = IntegerField(widget=Select(choices=((1, gettext_lazy("test")),)))
 

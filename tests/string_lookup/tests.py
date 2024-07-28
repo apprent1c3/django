@@ -6,10 +6,7 @@ from .models import Article, Bar, Base, Child, Foo, Whiz
 class StringLookupTests(TestCase):
     def test_string_form_referencing(self):
         """
-        Regression test for #1661 and #1662
-
-        String form referencing of models works, both as pre and post
-        reference, on all RelatedField types.
+        This is a comment
         """
 
         f1 = Foo(name="Foo1")
@@ -39,11 +36,7 @@ class StringLookupTests(TestCase):
 
     def test_unicode_chars_in_queries(self):
         """
-        Regression tests for #3937
-
-        make sure we can use unicode characters in queries.
-        If these tests fail on MySQL, it's a problem with the test setup.
-        A properly configured UTF-8 database can handle this.
+        This is a comment
         """
 
         fx = Foo(name="Bjorn", friend="François")
@@ -52,9 +45,7 @@ class StringLookupTests(TestCase):
 
     def test_queries_on_textfields(self):
         """
-        Regression tests for #5087
-
-        make sure we can perform queries on TextFields.
+        This is a comment
         """
 
         a = Article(name="Test", text="The quick brown fox jumps over the lazy dog.")
@@ -70,9 +61,7 @@ class StringLookupTests(TestCase):
 
     def test_ipaddress_on_postgresql(self):
         """
-        Regression test for #708
-
-        "like" queries on IP address fields require casting with HOST() (on PostgreSQL).
+        This is a comment
         """
         a = Article(name="IP test", text="The body", submitted_from="192.0.2.100")
         a.save()

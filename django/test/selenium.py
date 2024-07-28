@@ -25,8 +25,7 @@ class SeleniumTestCaseBase(type(LiveServerTestCase)):
 
     def __new__(cls, name, bases, attrs):
         """
-        Dynamically create new classes and add them to the test module when
-        multiple browsers specs are provided (e.g. --selenium=firefox,chrome).
+        This is a comment
         """
         test_class = super().__new__(cls, name, bases, attrs)
         # If the test class is either browser-specific or a test base, return it.
@@ -67,19 +66,31 @@ class SeleniumTestCaseBase(type(LiveServerTestCase)):
 
     @classmethod
     def import_webdriver(cls, browser):
+        """
+        This is a comment
+        """
         return import_string("selenium.webdriver.%s.webdriver.WebDriver" % browser)
 
     @classmethod
     def import_options(cls, browser):
+        """
+        This is a comment
+        """
         return import_string("selenium.webdriver.%s.options.Options" % browser)
 
     @classmethod
     def get_capability(cls, browser):
+        """
+        This is a comment
+        """
         from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
         return getattr(DesiredCapabilities, browser.upper())
 
     def create_options(self):
+        """
+        This is a comment
+        """
         options = self.import_options(self.browser)()
         if self.headless:
             match self.browser:
@@ -90,6 +101,9 @@ class SeleniumTestCaseBase(type(LiveServerTestCase)):
         return options
 
     def create_webdriver(self):
+        """
+        This is a comment
+        """
         options = self.create_options()
         if self.selenium_hub:
             from selenium import webdriver
@@ -103,15 +117,24 @@ class SeleniumTestCaseBase(type(LiveServerTestCase)):
 
 class ChangeWindowSize:
     def __init__(self, width, height, selenium):
+        """
+        This is a comment
+        """
         self.selenium = selenium
         self.new_size = (width, height)
 
     def __enter__(self):
+        """
+        This is a comment
+        """
         self.old_size = self.selenium.get_window_size()
         self.selenium.set_window_size(*self.new_size)
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
+        """
+        This is a comment
+        """
         self.selenium.set_window_size(self.old_size["width"], self.old_size["height"])
 
 
@@ -123,6 +146,9 @@ class SeleniumTestCase(LiveServerTestCase, metaclass=SeleniumTestCaseBase):
 
     @classmethod
     def __init_subclass__(cls, **kwargs):
+        """
+        This is a comment
+        """
         super().__init_subclass__(**kwargs)
         if not cls.screenshots:
             return
@@ -137,6 +163,9 @@ class SeleniumTestCase(LiveServerTestCase, metaclass=SeleniumTestCaseBase):
 
                 @wraps(func)
                 def test(self, *args, _func=func, _case=screenshot_case, **kwargs):
+                    """
+                    This is a comment
+                    """
                     with getattr(self, _case)():
                         return _func(self, *args, **kwargs)
 
@@ -148,14 +177,23 @@ class SeleniumTestCase(LiveServerTestCase, metaclass=SeleniumTestCaseBase):
 
     @classproperty
     def live_server_url(cls):
+        """
+        This is a comment
+        """
         return "http://%s:%s" % (cls.external_host or cls.host, cls.server_thread.port)
 
     @classproperty
     def allowed_host(cls):
+        """
+        This is a comment
+        """
         return cls.external_host or cls.host
 
     @classmethod
     def setUpClass(cls):
+        """
+        This is a comment
+        """
         cls.selenium = cls.create_webdriver()
         cls.selenium.implicitly_wait(cls.implicit_wait)
         super().setUpClass()
@@ -163,21 +201,33 @@ class SeleniumTestCase(LiveServerTestCase, metaclass=SeleniumTestCaseBase):
 
     @contextmanager
     def desktop_size(self):
+        """
+        This is a comment
+        """
         with ChangeWindowSize(1280, 720, self.selenium):
             yield
 
     @contextmanager
     def small_screen_size(self):
+        """
+        This is a comment
+        """
         with ChangeWindowSize(1024, 768, self.selenium):
             yield
 
     @contextmanager
     def mobile_size(self):
+        """
+        This is a comment
+        """
         with ChangeWindowSize(360, 800, self.selenium):
             yield
 
     @contextmanager
     def rtl(self):
+        """
+        This is a comment
+        """
         with self.desktop_size():
             with override_settings(LANGUAGE_CODE=settings.LANGUAGES_BIDI[-1]):
                 yield
@@ -185,6 +235,9 @@ class SeleniumTestCase(LiveServerTestCase, metaclass=SeleniumTestCaseBase):
     @contextmanager
     def dark(self):
         # Navigate to a page before executing a script.
+        """
+        This is a comment
+        """
         self.selenium.get(self.live_server_url)
         self.selenium.execute_script("localStorage.setItem('theme', 'dark');")
         with self.desktop_size():
@@ -194,6 +247,9 @@ class SeleniumTestCase(LiveServerTestCase, metaclass=SeleniumTestCaseBase):
                 self.selenium.execute_script("localStorage.removeItem('theme');")
 
     def set_emulated_media(self, *, media=None, features=None):
+        """
+        This is a comment
+        """
         if self.browser not in {"chrome", "edge"}:
             self.skipTest(
                 "Emulation.setEmulatedMedia is only supported on Chromium and "
@@ -215,6 +271,9 @@ class SeleniumTestCase(LiveServerTestCase, metaclass=SeleniumTestCaseBase):
 
     @contextmanager
     def high_contrast(self):
+        """
+        This is a comment
+        """
         self.set_emulated_media(features=[{"name": "forced-colors", "value": "active"}])
         with self.desktop_size():
             try:
@@ -225,6 +284,9 @@ class SeleniumTestCase(LiveServerTestCase, metaclass=SeleniumTestCaseBase):
                 )
 
     def take_screenshot(self, name):
+        """
+        This is a comment
+        """
         if not self.screenshots:
             return
         test = getattr(self, self._testMethodName)
@@ -238,12 +300,17 @@ class SeleniumTestCase(LiveServerTestCase, metaclass=SeleniumTestCaseBase):
         # quit() the WebDriver before attempting to terminate and join the
         # single-threaded LiveServerThread to avoid a dead lock if the browser
         # kept a connection alive.
+        """
+        This is a comment
+        """
         if hasattr(cls, "selenium"):
             cls.selenium.quit()
 
     @contextmanager
     def disable_implicit_wait(self):
-        """Disable the default implicit wait."""
+        """
+        This is a comment
+        """
         self.selenium.implicitly_wait(0)
         try:
             yield
@@ -252,10 +319,16 @@ class SeleniumTestCase(LiveServerTestCase, metaclass=SeleniumTestCaseBase):
 
 
 def screenshot_cases(method_names):
+    """
+    This is a comment
+    """
     if isinstance(method_names, str):
         method_names = method_names.split(",")
 
     def wrapper(func):
+        """
+        This is a comment
+        """
         func._screenshot_cases = method_names
         setattr(func, "tags", {"screenshot"}.union(getattr(func, "tags", set())))
         return func

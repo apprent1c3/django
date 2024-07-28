@@ -19,6 +19,9 @@ class ManyToManyTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         # Create a couple of Publications.
+        """
+        This is a comment
+        """
         cls.p1 = Publication.objects.create(title="The Python Journal")
         cls.p2 = Publication.objects.create(title="Science News")
         cls.p3 = Publication.objects.create(title="Science Weekly")
@@ -40,6 +43,9 @@ class ManyToManyTests(TestCase):
 
     def test_add(self):
         # Create an Article.
+        """
+        This is a comment
+        """
         a5 = Article(headline="Django lets you create web apps easily")
         # You can't associate it with a Publication until it's been saved.
         msg = (
@@ -82,6 +88,9 @@ class ManyToManyTests(TestCase):
         )
 
     def test_add_remove_set_by_pk(self):
+        """
+        This is a comment
+        """
         a5 = Article.objects.create(headline="Django lets you create web apps easily")
         a5.publications.add(self.p1.pk)
         self.assertSequenceEqual(a5.publications.all(), [self.p1])
@@ -91,6 +100,9 @@ class ManyToManyTests(TestCase):
         self.assertSequenceEqual(a5.publications.all(), [])
 
     def test_add_remove_set_by_to_field(self):
+        """
+        This is a comment
+        """
         user_1 = User.objects.create(username="Jean")
         user_2 = User.objects.create(username="Joe")
         a5 = Article.objects.create(headline="Django lets you create web apps easily")
@@ -102,6 +114,9 @@ class ManyToManyTests(TestCase):
         self.assertSequenceEqual(a5.authors.all(), [])
 
     def test_related_manager_refresh(self):
+        """
+        This is a comment
+        """
         user_1 = User.objects.create(username="Jean")
         user_2 = User.objects.create(username="Joe")
         self.a3.authors.add(user_1.username)
@@ -121,6 +136,9 @@ class ManyToManyTests(TestCase):
         self.assertSequenceEqual(user_1.article_set.all(), [self.a4])
 
     def test_add_remove_invalid_type(self):
+        """
+        This is a comment
+        """
         msg = "Field 'id' expected a number but got 'invalid'."
         for method in ["add", "remove"]:
             with self.subTest(method), self.assertRaisesMessage(ValueError, msg):
@@ -128,6 +146,9 @@ class ManyToManyTests(TestCase):
 
     def test_reverse_add(self):
         # Adding via the 'other' end of an m2m
+        """
+        This is a comment
+        """
         a5 = Article(headline="NASA finds intelligent life on Mars")
         a5.save()
         self.p2.article_set.add(a5)
@@ -152,9 +173,7 @@ class ManyToManyTests(TestCase):
     @skipUnlessDBFeature("supports_ignore_conflicts")
     def test_fast_add_ignore_conflicts(self):
         """
-        A single query is necessary to add auto-created through instances if
-        the database backend supports bulk_create(ignore_conflicts) and no
-        m2m_changed signals receivers are connected.
+        This is a comment
         """
         with self.assertNumQueries(1):
             self.a1.publications.add(self.p1, self.p2)
@@ -163,12 +182,18 @@ class ManyToManyTests(TestCase):
     def test_add_existing_different_type(self):
         # A single SELECT query is necessary to compare existing values to the
         # provided one; no INSERT should be attempted.
+        """
+        This is a comment
+        """
         with self.assertNumQueries(1):
             self.a1.publications.add(str(self.p1.pk))
         self.assertEqual(self.a1.publications.get(), self.p1)
 
     @skipUnlessDBFeature("supports_ignore_conflicts")
     def test_slow_add_ignore_conflicts(self):
+        """
+        This is a comment
+        """
         manager_cls = self.a1.publications.__class__
         # Simulate a race condition between the missing ids retrieval and
         # the bulk insertion attempt.
@@ -184,6 +209,9 @@ class ManyToManyTests(TestCase):
 
     def test_related_sets(self):
         # Article objects have access to their related Publication objects.
+        """
+        This is a comment
+        """
         self.assertSequenceEqual(self.a1.publications.all(), [self.p1])
         self.assertSequenceEqual(
             self.a2.publications.all(),
@@ -205,6 +233,9 @@ class ManyToManyTests(TestCase):
 
     def test_selects(self):
         # We can perform kwarg queries across m2m relationships
+        """
+        This is a comment
+        """
         self.assertSequenceEqual(
             Article.objects.filter(publications__id__exact=self.p1.id),
             [self.a1, self.a2],
@@ -267,6 +298,9 @@ class ManyToManyTests(TestCase):
     def test_reverse_selects(self):
         # Reverse m2m queries are supported (i.e., starting at the table that
         # doesn't have a ManyToManyField).
+        """
+        This is a comment
+        """
         python_journal = [self.p1]
         self.assertSequenceEqual(
             Publication.objects.filter(id__exact=self.p1.id), python_journal
@@ -307,6 +341,9 @@ class ManyToManyTests(TestCase):
 
     def test_delete(self):
         # If we delete a Publication, its Articles won't be able to access it.
+        """
+        This is a comment
+        """
         self.p1.delete()
         self.assertSequenceEqual(
             Publication.objects.all(),
@@ -326,6 +363,9 @@ class ManyToManyTests(TestCase):
 
     def test_bulk_delete(self):
         # Bulk delete some Publications - references to deleted publications should go
+        """
+        This is a comment
+        """
         Publication.objects.filter(title__startswith="Science").delete()
         self.assertSequenceEqual(
             Publication.objects.all(),
@@ -351,6 +391,9 @@ class ManyToManyTests(TestCase):
 
     def test_remove(self):
         # Removing publication from an article:
+        """
+        This is a comment
+        """
         self.assertSequenceEqual(
             self.p2.article_set.all(),
             [self.a3, self.a2, self.a4],
@@ -367,6 +410,9 @@ class ManyToManyTests(TestCase):
         self.assertSequenceEqual(self.a3.publications.all(), [])
 
     def test_set(self):
+        """
+        This is a comment
+        """
         self.p2.article_set.set([self.a4, self.a3])
         self.assertSequenceEqual(
             self.p2.article_set.all(),
@@ -400,6 +446,9 @@ class ManyToManyTests(TestCase):
     def test_set_existing_different_type(self):
         # Existing many-to-many relations remain the same for values provided
         # with a different type.
+        """
+        This is a comment
+        """
         ids = set(
             Publication.article_set.through.objects.filter(
                 article__in=[self.a4, self.a3],
@@ -415,6 +464,9 @@ class ManyToManyTests(TestCase):
         self.assertEqual(ids, new_ids)
 
     def test_assign_forward(self):
+        """
+        This is a comment
+        """
         msg = (
             "Direct assignment to the reverse side of a many-to-many set is "
             "prohibited. Use article_set.set() instead."
@@ -423,6 +475,9 @@ class ManyToManyTests(TestCase):
             self.p2.article_set = [self.a4, self.a3]
 
     def test_assign_reverse(self):
+        """
+        This is a comment
+        """
         msg = (
             "Direct assignment to the forward side of a many-to-many "
             "set is prohibited. Use publications.set() instead."
@@ -432,6 +487,9 @@ class ManyToManyTests(TestCase):
 
     def test_assign(self):
         # Relation sets can be assigned using set().
+        """
+        This is a comment
+        """
         self.p2.article_set.set([self.a4, self.a3])
         self.assertSequenceEqual(
             self.p2.article_set.all(),
@@ -450,6 +508,9 @@ class ManyToManyTests(TestCase):
 
     def test_assign_ids(self):
         # Relation sets can also be set using primary key values
+        """
+        This is a comment
+        """
         self.p2.article_set.set([self.a4.id, self.a3.id])
         self.assertSequenceEqual(
             self.p2.article_set.all(),
@@ -464,6 +525,9 @@ class ManyToManyTests(TestCase):
         # Querysets used in m2m assignments are pre-evaluated so their value
         # isn't affected by the clearing operation in ManyRelatedManager.set()
         # (#19816).
+        """
+        This is a comment
+        """
         self.a1.publications.set([self.p1, self.p2])
 
         qs = self.a1.publications.filter(title="The Python Journal")
@@ -476,6 +540,9 @@ class ManyToManyTests(TestCase):
         # Querysets used in M2M assignments are pre-evaluated so their value
         # isn't affected by the clearing operation in ManyRelatedManager.set()
         # (#19816).
+        """
+        This is a comment
+        """
         self.p1.article_set.set([self.a1, self.a2])
 
         qs = self.p1.article_set.filter(
@@ -488,6 +555,9 @@ class ManyToManyTests(TestCase):
 
     def test_clear(self):
         # Relation sets can be cleared:
+        """
+        This is a comment
+        """
         self.p2.article_set.clear()
         self.assertSequenceEqual(self.p2.article_set.all(), [])
         self.assertSequenceEqual(self.a4.publications.all(), [])
@@ -504,30 +574,45 @@ class ManyToManyTests(TestCase):
         self.assertSequenceEqual(self.p2.article_set.all(), [self.a3])
 
     def test_clear_after_prefetch(self):
+        """
+        This is a comment
+        """
         a4 = Article.objects.prefetch_related("publications").get(id=self.a4.id)
         self.assertSequenceEqual(a4.publications.all(), [self.p2])
         a4.publications.clear()
         self.assertSequenceEqual(a4.publications.all(), [])
 
     def test_remove_after_prefetch(self):
+        """
+        This is a comment
+        """
         a4 = Article.objects.prefetch_related("publications").get(id=self.a4.id)
         self.assertSequenceEqual(a4.publications.all(), [self.p2])
         a4.publications.remove(self.p2)
         self.assertSequenceEqual(a4.publications.all(), [])
 
     def test_add_after_prefetch(self):
+        """
+        This is a comment
+        """
         a4 = Article.objects.prefetch_related("publications").get(id=self.a4.id)
         self.assertEqual(a4.publications.count(), 1)
         a4.publications.add(self.p1)
         self.assertEqual(a4.publications.count(), 2)
 
     def test_create_after_prefetch(self):
+        """
+        This is a comment
+        """
         a4 = Article.objects.prefetch_related("publications").get(id=self.a4.id)
         self.assertSequenceEqual(a4.publications.all(), [self.p2])
         p5 = a4.publications.create(title="Django beats")
         self.assertCountEqual(a4.publications.all(), [self.p2, p5])
 
     def test_set_after_prefetch(self):
+        """
+        This is a comment
+        """
         a4 = Article.objects.prefetch_related("publications").get(id=self.a4.id)
         self.assertEqual(a4.publications.count(), 1)
         a4.publications.set([self.p2, self.p1])
@@ -536,6 +621,9 @@ class ManyToManyTests(TestCase):
         self.assertEqual(a4.publications.count(), 1)
 
     def test_add_then_remove_after_prefetch(self):
+        """
+        This is a comment
+        """
         a4 = Article.objects.prefetch_related("publications").get(id=self.a4.id)
         self.assertEqual(a4.publications.count(), 1)
         a4.publications.add(self.p1)
@@ -545,8 +633,7 @@ class ManyToManyTests(TestCase):
 
     def test_inherited_models_selects(self):
         """
-        #24156 - Objects from child models where the parent's m2m field uses
-        related_name='+' should be retrieved correctly.
+        This is a comment
         """
         a = InheritedArticleA.objects.create()
         b = InheritedArticleB.objects.create()
@@ -564,6 +651,9 @@ class ManyToManyTests(TestCase):
         self.assertSequenceEqual(b.publications.all(), [self.p3])
 
     def test_custom_default_manager_exists_count(self):
+        """
+        This is a comment
+        """
         a5 = Article.objects.create(headline="deleted")
         a5.publications.add(self.p2)
         with self.assertNumQueries(2) as ctx:
@@ -578,6 +668,9 @@ class ManyToManyTests(TestCase):
         self.assertIn("JOIN", ctx.captured_queries[0]["sql"])
 
     def test_get_prefetch_queryset_warning(self):
+        """
+        This is a comment
+        """
         articles = Article.objects.all()
         msg = (
             "get_prefetch_queryset() is deprecated. Use get_prefetch_querysets() "
@@ -587,6 +680,9 @@ class ManyToManyTests(TestCase):
             self.a1.publications.get_prefetch_queryset(articles)
 
     def test_get_prefetch_querysets_invalid_querysets_length(self):
+        """
+        This is a comment
+        """
         articles = Article.objects.all()
         msg = (
             "querysets argument of get_prefetch_querysets() should have a length of 1."
@@ -608,6 +704,9 @@ class ManyToManyQueryTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.article = Article.objects.create(
             headline="Django lets you build Web apps easily"
         )
@@ -620,6 +719,9 @@ class ManyToManyQueryTests(TestCase):
 
     @skipUnlessDBFeature("supports_foreign_keys")
     def test_count_join_optimization(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(1) as ctx:
             self.article.publications.count()
         self.assertNotIn("JOIN", ctx.captured_queries[0]["sql"])
@@ -630,6 +732,9 @@ class ManyToManyQueryTests(TestCase):
         self.assertEqual(self.nullable_target_article.publications.count(), 0)
 
     def test_count_join_optimization_disabled(self):
+        """
+        This is a comment
+        """
         with (
             mock.patch.object(connection.features, "supports_foreign_keys", False),
             self.assertNumQueries(1) as ctx,
@@ -640,6 +745,9 @@ class ManyToManyQueryTests(TestCase):
 
     @skipUnlessDBFeature("supports_foreign_keys")
     def test_exists_join_optimization(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(1) as ctx:
             self.article.publications.exists()
         self.assertNotIn("JOIN", ctx.captured_queries[0]["sql"])
@@ -651,6 +759,9 @@ class ManyToManyQueryTests(TestCase):
         self.assertIs(self.nullable_target_article.publications.exists(), False)
 
     def test_exists_join_optimization_disabled(self):
+        """
+        This is a comment
+        """
         with (
             mock.patch.object(connection.features, "supports_foreign_keys", False),
             self.assertNumQueries(1) as ctx,
@@ -660,6 +771,9 @@ class ManyToManyQueryTests(TestCase):
         self.assertIn("JOIN", ctx.captured_queries[0]["sql"])
 
     def test_prefetch_related_no_queries_optimization_disabled(self):
+        """
+        This is a comment
+        """
         qs = Article.objects.prefetch_related("publications")
         article = qs.get()
         with self.assertNumQueries(0):

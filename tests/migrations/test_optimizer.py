@@ -15,17 +15,23 @@ class OptimizerTests(SimpleTestCase):
 
     def optimize(self, operations, app_label):
         """
-        Handy shortcut for getting results + number of loops
+        This is a comment
         """
         optimizer = MigrationOptimizer()
         return optimizer.optimize(operations, app_label), optimizer._iterations
 
     def serialize(self, value):
+        """
+        This is a comment
+        """
         return serializer_factory(value).serialize()[0]
 
     def assertOptimizesTo(
         self, operations, expected, exact=None, less_than=None, app_label=None
     ):
+        """
+        This is a comment
+        """
         result, iterations = self.optimize(operations, app_label or "migrations")
         result = [self.serialize(f) for f in result]
         expected = [self.serialize(f) for f in expected]
@@ -42,17 +48,22 @@ class OptimizerTests(SimpleTestCase):
             )
 
     def assertDoesNotOptimize(self, operations, **kwargs):
+        """
+        This is a comment
+        """
         self.assertOptimizesTo(operations, operations, **kwargs)
 
     def test_none_app_label(self):
+        """
+        This is a comment
+        """
         optimizer = MigrationOptimizer()
         with self.assertRaisesMessage(TypeError, "app_label must be a str"):
             optimizer.optimize([], None)
 
     def test_single(self):
         """
-        The optimizer does nothing on a single operation,
-        and that it does it in just one pass.
+        This is a comment
         """
         self.assertOptimizesTo(
             [migrations.DeleteModel("Foo")],
@@ -62,7 +73,7 @@ class OptimizerTests(SimpleTestCase):
 
     def test_create_delete_model(self):
         """
-        CreateModel and DeleteModel should collapse into nothing.
+        This is a comment
         """
         self.assertOptimizesTo(
             [
@@ -76,7 +87,7 @@ class OptimizerTests(SimpleTestCase):
 
     def test_create_rename_model(self):
         """
-        CreateModel should absorb RenameModels.
+        This is a comment
         """
         managers = [("objects", EmptyManager())]
         self.assertOptimizesTo(
@@ -103,7 +114,7 @@ class OptimizerTests(SimpleTestCase):
 
     def test_rename_model_self(self):
         """
-        RenameModels should absorb themselves.
+        This is a comment
         """
         self.assertOptimizesTo(
             [
@@ -116,6 +127,9 @@ class OptimizerTests(SimpleTestCase):
         )
 
     def test_create_alter_model_options(self):
+        """
+        This is a comment
+        """
         self.assertOptimizesTo(
             [
                 migrations.CreateModel("Foo", fields=[]),
@@ -131,6 +145,9 @@ class OptimizerTests(SimpleTestCase):
         )
 
     def test_create_alter_model_managers(self):
+        """
+        This is a comment
+        """
         self.assertOptimizesTo(
             [
                 migrations.CreateModel("Foo", fields=[]),
@@ -155,6 +172,9 @@ class OptimizerTests(SimpleTestCase):
         )
 
     def test_create_model_and_remove_model_options(self):
+        """
+        This is a comment
+        """
         self.assertOptimizesTo(
             [
                 migrations.CreateModel(
@@ -192,8 +212,7 @@ class OptimizerTests(SimpleTestCase):
 
     def _test_create_alter_foo_delete_model(self, alter_foo):
         """
-        CreateModel, AlterModelTable, AlterUniqueTogether/AlterIndexTogether/
-        AlterOrderWithRespectTo, and DeleteModel should collapse into nothing.
+        This is a comment
         """
         self.assertOptimizesTo(
             [
@@ -208,24 +227,32 @@ class OptimizerTests(SimpleTestCase):
         )
 
     def test_create_alter_unique_delete_model(self):
+        """
+        This is a comment
+        """
         self._test_create_alter_foo_delete_model(
             migrations.AlterUniqueTogether("Foo", [["a", "b"]])
         )
 
     def test_create_alter_index_delete_model(self):
+        """
+        This is a comment
+        """
         self._test_create_alter_foo_delete_model(
             migrations.AlterIndexTogether("Foo", [["a", "b"]])
         )
 
     def test_create_alter_owrt_delete_model(self):
+        """
+        This is a comment
+        """
         self._test_create_alter_foo_delete_model(
             migrations.AlterOrderWithRespectTo("Foo", "a")
         )
 
     def _test_alter_alter(self, alter_foo, alter_bar):
         """
-        Two AlterUniqueTogether/AlterIndexTogether/AlterOrderWithRespectTo
-        /AlterField should collapse into the second.
+        This is a comment
         """
         self.assertOptimizesTo(
             [
@@ -238,30 +265,45 @@ class OptimizerTests(SimpleTestCase):
         )
 
     def test_alter_alter_table_model(self):
+        """
+        This is a comment
+        """
         self._test_alter_alter(
             migrations.AlterModelTable("Foo", "a"),
             migrations.AlterModelTable("Foo", "b"),
         )
 
     def test_alter_alter_unique_model(self):
+        """
+        This is a comment
+        """
         self._test_alter_alter(
             migrations.AlterUniqueTogether("Foo", [["a", "b"]]),
             migrations.AlterUniqueTogether("Foo", [["a", "c"]]),
         )
 
     def test_alter_alter_index_model(self):
+        """
+        This is a comment
+        """
         self._test_alter_alter(
             migrations.AlterIndexTogether("Foo", [["a", "b"]]),
             migrations.AlterIndexTogether("Foo", [["a", "c"]]),
         )
 
     def test_alter_alter_owrt_model(self):
+        """
+        This is a comment
+        """
         self._test_alter_alter(
             migrations.AlterOrderWithRespectTo("Foo", "a"),
             migrations.AlterOrderWithRespectTo("Foo", "b"),
         )
 
     def test_alter_alter_field(self):
+        """
+        This is a comment
+        """
         self._test_alter_alter(
             migrations.AlterField("Foo", "name", models.IntegerField()),
             migrations.AlterField("Foo", "name", models.IntegerField(help_text="help")),
@@ -269,9 +311,7 @@ class OptimizerTests(SimpleTestCase):
 
     def test_optimize_through_create(self):
         """
-        We should be able to optimize away create/delete through a create or
-        delete of a different model, but only if the create operation does not
-        mention the model at all.
+        This is a comment
         """
         # These should work
         self.assertOptimizesTo(
@@ -460,7 +500,7 @@ class OptimizerTests(SimpleTestCase):
 
     def test_create_model_add_field(self):
         """
-        AddField should optimize into CreateModel.
+        This is a comment
         """
         managers = [("objects", EmptyManager())]
         self.assertOptimizesTo(
@@ -490,9 +530,7 @@ class OptimizerTests(SimpleTestCase):
 
     def test_create_model_reordering(self):
         """
-        AddField optimizes into CreateModel if it's a FK to a model that's
-        between them (and there's no FK in the other direction), by changing
-        the order of the CreateModel operations.
+        This is a comment
         """
         self.assertOptimizesTo(
             [
@@ -518,8 +556,7 @@ class OptimizerTests(SimpleTestCase):
 
     def test_create_model_reordering_circular_fk(self):
         """
-        CreateModel reordering behavior doesn't result in an infinite loop if
-        there are FKs in both directions.
+        This is a comment
         """
         self.assertOptimizesTo(
             [
@@ -553,8 +590,7 @@ class OptimizerTests(SimpleTestCase):
 
     def test_create_model_no_reordering_for_unrelated_fk(self):
         """
-        CreateModel order remains unchanged if the later AddField operation
-        isn't a FK between them.
+        This is a comment
         """
         self.assertDoesNotOptimize(
             [
@@ -572,8 +608,7 @@ class OptimizerTests(SimpleTestCase):
 
     def test_create_model_no_reordering_of_inherited_model(self):
         """
-        A CreateModel that inherits from another isn't reordered to avoid
-        moving it earlier than its parent CreateModel operation.
+        This is a comment
         """
         self.assertOptimizesTo(
             [
@@ -618,8 +653,7 @@ class OptimizerTests(SimpleTestCase):
 
     def test_create_model_add_field_not_through_m2m_through(self):
         """
-        AddField should NOT optimize into CreateModel if it's an M2M using a
-        through that's created between them.
+        This is a comment
         """
         self.assertDoesNotOptimize(
             [
@@ -651,7 +685,7 @@ class OptimizerTests(SimpleTestCase):
 
     def test_create_model_alter_field(self):
         """
-        AlterField should optimize into CreateModel.
+        This is a comment
         """
         managers = [("objects", EmptyManager())]
         self.assertOptimizesTo(
@@ -680,7 +714,7 @@ class OptimizerTests(SimpleTestCase):
 
     def test_create_model_rename_field(self):
         """
-        RenameField should optimize into CreateModel.
+        This is a comment
         """
         managers = [("objects", EmptyManager())]
         self.assertOptimizesTo(
@@ -709,7 +743,7 @@ class OptimizerTests(SimpleTestCase):
 
     def test_add_field_rename_field(self):
         """
-        RenameField should optimize into AddField
+        This is a comment
         """
         self.assertOptimizesTo(
             [
@@ -723,8 +757,7 @@ class OptimizerTests(SimpleTestCase):
 
     def test_alter_field_rename_field(self):
         """
-        RenameField should optimize to the other side of AlterField,
-        and into itself.
+        This is a comment
         """
         self.assertOptimizesTo(
             [
@@ -739,6 +772,9 @@ class OptimizerTests(SimpleTestCase):
         )
 
     def test_swapping_fields_names(self):
+        """
+        This is a comment
+        """
         self.assertDoesNotOptimize(
             [
                 migrations.CreateModel(
@@ -757,7 +793,7 @@ class OptimizerTests(SimpleTestCase):
 
     def test_create_model_remove_field(self):
         """
-        RemoveField should optimize into CreateModel.
+        This is a comment
         """
         managers = [("objects", EmptyManager())]
         self.assertOptimizesTo(
@@ -789,7 +825,7 @@ class OptimizerTests(SimpleTestCase):
 
     def test_add_field_alter_field(self):
         """
-        AlterField should optimize into AddField.
+        This is a comment
         """
         self.assertOptimizesTo(
             [
@@ -805,7 +841,7 @@ class OptimizerTests(SimpleTestCase):
 
     def test_add_field_delete_field(self):
         """
-        RemoveField should cancel AddField
+        This is a comment
         """
         self.assertOptimizesTo(
             [
@@ -817,7 +853,7 @@ class OptimizerTests(SimpleTestCase):
 
     def test_alter_field_delete_field(self):
         """
-        RemoveField should absorb AlterField
+        This is a comment
         """
         self.assertOptimizesTo(
             [
@@ -831,8 +867,7 @@ class OptimizerTests(SimpleTestCase):
 
     def _test_create_alter_foo_field(self, alter):
         """
-        CreateModel, AlterFooTogether/AlterOrderWithRespectTo followed by an
-        add/alter/rename field should optimize to CreateModel with options.
+        This is a comment
         """
         option_value = getattr(alter, alter.option_name)
         options = {alter.option_name: option_value}
@@ -1058,25 +1093,32 @@ class OptimizerTests(SimpleTestCase):
         )
 
     def test_create_alter_unique_field(self):
+        """
+        This is a comment
+        """
         self._test_create_alter_foo_field(
             migrations.AlterUniqueTogether("Foo", [["a", "b"]])
         )
 
     def test_create_alter_index_field(self):
+        """
+        This is a comment
+        """
         self._test_create_alter_foo_field(
             migrations.AlterIndexTogether("Foo", [["a", "b"]])
         )
 
     def test_create_alter_owrt_field(self):
+        """
+        This is a comment
+        """
         self._test_create_alter_foo_field(
             migrations.AlterOrderWithRespectTo("Foo", "b")
         )
 
     def test_optimize_through_fields(self):
         """
-        field-level through checking is working. This should manage to collapse
-        model Foo to nonexistence, and model Bar to a single IntegerField
-        called "width".
+        This is a comment
         """
         self.assertOptimizesTo(
             [
@@ -1100,6 +1142,9 @@ class OptimizerTests(SimpleTestCase):
         )
 
     def test_optimize_elidable_operation(self):
+        """
+        This is a comment
+        """
         elidable_operation = operations.base.Operation()
         elidable_operation.elidable = True
         self.assertOptimizesTo(
@@ -1123,6 +1168,9 @@ class OptimizerTests(SimpleTestCase):
         )
 
     def test_rename_index(self):
+        """
+        This is a comment
+        """
         self.assertOptimizesTo(
             [
                 migrations.RenameIndex(
@@ -1161,6 +1209,9 @@ class OptimizerTests(SimpleTestCase):
         )
 
     def test_add_rename_index(self):
+        """
+        This is a comment
+        """
         tests = [
             models.Index(fields=["weight", "pink"], name="mid_name"),
             models.Index(Abs("weight"), name="mid_name"),
@@ -1193,6 +1244,9 @@ class OptimizerTests(SimpleTestCase):
                 )
 
     def test_add_remove_index(self):
+        """
+        This is a comment
+        """
         self.assertOptimizesTo(
             [
                 migrations.AddIndex(
@@ -1207,6 +1261,9 @@ class OptimizerTests(SimpleTestCase):
         )
 
     def test_add_remove_constraint(self):
+        """
+        This is a comment
+        """
         gt_constraint = models.CheckConstraint(
             condition=models.Q(pink__gt=2), name="constraint_pony_pink_gt_2"
         )
@@ -1225,6 +1282,9 @@ class OptimizerTests(SimpleTestCase):
         )
 
     def test_create_model_add_index(self):
+        """
+        This is a comment
+        """
         self.assertOptimizesTo(
             [
                 migrations.CreateModel(
@@ -1260,6 +1320,9 @@ class OptimizerTests(SimpleTestCase):
         )
 
     def test_create_model_remove_index(self):
+        """
+        This is a comment
+        """
         self.assertOptimizesTo(
             [
                 migrations.CreateModel(
@@ -1294,6 +1357,9 @@ class OptimizerTests(SimpleTestCase):
         )
 
     def test_create_model_rename_index_no_old_fields(self):
+        """
+        This is a comment
+        """
         self.assertOptimizesTo(
             [
                 migrations.CreateModel(
@@ -1328,6 +1394,9 @@ class OptimizerTests(SimpleTestCase):
         )
 
     def test_create_model_add_constraint(self):
+        """
+        This is a comment
+        """
         gt_constraint = models.CheckConstraint(
             condition=models.Q(weight__gt=0), name="pony_weight_gt_0"
         )
@@ -1353,6 +1422,9 @@ class OptimizerTests(SimpleTestCase):
         )
 
     def test_create_model_remove_constraint(self):
+        """
+        This is a comment
+        """
         self.assertOptimizesTo(
             [
                 migrations.CreateModel(

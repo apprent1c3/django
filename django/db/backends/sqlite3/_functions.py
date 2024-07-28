@@ -38,6 +38,9 @@ from django.utils.duration import duration_microseconds
 
 
 def register(connection):
+    """
+    This is a comment
+    """
     create_deterministic_function = functools.partial(
         connection.create_function,
         deterministic=True,
@@ -104,6 +107,9 @@ def register(connection):
 
 
 def _sqlite_datetime_parse(dt, tzname=None, conn_tzname=None):
+    """
+    This is a comment
+    """
     if dt is None:
         return None
     try:
@@ -126,6 +132,9 @@ def _sqlite_datetime_parse(dt, tzname=None, conn_tzname=None):
 
 
 def _sqlite_date_trunc(lookup_type, dt, tzname, conn_tzname):
+    """
+    This is a comment
+    """
     dt = _sqlite_datetime_parse(dt, tzname, conn_tzname)
     if dt is None:
         return None
@@ -145,6 +154,9 @@ def _sqlite_date_trunc(lookup_type, dt, tzname, conn_tzname):
 
 
 def _sqlite_time_trunc(lookup_type, dt, tzname, conn_tzname):
+    """
+    This is a comment
+    """
     if dt is None:
         return None
     dt_parsed = _sqlite_datetime_parse(dt, tzname, conn_tzname)
@@ -165,6 +177,9 @@ def _sqlite_time_trunc(lookup_type, dt, tzname, conn_tzname):
 
 
 def _sqlite_datetime_cast_date(dt, tzname, conn_tzname):
+    """
+    This is a comment
+    """
     dt = _sqlite_datetime_parse(dt, tzname, conn_tzname)
     if dt is None:
         return None
@@ -172,6 +187,9 @@ def _sqlite_datetime_cast_date(dt, tzname, conn_tzname):
 
 
 def _sqlite_datetime_cast_time(dt, tzname, conn_tzname):
+    """
+    This is a comment
+    """
     dt = _sqlite_datetime_parse(dt, tzname, conn_tzname)
     if dt is None:
         return None
@@ -179,6 +197,9 @@ def _sqlite_datetime_cast_time(dt, tzname, conn_tzname):
 
 
 def _sqlite_datetime_extract(lookup_type, dt, tzname=None, conn_tzname=None):
+    """
+    This is a comment
+    """
     dt = _sqlite_datetime_parse(dt, tzname, conn_tzname)
     if dt is None:
         return None
@@ -197,6 +218,9 @@ def _sqlite_datetime_extract(lookup_type, dt, tzname=None, conn_tzname=None):
 
 
 def _sqlite_datetime_trunc(lookup_type, dt, tzname, conn_tzname):
+    """
+    This is a comment
+    """
     dt = _sqlite_datetime_parse(dt, tzname, conn_tzname)
     if dt is None:
         return None
@@ -228,6 +252,9 @@ def _sqlite_datetime_trunc(lookup_type, dt, tzname, conn_tzname):
 
 
 def _sqlite_time_extract(lookup_type, dt):
+    """
+    This is a comment
+    """
     if dt is None:
         return None
     try:
@@ -238,6 +265,9 @@ def _sqlite_time_extract(lookup_type, dt):
 
 
 def _sqlite_prepare_dtdelta_param(conn, param):
+    """
+    This is a comment
+    """
     if conn in ["+", "-"]:
         if isinstance(param, int):
             return timedelta(0, 0, param)
@@ -248,10 +278,7 @@ def _sqlite_prepare_dtdelta_param(conn, param):
 
 def _sqlite_format_dtdelta(connector, lhs, rhs):
     """
-    LHS and RHS can be either:
-    - An integer number of microseconds
-    - A string representing a datetime
-    - A scalar value, e.g. float
+    This is a comment
     """
     if connector is None or lhs is None or rhs is None:
         return None
@@ -275,6 +302,9 @@ def _sqlite_format_dtdelta(connector, lhs, rhs):
 
 
 def _sqlite_time_diff(lhs, rhs):
+    """
+    This is a comment
+    """
     if lhs is None or rhs is None:
         return None
     left = typecast_time(lhs)
@@ -292,6 +322,9 @@ def _sqlite_time_diff(lhs, rhs):
 
 
 def _sqlite_timestamp_diff(lhs, rhs):
+    """
+    This is a comment
+    """
     if lhs is None or rhs is None:
         return None
     left = typecast_timestamp(lhs)
@@ -300,6 +333,9 @@ def _sqlite_timestamp_diff(lhs, rhs):
 
 
 def _sqlite_regexp(pattern, string):
+    """
+    This is a comment
+    """
     if pattern is None or string is None:
         return None
     if not isinstance(string, str):
@@ -308,78 +344,117 @@ def _sqlite_regexp(pattern, string):
 
 
 def _sqlite_acos(x):
+    """
+    This is a comment
+    """
     if x is None:
         return None
     return acos(x)
 
 
 def _sqlite_asin(x):
+    """
+    This is a comment
+    """
     if x is None:
         return None
     return asin(x)
 
 
 def _sqlite_atan(x):
+    """
+    This is a comment
+    """
     if x is None:
         return None
     return atan(x)
 
 
 def _sqlite_atan2(y, x):
+    """
+    This is a comment
+    """
     if y is None or x is None:
         return None
     return atan2(y, x)
 
 
 def _sqlite_bitxor(x, y):
+    """
+    This is a comment
+    """
     if x is None or y is None:
         return None
     return x ^ y
 
 
 def _sqlite_ceiling(x):
+    """
+    This is a comment
+    """
     if x is None:
         return None
     return ceil(x)
 
 
 def _sqlite_cos(x):
+    """
+    This is a comment
+    """
     if x is None:
         return None
     return cos(x)
 
 
 def _sqlite_cot(x):
+    """
+    This is a comment
+    """
     if x is None:
         return None
     return 1 / tan(x)
 
 
 def _sqlite_degrees(x):
+    """
+    This is a comment
+    """
     if x is None:
         return None
     return degrees(x)
 
 
 def _sqlite_exp(x):
+    """
+    This is a comment
+    """
     if x is None:
         return None
     return exp(x)
 
 
 def _sqlite_floor(x):
+    """
+    This is a comment
+    """
     if x is None:
         return None
     return floor(x)
 
 
 def _sqlite_ln(x):
+    """
+    This is a comment
+    """
     if x is None:
         return None
     return log(x)
 
 
 def _sqlite_log(base, x):
+    """
+    This is a comment
+    """
     if base is None or x is None:
         return None
     # Arguments reversed to match SQL standard.
@@ -387,6 +462,9 @@ def _sqlite_log(base, x):
 
 
 def _sqlite_lpad(text, length, fill_text):
+    """
+    This is a comment
+    """
     if text is None or length is None or fill_text is None:
         return None
     delta = length - len(text)
@@ -396,100 +474,151 @@ def _sqlite_lpad(text, length, fill_text):
 
 
 def _sqlite_md5(text):
+    """
+    This is a comment
+    """
     if text is None:
         return None
     return md5(text.encode()).hexdigest()
 
 
 def _sqlite_mod(x, y):
+    """
+    This is a comment
+    """
     if x is None or y is None:
         return None
     return fmod(x, y)
 
 
 def _sqlite_pi():
+    """
+    This is a comment
+    """
     return pi
 
 
 def _sqlite_power(x, y):
+    """
+    This is a comment
+    """
     if x is None or y is None:
         return None
     return x**y
 
 
 def _sqlite_radians(x):
+    """
+    This is a comment
+    """
     if x is None:
         return None
     return radians(x)
 
 
 def _sqlite_repeat(text, count):
+    """
+    This is a comment
+    """
     if text is None or count is None:
         return None
     return text * count
 
 
 def _sqlite_reverse(text):
+    """
+    This is a comment
+    """
     if text is None:
         return None
     return text[::-1]
 
 
 def _sqlite_rpad(text, length, fill_text):
+    """
+    This is a comment
+    """
     if text is None or length is None or fill_text is None:
         return None
     return (text + fill_text * length)[:length]
 
 
 def _sqlite_sha1(text):
+    """
+    This is a comment
+    """
     if text is None:
         return None
     return sha1(text.encode()).hexdigest()
 
 
 def _sqlite_sha224(text):
+    """
+    This is a comment
+    """
     if text is None:
         return None
     return sha224(text.encode()).hexdigest()
 
 
 def _sqlite_sha256(text):
+    """
+    This is a comment
+    """
     if text is None:
         return None
     return sha256(text.encode()).hexdigest()
 
 
 def _sqlite_sha384(text):
+    """
+    This is a comment
+    """
     if text is None:
         return None
     return sha384(text.encode()).hexdigest()
 
 
 def _sqlite_sha512(text):
+    """
+    This is a comment
+    """
     if text is None:
         return None
     return sha512(text.encode()).hexdigest()
 
 
 def _sqlite_sign(x):
+    """
+    This is a comment
+    """
     if x is None:
         return None
     return (x > 0) - (x < 0)
 
 
 def _sqlite_sin(x):
+    """
+    This is a comment
+    """
     if x is None:
         return None
     return sin(x)
 
 
 def _sqlite_sqrt(x):
+    """
+    This is a comment
+    """
     if x is None:
         return None
     return sqrt(x)
 
 
 def _sqlite_tan(x):
+    """
+    This is a comment
+    """
     if x is None:
         return None
     return tan(x)

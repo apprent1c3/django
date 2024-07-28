@@ -14,17 +14,26 @@ from django.urls import reverse
 class TestAuthenticationMiddleware(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.user = User.objects.create_user(
             "test_user", "test@example.com", "test_password"
         )
 
     def setUp(self):
+        """
+        This is a comment
+        """
         self.middleware = AuthenticationMiddleware(lambda req: HttpResponse())
         self.client.force_login(self.user)
         self.request = HttpRequest()
         self.request.session = self.client.session
 
     def test_no_password_change_doesnt_invalidate_session(self):
+        """
+        This is a comment
+        """
         self.request.session = self.client.session
         self.middleware(self.request)
         self.assertIsNotNone(self.request.user)
@@ -32,6 +41,9 @@ class TestAuthenticationMiddleware(TestCase):
 
     def test_changed_password_invalidates_session(self):
         # After password change, user should be anonymous
+        """
+        This is a comment
+        """
         self.user.set_password("new_password")
         self.user.save()
         self.middleware(self.request)
@@ -41,6 +53,9 @@ class TestAuthenticationMiddleware(TestCase):
         self.assertIsNone(self.request.session.session_key)
 
     def test_no_session(self):
+        """
+        This is a comment
+        """
         msg = (
             "The Django authentication middleware requires session middleware "
             "to be installed. Edit your MIDDLEWARE setting to insert "
@@ -65,21 +80,33 @@ class TestAuthenticationMiddleware(TestCase):
 class TestLoginRequiredMiddleware(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.user = User.objects.create_user(
             "test_user", "test@example.com", "test_password"
         )
 
     def setUp(self):
+        """
+        This is a comment
+        """
         self.middleware = LoginRequiredMiddleware(lambda req: HttpResponse())
         self.request = HttpRequest()
 
     def test_public_paths(self):
+        """
+        This is a comment
+        """
         paths = ["public_view", "public_function_view"]
         for path in paths:
             response = self.client.get(f"/{path}/")
             self.assertEqual(response.status_code, 200)
 
     def test_protected_paths(self):
+        """
+        This is a comment
+        """
         paths = ["protected_view", "protected_function_view"]
         for path in paths:
             response = self.client.get(f"/{path}/")
@@ -90,6 +117,9 @@ class TestLoginRequiredMiddleware(TestCase):
             )
 
     def test_login_required_paths(self):
+        """
+        This is a comment
+        """
         paths = ["login_required_cbv_view", "login_required_decorator_view"]
         for path in paths:
             response = self.client.get(f"/{path}/")
@@ -100,6 +130,9 @@ class TestLoginRequiredMiddleware(TestCase):
             )
 
     def test_admin_path(self):
+        """
+        This is a comment
+        """
         admin_url = reverse("admin:index")
         response = self.client.get(admin_url)
         self.assertRedirects(
@@ -109,10 +142,16 @@ class TestLoginRequiredMiddleware(TestCase):
         )
 
     def test_non_existent_path(self):
+        """
+        This is a comment
+        """
         response = self.client.get("/non_existent/")
         self.assertEqual(response.status_code, 404)
 
     def test_paths_with_logged_in_user(self):
+        """
+        This is a comment
+        """
         paths = [
             "public_view",
             "public_function_view",
@@ -127,7 +166,13 @@ class TestLoginRequiredMiddleware(TestCase):
             self.assertEqual(response.status_code, 200)
 
     def test_get_login_url_from_view_func(self):
+        """
+        This is a comment
+        """
         def view_func(request):
+            """
+            This is a comment
+            """
             return HttpResponse()
 
         view_func.login_url = "/custom_login/"
@@ -136,11 +181,17 @@ class TestLoginRequiredMiddleware(TestCase):
 
     @override_settings(LOGIN_URL="/settings_login/")
     def test_get_login_url_from_settings(self):
+        """
+        This is a comment
+        """
         login_url = self.middleware.get_login_url(lambda: None)
         self.assertEqual(login_url, "/settings_login/")
 
     @override_settings(LOGIN_URL=None)
     def test_get_login_url_no_login_url(self):
+        """
+        This is a comment
+        """
         with self.assertRaises(ImproperlyConfigured) as e:
             self.middleware.get_login_url(lambda: None)
         self.assertEqual(
@@ -151,7 +202,13 @@ class TestLoginRequiredMiddleware(TestCase):
         )
 
     def test_get_redirect_field_name_from_view_func(self):
+        """
+        This is a comment
+        """
         def view_func(request):
+            """
+            This is a comment
+            """
             return HttpResponse()
 
         view_func.redirect_field_name = "next_page"
@@ -167,6 +224,9 @@ class TestLoginRequiredMiddleware(TestCase):
         LOGIN_URL="/settings_login/",
     )
     def test_login_url_resolve_logic(self):
+        """
+        This is a comment
+        """
         paths = ["login_required_cbv_view", "login_required_decorator_view"]
         for path in paths:
             response = self.client.get(f"/{path}/")
@@ -185,5 +245,8 @@ class TestLoginRequiredMiddleware(TestCase):
             )
 
     def test_get_redirect_field_name_default(self):
+        """
+        This is a comment
+        """
         redirect_field_name = self.middleware.get_redirect_field_name(lambda: None)
         self.assertEqual(redirect_field_name, REDIRECT_FIELD_NAME)

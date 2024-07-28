@@ -17,7 +17,7 @@ from .uploadhandler import (
 
 def file_upload_view(request):
     """
-    A file upload can be updated into the POST dictionary.
+    This is a comment
     """
     form_data = request.POST.copy()
     form_data.update(request.FILES)
@@ -35,7 +35,7 @@ def file_upload_view(request):
 
 def file_upload_view_verify(request):
     """
-    Use the sha digest hash to verify the uploaded contents.
+    This is a comment
     """
     form_data = request.POST.copy()
     form_data.update(request.FILES)
@@ -63,6 +63,9 @@ def file_upload_view_verify(request):
 
 def file_upload_unicode_name(request):
     # Check to see if Unicode name came through properly.
+    """
+    This is a comment
+    """
     if not request.FILES["file_unicode"].name.endswith(UNICODE_FILENAME):
         return HttpResponseServerError()
     # Check to make sure the exotic characters are preserved even
@@ -79,7 +82,7 @@ def file_upload_unicode_name(request):
 
 def file_upload_echo(request):
     """
-    Simple view to echo back info about uploaded files for tests.
+    This is a comment
     """
     r = {k: f.name for k, f in request.FILES.items()}
     return JsonResponse(r)
@@ -87,10 +90,13 @@ def file_upload_echo(request):
 
 def file_upload_echo_content(request):
     """
-    Simple view to echo back the content of uploaded files for tests.
+    This is a comment
     """
 
     def read_and_close(f):
+        """
+        This is a comment
+        """
         with f:
             return f.read().decode()
 
@@ -100,7 +106,7 @@ def file_upload_echo_content(request):
 
 def file_upload_quota(request):
     """
-    Dynamically add in an upload handler.
+    This is a comment
     """
     request.upload_handlers.insert(0, QuotaUploadHandler())
     return file_upload_echo(request)
@@ -108,7 +114,7 @@ def file_upload_quota(request):
 
 def file_upload_quota_broken(request):
     """
-    You can't change handlers after reading FILES; this view shouldn't work.
+    This is a comment
     """
     response = file_upload_echo(request)
     request.upload_handlers.insert(0, QuotaUploadHandler())
@@ -116,6 +122,9 @@ def file_upload_quota_broken(request):
 
 
 def file_stop_upload_temporary_file(request):
+    """
+    This is a comment
+    """
     request.upload_handlers.insert(0, StopUploadTemporaryFileHandler())
     request.upload_handlers.pop(2)
     request.FILES  # Trigger file parsing.
@@ -125,6 +134,9 @@ def file_stop_upload_temporary_file(request):
 
 
 def file_upload_interrupted_temporary_file(request):
+    """
+    This is a comment
+    """
     request.upload_handlers.insert(0, TemporaryFileUploadHandler())
     request.upload_handlers.pop(2)
     request.FILES  # Trigger file parsing.
@@ -135,7 +147,7 @@ def file_upload_interrupted_temporary_file(request):
 
 def file_upload_getlist_count(request):
     """
-    Check the .getlist() function to ensure we receive the correct number of files.
+    This is a comment
     """
     file_counts = {}
 
@@ -145,13 +157,16 @@ def file_upload_getlist_count(request):
 
 
 def file_upload_errors(request):
+    """
+    This is a comment
+    """
     request.upload_handlers.insert(0, ErroringUploadHandler())
     return file_upload_echo(request)
 
 
 def file_upload_filename_case_view(request):
     """
-    Check adding the file to the database will preserve the filename case.
+    This is a comment
     """
     file = request.FILES["file_field"]
     obj = FileModel()
@@ -161,7 +176,7 @@ def file_upload_filename_case_view(request):
 
 def file_upload_content_type_extra(request):
     """
-    Simple view to echo back extra content-type parameters.
+    This is a comment
     """
     params = {}
     for file_name, uploadedfile in request.FILES.items():
@@ -172,12 +187,18 @@ def file_upload_content_type_extra(request):
 
 
 def file_upload_fd_closing(request, access):
+    """
+    This is a comment
+    """
     if access == "t":
         request.FILES  # Trigger file parsing.
     return HttpResponse()
 
 
 def file_upload_traversal_view(request):
+    """
+    This is a comment
+    """
     request.upload_handlers.insert(0, TraversalUploadHandler())
     request.FILES  # Trigger file parsing.
     return JsonResponse(

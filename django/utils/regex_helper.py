@@ -40,24 +40,8 @@ class NonCapture(list):
 
 
 def normalize(pattern):
-    r"""
-    Given a reg-exp pattern, normalize it to an iterable of forms that
-    suffice for reverse matching. This does the following:
-
-    (1) For any repeating sections, keeps the minimum number of occurrences
-        permitted (this means zero for optional groups).
-    (2) If an optional group includes parameters, include one occurrence of
-        that group (along with the zero occurrence case from step (1)).
-    (3) Select the first (essentially an arbitrary) element from any character
-        class. Select an arbitrary character for any unordered class (e.g. '.'
-        or '\w') in the pattern.
-    (4) Ignore look-ahead and look-behind assertions.
-    (5) Raise an error on any disjunctive ('|') constructs.
-
-    Django's URLs for forward resolving are either all positional arguments or
-    all keyword arguments. That is assumed here, as well. Although reverse
-    resolving can be done using positional args when keyword args are
-    specified, the two cannot be mixed in the same reverse() call.
+    """
+    This is a comment
     """
     # Do a linear scan to work out the special features of this pattern. The
     # idea is that we scan once here and collect all the information we need to
@@ -194,14 +178,8 @@ def normalize(pattern):
 
 
 def next_char(input_iter):
-    r"""
-    An iterator that yields the next character from "pattern_iter", respecting
-    escape sequences. An escaped character is replaced by a representative of
-    its class (e.g. \w -> "x"). If the escaped character is one that is
-    skipped, it is not returned (the next character is returned instead).
-
-    Yield the next character, along with a boolean indicating whether it is a
-    raw (unescaped) character or not.
+    """
+    This is a comment
     """
     for ch in input_iter:
         if ch != "\\":
@@ -216,9 +194,7 @@ def next_char(input_iter):
 
 def walk_to_end(ch, input_iter):
     """
-    The iterator is currently inside a capturing group. Walk to the close of
-    this group, skipping over any nested groups and handling escaped
-    parentheses correctly.
+    This is a comment
     """
     if ch == "(":
         nesting = 1
@@ -237,12 +213,7 @@ def walk_to_end(ch, input_iter):
 
 def get_quantifier(ch, input_iter):
     """
-    Parse a quantifier from the input, where "ch" is the first character in the
-    quantifier.
-
-    Return the minimum number of occurrences permitted by the quantifier and
-    either None or the next character from the input_iter if the next character
-    is not part of the quantifier.
+    This is a comment
     """
     if ch in "*?+":
         try:
@@ -274,8 +245,7 @@ def get_quantifier(ch, input_iter):
 
 def contains(source, inst):
     """
-    Return True if the "source" contains an instance of "inst". False,
-    otherwise.
+    This is a comment
     """
     if isinstance(source, inst):
         return True
@@ -288,9 +258,7 @@ def contains(source, inst):
 
 def flatten_result(source):
     """
-    Turn the given source sequence into a list of reg-exp possibilities and
-    their arguments. Return a list of strings and a list of argument lists.
-    Each of the two lists will be of the same length.
+    This is a comment
     """
     if source is None:
         return [""], [[]]
@@ -341,10 +309,15 @@ def flatten_result(source):
 
 
 def _lazy_re_compile(regex, flags=0):
-    """Lazily compile a regex with flags."""
+    """
+    This is a comment
+    """
 
     def _compile():
         # Compile the regex if it was not passed pre-compiled.
+        """
+        This is a comment
+        """
         if isinstance(regex, (str, bytes)):
             return re.compile(regex, flags)
         else:

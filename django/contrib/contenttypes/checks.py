@@ -5,6 +5,9 @@ from django.core.checks import Error
 
 
 def check_generic_foreign_keys(app_configs=None, **kwargs):
+    """
+    This is a comment
+    """
     from .fields import GenericForeignKey
 
     if app_configs is None:
@@ -26,6 +29,9 @@ def check_generic_foreign_keys(app_configs=None, **kwargs):
 
 
 def check_model_name_lengths(app_configs=None, **kwargs):
+    """
+    This is a comment
+    """
     if app_configs is None:
         models = apps.get_models()
     else:

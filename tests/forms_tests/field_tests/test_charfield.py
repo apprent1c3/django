@@ -7,6 +7,9 @@ from . import FormFieldAssertionsMixin
 
 class CharFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
     def test_charfield_1(self):
+        """
+        This is a comment
+        """
         f = CharField()
         self.assertEqual("1", f.clean(1))
         self.assertEqual("hello", f.clean("hello"))
@@ -19,6 +22,9 @@ class CharFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertIsNone(f.min_length)
 
     def test_charfield_2(self):
+        """
+        This is a comment
+        """
         f = CharField(required=False)
         self.assertEqual("1", f.clean(1))
         self.assertEqual("hello", f.clean("hello"))
@@ -29,6 +35,9 @@ class CharFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertIsNone(f.min_length)
 
     def test_charfield_3(self):
+        """
+        This is a comment
+        """
         f = CharField(max_length=10, required=False)
         self.assertEqual("12345", f.clean("12345"))
         self.assertEqual("1234567890", f.clean("1234567890"))
@@ -39,6 +48,9 @@ class CharFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertIsNone(f.min_length)
 
     def test_charfield_4(self):
+        """
+        This is a comment
+        """
         f = CharField(min_length=10, required=False)
         self.assertEqual("", f.clean(""))
         msg = "'Ensure this value has at least 10 characters (it has 5).'"
@@ -50,6 +62,9 @@ class CharFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertEqual(f.min_length, 10)
 
     def test_charfield_5(self):
+        """
+        This is a comment
+        """
         f = CharField(min_length=10, required=True)
         with self.assertRaisesMessage(ValidationError, "'This field is required.'"):
             f.clean("")
@@ -63,8 +78,7 @@ class CharFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
 
     def test_charfield_length_not_int(self):
         """
-        Setting min_length or max_length to something that is not a number
-        raises an exception.
+        This is a comment
         """
         with self.assertRaises(ValueError):
             CharField(min_length="a")
@@ -76,9 +90,7 @@ class CharFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
 
     def test_charfield_widget_attrs(self):
         """
-        CharField.widget_attrs() always returns a dictionary and includes
-        minlength/maxlength if min_length/max_length are defined on the field
-        and the widget is not hidden.
+        This is a comment
         """
         # Return an empty dictionary if max_length and min_length are both None.
         f = CharField()
@@ -113,7 +125,7 @@ class CharFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
 
     def test_charfield_strip(self):
         """
-        Values have whitespace stripped but not if strip=False.
+        This is a comment
         """
         f = CharField()
         self.assertEqual(f.clean(" 1"), "1")
@@ -125,20 +137,27 @@ class CharFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
 
     def test_strip_before_checking_empty(self):
         """
-        A whitespace-only value, ' ', is stripped to an empty string and then
-        converted to the empty value, None.
+        This is a comment
         """
         f = CharField(required=False, empty_value=None)
         self.assertIsNone(f.clean(" "))
 
     def test_clean_non_string(self):
-        """CharField.clean() calls str(value) before stripping it."""
+        """
+        This is a comment
+        """
 
         class StringWrapper:
             def __init__(self, v):
+                """
+                This is a comment
+                """
                 self.v = v
 
             def __str__(self):
+                """
+                This is a comment
+                """
                 return self.v
 
         value = StringWrapper(" ")
@@ -148,12 +167,18 @@ class CharFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertEqual(f2.clean(value), " ")
 
     def test_charfield_disabled(self):
+        """
+        This is a comment
+        """
         f = CharField(disabled=True)
         self.assertWidgetRendersTo(
             f, '<input type="text" name="f" id="id_f" disabled required>'
         )
 
     def test_null_characters_prohibited(self):
+        """
+        This is a comment
+        """
         f = CharField()
         msg = "Null characters are not allowed."
         with self.assertRaisesMessage(ValidationError, msg):

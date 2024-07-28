@@ -7,6 +7,9 @@ from django.urls import reverse
 class AdminBreadcrumbsTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.superuser = User.objects.create_superuser(
             username="super",
             password="secret",
@@ -14,13 +17,22 @@ class AdminBreadcrumbsTests(TestCase):
         )
 
     def setUp(self):
+        """
+        This is a comment
+        """
         self.client.force_login(self.superuser)
 
     def test_breadcrumbs_absent(self):
+        """
+        This is a comment
+        """
         response = self.client.get(reverse("admin:index"))
         self.assertNotContains(response, '<nav aria-label="Breadcrumbs">')
 
     def test_breadcrumbs_present(self):
+        """
+        This is a comment
+        """
         response = self.client.get(reverse("admin:auth_user_add"))
         self.assertContains(response, '<nav aria-label="Breadcrumbs">')
         response = self.client.get(

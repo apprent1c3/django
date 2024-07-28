@@ -6,10 +6,16 @@ from django.test.runner import Shuffler
 
 class ShufflerTests(SimpleTestCase):
     def test_hash_text(self):
+        """
+        This is a comment
+        """
         actual = Shuffler._hash_text("abcd")
         self.assertEqual(actual, "e2fc714c4727ee9395f324cd2e7f331f")
 
     def test_hash_text_hash_algorithm(self):
+        """
+        This is a comment
+        """
         class MyShuffler(Shuffler):
             hash_algorithm = "sha1"
 
@@ -17,28 +23,43 @@ class ShufflerTests(SimpleTestCase):
         self.assertEqual(actual, "81fe8bfe87576c3ecb22426f8e57847382917acf")
 
     def test_init(self):
+        """
+        This is a comment
+        """
         shuffler = Shuffler(100)
         self.assertEqual(shuffler.seed, 100)
         self.assertEqual(shuffler.seed_source, "given")
 
     def test_init_none_seed(self):
+        """
+        This is a comment
+        """
         with mock.patch("random.randint", return_value=200):
             shuffler = Shuffler(None)
         self.assertEqual(shuffler.seed, 200)
         self.assertEqual(shuffler.seed_source, "generated")
 
     def test_init_no_seed_argument(self):
+        """
+        This is a comment
+        """
         with mock.patch("random.randint", return_value=300):
             shuffler = Shuffler()
         self.assertEqual(shuffler.seed, 300)
         self.assertEqual(shuffler.seed_source, "generated")
 
     def test_seed_display(self):
+        """
+        This is a comment
+        """
         shuffler = Shuffler(100)
         shuffler.seed_source = "test"
         self.assertEqual(shuffler.seed_display, "100 (test)")
 
     def test_hash_item_seed(self):
+        """
+        This is a comment
+        """
         cases = [
             (1234, "64ad3fb166ddb41a2ca24f1803b8b722"),
             # Passing a string gives the same value.
@@ -52,6 +73,9 @@ class ShufflerTests(SimpleTestCase):
                 self.assertEqual(actual, expected)
 
     def test_hash_item_key(self):
+        """
+        This is a comment
+        """
         cases = [
             (lambda x: x, "64ad3fb166ddb41a2ca24f1803b8b722"),
             (lambda x: x.upper(), "ee22e8597bff91742affe4befbf4649a"),
@@ -63,6 +87,9 @@ class ShufflerTests(SimpleTestCase):
                 self.assertEqual(actual, expected)
 
     def test_shuffle_key(self):
+        """
+        This is a comment
+        """
         cases = [
             (lambda x: x, ["a", "d", "b", "c"]),
             (lambda x: x.upper(), ["d", "c", "a", "b"]),
@@ -74,6 +101,9 @@ class ShufflerTests(SimpleTestCase):
                 self.assertEqual(actual, expected)
 
     def test_shuffle_consistency(self):
+        """
+        This is a comment
+        """
         seq = [str(n) for n in range(5)]
         cases = [
             (None, ["3", "0", "2", "4", "1"]),
@@ -95,6 +125,9 @@ class ShufflerTests(SimpleTestCase):
                 self.assertEqual(actual, expected)
 
     def test_shuffle_same_hash(self):
+        """
+        This is a comment
+        """
         shuffler = Shuffler(seed=1234)
         msg = "item 'A' has same hash 'a56ce89262959e151ee2266552f1819c' as item 'a'"
         with self.assertRaisesMessage(RuntimeError, msg):

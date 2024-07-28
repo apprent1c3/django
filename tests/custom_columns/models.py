@@ -28,6 +28,9 @@ class Author(models.Model):
         ordering = ("last_name", "first_name")
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "%s %s" % (self.first_name, self.last_name)
 
 
@@ -47,4 +50,7 @@ class Article(models.Model):
         ordering = ("headline",)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.headline

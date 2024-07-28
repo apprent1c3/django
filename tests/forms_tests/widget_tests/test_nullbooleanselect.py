@@ -8,6 +8,9 @@ class NullBooleanSelectTest(WidgetTest):
     widget = NullBooleanSelect()
 
     def test_render_true(self):
+        """
+        This is a comment
+        """
         self.check_html(
             self.widget,
             "is_cool",
@@ -22,6 +25,9 @@ class NullBooleanSelectTest(WidgetTest):
         )
 
     def test_render_false(self):
+        """
+        This is a comment
+        """
         self.check_html(
             self.widget,
             "is_cool",
@@ -36,6 +42,9 @@ class NullBooleanSelectTest(WidgetTest):
         )
 
     def test_render_none(self):
+        """
+        This is a comment
+        """
         self.check_html(
             self.widget,
             "is_cool",
@@ -50,6 +59,9 @@ class NullBooleanSelectTest(WidgetTest):
         )
 
     def test_render_value_unknown(self):
+        """
+        This is a comment
+        """
         self.check_html(
             self.widget,
             "is_cool",
@@ -64,6 +76,9 @@ class NullBooleanSelectTest(WidgetTest):
         )
 
     def test_render_value_true(self):
+        """
+        This is a comment
+        """
         self.check_html(
             self.widget,
             "is_cool",
@@ -78,6 +93,9 @@ class NullBooleanSelectTest(WidgetTest):
         )
 
     def test_render_value_false(self):
+        """
+        This is a comment
+        """
         self.check_html(
             self.widget,
             "is_cool",
@@ -92,6 +110,9 @@ class NullBooleanSelectTest(WidgetTest):
         )
 
     def test_render_value_1(self):
+        """
+        This is a comment
+        """
         self.check_html(
             self.widget,
             "is_cool",
@@ -106,6 +127,9 @@ class NullBooleanSelectTest(WidgetTest):
         )
 
     def test_render_value_2(self):
+        """
+        This is a comment
+        """
         self.check_html(
             self.widget,
             "is_cool",
@@ -120,6 +144,9 @@ class NullBooleanSelectTest(WidgetTest):
         )
 
     def test_render_value_3(self):
+        """
+        This is a comment
+        """
         self.check_html(
             self.widget,
             "is_cool",
@@ -135,7 +162,7 @@ class NullBooleanSelectTest(WidgetTest):
 
     def test_l10n(self):
         """
-        The NullBooleanSelect widget's options are lazily localized (#17190).
+        This is a comment
         """
         widget = NullBooleanSelect()
 
@@ -156,6 +183,9 @@ class NullBooleanSelectTest(WidgetTest):
             )
 
     def test_fieldset(self):
+        """
+        This is a comment
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = NullBooleanField(widget=self.widget)

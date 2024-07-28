@@ -33,6 +33,9 @@ from .models import (
 class NestedForeignKeysTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.director = Person.objects.create(name="Terry Gilliam / Terry Jones")
         cls.movie = Movie.objects.create(
             title="Monty Python and the Holy Grail", director=cls.director
@@ -41,6 +44,9 @@ class NestedForeignKeysTests(TestCase):
     # This test failed in #16715 because in some cases INNER JOIN was selected
     # for the second foreign key relation instead of LEFT OUTER JOIN.
     def test_inheritance(self):
+        """
+        This is a comment
+        """
         Event.objects.create()
         Screening.objects.create(movie=self.movie)
 
@@ -67,6 +73,9 @@ class NestedForeignKeysTests(TestCase):
 
     # These all work because the second foreign key in the chain has null=True.
     def test_inheritance_null_FK(self):
+        """
+        This is a comment
+        """
         Event.objects.create()
         ScreeningNullFK.objects.create(movie=None)
         ScreeningNullFK.objects.create(movie=self.movie)
@@ -96,6 +105,9 @@ class NestedForeignKeysTests(TestCase):
         )
 
     def test_null_exclude(self):
+        """
+        This is a comment
+        """
         screening = ScreeningNullFK.objects.create(movie=None)
         ScreeningNullFK.objects.create(movie=self.movie)
         self.assertEqual(
@@ -105,6 +117,9 @@ class NestedForeignKeysTests(TestCase):
     # This test failed in #16715 because in some cases INNER JOIN was selected
     # for the second foreign key relation instead of LEFT OUTER JOIN.
     def test_explicit_ForeignKey(self):
+        """
+        This is a comment
+        """
         Package.objects.create()
         screening = Screening.objects.create(movie=self.movie)
         Package.objects.create(screening=screening)
@@ -134,6 +149,9 @@ class NestedForeignKeysTests(TestCase):
 
     # These all work because the second foreign key in the chain has null=True.
     def test_explicit_ForeignKey_NullFK(self):
+        """
+        This is a comment
+        """
         PackageNullFK.objects.create()
         screening = ScreeningNullFK.objects.create(movie=None)
         screening_with_movie = ScreeningNullFK.objects.create(movie=self.movie)
@@ -175,12 +193,18 @@ class NestedForeignKeysTests(TestCase):
 class DeeplyNestedForeignKeysTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.director = Person.objects.create(name="Terry Gilliam / Terry Jones")
         cls.movie = Movie.objects.create(
             title="Monty Python and the Holy Grail", director=cls.director
         )
 
     def test_inheritance(self):
+        """
+        This is a comment
+        """
         Event.objects.create()
         Screening.objects.create(movie=self.movie)
 
@@ -243,6 +267,9 @@ class DeeplyNestedForeignKeysTests(TestCase):
         )
 
     def test_explicit_ForeignKey(self):
+        """
+        This is a comment
+        """
         Package.objects.create()
         screening = Screening.objects.create(movie=self.movie)
         Package.objects.create(screening=screening)

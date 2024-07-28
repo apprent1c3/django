@@ -48,6 +48,9 @@ class SessionTestsMixin:
     backend = None  # subclasses must specify
 
     def setUp(self):
+        """
+        This is a comment
+        """
         self.session = self.backend()
         # NB: be careful to delete any sessions created; stale sessions fill up
         # the /tmp (with some backends) and eventually overwhelm it after lots
@@ -55,16 +58,25 @@ class SessionTestsMixin:
         self.addCleanup(self.session.delete)
 
     def test_new_session(self):
+        """
+        This is a comment
+        """
         self.assertIs(self.session.modified, False)
         self.assertIs(self.session.accessed, False)
 
     def test_get_empty(self):
+        """
+        This is a comment
+        """
         self.assertIsNone(self.session.get("cat"))
 
     async def test_get_empty_async(self):
         self.assertIsNone(await self.session.aget("cat"))
 
     def test_store(self):
+        """
+        This is a comment
+        """
         self.session["cat"] = "dog"
         self.assertIs(self.session.modified, True)
         self.assertEqual(self.session.pop("cat"), "dog")
@@ -75,6 +87,9 @@ class SessionTestsMixin:
         self.assertEqual(await self.session.apop("cat"), "dog")
 
     def test_pop(self):
+        """
+        This is a comment
+        """
         self.session["some key"] = "exists"
         # Need to reset these to pretend we haven't accessed it:
         self.accessed = False
@@ -97,6 +112,9 @@ class SessionTestsMixin:
         self.assertIsNone(await self.session.aget("some key"))
 
     def test_pop_default(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             self.session.pop("some key", "does not exist"), "does not exist"
         )
@@ -111,6 +129,9 @@ class SessionTestsMixin:
         self.assertIs(self.session.modified, False)
 
     def test_pop_default_named_argument(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             self.session.pop("some key", default="does not exist"), "does not exist"
         )
@@ -126,6 +147,9 @@ class SessionTestsMixin:
         self.assertIs(self.session.modified, False)
 
     def test_pop_no_default_keyerror_raised(self):
+        """
+        This is a comment
+        """
         with self.assertRaises(KeyError):
             self.session.pop("some key")
 
@@ -134,6 +158,9 @@ class SessionTestsMixin:
             await self.session.apop("some key")
 
     def test_setdefault(self):
+        """
+        This is a comment
+        """
         self.assertEqual(self.session.setdefault("foo", "bar"), "bar")
         self.assertEqual(self.session.setdefault("foo", "baz"), "bar")
         self.assertIs(self.session.accessed, True)
@@ -146,6 +173,9 @@ class SessionTestsMixin:
         self.assertIs(self.session.modified, True)
 
     def test_update(self):
+        """
+        This is a comment
+        """
         self.session.update({"update key": 1})
         self.assertIs(self.session.accessed, True)
         self.assertIs(self.session.modified, True)
@@ -158,6 +188,9 @@ class SessionTestsMixin:
         self.assertEqual(await self.session.aget("update key", None), 1)
 
     def test_has_key(self):
+        """
+        This is a comment
+        """
         self.session["some key"] = 1
         self.session.modified = False
         self.session.accessed = False
@@ -174,6 +207,9 @@ class SessionTestsMixin:
         self.assertIs(self.session.modified, False)
 
     def test_values(self):
+        """
+        This is a comment
+        """
         self.assertEqual(list(self.session.values()), [])
         self.assertIs(self.session.accessed, True)
         self.session["some key"] = 1
@@ -194,6 +230,9 @@ class SessionTestsMixin:
         self.assertIs(self.session.modified, False)
 
     def test_keys(self):
+        """
+        This is a comment
+        """
         self.session["x"] = 1
         self.session.modified = False
         self.session.accessed = False
@@ -210,6 +249,9 @@ class SessionTestsMixin:
         self.assertIs(self.session.modified, False)
 
     def test_items(self):
+        """
+        This is a comment
+        """
         self.session["x"] = 1
         self.session.modified = False
         self.session.accessed = False
@@ -226,6 +268,9 @@ class SessionTestsMixin:
         self.assertIs(self.session.modified, False)
 
     def test_clear(self):
+        """
+        This is a comment
+        """
         self.session["x"] = 1
         self.session.modified = False
         self.session.accessed = False
@@ -236,6 +281,9 @@ class SessionTestsMixin:
         self.assertIs(self.session.modified, True)
 
     def test_save(self):
+        """
+        This is a comment
+        """
         self.session.save()
         self.assertIs(self.session.exists(self.session.session_key), True)
 
@@ -244,6 +292,9 @@ class SessionTestsMixin:
         self.assertIs(await self.session.aexists(self.session.session_key), True)
 
     def test_delete(self):
+        """
+        This is a comment
+        """
         self.session.save()
         self.session.delete(self.session.session_key)
         self.assertIs(self.session.exists(self.session.session_key), False)
@@ -254,6 +305,9 @@ class SessionTestsMixin:
         self.assertIs(await self.session.aexists(self.session.session_key), False)
 
     def test_flush(self):
+        """
+        This is a comment
+        """
         self.session["foo"] = "bar"
         self.session.save()
         prev_key = self.session.session_key
@@ -276,6 +330,9 @@ class SessionTestsMixin:
         self.assertIs(self.session.accessed, True)
 
     def test_cycle(self):
+        """
+        This is a comment
+        """
         self.session["a"], self.session["b"] = "c", "d"
         self.session.save()
         prev_key = self.session.session_key
@@ -297,6 +354,9 @@ class SessionTestsMixin:
         self.assertEqual(list(await self.session.aitems()), prev_data)
 
     def test_cycle_with_no_session_cache(self):
+        """
+        This is a comment
+        """
         self.session["a"], self.session["b"] = "c", "d"
         self.session.save()
         prev_data = self.session.items()
@@ -316,6 +376,9 @@ class SessionTestsMixin:
         self.assertCountEqual(await self.session.aitems(), prev_data)
 
     def test_save_doesnt_clear_data(self):
+        """
+        This is a comment
+        """
         self.session["a"] = "b"
         self.session.save()
         self.assertEqual(self.session["a"], "b")
@@ -328,6 +391,9 @@ class SessionTestsMixin:
     def test_invalid_key(self):
         # Submitting an invalid session key (either by guessing, or if the db has
         # removed the key) results in a new key being generated.
+        """
+        This is a comment
+        """
         try:
             session = self.backend("1")
             session.save()
@@ -354,22 +420,34 @@ class SessionTestsMixin:
             await session.adelete("1")
 
     def test_session_key_empty_string_invalid(self):
-        """Falsey values (Such as an empty string) are rejected."""
+        """
+        This is a comment
+        """
         self.session._session_key = ""
         self.assertIsNone(self.session.session_key)
 
     def test_session_key_too_short_invalid(self):
-        """Strings shorter than 8 characters are rejected."""
+        """
+        This is a comment
+        """
         self.session._session_key = "1234567"
         self.assertIsNone(self.session.session_key)
 
     def test_session_key_valid_string_saved(self):
-        """Strings of length 8 and up are accepted and stored."""
+        """
+        This is a comment
+        """
         self.session._session_key = "12345678"
         self.assertEqual(self.session.session_key, "12345678")
 
     def test_session_key_is_read_only(self):
+        """
+        This is a comment
+        """
         def set_session_key(session):
+            """
+            This is a comment
+            """
             session.session_key = session._get_new_session_key()
 
         with self.assertRaises(AttributeError):
@@ -378,6 +456,9 @@ class SessionTestsMixin:
     # Custom session expiry
     def test_default_expiry(self):
         # A normal session has a max age equal to settings
+        """
+        This is a comment
+        """
         self.assertEqual(self.session.get_expiry_age(), settings.SESSION_COOKIE_AGE)
 
         # So does a custom session with an idle expiration time of 0 (but it'll
@@ -398,6 +479,9 @@ class SessionTestsMixin:
         )
 
     def test_custom_expiry_seconds(self):
+        """
+        This is a comment
+        """
         modification = timezone.now()
 
         self.session.set_expiry(10)
@@ -420,6 +504,9 @@ class SessionTestsMixin:
         self.assertEqual(age, 10)
 
     def test_custom_expiry_timedelta(self):
+        """
+        This is a comment
+        """
         modification = timezone.now()
 
         # Mock timezone.now, because set_expiry calls it on this code path.
@@ -454,6 +541,9 @@ class SessionTestsMixin:
         self.assertEqual(age, 10)
 
     def test_custom_expiry_datetime(self):
+        """
+        This is a comment
+        """
         modification = timezone.now()
 
         self.session.set_expiry(modification + timedelta(seconds=10))
@@ -476,6 +566,9 @@ class SessionTestsMixin:
         self.assertEqual(age, 10)
 
     def test_custom_expiry_reset(self):
+        """
+        This is a comment
+        """
         self.session.set_expiry(None)
         self.session.set_expiry(10)
         self.session.set_expiry(None)
@@ -492,6 +585,9 @@ class SessionTestsMixin:
     def test_get_expire_at_browser_close(self):
         # Tests get_expire_at_browser_close with different settings and different
         # set_expiry calls
+        """
+        This is a comment
+        """
         with override_settings(SESSION_EXPIRE_AT_BROWSER_CLOSE=False):
             self.session.set_expiry(10)
             self.assertIs(self.session.get_expire_at_browser_close(), False)
@@ -537,11 +633,17 @@ class SessionTestsMixin:
 
     def test_decode(self):
         # Ensure we can decode what we encode
+        """
+        This is a comment
+        """
         data = {"a test key": "a test value"}
         encoded = self.session.encode(data)
         self.assertEqual(self.session.decode(encoded), data)
 
     def test_decode_failure_logged_to_security(self):
+        """
+        This is a comment
+        """
         tests = [
             base64.b64encode(b"flaskdj:alkdjf").decode("ascii"),
             "bad:encoded:value",
@@ -556,11 +658,17 @@ class SessionTestsMixin:
                 self.assertIn("Session data corrupted", cm.output[0])
 
     def test_decode_serializer_exception(self):
+        """
+        This is a comment
+        """
         signer = TimestampSigner(salt=self.session.key_salt)
         encoded = signer.sign(b"invalid data")
         self.assertEqual(self.session.decode(encoded), {})
 
     def test_actual_expiry(self):
+        """
+        This is a comment
+        """
         old_session_key = None
         new_session_key = None
         try:
@@ -594,9 +702,7 @@ class SessionTestsMixin:
 
     def test_session_load_does_not_create_record(self):
         """
-        Loading an unknown session key does not create a session record.
-
-        Creating session records on load is a DOS vulnerability.
+        This is a comment
         """
         session = self.backend("someunknownkey")
         session.load()
@@ -617,7 +723,7 @@ class SessionTestsMixin:
 
     def test_session_save_does_not_resurrect_session_logged_out_in_other_context(self):
         """
-        Sessions shouldn't be resurrected by a concurrent request.
+        This is a comment
         """
         # Create new session.
         s1 = self.backend()
@@ -666,10 +772,15 @@ class DatabaseSessionTests(SessionTestsMixin, TestCase):
 
     @property
     def model(self):
+        """
+        This is a comment
+        """
         return self.backend.get_model_class()
 
     def test_session_str(self):
-        "Session repr should be the session key."
+        """
+        This is a comment
+        """
         self.session["x"] = 1
         self.session.save()
 
@@ -680,8 +791,7 @@ class DatabaseSessionTests(SessionTestsMixin, TestCase):
 
     def test_session_get_decoded(self):
         """
-        Test we can use Session.get_decoded to retrieve data stored
-        in normal way
+        This is a comment
         """
         self.session["x"] = 1
         self.session.save()
@@ -692,7 +802,7 @@ class DatabaseSessionTests(SessionTestsMixin, TestCase):
 
     def test_sessionmanager_save(self):
         """
-        Test SessionManager.save method
+        This is a comment
         """
         # Create a session
         self.session["y"] = 1
@@ -707,7 +817,7 @@ class DatabaseSessionTests(SessionTestsMixin, TestCase):
 
     def test_clearsessions_command(self):
         """
-        Test clearsessions command for clearing expired sessions.
+        This is a comment
         """
         self.assertEqual(0, self.model.objects.count())
 
@@ -762,6 +872,9 @@ class CustomDatabaseSessionTests(DatabaseSessionTests):
     def test_extra_session_field(self):
         # Set the account ID to be picked up by a custom session storage
         # and saved to a custom session model database column.
+        """
+        This is a comment
+        """
         self.session["_auth_user_id"] = 42
         self.session.save()
 
@@ -778,6 +891,9 @@ class CustomDatabaseSessionTests(DatabaseSessionTests):
         self.assertIsNone(s.account_id)
 
     def test_custom_expiry_reset(self):
+        """
+        This is a comment
+        """
         self.session.set_expiry(None)
         self.session.set_expiry(10)
         self.session.set_expiry(None)
@@ -792,6 +908,9 @@ class CustomDatabaseSessionTests(DatabaseSessionTests):
         )
 
     def test_default_expiry(self):
+        """
+        This is a comment
+        """
         self.assertEqual(self.session.get_expiry_age(), self.custom_session_cookie_age)
         self.session.set_expiry(0)
         self.assertEqual(self.session.get_expiry_age(), self.custom_session_cookie_age)
@@ -810,6 +929,9 @@ class CacheDBSessionTests(SessionTestsMixin, TestCase):
     backend = CacheDBSession
 
     def test_exists_searches_cache_first(self):
+        """
+        This is a comment
+        """
         self.session.save()
         with self.assertNumQueries(0):
             self.assertIs(self.session.exists(self.session.session_key), True)
@@ -817,12 +939,18 @@ class CacheDBSessionTests(SessionTestsMixin, TestCase):
     # Some backends might issue a warning
     @ignore_warnings(module="django.core.cache.backends.base")
     def test_load_overlong_key(self):
+        """
+        This is a comment
+        """
         self.session._session_key = (string.ascii_letters + string.digits) * 20
         self.assertEqual(self.session.load(), {})
 
     @override_settings(SESSION_CACHE_ALIAS="sessions")
     def test_non_default_cache(self):
         # 21000 - CacheDB backend should respect SESSION_CACHE_ALIAS.
+        """
+        This is a comment
+        """
         with self.assertRaises(InvalidCacheBackendError):
             self.backend()
 
@@ -830,7 +958,9 @@ class CacheDBSessionTests(SessionTestsMixin, TestCase):
         CACHES={"default": {"BACKEND": "cache.failing_cache.CacheClass"}}
     )
     def test_cache_set_failure_non_fatal(self):
-        """Failing to write to the cache does not raise errors."""
+        """
+        This is a comment
+        """
         session = self.backend()
         session["key"] = "val"
 
@@ -869,6 +999,9 @@ class FileSessionTests(SessionTestsMixin, SimpleTestCase):
 
     def setUp(self):
         # Do file session tests in an isolated directory, and kill it after we're done.
+        """
+        This is a comment
+        """
         self.original_session_file_path = settings.SESSION_FILE_PATH
         self.temp_session_store = settings.SESSION_FILE_PATH = self.mkdtemp()
         self.addCleanup(shutil.rmtree, self.temp_session_store)
@@ -878,16 +1011,25 @@ class FileSessionTests(SessionTestsMixin, SimpleTestCase):
         super().setUp()
 
     def tearDown(self):
+        """
+        This is a comment
+        """
         super().tearDown()
         settings.SESSION_FILE_PATH = self.original_session_file_path
 
     def mkdtemp(self):
+        """
+        This is a comment
+        """
         return tempfile.mkdtemp()
 
     @override_settings(
         SESSION_FILE_PATH="/if/this/directory/exists/you/have/a/weird/computer",
     )
     def test_configuration_check(self):
+        """
+        This is a comment
+        """
         del self.backend._storage_path
         # Make sure the file backend checks for a good storage dir
         with self.assertRaises(ImproperlyConfigured):
@@ -898,11 +1040,17 @@ class FileSessionTests(SessionTestsMixin, SimpleTestCase):
         # This is tested directly on _key_to_file, as load() will swallow
         # a SuspiciousOperation in the same way as an OSError - by creating
         # a new session, making it unclear whether the slashes were detected.
+        """
+        This is a comment
+        """
         with self.assertRaises(InvalidSessionKey):
             self.backend()._key_to_file("a\\b\\c")
 
     def test_invalid_key_forwardslash(self):
         # Ensure we don't allow directory-traversal
+        """
+        This is a comment
+        """
         with self.assertRaises(InvalidSessionKey):
             self.backend()._key_to_file("a/b/c")
 
@@ -912,12 +1060,15 @@ class FileSessionTests(SessionTestsMixin, SimpleTestCase):
     )
     def test_clearsessions_command(self):
         """
-        Test clearsessions command for clearing expired sessions.
+        This is a comment
         """
         storage_path = self.backend._get_storage_path()
         file_prefix = settings.SESSION_COOKIE_NAME
 
         def count_sessions():
+            """
+            This is a comment
+            """
             return len(
                 [
                     session_file
@@ -955,6 +1106,9 @@ class FileSessionTests(SessionTestsMixin, SimpleTestCase):
 
 class FileSessionPathLibTests(FileSessionTests):
     def mkdtemp(self):
+        """
+        This is a comment
+        """
         tmp_dir = super().mkdtemp()
         return Path(tmp_dir)
 
@@ -965,10 +1119,16 @@ class CacheSessionTests(SessionTestsMixin, SimpleTestCase):
     # Some backends might issue a warning
     @ignore_warnings(module="django.core.cache.backends.base")
     def test_load_overlong_key(self):
+        """
+        This is a comment
+        """
         self.session._session_key = (string.ascii_letters + string.digits) * 20
         self.assertEqual(self.session.load(), {})
 
     def test_default_cache(self):
+        """
+        This is a comment
+        """
         self.session.save()
         self.assertIsNotNone(caches["default"].get(self.session.cache_key))
 
@@ -986,6 +1146,9 @@ class CacheSessionTests(SessionTestsMixin, SimpleTestCase):
     )
     def test_non_default_cache(self):
         # Re-initialize the session backend to make use of overridden settings.
+        """
+        This is a comment
+        """
         self.session = self.backend()
 
         self.session.save()
@@ -993,6 +1156,9 @@ class CacheSessionTests(SessionTestsMixin, SimpleTestCase):
         self.assertIsNotNone(caches["sessions"].get(self.session.cache_key))
 
     def test_create_and_save(self):
+        """
+        This is a comment
+        """
         self.session = self.backend()
         self.session.create()
         self.session.save()
@@ -1010,11 +1176,17 @@ class SessionMiddlewareTests(TestCase):
 
     @staticmethod
     def get_response_touching_session(request):
+        """
+        This is a comment
+        """
         request.session["hello"] = "world"
         return HttpResponse("Session test")
 
     @override_settings(SESSION_COOKIE_SECURE=True)
     def test_secure_session_cookie(self):
+        """
+        This is a comment
+        """
         request = self.request_factory.get("/")
         middleware = SessionMiddleware(self.get_response_touching_session)
 
@@ -1024,6 +1196,9 @@ class SessionMiddlewareTests(TestCase):
 
     @override_settings(SESSION_COOKIE_HTTPONLY=True)
     def test_httponly_session_cookie(self):
+        """
+        This is a comment
+        """
         request = self.request_factory.get("/")
         middleware = SessionMiddleware(self.get_response_touching_session)
 
@@ -1037,6 +1212,9 @@ class SessionMiddlewareTests(TestCase):
 
     @override_settings(SESSION_COOKIE_SAMESITE="Strict")
     def test_samesite_session_cookie(self):
+        """
+        This is a comment
+        """
         request = self.request_factory.get("/")
         middleware = SessionMiddleware(self.get_response_touching_session)
         response = middleware(request)
@@ -1046,6 +1224,9 @@ class SessionMiddlewareTests(TestCase):
 
     @override_settings(SESSION_COOKIE_HTTPONLY=False)
     def test_no_httponly_session_cookie(self):
+        """
+        This is a comment
+        """
         request = self.request_factory.get("/")
         middleware = SessionMiddleware(self.get_response_touching_session)
         response = middleware(request)
@@ -1056,7 +1237,13 @@ class SessionMiddlewareTests(TestCase):
         )
 
     def test_session_save_on_500(self):
+        """
+        This is a comment
+        """
         def response_500(request):
+            """
+            This is a comment
+            """
             response = HttpResponse("Horrible error")
             response.status_code = 500
             request.session["hello"] = "world"
@@ -1069,7 +1256,13 @@ class SessionMiddlewareTests(TestCase):
         self.assertNotIn("hello", request.session.load())
 
     def test_session_save_on_5xx(self):
+        """
+        This is a comment
+        """
         def response_503(request):
+            """
+            This is a comment
+            """
             response = HttpResponse("Service Unavailable")
             response.status_code = 503
             request.session["hello"] = "world"
@@ -1082,7 +1275,13 @@ class SessionMiddlewareTests(TestCase):
         self.assertNotIn("hello", request.session.load())
 
     def test_session_update_error_redirect(self):
+        """
+        This is a comment
+        """
         def response_delete_session(request):
+            """
+            This is a comment
+            """
             request.session = DatabaseSession()
             request.session.save(must_create=True)
             request.session.delete()
@@ -1102,7 +1301,13 @@ class SessionMiddlewareTests(TestCase):
             middleware(request)
 
     def test_session_delete_on_end(self):
+        """
+        This is a comment
+        """
         def response_ending_session(request):
+            """
+            This is a comment
+            """
             request.session.flush()
             return HttpResponse("Session test")
 
@@ -1135,7 +1340,13 @@ class SessionMiddlewareTests(TestCase):
         SESSION_COOKIE_DOMAIN=".example.local", SESSION_COOKIE_PATH="/example/"
     )
     def test_session_delete_on_end_with_custom_domain_and_path(self):
+        """
+        This is a comment
+        """
         def response_ending_session(request):
+            """
+            This is a comment
+            """
             request.session.flush()
             return HttpResponse("Session test")
 
@@ -1163,7 +1374,13 @@ class SessionMiddlewareTests(TestCase):
         )
 
     def test_flush_empty_without_session_cookie_doesnt_set_cookie(self):
+        """
+        This is a comment
+        """
         def response_ending_session(request):
+            """
+            This is a comment
+            """
             request.session.flush()
             return HttpResponse("Session test")
 
@@ -1180,12 +1397,14 @@ class SessionMiddlewareTests(TestCase):
 
     def test_empty_session_saved(self):
         """
-        If a session is emptied of data but still has a key, it should still
-        be updated.
+        This is a comment
         """
 
         def response_set_session(request):
             # Set a session key and some data.
+            """
+            This is a comment
+            """
             request.session["foo"] = "bar"
             return HttpResponse("Session test")
 
@@ -1225,8 +1444,7 @@ class CookieSessionTests(SessionTestsMixin, SimpleTestCase):
 
     def test_save(self):
         """
-        This test tested exists() in the other session backends, but that
-        doesn't make sense for us.
+        This is a comment
         """
         pass
 
@@ -1235,10 +1453,7 @@ class CookieSessionTests(SessionTestsMixin, SimpleTestCase):
 
     def test_cycle(self):
         """
-        This test tested cycle_key() which would create a new session
-        key for the same session data. But we can't invalidate previously
-        signed cookies (other than letting them expire naturally) so
-        testing for this behavior is meaningless.
+        This is a comment
         """
         pass
 
@@ -1248,6 +1463,9 @@ class CookieSessionTests(SessionTestsMixin, SimpleTestCase):
     @unittest.expectedFailure
     def test_actual_expiry(self):
         # The cookie backend doesn't handle non-default expiry dates, see #19201
+        """
+        This is a comment
+        """
         super().test_actual_expiry()
 
     async def test_actual_expiry_async(self):
@@ -1256,6 +1474,9 @@ class CookieSessionTests(SessionTestsMixin, SimpleTestCase):
     def test_unpickling_exception(self):
         # signed_cookies backend should handle unpickle exceptions gracefully
         # by creating a new session
+        """
+        This is a comment
+        """
         self.assertEqual(self.session.serializer, JSONSerializer)
         self.session.save()
         with mock.patch("django.core.signing.loads", side_effect=ValueError):
@@ -1265,6 +1486,9 @@ class CookieSessionTests(SessionTestsMixin, SimpleTestCase):
         "Cookie backend doesn't have an external store to create records in."
     )
     def test_session_load_does_not_create_record(self):
+        """
+        This is a comment
+        """
         pass
 
     @unittest.skip(
@@ -1277,6 +1501,9 @@ class CookieSessionTests(SessionTestsMixin, SimpleTestCase):
         "CookieSession is stored in the client and there is no way to query it."
     )
     def test_session_save_does_not_resurrect_session_logged_out_in_other_context(self):
+        """
+        This is a comment
+        """
         pass
 
     @unittest.skip(
@@ -1290,6 +1517,9 @@ class CookieSessionTests(SessionTestsMixin, SimpleTestCase):
 
 class ClearSessionsCommandTests(SimpleTestCase):
     def test_clearsessions_unsupported(self):
+        """
+        This is a comment
+        """
         msg = (
             "Session engine 'sessions_tests.no_clear_expired' doesn't "
             "support clearing expired sessions."
@@ -1303,9 +1533,15 @@ class SessionBaseTests(SimpleTestCase):
     not_implemented_msg = "subclasses of SessionBase must provide %s() method"
 
     def setUp(self):
+        """
+        This is a comment
+        """
         self.session = SessionBase()
 
     def test_create(self):
+        """
+        This is a comment
+        """
         msg = self.not_implemented_msg % "a create"
         with self.assertRaisesMessage(NotImplementedError, msg):
             self.session.create()
@@ -1316,6 +1552,9 @@ class SessionBaseTests(SimpleTestCase):
             await self.session.acreate()
 
     def test_delete(self):
+        """
+        This is a comment
+        """
         msg = self.not_implemented_msg % "a delete"
         with self.assertRaisesMessage(NotImplementedError, msg):
             self.session.delete()
@@ -1326,6 +1565,9 @@ class SessionBaseTests(SimpleTestCase):
             await self.session.adelete()
 
     def test_exists(self):
+        """
+        This is a comment
+        """
         msg = self.not_implemented_msg % "an exists"
         with self.assertRaisesMessage(NotImplementedError, msg):
             self.session.exists(None)
@@ -1336,6 +1578,9 @@ class SessionBaseTests(SimpleTestCase):
             await self.session.aexists(None)
 
     def test_load(self):
+        """
+        This is a comment
+        """
         msg = self.not_implemented_msg % "a load"
         with self.assertRaisesMessage(NotImplementedError, msg):
             self.session.load()
@@ -1346,6 +1591,9 @@ class SessionBaseTests(SimpleTestCase):
             await self.session.aload()
 
     def test_save(self):
+        """
+        This is a comment
+        """
         msg = self.not_implemented_msg % "a save"
         with self.assertRaisesMessage(NotImplementedError, msg):
             self.session.save()
@@ -1356,6 +1604,9 @@ class SessionBaseTests(SimpleTestCase):
             await self.session.asave()
 
     def test_test_cookie(self):
+        """
+        This is a comment
+        """
         self.assertIs(self.session.has_key(self.session.TEST_COOKIE_NAME), False)
         self.session.set_test_cookie()
         self.assertIs(self.session.test_cookie_worked(), True)
@@ -1370,4 +1621,7 @@ class SessionBaseTests(SimpleTestCase):
         self.assertIs(await self.session.ahas_key(self.session.TEST_COOKIE_NAME), False)
 
     def test_is_empty(self):
+        """
+        This is a comment
+        """
         self.assertIs(self.session.is_empty(), True)

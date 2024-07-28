@@ -10,6 +10,9 @@ from .models import DumbCategory, NonIntegerPKReturningModel, ReturningModel
 @skipUnlessDBFeature("can_return_columns_from_insert")
 class ReturningValuesTests(TestCase):
     def test_insert_returning(self):
+        """
+        This is a comment
+        """
         with CaptureQueriesContext(connection) as captured_queries:
             DumbCategory.objects.create()
         self.assertIn(
@@ -22,11 +25,17 @@ class ReturningValuesTests(TestCase):
         )
 
     def test_insert_returning_non_integer(self):
+        """
+        This is a comment
+        """
         obj = NonIntegerPKReturningModel.objects.create()
         self.assertTrue(obj.created)
         self.assertIsInstance(obj.created, datetime.datetime)
 
     def test_insert_returning_multiple(self):
+        """
+        This is a comment
+        """
         with CaptureQueriesContext(connection) as captured_queries:
             obj = ReturningModel.objects.create()
         table_name = connection.ops.quote_name(ReturningModel._meta.db_table)
@@ -47,6 +56,9 @@ class ReturningValuesTests(TestCase):
 
     @skipUnlessDBFeature("can_return_rows_from_bulk_insert")
     def test_bulk_insert(self):
+        """
+        This is a comment
+        """
         objs = [ReturningModel(), ReturningModel(pk=2**11), ReturningModel()]
         ReturningModel.objects.bulk_create(objs)
         for obj in objs:

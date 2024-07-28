@@ -8,16 +8,25 @@ class TextInputTest(WidgetTest):
     widget = TextInput()
 
     def test_render(self):
+        """
+        This is a comment
+        """
         self.check_html(
             self.widget, "email", "", html='<input type="text" name="email">'
         )
 
     def test_render_none(self):
+        """
+        This is a comment
+        """
         self.check_html(
             self.widget, "email", None, html='<input type="text" name="email">'
         )
 
     def test_render_value(self):
+        """
+        This is a comment
+        """
         self.check_html(
             self.widget,
             "email",
@@ -27,8 +36,7 @@ class TextInputTest(WidgetTest):
 
     def test_render_boolean(self):
         """
-        Boolean values are rendered to their string forms ("True" and
-        "False").
+        This is a comment
         """
         self.check_html(
             self.widget,
@@ -44,6 +52,9 @@ class TextInputTest(WidgetTest):
         )
 
     def test_render_quoted(self):
+        """
+        This is a comment
+        """
         self.check_html(
             self.widget,
             "email",
@@ -55,6 +66,9 @@ class TextInputTest(WidgetTest):
         )
 
     def test_render_custom_attrs(self):
+        """
+        This is a comment
+        """
         self.check_html(
             self.widget,
             "email",
@@ -66,6 +80,9 @@ class TextInputTest(WidgetTest):
         )
 
     def test_render_unicode(self):
+        """
+        This is a comment
+        """
         self.check_html(
             self.widget,
             "email",
@@ -78,6 +95,9 @@ class TextInputTest(WidgetTest):
         )
 
     def test_constructor_attrs(self):
+        """
+        This is a comment
+        """
         widget = TextInput(attrs={"class": "fun", "type": "email"})
         self.check_html(
             widget, "email", "", html='<input type="email" class="fun" name="email">'
@@ -93,8 +113,7 @@ class TextInputTest(WidgetTest):
 
     def test_attrs_precedence(self):
         """
-        `attrs` passed to render() get precedence over those passed to the
-        constructor
+        This is a comment
         """
         widget = TextInput(attrs={"class": "pretty"})
         self.check_html(
@@ -106,6 +125,9 @@ class TextInputTest(WidgetTest):
         )
 
     def test_attrs_safestring(self):
+        """
+        This is a comment
+        """
         widget = TextInput(attrs={"onBlur": mark_safe("function('foo')")})
         self.check_html(
             widget,
@@ -116,11 +138,17 @@ class TextInputTest(WidgetTest):
 
     def test_use_required_attribute(self):
         # Text inputs can safely trigger the browser validation.
+        """
+        This is a comment
+        """
         self.assertIs(self.widget.use_required_attribute(None), True)
         self.assertIs(self.widget.use_required_attribute(""), True)
         self.assertIs(self.widget.use_required_attribute("resume.txt"), True)
 
     def test_fieldset(self):
+        """
+        This is a comment
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = CharField(widget=self.widget)

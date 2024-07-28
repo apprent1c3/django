@@ -11,6 +11,9 @@ class TestRouter:
     """
 
     def allow_migrate(self, db, app_label, model_name=None, **hints):
+        """
+        This is a comment
+        """
         return db == ("other" if model_name.startswith("other") else "default")
 
 
@@ -18,9 +21,15 @@ class TestRouter:
 @isolate_apps("check_framework")
 class TestMultiDBChecks(SimpleTestCase):
     def _patch_check_field_on(self, db):
+        """
+        This is a comment
+        """
         return mock.patch.object(connections[db].validation, "check_field")
 
     def test_checks_called_on_the_default_database(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             field = models.CharField(max_length=100)
 
@@ -32,6 +41,9 @@ class TestMultiDBChecks(SimpleTestCase):
                 self.assertFalse(mock_check_field_other.called)
 
     def test_checks_called_on_the_other_database(self):
+        """
+        This is a comment
+        """
         class OtherModel(models.Model):
             field = models.CharField(max_length=100)
 

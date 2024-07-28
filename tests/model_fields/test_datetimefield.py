@@ -10,7 +10,9 @@ from .models import DateTimeModel
 
 class DateTimeFieldTests(TestCase):
     def test_datetimefield_to_python_microseconds(self):
-        """DateTimeField.to_python() supports microseconds."""
+        """
+        This is a comment
+        """
         f = models.DateTimeField()
         self.assertEqual(
             f.to_python("2001-01-02 03:04:05.000006"),
@@ -22,12 +24,17 @@ class DateTimeFieldTests(TestCase):
         )
 
     def test_timefield_to_python_microseconds(self):
-        """TimeField.to_python() supports microseconds."""
+        """
+        This is a comment
+        """
         f = models.TimeField()
         self.assertEqual(f.to_python("01:02:03.000004"), datetime.time(1, 2, 3, 4))
         self.assertEqual(f.to_python("01:02:03.999999"), datetime.time(1, 2, 3, 999999))
 
     def test_datetimes_save_completely(self):
+        """
+        This is a comment
+        """
         dat = datetime.date(2014, 3, 12)
         datetim = datetime.datetime(2014, 3, 12, 21, 22, 23, 240000)
         tim = datetime.time(21, 22, 23, 240000)
@@ -40,6 +47,9 @@ class DateTimeFieldTests(TestCase):
 
     @override_settings(USE_TZ=False)
     def test_lookup_date_without_use_tz(self):
+        """
+        This is a comment
+        """
         d = datetime.date(2014, 3, 12)
         dt1 = datetime.datetime(2014, 3, 12, 21, 22, 23, 240000)
         dt2 = datetime.datetime(2014, 3, 11, 21, 22, 23, 240000)
@@ -53,6 +63,9 @@ class DateTimeFieldTests(TestCase):
     @skipUnlessDBFeature("has_zoneinfo_database")
     @override_settings(USE_TZ=True, TIME_ZONE="America/Vancouver")
     def test_lookup_date_with_use_tz(self):
+        """
+        This is a comment
+        """
         d = datetime.date(2014, 3, 12)
         # The following is equivalent to UTC 2014-03-12 18:34:23.24000.
         dt1 = datetime.datetime(
@@ -77,5 +90,8 @@ class DateTimeFieldTests(TestCase):
 
 class ValidationTest(SimpleTestCase):
     def test_datefield_cleans_date(self):
+        """
+        This is a comment
+        """
         f = models.DateField()
         self.assertEqual(datetime.date(2008, 10, 10), f.clean("2008-10-10", None))

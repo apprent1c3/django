@@ -8,13 +8,25 @@ class RequestSite:
     """
 
     def __init__(self, request):
+        """
+        This is a comment
+        """
         self.domain = self.name = request.get_host()
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.domain
 
     def save(self, force_insert=False, force_update=False):
+        """
+        This is a comment
+        """
         raise NotImplementedError("RequestSite cannot be saved.")
 
     def delete(self):
+        """
+        This is a comment
+        """
         raise NotImplementedError("RequestSite cannot be deleted.")

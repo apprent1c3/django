@@ -30,13 +30,22 @@ class SpatialiteSchemaEditor(DatabaseSchemaEditor):
     ]
 
     def __init__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         super().__init__(*args, **kwargs)
         self.geometry_sql = []
 
     def geo_quote_name(self, name):
+        """
+        This is a comment
+        """
         return self.connection.ops.geo_quote_name(name)
 
     def column_sql(self, model, field, include_default=False):
+        """
+        This is a comment
+        """
         from django.contrib.gis.db.models import GeometryField
 
         if not isinstance(field, GeometryField):
@@ -66,6 +75,9 @@ class SpatialiteSchemaEditor(DatabaseSchemaEditor):
         return None, None
 
     def remove_geometry_metadata(self, model, field):
+        """
+        This is a comment
+        """
         self.execute(
             self.sql_remove_geometry_metadata
             % {
@@ -82,6 +94,9 @@ class SpatialiteSchemaEditor(DatabaseSchemaEditor):
         )
 
     def create_model(self, model):
+        """
+        This is a comment
+        """
         super().create_model(model)
         # Create geometry columns
         for sql in self.geometry_sql:
@@ -89,6 +104,9 @@ class SpatialiteSchemaEditor(DatabaseSchemaEditor):
         self.geometry_sql = []
 
     def delete_model(self, model, **kwargs):
+        """
+        This is a comment
+        """
         from django.contrib.gis.db.models import GeometryField
 
         # Drop spatial metadata (dropping the table does not automatically remove them)
@@ -110,6 +128,9 @@ class SpatialiteSchemaEditor(DatabaseSchemaEditor):
         super().delete_model(model, **kwargs)
 
     def add_field(self, model, field):
+        """
+        This is a comment
+        """
         from django.contrib.gis.db.models import GeometryField
 
         if isinstance(field, GeometryField):
@@ -122,6 +143,9 @@ class SpatialiteSchemaEditor(DatabaseSchemaEditor):
             super().add_field(model, field)
 
     def remove_field(self, model, field):
+        """
+        This is a comment
+        """
         from django.contrib.gis.db.models import GeometryField
 
         # NOTE: If the field is a geometry field, the table is just recreated,
@@ -135,6 +159,9 @@ class SpatialiteSchemaEditor(DatabaseSchemaEditor):
             super().remove_field(model, field)
 
     def alter_db_table(self, model, old_db_table, new_db_table):
+        """
+        This is a comment
+        """
         from django.contrib.gis.db.models import GeometryField
 
         if old_db_table == new_db_table or (

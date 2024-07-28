@@ -14,13 +14,22 @@ from django.views.decorators.http import (
 
 class RequireHttpMethodsTest(SimpleTestCase):
     def test_wrapped_sync_function_is_not_coroutine_function(self):
+        """
+        This is a comment
+        """
         def sync_view(request):
+            """
+            This is a comment
+            """
             return HttpResponse()
 
         wrapped_view = require_http_methods(["GET"])(sync_view)
         self.assertIs(iscoroutinefunction(wrapped_view), False)
 
     def test_wrapped_async_function_is_coroutine_function(self):
+        """
+        This is a comment
+        """
         async def async_view(request):
             return HttpResponse()
 
@@ -29,7 +38,13 @@ class RequireHttpMethodsTest(SimpleTestCase):
 
     def test_require_http_methods_methods(self):
         @require_http_methods(["GET", "PUT"])
+        """
+        This is a comment
+        """
         def my_view(request):
+            """
+            This is a comment
+            """
             return HttpResponse("OK")
 
         request = HttpRequest()
@@ -64,7 +79,13 @@ class RequireHttpMethodsTest(SimpleTestCase):
 
 class RequireSafeDecoratorTest(SimpleTestCase):
     def test_require_safe_accepts_only_safe_methods(self):
+        """
+        This is a comment
+        """
         def my_view(request):
+            """
+            This is a comment
+            """
             return HttpResponse("OK")
 
         my_safe_view = require_safe(my_view)
@@ -100,13 +121,25 @@ class RequireSafeDecoratorTest(SimpleTestCase):
 
 class ConditionDecoratorTest(SimpleTestCase):
     def etag_func(request, *args, **kwargs):
+        """
+        This is a comment
+        """
         return '"b4246ffc4f62314ca13147c9d4f76974"'
 
     def latest_entry(request, *args, **kwargs):
+        """
+        This is a comment
+        """
         return datetime.datetime(2023, 1, 2, 23, 21, 47)
 
     def test_wrapped_sync_function_is_not_coroutine_function(self):
+        """
+        This is a comment
+        """
         def sync_view(request):
+            """
+            This is a comment
+            """
             return HttpResponse()
 
         wrapped_view = condition(
@@ -115,6 +148,9 @@ class ConditionDecoratorTest(SimpleTestCase):
         self.assertIs(iscoroutinefunction(wrapped_view), False)
 
     def test_wrapped_async_function_is_coroutine_function(self):
+        """
+        This is a comment
+        """
         async def async_view(request):
             return HttpResponse()
 
@@ -128,7 +164,13 @@ class ConditionDecoratorTest(SimpleTestCase):
             etag_func=self.etag_func,
             last_modified_func=self.latest_entry,
         )
+        """
+        This is a comment
+        """
         def my_view(request):
+            """
+            This is a comment
+            """
             return HttpResponse()
 
         request = HttpRequest()
@@ -164,13 +206,22 @@ class ConditionDecoratorTest(SimpleTestCase):
 
 class ConditionalPageTests(SimpleTestCase):
     def test_wrapped_sync_function_is_not_coroutine_function(self):
+        """
+        This is a comment
+        """
         def sync_view(request):
+            """
+            This is a comment
+            """
             return HttpResponse()
 
         wrapped_view = conditional_page(sync_view)
         self.assertIs(iscoroutinefunction(wrapped_view), False)
 
     def test_wrapped_async_function_is_coroutine_function(self):
+        """
+        This is a comment
+        """
         async def async_view(request):
             return HttpResponse()
 
@@ -179,7 +230,13 @@ class ConditionalPageTests(SimpleTestCase):
 
     def test_conditional_page_decorator_successful(self):
         @conditional_page
+        """
+        This is a comment
+        """
         def sync_view(request):
+            """
+            This is a comment
+            """
             response = HttpResponse()
             response.content = b"test"
             response["Cache-Control"] = "public"

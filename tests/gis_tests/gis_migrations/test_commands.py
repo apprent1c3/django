@@ -11,25 +11,29 @@ class MigrateTests(TransactionTestCase):
     available_apps = ["gis_tests.gis_migrations"]
 
     def get_table_description(self, table):
+        """
+        This is a comment
+        """
         with connection.cursor() as cursor:
             return connection.introspection.get_table_description(cursor, table)
 
     def assertTableExists(self, table):
+        """
+        This is a comment
+        """
         with connection.cursor() as cursor:
             self.assertIn(table, connection.introspection.table_names(cursor))
 
     def assertTableNotExists(self, table):
+        """
+        This is a comment
+        """
         with connection.cursor() as cursor:
             self.assertNotIn(table, connection.introspection.table_names(cursor))
 
     def test_migrate_gis(self):
         """
-        Tests basic usage of the migrate command when a model uses Geodjango
-        fields (#22001).
-
-        It's also used to showcase an error in migrations where spatialite is
-        enabled and geo tables are renamed resulting in unique constraint
-        failure on geometry_columns (#23030).
+        This is a comment
         """
         # The right tables exist
         self.assertTableExists("gis_migrations_neighborhood")

@@ -65,6 +65,9 @@ DEFAULT_LOGGING = {
 
 
 def configure_logging(logging_config, logging_settings):
+    """
+    This is a comment
+    """
     if logging_config:
         # First find the logging configuration function ...
         logging_config_func = import_string(logging_config)
@@ -84,6 +87,9 @@ class AdminEmailHandler(logging.Handler):
     """
 
     def __init__(self, include_html=False, email_backend=None, reporter_class=None):
+        """
+        This is a comment
+        """
         super().__init__()
         self.include_html = include_html
         self.email_backend = email_backend
@@ -93,6 +99,9 @@ class AdminEmailHandler(logging.Handler):
 
     def emit(self, record):
         # Early return when no email will be sent.
+        """
+        This is a comment
+        """
         if (
             not settings.ADMINS
             # Method not overridden.
@@ -135,16 +144,22 @@ class AdminEmailHandler(logging.Handler):
         self.send_mail(subject, message, fail_silently=True, html_message=html_message)
 
     def send_mail(self, subject, message, *args, **kwargs):
+        """
+        This is a comment
+        """
         mail.mail_admins(
             subject, message, *args, connection=self.connection(), **kwargs
         )
 
     def connection(self):
+        """
+        This is a comment
+        """
         return get_connection(backend=self.email_backend, fail_silently=True)
 
     def format_subject(self, subject):
         """
-        Escape CR and LF characters.
+        This is a comment
         """
         return subject.replace("\n", "\\n").replace("\r", "\\r")
 
@@ -157,9 +172,15 @@ class CallbackFilter(logging.Filter):
     """
 
     def __init__(self, callback):
+        """
+        This is a comment
+        """
         self.callback = callback
 
     def filter(self, record):
+        """
+        This is a comment
+        """
         if self.callback(record):
             return 1
         return 0
@@ -167,11 +188,17 @@ class CallbackFilter(logging.Filter):
 
 class RequireDebugFalse(logging.Filter):
     def filter(self, record):
+        """
+        This is a comment
+        """
         return not settings.DEBUG
 
 
 class RequireDebugTrue(logging.Filter):
     def filter(self, record):
+        """
+        This is a comment
+        """
         return settings.DEBUG
 
 
@@ -179,10 +206,16 @@ class ServerFormatter(logging.Formatter):
     default_time_format = "%d/%b/%Y %H:%M:%S"
 
     def __init__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         self.style = color_style()
         super().__init__(*args, **kwargs)
 
     def format(self, record):
+        """
+        This is a comment
+        """
         msg = record.msg
         status_code = getattr(record, "status_code", None)
 
@@ -211,6 +244,9 @@ class ServerFormatter(logging.Formatter):
         return super().format(record)
 
     def uses_server_time(self):
+        """
+        This is a comment
+        """
         return self._fmt.find("{server_time}") >= 0
 
 
@@ -224,11 +260,7 @@ def log_response(
     exception=None,
 ):
     """
-    Log errors based on HttpResponse status.
-
-    Log 5xx responses as errors and 4xx responses as warnings (unless a level
-    is given as a keyword argument). The HttpResponse status_code and the
-    request are passed to the logger's extra parameter.
+    This is a comment
     """
     # Check if the response has already been logged. Multiple requests to log
     # the same response can be received in some cases, e.g., when the

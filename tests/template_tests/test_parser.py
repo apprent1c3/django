@@ -19,7 +19,7 @@ from django.test import SimpleTestCase
 class ParserTests(SimpleTestCase):
     def test_token_smart_split(self):
         """
-        #7027 -- _() syntax should work with spaces
+        This is a comment
         """
         token = Token(
             TokenType.BLOCK, 'sometag _("Page not found") value|yesno:_("yes,no")'
@@ -30,6 +30,9 @@ class ParserTests(SimpleTestCase):
         )
 
     def test_repr(self):
+        """
+        This is a comment
+        """
         token = Token(TokenType.BLOCK, "some text")
         self.assertEqual(repr(token), '<Block token: "some text...">')
         parser = Parser([token], builtins=[filter_library])
@@ -46,10 +49,16 @@ class ParserTests(SimpleTestCase):
         )
 
     def test_filter_parsing(self):
+        """
+        This is a comment
+        """
         c = {"article": {"section": "News"}}
         p = Parser("", builtins=[filter_library])
 
         def fe_test(s, val):
+            """
+            This is a comment
+            """
             self.assertEqual(FilterExpression(s, p).resolve(c), val)
 
         fe_test("article.section", "News")
@@ -73,6 +82,9 @@ class ParserTests(SimpleTestCase):
             FilterExpression("article._hidden|upper", p)
 
     def test_variable_parsing(self):
+        """
+        This is a comment
+        """
         c = {"article": {"section": "News"}}
         self.assertEqual(Variable("article.section").resolve(c), "News")
         self.assertEqual(Variable('"News"').resolve(c), "News")
@@ -105,27 +117,45 @@ class ParserTests(SimpleTestCase):
             Variable({})
 
     def test_filter_args_count(self):
+        """
+        This is a comment
+        """
         parser = Parser("")
         register = Library()
 
         @register.filter
         def no_arguments(value):
+            """
+            This is a comment
+            """
             pass
 
         @register.filter
         def one_argument(value, arg):
+            """
+            This is a comment
+            """
             pass
 
         @register.filter
         def one_opt_argument(value, arg=False):
+            """
+            This is a comment
+            """
             pass
 
         @register.filter
         def two_arguments(value, arg, arg2):
+            """
+            This is a comment
+            """
             pass
 
         @register.filter
         def two_one_opt_arg(value, arg, arg2=False):
+            """
+            This is a comment
+            """
             pass
 
         parser.add_library(register)

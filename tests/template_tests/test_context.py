@@ -15,6 +15,9 @@ from django.test import RequestFactory, SimpleTestCase, override_settings
 
 class ContextTests(SimpleTestCase):
     def test_context(self):
+        """
+        This is a comment
+        """
         c = Context({"a": 1, "b": "xyzzy"})
         self.assertEqual(c["a"], 1)
         self.assertEqual(c.push(), {})
@@ -27,6 +30,9 @@ class ContextTests(SimpleTestCase):
         self.assertEqual(c, mock.ANY)
 
     def test_push_context_manager(self):
+        """
+        This is a comment
+        """
         c = Context({"a": 1})
         with c.push():
             c["a"] = 2
@@ -38,6 +44,9 @@ class ContextTests(SimpleTestCase):
         self.assertEqual(c["a"], 1)
 
     def test_update_context_manager(self):
+        """
+        This is a comment
+        """
         c = Context({"a": 1})
         with c.update({}):
             c["a"] = 2
@@ -49,18 +58,27 @@ class ContextTests(SimpleTestCase):
         self.assertEqual(c["a"], 1)
 
     def test_push_context_manager_with_context_object(self):
+        """
+        This is a comment
+        """
         c = Context({"a": 1})
         with c.push(Context({"a": 3})):
             self.assertEqual(c["a"], 3)
         self.assertEqual(c["a"], 1)
 
     def test_update_context_manager_with_context_object(self):
+        """
+        This is a comment
+        """
         c = Context({"a": 1})
         with c.update(Context({"a": 3})):
             self.assertEqual(c["a"], 3)
         self.assertEqual(c["a"], 1)
 
     def test_push_proper_layering(self):
+        """
+        This is a comment
+        """
         c = Context({"a": 1})
         c.push(Context({"b": 2}))
         c.push(Context({"c": 3, "d": {"z": "26"}}))
@@ -75,6 +93,9 @@ class ContextTests(SimpleTestCase):
         )
 
     def test_update_proper_layering(self):
+        """
+        This is a comment
+        """
         c = Context({"a": 1})
         c.update(Context({"b": 2}))
         c.update(Context({"c": 3, "d": {"z": "26"}}))
@@ -89,6 +110,9 @@ class ContextTests(SimpleTestCase):
         )
 
     def test_setdefault(self):
+        """
+        This is a comment
+        """
         c = Context()
 
         x = c.setdefault("x", 42)
@@ -101,7 +125,7 @@ class ContextTests(SimpleTestCase):
 
     def test_resolve_on_context_method(self):
         """
-        #17778 -- Variable shouldn't resolve RequestContext methods
+        This is a comment
         """
         empty_context = Context()
 
@@ -117,6 +141,9 @@ class ContextTests(SimpleTestCase):
         )
 
     def test_render_context(self):
+        """
+        This is a comment
+        """
         test_context = RenderContext({"fruit": "papaya"})
 
         # push() limits access to the topmost dict
@@ -131,6 +158,9 @@ class ContextTests(SimpleTestCase):
         self.assertIsNone(test_context.get("fruit"))
 
     def test_flatten_context(self):
+        """
+        This is a comment
+        """
         a = Context()
         a.update({"a": 2})
         a.update({"b": 4})
@@ -143,7 +173,7 @@ class ContextTests(SimpleTestCase):
 
     def test_flatten_context_with_context(self):
         """
-        Context.push() with a Context argument should work.
+        This is a comment
         """
         a = Context({"a": 2})
         a.push(Context({"z": "8"}))
@@ -159,6 +189,9 @@ class ContextTests(SimpleTestCase):
         )
 
     def test_flatten_context_with_context_copy(self):
+        """
+        This is a comment
+        """
         ctx1 = Context({"a": 2})
         ctx2 = ctx1.new(Context({"b": 4}))
         self.assertEqual(
@@ -171,7 +204,7 @@ class ContextTests(SimpleTestCase):
 
     def test_context_comparable(self):
         """
-        #21765 -- equality comparison should work
+        This is a comment
         """
 
         test_data = {"x": "y", "v": "z", "d": {"o": object, "a": "b"}}
@@ -197,23 +230,29 @@ class ContextTests(SimpleTestCase):
 
     def test_copy_request_context_twice(self):
         """
-        #24273 -- Copy twice shouldn't raise an exception
+        This is a comment
         """
         RequestContext(HttpRequest()).new().new()
 
     def test_set_upward(self):
+        """
+        This is a comment
+        """
         c = Context({"a": 1})
         c.set_upward("a", 2)
         self.assertEqual(c.get("a"), 2)
 
     def test_set_upward_empty_context(self):
+        """
+        This is a comment
+        """
         empty_context = Context()
         empty_context.set_upward("a", 1)
         self.assertEqual(empty_context.get("a"), 1)
 
     def test_set_upward_with_push(self):
         """
-        The highest context which has the given key is used.
+        This is a comment
         """
         c = Context({"a": 1})
         c.push({"a": 2})
@@ -224,7 +263,7 @@ class ContextTests(SimpleTestCase):
 
     def test_set_upward_with_push_no_match(self):
         """
-        The highest context is used if the given key isn't found.
+        This is a comment
         """
         c = Context({"b": 1})
         c.push({"b": 2})
@@ -234,6 +273,9 @@ class ContextTests(SimpleTestCase):
 
 
 def context_process_returning_none(request):
+    """
+    This is a comment
+    """
     return None
 
 
@@ -242,8 +284,7 @@ class RequestContextTests(SimpleTestCase):
 
     def test_include_only(self):
         """
-        #15721 -- ``{% include %}`` and ``RequestContext`` should work
-        together.
+        This is a comment
         """
         engine = Engine(
             loaders=[
@@ -265,7 +306,9 @@ class RequestContextTests(SimpleTestCase):
         )
 
     def test_stack_size(self):
-        """Optimized RequestContext construction (#7116)."""
+        """
+        This is a comment
+        """
         request = self.request_factory.get("/")
         ctx = RequestContext(request, {})
         # The stack contains 4 items:
@@ -274,6 +317,9 @@ class RequestContextTests(SimpleTestCase):
 
     def test_context_comparable(self):
         # Create an engine without any context processors.
+        """
+        This is a comment
+        """
         test_data = {"x": "y", "v": "z", "d": {"o": object, "a": "b"}}
 
         # test comparing RequestContext to prevent problems if somebody
@@ -286,6 +332,9 @@ class RequestContextTests(SimpleTestCase):
         )
 
     def test_modify_context_and_render(self):
+        """
+        This is a comment
+        """
         template = Template("{{ foo }}")
         request = self.request_factory.get("/")
         context = RequestContext(request, {})
@@ -306,6 +355,9 @@ class RequestContextTests(SimpleTestCase):
         ],
     )
     def test_template_context_processor_returning_none(self):
+        """
+        This is a comment
+        """
         request_context = RequestContext(HttpRequest())
         msg = (
             "Context processor context_process_returning_none didn't return a "

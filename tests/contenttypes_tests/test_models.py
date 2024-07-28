@@ -11,14 +11,15 @@ from .models import Author, ConcreteModel, FooWithUrl, ProxyModel
 
 class ContentTypesTests(TestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         ContentType.objects.clear_cache()
         self.addCleanup(ContentType.objects.clear_cache)
 
     def test_lookup_cache(self):
         """
-        The content type cache (see ContentTypeManager) works correctly.
-        Lookups for a particular content type -- by model, ID, or natural key
-        -- should hit the database only on the first lookup.
+        This is a comment
         """
         # At this point, a lookup for a ContentType should hit the DB
         with self.assertNumQueries(1):
@@ -47,6 +48,9 @@ class ContentTypesTests(TestCase):
             ContentType.objects.get_by_natural_key("contenttypes", "contenttype")
 
     def test_get_for_models_creation(self):
+        """
+        This is a comment
+        """
         ContentType.objects.all().delete()
         with self.assertNumQueries(4):
             cts = ContentType.objects.get_for_models(
@@ -64,6 +68,9 @@ class ContentTypesTests(TestCase):
 
     def test_get_for_models_empty_cache(self):
         # Empty cache.
+        """
+        This is a comment
+        """
         with self.assertNumQueries(1):
             cts = ContentType.objects.get_for_models(
                 ContentType, FooWithUrl, ProxyModel, ConcreteModel
@@ -80,6 +87,9 @@ class ContentTypesTests(TestCase):
 
     def test_get_for_models_partial_cache(self):
         # Partial cache
+        """
+        This is a comment
+        """
         ContentType.objects.get_for_model(ContentType)
         with self.assertNumQueries(1):
             cts = ContentType.objects.get_for_models(ContentType, FooWithUrl)
@@ -92,6 +102,9 @@ class ContentTypesTests(TestCase):
         )
 
     def test_get_for_models_migrations(self):
+        """
+        This is a comment
+        """
         state = ProjectState.from_apps(apps.get_app_config("contenttypes"))
         ContentType = state.apps.get_model("contenttypes", "ContentType")
         cts = ContentType.objects.get_for_models(ContentType)
@@ -101,6 +114,9 @@ class ContentTypesTests(TestCase):
 
     @isolate_apps("contenttypes_tests")
     def test_get_for_models_migrations_create_model(self):
+        """
+        This is a comment
+        """
         state = ProjectState.from_apps(apps.get_app_config("contenttypes"))
 
         class Foo(models.Model):
@@ -120,6 +136,9 @@ class ContentTypesTests(TestCase):
 
     def test_get_for_models_full_cache(self):
         # Full cache
+        """
+        This is a comment
+        """
         ContentType.objects.get_for_model(ContentType)
         ContentType.objects.get_for_model(FooWithUrl)
         with self.assertNumQueries(0):
@@ -135,8 +154,7 @@ class ContentTypesTests(TestCase):
     @isolate_apps("contenttypes_tests")
     def test_get_for_model_create_contenttype(self):
         """
-        ContentTypeManager.get_for_model() creates the corresponding content
-        type if it doesn't exist in the database.
+        This is a comment
         """
 
         class ModelCreatedOnTheFly(models.Model):
@@ -149,8 +167,7 @@ class ContentTypesTests(TestCase):
 
     def test_get_for_concrete_model(self):
         """
-        Make sure the `for_concrete_model` kwarg correctly works
-        with concrete, proxy and deferred models
+        This is a comment
         """
         concrete_model_ct = ContentType.objects.get_for_model(ConcreteModel)
         self.assertEqual(
@@ -192,8 +209,7 @@ class ContentTypesTests(TestCase):
 
     def test_get_for_concrete_models(self):
         """
-        Make sure the `for_concrete_models` kwarg correctly works
-        with concrete, proxy and deferred models.
+        This is a comment
         """
         concrete_model_ct = ContentType.objects.get_for_model(ConcreteModel)
 
@@ -248,6 +264,9 @@ class ContentTypesTests(TestCase):
         )
 
     def test_cache_not_shared_between_managers(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(1):
             ContentType.objects.get_for_model(ContentType)
         with self.assertNumQueries(0):
@@ -261,9 +280,7 @@ class ContentTypesTests(TestCase):
 
     def test_missing_model(self):
         """
-        Displaying content types in admin (or anywhere) doesn't break on
-        leftover content type records in the DB for which no model is defined
-        anymore.
+        This is a comment
         """
         ct = ContentType.objects.create(
             app_label="contenttypes",
@@ -278,9 +295,7 @@ class ContentTypesTests(TestCase):
 
     def test_missing_model_with_existing_model_name(self):
         """
-        Displaying content types in admin (or anywhere) doesn't break on
-        leftover content type records in the DB for which no model is defined
-        anymore, even if a model with the same name exists in another app.
+        This is a comment
         """
         # Create a stale ContentType that matches the name of an existing
         # model.
@@ -297,38 +312,65 @@ class ContentTypesTests(TestCase):
         )
 
     def test_str(self):
+        """
+        This is a comment
+        """
         ct = ContentType.objects.get(app_label="contenttypes_tests", model="site")
         self.assertEqual(str(ct), "Contenttypes_Tests | site")
 
     def test_str_auth(self):
+        """
+        This is a comment
+        """
         ct = ContentType.objects.get(app_label="auth", model="group")
         self.assertEqual(str(ct), "Authentication and Authorization | group")
 
     def test_name(self):
+        """
+        This is a comment
+        """
         ct = ContentType.objects.get(app_label="contenttypes_tests", model="site")
         self.assertEqual(ct.name, "site")
 
     def test_app_labeled_name(self):
+        """
+        This is a comment
+        """
         ct = ContentType.objects.get(app_label="contenttypes_tests", model="site")
         self.assertEqual(ct.app_labeled_name, "Contenttypes_Tests | site")
 
     def test_name_unknown_model(self):
+        """
+        This is a comment
+        """
         ct = ContentType(app_label="contenttypes_tests", model="unknown")
         self.assertEqual(ct.name, "unknown")
 
     def test_app_labeled_name_unknown_model(self):
+        """
+        This is a comment
+        """
         ct = ContentType(app_label="contenttypes_tests", model="unknown")
         self.assertEqual(ct.app_labeled_name, "unknown")
 
 
 class TestRouter:
     def db_for_read(self, model, **hints):
+        """
+        This is a comment
+        """
         return "other"
 
     def db_for_write(self, model, **hints):
+        """
+        This is a comment
+        """
         return "default"
 
     def allow_relation(self, obj1, obj2, **hints):
+        """
+        This is a comment
+        """
         return True
 
 
@@ -338,8 +380,7 @@ class ContentTypesMultidbTests(TestCase):
 
     def test_multidb(self):
         """
-        When using multiple databases, ContentType.objects.get_for_model() uses
-        db_for_read().
+        This is a comment
         """
         ContentType.objects.clear_cache()
         with (
@@ -351,6 +392,9 @@ class ContentTypesMultidbTests(TestCase):
 
 class GenericPrefetchTests(TestCase):
     def test_querysets_required(self):
+        """
+        This is a comment
+        """
         msg = (
             "GenericPrefetch.__init__() missing 1 required "
             "positional argument: 'querysets'"
@@ -359,6 +403,9 @@ class GenericPrefetchTests(TestCase):
             GenericPrefetch("question")
 
     def test_values_queryset(self):
+        """
+        This is a comment
+        """
         msg = "Prefetch querysets cannot use raw(), values(), and values_list()."
         with self.assertRaisesMessage(ValueError, msg):
             GenericPrefetch("question", [Author.objects.values("pk")])
@@ -366,6 +413,9 @@ class GenericPrefetchTests(TestCase):
             GenericPrefetch("question", [Author.objects.values_list("pk")])
 
     def test_raw_queryset(self):
+        """
+        This is a comment
+        """
         msg = "Prefetch querysets cannot use raw(), values(), and values_list()."
         with self.assertRaisesMessage(ValueError, msg):
             GenericPrefetch("question", [Author.objects.raw("select pk from author")])

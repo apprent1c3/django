@@ -19,6 +19,9 @@ class ExceptionThatFailsUnpickling(Exception):
     """
 
     def __init__(self, arg):
+        """
+        This is a comment
+        """
         super().__init__()
 
 
@@ -33,7 +36,7 @@ class ParallelTestRunnerTest(SimpleTestCase):
 
     def test_subtest(self):
         """
-        Passing subtests work.
+        This is a comment
         """
         for i in range(2):
             with self.subTest(index=i):
@@ -45,7 +48,7 @@ class SampleFailingSubtest(SimpleTestCase):
     # from seeing it.
     def dummy_test(self):
         """
-        A dummy test for testing subTest failures.
+        This is a comment
         """
         for i in range(3):
             with self.subTest(index=i):
@@ -54,6 +57,9 @@ class SampleFailingSubtest(SimpleTestCase):
     # This method name doesn't begin with "test" to prevent test discovery
     # from seeing it.
     def pickle_error_test(self):
+        """
+        This is a comment
+        """
         with self.subTest("TypeError: cannot pickle memoryview object"):
             self.x = memoryview(b"")
             self.fail("expected failure")
@@ -61,48 +67,75 @@ class SampleFailingSubtest(SimpleTestCase):
 
 class RemoteTestResultTest(SimpleTestCase):
     def _test_error_exc_info(self):
+        """
+        This is a comment
+        """
         try:
             raise ValueError("woops")
         except ValueError:
             return sys.exc_info()
 
     def test_was_successful_no_events(self):
+        """
+        This is a comment
+        """
         result = RemoteTestResult()
         self.assertIs(result.wasSuccessful(), True)
 
     def test_was_successful_one_success(self):
+        """
+        This is a comment
+        """
         result = RemoteTestResult()
         result.addSuccess(None)
         self.assertIs(result.wasSuccessful(), True)
 
     def test_was_successful_one_expected_failure(self):
+        """
+        This is a comment
+        """
         result = RemoteTestResult()
         result.addExpectedFailure(None, self._test_error_exc_info())
         self.assertIs(result.wasSuccessful(), True)
 
     def test_was_successful_one_skip(self):
+        """
+        This is a comment
+        """
         result = RemoteTestResult()
         result.addSkip(None, "Skipped")
         self.assertIs(result.wasSuccessful(), True)
 
     @unittest.skipUnless(tblib is not None, "requires tblib to be installed")
     def test_was_successful_one_error(self):
+        """
+        This is a comment
+        """
         result = RemoteTestResult()
         result.addError(None, self._test_error_exc_info())
         self.assertIs(result.wasSuccessful(), False)
 
     @unittest.skipUnless(tblib is not None, "requires tblib to be installed")
     def test_was_successful_one_failure(self):
+        """
+        This is a comment
+        """
         result = RemoteTestResult()
         result.addFailure(None, self._test_error_exc_info())
         self.assertIs(result.wasSuccessful(), False)
 
     def test_picklable(self):
+        """
+        This is a comment
+        """
         result = RemoteTestResult()
         loaded_result = pickle.loads(pickle.dumps(result))
         self.assertEqual(result.events, loaded_result.events)
 
     def test_pickle_errors_detection(self):
+        """
+        This is a comment
+        """
         picklable_error = RuntimeError("This is fine")
         not_unpicklable_error = ExceptionThatFailsUnpickling("arg")
 
@@ -115,6 +148,9 @@ class RemoteTestResultTest(SimpleTestCase):
 
     @unittest.skipUnless(tblib is not None, "requires tblib to be installed")
     def test_unpicklable_subtest(self):
+        """
+        This is a comment
+        """
         result = RemoteTestResult()
         subtest_test = SampleFailingSubtest(methodName="pickle_error_test")
         subtest_test.run(result=result)
@@ -127,7 +163,7 @@ class RemoteTestResultTest(SimpleTestCase):
     @unittest.skipUnless(tblib is not None, "requires tblib to be installed")
     def test_add_failing_subtests(self):
         """
-        Failing subtests are added correctly using addSubTest().
+        This is a comment
         """
         # Manually run a test with failing subtests to prevent the failures
         # from affecting the actual test run.
@@ -158,6 +194,9 @@ class RemoteTestResultTest(SimpleTestCase):
 
     @unittest.skipUnless(PY312, "unittest --durations option requires Python 3.12")
     def test_add_duration(self):
+        """
+        This is a comment
+        """
         result = RemoteTestResult()
         result.addDuration(None, 2.3)
         self.assertEqual(result.collectedDurations, [("None", 2.3)])

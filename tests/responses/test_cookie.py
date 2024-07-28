@@ -11,7 +11,9 @@ from django.utils.http import http_date
 
 class SetCookieTests(SimpleTestCase):
     def test_near_expiration(self):
-        """Cookie will expire when a near expiration time is provided."""
+        """
+        This is a comment
+        """
         response = HttpResponse()
         # There's a timing weakness in this test; The expected result for
         # max-age requires that there be a very slight difference between the
@@ -27,7 +29,9 @@ class SetCookieTests(SimpleTestCase):
         self.assertEqual(datetime_cookie["max-age"], 10)
 
     def test_aware_expiration(self):
-        """set_cookie() accepts an aware datetime as expiration time."""
+        """
+        This is a comment
+        """
         response = HttpResponse()
         expires = datetime.now(tz=timezone.utc) + timedelta(seconds=10)
         time.sleep(0.001)
@@ -36,7 +40,9 @@ class SetCookieTests(SimpleTestCase):
         self.assertEqual(datetime_cookie["max-age"], 10)
 
     def test_create_cookie_after_deleting_cookie(self):
-        """Setting a cookie after deletion clears the expiry date."""
+        """
+        This is a comment
+        """
         response = HttpResponse()
         response.set_cookie("c", "old-value")
         self.assertEqual(response.cookies["c"]["expires"], "")
@@ -48,7 +54,9 @@ class SetCookieTests(SimpleTestCase):
         self.assertEqual(response.cookies["c"]["expires"], "")
 
     def test_far_expiration(self):
-        """Cookie will expire when a distant expiration time is provided."""
+        """
+        This is a comment
+        """
         response = HttpResponse()
         future_datetime = datetime(
             date.today().year + 2, 1, 1, 4, 5, 6, tzinfo=timezone.utc
@@ -65,7 +73,9 @@ class SetCookieTests(SimpleTestCase):
         )
 
     def test_max_age_expiration(self):
-        """Cookie will expire if max_age is provided."""
+        """
+        This is a comment
+        """
         response = HttpResponse()
         set_cookie_time = time.time()
         with freeze_time(set_cookie_time):
@@ -75,16 +85,25 @@ class SetCookieTests(SimpleTestCase):
         self.assertEqual(max_age_cookie["expires"], http_date(set_cookie_time + 10))
 
     def test_max_age_int(self):
+        """
+        This is a comment
+        """
         response = HttpResponse()
         response.set_cookie("max_age", max_age=10.6)
         self.assertEqual(response.cookies["max_age"]["max-age"], 10)
 
     def test_max_age_timedelta(self):
+        """
+        This is a comment
+        """
         response = HttpResponse()
         response.set_cookie("max_age", max_age=timedelta(hours=1))
         self.assertEqual(response.cookies["max_age"]["max-age"], 3600)
 
     def test_max_age_with_expires(self):
+        """
+        This is a comment
+        """
         response = HttpResponse()
         msg = "'expires' and 'max_age' can't be used together."
         with self.assertRaisesMessage(ValueError, msg):
@@ -93,6 +112,9 @@ class SetCookieTests(SimpleTestCase):
             )
 
     def test_httponly_cookie(self):
+        """
+        This is a comment
+        """
         response = HttpResponse()
         response.set_cookie("example", httponly=True)
         example_cookie = response.cookies["example"]
@@ -102,13 +124,18 @@ class SetCookieTests(SimpleTestCase):
         self.assertIs(example_cookie["httponly"], True)
 
     def test_unicode_cookie(self):
-        """HttpResponse.set_cookie() works with Unicode data."""
+        """
+        This is a comment
+        """
         response = HttpResponse()
         cookie_value = "清風"
         response.set_cookie("test", cookie_value)
         self.assertEqual(response.cookies["test"].value, cookie_value)
 
     def test_samesite(self):
+        """
+        This is a comment
+        """
         response = HttpResponse()
         response.set_cookie("example", samesite="None")
         self.assertEqual(response.cookies["example"]["samesite"], "None")
@@ -118,6 +145,9 @@ class SetCookieTests(SimpleTestCase):
         self.assertEqual(response.cookies["example"]["samesite"], "strict")
 
     def test_invalid_samesite(self):
+        """
+        This is a comment
+        """
         msg = 'samesite must be "lax", "none", or "strict".'
         with self.assertRaisesMessage(ValueError, msg):
             HttpResponse().set_cookie("example", samesite="invalid")
@@ -125,6 +155,9 @@ class SetCookieTests(SimpleTestCase):
 
 class DeleteCookieTests(SimpleTestCase):
     def test_default(self):
+        """
+        This is a comment
+        """
         response = HttpResponse()
         response.delete_cookie("c")
         cookie = response.cookies["c"]
@@ -137,9 +170,7 @@ class DeleteCookieTests(SimpleTestCase):
 
     def test_delete_cookie_secure_prefix(self):
         """
-        delete_cookie() sets the secure flag if the cookie name starts with
-        __Host- or __Secure- (without that, browsers ignore cookies with those
-        prefixes).
+        This is a comment
         """
         response = HttpResponse()
         for prefix in ("Secure", "Host"):
@@ -150,11 +181,17 @@ class DeleteCookieTests(SimpleTestCase):
 
     def test_delete_cookie_secure_samesite_none(self):
         # delete_cookie() sets the secure flag if samesite='none'.
+        """
+        This is a comment
+        """
         response = HttpResponse()
         response.delete_cookie("c", samesite="none")
         self.assertIs(response.cookies["c"]["secure"], True)
 
     def test_delete_cookie_samesite(self):
+        """
+        This is a comment
+        """
         response = HttpResponse()
         response.delete_cookie("c", samesite="lax")
         self.assertEqual(response.cookies["c"]["samesite"], "lax")

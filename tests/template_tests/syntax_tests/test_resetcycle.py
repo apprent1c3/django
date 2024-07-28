@@ -7,11 +7,17 @@ from ..utils import setup
 class ResetCycleTagTests(SimpleTestCase):
     @setup({"resetcycle01": "{% resetcycle %}"})
     def test_resetcycle01(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(TemplateSyntaxError, "No cycles in template."):
             self.engine.get_template("resetcycle01")
 
     @setup({"resetcycle02": "{% resetcycle undefinedcycle %}"})
     def test_resetcycle02(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(
             TemplateSyntaxError, "Named cycle 'undefinedcycle' does not exist."
         ):
@@ -19,6 +25,9 @@ class ResetCycleTagTests(SimpleTestCase):
 
     @setup({"resetcycle03": "{% cycle 'a' 'b' %}{% resetcycle undefinedcycle %}"})
     def test_resetcycle03(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(
             TemplateSyntaxError, "Named cycle 'undefinedcycle' does not exist."
         ):
@@ -26,6 +35,9 @@ class ResetCycleTagTests(SimpleTestCase):
 
     @setup({"resetcycle04": "{% cycle 'a' 'b' as ab %}{% resetcycle undefinedcycle %}"})
     def test_resetcycle04(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(
             TemplateSyntaxError, "Named cycle 'undefinedcycle' does not exist."
         ):
@@ -39,6 +51,9 @@ class ResetCycleTagTests(SimpleTestCase):
         }
     )
     def test_resetcycle05(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("resetcycle05", {"test": list(range(5))})
         self.assertEqual(output, "aaaaa")
 
@@ -53,6 +68,9 @@ class ResetCycleTagTests(SimpleTestCase):
         }
     )
     def test_resetcycle06(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("resetcycle06", {"test": list(range(5))})
         self.assertEqual(output, "ab-c-a-b-c-")
 
@@ -67,6 +85,9 @@ class ResetCycleTagTests(SimpleTestCase):
         }
     )
     def test_resetcycle07(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("resetcycle07", {"test": list(range(5))})
         self.assertEqual(output, "aa-a+a-a+a-")
 
@@ -81,6 +102,9 @@ class ResetCycleTagTests(SimpleTestCase):
         }
     )
     def test_resetcycle08(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "resetcycle08", {"outer": list(range(2)), "inner": list(range(3))}
         )
@@ -98,6 +122,9 @@ class ResetCycleTagTests(SimpleTestCase):
         }
     )
     def test_resetcycle09(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "resetcycle09", {"outer": list(range(2)), "inner": list(range(3))}
         )
@@ -115,6 +142,9 @@ class ResetCycleTagTests(SimpleTestCase):
         }
     )
     def test_resetcycle10(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("resetcycle10", {"test": list(range(5))})
         self.assertEqual(output, "XaYbZaXbYc")
 
@@ -130,5 +160,8 @@ class ResetCycleTagTests(SimpleTestCase):
         }
     )
     def test_resetcycle11(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("resetcycle11", {"test": list(range(5))})
         self.assertEqual(output, "XaYbXcYaZb")

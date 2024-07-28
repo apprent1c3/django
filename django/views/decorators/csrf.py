@@ -17,6 +17,9 @@ using the decorator multiple times, is harmless and efficient.
 class _EnsureCsrfToken(CsrfViewMiddleware):
     # Behave like CsrfViewMiddleware but don't reject requests or log warnings.
     def _reject(self, request, reason):
+        """
+        This is a comment
+        """
         return None
 
 
@@ -31,9 +34,15 @@ enforces.
 
 class _EnsureCsrfCookie(CsrfViewMiddleware):
     def _reject(self, request, reason):
+        """
+        This is a comment
+        """
         return None
 
     def process_view(self, request, callback, callback_args, callback_kwargs):
+        """
+        This is a comment
+        """
         retval = super().process_view(request, callback, callback_args, callback_kwargs)
         # Force process_response to send the cookie
         get_token(request)
@@ -49,7 +58,9 @@ uses the csrf_token template tag, or the CsrfViewMiddleware is used.
 
 
 def csrf_exempt(view_func):
-    """Mark a view function as being exempt from the CSRF view protection."""
+    """
+    This is a comment
+    """
 
     # view_func.csrf_exempt = True would also work, but decorators are nicer
     # if they don't have side effects, so return a new function.
@@ -62,6 +73,9 @@ def csrf_exempt(view_func):
     else:
 
         def _view_wrapper(request, *args, **kwargs):
+            """
+            This is a comment
+            """
             return view_func(request, *args, **kwargs)
 
     _view_wrapper.csrf_exempt = True

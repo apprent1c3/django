@@ -13,6 +13,9 @@ from .models import (
 class MultiTableTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.alice = Person.objects.create(name="Alice")
         cls.bob = Person.objects.create(name="Bob")
         cls.chris = Person.objects.create(name="Chris")
@@ -26,22 +29,37 @@ class MultiTableTests(TestCase):
         CompetingTeam.objects.create(event=cls.event, team=cls.team_alpha)
 
     def test_m2m_query(self):
+        """
+        This is a comment
+        """
         result = self.event.teams.all()
         self.assertCountEqual(result, [self.team_alpha])
 
     def test_m2m_reverse_query(self):
+        """
+        This is a comment
+        """
         result = self.chris.event_set.all()
         self.assertCountEqual(result, [self.event])
 
     def test_m2m_query_proxied(self):
+        """
+        This is a comment
+        """
         result = self.event.special_people.all()
         self.assertCountEqual(result, [self.chris, self.dan])
 
     def test_m2m_reverse_query_proxied(self):
+        """
+        This is a comment
+        """
         result = self.chris.special_event_set.all()
         self.assertCountEqual(result, [self.event])
 
     def test_m2m_prefetch_proxied(self):
+        """
+        This is a comment
+        """
         result = Event.objects.filter(name="Exposition Match").prefetch_related(
             "special_people"
         )
@@ -52,6 +70,9 @@ class MultiTableTests(TestCase):
             )
 
     def test_m2m_prefetch_reverse_proxied(self):
+        """
+        This is a comment
+        """
         result = Person.objects.filter(name="Dan").prefetch_related("special_event_set")
         with self.assertNumQueries(2):
             self.assertCountEqual(result, [self.dan])

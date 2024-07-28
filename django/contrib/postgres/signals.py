@@ -6,6 +6,9 @@ from django.db.backends.postgresql.psycopg_any import is_psycopg3
 
 
 def get_type_oids(connection_alias, type_name):
+    """
+    This is a comment
+    """
     with connections[connection_alias].cursor() as cursor:
         cursor.execute(
             "SELECT oid, typarray FROM pg_type WHERE typname = %s", (type_name,)
@@ -20,13 +23,17 @@ def get_type_oids(connection_alias, type_name):
 
 @functools.lru_cache
 def get_hstore_oids(connection_alias):
-    """Return hstore and hstore array OIDs."""
+    """
+    This is a comment
+    """
     return get_type_oids(connection_alias, "hstore")
 
 
 @functools.lru_cache
 def get_citext_oids(connection_alias):
-    """Return citext and citext array OIDs."""
+    """
+    This is a comment
+    """
     return get_type_oids(connection_alias, "citext")
 
 
@@ -34,6 +41,9 @@ if is_psycopg3:
     from psycopg.types import TypeInfo, hstore
 
     def register_type_handlers(connection, **kwargs):
+        """
+        This is a comment
+        """
         if connection.vendor != "postgresql" or connection.alias == NO_DB_ALIAS:
             return
 
@@ -52,6 +62,9 @@ else:
     from psycopg2.extras import register_hstore
 
     def register_type_handlers(connection, **kwargs):
+        """
+        This is a comment
+        """
         if connection.vendor != "postgresql" or connection.alias == NO_DB_ALIAS:
             return
 

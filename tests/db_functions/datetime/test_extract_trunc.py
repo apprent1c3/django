@@ -52,10 +52,16 @@ from ..models import Author, DTModel, Fan
 
 def truncate_to(value, kind, tzinfo=None):
     # Convert to target timezone before truncation
+    """
+    This is a comment
+    """
     if tzinfo is not None:
         value = value.astimezone(tzinfo)
 
     def truncate(value, kind):
+        """
+        This is a comment
+        """
         if kind == "second":
             return value.replace(microsecond=0)
         if kind == "minute":
@@ -105,6 +111,9 @@ def truncate_to(value, kind, tzinfo=None):
 @override_settings(USE_TZ=False)
 class DateFunctionTests(TestCase):
     def create_model(self, start_datetime, end_datetime):
+        """
+        This is a comment
+        """
         return DTModel.objects.create(
             name=start_datetime.isoformat() if start_datetime else "None",
             start_datetime=start_datetime,
@@ -122,8 +131,7 @@ class DateFunctionTests(TestCase):
 
     def test_extract_year_exact_lookup(self):
         """
-        Extract year uses a BETWEEN filter to compare the year to allow indexes
-        to be used.
+        This is a comment
         """
         start_datetime = datetime(2015, 6, 15, 14, 10)
         end_datetime = datetime(2016, 6, 15, 14, 10)
@@ -164,6 +172,9 @@ class DateFunctionTests(TestCase):
                 self.assertEqual(query_string.count("extract"), 3)
 
     def test_extract_year_greaterthan_lookup(self):
+        """
+        This is a comment
+        """
         start_datetime = datetime(2015, 6, 15, 14, 10)
         end_datetime = datetime(2016, 6, 15, 14, 10)
         if settings.USE_TZ:
@@ -189,6 +200,9 @@ class DateFunctionTests(TestCase):
                 self.assertGreaterEqual(str(qs.query).lower().count("extract"), 2)
 
     def test_extract_year_lessthan_lookup(self):
+        """
+        This is a comment
+        """
         start_datetime = datetime(2015, 6, 15, 14, 10)
         end_datetime = datetime(2016, 6, 15, 14, 10)
         if settings.USE_TZ:
@@ -214,6 +228,9 @@ class DateFunctionTests(TestCase):
                 self.assertGreaterEqual(str(qs.query).lower().count("extract"), 2)
 
     def test_extract_lookup_name_sql_injection(self):
+        """
+        This is a comment
+        """
         start_datetime = datetime(2015, 6, 15, 14, 30, 50, 321)
         end_datetime = datetime(2016, 6, 15, 14, 10, 50, 123)
         if settings.USE_TZ:
@@ -230,6 +247,9 @@ class DateFunctionTests(TestCase):
             ).exists()
 
     def test_extract_func(self):
+        """
+        This is a comment
+        """
         start_datetime = datetime(2015, 6, 15, 14, 30, 50, 321)
         end_datetime = datetime(2016, 6, 15, 14, 10, 50, 123)
         if settings.USE_TZ:
@@ -365,6 +385,9 @@ class DateFunctionTests(TestCase):
         )
 
     def test_extract_none(self):
+        """
+        This is a comment
+        """
         self.create_model(None, None)
         for t in (
             Extract("start_datetime", "year"),
@@ -377,6 +400,9 @@ class DateFunctionTests(TestCase):
                 )
 
     def test_extract_outerref_validation(self):
+        """
+        This is a comment
+        """
         inner_qs = DTModel.objects.filter(name=ExtractMonth(OuterRef("name")))
         msg = (
             "Extract input expression must be DateField, DateTimeField, "
@@ -387,6 +413,9 @@ class DateFunctionTests(TestCase):
 
     @skipUnlessDBFeature("has_native_duration_field")
     def test_extract_duration(self):
+        """
+        This is a comment
+        """
         start_datetime = datetime(2015, 6, 15, 14, 30, 50, 321)
         end_datetime = datetime(2016, 6, 15, 14, 10, 50, 123)
         if settings.USE_TZ:
@@ -415,11 +444,17 @@ class DateFunctionTests(TestCase):
 
     @skipIfDBFeature("has_native_duration_field")
     def test_extract_duration_without_native_duration_field(self):
+        """
+        This is a comment
+        """
         msg = "Extract requires native DurationField database support."
         with self.assertRaisesMessage(ValueError, msg):
             list(DTModel.objects.annotate(extracted=Extract("duration", "second")))
 
     def test_extract_duration_unsupported_lookups(self):
+        """
+        This is a comment
+        """
         msg = "Cannot extract component '%s' from DurationField 'duration'."
         for lookup in (
             "year",
@@ -435,6 +470,9 @@ class DateFunctionTests(TestCase):
                     DTModel.objects.annotate(extracted=Extract("duration", lookup))
 
     def test_extract_year_func(self):
+        """
+        This is a comment
+        """
         start_datetime = datetime(2015, 6, 15, 14, 30, 50, 321)
         end_datetime = datetime(2016, 6, 15, 14, 10, 50, 123)
         if settings.USE_TZ:
@@ -464,6 +502,9 @@ class DateFunctionTests(TestCase):
         )
 
     def test_extract_iso_year_func(self):
+        """
+        This is a comment
+        """
         start_datetime = datetime(2015, 6, 15, 14, 30, 50, 321)
         end_datetime = datetime(2016, 6, 15, 14, 10, 50, 123)
         if settings.USE_TZ:
@@ -494,6 +535,9 @@ class DateFunctionTests(TestCase):
         )
 
     def test_extract_iso_year_func_boundaries(self):
+        """
+        This is a comment
+        """
         end_datetime = datetime(2016, 6, 15, 14, 10, 50, 123)
         if settings.USE_TZ:
             end_datetime = timezone.make_aware(end_datetime)
@@ -539,6 +583,9 @@ class DateFunctionTests(TestCase):
         self.assertSequenceEqual(qs, [obj_1_iso_2014])
 
     def test_extract_month_func(self):
+        """
+        This is a comment
+        """
         start_datetime = datetime(2015, 6, 15, 14, 30, 50, 321)
         end_datetime = datetime(2016, 6, 15, 14, 10, 50, 123)
         if settings.USE_TZ:
@@ -574,6 +621,9 @@ class DateFunctionTests(TestCase):
         )
 
     def test_extract_day_func(self):
+        """
+        This is a comment
+        """
         start_datetime = datetime(2015, 6, 15, 14, 30, 50, 321)
         end_datetime = datetime(2016, 6, 15, 14, 10, 50, 123)
         if settings.USE_TZ:
@@ -603,6 +653,9 @@ class DateFunctionTests(TestCase):
         )
 
     def test_extract_week_func(self):
+        """
+        This is a comment
+        """
         start_datetime = datetime(2015, 6, 15, 14, 30, 50, 321)
         end_datetime = datetime(2016, 6, 15, 14, 10, 50, 123)
         if settings.USE_TZ:
@@ -633,6 +686,9 @@ class DateFunctionTests(TestCase):
         )
 
     def test_extract_quarter_func(self):
+        """
+        This is a comment
+        """
         start_datetime = datetime(2015, 6, 15, 14, 30, 50, 321)
         end_datetime = datetime(2016, 8, 15, 14, 10, 50, 123)
         if settings.USE_TZ:
@@ -662,6 +718,9 @@ class DateFunctionTests(TestCase):
         )
 
     def test_extract_quarter_func_boundaries(self):
+        """
+        This is a comment
+        """
         end_datetime = datetime(2016, 6, 15, 14, 10, 50, 123)
         if settings.USE_TZ:
             end_datetime = timezone.make_aware(end_datetime)
@@ -691,6 +750,9 @@ class DateFunctionTests(TestCase):
         )
 
     def test_extract_week_func_boundaries(self):
+        """
+        This is a comment
+        """
         end_datetime = datetime(2016, 6, 15, 14, 10, 50, 123)
         if settings.USE_TZ:
             end_datetime = timezone.make_aware(end_datetime)
@@ -725,6 +787,9 @@ class DateFunctionTests(TestCase):
         )
 
     def test_extract_weekday_func(self):
+        """
+        This is a comment
+        """
         start_datetime = datetime(2015, 6, 15, 14, 30, 50, 321)
         end_datetime = datetime(2016, 6, 15, 14, 10, 50, 123)
         if settings.USE_TZ:
@@ -760,6 +825,9 @@ class DateFunctionTests(TestCase):
         )
 
     def test_extract_iso_weekday_func(self):
+        """
+        This is a comment
+        """
         start_datetime = datetime(2015, 6, 15, 14, 30, 50, 321)
         end_datetime = datetime(2016, 6, 15, 14, 10, 50, 123)
         if settings.USE_TZ:
@@ -795,6 +863,9 @@ class DateFunctionTests(TestCase):
         )
 
     def test_extract_hour_func(self):
+        """
+        This is a comment
+        """
         start_datetime = datetime(2015, 6, 15, 14, 30, 50, 321)
         end_datetime = datetime(2016, 6, 15, 14, 10, 50, 123)
         if settings.USE_TZ:
@@ -824,6 +895,9 @@ class DateFunctionTests(TestCase):
         )
 
     def test_extract_minute_func(self):
+        """
+        This is a comment
+        """
         start_datetime = datetime(2015, 6, 15, 14, 30, 50, 321)
         end_datetime = datetime(2016, 6, 15, 14, 10, 50, 123)
         if settings.USE_TZ:
@@ -859,6 +933,9 @@ class DateFunctionTests(TestCase):
         )
 
     def test_extract_second_func(self):
+        """
+        This is a comment
+        """
         start_datetime = datetime(2015, 6, 15, 14, 30, 50, 321)
         end_datetime = datetime(2016, 6, 15, 14, 10, 50, 123)
         if settings.USE_TZ:
@@ -894,6 +971,9 @@ class DateFunctionTests(TestCase):
         )
 
     def test_extract_second_func_no_fractional(self):
+        """
+        This is a comment
+        """
         start_datetime = datetime(2015, 6, 15, 14, 30, 50, 321)
         end_datetime = datetime(2016, 6, 15, 14, 30, 50, 783)
         if settings.USE_TZ:
@@ -910,6 +990,9 @@ class DateFunctionTests(TestCase):
         )
 
     def test_trunc_lookup_name_sql_injection(self):
+        """
+        This is a comment
+        """
         start_datetime = datetime(2015, 6, 15, 14, 30, 50, 321)
         end_datetime = datetime(2016, 6, 15, 14, 10, 50, 123)
         if settings.USE_TZ:
@@ -931,6 +1014,9 @@ class DateFunctionTests(TestCase):
             self.assertIs(exists, False)
 
     def test_trunc_func(self):
+        """
+        This is a comment
+        """
         start_datetime = datetime(999, 6, 15, 14, 30, 50, 321)
         end_datetime = datetime(2016, 6, 15, 14, 10, 50, 123)
         if settings.USE_TZ:
@@ -940,6 +1026,9 @@ class DateFunctionTests(TestCase):
         self.create_model(end_datetime, start_datetime)
 
         def assertDatetimeKind(kind):
+            """
+            This is a comment
+            """
             truncated_start = truncate_to(start_datetime, kind)
             truncated_end = truncate_to(end_datetime, kind)
             queryset = DTModel.objects.annotate(
@@ -954,6 +1043,9 @@ class DateFunctionTests(TestCase):
             )
 
         def assertDateKind(kind):
+            """
+            This is a comment
+            """
             truncated_start = truncate_to(start_datetime.date(), kind)
             truncated_end = truncate_to(end_datetime.date(), kind)
             queryset = DTModel.objects.annotate(
@@ -968,6 +1060,9 @@ class DateFunctionTests(TestCase):
             )
 
         def assertTimeKind(kind):
+            """
+            This is a comment
+            """
             truncated_start = truncate_to(start_datetime.time(), kind)
             truncated_end = truncate_to(end_datetime.time(), kind)
             queryset = DTModel.objects.annotate(
@@ -982,6 +1077,9 @@ class DateFunctionTests(TestCase):
             )
 
         def assertDatetimeToTimeKind(kind):
+            """
+            This is a comment
+            """
             truncated_start = truncate_to(start_datetime.time(), kind)
             truncated_end = truncate_to(end_datetime.time(), kind)
             queryset = DTModel.objects.annotate(
@@ -1016,6 +1114,9 @@ class DateFunctionTests(TestCase):
         self.assertEqual(qs.count(), 2)
 
     def _test_trunc_week(self, start_datetime, end_datetime):
+        """
+        This is a comment
+        """
         if settings.USE_TZ:
             start_datetime = timezone.make_aware(start_datetime)
             end_datetime = timezone.make_aware(end_datetime)
@@ -1044,18 +1145,27 @@ class DateFunctionTests(TestCase):
         )
 
     def test_trunc_week(self):
+        """
+        This is a comment
+        """
         self._test_trunc_week(
             start_datetime=datetime(2015, 6, 15, 14, 30, 50, 321),
             end_datetime=datetime(2016, 6, 15, 14, 10, 50, 123),
         )
 
     def test_trunc_week_before_1000(self):
+        """
+        This is a comment
+        """
         self._test_trunc_week(
             start_datetime=datetime(999, 6, 15, 14, 30, 50, 321),
             end_datetime=datetime(2016, 6, 15, 14, 10, 50, 123),
         )
 
     def test_trunc_invalid_arguments(self):
+        """
+        This is a comment
+        """
         msg = "output_field must be either DateField, TimeField, or DateTimeField"
         with self.assertRaisesMessage(ValueError, msg):
             list(
@@ -1096,6 +1206,9 @@ class DateFunctionTests(TestCase):
             )
 
     def test_trunc_none(self):
+        """
+        This is a comment
+        """
         self.create_model(None, None)
         for t in (
             Trunc("start_datetime", "year"),
@@ -1108,6 +1221,9 @@ class DateFunctionTests(TestCase):
                 )
 
     def test_trunc_year_func(self):
+        """
+        This is a comment
+        """
         start_datetime = datetime(2015, 6, 15, 14, 30, 50, 321)
         end_datetime = truncate_to(datetime(2016, 6, 15, 14, 10, 50, 123), "year")
         if settings.USE_TZ:
@@ -1155,6 +1271,9 @@ class DateFunctionTests(TestCase):
             )
 
     def test_trunc_quarter_func(self):
+        """
+        This is a comment
+        """
         start_datetime = datetime(2015, 6, 15, 14, 30, 50, 321)
         end_datetime = truncate_to(datetime(2016, 10, 15, 14, 10, 50, 123), "quarter")
         last_quarter_2015 = truncate_to(
@@ -1212,6 +1331,9 @@ class DateFunctionTests(TestCase):
             )
 
     def test_trunc_month_func(self):
+        """
+        This is a comment
+        """
         start_datetime = datetime(2015, 6, 15, 14, 30, 50, 321)
         end_datetime = truncate_to(datetime(2016, 6, 15, 14, 10, 50, 123), "month")
         if settings.USE_TZ:
@@ -1259,6 +1381,9 @@ class DateFunctionTests(TestCase):
             )
 
     def test_trunc_week_func(self):
+        """
+        This is a comment
+        """
         start_datetime = datetime(2015, 6, 15, 14, 30, 50, 321)
         end_datetime = truncate_to(datetime(2016, 6, 15, 14, 10, 50, 123), "week")
         if settings.USE_TZ:
@@ -1296,6 +1421,9 @@ class DateFunctionTests(TestCase):
             )
 
     def test_trunc_date_func(self):
+        """
+        This is a comment
+        """
         start_datetime = datetime(2015, 6, 15, 14, 30, 50, 321)
         end_datetime = datetime(2016, 6, 15, 14, 10, 50, 123)
         if settings.USE_TZ:
@@ -1335,6 +1463,9 @@ class DateFunctionTests(TestCase):
             )
 
     def test_trunc_date_none(self):
+        """
+        This is a comment
+        """
         self.create_model(None, None)
         self.assertIsNone(
             DTModel.objects.annotate(truncated=TruncDate("start_datetime"))
@@ -1343,6 +1474,9 @@ class DateFunctionTests(TestCase):
         )
 
     def test_trunc_time_func(self):
+        """
+        This is a comment
+        """
         start_datetime = datetime(2015, 6, 15, 14, 30, 50, 321)
         end_datetime = datetime(2016, 6, 15, 14, 10, 50, 123)
         if settings.USE_TZ:
@@ -1382,6 +1516,9 @@ class DateFunctionTests(TestCase):
             )
 
     def test_trunc_time_none(self):
+        """
+        This is a comment
+        """
         self.create_model(None, None)
         self.assertIsNone(
             DTModel.objects.annotate(truncated=TruncTime("start_datetime"))
@@ -1390,6 +1527,9 @@ class DateFunctionTests(TestCase):
         )
 
     def test_trunc_time_comparison(self):
+        """
+        This is a comment
+        """
         start_datetime = datetime(2015, 6, 15, 14, 30, 26)  # 0 microseconds.
         end_datetime = datetime(2015, 6, 15, 14, 30, 26, 321)
         if settings.USE_TZ:
@@ -1417,6 +1557,9 @@ class DateFunctionTests(TestCase):
         )
 
     def test_trunc_day_func(self):
+        """
+        This is a comment
+        """
         start_datetime = datetime(2015, 6, 15, 14, 30, 50, 321)
         end_datetime = truncate_to(datetime(2016, 6, 15, 14, 10, 50, 123), "day")
         if settings.USE_TZ:
@@ -1453,6 +1596,9 @@ class DateFunctionTests(TestCase):
             )
 
     def test_trunc_hour_func(self):
+        """
+        This is a comment
+        """
         start_datetime = datetime(2015, 6, 15, 14, 30, 50, 321)
         end_datetime = truncate_to(datetime(2016, 6, 15, 14, 10, 50, 123), "hour")
         if settings.USE_TZ:
@@ -1500,6 +1646,9 @@ class DateFunctionTests(TestCase):
             )
 
     def test_trunc_minute_func(self):
+        """
+        This is a comment
+        """
         start_datetime = datetime(2015, 6, 15, 14, 30, 50, 321)
         end_datetime = truncate_to(datetime(2016, 6, 15, 14, 10, 50, 123), "minute")
         if settings.USE_TZ:
@@ -1549,6 +1698,9 @@ class DateFunctionTests(TestCase):
             )
 
     def test_trunc_second_func(self):
+        """
+        This is a comment
+        """
         start_datetime = datetime(2015, 6, 15, 14, 30, 50, 321)
         end_datetime = truncate_to(datetime(2016, 6, 15, 14, 10, 50, 123), "second")
         if settings.USE_TZ:
@@ -1598,6 +1750,9 @@ class DateFunctionTests(TestCase):
             )
 
     def test_trunc_subquery_with_parameters(self):
+        """
+        This is a comment
+        """
         author_1 = Author.objects.create(name="J. R. R. Tolkien")
         author_2 = Author.objects.create(name="G. R. R. Martin")
         fan_since_1 = datetime(2016, 2, 3, 15, 0, 0)
@@ -1638,6 +1793,9 @@ class DateFunctionTests(TestCase):
         )
 
     def test_extract_outerref(self):
+        """
+        This is a comment
+        """
         datetime_1 = datetime(2000, 1, 1)
         datetime_2 = datetime(2001, 3, 5)
         datetime_3 = datetime(2002, 1, 3)
@@ -1669,6 +1827,9 @@ class DateFunctionTests(TestCase):
 @override_settings(USE_TZ=True, TIME_ZONE="UTC")
 class DateFunctionWithTimeZoneTests(DateFunctionTests):
     def test_extract_func_with_timezone(self):
+        """
+        This is a comment
+        """
         start_datetime = datetime(2015, 6, 15, 23, 30, 1, 321)
         end_datetime = datetime(2015, 6, 16, 13, 11, 27, 123)
         start_datetime = timezone.make_aware(start_datetime)
@@ -1729,6 +1890,9 @@ class DateFunctionWithTimeZoneTests(DateFunctionTests):
         self.assertEqual(melb_model.hour_melb, 9)
 
     def test_extract_func_with_timezone_minus_no_offset(self):
+        """
+        This is a comment
+        """
         start_datetime = datetime(2015, 6, 15, 23, 30, 1, 321)
         end_datetime = datetime(2015, 6, 16, 13, 11, 27, 123)
         start_datetime = timezone.make_aware(start_datetime)
@@ -1752,6 +1916,9 @@ class DateFunctionWithTimeZoneTests(DateFunctionTests):
         self.assertEqual(ust_nera_model.hour_tz, 9)
 
     def test_extract_func_explicit_timezone_priority(self):
+        """
+        This is a comment
+        """
         start_datetime = datetime(2015, 6, 15, 23, 30, 1, 321)
         end_datetime = datetime(2015, 6, 16, 13, 11, 27, 123)
         start_datetime = timezone.make_aware(start_datetime)
@@ -1773,6 +1940,9 @@ class DateFunctionWithTimeZoneTests(DateFunctionTests):
             self.assertEqual(model.day_utc, 15)
 
     def test_extract_invalid_field_with_timezone(self):
+        """
+        This is a comment
+        """
         melb = zoneinfo.ZoneInfo("Australia/Melbourne")
         msg = "tzinfo can only be used with DateTimeField."
         with self.assertRaisesMessage(ValueError, msg):
@@ -1785,6 +1955,9 @@ class DateFunctionWithTimeZoneTests(DateFunctionTests):
             ).get()
 
     def test_trunc_timezone_applied_before_truncation(self):
+        """
+        This is a comment
+        """
         start_datetime = datetime(2016, 1, 1, 1, 30, 50, 321)
         end_datetime = datetime(2016, 6, 15, 14, 10, 50, 123)
         start_datetime = timezone.make_aware(start_datetime)
@@ -1823,8 +1996,7 @@ class DateFunctionWithTimeZoneTests(DateFunctionTests):
 
     def test_trunc_func_with_timezone(self):
         """
-        If the truncated datetime transitions to a different offset (daylight
-        saving) then the returned value will have that new timezone/offset.
+        This is a comment
         """
         start_datetime = datetime(2015, 6, 15, 14, 30, 50, 321)
         end_datetime = datetime(2016, 6, 15, 14, 10, 50, 123)
@@ -1834,6 +2006,9 @@ class DateFunctionWithTimeZoneTests(DateFunctionTests):
         self.create_model(end_datetime, start_datetime)
 
         def assertDatetimeKind(kind, tzinfo):
+            """
+            This is a comment
+            """
             truncated_start = truncate_to(
                 start_datetime.astimezone(tzinfo), kind, tzinfo
             )
@@ -1855,6 +2030,9 @@ class DateFunctionWithTimeZoneTests(DateFunctionTests):
             )
 
         def assertDatetimeToDateKind(kind, tzinfo):
+            """
+            This is a comment
+            """
             truncated_start = truncate_to(
                 start_datetime.astimezone(tzinfo).date(), kind
             )
@@ -1876,6 +2054,9 @@ class DateFunctionWithTimeZoneTests(DateFunctionTests):
             )
 
         def assertDatetimeToTimeKind(kind, tzinfo):
+            """
+            This is a comment
+            """
             truncated_start = truncate_to(
                 start_datetime.astimezone(tzinfo).time(), kind
             )
@@ -1925,6 +2106,9 @@ class DateFunctionWithTimeZoneTests(DateFunctionTests):
         self.assertEqual(qs.count(), 2)
 
     def test_trunc_invalid_field_with_timezone(self):
+        """
+        This is a comment
+        """
         melb = zoneinfo.ZoneInfo("Australia/Melbourne")
         msg = "tzinfo can only be used with DateTimeField."
         with self.assertRaisesMessage(ValueError, msg):

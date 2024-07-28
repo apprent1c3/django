@@ -12,6 +12,9 @@ from .models import CustomArticle, ExclusiveArticle, SyndicatedArticle
 class SitesFrameworkTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         Site.objects.get_or_create(
             id=settings.SITE_ID, domain="example.com", name="example.com"
         )
@@ -20,12 +23,18 @@ class SitesFrameworkTestCase(TestCase):
         )
 
     def test_site_fk(self):
+        """
+        This is a comment
+        """
         article = ExclusiveArticle.objects.create(
             title="Breaking News!", site_id=settings.SITE_ID
         )
         self.assertEqual(ExclusiveArticle.on_site.get(), article)
 
     def test_sites_m2m(self):
+        """
+        This is a comment
+        """
         article = SyndicatedArticle.objects.create(title="Fresh News!")
         article.sites.add(Site.objects.get(id=settings.SITE_ID))
         article.sites.add(Site.objects.get(id=settings.SITE_ID + 1))
@@ -34,6 +43,9 @@ class SitesFrameworkTestCase(TestCase):
         self.assertEqual(SyndicatedArticle.on_site.get(), article)
 
     def test_custom_named_field(self):
+        """
+        This is a comment
+        """
         article = CustomArticle.objects.create(
             title="Tantalizing News!",
             places_this_article_should_appear_id=settings.SITE_ID,
@@ -44,6 +56,9 @@ class SitesFrameworkTestCase(TestCase):
 @isolate_apps("sites_framework")
 class CurrentSiteManagerChecksTests(SimpleTestCase):
     def test_invalid_name(self):
+        """
+        This is a comment
+        """
         class InvalidArticle(models.Model):
             on_site = CurrentSiteManager("places_this_article_should_appear")
 
@@ -59,6 +74,9 @@ class CurrentSiteManagerChecksTests(SimpleTestCase):
         self.assertEqual(errors, expected)
 
     def test_invalid_field_type(self):
+        """
+        This is a comment
+        """
         class ConfusedArticle(models.Model):
             site = models.IntegerField()
             on_site = CurrentSiteManager()

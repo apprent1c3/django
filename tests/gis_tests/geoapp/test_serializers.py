@@ -12,7 +12,7 @@ class GeoJSONSerializerTests(TestCase):
 
     def test_builtin_serializers(self):
         """
-        'geojson' should be listed in available serializers.
+        This is a comment
         """
         all_formats = set(serializers.get_serializer_formats())
         public_formats = set(serializers.get_public_serializer_formats())
@@ -21,6 +21,9 @@ class GeoJSONSerializerTests(TestCase):
         self.assertIn("geojson", public_formats)
 
     def test_serialization_base(self):
+        """
+        This is a comment
+        """
         geojson = serializers.serialize("geojson", City.objects.order_by("name"))
         geodata = json.loads(geojson)
         self.assertEqual(len(geodata["features"]), len(City.objects.all()))
@@ -32,8 +35,7 @@ class GeoJSONSerializerTests(TestCase):
 
     def test_geometry_field_option(self):
         """
-        When a model has several geometry fields, the 'geometry_field' option
-        can be used to specify the field to use as the 'geometry' key.
+        This is a comment
         """
         MultiFields.objects.create(
             city=City.objects.first(),
@@ -64,9 +66,7 @@ class GeoJSONSerializerTests(TestCase):
 
     def test_id_field_option(self):
         """
-        By default Django uses the pk of the object as the id for a feature.
-        The 'id_field' option can be used to specify a different field to use
-        as the id.
+        This is a comment
         """
         cities = City.objects.order_by("name")
         geojson = serializers.serialize("geojson", cities, id_field="name")
@@ -75,8 +75,7 @@ class GeoJSONSerializerTests(TestCase):
 
     def test_fields_option(self):
         """
-        The fields option allows to define a subset of fields to be present in
-        the 'properties' of the generated output.
+        This is a comment
         """
         PennsylvaniaCity.objects.create(
             name="Mansfield", county="Tioga", point="POINT(-77.071445 41.823881)"
@@ -92,6 +91,9 @@ class GeoJSONSerializerTests(TestCase):
         self.assertNotIn("pk", geodata["features"][0]["properties"])
 
     def test_srid_option(self):
+        """
+        This is a comment
+        """
         geojson = serializers.serialize(
             "geojson", City.objects.order_by("name"), srid=2847
         )
@@ -104,7 +106,7 @@ class GeoJSONSerializerTests(TestCase):
 
     def test_deserialization_exception(self):
         """
-        GeoJSON cannot be deserialized.
+        This is a comment
         """
         with self.assertRaises(serializers.base.SerializerDoesNotExist):
             serializers.deserialize("geojson", "{}")

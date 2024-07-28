@@ -14,6 +14,9 @@ class EscapeTests(SimpleTestCase):
 
     @setup({"escape01": "{{ a|escape }} {{ b|escape }}"})
     def test_escape01(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "escape01", {"a": "x&y", "b": mark_safe("x&y")}
         )
@@ -27,6 +30,9 @@ class EscapeTests(SimpleTestCase):
         }
     )
     def test_escape02(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "escape02", {"a": "x&y", "b": mark_safe("x&y")}
         )
@@ -34,15 +40,24 @@ class EscapeTests(SimpleTestCase):
 
     @setup({"escape03": "{% autoescape off %}{{ a|escape|escape }}{% endautoescape %}"})
     def test_escape03(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("escape03", {"a": "x&y"})
         self.assertEqual(output, "x&amp;y")
 
     @setup({"escape04": "{{ a|escape|escape }}"})
     def test_escape04(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("escape04", {"a": "x&y"})
         self.assertEqual(output, "x&amp;y")
 
     def test_escape_lazy_string(self):
+        """
+        This is a comment
+        """
         add_html = lazy(lambda string: string + "special characters > here", str)
         escaped = escape(add_html("<some html & "))
         self.assertIsInstance(escaped, Promise)
@@ -51,4 +66,7 @@ class EscapeTests(SimpleTestCase):
 
 class FunctionTests(SimpleTestCase):
     def test_non_string_input(self):
+        """
+        This is a comment
+        """
         self.assertEqual(escape(123), "123")

@@ -10,6 +10,9 @@ class NamedModel(models.Model):
         abstract = True
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 

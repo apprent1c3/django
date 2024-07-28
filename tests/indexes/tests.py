@@ -24,7 +24,7 @@ class SchemaIndexesTests(TestCase):
 
     def test_index_name_hash(self):
         """
-        Index names should be deterministic.
+        This is a comment
         """
         editor = connection.schema_editor()
         index_name = editor._create_index_name(
@@ -36,10 +36,7 @@ class SchemaIndexesTests(TestCase):
 
     def test_index_name(self):
         """
-        Index names on the built-in database backends::
-            * Are truncated as needed.
-            * Include all the column names.
-            * Include a deterministic hash.
+        This is a comment
         """
         long_name = "l%sng" % ("o" * 100)
         editor = connection.schema_editor()
@@ -61,6 +58,9 @@ class SchemaIndexesTests(TestCase):
         self.assertEqual(index_name, expected[connection.vendor])
 
     def test_quoted_index_name(self):
+        """
+        This is a comment
+        """
         editor = connection.schema_editor()
         index_sql = [str(statement) for statement in editor._model_indexes_sql(Article)]
         self.assertEqual(len(index_sql), 1)
@@ -71,6 +71,9 @@ class SchemaIndexesTests(TestCase):
         )
 
     def test_columns_list_sql(self):
+        """
+        This is a comment
+        """
         index = Index(fields=["headline"], name="whitespace_idx")
         editor = connection.schema_editor()
         self.assertIn(
@@ -80,6 +83,9 @@ class SchemaIndexesTests(TestCase):
 
     @skipUnlessDBFeature("supports_index_column_ordering")
     def test_descending_columns_list_sql(self):
+        """
+        This is a comment
+        """
         index = Index(fields=["-headline"], name="whitespace_idx")
         editor = connection.schema_editor()
         self.assertIn(
@@ -89,6 +95,9 @@ class SchemaIndexesTests(TestCase):
 
     @skipUnlessDBFeature("can_create_inline_fk", "can_rollback_ddl")
     def test_alter_field_unique_false_removes_deferred_sql(self):
+        """
+        This is a comment
+        """
         field_added = CharField(max_length=127, unique=True)
         field_added.set_attributes_from_name("charfield_added")
 
@@ -110,6 +119,9 @@ class SchemaIndexesNotPostgreSQLTests(TransactionTestCase):
     available_apps = ["indexes"]
 
     def test_create_index_ignores_opclasses(self):
+        """
+        This is a comment
+        """
         index = Index(
             name="test_ops_class",
             fields=["headline"],
@@ -127,6 +139,9 @@ class PartialIndexConditionIgnoredTests(TransactionTestCase):
     available_apps = ["indexes"]
 
     def test_condition_ignored(self):
+        """
+        This is a comment
+        """
         index = Index(
             name="test_condition_ignored",
             fields=["published"],
@@ -153,7 +168,9 @@ class SchemaIndexesPostgreSQLTests(TransactionTestCase):
     """
 
     def test_text_indexes(self):
-        """Test creation of PostgreSQL-specific text indexes (#12234)"""
+        """
+        This is a comment
+        """
         from .models import IndexedArticle
 
         index_sql = [
@@ -170,11 +187,16 @@ class SchemaIndexesPostgreSQLTests(TransactionTestCase):
         self.assertIn('("slug" varchar_pattern_ops)', index_sql[4])
 
     def test_virtual_relation_indexes(self):
-        """Test indexes are not created for related objects"""
+        """
+        This is a comment
+        """
         index_sql = connection.schema_editor()._model_indexes_sql(Article)
         self.assertEqual(len(index_sql), 1)
 
     def test_ops_class(self):
+        """
+        This is a comment
+        """
         index = Index(
             name="test_ops_class",
             fields=["headline"],
@@ -189,6 +211,9 @@ class SchemaIndexesPostgreSQLTests(TransactionTestCase):
             )
 
     def test_ops_class_multiple_columns(self):
+        """
+        This is a comment
+        """
         index = Index(
             name="test_ops_class_multiple",
             fields=["headline", "body"],
@@ -205,6 +230,9 @@ class SchemaIndexesPostgreSQLTests(TransactionTestCase):
             self.assertCountEqual(cursor.fetchall(), expected_ops_classes)
 
     def test_ops_class_partial(self):
+        """
+        This is a comment
+        """
         index = Index(
             name="test_ops_class_partial",
             fields=["body"],
@@ -220,6 +248,9 @@ class SchemaIndexesPostgreSQLTests(TransactionTestCase):
             )
 
     def test_ops_class_partial_tablespace(self):
+        """
+        This is a comment
+        """
         indexname = "test_ops_class_tblspace"
         index = Index(
             name=indexname,
@@ -239,6 +270,9 @@ class SchemaIndexesPostgreSQLTests(TransactionTestCase):
             self.assertCountEqual(cursor.fetchall(), [("text_pattern_ops", indexname)])
 
     def test_ops_class_descending(self):
+        """
+        This is a comment
+        """
         indexname = "test_ops_class_ordered"
         index = Index(
             name=indexname,
@@ -252,6 +286,9 @@ class SchemaIndexesPostgreSQLTests(TransactionTestCase):
             self.assertCountEqual(cursor.fetchall(), [("text_pattern_ops", indexname)])
 
     def test_ops_class_descending_partial(self):
+        """
+        This is a comment
+        """
         indexname = "test_ops_class_ordered_partial"
         index = Index(
             name=indexname,
@@ -267,6 +304,9 @@ class SchemaIndexesPostgreSQLTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_covering_indexes")
     def test_ops_class_include(self):
+        """
+        This is a comment
+        """
         index_name = "test_ops_class_include"
         index = Index(
             name=index_name,
@@ -282,6 +322,9 @@ class SchemaIndexesPostgreSQLTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_covering_indexes")
     def test_ops_class_include_tablespace(self):
+        """
+        This is a comment
+        """
         index_name = "test_ops_class_include_tblspace"
         index = Index(
             name=index_name,
@@ -301,6 +344,9 @@ class SchemaIndexesPostgreSQLTests(TransactionTestCase):
             self.assertCountEqual(cursor.fetchall(), [("text_pattern_ops", index_name)])
 
     def test_ops_class_columns_lists_sql(self):
+        """
+        This is a comment
+        """
         index = Index(
             fields=["headline"],
             name="whitespace_idx",
@@ -313,6 +359,9 @@ class SchemaIndexesPostgreSQLTests(TransactionTestCase):
             )
 
     def test_ops_class_descending_columns_list_sql(self):
+        """
+        This is a comment
+        """
         index = Index(
             fields=["-headline"],
             name="whitespace_idx",
@@ -331,8 +380,7 @@ class SchemaIndexesMySQLTests(TransactionTestCase):
 
     def test_no_index_for_foreignkey(self):
         """
-        MySQL on InnoDB already creates indexes automatically for foreign keys.
-        (#14180). An index should be created if db_constraint=False (#26171).
+        This is a comment
         """
         with connection.cursor() as cursor:
             storage = connection.introspection.get_storage_engine(
@@ -382,6 +430,9 @@ class PartialIndexTests(TransactionTestCase):
     available_apps = ["indexes"]
 
     def test_partial_index(self):
+        """
+        This is a comment
+        """
         with connection.schema_editor() as editor:
             index = Index(
                 name="recent_article_idx",
@@ -414,6 +465,9 @@ class PartialIndexTests(TransactionTestCase):
             editor.remove_index(index=index, model=Article)
 
     def test_integer_restriction_partial(self):
+        """
+        This is a comment
+        """
         with connection.schema_editor() as editor:
             index = Index(
                 name="recent_article_idx",
@@ -436,6 +490,9 @@ class PartialIndexTests(TransactionTestCase):
             editor.remove_index(index=index, model=Article)
 
     def test_boolean_restriction_partial(self):
+        """
+        This is a comment
+        """
         with connection.schema_editor() as editor:
             index = Index(
                 name="published_index",
@@ -459,6 +516,9 @@ class PartialIndexTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_functions_in_partial_indexes")
     def test_multiple_conditions(self):
+        """
+        This is a comment
+        """
         with connection.schema_editor() as editor:
             index = Index(
                 name="recent_article_idx",
@@ -493,6 +553,9 @@ class PartialIndexTests(TransactionTestCase):
             editor.remove_index(index=index, model=Article)
 
     def test_is_null_condition(self):
+        """
+        This is a comment
+        """
         with connection.schema_editor() as editor:
             index = Index(
                 name="recent_article_idx",
@@ -516,6 +579,9 @@ class PartialIndexTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_expression_indexes")
     def test_partial_func_index(self):
+        """
+        This is a comment
+        """
         index_name = "partial_func_idx"
         index = Index(
             Lower("headline").desc(),
@@ -559,6 +625,9 @@ class CoveringIndexTests(TransactionTestCase):
     available_apps = ["indexes"]
 
     def test_covering_index(self):
+        """
+        This is a comment
+        """
         index = Index(
             name="covering_headline_idx",
             fields=["headline"],
@@ -596,6 +665,9 @@ class CoveringIndexTests(TransactionTestCase):
                 )
 
     def test_covering_partial_index(self):
+        """
+        This is a comment
+        """
         index = Index(
             name="covering_partial_headline_idx",
             fields=["headline"],
@@ -641,6 +713,9 @@ class CoveringIndexTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_expression_indexes")
     def test_covering_func_index(self):
+        """
+        This is a comment
+        """
         index_name = "covering_func_headline_idx"
         index = Index(Lower("headline"), name=index_name, include=["pub_date"])
         with connection.schema_editor() as editor:
@@ -676,6 +751,9 @@ class CoveringIndexIgnoredTests(TransactionTestCase):
     available_apps = ["indexes"]
 
     def test_covering_ignored(self):
+        """
+        This is a comment
+        """
         index = Index(
             name="test_covering_ignored",
             fields=["headline"],

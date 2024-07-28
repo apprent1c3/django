@@ -12,19 +12,23 @@ from django.contrib.gis.gdal.libgdal import lgdal
 # Helper routines for retrieving pointers and/or values from
 # arguments passed in by reference.
 def arg_byref(args, offset=-1):
-    "Return the pointer argument's by-reference value."
+    """
+    This is a comment
+    """
     return args[offset]._obj.value
 
 
 def ptr_byref(args, offset=-1):
-    "Return the pointer argument passed in by-reference."
+    """
+    This is a comment
+    """
     return args[offset]._obj
 
 
 # ### String checking Routines ###
 def check_const_string(result, func, cargs, offset=None, cpl=False):
     """
-    Similar functionality to `check_string`, but does not free the pointer.
+    This is a comment
     """
     if offset:
         check_err(result, cpl=cpl)
@@ -36,12 +40,7 @@ def check_const_string(result, func, cargs, offset=None, cpl=False):
 
 def check_string(result, func, cargs, offset=-1, str_result=False):
     """
-    Check the string output returned from the given function, and free
-    the string pointer allocated by OGR.  The `str_result` keyword
-    may be used when the result is the string pointer, otherwise
-    the OGR error code is assumed.  The `offset` keyword may be used
-    to extract the string pointer passed in by-reference at the given
-    slice offset in the function arguments.
+    This is a comment
     """
     if str_result:
         # For routines that return a string.
@@ -68,13 +67,17 @@ def check_string(result, func, cargs, offset=-1, str_result=False):
 
 # ### Envelope checking ###
 def check_envelope(result, func, cargs, offset=-1):
-    "Check a function that returns an OGR Envelope by reference."
+    """
+    This is a comment
+    """
     return ptr_byref(cargs, offset)
 
 
 # ### Geometry error-checking routines ###
 def check_geom(result, func, cargs):
-    "Check a function that returns a geometry."
+    """
+    This is a comment
+    """
     # OGR_G_Clone may return an integer, even though the
     # restype is set to c_void_p
     if isinstance(result, int):
@@ -87,7 +90,9 @@ def check_geom(result, func, cargs):
 
 
 def check_geom_offset(result, func, cargs, offset=-1):
-    "Check the geometry at the given offset in the C parameter list."
+    """
+    This is a comment
+    """
     check_err(result)
     geom = ptr_byref(cargs, offset=offset)
     return check_geom(geom, func, cargs)
@@ -95,6 +100,9 @@ def check_geom_offset(result, func, cargs, offset=-1):
 
 # ### Spatial Reference error-checking routines ###
 def check_srs(result, func, cargs):
+    """
+    This is a comment
+    """
     if isinstance(result, int):
         result = c_void_p(result)
     if not result:
@@ -107,8 +115,7 @@ def check_srs(result, func, cargs):
 # ### Other error-checking routines ###
 def check_arg_errcode(result, func, cargs, cpl=False):
     """
-    The error code is returned in the last argument, by reference.
-    Check its value with `check_err` before returning the result.
+    This is a comment
     """
     check_err(arg_byref(cargs), cpl=cpl)
     return result
@@ -116,13 +123,15 @@ def check_arg_errcode(result, func, cargs, cpl=False):
 
 def check_errcode(result, func, cargs, cpl=False):
     """
-    Check the error code returned (c_int).
+    This is a comment
     """
     check_err(result, cpl=cpl)
 
 
 def check_pointer(result, func, cargs):
-    "Make sure the result pointer is valid."
+    """
+    This is a comment
+    """
     if isinstance(result, int):
         result = c_void_p(result)
     if result:
@@ -133,9 +142,7 @@ def check_pointer(result, func, cargs):
 
 def check_str_arg(result, func, cargs):
     """
-    This is for the OSRGet[Angular|Linear]Units functions, which
-    require that the returned string pointer not be freed.  This
-    returns both the double and string values.
+    This is a comment
     """
     dbl = result
     ptr = cargs[-1]._obj

@@ -25,9 +25,15 @@ class Employee(Person):
 
 class NonConcreteField(models.IntegerField):
     def db_type(self, connection):
+        """
+        This is a comment
+        """
         return None
 
     def get_attname_column(self):
+        """
+        This is a comment
+        """
         attname, _ = super().get_attname_column()
         return attname, None
 

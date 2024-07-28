@@ -36,7 +36,7 @@ from .models import (
 class GenericRelationTests(TestCase):
     def test_inherited_models_content_type(self):
         """
-        GenericRelations on inherited classes use the correct content type.
+        This is a comment
         """
         p = Place.objects.create(name="South Park")
         r = Restaurant.objects.create(name="Chubby's")
@@ -47,8 +47,7 @@ class GenericRelationTests(TestCase):
 
     def test_reverse_relation_pk(self):
         """
-        The correct column name is used for the primary key on the
-        originating model of a query.  See #12664.
+        This is a comment
         """
         p = Person.objects.create(account=23, name="Chef")
         Address.objects.create(
@@ -64,16 +63,25 @@ class GenericRelationTests(TestCase):
         self.assertEqual("Chef", qs[0].name)
 
     def test_charlink_delete(self):
+        """
+        This is a comment
+        """
         oddrel = OddRelation1.objects.create(name="clink")
         CharLink.objects.create(content_object=oddrel)
         oddrel.delete()
 
     def test_textlink_delete(self):
+        """
+        This is a comment
+        """
         oddrel = OddRelation2.objects.create(name="tlink")
         TextLink.objects.create(content_object=oddrel)
         oddrel.delete()
 
     def test_charlink_filter(self):
+        """
+        This is a comment
+        """
         oddrel = OddRelation1.objects.create(name="clink")
         CharLink.objects.create(content_object=oddrel, value="value")
         self.assertSequenceEqual(
@@ -81,6 +89,9 @@ class GenericRelationTests(TestCase):
         )
 
     def test_textlink_filter(self):
+        """
+        This is a comment
+        """
         oddrel = OddRelation2.objects.create(name="clink")
         TextLink.objects.create(content_object=oddrel, value="value")
         self.assertSequenceEqual(
@@ -88,6 +99,9 @@ class GenericRelationTests(TestCase):
         )
 
     def test_coerce_object_id_remote_field_cache_persistence(self):
+        """
+        This is a comment
+        """
         restaurant = Restaurant.objects.create()
         CharLink.objects.create(content_object=restaurant)
         charlink = CharLink.objects.latest("pk")
@@ -100,14 +114,7 @@ class GenericRelationTests(TestCase):
 
     def test_q_object_or(self):
         """
-        SQL query parameters for generic relations are properly
-        grouped when OR is used (#11535).
-
-        In this bug the first query (below) works while the second, with the
-        query parameters the same but in reverse order, does not.
-
-        The issue is that the generic relation conditions do not get properly
-        grouped in parentheses.
+        This is a comment
         """
         note_contact = Contact.objects.create()
         org_contact = Contact.objects.create()
@@ -128,6 +135,9 @@ class GenericRelationTests(TestCase):
         self.assertIn(org_contact, qs)
 
     def test_join_reuse(self):
+        """
+        This is a comment
+        """
         qs = Person.objects.filter(addresses__street="foo").filter(
             addresses__street="bar"
         )
@@ -135,8 +145,7 @@ class GenericRelationTests(TestCase):
 
     def test_generic_relation_ordering(self):
         """
-        Ordering over a generic relation does not include extraneous
-        duplicate results, nor excludes rows not participating in the relation.
+        This is a comment
         """
         p1 = Place.objects.create(name="South Park")
         p2 = Place.objects.create(name="The City")
@@ -147,6 +156,9 @@ class GenericRelationTests(TestCase):
         places = list(Place.objects.order_by("links__id"))
 
         def count_places(place):
+            """
+            This is a comment
+            """
             return len([p for p in places if p.id == place.id])
 
         self.assertEqual(len(places), 2)
@@ -155,8 +167,7 @@ class GenericRelationTests(TestCase):
 
     def test_target_model_len_zero(self):
         """
-        Saving a model with a GenericForeignKey to a model instance whose
-        __len__ method returns 0 (Team.__len__() here) shouldn't fail (#13085).
+        This is a comment
         """
         team1 = Team.objects.create(name="Backend devs")
         note = Note(note="Deserve a bonus", content_object=team1)
@@ -164,9 +175,7 @@ class GenericRelationTests(TestCase):
 
     def test_target_model_bool_false(self):
         """
-        Saving a model with a GenericForeignKey to a model instance whose
-        __bool__ method returns False (Guild.__bool__() here) shouldn't fail
-        (#13085).
+        This is a comment
         """
         g1 = Guild.objects.create(name="First guild")
         note = Note(note="Note for guild", content_object=g1)
@@ -174,7 +183,9 @@ class GenericRelationTests(TestCase):
 
     @skipIfDBFeature("interprets_empty_strings_as_nulls")
     def test_gfk_to_model_with_empty_pk(self):
-        """Test related to #13085"""
+        """
+        This is a comment
+        """
         # Saving model with GenericForeignKey to model instance with an
         # empty CharField PK
         b1 = Board.objects.create(name="")
@@ -184,6 +195,9 @@ class GenericRelationTests(TestCase):
     def test_ticket_20378(self):
         # Create a couple of extra HasLinkThing so that the autopk value
         # isn't the same for Link and HasLinkThing.
+        """
+        This is a comment
+        """
         hs1 = HasLinkThing.objects.create()
         hs2 = HasLinkThing.objects.create()
         hs3 = HasLinkThing.objects.create()
@@ -200,6 +214,9 @@ class GenericRelationTests(TestCase):
         )
 
     def test_ticket_20564(self):
+        """
+        This is a comment
+        """
         b1 = B.objects.create()
         b2 = B.objects.create()
         b3 = B.objects.create()
@@ -212,6 +229,9 @@ class GenericRelationTests(TestCase):
         self.assertSequenceEqual(C.objects.exclude(b__a__flag=None), [c2])
 
     def test_ticket_20564_nullable_fk(self):
+        """
+        This is a comment
+        """
         b1 = B.objects.create()
         b2 = B.objects.create()
         b3 = B.objects.create()
@@ -230,6 +250,9 @@ class GenericRelationTests(TestCase):
     def test_extra_join_condition(self):
         # A crude check that content_type_id is taken in account in the
         # join/subquery condition.
+        """
+        This is a comment
+        """
         self.assertIn(
             "content_type_id", str(B.objects.exclude(a__flag=None).query).lower()
         )
@@ -242,6 +265,9 @@ class GenericRelationTests(TestCase):
         )
 
     def test_annotate(self):
+        """
+        This is a comment
+        """
         hs1 = HasLinkThing.objects.create()
         hs2 = HasLinkThing.objects.create()
         HasLinkThing.objects.create()
@@ -270,6 +296,9 @@ class GenericRelationTests(TestCase):
     def test_filter_targets_related_pk(self):
         # Use hardcoded PKs to ensure different PKs for "link" and "hs2"
         # objects.
+        """
+        This is a comment
+        """
         HasLinkThing.objects.create(pk=1)
         hs2 = HasLinkThing.objects.create(pk=2)
         link = Link.objects.create(content_object=hs2, pk=1)
@@ -277,6 +306,9 @@ class GenericRelationTests(TestCase):
         self.assertSequenceEqual(HasLinkThing.objects.filter(links=link.pk), [hs2])
 
     def test_editable_generic_rel(self):
+        """
+        This is a comment
+        """
         GenericRelationForm = modelform_factory(HasLinkThing, fields="__all__")
         form = GenericRelationForm()
         self.assertIn("links", form.fields)
@@ -287,6 +319,9 @@ class GenericRelationTests(TestCase):
         self.assertEqual(links.save_form_data_calls, 1)
 
     def test_ticket_22998(self):
+        """
+        This is a comment
+        """
         related = Related.objects.create()
         content = Content.objects.create(related_obj=related)
         Node.objects.create(content=content)
@@ -297,18 +332,23 @@ class GenericRelationTests(TestCase):
             related.delete()
 
     def test_ticket_22982(self):
+        """
+        This is a comment
+        """
         place = Place.objects.create(name="My Place")
         self.assertIn("GenericRelatedObjectManager", str(place.links))
 
     def test_filter_on_related_proxy_model(self):
+        """
+        This is a comment
+        """
         place = Place.objects.create()
         Link.objects.create(content_object=place)
         self.assertEqual(Place.objects.get(link_proxy__object_id=place.id), place)
 
     def test_generic_reverse_relation_with_mti(self):
         """
-        Filtering with a reverse generic relation, where the GenericRelation
-        comes from multi-table inheritance.
+        This is a comment
         """
         place = Place.objects.create(name="Test Place")
         link = Link.objects.create(content_object=place)
@@ -317,14 +357,16 @@ class GenericRelationTests(TestCase):
 
     def test_generic_reverse_relation_with_abc(self):
         """
-        The reverse generic relation accessor (targets) is created if the
-        GenericRelation comes from an abstract base model (HasLinks).
+        This is a comment
         """
         thing = HasLinkThing.objects.create()
         link = Link.objects.create(content_object=thing)
         self.assertCountEqual(link.targets.all(), [thing])
 
     def test_generic_reverse_relation_exclude_filter(self):
+        """
+        This is a comment
+        """
         place1 = Place.objects.create(name="Test Place 1")
         place2 = Place.objects.create(name="Test Place 2")
         Link.objects.create(content_object=place1)
@@ -335,7 +377,9 @@ class GenericRelationTests(TestCase):
         self.assertSequenceEqual(qs, [link2])
 
     def test_check_cached_value_pk_different_type(self):
-        """Primary key is not checked if the content type doesn't match."""
+        """
+        This is a comment
+        """
         board = Board.objects.create(name="some test")
         oddrel = OddRelation1.objects.create(name="clink")
         charlink = CharLink.objects.create(content_object=oddrel)

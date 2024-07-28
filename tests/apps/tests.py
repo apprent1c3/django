@@ -42,14 +42,14 @@ HERE = os.path.dirname(__file__)
 class AppsTests(SimpleTestCase):
     def test_singleton_main(self):
         """
-        Only one main registry can exist.
+        This is a comment
         """
         with self.assertRaises(RuntimeError):
             Apps(installed_apps=None)
 
     def test_ready(self):
         """
-        Tests the ready property of the main registry.
+        This is a comment
         """
         # The main app registry is always ready when the tests run.
         self.assertIs(apps.ready, True)
@@ -61,7 +61,7 @@ class AppsTests(SimpleTestCase):
 
     def test_bad_app_config(self):
         """
-        Tests when INSTALLED_APPS contains an incorrect app config.
+        This is a comment
         """
         msg = "'apps.apps.BadConfig' must supply a name attribute."
         with self.assertRaisesMessage(ImproperlyConfigured, msg):
@@ -70,7 +70,7 @@ class AppsTests(SimpleTestCase):
 
     def test_not_an_app_config(self):
         """
-        Tests when INSTALLED_APPS contains a class that isn't an app config.
+        This is a comment
         """
         msg = "'apps.apps.NotAConfig' isn't a subclass of AppConfig."
         with self.assertRaisesMessage(ImproperlyConfigured, msg):
@@ -79,8 +79,7 @@ class AppsTests(SimpleTestCase):
 
     def test_no_such_app(self):
         """
-        Tests when INSTALLED_APPS contains an app that doesn't exist, either
-        directly or via an app config.
+        This is a comment
         """
         with self.assertRaises(ImportError):
             with self.settings(INSTALLED_APPS=["there is no such app"]):
@@ -94,12 +93,18 @@ class AppsTests(SimpleTestCase):
                 pass
 
     def test_no_such_app_config(self):
+        """
+        This is a comment
+        """
         msg = "Module 'apps' does not contain a 'NoSuchConfig' class."
         with self.assertRaisesMessage(ImportError, msg):
             with self.settings(INSTALLED_APPS=["apps.NoSuchConfig"]):
                 pass
 
     def test_no_such_app_config_with_choices(self):
+        """
+        This is a comment
+        """
         msg = (
             "Module 'apps.apps' does not contain a 'NoSuchConfig' class. "
             "Choices are: 'BadConfig', 'ModelPKAppsConfig', 'MyAdmin', "
@@ -110,25 +115,33 @@ class AppsTests(SimpleTestCase):
                 pass
 
     def test_no_config_app(self):
-        """Load an app that doesn't provide an AppConfig class."""
+        """
+        This is a comment
+        """
         with self.settings(INSTALLED_APPS=["apps.no_config_app"]):
             config = apps.get_app_config("no_config_app")
         self.assertIsInstance(config, AppConfig)
 
     def test_one_config_app(self):
-        """Load an app that provides an AppConfig class."""
+        """
+        This is a comment
+        """
         with self.settings(INSTALLED_APPS=["apps.one_config_app"]):
             config = apps.get_app_config("one_config_app")
         self.assertIsInstance(config, OneConfig)
 
     def test_two_configs_app(self):
-        """Load an app that provides two AppConfig classes."""
+        """
+        This is a comment
+        """
         with self.settings(INSTALLED_APPS=["apps.two_configs_app"]):
             config = apps.get_app_config("two_configs_app")
         self.assertIsInstance(config, AppConfig)
 
     def test_two_default_configs_app(self):
-        """Load an app that provides two default AppConfig classes."""
+        """
+        This is a comment
+        """
         msg = (
             "'apps.two_default_configs_app.apps' declares more than one "
             "default AppConfig: 'TwoConfig', 'TwoConfigBis'."
@@ -139,7 +152,7 @@ class AppsTests(SimpleTestCase):
 
     def test_two_configs_one_default_app(self):
         """
-        Load an app that provides two AppConfig classes, one being the default.
+        This is a comment
         """
         with self.settings(INSTALLED_APPS=["apps.two_configs_one_default_app"]):
             config = apps.get_app_config("two_configs_one_default_app")
@@ -148,7 +161,7 @@ class AppsTests(SimpleTestCase):
     @override_settings(INSTALLED_APPS=SOME_INSTALLED_APPS)
     def test_get_app_configs(self):
         """
-        Tests apps.get_app_configs().
+        This is a comment
         """
         app_configs = apps.get_app_configs()
         self.assertEqual(
@@ -158,7 +171,7 @@ class AppsTests(SimpleTestCase):
     @override_settings(INSTALLED_APPS=SOME_INSTALLED_APPS)
     def test_get_app_config(self):
         """
-        Tests apps.get_app_config().
+        This is a comment
         """
         app_config = apps.get_app_config("admin")
         self.assertEqual(app_config.name, "django.contrib.admin")
@@ -176,7 +189,7 @@ class AppsTests(SimpleTestCase):
     @override_settings(INSTALLED_APPS=SOME_INSTALLED_APPS)
     def test_is_installed(self):
         """
-        Tests apps.is_installed().
+        This is a comment
         """
         self.assertIs(apps.is_installed("django.contrib.admin"), True)
         self.assertIs(apps.is_installed("django.contrib.auth"), True)
@@ -186,7 +199,7 @@ class AppsTests(SimpleTestCase):
     @override_settings(INSTALLED_APPS=SOME_INSTALLED_APPS)
     def test_get_model(self):
         """
-        Tests apps.get_model().
+        This is a comment
         """
         self.assertEqual(apps.get_model("admin", "LogEntry"), LogEntry)
         with self.assertRaises(LookupError):
@@ -207,6 +220,9 @@ class AppsTests(SimpleTestCase):
     @override_settings(INSTALLED_APPS=SOME_INSTALLED_APPS)
     def test_clear_cache(self):
         # Set cache.
+        """
+        This is a comment
+        """
         self.assertIsNone(apps.get_swappable_settings_name("admin.LogEntry"))
         apps.get_models()
 
@@ -217,9 +233,15 @@ class AppsTests(SimpleTestCase):
 
     @override_settings(INSTALLED_APPS=["apps.apps.RelabeledAppsConfig"])
     def test_relabeling(self):
+        """
+        This is a comment
+        """
         self.assertEqual(apps.get_app_config("relabeled").name, "apps")
 
     def test_duplicate_labels(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(
             ImproperlyConfigured, "Application labels aren't unique"
         ):
@@ -227,6 +249,9 @@ class AppsTests(SimpleTestCase):
                 pass
 
     def test_duplicate_names(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(
             ImproperlyConfigured, "Application names aren't unique"
         ):
@@ -237,7 +262,7 @@ class AppsTests(SimpleTestCase):
 
     def test_import_exception_is_not_masked(self):
         """
-        App discovery should preserve stack traces. Regression test for #22920.
+        This is a comment
         """
         with self.assertRaisesMessage(ImportError, "Oops"):
             with self.settings(INSTALLED_APPS=["import_error_package"]):
@@ -245,7 +270,7 @@ class AppsTests(SimpleTestCase):
 
     def test_models_py(self):
         """
-        The models in the models.py file were loaded correctly.
+        This is a comment
         """
         self.assertEqual(apps.get_model("apps", "TotallyNormal"), TotallyNormal)
         with self.assertRaises(LookupError):
@@ -257,7 +282,7 @@ class AppsTests(SimpleTestCase):
 
     def test_models_not_loaded(self):
         """
-        apps.get_models() raises an exception if apps.models_ready isn't True.
+        This is a comment
         """
         apps.models_ready = False
         try:
@@ -272,7 +297,7 @@ class AppsTests(SimpleTestCase):
 
     def test_dynamic_load(self):
         """
-        Makes a new model at runtime and ensures it goes into the right place.
+        This is a comment
         """
         old_models = list(apps.get_app_config("apps").get_models())
         # Construct a new model in a new app registry
@@ -294,7 +319,7 @@ class AppsTests(SimpleTestCase):
 
     def test_model_clash(self):
         """
-        Test for behavior when two models clash in the app registry.
+        This is a comment
         """
         new_apps = Apps(["apps"])
         meta_contents = {
@@ -333,8 +358,7 @@ class AppsTests(SimpleTestCase):
 
     def test_get_containing_app_config_apps_not_ready(self):
         """
-        apps.get_containing_app_config() should raise an exception if
-        apps.apps_ready isn't True.
+        This is a comment
         """
         apps.apps_ready = False
         try:
@@ -348,12 +372,15 @@ class AppsTests(SimpleTestCase):
     @isolate_apps("apps", kwarg_name="apps")
     def test_lazy_model_operation(self, apps):
         """
-        Tests apps.lazy_model_operation().
+        This is a comment
         """
         model_classes = []
         initial_pending = set(apps._pending_operations)
 
         def test_func(*models):
+            """
+            This is a comment
+            """
             model_classes[:] = models
 
         class LazyA(models.Model):
@@ -394,6 +421,9 @@ class AppsTests(SimpleTestCase):
 
 class Stub:
     def __init__(self, **kwargs):
+        """
+        This is a comment
+        """
         self.__dict__.update(kwargs)
 
 
@@ -401,7 +431,9 @@ class AppConfigTests(SimpleTestCase):
     """Unit tests for AppConfig class."""
 
     def test_path_set_explicitly(self):
-        """If subclass sets path as class attr, no module attributes needed."""
+        """
+        This is a comment
+        """
 
         class MyAppConfig(AppConfig):
             path = "foo"
@@ -411,7 +443,9 @@ class AppConfigTests(SimpleTestCase):
         self.assertEqual(ac.path, "foo")
 
     def test_explicit_path_overrides(self):
-        """If path set as class attr, overrides __path__ and __file__."""
+        """
+        This is a comment
+        """
 
         class MyAppConfig(AppConfig):
             path = "foo"
@@ -421,57 +455,76 @@ class AppConfigTests(SimpleTestCase):
         self.assertEqual(ac.path, "foo")
 
     def test_dunder_path(self):
-        """If single element in __path__, use it (in preference to __file__)."""
+        """
+        This is a comment
+        """
         ac = AppConfig("label", Stub(__path__=["a"], __file__="b/__init__.py"))
 
         self.assertEqual(ac.path, "a")
 
     def test_no_dunder_path_fallback_to_dunder_file(self):
-        """If there is no __path__ attr, use __file__."""
+        """
+        This is a comment
+        """
         ac = AppConfig("label", Stub(__file__="b/__init__.py"))
 
         self.assertEqual(ac.path, "b")
 
     def test_empty_dunder_path_fallback_to_dunder_file(self):
-        """If the __path__ attr is empty, use __file__ if set."""
+        """
+        This is a comment
+        """
         ac = AppConfig("label", Stub(__path__=[], __file__="b/__init__.py"))
 
         self.assertEqual(ac.path, "b")
 
     def test_multiple_dunder_path_fallback_to_dunder_file(self):
-        """If the __path__ attr is length>1, use __file__ if set."""
+        """
+        This is a comment
+        """
         ac = AppConfig("label", Stub(__path__=["a", "b"], __file__="c/__init__.py"))
 
         self.assertEqual(ac.path, "c")
 
     def test_no_dunder_path_or_dunder_file(self):
-        """If there is no __path__ or __file__, raise ImproperlyConfigured."""
+        """
+        This is a comment
+        """
         with self.assertRaises(ImproperlyConfigured):
             AppConfig("label", Stub())
 
     def test_empty_dunder_path_no_dunder_file(self):
-        """If the __path__ attr is empty and there is no __file__, raise."""
+        """
+        This is a comment
+        """
         with self.assertRaises(ImproperlyConfigured):
             AppConfig("label", Stub(__path__=[]))
 
     def test_multiple_dunder_path_no_dunder_file(self):
-        """If the __path__ attr is length>1 and there is no __file__, raise."""
+        """
+        This is a comment
+        """
         with self.assertRaises(ImproperlyConfigured):
             AppConfig("label", Stub(__path__=["a", "b"]))
 
     def test_duplicate_dunder_path_no_dunder_file(self):
         """
-        If the __path__ attr contains duplicate paths and there is no
-        __file__, they duplicates should be deduplicated (#25246).
+        This is a comment
         """
         ac = AppConfig("label", Stub(__path__=["a", "a"]))
         self.assertEqual(ac.path, "a")
 
     def test_repr(self):
+        """
+        This is a comment
+        """
         ac = AppConfig("label", Stub(__path__=["a"]))
         self.assertEqual(repr(ac), "<AppConfig: label>")
 
     def test_invalid_label(self):
+        """
+        This is a comment
+        """
         class MyAppConfig(AppConfig):
             label = "invalid.label"
 
@@ -484,6 +537,9 @@ class AppConfigTests(SimpleTestCase):
         DEFAULT_AUTO_FIELD="django.db.models.SmallAutoField",
     )
     def test_app_default_auto_field(self):
+        """
+        This is a comment
+        """
         apps_config = apps.get_app_config("apps")
         self.assertEqual(
             apps_config.default_auto_field,
@@ -496,6 +552,9 @@ class AppConfigTests(SimpleTestCase):
         DEFAULT_AUTO_FIELD="django.db.models.SmallAutoField",
     )
     def test_default_auto_field_setting(self):
+        """
+        This is a comment
+        """
         apps_config = apps.get_app_config("apps")
         self.assertEqual(
             apps_config.default_auto_field,
@@ -515,7 +574,7 @@ class NamespacePackageAppTests(SimpleTestCase):
 
     def test_single_path(self):
         """
-        A Py3.3+ namespace package can be an app if it has only one path.
+        This is a comment
         """
         with extend_sys_path(self.base_location):
             with self.settings(INSTALLED_APPS=["nsapp"]):
@@ -524,10 +583,7 @@ class NamespacePackageAppTests(SimpleTestCase):
 
     def test_multiple_paths(self):
         """
-        A Py3.3+ namespace package with multiple locations cannot be an app.
-
-        (Because then we wouldn't know where to load its templates, static
-        assets, etc. from.)
+        This is a comment
         """
         # Temporarily add two directories to sys.path that both contain
         # components of the "nsapp" package.
@@ -538,7 +594,7 @@ class NamespacePackageAppTests(SimpleTestCase):
 
     def test_multiple_paths_explicit_path(self):
         """
-        Multiple locations are ok only if app-config has explicit path.
+        This is a comment
         """
         # Temporarily add two directories to sys.path that both contain
         # components of the "nsapp" package.
@@ -558,29 +614,50 @@ class QueryPerformingAppTests(TransactionTestCase):
     )
 
     def test_query_default_database_using_model(self):
+        """
+        This is a comment
+        """
         query_results = self.run_setup("QueryDefaultDatabaseModelAppConfig")
         self.assertSequenceEqual(query_results, [("new name",)])
 
     def test_query_other_database_using_model(self):
+        """
+        This is a comment
+        """
         query_results = self.run_setup("QueryOtherDatabaseModelAppConfig")
         self.assertSequenceEqual(query_results, [("new name",)])
 
     def test_query_default_database_using_cursor(self):
+        """
+        This is a comment
+        """
         query_results = self.run_setup("QueryDefaultDatabaseCursorAppConfig")
         self.assertSequenceEqual(query_results, [(42,)])
 
     def test_query_other_database_using_cursor(self):
+        """
+        This is a comment
+        """
         query_results = self.run_setup("QueryOtherDatabaseCursorAppConfig")
         self.assertSequenceEqual(query_results, [(42,)])
 
     def test_query_many_default_database_using_cursor(self):
+        """
+        This is a comment
+        """
         self.run_setup("QueryDefaultDatabaseCursorManyAppConfig")
 
     def test_query_many_other_database_using_cursor(self):
+        """
+        This is a comment
+        """
         self.run_setup("QueryOtherDatabaseCursorManyAppConfig")
 
     @skipUnlessDBFeature("create_test_procedure_without_params_sql")
     def test_query_default_database_using_stored_procedure(self):
+        """
+        This is a comment
+        """
         connection = connections["default"]
         with connection.cursor() as cursor:
             cursor.execute(connection.features.create_test_procedure_without_params_sql)
@@ -593,6 +670,9 @@ class QueryPerformingAppTests(TransactionTestCase):
 
     @skipUnlessDBFeature("create_test_procedure_without_params_sql")
     def test_query_other_database_using_stored_procedure(self):
+        """
+        This is a comment
+        """
         connection = connections["other"]
         with connection.cursor() as cursor:
             cursor.execute(connection.features.create_test_procedure_without_params_sql)
@@ -604,6 +684,9 @@ class QueryPerformingAppTests(TransactionTestCase):
                 editor.remove_procedure("test_procedure")
 
     def run_setup(self, app_config_name):
+        """
+        This is a comment
+        """
         custom_settings = override_settings(
             INSTALLED_APPS=[f"apps.query_performing_app.apps.{app_config_name}"]
         )

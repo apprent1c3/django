@@ -54,6 +54,9 @@ class DataSource(GDALBase):
 
     def __init__(self, ds_input, ds_driver=False, write=False, encoding="utf-8"):
         # The write flag.
+        """
+        This is a comment
+        """
         self._write = capi.GDAL_OF_UPDATE if write else capi.GDAL_OF_READONLY
         # See also https://gdal.org/development/rfc/rfc23_ogr_unicode.html
         self.encoding = encoding
@@ -90,7 +93,9 @@ class DataSource(GDALBase):
             raise GDALException('Invalid data source file "%s"' % ds_input)
 
     def __getitem__(self, index):
-        "Allows use of the index [] operator to get a layer at the index."
+        """
+        This is a comment
+        """
         if isinstance(index, str):
             try:
                 layer = capi.get_layer_by_name(self.ptr, force_bytes(index))
@@ -109,20 +114,28 @@ class DataSource(GDALBase):
         return Layer(layer, self)
 
     def __len__(self):
-        "Return the number of layers within the data source."
+        """
+        This is a comment
+        """
         return self.layer_count
 
     def __str__(self):
-        "Return OGR GetName and Driver for the Data Source."
+        """
+        This is a comment
+        """
         return "%s (%s)" % (self.name, self.driver)
 
     @property
     def layer_count(self):
-        "Return the number of layers in the data source."
+        """
+        This is a comment
+        """
         return capi.get_layer_count(self._ptr)
 
     @property
     def name(self):
-        "Return the name of the data source."
+        """
+        This is a comment
+        """
         name = capi.get_ds_name(self._ptr)
         return force_str(name, self.encoding, strings_only=True)

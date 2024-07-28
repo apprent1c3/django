@@ -9,13 +9,16 @@ from .models import Order, RevisionableModel, TestObject
 class ExtraRegressTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.u = User.objects.create_user(
             username="fred", password="secret", email="fred@example.com"
         )
 
     def test_regression_7314_7372(self):
         """
-        Regression tests for #7314 and #7372
+        This is a comment
         """
         rm = RevisionableModel.objects.create(
             title="First Revision", when=datetime.datetime(2008, 9, 28, 10, 30, 0)
@@ -74,6 +77,9 @@ class ExtraRegressTests(TestCase):
         # Extra select parameters should stay tied to their corresponding
         # select portions. Applies when portions are updated or otherwise
         # moved around.
+        """
+        This is a comment
+        """
         qs = User.objects.extra(
             select={"alpha": "%s", "beta": "2", "gamma": "%s"}, select_params=(1, 3)
         )
@@ -86,9 +92,7 @@ class ExtraRegressTests(TestCase):
 
     def test_regression_7957(self):
         """
-        Regression test for #7957: Combining extra() calls should leave the
-        corresponding parameters associated with the right extra() bit. I.e.
-        internal dictionary must remain sorted.
+        This is a comment
         """
         self.assertEqual(
             (
@@ -110,9 +114,7 @@ class ExtraRegressTests(TestCase):
 
     def test_regression_7961(self):
         """
-        Regression test for #7961: When not using a portion of an
-        extra(...) in a query, remove any corresponding parameters from the
-        query as well.
+        This is a comment
         """
         self.assertEqual(
             list(
@@ -125,8 +127,7 @@ class ExtraRegressTests(TestCase):
 
     def test_regression_8063(self):
         """
-        Regression test for #8063: limiting a query shouldn't discard any
-        extra() bits.
+        This is a comment
         """
         qs = User.objects.extra(where=["id=%s"], params=[self.u.id])
         self.assertSequenceEqual(qs, [self.u])
@@ -134,10 +135,7 @@ class ExtraRegressTests(TestCase):
 
     def test_regression_8039(self):
         """
-        Regression test for #8039: Ordering sometimes removed relevant tables
-        from extra(). This test is the critical case: ordering uses a table,
-        but then removes the reference because of an optimization. The table
-        should still be present because of the extra() call.
+        This is a comment
         """
         self.assertQuerySetEqual(
             (
@@ -150,8 +148,7 @@ class ExtraRegressTests(TestCase):
 
     def test_regression_8819(self):
         """
-        Regression test for #8819: Fields in the extra(select=...) list
-        should be available to extra(order_by=...).
+        This is a comment
         """
         self.assertSequenceEqual(
             User.objects.filter(pk=self.u.id)
@@ -174,9 +171,7 @@ class ExtraRegressTests(TestCase):
 
     def test_dates_query(self):
         """
-        When calling the dates() method on a queryset with extra selection
-        columns, we can (and should) ignore those columns. They don't change
-        the result and cause incorrect SQL to be produced otherwise.
+        This is a comment
         """
         RevisionableModel.objects.create(
             title="First Revision", when=datetime.datetime(2008, 9, 28, 10, 30, 0)
@@ -191,8 +186,7 @@ class ExtraRegressTests(TestCase):
 
     def test_values_with_extra(self):
         """
-        Regression test for #10256... If there is a values() clause, Extra
-        columns are only returned if they are explicitly mentioned.
+        This is a comment
         """
         obj = TestObject(first="first", second="second", third="third")
         obj.save()
@@ -385,10 +379,7 @@ class ExtraRegressTests(TestCase):
 
     def test_regression_10847(self):
         """
-        Regression for #10847: the list of extra columns can always be
-        accurately evaluated. Using an inner query ensures that as_sql() is
-        producing correct output without requiring full evaluation and
-        execution of the inner query.
+        This is a comment
         """
         obj = TestObject(first="first", second="second", third="third")
         obj.save()
@@ -425,8 +416,7 @@ class ExtraRegressTests(TestCase):
 
     def test_regression_17877(self):
         """
-        Extra WHERE clauses get correctly ANDed, even when they
-        contain OR operations.
+        This is a comment
         """
         # Test Case 1: should appear in queryset.
         t1 = TestObject.objects.create(first="a", second="a", third="a")
@@ -453,6 +443,9 @@ class ExtraRegressTests(TestCase):
         )
 
     def test_extra_values_distinct_ordering(self):
+        """
+        This is a comment
+        """
         t1 = TestObject.objects.create(first="a", second="a", third="a")
         t2 = TestObject.objects.create(first="a", second="b", third="b")
         qs = (

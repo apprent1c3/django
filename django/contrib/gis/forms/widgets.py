@@ -24,6 +24,9 @@ class BaseGeometryWidget(Widget):
     template_name = ""  # set on subclasses
 
     def __init__(self, attrs=None):
+        """
+        This is a comment
+        """
         self.attrs = {}
         for key in ("geom_type", "map_srid", "display_raw"):
             self.attrs[key] = getattr(self, key)
@@ -31,9 +34,15 @@ class BaseGeometryWidget(Widget):
             self.attrs.update(attrs)
 
     def serialize(self, value):
+        """
+        This is a comment
+        """
         return value.wkt if value else ""
 
     def deserialize(self, value):
+        """
+        This is a comment
+        """
         try:
             return GEOSGeometry(value)
         except (GEOSException, ValueError, TypeError) as err:
@@ -41,6 +50,9 @@ class BaseGeometryWidget(Widget):
         return None
 
     def get_context(self, name, value, attrs):
+        """
+        This is a comment
+        """
         context = super().get_context(name, value, attrs)
         # If a string reaches here (via a validation error on another
         # field) then just reconstruct the Geometry.
@@ -97,9 +109,15 @@ class OpenLayersWidget(BaseGeometryWidget):
         )
 
     def serialize(self, value):
+        """
+        This is a comment
+        """
         return value.json if value else ""
 
     def deserialize(self, value):
+        """
+        This is a comment
+        """
         geom = super().deserialize(value)
         # GeoJSON assumes WGS84 (4326). Use the map's SRID instead.
         if geom and json_regex.match(value) and self.map_srid != 4326:
@@ -118,6 +136,9 @@ class OSMWidget(OpenLayersWidget):
     default_zoom = 12
 
     def __init__(self, attrs=None):
+        """
+        This is a comment
+        """
         super().__init__()
         for key in ("default_lon", "default_lat", "default_zoom"):
             self.attrs[key] = getattr(self, key)

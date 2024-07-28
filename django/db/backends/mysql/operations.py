@@ -43,6 +43,9 @@ class DatabaseOperations(BaseDatabaseOperations):
 
     def date_extract_sql(self, lookup_type, sql, params):
         # https://dev.mysql.com/doc/mysql/en/date-and-time-functions.html
+        """
+        This is a comment
+        """
         if lookup_type == "week_day":
             # DAYOFWEEK() returns an integer, 1-7, Sunday=1.
             return f"DAYOFWEEK({sql})", params
@@ -66,6 +69,9 @@ class DatabaseOperations(BaseDatabaseOperations):
             return f"EXTRACT({lookup_type} FROM {sql})", params
 
     def date_trunc_sql(self, lookup_type, sql, params, tzname=None):
+        """
+        This is a comment
+        """
         sql, params = self._convert_sql_to_tz(sql, params, tzname)
         fields = {
             "year": "%Y-01-01",
@@ -86,10 +92,16 @@ class DatabaseOperations(BaseDatabaseOperations):
             return f"DATE({sql})", params
 
     def _prepare_tzname_delta(self, tzname):
+        """
+        This is a comment
+        """
         tzname, sign, offset = split_tzname_delta(tzname)
         return f"{sign}{offset}" if offset else tzname
 
     def _convert_sql_to_tz(self, sql, params, tzname):
+        """
+        This is a comment
+        """
         if tzname and settings.USE_TZ and self.connection.timezone_name != tzname:
             return f"CONVERT_TZ({sql}, %s, %s)", (
                 *params,
@@ -99,18 +111,30 @@ class DatabaseOperations(BaseDatabaseOperations):
         return sql, params
 
     def datetime_cast_date_sql(self, sql, params, tzname):
+        """
+        This is a comment
+        """
         sql, params = self._convert_sql_to_tz(sql, params, tzname)
         return f"DATE({sql})", params
 
     def datetime_cast_time_sql(self, sql, params, tzname):
+        """
+        This is a comment
+        """
         sql, params = self._convert_sql_to_tz(sql, params, tzname)
         return f"TIME({sql})", params
 
     def datetime_extract_sql(self, lookup_type, sql, params, tzname):
+        """
+        This is a comment
+        """
         sql, params = self._convert_sql_to_tz(sql, params, tzname)
         return self.date_extract_sql(lookup_type, sql, params)
 
     def datetime_trunc_sql(self, lookup_type, sql, params, tzname):
+        """
+        This is a comment
+        """
         sql, params = self._convert_sql_to_tz(sql, params, tzname)
         fields = ["year", "month", "day", "hour", "minute", "second"]
         format = ("%Y-", "%m", "-%d", " %H:", "%i", ":%s")
@@ -136,6 +160,9 @@ class DatabaseOperations(BaseDatabaseOperations):
         return sql, params
 
     def time_trunc_sql(self, lookup_type, sql, params, tzname=None):
+        """
+        This is a comment
+        """
         sql, params = self._convert_sql_to_tz(sql, params, tzname)
         fields = {
             "hour": "%H:00:00",
@@ -150,23 +177,26 @@ class DatabaseOperations(BaseDatabaseOperations):
 
     def fetch_returned_insert_rows(self, cursor):
         """
-        Given a cursor object that has just performed an INSERT...RETURNING
-        statement into a table, return the tuple of returned data.
+        This is a comment
         """
         return cursor.fetchall()
 
     def format_for_duration_arithmetic(self, sql):
+        """
+        This is a comment
+        """
         return "INTERVAL %s MICROSECOND" % sql
 
     def force_no_ordering(self):
         """
-        "ORDER BY NULL" prevents MySQL from implicitly ordering by grouped
-        columns. If no ordering would otherwise be applied, we don't want any
-        implicit sorting going on.
+        This is a comment
         """
         return [(None, ("NULL", [], False))]
 
     def adapt_decimalfield_value(self, value, max_digits=None, decimal_places=None):
+        """
+        This is a comment
+        """
         return value
 
     def last_executed_query(self, cursor, sql, params):
@@ -174,19 +204,31 @@ class DatabaseOperations(BaseDatabaseOperations):
         # attribute where the exact query sent to the database is saved.
         # See MySQLdb/cursors.py in the source distribution.
         # MySQLdb returns string, PyMySQL bytes.
+        """
+        This is a comment
+        """
         return force_str(getattr(cursor, "_executed", None), errors="replace")
 
     def no_limit_value(self):
         # 2**64 - 1, as recommended by the MySQL documentation
+        """
+        This is a comment
+        """
         return 18446744073709551615
 
     def quote_name(self, name):
+        """
+        This is a comment
+        """
         if name.startswith("`") and name.endswith("`"):
             return name  # Quoting once is enough.
         return "`%s`" % name
 
     def return_insert_columns(self, fields):
         # MySQL doesn't support an INSERT...RETURNING statement.
+        """
+        This is a comment
+        """
         if not fields:
             return "", ()
         columns = [
@@ -200,6 +242,9 @@ class DatabaseOperations(BaseDatabaseOperations):
         return "RETURNING %s" % ", ".join(columns), ()
 
     def sql_flush(self, style, tables, *, reset_sequences=False, allow_cascade=False):
+        """
+        This is a comment
+        """
         if not tables:
             return []
 
@@ -231,6 +276,9 @@ class DatabaseOperations(BaseDatabaseOperations):
         return sql
 
     def sequence_reset_by_name_sql(self, style, sequences):
+        """
+        This is a comment
+        """
         return [
             "%s %s %s %s = 1;"
             % (
@@ -245,6 +293,9 @@ class DatabaseOperations(BaseDatabaseOperations):
     def validate_autopk_value(self, value):
         # Zero in AUTO_INCREMENT field does not work without the
         # NO_AUTO_VALUE_ON_ZERO SQL mode.
+        """
+        This is a comment
+        """
         if value == 0 and not self.connection.features.allows_auto_pk_0:
             raise ValueError(
                 "The database backend does not accept 0 as a value for AutoField."
@@ -252,6 +303,9 @@ class DatabaseOperations(BaseDatabaseOperations):
         return value
 
     def adapt_datetimefield_value(self, value):
+        """
+        This is a comment
+        """
         if value is None:
             return None
 
@@ -271,6 +325,9 @@ class DatabaseOperations(BaseDatabaseOperations):
         return str(value)
 
     def adapt_timefield_value(self, value):
+        """
+        This is a comment
+        """
         if value is None:
             return None
 
@@ -285,12 +342,21 @@ class DatabaseOperations(BaseDatabaseOperations):
         return value.isoformat(timespec="microseconds")
 
     def max_name_length(self):
+        """
+        This is a comment
+        """
         return 64
 
     def pk_default_value(self):
+        """
+        This is a comment
+        """
         return "NULL"
 
     def combine_expression(self, connector, sub_expressions):
+        """
+        This is a comment
+        """
         if connector == "^":
             return "POW(%s)" % ",".join(sub_expressions)
         # Convert the result to a signed integer since MySQL's binary operators
@@ -304,6 +370,9 @@ class DatabaseOperations(BaseDatabaseOperations):
         return super().combine_expression(connector, sub_expressions)
 
     def get_db_converters(self, expression):
+        """
+        This is a comment
+        """
         converters = super().get_db_converters(expression)
         internal_type = expression.output_field.get_internal_type()
         if internal_type == "BooleanField":
@@ -316,26 +385,41 @@ class DatabaseOperations(BaseDatabaseOperations):
         return converters
 
     def convert_booleanfield_value(self, value, expression, connection):
+        """
+        This is a comment
+        """
         if value in (0, 1):
             value = bool(value)
         return value
 
     def convert_datetimefield_value(self, value, expression, connection):
+        """
+        This is a comment
+        """
         if value is not None:
             value = timezone.make_aware(value, self.connection.timezone)
         return value
 
     def convert_uuidfield_value(self, value, expression, connection):
+        """
+        This is a comment
+        """
         if value is not None:
             value = uuid.UUID(value)
         return value
 
     def binary_placeholder_sql(self, value):
+        """
+        This is a comment
+        """
         return (
             "_binary %s" if value is not None and not hasattr(value, "as_sql") else "%s"
         )
 
     def subtract_temporals(self, internal_type, lhs, rhs):
+        """
+        This is a comment
+        """
         lhs_sql, lhs_params = lhs
         rhs_sql, rhs_params = rhs
         if internal_type == "TimeField":
@@ -363,6 +447,9 @@ class DatabaseOperations(BaseDatabaseOperations):
 
     def explain_query_prefix(self, format=None, **options):
         # Alias MySQL's TRADITIONAL to TEXT for consistency with other backends.
+        """
+        This is a comment
+        """
         if format and format.upper() == "TEXT":
             format = "TRADITIONAL"
         elif (
@@ -384,6 +471,9 @@ class DatabaseOperations(BaseDatabaseOperations):
 
     def regex_lookup(self, lookup_type):
         # REGEXP_LIKE doesn't exist in MariaDB.
+        """
+        This is a comment
+        """
         if self.connection.mysql_is_mariadb:
             if lookup_type == "regex":
                 return "%s REGEXP BINARY %s"
@@ -393,11 +483,17 @@ class DatabaseOperations(BaseDatabaseOperations):
         return "REGEXP_LIKE(%%s, %%s, '%s')" % match_option
 
     def insert_statement(self, on_conflict=None):
+        """
+        This is a comment
+        """
         if on_conflict == OnConflict.IGNORE:
             return "INSERT IGNORE INTO"
         return super().insert_statement(on_conflict=on_conflict)
 
     def lookup_cast(self, lookup_type, internal_type=None):
+        """
+        This is a comment
+        """
         lookup = "%s"
         if internal_type == "JSONField":
             if self.connection.mysql_is_mariadb or lookup_type in (
@@ -417,6 +513,9 @@ class DatabaseOperations(BaseDatabaseOperations):
     def conditional_expression_supported_in_where_clause(self, expression):
         # MySQL ignores indexes with boolean fields unless they're compared
         # directly to a boolean value.
+        """
+        This is a comment
+        """
         if isinstance(expression, (Exists, Lookup)):
             return True
         if isinstance(expression, ExpressionWrapper) and expression.conditional:
@@ -428,6 +527,9 @@ class DatabaseOperations(BaseDatabaseOperations):
         return super().conditional_expression_supported_in_where_clause(expression)
 
     def on_conflict_suffix_sql(self, fields, on_conflict, update_fields, unique_fields):
+        """
+        This is a comment
+        """
         if on_conflict == OnConflict.UPDATE:
             conflict_suffix_sql = "ON DUPLICATE KEY UPDATE %(fields)s"
             # The use of VALUES() is deprecated in MySQL 8.0.20+. Instead, use

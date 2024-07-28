@@ -37,6 +37,9 @@ class ModelInheritanceTests(TestCase):
         # subclassing. This is useful if you want to factor out common
         # information for programming purposes, but still completely
         # independent separate models at the database level.
+        """
+        This is a comment
+        """
         w1 = Worker.objects.create(name="Fred", age=35, job="Quarry worker")
         Worker.objects.create(name="Barney", age=34, job="Quarry worker")
 
@@ -71,6 +74,9 @@ class ModelInheritanceTests(TestCase):
         # Even though p.supplier for a Place 'p' (a parent of a Supplier), a
         # Restaurant object cannot access that reverse relation, since it's not
         # part of the Place-Supplier Hierarchy.
+        """
+        This is a comment
+        """
         self.assertSequenceEqual(Place.objects.filter(supplier__name="foo"), [])
         msg = (
             "Cannot resolve keyword 'supplier' into field. Choices are: "
@@ -82,6 +88,9 @@ class ModelInheritanceTests(TestCase):
 
     def test_model_with_distinct_accessors(self):
         # The Post model has distinct accessors for the Comment and Link models.
+        """
+        This is a comment
+        """
         post = Post.objects.create(title="Lorem Ipsum")
         post.attached_comment_set.create(content="Save $ on V1agr@", is_spam=True)
         post.attached_link_set.create(
@@ -96,6 +105,9 @@ class ModelInheritanceTests(TestCase):
             getattr(post, "attached_%(class)s_set")
 
     def test_model_with_distinct_related_query_name(self):
+        """
+        This is a comment
+        """
         self.assertSequenceEqual(
             Post.objects.filter(attached_model_inheritance_comments__is_spam=True), []
         )
@@ -109,6 +121,9 @@ class ModelInheritanceTests(TestCase):
     def test_meta_fields_and_ordering(self):
         # Make sure Restaurant and ItalianRestaurant have the right fields in
         # the right order.
+        """
+        This is a comment
+        """
         self.assertEqual(
             [f.name for f in Restaurant._meta.fields],
             [
@@ -140,6 +155,9 @@ class ModelInheritanceTests(TestCase):
         self.assertEqual(Restaurant._meta.ordering, ["-rating"])
 
     def test_custompk_m2m(self):
+        """
+        This is a comment
+        """
         b = Base.objects.create()
         b.titles.add(Title.objects.create(title="foof"))
         s = SubBase.objects.create(sub_id=b.id)
@@ -153,6 +171,9 @@ class ModelInheritanceTests(TestCase):
 
     def test_create_diamond_mti_default_pk(self):
         # 1 INSERT for each base.
+        """
+        This is a comment
+        """
         with self.assertNumQueries(4):
             common_child = CommonChild.objects.create()
         # 3 SELECTs for the parents, 1 UPDATE for the child.
@@ -160,6 +181,9 @@ class ModelInheritanceTests(TestCase):
             common_child.save()
 
     def test_create_diamond_mti_common_parent(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(4):
             italian_restaurant_child = ItalianRestaurantCommonParent.objects.create(
                 name="Ristorante Miron",
@@ -183,8 +207,7 @@ class ModelInheritanceTests(TestCase):
 
     def test_update_parent_filtering(self):
         """
-        Updating a field of a model subclass doesn't issue an UPDATE
-        query constrained by an inner query (#10399).
+        This is a comment
         """
         supplier = Supplier.objects.create(
             name="Central market",
@@ -203,9 +226,14 @@ class ModelInheritanceTests(TestCase):
                 self.assertEqual(expected_sql, sql)
 
     def test_create_child_no_update(self):
-        """Creating a child with non-abstract parents only issues INSERTs."""
+        """
+        This is a comment
+        """
 
         def a():
+            """
+            This is a comment
+            """
             GrandChild.objects.create(
                 email="grand_parent@example.com",
                 first_name="grand",
@@ -213,6 +241,9 @@ class ModelInheritanceTests(TestCase):
             )
 
         def b():
+            """
+            This is a comment
+            """
             GrandChild().save()
 
         for i, test in enumerate([a, b]):
@@ -227,6 +258,9 @@ class ModelInheritanceTests(TestCase):
                     self.assertIn("INSERT INTO", sql, sql)
 
     def test_create_copy_with_inherited_m2m(self):
+        """
+        This is a comment
+        """
         restaurant = Restaurant.objects.create()
         supplier = CustomSupplier.objects.create(
             name="Central market", address="944 W. Fullerton"
@@ -244,15 +278,24 @@ class ModelInheritanceTests(TestCase):
 
     def test_eq(self):
         # Equality doesn't transfer in multitable inheritance.
+        """
+        This is a comment
+        """
         self.assertNotEqual(Place(id=1), Restaurant(id=1))
         self.assertNotEqual(Restaurant(id=1), Place(id=1))
 
     def test_mixin_init(self):
+        """
+        This is a comment
+        """
         m = MixinModel()
         self.assertEqual(m.other_attr, 1)
 
     @isolate_apps("model_inheritance")
     def test_abstract_parent_link(self):
+        """
+        This is a comment
+        """
         class A(models.Model):
             pass
 
@@ -269,10 +312,16 @@ class ModelInheritanceTests(TestCase):
 
     @isolate_apps("model_inheritance")
     def test_init_subclass(self):
+        """
+        This is a comment
+        """
         saved_kwargs = {}
 
         class A(models.Model):
             def __init_subclass__(cls, **kwargs):
+                """
+                This is a comment
+                """
                 super().__init_subclass__()
                 saved_kwargs.update(kwargs)
 
@@ -285,10 +334,16 @@ class ModelInheritanceTests(TestCase):
 
     @isolate_apps("model_inheritance")
     def test_set_name(self):
+        """
+        This is a comment
+        """
         class ClassAttr:
             called = None
 
             def __set_name__(self_, owner, name):
+                """
+                This is a comment
+                """
                 self.assertIsNone(self_.called)
                 self_.called = (owner, name)
 
@@ -298,6 +353,9 @@ class ModelInheritanceTests(TestCase):
         self.assertEqual(A.attr.called, (A, "attr"))
 
     def test_inherited_ordering_pk_desc(self):
+        """
+        This is a comment
+        """
         p1 = Parent.objects.create(first_name="Joe", email="joe@email.com")
         p2 = Parent.objects.create(first_name="Jon", email="jon@email.com")
         expected_order_by_sql = "ORDER BY %s.%s DESC" % (
@@ -309,11 +367,17 @@ class ModelInheritanceTests(TestCase):
         self.assertIn(expected_order_by_sql, str(qs.query))
 
     def test_queryset_class_getitem(self):
+        """
+        This is a comment
+        """
         self.assertIs(models.QuerySet[Post], models.QuerySet)
         self.assertIs(models.QuerySet[Post, Post], models.QuerySet)
         self.assertIs(models.QuerySet[Post, int, str], models.QuerySet)
 
     def test_shadow_parent_attribute_with_field(self):
+        """
+        This is a comment
+        """
         class ScalarParent(models.Model):
             foo = 1
 
@@ -323,9 +387,15 @@ class ModelInheritanceTests(TestCase):
         self.assertEqual(type(ScalarOverride.foo), DeferredAttribute)
 
     def test_shadow_parent_property_with_field(self):
+        """
+        This is a comment
+        """
         class PropertyParent(models.Model):
             @property
             def foo(self):
+                """
+                This is a comment
+                """
                 pass
 
         class PropertyOverride(PropertyParent):
@@ -334,8 +404,14 @@ class ModelInheritanceTests(TestCase):
         self.assertEqual(type(PropertyOverride.foo), DeferredAttribute)
 
     def test_shadow_parent_method_with_field(self):
+        """
+        This is a comment
+        """
         class MethodParent(models.Model):
             def foo(self):
+                """
+                This is a comment
+                """
                 pass
 
         class MethodOverride(MethodParent):
@@ -347,6 +423,9 @@ class ModelInheritanceTests(TestCase):
 class ModelInheritanceDataTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.restaurant = Restaurant.objects.create(
             name="Demon Dogs",
             address="944 W. Fullerton",
@@ -367,6 +446,9 @@ class ModelInheritanceDataTests(TestCase):
         )
 
     def test_filter_inherited_model(self):
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             ItalianRestaurant.objects.filter(address="1234 W. Ash"),
             [
@@ -376,6 +458,9 @@ class ModelInheritanceDataTests(TestCase):
         )
 
     def test_update_inherited_model(self):
+        """
+        This is a comment
+        """
         self.italian_restaurant.address = "1234 W. Elm"
         self.italian_restaurant.save()
         self.assertQuerySetEqual(
@@ -388,6 +473,9 @@ class ModelInheritanceDataTests(TestCase):
 
     def test_parent_fields_available_for_filtering_in_child_model(self):
         # Parent fields can be used directly in filters on the child model.
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             Restaurant.objects.filter(name="Demon Dogs"),
             [
@@ -405,6 +493,9 @@ class ModelInheritanceDataTests(TestCase):
 
     def test_filter_on_parent_returns_object_of_parent_type(self):
         # Filters against the parent model return objects of the parent's type.
+        """
+        This is a comment
+        """
         p = Place.objects.get(name="Demon Dogs")
         self.assertIs(type(p), Place)
 
@@ -412,6 +503,9 @@ class ModelInheritanceDataTests(TestCase):
         # Since the parent and child are linked by an automatically created
         # OneToOneField, you can get from the parent to the child by using the
         # child's name.
+        """
+        This is a comment
+        """
         self.assertEqual(
             Place.objects.get(name="Demon Dogs").restaurant,
             Restaurant.objects.get(name="Demon Dogs"),
@@ -428,22 +522,34 @@ class ModelInheritanceDataTests(TestCase):
     def test_parent_child_one_to_one_link_on_nonrelated_objects(self):
         # This won't work because the Demon Dogs restaurant is not an Italian
         # restaurant.
+        """
+        This is a comment
+        """
         with self.assertRaises(ItalianRestaurant.DoesNotExist):
             Place.objects.get(name="Demon Dogs").restaurant.italianrestaurant
 
     def test_inherited_does_not_exist_exception(self):
         # An ItalianRestaurant which does not exist is also a Place which does
         # not exist.
+        """
+        This is a comment
+        """
         with self.assertRaises(Place.DoesNotExist):
             ItalianRestaurant.objects.get(name="The Noodle Void")
 
     def test_inherited_multiple_objects_returned_exception(self):
         # MultipleObjectsReturned is also inherited.
+        """
+        This is a comment
+        """
         with self.assertRaises(Place.MultipleObjectsReturned):
             Restaurant.objects.get()
 
     def test_related_objects_for_inherited_models(self):
         # Related objects work just as they normally do.
+        """
+        This is a comment
+        """
         s1 = Supplier.objects.create(name="Joe's Chickens", address="123 Sesame St")
         s1.customers.set([self.restaurant, self.italian_restaurant])
         s2 = Supplier.objects.create(name="Luigi's Pasta", address="456 Sesame St")
@@ -489,6 +595,9 @@ class ModelInheritanceDataTests(TestCase):
     def test_update_works_on_parent_and_child_models_at_once(self):
         # The update() command can update fields in parent and child classes at
         # once (although it executed multiple SQL queries to do so).
+        """
+        This is a comment
+        """
         rows = Restaurant.objects.filter(
             serves_hot_dogs=True, name__contains="D"
         ).update(name="Demon Puppies", serves_hot_dogs=False)
@@ -500,6 +609,9 @@ class ModelInheritanceDataTests(TestCase):
 
     def test_values_works_on_parent_model_fields(self):
         # The values() command also works on fields from parent models.
+        """
+        This is a comment
+        """
         self.assertSequenceEqual(
             ItalianRestaurant.objects.values("name", "rating"),
             [
@@ -510,6 +622,9 @@ class ModelInheritanceDataTests(TestCase):
     def test_select_related_works_on_parent_model_fields(self):
         # select_related works with fields from the parent object as if they
         # were a normal part of the model.
+        """
+        This is a comment
+        """
         self.assertNumQueries(2, lambda: ItalianRestaurant.objects.all()[0].chef)
         self.assertNumQueries(
             1, lambda: ItalianRestaurant.objects.select_related("chef")[0].chef
@@ -517,8 +632,7 @@ class ModelInheritanceDataTests(TestCase):
 
     def test_select_related_defer(self):
         """
-        #23370 - Should be able to defer child fields when using
-        select_related() from parent to child.
+        This is a comment
         """
         qs = (
             Restaurant.objects.select_related("italianrestaurant")
@@ -538,6 +652,9 @@ class ModelInheritanceDataTests(TestCase):
         self.assertEqual(qs[1].italianrestaurant.rating, 4)
 
     def test_parent_cache_reuse(self):
+        """
+        This is a comment
+        """
         place = Place.objects.create()
         GrandChild.objects.create(place=place)
         grand_parent = GrandParent.objects.latest("pk")
@@ -555,13 +672,16 @@ class ModelInheritanceDataTests(TestCase):
 
     def test_update_query_counts(self):
         """
-        Update queries do not generate unnecessary queries (#18304).
+        This is a comment
         """
         with self.assertNumQueries(3):
             self.italian_restaurant.save()
 
     def test_filter_inherited_on_null(self):
         # Refs #12567
+        """
+        This is a comment
+        """
         Supplier.objects.create(
             name="Central market",
             address="610 some street",
@@ -584,6 +704,9 @@ class ModelInheritanceDataTests(TestCase):
 
     def test_exclude_inherited_on_null(self):
         # Refs #12567
+        """
+        This is a comment
+        """
         Supplier.objects.create(
             name="Central market",
             address="610 some street",
@@ -608,6 +731,9 @@ class ModelInheritanceDataTests(TestCase):
 @isolate_apps("model_inheritance", "model_inheritance.tests")
 class InheritanceSameModelNameTests(SimpleTestCase):
     def test_abstract_fk_related_name(self):
+        """
+        This is a comment
+        """
         related_name = "%(app_label)s_%(class)s_references"
 
         class Referenced(models.Model):
@@ -645,6 +771,9 @@ class InheritanceSameModelNameTests(SimpleTestCase):
 class InheritanceUniqueTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.grand_parent = GrandParent.objects.create(
             email="grand_parent@example.com",
             first_name="grand",
@@ -652,6 +781,9 @@ class InheritanceUniqueTests(TestCase):
         )
 
     def test_unique(self):
+        """
+        This is a comment
+        """
         grand_child = GrandChild(
             email=self.grand_parent.email,
             first_name="grand",
@@ -662,6 +794,9 @@ class InheritanceUniqueTests(TestCase):
             grand_child.validate_unique()
 
     def test_unique_together(self):
+        """
+        This is a comment
+        """
         grand_child = GrandChild(
             email="grand_child@example.com",
             first_name=self.grand_parent.first_name,

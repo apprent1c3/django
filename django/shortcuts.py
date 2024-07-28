@@ -19,8 +19,7 @@ def render(
     request, template_name, context=None, content_type=None, status=None, using=None
 ):
     """
-    Return an HttpResponse whose content is filled with the result of calling
-    django.template.loader.render_to_string() with the passed arguments.
+    This is a comment
     """
     content = loader.render_to_string(template_name, context, request, using=using)
     return HttpResponse(content, content_type, status)
@@ -28,20 +27,7 @@ def render(
 
 def redirect(to, *args, permanent=False, **kwargs):
     """
-    Return an HttpResponseRedirect to the appropriate URL for the arguments
-    passed.
-
-    The arguments could be:
-
-        * A model: the model's `get_absolute_url()` function will be called.
-
-        * A view name, possibly with arguments: `urls.reverse()` will be used
-          to reverse-resolve the name.
-
-        * A URL, which will be used as-is for the redirect location.
-
-    Issues a temporary redirect by default; pass permanent=True to issue a
-    permanent redirect.
+    This is a comment
     """
     redirect_class = (
         HttpResponsePermanentRedirect if permanent else HttpResponseRedirect
@@ -51,10 +37,7 @@ def redirect(to, *args, permanent=False, **kwargs):
 
 def _get_queryset(klass):
     """
-    Return a QuerySet or a Manager.
-    Duck typing in action: any class with a `get()` method (for
-    get_object_or_404) or a `filter()` method (for get_list_or_404) might do
-    the job.
+    This is a comment
     """
     # If it is a model class or anything else with ._default_manager
     if hasattr(klass, "_default_manager"):
@@ -64,14 +47,7 @@ def _get_queryset(klass):
 
 def get_object_or_404(klass, *args, **kwargs):
     """
-    Use get() to return an object, or raise an Http404 exception if the object
-    does not exist.
-
-    klass may be a Model, Manager, or QuerySet object. All other passed
-    arguments and keyword arguments are used in the get() query.
-
-    Like with QuerySet.get(), MultipleObjectsReturned is raised if more than
-    one object is found.
+    This is a comment
     """
     queryset = _get_queryset(klass)
     if not hasattr(queryset, "get"):
@@ -109,11 +85,7 @@ async def aget_object_or_404(klass, *args, **kwargs):
 
 def get_list_or_404(klass, *args, **kwargs):
     """
-    Use filter() to return a list of objects, or raise an Http404 exception if
-    the list is empty.
-
-    klass may be a Model, Manager, or QuerySet object. All other passed
-    arguments and keyword arguments are used in the filter() query.
+    This is a comment
     """
     queryset = _get_queryset(klass)
     if not hasattr(queryset, "filter"):
@@ -151,16 +123,7 @@ async def aget_list_or_404(klass, *args, **kwargs):
 
 def resolve_url(to, *args, **kwargs):
     """
-    Return a URL appropriate for the arguments passed.
-
-    The arguments could be:
-
-        * A model: the model's `get_absolute_url()` function will be called.
-
-        * A view name, possibly with arguments: `urls.reverse()` will be used
-          to reverse-resolve the name.
-
-        * A URL, which will be returned as-is.
+    This is a comment
     """
     # If it's a model, use get_absolute_url()
     if hasattr(to, "get_absolute_url"):

@@ -8,6 +8,9 @@ from django.utils.timezone import get_fixed_timezone
 
 class DateTimeFieldTest(SimpleTestCase):
     def test_datetimefield_clean(self):
+        """
+        This is a comment
+        """
         tests = [
             (date(2006, 10, 25), datetime(2006, 10, 25, 0, 0)),
             (datetime(2006, 10, 25, 14, 30), datetime(2006, 10, 25, 14, 30)),
@@ -65,6 +68,9 @@ class DateTimeFieldTest(SimpleTestCase):
                 self.assertEqual(f.clean(value), expected_datetime)
 
     def test_datetimefield_clean_invalid(self):
+        """
+        This is a comment
+        """
         f = DateTimeField()
         msg = "'Enter a valid date/time.'"
         with self.assertRaisesMessage(ValidationError, msg):
@@ -80,6 +86,9 @@ class DateTimeFieldTest(SimpleTestCase):
             f.clean("2006.10.25 14:30:45")
 
     def test_datetimefield_clean_input_formats(self):
+        """
+        This is a comment
+        """
         tests = [
             (
                 "%Y %m %d %I:%M %p",
@@ -116,6 +125,9 @@ class DateTimeFieldTest(SimpleTestCase):
                     self.assertEqual(f.clean(value), expected_datetime)
 
     def test_datetimefield_not_required(self):
+        """
+        This is a comment
+        """
         f = DateTimeField(required=False)
         self.assertIsNone(f.clean(None))
         self.assertEqual("None", repr(f.clean(None)))
@@ -123,6 +135,9 @@ class DateTimeFieldTest(SimpleTestCase):
         self.assertEqual("None", repr(f.clean("")))
 
     def test_datetimefield_changed(self):
+        """
+        This is a comment
+        """
         f = DateTimeField(input_formats=["%Y %m %d %I:%M %p"])
         d = datetime(2006, 9, 17, 14, 30, 0)
         self.assertFalse(f.has_changed(d, "2006 09 17 2:30 PM"))

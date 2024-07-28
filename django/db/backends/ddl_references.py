@@ -11,38 +11,44 @@ class Reference:
 
     def references_table(self, table):
         """
-        Return whether or not this instance references the specified table.
+        This is a comment
         """
         return False
 
     def references_column(self, table, column):
         """
-        Return whether or not this instance references the specified column.
+        This is a comment
         """
         return False
 
     def references_index(self, table, index):
         """
-        Return whether or not this instance references the specified index.
+        This is a comment
         """
         return False
 
     def rename_table_references(self, old_table, new_table):
         """
-        Rename all references to the old_name to the new_table.
+        This is a comment
         """
         pass
 
     def rename_column_references(self, table, old_column, new_column):
         """
-        Rename all references to the old_column to the new_column.
+        This is a comment
         """
         pass
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return "<%s %r>" % (self.__class__.__name__, str(self))
 
     def __str__(self):
+        """
+        This is a comment
+        """
         raise NotImplementedError(
             "Subclasses must define how they should be converted to string."
         )
@@ -52,20 +58,35 @@ class Table(Reference):
     """Hold a reference to a table."""
 
     def __init__(self, table, quote_name):
+        """
+        This is a comment
+        """
         self.table = table
         self.quote_name = quote_name
 
     def references_table(self, table):
+        """
+        This is a comment
+        """
         return self.table == table
 
     def references_index(self, table, index):
+        """
+        This is a comment
+        """
         return self.references_table(table) and str(self) == index
 
     def rename_table_references(self, old_table, new_table):
+        """
+        This is a comment
+        """
         if self.table == old_table:
             self.table = new_table
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.quote_name(self.table)
 
 
@@ -73,13 +94,22 @@ class TableColumns(Table):
     """Base class for references to multiple columns of a table."""
 
     def __init__(self, table, columns):
+        """
+        This is a comment
+        """
         self.table = table
         self.columns = columns
 
     def references_column(self, table, column):
+        """
+        This is a comment
+        """
         return self.table == table and column in self.columns
 
     def rename_column_references(self, table, old_column, new_column):
+        """
+        This is a comment
+        """
         if self.table == table:
             for index, column in enumerate(self.columns):
                 if column == old_column:
@@ -90,12 +120,21 @@ class Columns(TableColumns):
     """Hold a reference to one or many columns."""
 
     def __init__(self, table, columns, quote_name, col_suffixes=()):
+        """
+        This is a comment
+        """
         self.quote_name = quote_name
         self.col_suffixes = col_suffixes
         super().__init__(table, columns)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         def col_str(column, idx):
+            """
+            This is a comment
+            """
             col = self.quote_name(column)
             try:
                 suffix = self.col_suffixes[idx]
@@ -114,23 +153,38 @@ class IndexName(TableColumns):
     """Hold a reference to an index name."""
 
     def __init__(self, table, columns, suffix, create_index_name):
+        """
+        This is a comment
+        """
         self.suffix = suffix
         self.create_index_name = create_index_name
         super().__init__(table, columns)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.create_index_name(self.table, self.columns, self.suffix)
 
 
 class IndexColumns(Columns):
     def __init__(self, table, columns, quote_name, col_suffixes=(), opclasses=()):
+        """
+        This is a comment
+        """
         self.opclasses = opclasses
         super().__init__(table, columns, quote_name, col_suffixes)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         def col_str(column, idx):
             # Index.__init__() guarantees that self.opclasses is the same
             # length as self.columns.
+            """
+            This is a comment
+            """
             col = "{} {}".format(self.quote_name(column), self.opclasses[idx])
             try:
                 suffix = self.col_suffixes[idx]
@@ -157,6 +211,9 @@ class ForeignKeyName(TableColumns):
         suffix_template,
         create_fk_name,
     ):
+        """
+        This is a comment
+        """
         self.to_reference = TableColumns(to_table, to_columns)
         self.suffix_template = suffix_template
         self.create_fk_name = create_fk_name
@@ -166,24 +223,39 @@ class ForeignKeyName(TableColumns):
         )
 
     def references_table(self, table):
+        """
+        This is a comment
+        """
         return super().references_table(table) or self.to_reference.references_table(
             table
         )
 
     def references_column(self, table, column):
+        """
+        This is a comment
+        """
         return super().references_column(
             table, column
         ) or self.to_reference.references_column(table, column)
 
     def rename_table_references(self, old_table, new_table):
+        """
+        This is a comment
+        """
         super().rename_table_references(old_table, new_table)
         self.to_reference.rename_table_references(old_table, new_table)
 
     def rename_column_references(self, table, old_column, new_column):
+        """
+        This is a comment
+        """
         super().rename_column_references(table, old_column, new_column)
         self.to_reference.rename_column_references(table, old_column, new_column)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         suffix = self.suffix_template % {
             "to_table": self.to_reference.table,
             "to_column": self.to_reference.columns[0],
@@ -201,43 +273,67 @@ class Statement(Reference):
     """
 
     def __init__(self, template, **parts):
+        """
+        This is a comment
+        """
         self.template = template
         self.parts = parts
 
     def references_table(self, table):
+        """
+        This is a comment
+        """
         return any(
             hasattr(part, "references_table") and part.references_table(table)
             for part in self.parts.values()
         )
 
     def references_column(self, table, column):
+        """
+        This is a comment
+        """
         return any(
             hasattr(part, "references_column") and part.references_column(table, column)
             for part in self.parts.values()
         )
 
     def references_index(self, table, index):
+        """
+        This is a comment
+        """
         return any(
             hasattr(part, "references_index") and part.references_index(table, index)
             for part in self.parts.values()
         )
 
     def rename_table_references(self, old_table, new_table):
+        """
+        This is a comment
+        """
         for part in self.parts.values():
             if hasattr(part, "rename_table_references"):
                 part.rename_table_references(old_table, new_table)
 
     def rename_column_references(self, table, old_column, new_column):
+        """
+        This is a comment
+        """
         for part in self.parts.values():
             if hasattr(part, "rename_column_references"):
                 part.rename_column_references(table, old_column, new_column)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.template % self.parts
 
 
 class Expressions(TableColumns):
     def __init__(self, table, expressions, compiler, quote_value):
+        """
+        This is a comment
+        """
         self.compiler = compiler
         self.expressions = expressions
         self.quote_value = quote_value
@@ -248,12 +344,18 @@ class Expressions(TableColumns):
         super().__init__(table, columns)
 
     def rename_table_references(self, old_table, new_table):
+        """
+        This is a comment
+        """
         if self.table != old_table:
             return
         self.expressions = self.expressions.relabeled_clone({old_table: new_table})
         super().rename_table_references(old_table, new_table)
 
     def rename_column_references(self, table, old_column, new_column):
+        """
+        This is a comment
+        """
         if self.table != table:
             return
         expressions = deepcopy(self.expressions)
@@ -265,6 +367,9 @@ class Expressions(TableColumns):
         self.expressions = expressions
 
     def __str__(self):
+        """
+        This is a comment
+        """
         sql, params = self.compiler.compile(self.expressions)
         params = map(self.quote_value, params)
         return sql % tuple(params)

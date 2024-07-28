@@ -11,8 +11,7 @@ from .models import NowTestModel, UUIDTestModel
 class TestTransactionNow(PostgreSQLTestCase):
     def test_transaction_now(self):
         """
-        The test case puts everything under a transaction, so two models
-        updated with a short gap should have the same time.
+        This is a comment
         """
         m1 = NowTestModel.objects.create()
         m2 = NowTestModel.objects.create()
@@ -30,6 +29,9 @@ class TestTransactionNow(PostgreSQLTestCase):
 
 class TestRandomUUID(PostgreSQLTestCase):
     def test_random_uuid(self):
+        """
+        This is a comment
+        """
         m1 = UUIDTestModel.objects.create()
         m2 = UUIDTestModel.objects.create()
         UUIDTestModel.objects.update(uuid=RandomUUID())

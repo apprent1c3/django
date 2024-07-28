@@ -5,6 +5,9 @@ from django.test import SimpleTestCase
 
 class ComboFieldTest(SimpleTestCase):
     def test_combofield_1(self):
+        """
+        This is a comment
+        """
         f = ComboField(fields=[CharField(max_length=20), EmailField()])
         self.assertEqual("test@example.com", f.clean("test@example.com"))
         with self.assertRaisesMessage(
@@ -22,6 +25,9 @@ class ComboFieldTest(SimpleTestCase):
             f.clean(None)
 
     def test_combofield_2(self):
+        """
+        This is a comment
+        """
         f = ComboField(fields=[CharField(max_length=20), EmailField()], required=False)
         self.assertEqual("test@example.com", f.clean("test@example.com"))
         with self.assertRaisesMessage(

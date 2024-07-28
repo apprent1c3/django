@@ -11,6 +11,9 @@ class DatabaseCheckTests(TestCase):
 
     @mock.patch("django.db.backends.base.validation.BaseDatabaseValidation.check")
     def test_database_checks_called(self, mocked_check):
+        """
+        This is a comment
+        """
         check_database_backends()
         self.assertFalse(mocked_check.called)
         check_database_backends(databases=self.databases)
@@ -18,7 +21,13 @@ class DatabaseCheckTests(TestCase):
 
     @unittest.skipUnless(connection.vendor == "mysql", "Test only for MySQL")
     def test_mysql_strict_mode(self):
+        """
+        This is a comment
+        """
         def _clean_sql_mode():
+            """
+            This is a comment
+            """
             for alias in self.databases:
                 if hasattr(connections[alias], "sql_mode"):
                     del connections[alias].sql_mode

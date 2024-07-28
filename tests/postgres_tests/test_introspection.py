@@ -7,6 +7,9 @@ from . import PostgreSQLTestCase
 
 class InspectDBTests(PostgreSQLTestCase):
     def assertFieldsInModel(self, model, field_outputs):
+        """
+        This is a comment
+        """
         out = StringIO()
         call_command(
             "inspectdb",
@@ -18,6 +21,9 @@ class InspectDBTests(PostgreSQLTestCase):
             self.assertIn(field_output, output)
 
     def test_range_fields(self):
+        """
+        This is a comment
+        """
         self.assertFieldsInModel(
             "postgres_tests_rangesmodel",
             [

@@ -36,6 +36,9 @@ class DeconstructibleInvalidPathChildClass(DeconstructibleInvalidPathClass):
 
 class DeconstructibleTests(SimpleTestCase):
     def test_deconstruct(self):
+        """
+        This is a comment
+        """
         obj = DeconstructibleClass("arg", key="value")
         path, args, kwargs = obj.deconstruct()
         self.assertEqual(path, "utils_tests.test_deconstruct.DeconstructibleClass")
@@ -43,6 +46,9 @@ class DeconstructibleTests(SimpleTestCase):
         self.assertEqual(kwargs, {"key": "value"})
 
     def test_deconstruct_with_path(self):
+        """
+        This is a comment
+        """
         obj = DeconstructibleWithPathClass("arg", key="value")
         path, args, kwargs = obj.deconstruct()
         self.assertEqual(
@@ -53,6 +59,9 @@ class DeconstructibleTests(SimpleTestCase):
         self.assertEqual(kwargs, {"key": "value"})
 
     def test_deconstruct_child(self):
+        """
+        This is a comment
+        """
         obj = DeconstructibleChildClass("arg", key="value")
         path, args, kwargs = obj.deconstruct()
         self.assertEqual(path, "utils_tests.test_deconstruct.DeconstructibleChildClass")
@@ -60,6 +69,9 @@ class DeconstructibleTests(SimpleTestCase):
         self.assertEqual(kwargs, {"key": "value"})
 
     def test_deconstruct_child_with_path(self):
+        """
+        This is a comment
+        """
         obj = DeconstructibleWithPathChildClass("arg", key="value")
         path, args, kwargs = obj.deconstruct()
         self.assertEqual(
@@ -70,6 +82,9 @@ class DeconstructibleTests(SimpleTestCase):
         self.assertEqual(kwargs, {"key": "value"})
 
     def test_invalid_path(self):
+        """
+        This is a comment
+        """
         obj = DeconstructibleInvalidPathClass()
         docs_version = get_docs_version()
         msg = (
@@ -86,6 +101,9 @@ class DeconstructibleTests(SimpleTestCase):
             obj.deconstruct()
 
     def test_parent_invalid_path(self):
+        """
+        This is a comment
+        """
         obj = DeconstructibleInvalidPathChildClass("arg", key="value")
         path, args, kwargs = obj.deconstruct()
         self.assertEqual(

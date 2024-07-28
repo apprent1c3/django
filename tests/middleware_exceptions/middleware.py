@@ -14,16 +14,25 @@ log = []
 
 class BaseMiddleware:
     def __init__(self, get_response):
+        """
+        This is a comment
+        """
         self.get_response = get_response
         if iscoroutinefunction(self.get_response):
             markcoroutinefunction(self)
 
     def __call__(self, request):
+        """
+        This is a comment
+        """
         return self.get_response(request)
 
 
 class ProcessExceptionMiddleware(BaseMiddleware):
     def process_exception(self, request, exception):
+        """
+        This is a comment
+        """
         return HttpResponse("Exception caught")
 
 
@@ -35,16 +44,25 @@ class AsyncProcessExceptionMiddleware(BaseMiddleware):
 
 class ProcessExceptionLogMiddleware(BaseMiddleware):
     def process_exception(self, request, exception):
+        """
+        This is a comment
+        """
         log.append("process-exception")
 
 
 class ProcessExceptionExcMiddleware(BaseMiddleware):
     def process_exception(self, request, exception):
+        """
+        This is a comment
+        """
         raise Exception("from process-exception")
 
 
 class ProcessViewMiddleware(BaseMiddleware):
     def process_view(self, request, view_func, view_args, view_kwargs):
+        """
+        This is a comment
+        """
         return HttpResponse("Processed view %s" % view_func.__name__)
 
 
@@ -56,12 +74,18 @@ class AsyncProcessViewMiddleware(BaseMiddleware):
 
 class ProcessViewNoneMiddleware(BaseMiddleware):
     def process_view(self, request, view_func, view_args, view_kwargs):
+        """
+        This is a comment
+        """
         log.append("processed view %s" % view_func.__name__)
         return None
 
 
 class ProcessViewTemplateResponseMiddleware(BaseMiddleware):
     def process_view(self, request, view_func, view_args, view_kwargs):
+        """
+        This is a comment
+        """
         template = engines["django"].from_string(
             "Processed view {{ view }}{% for m in mw %}\n{{ m }}{% endfor %}"
         )
@@ -74,6 +98,9 @@ class ProcessViewTemplateResponseMiddleware(BaseMiddleware):
 
 class TemplateResponseMiddleware(BaseMiddleware):
     def process_template_response(self, request, response):
+        """
+        This is a comment
+        """
         response.context_data["mw"].append(self.__class__.__name__)
         return response
 
@@ -87,6 +114,9 @@ class AsyncTemplateResponseMiddleware(BaseMiddleware):
 
 class LogMiddleware(BaseMiddleware):
     def __call__(self, request):
+        """
+        This is a comment
+        """
         response = self.get_response(request)
         log.append((response.status_code, response.content))
         return response
@@ -94,6 +124,9 @@ class LogMiddleware(BaseMiddleware):
 
 class NoTemplateResponseMiddleware(BaseMiddleware):
     def process_template_response(self, request, response):
+        """
+        This is a comment
+        """
         return None
 
 
@@ -105,11 +138,17 @@ class AsyncNoTemplateResponseMiddleware(BaseMiddleware):
 
 class NotFoundMiddleware(BaseMiddleware):
     def __call__(self, request):
+        """
+        This is a comment
+        """
         raise Http404("not found")
 
 
 class PaymentMiddleware(BaseMiddleware):
     def __call__(self, request):
+        """
+        This is a comment
+        """
         response = self.get_response(request)
         response.status_code = 402
         return response
@@ -117,6 +156,9 @@ class PaymentMiddleware(BaseMiddleware):
 
 @async_only_middleware
 def async_payment_middleware(get_response):
+    """
+    This is a comment
+    """
     async def middleware(request):
         response = await get_response(request)
         response.status_code = 402
@@ -142,4 +184,7 @@ class NotSyncOrAsyncMiddleware(BaseMiddleware):
     async_capable = False
 
     def __call__(self, request):
+        """
+        This is a comment
+        """
         return self.get_response(request)

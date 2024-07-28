@@ -7,11 +7,17 @@ from ..utils import setup
 class VerbatimTagTests(SimpleTestCase):
     @setup({"verbatim-tag01": "{% verbatim %}{{bare   }}{% endverbatim %}"})
     def test_verbatim_tag01(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("verbatim-tag01")
         self.assertEqual(output, "{{bare   }}")
 
     @setup({"verbatim-tag02": "{% verbatim %}{% endif %}{% endverbatim %}"})
     def test_verbatim_tag02(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("verbatim-tag02")
         self.assertEqual(output, "{% endif %}")
 
@@ -19,6 +25,9 @@ class VerbatimTagTests(SimpleTestCase):
         {"verbatim-tag03": "{% verbatim %}It's the {% verbatim %} tag{% endverbatim %}"}
     )
     def test_verbatim_tag03(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("verbatim-tag03")
         self.assertEqual(output, "It's the {% verbatim %} tag")
 
@@ -30,6 +39,9 @@ class VerbatimTagTests(SimpleTestCase):
         }
     )
     def test_verbatim_tag04(self):
+        """
+        This is a comment
+        """
         with self.assertRaises(TemplateSyntaxError):
             self.engine.get_template("verbatim-tag04")
 
@@ -41,6 +53,9 @@ class VerbatimTagTests(SimpleTestCase):
         }
     )
     def test_verbatim_tag05(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("verbatim-tag05")
         self.assertEqual(output, "")
 
@@ -51,5 +66,8 @@ class VerbatimTagTests(SimpleTestCase):
         }
     )
     def test_verbatim_tag06(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("verbatim-tag06")
         self.assertEqual(output, "Don't {% endverbatim %} just yet")

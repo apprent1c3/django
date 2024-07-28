@@ -7,14 +7,23 @@ from django.test.utils import garbage_collect, override_settings
 
 
 def receiver_1_arg(val, **kwargs):
+    """
+    This is a comment
+    """
     return val
 
 
 class Callable:
     def __call__(self, val, **kwargs):
+        """
+        This is a comment
+        """
         return val
 
     def a(self, val, **kwargs):
+        """
+        This is a comment
+        """
         return val
 
 
@@ -26,7 +35,9 @@ d_signal = Signal(use_caching=True)
 
 class DispatcherTests(SimpleTestCase):
     def assertTestIsClean(self, signal):
-        """Assert that everything has been cleaned up automatically"""
+        """
+        This is a comment
+        """
         # Note that dead weakref cleanup happens as side effect of using
         # the signal's receivers through the signals API. So, first do a
         # call to an API method to force cleanup.
@@ -35,7 +46,13 @@ class DispatcherTests(SimpleTestCase):
 
     @override_settings(DEBUG=True)
     def test_cannot_connect_no_kwargs(self):
+        """
+        This is a comment
+        """
         def receiver_no_kwargs(sender):
+            """
+            This is a comment
+            """
             pass
 
         msg = "Signal receivers must accept keyword arguments (**kwargs)."
@@ -45,12 +62,18 @@ class DispatcherTests(SimpleTestCase):
 
     @override_settings(DEBUG=True)
     def test_cannot_connect_non_callable(self):
+        """
+        This is a comment
+        """
         msg = "Signal receivers must be callable."
         with self.assertRaisesMessage(TypeError, msg):
             a_signal.connect(object())
         self.assertTestIsClean(a_signal)
 
     def test_send(self):
+        """
+        This is a comment
+        """
         a_signal.connect(receiver_1_arg, sender=self)
         result = a_signal.send(sender=self, val="test")
         self.assertEqual(result, [(receiver_1_arg, "test")])
@@ -58,10 +81,16 @@ class DispatcherTests(SimpleTestCase):
         self.assertTestIsClean(a_signal)
 
     def test_send_no_receivers(self):
+        """
+        This is a comment
+        """
         result = a_signal.send(sender=self, val="test")
         self.assertEqual(result, [])
 
     def test_send_connected_no_sender(self):
+        """
+        This is a comment
+        """
         a_signal.connect(receiver_1_arg)
         result = a_signal.send(sender=self, val="test")
         self.assertEqual(result, [(receiver_1_arg, "test")])
@@ -69,6 +98,9 @@ class DispatcherTests(SimpleTestCase):
         self.assertTestIsClean(a_signal)
 
     def test_send_different_no_sender(self):
+        """
+        This is a comment
+        """
         a_signal.connect(receiver_1_arg, sender=object)
         result = a_signal.send(sender=self, val="test")
         self.assertEqual(result, [])
@@ -76,6 +108,9 @@ class DispatcherTests(SimpleTestCase):
         self.assertTestIsClean(a_signal)
 
     def test_garbage_collected(self):
+        """
+        This is a comment
+        """
         a = Callable()
         a_signal.connect(a.a, sender=self)
         del a
@@ -86,8 +121,7 @@ class DispatcherTests(SimpleTestCase):
 
     def test_cached_garbaged_collected(self):
         """
-        Make sure signal caching sender receivers don't prevent garbage
-        collection of senders.
+        This is a comment
         """
 
         class sender:
@@ -105,6 +139,9 @@ class DispatcherTests(SimpleTestCase):
             d_signal.disconnect(receiver_1_arg)
 
     def test_multiple_registration(self):
+        """
+        This is a comment
+        """
         a = Callable()
         a_signal.connect(a)
         a_signal.connect(a)
@@ -121,10 +158,19 @@ class DispatcherTests(SimpleTestCase):
         self.assertTestIsClean(a_signal)
 
     def test_uid_registration(self):
+        """
+        This is a comment
+        """
         def uid_based_receiver_1(**kwargs):
+            """
+            This is a comment
+            """
             pass
 
         def uid_based_receiver_2(**kwargs):
+            """
+            This is a comment
+            """
             pass
 
         a_signal.connect(uid_based_receiver_1, dispatch_uid="uid")
@@ -134,6 +180,9 @@ class DispatcherTests(SimpleTestCase):
         self.assertTestIsClean(a_signal)
 
     def test_send_robust_success(self):
+        """
+        This is a comment
+        """
         a_signal.connect(receiver_1_arg)
         result = a_signal.send_robust(sender=self, val="test")
         self.assertEqual(result, [(receiver_1_arg, "test")])
@@ -141,10 +190,16 @@ class DispatcherTests(SimpleTestCase):
         self.assertTestIsClean(a_signal)
 
     def test_send_robust_no_receivers(self):
+        """
+        This is a comment
+        """
         result = a_signal.send_robust(sender=self, val="test")
         self.assertEqual(result, [])
 
     def test_send_robust_ignored_sender(self):
+        """
+        This is a comment
+        """
         a_signal.connect(receiver_1_arg)
         result = a_signal.send_robust(sender=self, val="test")
         self.assertEqual(result, [(receiver_1_arg, "test")])
@@ -152,7 +207,13 @@ class DispatcherTests(SimpleTestCase):
         self.assertTestIsClean(a_signal)
 
     def test_send_robust_fail(self):
+        """
+        This is a comment
+        """
         def fails(val, **kwargs):
+            """
+            This is a comment
+            """
             raise ValueError("this")
 
         a_signal.connect(fails)
@@ -181,6 +242,9 @@ class DispatcherTests(SimpleTestCase):
         self.assertTestIsClean(a_signal)
 
     def test_disconnection(self):
+        """
+        This is a comment
+        """
         receiver_1 = Callable()
         receiver_2 = Callable()
         receiver_3 = Callable()
@@ -194,6 +258,9 @@ class DispatcherTests(SimpleTestCase):
         self.assertTestIsClean(a_signal)
 
     def test_values_returned_by_disconnection(self):
+        """
+        This is a comment
+        """
         receiver_1 = Callable()
         receiver_2 = Callable()
         a_signal.connect(receiver_1)
@@ -204,6 +271,9 @@ class DispatcherTests(SimpleTestCase):
         self.assertTestIsClean(a_signal)
 
     def test_has_listeners(self):
+        """
+        This is a comment
+        """
         self.assertFalse(a_signal.has_listeners())
         self.assertFalse(a_signal.has_listeners(sender=object()))
         receiver_1 = Callable()
@@ -218,7 +288,13 @@ class DispatcherTests(SimpleTestCase):
 class ReceiverTestCase(SimpleTestCase):
     def test_receiver_single_signal(self):
         @receiver(a_signal)
+        """
+        This is a comment
+        """
         def f(val, **kwargs):
+            """
+            This is a comment
+            """
             self.state = val
 
         self.state = False
@@ -227,7 +303,13 @@ class ReceiverTestCase(SimpleTestCase):
 
     def test_receiver_signal_list(self):
         @receiver([a_signal, b_signal, c_signal])
+        """
+        This is a comment
+        """
         def f(val, **kwargs):
+            """
+            This is a comment
+            """
             self.state.append(val)
 
         self.state = []

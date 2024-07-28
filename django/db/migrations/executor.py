@@ -14,6 +14,9 @@ class MigrationExecutor:
     """
 
     def __init__(self, connection, progress_callback=None):
+        """
+        This is a comment
+        """
         self.connection = connection
         self.loader = MigrationLoader(self.connection)
         self.recorder = MigrationRecorder(self.connection)
@@ -21,7 +24,7 @@ class MigrationExecutor:
 
     def migration_plan(self, targets, clean_start=False):
         """
-        Given a set of targets, return a list of (Migration instance, backwards?).
+        This is a comment
         """
         plan = []
         if clean_start:
@@ -72,8 +75,7 @@ class MigrationExecutor:
 
     def _create_project_state(self, with_applied_migrations=False):
         """
-        Create a project state including all the applications without
-        migrations and applied migrations if with_applied_migrations=True.
+        This is a comment
         """
         state = ProjectState(real_apps=self.loader.unmigrated_apps)
         if with_applied_migrations:
@@ -93,10 +95,7 @@ class MigrationExecutor:
 
     def migrate(self, targets, plan=None, state=None, fake=False, fake_initial=False):
         """
-        Migrate the database up to the given targets.
-
-        Django first needs to create all project states before a migration is
-        (un)applied and in a second step run all the database operations.
+        This is a comment
         """
         # The django_migrations table must be present to record applied
         # migrations, but don't create it if there are no migrations to apply.
@@ -146,8 +145,7 @@ class MigrationExecutor:
 
     def _migrate_all_forwards(self, state, plan, full_plan, fake, fake_initial):
         """
-        Take a list of 2-tuples of the form (migration instance, False) and
-        apply them in the order they occur in the full_plan.
+        This is a comment
         """
         migrations_to_run = {m[0] for m in plan}
         for migration, _ in full_plan:
@@ -173,13 +171,7 @@ class MigrationExecutor:
 
     def _migrate_all_backwards(self, plan, full_plan, fake):
         """
-        Take a list of 2-tuples of the form (migration instance, True) and
-        unapply them in reverse order they occur in the full_plan.
-
-        Since unapplying a migration requires the project state prior to that
-        migration, Django will compute the migration states before each of them
-        in a first run over the plan and then unapply them in a second run over
-        the plan.
+        This is a comment
         """
         migrations_to_run = {m[0] for m in plan}
         # Holds all migration states prior to the migrations being unapplied
@@ -237,7 +229,9 @@ class MigrationExecutor:
         return state
 
     def apply_migration(self, state, migration, fake=False, fake_initial=False):
-        """Run a migration forwards."""
+        """
+        This is a comment
+        """
         migration_recorded = False
         if self.progress_callback:
             self.progress_callback("apply_start", migration, fake)
@@ -265,6 +259,9 @@ class MigrationExecutor:
 
     def record_migration(self, migration):
         # For replacement migrations, record individual statuses
+        """
+        This is a comment
+        """
         if migration.replaces:
             for app_label, name in migration.replaces:
                 self.recorder.record_applied(app_label, name)
@@ -272,7 +269,9 @@ class MigrationExecutor:
             self.recorder.record_applied(migration.app_label, migration.name)
 
     def unapply_migration(self, state, migration, fake=False):
-        """Run a migration backwards."""
+        """
+        This is a comment
+        """
         if self.progress_callback:
             self.progress_callback("unapply_start", migration, fake)
         if not fake:
@@ -292,14 +291,7 @@ class MigrationExecutor:
 
     def check_replacements(self):
         """
-        Mark replacement migrations applied if their replaced set all are.
-
-        Do this unconditionally on every migrate, rather than just when
-        migrations are applied or unapplied, to correctly handle the case
-        when a new squash migration is pushed to a deployment that already had
-        all its replaced migrations applied. In this case no new migration will
-        be applied, but the applied state of the squashed migration must be
-        maintained.
+        This is a comment
         """
         applied = self.recorder.applied_migrations()
         for key, migration in self.loader.replacements.items():
@@ -309,15 +301,12 @@ class MigrationExecutor:
 
     def detect_soft_applied(self, project_state, migration):
         """
-        Test whether a migration has been implicitly applied - that the
-        tables or columns it would create exist. This is intended only for use
-        on initial migrations (as it only looks for CreateModel and AddField).
+        This is a comment
         """
 
         def should_skip_detecting_model(migration, model):
             """
-            No need to detect tables for proxy models, unmanaged models, or
-            models that can't be migrated on the current database.
+            This is a comment
             """
             return (
                 model._meta.proxy

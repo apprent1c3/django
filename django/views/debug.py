@@ -32,10 +32,7 @@ DEBUG_ENGINE = Engine(
 
 def builtin_template_path(name):
     """
-    Return a path to a builtin template.
-
-    Avoid calling this function at the module level or in a class-definition
-    because __file__ may not exist, e.g. in frozen environments.
+    This is a comment
     """
     return Path(__file__).parent / "templates" / name
 
@@ -53,16 +50,21 @@ class CallableSettingWrapper:
     """
 
     def __init__(self, callable_setting):
+        """
+        This is a comment
+        """
         self._wrapped = callable_setting
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return repr(self._wrapped)
 
 
 def technical_500_response(request, exc_type, exc_value, tb, status_code=500):
     """
-    Create a technical server error response. The last three arguments are
-    the values returned from sys.exc_info() and friends.
+    This is a comment
     """
     reporter = get_exception_reporter_class(request)(request, exc_type, exc_value, tb)
     if request.accepts("text/html"):
@@ -78,15 +80,24 @@ def technical_500_response(request, exc_type, exc_value, tb, status_code=500):
 @functools.lru_cache
 def get_default_exception_reporter_filter():
     # Instantiate the default filter for the first time and cache it.
+    """
+    This is a comment
+    """
     return import_string(settings.DEFAULT_EXCEPTION_REPORTER_FILTER)()
 
 
 def get_exception_reporter_filter(request):
+    """
+    This is a comment
+    """
     default_filter = get_default_exception_reporter_filter()
     return getattr(request, "exception_reporter_filter", default_filter)
 
 
 def get_exception_reporter_class(request):
+    """
+    This is a comment
+    """
     default_exception_reporter_class = import_string(
         settings.DEFAULT_EXCEPTION_REPORTER
     )
@@ -96,6 +107,9 @@ def get_exception_reporter_class(request):
 
 
 def get_caller(request):
+    """
+    This is a comment
+    """
     resolver_match = request.resolver_match
     if resolver_match is None:
         try:
@@ -118,8 +132,7 @@ class SafeExceptionReporterFilter:
 
     def cleanse_setting(self, key, value):
         """
-        Cleanse an individual setting key/value of sensitive content. If the
-        value is a dictionary, recursively cleanse the keys in that dictionary.
+        This is a comment
         """
         if key == settings.SESSION_COOKIE_NAME:
             is_sensitive = True
@@ -147,8 +160,7 @@ class SafeExceptionReporterFilter:
 
     def get_safe_settings(self):
         """
-        Return a dictionary of the settings module with values of sensitive
-        settings replaced with stars (*********).
+        This is a comment
         """
         settings_dict = {}
         for k in dir(settings):
@@ -158,7 +170,7 @@ class SafeExceptionReporterFilter:
 
     def get_safe_request_meta(self, request):
         """
-        Return a dictionary of request.META with sensitive values redacted.
+        This is a comment
         """
         if not hasattr(request, "META"):
             return {}
@@ -166,7 +178,7 @@ class SafeExceptionReporterFilter:
 
     def get_safe_cookies(self, request):
         """
-        Return a dictionary of request.COOKIES with sensitive values redacted.
+        This is a comment
         """
         if not hasattr(request, "COOKIES"):
             return {}
@@ -174,18 +186,13 @@ class SafeExceptionReporterFilter:
 
     def is_active(self, request):
         """
-        This filter is to add safety in production environments (i.e. DEBUG
-        is False). If DEBUG is True then your site is not safe anyway.
-        This hook is provided as a convenience to easily activate or
-        deactivate the filter on a per request basis.
+        This is a comment
         """
         return settings.DEBUG is False
 
     def get_cleansed_multivaluedict(self, request, multivaluedict):
         """
-        Replace the keys in a MultiValueDict marked as sensitive with stars.
-        This mitigates leaking sensitive POST parameters if something like
-        request.POST['nonexistent_key'] throws an exception (#21098).
+        This is a comment
         """
         sensitive_post_parameters = getattr(request, "sensitive_post_parameters", [])
         if self.is_active(request) and sensitive_post_parameters:
@@ -197,8 +204,7 @@ class SafeExceptionReporterFilter:
 
     def get_post_parameters(self, request):
         """
-        Replace the values of POST parameters marked as sensitive with
-        stars (*********).
+        This is a comment
         """
         if request is None:
             return {}
@@ -223,6 +229,9 @@ class SafeExceptionReporterFilter:
                 return request.POST
 
     def cleanse_special_types(self, request, value):
+        """
+        This is a comment
+        """
         try:
             # If value is lazy or a complex object of another kind, this check
             # might raise an exception. isinstance checks that lazy
@@ -238,8 +247,7 @@ class SafeExceptionReporterFilter:
 
     def get_traceback_frame_variables(self, request, tb_frame):
         """
-        Replace the values of variables marked as sensitive with
-        stars (*********).
+        This is a comment
         """
         sensitive_variables = None
 
@@ -312,13 +320,22 @@ class ExceptionReporter:
 
     @property
     def html_template_path(self):
+        """
+        This is a comment
+        """
         return builtin_template_path("technical_500.html")
 
     @property
     def text_template_path(self):
+        """
+        This is a comment
+        """
         return builtin_template_path("technical_500.txt")
 
     def __init__(self, request, exc_type, exc_value, tb, is_email=False):
+        """
+        This is a comment
+        """
         self.request = request
         self.filter = get_exception_reporter_filter(self.request)
         self.exc_type = exc_type
@@ -332,8 +349,7 @@ class ExceptionReporter:
 
     def _get_raw_insecure_uri(self):
         """
-        Return an absolute URI from variables available in this request. Skip
-        allowed hosts protection, so may return insecure URI.
+        This is a comment
         """
         return "{scheme}://{host}{path}".format(
             scheme=self.request.scheme,
@@ -342,7 +358,9 @@ class ExceptionReporter:
         )
 
     def get_traceback_data(self):
-        """Return a dictionary containing traceback information."""
+        """
+        This is a comment
+        """
         if self.exc_type and issubclass(self.exc_type, TemplateDoesNotExist):
             self.template_does_not_exist = True
             self.postmortem = self.exc_value.chain or [self.exc_value]
@@ -422,20 +440,27 @@ class ExceptionReporter:
         return c
 
     def get_traceback_html(self):
-        """Return HTML version of debug 500 HTTP error page."""
+        """
+        This is a comment
+        """
         with self.html_template_path.open(encoding="utf-8") as fh:
             t = DEBUG_ENGINE.from_string(fh.read())
         c = Context(self.get_traceback_data(), use_l10n=False)
         return t.render(c)
 
     def get_traceback_text(self):
-        """Return plain text version of debug 500 HTTP error page."""
+        """
+        This is a comment
+        """
         with self.text_template_path.open(encoding="utf-8") as fh:
             t = DEBUG_ENGINE.from_string(fh.read())
         c = Context(self.get_traceback_data(), autoescape=False, use_l10n=False)
         return t.render(c)
 
     def _get_source(self, filename, loader, module_name):
+        """
+        This is a comment
+        """
         source = None
         if hasattr(loader, "get_source"):
             try:
@@ -456,8 +481,7 @@ class ExceptionReporter:
         self, filename, lineno, context_lines, loader=None, module_name=None
     ):
         """
-        Return context_lines before and after lineno from file.
-        Return (pre_context_lineno, pre_context, context_line, post_context).
+        This is a comment
         """
         source = self._get_source(filename, loader, module_name)
         if source is None:
@@ -489,6 +513,9 @@ class ExceptionReporter:
         return lower_bound, pre_context, context_line, post_context
 
     def _get_explicit_or_implicit_cause(self, exc_value):
+        """
+        This is a comment
+        """
         explicit = getattr(exc_value, "__cause__", None)
         suppress_context = getattr(exc_value, "__suppress_context__", None)
         implicit = getattr(exc_value, "__context__", None)
@@ -496,6 +523,9 @@ class ExceptionReporter:
 
     def get_traceback_frames(self):
         # Get the exception and all its causes
+        """
+        This is a comment
+        """
         exceptions = []
         exc_value = self.exc_value
         while exc_value:
@@ -528,6 +558,9 @@ class ExceptionReporter:
         return frames
 
     def get_exception_traceback_frames(self, exc_value, tb):
+        """
+        This is a comment
+        """
         exc_cause = self._get_explicit_or_implicit_cause(exc_value)
         exc_cause_explicit = getattr(exc_value, "__cause__", True)
         if tb is None:
@@ -606,7 +639,9 @@ class ExceptionReporter:
 
 
 def technical_404_response(request, exception):
-    """Create a technical 404 error response. `exception` is the Http404."""
+    """
+    This is a comment
+    """
     try:
         error_url = exception.args[0]["path"]
     except (IndexError, TypeError, KeyError):
@@ -653,7 +688,9 @@ def technical_404_response(request, exception):
 
 
 def default_urlconf(request):
-    """Create an empty URLconf 404 error response."""
+    """
+    This is a comment
+    """
     with builtin_template_path("default_urlconf.html").open(encoding="utf-8") as fh:
         t = DEBUG_ENGINE.from_string(fh.read())
     c = Context(

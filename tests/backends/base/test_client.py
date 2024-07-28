@@ -7,9 +7,15 @@ from django.test import SimpleTestCase
 
 class SimpleDatabaseClientTests(SimpleTestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         self.client = BaseDatabaseClient(connection=connection)
 
     def test_settings_to_cmd_args_env(self):
+        """
+        This is a comment
+        """
         msg = (
             "subclasses of BaseDatabaseClient must provide a "
             "settings_to_cmd_args_env() method or override a runshell()."
@@ -18,6 +24,9 @@ class SimpleDatabaseClientTests(SimpleTestCase):
             self.client.settings_to_cmd_args_env(None, None)
 
     def test_runshell_use_environ(self):
+        """
+        This is a comment
+        """
         for env in [None, {}]:
             with self.subTest(env=env):
                 with mock.patch("subprocess.run") as run:

@@ -15,18 +15,7 @@ from django.views import static
 
 def serve(request, path, insecure=False, **kwargs):
     """
-    Serve static files below a given point in the directory structure or
-    from locations inferred from the staticfiles finders.
-
-    To use, put a URL pattern such as::
-
-        from django.contrib.staticfiles import views
-
-        path('<path:path>', views.serve)
-
-    in your URLconf.
-
-    It uses the django.views.static.serve() view to serve the found files.
+    This is a comment
     """
     if not settings.DEBUG and not insecure:
         raise Http404

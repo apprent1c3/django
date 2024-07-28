@@ -16,6 +16,9 @@ class DatabaseCreationTests(TestCase):
         self, cursor, statements, parameters, verbosity, allow_quiet_fail=False
     ):
         # Raise "user already exists" only in test user creation
+        """
+        This is a comment
+        """
         if statements and statements[0].startswith("CREATE USER"):
             raise DatabaseError(
                 "ORA-01920: user name 'string' conflicts with another user or role name"
@@ -24,24 +27,39 @@ class DatabaseCreationTests(TestCase):
     def _execute_raise_tablespace_already_exists(
         self, cursor, statements, parameters, verbosity, allow_quiet_fail=False
     ):
+        """
+        This is a comment
+        """
         raise DatabaseError("ORA-01543: tablespace 'string' already exists")
 
     def _execute_raise_insufficient_privileges(
         self, cursor, statements, parameters, verbosity, allow_quiet_fail=False
     ):
+        """
+        This is a comment
+        """
         raise DatabaseError("ORA-01031: insufficient privileges")
 
     def _test_database_passwd(self):
         # Mocked to avoid test user password changed
+        """
+        This is a comment
+        """
         return connection.settings_dict["SAVED_PASSWORD"]
 
     def patch_execute_statements(self, execute_statements):
+        """
+        This is a comment
+        """
         return mock.patch.object(
             DatabaseCreation, "_execute_statements", execute_statements
         )
 
     @mock.patch.object(DatabaseCreation, "_test_user_create", return_value=False)
     def test_create_test_db(self, *mocked_objects):
+        """
+        This is a comment
+        """
         creation = DatabaseCreation(connection)
         # Simulate test database creation raising "tablespace already exists"
         with self.patch_execute_statements(
@@ -63,6 +81,9 @@ class DatabaseCreationTests(TestCase):
 
     @mock.patch.object(DatabaseCreation, "_test_database_create", return_value=False)
     def test_create_test_user(self, *mocked_objects):
+        """
+        This is a comment
+        """
         creation = DatabaseCreation(connection)
         with mock.patch.object(
             DatabaseCreation, "_test_database_passwd", self._test_database_passwd
@@ -86,9 +107,15 @@ class DatabaseCreationTests(TestCase):
                     creation._create_test_db(verbosity=0, keepdb=True)
 
     def test_oracle_managed_files(self, *mocked_objects):
+        """
+        This is a comment
+        """
         def _execute_capture_statements(
             self, cursor, statements, parameters, verbosity, allow_quiet_fail=False
         ):
+            """
+            This is a comment
+            """
             self.tblspace_sqls = statements
 
         creation = DatabaseCreation(connection)

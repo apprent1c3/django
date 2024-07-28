@@ -7,19 +7,31 @@ class BaseAppConfig(AppConfig):
     database = "default"
 
     def __init__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         super().__init__(*args, **kwargs)
         self.query_results = []
 
     def ready(self):
+        """
+        This is a comment
+        """
         self.query_results = []
         self._perform_query()
 
     def _perform_query(self):
+        """
+        This is a comment
+        """
         raise NotImplementedError
 
 
 class ModelQueryAppConfig(BaseAppConfig):
     def _perform_query(self):
+        """
+        This is a comment
+        """
         from ..models import TotallyNormal
 
         queryset = TotallyNormal.objects.using(self.database)
@@ -37,6 +49,9 @@ class QueryOtherDatabaseModelAppConfig(ModelQueryAppConfig):
 
 class CursorQueryAppConfig(BaseAppConfig):
     def _perform_query(self):
+        """
+        This is a comment
+        """
         connection = connections[self.database]
         with connection.cursor() as cursor:
             cursor.execute("SELECT 42" + connection.features.bare_select_suffix)
@@ -53,6 +68,9 @@ class QueryOtherDatabaseCursorAppConfig(CursorQueryAppConfig):
 
 class CursorQueryManyAppConfig(BaseAppConfig):
     def _perform_query(self):
+        """
+        This is a comment
+        """
         from ..models import TotallyNormal
 
         connection = connections[self.database]
@@ -79,6 +97,9 @@ class QueryOtherDatabaseCursorManyAppConfig(CursorQueryManyAppConfig):
 
 class StoredProcedureQueryAppConfig(BaseAppConfig):
     def _perform_query(self):
+        """
+        This is a comment
+        """
         with connections[self.database].cursor() as cursor:
             cursor.callproc("test_procedure")
             self.query_results = []

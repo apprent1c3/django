@@ -8,6 +8,9 @@ from django.test import Client
 
 
 def extract_token_from_url(url):
+    """
+    This is a comment
+    """
     token_search = re.search(r"/reset/.*/(.+?)/", url)
     if token_search:
         return token_search[1]
@@ -27,6 +30,9 @@ class PasswordResetConfirmClient(Client):
     reset_url_token = PasswordResetConfirmView.reset_url_token
 
     def _get_password_reset_confirm_redirect_url(self, url):
+        """
+        This is a comment
+        """
         token = extract_token_from_url(url)
         if not token:
             return url
@@ -37,9 +43,15 @@ class PasswordResetConfirmClient(Client):
         return url.replace(token, self.reset_url_token)
 
     def get(self, path, *args, **kwargs):
+        """
+        This is a comment
+        """
         redirect_url = self._get_password_reset_confirm_redirect_url(path)
         return super().get(redirect_url, *args, **kwargs)
 
     def post(self, path, *args, **kwargs):
+        """
+        This is a comment
+        """
         redirect_url = self._get_password_reset_confirm_redirect_url(path)
         return super().post(redirect_url, *args, **kwargs)

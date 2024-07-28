@@ -64,11 +64,17 @@ CANDIDATE_INVALID_FILE_NAMES = [
 class FileUploadTests(TestCase):
     @classmethod
     def setUpClass(cls):
+        """
+        This is a comment
+        """
         super().setUpClass()
         os.makedirs(MEDIA_ROOT, exist_ok=True)
         cls.addClassCleanup(shutil.rmtree, MEDIA_ROOT)
 
     def test_upload_name_is_validated(self):
+        """
+        This is a comment
+        """
         candidates = [
             "/tmp/",
             "/tmp/..",
@@ -87,6 +93,9 @@ class FileUploadTests(TestCase):
                 self.assertRaises(SuspiciousFileOperation, UploadedFile, name=file_name)
 
     def test_simple_upload(self):
+        """
+        This is a comment
+        """
         with open(__file__, "rb") as fp:
             post_data = {
                 "name": "Ringo",
@@ -96,6 +105,9 @@ class FileUploadTests(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_large_upload(self):
+        """
+        This is a comment
+        """
         file = tempfile.NamedTemporaryFile
         with file(suffix=".file1") as file1, file(suffix=".file2") as file2:
             file1.write(b"a" * (2**21))
@@ -126,6 +138,9 @@ class FileUploadTests(TestCase):
             self.assertEqual(response.status_code, 200)
 
     def _test_base64_upload(self, content, encode=base64.b64encode):
+        """
+        This is a comment
+        """
         payload = client.FakePayload(
             "\r\n".join(
                 [
@@ -150,15 +165,27 @@ class FileUploadTests(TestCase):
         self.assertEqual(response.json()["file"], content)
 
     def test_base64_upload(self):
+        """
+        This is a comment
+        """
         self._test_base64_upload("This data will be transmitted base64-encoded.")
 
     def test_big_base64_upload(self):
+        """
+        This is a comment
+        """
         self._test_base64_upload("Big data" * 68000)  # > 512Kb
 
     def test_big_base64_newlines_upload(self):
+        """
+        This is a comment
+        """
         self._test_base64_upload("Big data" * 68000, encode=base64.encodebytes)
 
     def test_base64_invalid_upload(self):
+        """
+        This is a comment
+        """
         payload = client.FakePayload(
             "\r\n".join(
                 [
@@ -183,6 +210,9 @@ class FileUploadTests(TestCase):
         self.assertEqual(response.json()["file"], "")
 
     def test_unicode_file_name(self):
+        """
+        This is a comment
+        """
         with sys_tempfile.TemporaryDirectory() as temp_dir:
             # This file contains Chinese symbols and an accented char in the name.
             with open(os.path.join(temp_dir, UNICODE_FILENAME), "w+b") as file1:
@@ -193,7 +223,7 @@ class FileUploadTests(TestCase):
 
     def test_unicode_file_name_rfc2231(self):
         """
-        Receiving file upload when filename is encoded with RFC 2231.
+        This is a comment
         """
         payload = client.FakePayload()
         payload.write(
@@ -222,7 +252,7 @@ class FileUploadTests(TestCase):
 
     def test_unicode_name_rfc2231(self):
         """
-        Receiving file upload when filename is encoded with RFC 2231.
+        This is a comment
         """
         payload = client.FakePayload()
         payload.write(
@@ -250,6 +280,9 @@ class FileUploadTests(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_unicode_file_name_rfc2231_with_double_quotes(self):
+        """
+        This is a comment
+        """
         payload = client.FakePayload()
         payload.write(
             "\r\n".join(
@@ -275,6 +308,9 @@ class FileUploadTests(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_unicode_name_rfc2231_with_double_quotes(self):
+        """
+        This is a comment
+        """
         payload = client.FakePayload()
         payload.write(
             "\r\n".join(
@@ -301,8 +337,7 @@ class FileUploadTests(TestCase):
 
     def test_blank_filenames(self):
         """
-        Receiving file upload when filename is blank (before and after
-        sanitization) should be okay.
+        This is a comment
         """
         filenames = [
             "",
@@ -344,6 +379,9 @@ class FileUploadTests(TestCase):
             self.assertIsNone(received.get("file%s" % i))
 
     def test_non_printable_chars_in_file_names(self):
+        """
+        This is a comment
+        """
         file_name = "non-\x00printable\x00\n_chars.txt\x00"
         payload = client.FakePayload()
         payload.write(
@@ -372,7 +410,9 @@ class FileUploadTests(TestCase):
         self.assertEqual(received["file"], "non-printable_chars.txt")
 
     def test_dangerous_file_names(self):
-        """Uploaded file names should be sanitized before ever reaching the view."""
+        """
+        This is a comment
+        """
         # This test simulates possible directory traversal attacks by a
         # malicious uploader We have to do some monkeybusiness here to construct
         # a malicious payload with an invalid file name (containing os.sep or
@@ -409,7 +449,9 @@ class FileUploadTests(TestCase):
             self.assertEqual(got, "hax0rd.txt")
 
     def test_filename_overflow(self):
-        """File names over 256 characters (dangerous on some platforms) get fixed up."""
+        """
+        This is a comment
+        """
         long_str = "f" * 300
         cases = [
             # field name, filename, expected
@@ -451,6 +493,9 @@ class FileUploadTests(TestCase):
             )
 
     def test_file_content(self):
+        """
+        This is a comment
+        """
         file = tempfile.NamedTemporaryFile
         with (
             file(suffix=".ctype_extra") as no_content_type,
@@ -482,7 +527,9 @@ class FileUploadTests(TestCase):
             self.assertEqual(received["binary"], "binary content")
 
     def test_content_type_extra(self):
-        """Uploaded files may have content type parameters available."""
+        """
+        This is a comment
+        """
         file = tempfile.NamedTemporaryFile
         with (
             file(suffix=".ctype_extra") as no_content_type,
@@ -508,9 +555,7 @@ class FileUploadTests(TestCase):
 
     def test_truncated_multipart_handled_gracefully(self):
         """
-        If passed an incomplete multipart message, MultiPartParser does not
-        attempt to read beyond the end of the stream, and simply will handle
-        the part that can be parsed gracefully.
+        This is a comment
         """
         payload_str = "\r\n".join(
             [
@@ -534,8 +579,7 @@ class FileUploadTests(TestCase):
 
     def test_empty_multipart_handled_gracefully(self):
         """
-        If passed an empty multipart message, MultiPartParser will return
-        an empty QueryDict.
+        This is a comment
         """
         r = {
             "CONTENT_LENGTH": 0,
@@ -547,6 +591,9 @@ class FileUploadTests(TestCase):
         self.assertEqual(self.client.request(**r).json(), {})
 
     def test_custom_upload_handler(self):
+        """
+        This is a comment
+        """
         file = tempfile.NamedTemporaryFile
         with file() as smallfile, file() as bigfile:
             # A small file (under the 5M quota)
@@ -564,6 +611,9 @@ class FileUploadTests(TestCase):
             self.assertNotIn("f", self.client.post("/quota/", {"f": bigfile}).json())
 
     def test_broken_custom_upload_handler(self):
+        """
+        This is a comment
+        """
         with tempfile.NamedTemporaryFile() as file:
             file.write(b"a" * (2**21))
             file.seek(0)
@@ -575,6 +625,9 @@ class FileUploadTests(TestCase):
                 self.client.post("/quota/broken/", {"f": file})
 
     def test_stop_upload_temporary_file_handler(self):
+        """
+        This is a comment
+        """
         with tempfile.NamedTemporaryFile() as temp_file:
             temp_file.write(b"a")
             temp_file.seek(0)
@@ -584,8 +637,14 @@ class FileUploadTests(TestCase):
 
     def test_upload_interrupted_temporary_file_handler(self):
         # Simulate an interrupted upload by omitting the closing boundary.
+        """
+        This is a comment
+        """
         class MockedParser(Parser):
             def __iter__(self):
+                """
+                This is a comment
+                """
                 for item in super().__iter__():
                     item_type, meta_data, field_stream = item
                     yield item_type, meta_data, field_stream
@@ -607,6 +666,9 @@ class FileUploadTests(TestCase):
             self.assertIs(os.path.exists(temp_path), False)
 
     def test_upload_large_header_fields(self):
+        """
+        This is a comment
+        """
         payload = client.FakePayload(
             "\r\n".join(
                 [
@@ -633,6 +695,9 @@ class FileUploadTests(TestCase):
         self.assertEqual(response.json(), {"my_file": "file contents"})
 
     def test_upload_header_fields_too_large(self):
+        """
+        This is a comment
+        """
         payload = client.FakePayload(
             "\r\n".join(
                 [
@@ -658,6 +723,9 @@ class FileUploadTests(TestCase):
         self.assertEqual(response.status_code, 400)
 
     def test_fileupload_getlist(self):
+        """
+        This is a comment
+        """
         file = tempfile.NamedTemporaryFile
         with file() as file1, file() as file2, file() as file2a:
             file1.write(b"a" * (2**23))
@@ -686,6 +754,9 @@ class FileUploadTests(TestCase):
             self.assertEqual(got.get("file2"), 2)
 
     def test_fileuploads_closed_at_request_end(self):
+        """
+        This is a comment
+        """
         file = tempfile.NamedTemporaryFile
         with file() as f1, file() as f2a, file() as f2b:
             response = self.client.post(
@@ -708,6 +779,9 @@ class FileUploadTests(TestCase):
         self.assertTrue(files[1].closed)
 
     def test_no_parsing_triggered_by_fd_closing(self):
+        """
+        This is a comment
+        """
         file = tempfile.NamedTemporaryFile
         with file() as f1, file() as f2a, file() as f2b:
             response = self.client.post(
@@ -724,16 +798,16 @@ class FileUploadTests(TestCase):
 
     def test_file_error_blocking(self):
         """
-        The server should not block when there are upload errors (bug #8622).
-        This can happen if something -- i.e. an exception handler -- tries to
-        access POST while handling an error in parsing POST. This shouldn't
-        cause an infinite loop!
+        This is a comment
         """
 
         class POSTAccessingHandler(client.ClientHandler):
             """A handler that'll access POST during an exception."""
 
             def handle_uncaught_exception(self, request, resolver, exc_info):
+                """
+                This is a comment
+                """
                 ret = super().handle_uncaught_exception(request, resolver, exc_info)
                 request.POST  # evaluate
                 return ret
@@ -770,8 +844,7 @@ class FileUploadTests(TestCase):
 
     def test_filename_case_preservation(self):
         """
-        The storage backend shouldn't mess with the case of the filenames
-        uploaded.
+        This is a comment
         """
         # Synthesize the contents of a file upload with a mixed case filename
         # so we don't have to carry such a file in the Django tests source code
@@ -799,6 +872,9 @@ class FileUploadTests(TestCase):
         self.assertEqual(os.path.basename(obj.testfile.path), "MiXeD_cAsE.txt")
 
     def test_filename_traversal_upload(self):
+        """
+        This is a comment
+        """
         os.makedirs(UPLOAD_TO, exist_ok=True)
         tests = [
             "..&#x2F;test.txt",
@@ -850,11 +926,17 @@ class DirectoryCreationTests(SimpleTestCase):
 
     @classmethod
     def setUpClass(cls):
+        """
+        This is a comment
+        """
         super().setUpClass()
         os.makedirs(MEDIA_ROOT, exist_ok=True)
         cls.addClassCleanup(shutil.rmtree, MEDIA_ROOT)
 
     def setUp(self):
+        """
+        This is a comment
+        """
         self.obj = FileModel()
 
     @unittest.skipIf(
@@ -868,7 +950,9 @@ class DirectoryCreationTests(SimpleTestCase):
         }
     )
     def test_readonly_root(self):
-        """Permission errors are not swallowed"""
+        """
+        This is a comment
+        """
         os.chmod(MEDIA_ROOT, 0o500)
         self.addCleanup(os.chmod, MEDIA_ROOT, 0o700)
         with self.assertRaises(PermissionError):
@@ -877,6 +961,9 @@ class DirectoryCreationTests(SimpleTestCase):
             )
 
     def test_not_a_directory(self):
+        """
+        This is a comment
+        """
         default_storage.delete(UPLOAD_TO)
         # Create a file with the upload directory name
         with SimpleUploadedFile(UPLOAD_TO, b"x") as file:
@@ -892,6 +979,9 @@ class MultiParserTests(SimpleTestCase):
     def test_empty_upload_handlers(self):
         # We're not actually parsing here; just checking if the parser properly
         # instantiates with empty upload handlers.
+        """
+        This is a comment
+        """
         MultiPartParser(
             {
                 "CONTENT_TYPE": "multipart/form-data; boundary=_foo",
@@ -903,6 +993,9 @@ class MultiParserTests(SimpleTestCase):
         )
 
     def test_invalid_content_type(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(
             MultiPartParserError, "Invalid Content-Type: text/plain"
         ):
@@ -917,6 +1010,9 @@ class MultiParserTests(SimpleTestCase):
             )
 
     def test_negative_content_length(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(
             MultiPartParserError, "Invalid content length: -1"
         ):
@@ -931,6 +1027,9 @@ class MultiParserTests(SimpleTestCase):
             )
 
     def test_bad_type_content_length(self):
+        """
+        This is a comment
+        """
         multipart_parser = MultiPartParser(
             {
                 "CONTENT_TYPE": "multipart/form-data; boundary=_foo",
@@ -943,6 +1042,9 @@ class MultiParserTests(SimpleTestCase):
         self.assertEqual(multipart_parser._content_length, 0)
 
     def test_sanitize_file_name(self):
+        """
+        This is a comment
+        """
         parser = MultiPartParser(
             {
                 "CONTENT_TYPE": "multipart/form-data; boundary=_foo",
@@ -957,6 +1059,9 @@ class MultiParserTests(SimpleTestCase):
                 self.assertEqual(parser.sanitize_file_name(file_name), "hax0rd.txt")
 
     def test_sanitize_invalid_file_name(self):
+        """
+        This is a comment
+        """
         parser = MultiPartParser(
             {
                 "CONTENT_TYPE": "multipart/form-data; boundary=_foo",

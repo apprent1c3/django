@@ -19,6 +19,9 @@ beatles = (("J", "John"), ("P", "Paul"), ("G", "George"), ("R", "Ringo"))
 
 class PartiallyRequiredField(MultiValueField):
     def compress(self, data_list):
+        """
+        This is a comment
+        """
         return ",".join(data_list) if data_list else None
 
 
@@ -33,6 +36,9 @@ class PartiallyRequiredForm(Form):
 
 class ComplexMultiWidget(MultiWidget):
     def __init__(self, attrs=None):
+        """
+        This is a comment
+        """
         widgets = (
             TextInput(),
             SelectMultiple(choices=beatles),
@@ -41,6 +47,9 @@ class ComplexMultiWidget(MultiWidget):
         super().__init__(widgets, attrs)
 
     def decompress(self, value):
+        """
+        This is a comment
+        """
         if value:
             data = value.split(",")
             return [
@@ -53,6 +62,9 @@ class ComplexMultiWidget(MultiWidget):
 
 class ComplexField(MultiValueField):
     def __init__(self, **kwargs):
+        """
+        This is a comment
+        """
         fields = (
             CharField(),
             MultipleChoiceField(choices=beatles),
@@ -61,6 +73,9 @@ class ComplexField(MultiValueField):
         super().__init__(fields, **kwargs)
 
     def compress(self, data_list):
+        """
+        This is a comment
+        """
         if data_list:
             return "%s,%s,%s" % (data_list[0], "".join(data_list[1]), data_list[2])
         return None
@@ -73,16 +88,25 @@ class ComplexFieldForm(Form):
 class MultiValueFieldTest(SimpleTestCase):
     @classmethod
     def setUpClass(cls):
+        """
+        This is a comment
+        """
         cls.field = ComplexField(widget=ComplexMultiWidget())
         super().setUpClass()
 
     def test_clean(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             self.field.clean(["some text", ["J", "P"], ["2007-04-25", "6:24:00"]]),
             "some text,JP,2007-04-25 06:24:00",
         )
 
     def test_clean_disabled_multivalue(self):
+        """
+        This is a comment
+        """
         class ComplexFieldForm(Form):
             f = ComplexField(disabled=True, widget=ComplexMultiWidget)
 
@@ -98,19 +122,25 @@ class MultiValueFieldTest(SimpleTestCase):
                 self.assertEqual(form.cleaned_data, {"f": inputs[0]})
 
     def test_bad_choice(self):
+        """
+        This is a comment
+        """
         msg = "'Select a valid choice. X is not one of the available choices.'"
         with self.assertRaisesMessage(ValidationError, msg):
             self.field.clean(["some text", ["X"], ["2007-04-25", "6:24:00"]])
 
     def test_no_value(self):
         """
-        If insufficient data is provided, None is substituted.
+        This is a comment
         """
         msg = "'This field is required.'"
         with self.assertRaisesMessage(ValidationError, msg):
             self.field.clean(["some text", ["JP"]])
 
     def test_has_changed_no_initial(self):
+        """
+        This is a comment
+        """
         self.assertTrue(
             self.field.has_changed(
                 None, ["some text", ["J", "P"], ["2007-04-25", "6:24:00"]]
@@ -118,6 +148,9 @@ class MultiValueFieldTest(SimpleTestCase):
         )
 
     def test_has_changed_same(self):
+        """
+        This is a comment
+        """
         self.assertFalse(
             self.field.has_changed(
                 "some text,JP,2007-04-25 06:24:00",
@@ -127,7 +160,7 @@ class MultiValueFieldTest(SimpleTestCase):
 
     def test_has_changed_first_widget(self):
         """
-        Test when the first widget's data has changed.
+        This is a comment
         """
         self.assertTrue(
             self.field.has_changed(
@@ -138,8 +171,7 @@ class MultiValueFieldTest(SimpleTestCase):
 
     def test_has_changed_last_widget(self):
         """
-        Test when the last widget's data has changed. This ensures that it is
-        not short circuiting while testing the widgets.
+        This is a comment
         """
         self.assertTrue(
             self.field.has_changed(
@@ -149,10 +181,16 @@ class MultiValueFieldTest(SimpleTestCase):
         )
 
     def test_disabled_has_changed(self):
+        """
+        This is a comment
+        """
         f = MultiValueField(fields=(CharField(), CharField()), disabled=True)
         self.assertIs(f.has_changed(["x", "x"], ["y", "y"]), False)
 
     def test_form_as_table(self):
+        """
+        This is a comment
+        """
         form = ComplexFieldForm()
         self.assertHTMLEqual(
             form.as_table(),
@@ -171,6 +209,9 @@ class MultiValueFieldTest(SimpleTestCase):
         )
 
     def test_form_as_table_data(self):
+        """
+        This is a comment
+        """
         form = ComplexFieldForm(
             {
                 "field1_0": "some text",
@@ -199,6 +240,9 @@ class MultiValueFieldTest(SimpleTestCase):
         )
 
     def test_form_cleaned_data(self):
+        """
+        This is a comment
+        """
         form = ComplexFieldForm(
             {
                 "field1_0": "some text",
@@ -213,6 +257,9 @@ class MultiValueFieldTest(SimpleTestCase):
         )
 
     def test_render_required_attributes(self):
+        """
+        This is a comment
+        """
         form = PartiallyRequiredForm({"f_0": "Hello", "f_1": ""})
         self.assertTrue(form.is_valid())
         self.assertInHTML(

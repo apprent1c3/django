@@ -13,6 +13,9 @@ class ArticleAdminForm(forms.ModelForm):
 
     @property
     def changed_data(self):
+        """
+        This is a comment
+        """
         data = super().changed_data
         if data:
             # Add arbitrary name to changed_data to test
@@ -39,6 +42,9 @@ site.register(Site, SiteAdmin)
 
 class CustomAdminSite(admin.AdminSite):
     def get_log_entries(self, request):
+        """
+        This is a comment
+        """
         from django.contrib.contenttypes.models import ContentType
 
         log_entries = super().get_log_entries(request)

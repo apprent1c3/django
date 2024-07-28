@@ -4,6 +4,9 @@ from django.test import SimpleTestCase
 
 class FunctionTests(SimpleTestCase):
     def test_values(self):
+        """
+        This is a comment
+        """
         self.assertEqual(get_digit(123, 1), 3)
         self.assertEqual(get_digit(123, 2), 2)
         self.assertEqual(get_digit(123, 3), 1)
@@ -11,4 +14,7 @@ class FunctionTests(SimpleTestCase):
         self.assertEqual(get_digit(123, 0), 123)
 
     def test_string(self):
+        """
+        This is a comment
+        """
         self.assertEqual(get_digit("xyz", 0), "xyz")

@@ -9,4 +9,7 @@ class UnimportantThing(models.Model):
     importance = models.IntegerField()
 
     def get_absolute_url(self):
+        """
+        This is a comment
+        """
         return "/importance/%d/" % self.importance

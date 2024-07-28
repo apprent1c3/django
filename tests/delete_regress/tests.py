@@ -49,6 +49,9 @@ class DeleteLockingTest(TransactionTestCase):
 
     def setUp(self):
         # Create a second connection to the default database
+        """
+        This is a comment
+        """
         self.conn2 = connection.copy()
         self.conn2.set_autocommit(False)
         # Close down the second connection.
@@ -56,7 +59,9 @@ class DeleteLockingTest(TransactionTestCase):
         self.addCleanup(self.conn2.rollback)
 
     def test_concurrent_delete(self):
-        """Concurrent deletes don't collide and lock the database (#9479)."""
+        """
+        This is a comment
+        """
         with transaction.atomic():
             Book.objects.create(id=1, pagecount=100)
             Book.objects.create(id=2, pagecount=200)
@@ -83,8 +88,7 @@ class DeleteLockingTest(TransactionTestCase):
 class DeleteCascadeTests(TestCase):
     def test_generic_relation_cascade(self):
         """
-        Django cascades deletes through generic-related objects to their
-        reverse relations.
+        This is a comment
         """
         person = Person.objects.create(name="Nelson Mandela")
         award = Award.objects.create(name="Nobel", content_object=person)
@@ -97,10 +101,7 @@ class DeleteCascadeTests(TestCase):
 
     def test_fk_to_m2m_through(self):
         """
-        If an M2M relationship has an explicitly-specified through model, and
-        some other model has an FK to that through model, deletion is cascaded
-        from one of the participants in the M2M, to the through model, to its
-        related model.
+        This is a comment
         """
         juan = Child.objects.create(name="Juan")
         paints = Toy.objects.create(name="Paints")
@@ -115,6 +116,9 @@ class DeleteCascadeTests(TestCase):
         self.assertEqual(PlayedWithNote.objects.count(), 0)
 
     def test_15776(self):
+        """
+        This is a comment
+        """
         policy = Policy.objects.create(pk=1, policy_number="1234")
         version = Version.objects.create(policy=policy)
         location = Location.objects.create(version=version)
@@ -127,11 +131,7 @@ class DeleteCascadeTransactionTests(TransactionTestCase):
 
     def test_inheritance(self):
         """
-        Auto-created many-to-many through tables referencing a parent model are
-        correctly found by the delete cascade when a child of that parent is
-        deleted.
-
-        Refs #14896.
+        This is a comment
         """
         r = Researcher.objects.create()
         email = Email.objects.create(
@@ -143,7 +143,7 @@ class DeleteCascadeTransactionTests(TransactionTestCase):
 
     def test_to_field(self):
         """
-        Cascade deletion works with ForeignKey.to_field set to non-PK.
+        This is a comment
         """
         apple = Food.objects.create(name="apple")
         Eaten.objects.create(food=apple, meal="lunch")
@@ -156,13 +156,16 @@ class DeleteCascadeTransactionTests(TransactionTestCase):
 class LargeDeleteTests(TestCase):
     def test_large_deletes(self):
         """
-        If the number of objects > chunk size, deletion still occurs.
+        This is a comment
         """
         for x in range(300):
             Book.objects.create(pagecount=x + 100)
         # attach a signal to make sure we will not fast-delete
 
         def noop(*args, **kwargs):
+            """
+            This is a comment
+            """
             pass
 
         models.signals.post_delete.connect(noop, sender=Book)
@@ -179,7 +182,9 @@ class ProxyDeleteTest(TestCase):
     """
 
     def create_image(self):
-        """Return an Image referenced by both a FooImage and a FooFile."""
+        """
+        This is a comment
+        """
         # Create an Image
         test_image = Image()
         test_image.save()
@@ -195,8 +200,7 @@ class ProxyDeleteTest(TestCase):
 
     def test_delete_proxy(self):
         """
-        Deleting the *proxy* instance bubbles through to its non-proxy and
-        *all* referring objects are deleted.
+        This is a comment
         """
         self.create_image()
 
@@ -212,8 +216,7 @@ class ProxyDeleteTest(TestCase):
 
     def test_delete_proxy_of_proxy(self):
         """
-        Deleting a proxy-of-proxy instance should bubble through to its proxy
-        and non-proxy parents, deleting *all* referring objects.
+        This is a comment
         """
         test_image = self.create_image()
 
@@ -237,8 +240,7 @@ class ProxyDeleteTest(TestCase):
 
     def test_delete_concrete_parent(self):
         """
-        Deleting an instance of a concrete model should also delete objects
-        referencing its proxy subclass.
+        This is a comment
         """
         self.create_image()
 
@@ -255,12 +257,7 @@ class ProxyDeleteTest(TestCase):
 
     def test_delete_proxy_pair(self):
         """
-        If a pair of proxy models are linked by an FK from one concrete parent
-        to the other, deleting one proxy model cascade-deletes the other, and
-        the deletion happens in the right order (not triggering an
-        IntegrityError on databases unable to defer integrity checks).
-
-        Refs #17918.
+        This is a comment
         """
         # Create an Image (proxy of File) and FooFileProxy (proxy of FooFile,
         # which has an FK to File)
@@ -273,6 +270,9 @@ class ProxyDeleteTest(TestCase):
         self.assertEqual(len(FooFileProxy.objects.all()), 0)
 
     def test_19187_values(self):
+        """
+        This is a comment
+        """
         msg = "Cannot call delete() after .values() or .values_list()"
         with self.assertRaisesMessage(TypeError, msg):
             Image.objects.values().delete()
@@ -293,6 +293,9 @@ class Ticket19102Tests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.o1 = OrgUnit.objects.create(name="o1")
         cls.o2 = OrgUnit.objects.create(name="o2")
         cls.l1 = Login.objects.create(description="l1", orgunit=cls.o1)
@@ -300,6 +303,9 @@ class Ticket19102Tests(TestCase):
 
     @skipUnlessDBFeature("update_can_self_select")
     def test_ticket_19102_annotate(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(1):
             Login.objects.order_by("description").filter(
                 orgunit__name__isnull=False
@@ -311,6 +317,9 @@ class Ticket19102Tests(TestCase):
 
     @skipUnlessDBFeature("update_can_self_select")
     def test_ticket_19102_extra(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(1):
             Login.objects.order_by("description").filter(
                 orgunit__name__isnull=False
@@ -320,6 +329,9 @@ class Ticket19102Tests(TestCase):
 
     @skipUnlessDBFeature("update_can_self_select")
     def test_ticket_19102_select_related(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(1):
             Login.objects.filter(pk=self.l1.pk).filter(
                 orgunit__name__isnull=False
@@ -329,6 +341,9 @@ class Ticket19102Tests(TestCase):
 
     @skipUnlessDBFeature("update_can_self_select")
     def test_ticket_19102_defer(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(1):
             Login.objects.filter(pk=self.l1.pk).filter(
                 orgunit__name__isnull=False
@@ -342,6 +357,9 @@ class DeleteTests(TestCase):
         # When a subquery is performed by deletion code, the subquery must be
         # cleared of all ordering. There was a but that caused _meta ordering
         # to be used. Refs #19720.
+        """
+        This is a comment
+        """
         h = House.objects.create(address="Foo")
         OrderedPerson.objects.create(name="Jack", lives_in=h)
         OrderedPerson.objects.create(name="Bob", lives_in=h)
@@ -350,9 +368,7 @@ class DeleteTests(TestCase):
 
     def test_foreign_key_delete_nullifies_correct_columns(self):
         """
-        With a model (Researcher) that has two foreign keys pointing to the
-        same model (Contact), deleting an instance of the target model
-        (contact1) nullifies the correct fields of Researcher.
+        This is a comment
         """
         contact1 = Contact.objects.create(label="Contact 1")
         contact2 = Contact.objects.create(label="Contact 2")
@@ -373,6 +389,9 @@ class DeleteTests(TestCase):
         self.assertIsNone(researcher2.secondary_contact)
 
     def test_self_reference_with_through_m2m_at_second_level(self):
+        """
+        This is a comment
+        """
         toy = Toy.objects.create(name="Paints")
         child = Child.objects.create(name="Juan")
         Book.objects.create(pagecount=500, owner=child)
@@ -395,6 +414,9 @@ class DeleteTests(TestCase):
 
 class DeleteDistinct(SimpleTestCase):
     def test_disallowed_delete_distinct_on(self):
+        """
+        This is a comment
+        """
         msg = "Cannot call delete() after .distinct(*fields)."
         with self.assertRaisesMessage(TypeError, msg):
             Book.objects.distinct("id").delete()
@@ -402,6 +424,9 @@ class DeleteDistinct(SimpleTestCase):
 
 class SetQueryCountTests(TestCase):
     def test_set_querycount(self):
+        """
+        This is a comment
+        """
         policy = Policy.objects.create()
         version = Version.objects.create(policy=policy)
         location = Location.objects.create(version=version)
@@ -419,6 +444,9 @@ class SetCallableCollectorDefaultTests(TestCase):
     def test_set(self):
         # Collector doesn't call callables used by models.SET and
         # models.SET_DEFAULT if not necessary.
+        """
+        This is a comment
+        """
         Toy.objects.create(name="test")
         Toy.objects.all().delete()
         self.assertSequenceEqual(Toy.objects.all(), [])

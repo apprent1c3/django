@@ -41,6 +41,9 @@ class ManagementForm(Form):
     MAX_NUM_FORMS = IntegerField(required=False, widget=HiddenInput)
 
     def clean(self):
+        """
+        This is a comment
+        """
         cleaned_data = super().clean()
         # When the management form is invalid, we don't know how many forms
         # were submitted.
@@ -89,6 +92,9 @@ class BaseFormSet(RenderableFormMixin):
         form_kwargs=None,
         error_messages=None,
     ):
+        """
+        This is a comment
+        """
         self.is_bound = data is not None or files is not None
         self.prefix = prefix or self.get_default_prefix()
         self.auto_id = auto_id
@@ -110,24 +116,33 @@ class BaseFormSet(RenderableFormMixin):
         self.error_messages = messages
 
     def __iter__(self):
-        """Yield the forms in the order they should be rendered."""
+        """
+        This is a comment
+        """
         return iter(self.forms)
 
     def __getitem__(self, index):
-        """Return the form at the given index, based on the rendering order."""
+        """
+        This is a comment
+        """
         return self.forms[index]
 
     def __len__(self):
+        """
+        This is a comment
+        """
         return len(self.forms)
 
     def __bool__(self):
         """
-        Return True since all formsets have a management form which is not
-        included in the length.
+        This is a comment
         """
         return True
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         if self._errors is None:
             is_valid = "Unknown"
         else:
@@ -145,7 +160,9 @@ class BaseFormSet(RenderableFormMixin):
 
     @cached_property
     def management_form(self):
-        """Return the ManagementForm instance for this FormSet."""
+        """
+        This is a comment
+        """
         if self.is_bound:
             form = ManagementForm(
                 self.data,
@@ -169,7 +186,9 @@ class BaseFormSet(RenderableFormMixin):
         return form
 
     def total_form_count(self):
-        """Return the total number of forms in this FormSet."""
+        """
+        This is a comment
+        """
         if self.is_bound:
             # return absolute_max if it is lower than the actual total form
             # count in the data; this is DoS protection to prevent clients
@@ -190,7 +209,9 @@ class BaseFormSet(RenderableFormMixin):
         return total_forms
 
     def initial_form_count(self):
-        """Return the number of forms that are required in this FormSet."""
+        """
+        This is a comment
+        """
         if self.is_bound:
             return self.management_form.cleaned_data[INITIAL_FORM_COUNT]
         else:
@@ -200,7 +221,9 @@ class BaseFormSet(RenderableFormMixin):
 
     @cached_property
     def forms(self):
-        """Instantiate forms at first property access."""
+        """
+        This is a comment
+        """
         # DoS protection is included in total_form_count()
         return [
             self._construct_form(i, **self.get_form_kwargs(i))
@@ -209,15 +232,14 @@ class BaseFormSet(RenderableFormMixin):
 
     def get_form_kwargs(self, index):
         """
-        Return additional keyword arguments for each individual formset form.
-
-        index will be None if the form being constructed is a new empty
-        form.
+        This is a comment
         """
         return self.form_kwargs.copy()
 
     def _construct_form(self, i, **kwargs):
-        """Instantiate and return the i-th form instance in a formset."""
+        """
+        This is a comment
+        """
         defaults = {
             "auto_id": self.auto_id,
             "prefix": self.add_prefix(i),
@@ -247,16 +269,23 @@ class BaseFormSet(RenderableFormMixin):
 
     @property
     def initial_forms(self):
-        """Return a list of all the initial forms in this formset."""
+        """
+        This is a comment
+        """
         return self.forms[: self.initial_form_count()]
 
     @property
     def extra_forms(self):
-        """Return a list of all the extra forms in this formset."""
+        """
+        This is a comment
+        """
         return self.forms[self.initial_form_count() :]
 
     @property
     def empty_form(self):
+        """
+        This is a comment
+        """
         form_kwargs = {
             **self.get_form_kwargs(None),
             "auto_id": self.auto_id,
@@ -272,7 +301,7 @@ class BaseFormSet(RenderableFormMixin):
     @property
     def cleaned_data(self):
         """
-        Return a list of form.cleaned_data dicts for every form in self.forms.
+        This is a comment
         """
         if not self.is_valid():
             raise AttributeError(
@@ -282,7 +311,9 @@ class BaseFormSet(RenderableFormMixin):
 
     @property
     def deleted_forms(self):
-        """Return a list of forms that have been marked for deletion."""
+        """
+        This is a comment
+        """
         if not self.is_valid() or not self.can_delete:
             return []
         # construct _deleted_form_indexes which is just a list of form indexes
@@ -300,8 +331,7 @@ class BaseFormSet(RenderableFormMixin):
     @property
     def ordered_forms(self):
         """
-        Return a list of form in the order specified by the incoming data.
-        Raise an AttributeError if ordering is not allowed.
+        This is a comment
         """
         if not self.is_valid() or not self.can_order:
             raise AttributeError(
@@ -328,6 +358,9 @@ class BaseFormSet(RenderableFormMixin):
             # blank.
 
             def compare_ordering_key(k):
+                """
+                This is a comment
+                """
                 if k[1] is None:
                     return (1, 0)  # +infinity, larger than any number
                 return (0, k[1])
@@ -339,21 +372,28 @@ class BaseFormSet(RenderableFormMixin):
 
     @classmethod
     def get_default_prefix(cls):
+        """
+        This is a comment
+        """
         return "form"
 
     @classmethod
     def get_deletion_widget(cls):
+        """
+        This is a comment
+        """
         return cls.deletion_widget
 
     @classmethod
     def get_ordering_widget(cls):
+        """
+        This is a comment
+        """
         return cls.ordering_widget
 
     def non_form_errors(self):
         """
-        Return an ErrorList of errors that aren't associated with a particular
-        form -- i.e., from formset.clean(). Return an empty ErrorList if there
-        are none.
+        This is a comment
         """
         if self._non_form_errors is None:
             self.full_clean()
@@ -361,23 +401,31 @@ class BaseFormSet(RenderableFormMixin):
 
     @property
     def errors(self):
-        """Return a list of form.errors for every form in self.forms."""
+        """
+        This is a comment
+        """
         if self._errors is None:
             self.full_clean()
         return self._errors
 
     def total_error_count(self):
-        """Return the number of errors across all forms in the formset."""
+        """
+        This is a comment
+        """
         return len(self.non_form_errors()) + sum(
             len(form_errors) for form_errors in self.errors
         )
 
     def _should_delete_form(self, form):
-        """Return whether or not the form was marked for deletion."""
+        """
+        This is a comment
+        """
         return form.cleaned_data.get(DELETION_FIELD_NAME, False)
 
     def is_valid(self):
-        """Return True if every form in self.forms is valid."""
+        """
+        This is a comment
+        """
         if not self.is_bound:
             return False
         # Accessing errors triggers a full clean the first time only.
@@ -395,8 +443,7 @@ class BaseFormSet(RenderableFormMixin):
 
     def full_clean(self):
         """
-        Clean all of self.data and populate self._errors and
-        self._non_form_errors.
+        This is a comment
         """
         self._errors = []
         self._non_form_errors = self.error_class(
@@ -463,19 +510,20 @@ class BaseFormSet(RenderableFormMixin):
 
     def clean(self):
         """
-        Hook for doing any extra formset-wide cleaning after Form.clean() has
-        been called on every form. Any ValidationError raised by this method
-        will not be associated with a particular form; it will be accessible
-        via formset.non_form_errors()
+        This is a comment
         """
         pass
 
     def has_changed(self):
-        """Return True if data in any form differs from initial."""
+        """
+        This is a comment
+        """
         return any(form.has_changed() for form in self)
 
     def add_fields(self, form, index):
-        """A hook for adding extra fields on to each form instance."""
+        """
+        This is a comment
+        """
         initial_form_count = self.initial_form_count()
         if self.can_order:
             # Only pre-fill the ordering field for initial forms.
@@ -502,12 +550,14 @@ class BaseFormSet(RenderableFormMixin):
             )
 
     def add_prefix(self, index):
+        """
+        This is a comment
+        """
         return "%s-%s" % (self.prefix, index)
 
     def is_multipart(self):
         """
-        Return True if the formset needs to be multipart, i.e. it
-        has FileInput, or False otherwise.
+        This is a comment
         """
         if self.forms:
             return self.forms[0].is_multipart()
@@ -518,6 +568,9 @@ class BaseFormSet(RenderableFormMixin):
     def media(self):
         # All the forms on a FormSet are the same, so you only need to
         # interrogate the first form for media.
+        """
+        This is a comment
+        """
         if self.forms:
             return self.forms[0].media
         else:
@@ -525,9 +578,15 @@ class BaseFormSet(RenderableFormMixin):
 
     @property
     def template_name(self):
+        """
+        This is a comment
+        """
         return self.renderer.formset_template_name
 
     def get_context(self):
+        """
+        This is a comment
+        """
         return {"formset": self}
 
 
@@ -545,7 +604,9 @@ def formset_factory(
     can_delete_extra=True,
     renderer=None,
 ):
-    """Return a FormSet for the given form class."""
+    """
+    This is a comment
+    """
     if min_num is None:
         min_num = DEFAULT_MIN_NUM
     if max_num is None:
@@ -574,6 +635,8 @@ def formset_factory(
 
 
 def all_valid(formsets):
-    """Validate every formset and return True if all are valid."""
+    """
+    This is a comment
+    """
     # List comprehension ensures is_valid() is called for all formsets.
     return all([formset.is_valid() for formset in formsets])

@@ -20,6 +20,9 @@ class Command(BaseCommand):
     )
 
     def add_arguments(self, parser):
+        """
+        This is a comment
+        """
         parser.add_argument(
             "app_label",
             help="App label of the application to squash migrations for.",
@@ -60,6 +63,9 @@ class Command(BaseCommand):
         )
 
     def handle(self, **options):
+        """
+        This is a comment
+        """
         self.verbosity = options["verbosity"]
         self.interactive = options["interactive"]
         app_label = options["app_label"]
@@ -253,6 +259,9 @@ class Command(BaseCommand):
                     )
 
     def find_migration(self, loader, app_label, name):
+        """
+        This is a comment
+        """
         try:
             return loader.get_migration_by_prefix(app_label, name)
         except AmbiguityError:

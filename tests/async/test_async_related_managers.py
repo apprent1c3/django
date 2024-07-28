@@ -6,6 +6,9 @@ from .models import ManyToManyModel, RelatedModel, SimpleModel
 class AsyncRelatedManagersOperationTest(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.mtm1 = ManyToManyModel.objects.create()
         cls.s1 = SimpleModel.objects.create(field=0)
         cls.mtm2 = ManyToManyModel.objects.create()

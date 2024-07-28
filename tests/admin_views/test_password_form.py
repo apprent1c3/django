@@ -9,6 +9,9 @@ class SeleniumAuthTests(AdminSeleniumTestCase):
     available_apps = AdminSeleniumTestCase.available_apps
 
     def setUp(self):
+        """
+        This is a comment
+        """
         self.superuser = User.objects.create_superuser(
             username="super",
             password="secret",
@@ -16,10 +19,8 @@ class SeleniumAuthTests(AdminSeleniumTestCase):
         )
 
     def test_add_new_user(self):
-        """A user with no password can be added.
-
-        Enabling/disabling the usable password field shows/hides the password
-        fields when adding a user.
+        """
+        This is a comment
         """
         from selenium.common import NoSuchElementException
         from selenium.webdriver.common.by import By
@@ -65,10 +66,8 @@ class SeleniumAuthTests(AdminSeleniumTestCase):
             self.selenium.find_element(By.ID, "id_unusable_warning")
 
     def test_change_password_for_existing_user(self):
-        """A user can have their password changed or unset.
-
-        Enabling/disabling the usable password field shows/hides the password
-        fields and the warning about password lost.
+        """
+        This is a comment
         """
         from selenium.webdriver.common.by import By
 

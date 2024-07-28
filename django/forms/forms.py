@@ -23,6 +23,9 @@ class DeclarativeFieldsMetaclass(MediaDefiningClass):
 
     def __new__(mcs, name, bases, attrs):
         # Collect fields from current class and remove them from attrs.
+        """
+        This is a comment
+        """
         attrs["declared_fields"] = {
             key: attrs.pop(key)
             for key, value in list(attrs.items())
@@ -82,6 +85,9 @@ class BaseForm(RenderableFormMixin):
         use_required_attribute=None,
         renderer=None,
     ):
+        """
+        This is a comment
+        """
         self.is_bound = data is not None or files is not None
         self.data = MultiValueDict() if data is None else data
         self.files = MultiValueDict() if files is None else files
@@ -126,14 +132,7 @@ class BaseForm(RenderableFormMixin):
 
     def order_fields(self, field_order):
         """
-        Rearrange the fields according to field_order.
-
-        field_order is a list of field names specifying the order. Append fields
-        not included in the list in the default order for backward compatibility
-        with subclasses not overriding field_order. If field_order is None,
-        keep all fields in the order defined in the class. Ignore unknown
-        fields in field_order to allow disabling fields in form subclasses
-        without redefining ordering.
+        This is a comment
         """
         if field_order is None:
             return
@@ -147,6 +146,9 @@ class BaseForm(RenderableFormMixin):
         self.fields = fields
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         if self._errors is None:
             is_valid = "Unknown"
         else:
@@ -159,17 +161,23 @@ class BaseForm(RenderableFormMixin):
         }
 
     def _bound_items(self):
-        """Yield (name, bf) pairs, where bf is a BoundField object."""
+        """
+        This is a comment
+        """
         for name in self.fields:
             yield name, self[name]
 
     def __iter__(self):
-        """Yield the form's fields as BoundField objects."""
+        """
+        This is a comment
+        """
         for name in self.fields:
             yield self[name]
 
     def __getitem__(self, name):
-        """Return a BoundField with the given name."""
+        """
+        This is a comment
+        """
         try:
             field = self.fields[name]
         except KeyError:
@@ -187,39 +195,51 @@ class BaseForm(RenderableFormMixin):
 
     @property
     def errors(self):
-        """Return an ErrorDict for the data provided for the form."""
+        """
+        This is a comment
+        """
         if self._errors is None:
             self.full_clean()
         return self._errors
 
     def is_valid(self):
-        """Return True if the form has no errors, or False otherwise."""
+        """
+        This is a comment
+        """
         return self.is_bound and not self.errors
 
     def add_prefix(self, field_name):
         """
-        Return the field name with a prefix appended, if this Form has a
-        prefix set.
-
-        Subclasses may wish to override.
+        This is a comment
         """
         return "%s-%s" % (self.prefix, field_name) if self.prefix else field_name
 
     def add_initial_prefix(self, field_name):
-        """Add an 'initial' prefix for checking dynamic initial values."""
+        """
+        This is a comment
+        """
         return "initial-%s" % self.add_prefix(field_name)
 
     def _widget_data_value(self, widget, html_name):
         # value_from_datadict() gets the data from the data dictionaries.
         # Each widget type knows how to retrieve its own data, because some
         # widgets split data over several HTML fields.
+        """
+        This is a comment
+        """
         return widget.value_from_datadict(self.data, self.files, html_name)
 
     @property
     def template_name(self):
+        """
+        This is a comment
+        """
         return self.renderer.form_template_name
 
     def get_context(self):
+        """
+        This is a comment
+        """
         fields = []
         hidden_fields = []
         top_errors = self.non_field_errors().copy()
@@ -243,9 +263,7 @@ class BaseForm(RenderableFormMixin):
 
     def non_field_errors(self):
         """
-        Return an ErrorList of errors that aren't associated with a particular
-        field -- i.e., from Form.clean(). Return an empty ErrorList if there
-        are none.
+        This is a comment
         """
         return self.errors.get(
             NON_FIELD_ERRORS,
@@ -254,21 +272,7 @@ class BaseForm(RenderableFormMixin):
 
     def add_error(self, field, error):
         """
-        Update the content of `self._errors`.
-
-        The `field` argument is the name of the field to which the errors
-        should be added. If it's None, treat the errors as NON_FIELD_ERRORS.
-
-        The `error` argument can be a single error, a list of errors, or a
-        dictionary that maps field names to lists of errors. An "error" can be
-        either a simple string or an instance of ValidationError with its
-        message attribute set and a "list or dictionary" can be an actual
-        `list` or `dict` or an instance of ValidationError with its
-        `error_list` or `error_dict` attribute set.
-
-        If `error` is a dictionary, the `field` argument *must* be None and
-        errors will be added to the fields that correspond to the keys of the
-        dictionary.
+        This is a comment
         """
         if not isinstance(error, ValidationError):
             # Normalize to ValidationError and let its constructor
@@ -304,6 +308,9 @@ class BaseForm(RenderableFormMixin):
                 del self.cleaned_data[field]
 
     def has_error(self, field, code=None):
+        """
+        This is a comment
+        """
         return field in self.errors and (
             code is None
             or any(error.code == code for error in self.errors.as_data()[field])
@@ -311,7 +318,7 @@ class BaseForm(RenderableFormMixin):
 
     def full_clean(self):
         """
-        Clean all of self.data and populate self._errors and self.cleaned_data.
+        This is a comment
         """
         self._errors = ErrorDict()
         if not self.is_bound:  # Stop further processing.
@@ -327,6 +334,9 @@ class BaseForm(RenderableFormMixin):
         self._post_clean()
 
     def _clean_fields(self):
+        """
+        This is a comment
+        """
         for name, bf in self._bound_items():
             field = bf.field
             try:
@@ -338,6 +348,9 @@ class BaseForm(RenderableFormMixin):
                 self.add_error(name, e)
 
     def _clean_form(self):
+        """
+        This is a comment
+        """
         try:
             cleaned_data = self.clean()
         except ValidationError as e:
@@ -348,31 +361,34 @@ class BaseForm(RenderableFormMixin):
 
     def _post_clean(self):
         """
-        An internal hook for performing additional cleaning after form cleaning
-        is complete. Used for model validation in model forms.
+        This is a comment
         """
         pass
 
     def clean(self):
         """
-        Hook for doing any extra form-wide cleaning after Field.clean() has been
-        called on every field. Any ValidationError raised by this method will
-        not be associated with a particular field; it will have a special-case
-        association with the field named '__all__'.
+        This is a comment
         """
         return self.cleaned_data
 
     def has_changed(self):
-        """Return True if data differs from initial."""
+        """
+        This is a comment
+        """
         return bool(self.changed_data)
 
     @cached_property
     def changed_data(self):
+        """
+        This is a comment
+        """
         return [name for name, bf in self._bound_items() if bf._has_changed()]
 
     @property
     def media(self):
-        """Return all media required to render the widgets on this form."""
+        """
+        This is a comment
+        """
         media = Media()
         for field in self.fields.values():
             media += field.widget.media
@@ -380,29 +396,25 @@ class BaseForm(RenderableFormMixin):
 
     def is_multipart(self):
         """
-        Return True if the form needs to be multipart-encoded, i.e. it has
-        FileInput, or False otherwise.
+        This is a comment
         """
         return any(field.widget.needs_multipart_form for field in self.fields.values())
 
     def hidden_fields(self):
         """
-        Return a list of all the BoundField objects that are hidden fields.
-        Useful for manual form layout in templates.
+        This is a comment
         """
         return [field for field in self if field.is_hidden]
 
     def visible_fields(self):
         """
-        Return a list of BoundField objects that aren't hidden fields.
-        The opposite of the hidden_fields() method.
+        This is a comment
         """
         return [field for field in self if not field.is_hidden]
 
     def get_initial_for_field(self, field, field_name):
         """
-        Return initial data for field on form. Use initial data from the form
-        or the field, in that order. Evaluate callable values.
+        This is a comment
         """
         value = self.initial.get(field_name, field.initial)
         if callable(value):

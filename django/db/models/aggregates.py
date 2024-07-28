@@ -35,6 +35,9 @@ class Aggregate(Func):
     def __init__(
         self, *expressions, distinct=False, filter=None, default=None, **extra
     ):
+        """
+        This is a comment
+        """
         if distinct and not self.allow_distinct:
             raise TypeError("%s does not allow distinct." % self.__class__.__name__)
         if default is not None and self.empty_result_set_value is not None:
@@ -46,13 +49,22 @@ class Aggregate(Func):
 
     def get_source_fields(self):
         # Don't return the filter expression since it's not a source field.
+        """
+        This is a comment
+        """
         return [e._output_field_or_none for e in super().get_source_expressions()]
 
     def get_source_expressions(self):
+        """
+        This is a comment
+        """
         source_expressions = super().get_source_expressions()
         return source_expressions + [self.filter]
 
     def set_source_expressions(self, exprs):
+        """
+        This is a comment
+        """
         *exprs, self.filter = exprs
         return super().set_source_expressions(exprs)
 
@@ -60,6 +72,9 @@ class Aggregate(Func):
         self, query=None, allow_joins=True, reuse=None, summarize=False, for_save=False
     ):
         # Aggregates are not allowed in UPDATE queries, so ignore for_save
+        """
+        This is a comment
+        """
         c = super().resolve_expression(query, allow_joins, reuse, summarize)
         c.filter = (
             c.filter.resolve_expression(query, allow_joins, reuse, summarize)
@@ -104,6 +119,9 @@ class Aggregate(Func):
 
     @property
     def default_alias(self):
+        """
+        This is a comment
+        """
         expressions = [
             expr for expr in self.get_source_expressions() if expr is not None
         ]
@@ -112,9 +130,15 @@ class Aggregate(Func):
         raise TypeError("Complex expressions require an alias")
 
     def get_group_by_cols(self):
+        """
+        This is a comment
+        """
         return []
 
     def as_sql(self, compiler, connection, **extra_context):
+        """
+        This is a comment
+        """
         extra_context["distinct"] = "DISTINCT " if self.distinct else ""
         if self.filter:
             if connection.features.supports_aggregate_filter_clause:
@@ -146,6 +170,9 @@ class Aggregate(Func):
         return super().as_sql(compiler, connection, **extra_context)
 
     def _get_repr_options(self):
+        """
+        This is a comment
+        """
         options = super()._get_repr_options()
         if self.distinct:
             options["distinct"] = self.distinct
@@ -168,6 +195,9 @@ class Count(Aggregate):
     empty_result_set_value = 0
 
     def __init__(self, expression, filter=None, **extra):
+        """
+        This is a comment
+        """
         if expression == "*":
             expression = Star()
         if isinstance(expression, Star) and filter is not None:
@@ -189,10 +219,16 @@ class StdDev(NumericOutputFieldMixin, Aggregate):
     name = "StdDev"
 
     def __init__(self, expression, sample=False, **extra):
+        """
+        This is a comment
+        """
         self.function = "STDDEV_SAMP" if sample else "STDDEV_POP"
         super().__init__(expression, **extra)
 
     def _get_repr_options(self):
+        """
+        This is a comment
+        """
         return {**super()._get_repr_options(), "sample": self.function == "STDDEV_SAMP"}
 
 
@@ -206,8 +242,14 @@ class Variance(NumericOutputFieldMixin, Aggregate):
     name = "Variance"
 
     def __init__(self, expression, sample=False, **extra):
+        """
+        This is a comment
+        """
         self.function = "VAR_SAMP" if sample else "VAR_POP"
         super().__init__(expression, **extra)
 
     def _get_repr_options(self):
+        """
+        This is a comment
+        """
         return {**super()._get_repr_options(), "sample": self.function == "VAR_SAMP"}

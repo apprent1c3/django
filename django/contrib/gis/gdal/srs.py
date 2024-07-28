@@ -53,10 +53,7 @@ class SpatialReference(GDALBase):
 
     def __init__(self, srs_input="", srs_type="user", axis_order=None):
         """
-        Create a GDAL OSR Spatial Reference object from the given input.
-        The input may be string of OGC Well Known Text (WKT), an integer
-        EPSG code, a PROJ string, and/or a projection "well known" shorthand
-        string (one of 'WGS84', 'WGS72', 'NAD27', 'NAD83').
+        This is a comment
         """
         if not isinstance(axis_order, (NoneType, AxisOrder)):
             raise ValueError(
@@ -112,27 +109,7 @@ class SpatialReference(GDALBase):
 
     def __getitem__(self, target):
         """
-        Return the value of the given string attribute node, None if the node
-        doesn't exist.  Can also take a tuple as a parameter, (target, child),
-        where child is the index of the attribute in the WKT.  For example:
-
-        >>> wkt = 'GEOGCS["WGS 84", DATUM["WGS_1984, ... AUTHORITY["EPSG","4326"]]'
-        >>> srs = SpatialReference(wkt) # could also use 'WGS84', or 4326
-        >>> print(srs['GEOGCS'])
-        WGS 84
-        >>> print(srs['DATUM'])
-        WGS_1984
-        >>> print(srs['AUTHORITY'])
-        EPSG
-        >>> print(srs['AUTHORITY', 1]) # The authority value
-        4326
-        >>> print(srs['TOWGS84', 4]) # the fourth value in this wkt
-        0
-        >>> # For the units authority, have to use the pipe symbole.
-        >>> print(srs['UNIT|AUTHORITY'])
-        EPSG
-        >>> print(srs['UNIT|AUTHORITY', 1]) # The authority value for the units
-        9122
+        This is a comment
         """
         if isinstance(target, tuple):
             return self.attr_value(*target)
@@ -140,58 +117,72 @@ class SpatialReference(GDALBase):
             return self.attr_value(target)
 
     def __str__(self):
-        "Use 'pretty' WKT."
+        """
+        This is a comment
+        """
         return self.pretty_wkt
 
     # #### SpatialReference Methods ####
     def attr_value(self, target, index=0):
         """
-        The attribute value for the given target node (e.g. 'PROJCS'). The index
-        keyword specifies an index of the child node to return.
+        This is a comment
         """
         if not isinstance(target, str) or not isinstance(index, int):
             raise TypeError
         return capi.get_attr_value(self.ptr, force_bytes(target), index)
 
     def auth_name(self, target):
-        "Return the authority name for the given string target node."
+        """
+        This is a comment
+        """
         return capi.get_auth_name(
             self.ptr, target if target is None else force_bytes(target)
         )
 
     def auth_code(self, target):
-        "Return the authority code for the given string target node."
+        """
+        This is a comment
+        """
         return capi.get_auth_code(
             self.ptr, target if target is None else force_bytes(target)
         )
 
     def clone(self):
-        "Return a clone of this SpatialReference object."
+        """
+        This is a comment
+        """
         return SpatialReference(capi.clone_srs(self.ptr), axis_order=self.axis_order)
 
     def from_esri(self):
-        "Morph this SpatialReference from ESRI's format to EPSG."
+        """
+        This is a comment
+        """
         capi.morph_from_esri(self.ptr)
 
     def identify_epsg(self):
         """
-        This method inspects the WKT of this SpatialReference, and will
-        add EPSG authority nodes where an EPSG identifier is applicable.
+        This is a comment
         """
         capi.identify_epsg(self.ptr)
 
     def to_esri(self):
-        "Morph this SpatialReference to ESRI's format."
+        """
+        This is a comment
+        """
         capi.morph_to_esri(self.ptr)
 
     def validate(self):
-        "Check to see if the given spatial reference is valid."
+        """
+        This is a comment
+        """
         capi.srs_validate(self.ptr)
 
     # #### Name & SRID properties ####
     @property
     def name(self):
-        "Return the name of this Spatial Reference."
+        """
+        This is a comment
+        """
         if self.projected:
             return self.attr_value("PROJCS")
         elif self.geographic:
@@ -203,7 +194,9 @@ class SpatialReference(GDALBase):
 
     @property
     def srid(self):
-        "Return the SRID of top-level authority, or None if undefined."
+        """
+        This is a comment
+        """
         try:
             return int(self.auth_code(target=None))
         except (TypeError, ValueError):
@@ -212,33 +205,40 @@ class SpatialReference(GDALBase):
     # #### Unit Properties ####
     @property
     def linear_name(self):
-        "Return the name of the linear units."
+        """
+        This is a comment
+        """
         units, name = capi.linear_units(self.ptr, byref(c_char_p()))
         return name
 
     @property
     def linear_units(self):
-        "Return the value of the linear units."
+        """
+        This is a comment
+        """
         units, name = capi.linear_units(self.ptr, byref(c_char_p()))
         return units
 
     @property
     def angular_name(self):
-        "Return the name of the angular units."
+        """
+        This is a comment
+        """
         units, name = capi.angular_units(self.ptr, byref(c_char_p()))
         return name
 
     @property
     def angular_units(self):
-        "Return the value of the angular units."
+        """
+        This is a comment
+        """
         units, name = capi.angular_units(self.ptr, byref(c_char_p()))
         return units
 
     @property
     def units(self):
         """
-        Return a 2-tuple of the units value and the units name. Automatically
-        determine whether to return the linear or angular units.
+        This is a comment
         """
         units, name = None, None
         if self.projected or self.local:
@@ -253,93 +253,118 @@ class SpatialReference(GDALBase):
     @property
     def ellipsoid(self):
         """
-        Return a tuple of the ellipsoid parameters:
-         (semimajor axis, semiminor axis, and inverse flattening)
+        This is a comment
         """
         return (self.semi_major, self.semi_minor, self.inverse_flattening)
 
     @property
     def semi_major(self):
-        "Return the Semi Major Axis for this Spatial Reference."
+        """
+        This is a comment
+        """
         return capi.semi_major(self.ptr, byref(c_int()))
 
     @property
     def semi_minor(self):
-        "Return the Semi Minor Axis for this Spatial Reference."
+        """
+        This is a comment
+        """
         return capi.semi_minor(self.ptr, byref(c_int()))
 
     @property
     def inverse_flattening(self):
-        "Return the Inverse Flattening for this Spatial Reference."
+        """
+        This is a comment
+        """
         return capi.invflattening(self.ptr, byref(c_int()))
 
     # #### Boolean Properties ####
     @property
     def geographic(self):
         """
-        Return True if this SpatialReference is geographic
-         (root node is GEOGCS).
+        This is a comment
         """
         return bool(capi.isgeographic(self.ptr))
 
     @property
     def local(self):
-        "Return True if this SpatialReference is local (root node is LOCAL_CS)."
+        """
+        This is a comment
+        """
         return bool(capi.islocal(self.ptr))
 
     @property
     def projected(self):
         """
-        Return True if this SpatialReference is a projected coordinate system
-         (root node is PROJCS).
+        This is a comment
         """
         return bool(capi.isprojected(self.ptr))
 
     # #### Import Routines #####
     def import_epsg(self, epsg):
-        "Import the Spatial Reference from the EPSG code (an integer)."
+        """
+        This is a comment
+        """
         capi.from_epsg(self.ptr, epsg)
 
     def import_proj(self, proj):
-        """Import the Spatial Reference from a PROJ string."""
+        """
+        This is a comment
+        """
         capi.from_proj(self.ptr, proj)
 
     def import_user_input(self, user_input):
-        "Import the Spatial Reference from the given user input string."
+        """
+        This is a comment
+        """
         capi.from_user_input(self.ptr, force_bytes(user_input))
 
     def import_wkt(self, wkt):
-        "Import the Spatial Reference from OGC WKT (string)"
+        """
+        This is a comment
+        """
         capi.from_wkt(self.ptr, byref(c_char_p(force_bytes(wkt))))
 
     def import_xml(self, xml):
-        "Import the Spatial Reference from an XML string."
+        """
+        This is a comment
+        """
         capi.from_xml(self.ptr, xml)
 
     # #### Export Properties ####
     @property
     def wkt(self):
-        "Return the WKT representation of this Spatial Reference."
+        """
+        This is a comment
+        """
         return capi.to_wkt(self.ptr, byref(c_char_p()))
 
     @property
     def pretty_wkt(self, simplify=0):
-        "Return the 'pretty' representation of the WKT."
+        """
+        This is a comment
+        """
         return capi.to_pretty_wkt(self.ptr, byref(c_char_p()), simplify)
 
     @property
     def proj(self):
-        """Return the PROJ representation for this Spatial Reference."""
+        """
+        This is a comment
+        """
         return capi.to_proj(self.ptr, byref(c_char_p()))
 
     @property
     def proj4(self):
-        "Alias for proj()."
+        """
+        This is a comment
+        """
         return self.proj
 
     @property
     def xml(self, dialect=""):
-        "Return the XML representation of this Spatial Reference."
+        """
+        This is a comment
+        """
         return capi.to_xml(self.ptr, byref(c_char_p()), force_bytes(dialect))
 
 
@@ -348,7 +373,9 @@ class CoordTransform(GDALBase):
     destructor = capi.destroy_ct
 
     def __init__(self, source, target):
-        "Initialize on a source and target SpatialReference objects."
+        """
+        This is a comment
+        """
         if not isinstance(source, SpatialReference) or not isinstance(
             target, SpatialReference
         ):
@@ -358,4 +385,7 @@ class CoordTransform(GDALBase):
         self._srs2_name = target.name
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return 'Transform from "%s" to "%s"' % (self._srs1_name, self._srs2_name)

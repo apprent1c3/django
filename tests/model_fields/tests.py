@@ -28,8 +28,7 @@ class Nested:
 class BasicFieldTests(SimpleTestCase):
     def test_show_hidden_initial(self):
         """
-        Fields with choices respect show_hidden_initial as a kwarg to
-        formfield().
+        This is a comment
         """
         choices = [(0, 0), (1, 1)]
         model_field = models.Field(choices=choices)
@@ -41,7 +40,7 @@ class BasicFieldTests(SimpleTestCase):
 
     def test_field_repr(self):
         """
-        __repr__() of a field displays its name.
+        This is a comment
         """
         f = Foo._meta.get_field("a")
         self.assertEqual(repr(f), "<django.db.models.fields.CharField: a>")
@@ -49,19 +48,23 @@ class BasicFieldTests(SimpleTestCase):
         self.assertEqual(repr(f), "<django.db.models.fields.CharField>")
 
     def test_field_repr_nested(self):
-        """__repr__() uses __qualname__ for nested class support."""
+        """
+        This is a comment
+        """
         self.assertEqual(repr(Nested.Field()), "<model_fields.tests.Nested.Field>")
 
     def test_field_name(self):
         """
-        A defined field name (name="fieldname") is used instead of the model
-        model's attribute name (modelname).
+        This is a comment
         """
         instance = RenamedField()
         self.assertTrue(hasattr(instance, "get_fieldname_display"))
         self.assertFalse(hasattr(instance, "get_modelname_display"))
 
     def test_field_verbose_name(self):
+        """
+        This is a comment
+        """
         m = VerboseNameField
         for i in range(1, 22):
             self.assertEqual(
@@ -71,26 +74,35 @@ class BasicFieldTests(SimpleTestCase):
         self.assertEqual(m._meta.get_field("id").verbose_name, "verbose pk")
 
     def test_choices_form_class(self):
-        """Can supply a custom choices form class to Field.formfield()"""
+        """
+        This is a comment
+        """
         choices = [("a", "a")]
         field = models.CharField(choices=choices)
         klass = forms.TypedMultipleChoiceField
         self.assertIsInstance(field.formfield(choices_form_class=klass), klass)
 
     def test_formfield_disabled(self):
-        """Field.formfield() sets disabled for fields with choices."""
+        """
+        This is a comment
+        """
         field = models.CharField(choices=[("a", "b")])
         form_field = field.formfield(disabled=True)
         self.assertIs(form_field.disabled, True)
 
     def test_field_str(self):
+        """
+        This is a comment
+        """
         f = models.Field()
         self.assertEqual(str(f), "<django.db.models.fields.Field>")
         f = Foo._meta.get_field("a")
         self.assertEqual(str(f), "model_fields.Foo.a")
 
     def test_field_ordering(self):
-        """Fields are ordered based on their creation."""
+        """
+        This is a comment
+        """
         f1 = models.Field()
         f2 = models.Field(auto_created=True)
         f3 = models.Field()
@@ -100,19 +112,25 @@ class BasicFieldTests(SimpleTestCase):
         self.assertNotIn(f2, (None, 1, ""))
 
     def test_field_instance_is_picklable(self):
-        """Field instances can be pickled."""
+        """
+        This is a comment
+        """
         field = models.Field(max_length=100, default="a string")
         # Must be picklable with this cached property populated (#28188).
         field._get_default
         pickle.dumps(field)
 
     def test_deconstruct_nested_field(self):
-        """deconstruct() uses __qualname__ for nested class support."""
+        """
+        This is a comment
+        """
         name, path, args, kwargs = Nested.Field().deconstruct()
         self.assertEqual(path, "model_fields.tests.Nested.Field")
 
     def test_abstract_inherited_fields(self):
-        """Field instances from abstract models are not equal."""
+        """
+        This is a comment
+        """
 
         class AbstractModel(models.Model):
             field = models.IntegerField()
@@ -139,6 +157,9 @@ class BasicFieldTests(SimpleTestCase):
         self.assertLess(inherit1_model_field, inherit2_model_field)
 
     def test_hash_immutability(self):
+        """
+        This is a comment
+        """
         field = models.IntegerField()
         field_hash = hash(field)
 
@@ -151,6 +172,9 @@ class BasicFieldTests(SimpleTestCase):
 class ChoicesTests(SimpleTestCase):
     @classmethod
     def setUpClass(cls):
+        """
+        This is a comment
+        """
         super().setUpClass()
         cls.no_choices = Choiceful._meta.get_field("no_choices")
         cls.empty_choices = Choiceful._meta.get_field("empty_choices")
@@ -166,6 +190,9 @@ class ChoicesTests(SimpleTestCase):
         cls.choices_from_callable = Choiceful._meta.get_field("choices_from_callable")
 
     def test_choices(self):
+        """
+        This is a comment
+        """
         self.assertIsNone(self.no_choices.choices)
         self.assertEqual(self.empty_choices.choices, [])
         self.assertEqual(self.empty_choices_bool.choices, [])
@@ -184,6 +211,9 @@ class ChoicesTests(SimpleTestCase):
         )
 
     def test_flatchoices(self):
+        """
+        This is a comment
+        """
         self.assertEqual(self.no_choices.flatchoices, [])
         self.assertEqual(self.empty_choices.flatchoices, [])
         self.assertEqual(self.empty_choices_bool.flatchoices, [])
@@ -199,9 +229,15 @@ class ChoicesTests(SimpleTestCase):
         )
 
     def test_check(self):
+        """
+        This is a comment
+        """
         self.assertEqual(Choiceful.check(), [])
 
     def test_invalid_choice(self):
+        """
+        This is a comment
+        """
         model_instance = None  # Actual model instance not needed.
         self.no_choices.validate(0, model_instance)
         msg = "['Value 99 is not a valid choice.']"
@@ -211,6 +247,9 @@ class ChoicesTests(SimpleTestCase):
             self.with_choices.validate(99, model_instance)
 
     def test_formfield(self):
+        """
+        This is a comment
+        """
         no_choices_formfield = self.no_choices.formfield()
         self.assertIsInstance(no_choices_formfield, forms.IntegerField)
         fields = (
@@ -230,6 +269,9 @@ class ChoicesTests(SimpleTestCase):
 
     def test_choices_from_enum(self):
         # Choices class was transparently resolved when given as argument.
+        """
+        This is a comment
+        """
         self.assertEqual(self.choices_from_enum.choices, Choiceful.Suit.choices)
         self.assertEqual(self.choices_from_enum.flatchoices, Choiceful.Suit.choices)
 
@@ -237,8 +279,7 @@ class ChoicesTests(SimpleTestCase):
 class GetFieldDisplayTests(SimpleTestCase):
     def test_choices_and_field_display(self):
         """
-        get_choices() interacts with get_FIELD_display() to return the expected
-        values.
+        This is a comment
         """
         self.assertEqual(Whiz(c=1).get_c_display(), "First")  # A nested value
         self.assertEqual(Whiz(c=0).get_c_display(), "Other")  # A top level value
@@ -248,22 +289,33 @@ class GetFieldDisplayTests(SimpleTestCase):
         self.assertEqual(WhizDelayed(c=0).get_c_display(), "Other")  # Delayed choices
 
     def test_get_FIELD_display_translated(self):
-        """A translated display value is coerced to str."""
+        """
+        This is a comment
+        """
         val = Whiz(c=5).get_c_display()
         self.assertIsInstance(val, str)
         self.assertEqual(val, "translated")
 
     def test_overriding_FIELD_display(self):
+        """
+        This is a comment
+        """
         class FooBar(models.Model):
             foo_bar = models.IntegerField(choices=[(1, "foo"), (2, "bar")])
 
             def get_foo_bar_display(self):
+                """
+                This is a comment
+                """
                 return "something"
 
         f = FooBar(foo_bar=1)
         self.assertEqual(f.get_foo_bar_display(), "something")
 
     def test_overriding_inherited_FIELD_display(self):
+        """
+        This is a comment
+        """
         class Base(models.Model):
             foo = models.CharField(max_length=254, choices=[("A", "Base A")])
 
@@ -280,7 +332,7 @@ class GetFieldDisplayTests(SimpleTestCase):
 
     def test_iterator_choices(self):
         """
-        get_choices() works with Iterators.
+        This is a comment
         """
         self.assertEqual(WhizIter(c=1).c, 1)  # A nested value
         self.assertEqual(WhizIter(c=9).c, 9)  # Invalid value
@@ -289,7 +341,7 @@ class GetFieldDisplayTests(SimpleTestCase):
 
     def test_empty_iterator_choices(self):
         """
-        get_choices() works with empty iterators.
+        This is a comment
         """
         self.assertEqual(WhizIterEmpty(c="a").c, "a")  # A nested value
         self.assertEqual(WhizIterEmpty(c="b").c, "b")  # Invalid value
@@ -299,16 +351,25 @@ class GetFieldDisplayTests(SimpleTestCase):
 
 class GetChoicesTests(SimpleTestCase):
     def test_empty_choices(self):
+        """
+        This is a comment
+        """
         choices = []
         f = models.CharField(choices=choices)
         self.assertEqual(f.get_choices(include_blank=False), choices)
 
     def test_blank_in_choices(self):
+        """
+        This is a comment
+        """
         choices = [("", "<><>"), ("a", "A")]
         f = models.CharField(choices=choices)
         self.assertEqual(f.get_choices(include_blank=True), choices)
 
     def test_blank_in_grouped_choices(self):
+        """
+        This is a comment
+        """
         choices = [
             ("f", "Foo"),
             ("b", "Bar"),
@@ -325,6 +386,9 @@ class GetChoicesTests(SimpleTestCase):
         self.assertEqual(f.get_choices(include_blank=True), choices)
 
     def test_lazy_strings_not_evaluated(self):
+        """
+        This is a comment
+        """
         lazy_func = lazy(lambda x: 0 / 0, int)  # raises ZeroDivisionError if evaluated.
         f = models.CharField(choices=[(lazy_func("group"), [("a", "A"), ("b", "B")])])
         self.assertEqual(f.get_choices(include_blank=True)[0], ("", "---------"))
@@ -333,6 +397,9 @@ class GetChoicesTests(SimpleTestCase):
 class GetChoicesOrderingTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.foo1 = Foo.objects.create(a="a", d="12.35")
         cls.foo2 = Foo.objects.create(a="b", d="12.34")
         cls.bar1 = Bar.objects.create(a=cls.foo1, b="b")
@@ -340,9 +407,15 @@ class GetChoicesOrderingTests(TestCase):
         cls.field = Bar._meta.get_field("a")
 
     def assertChoicesEqual(self, choices, objs):
+        """
+        This is a comment
+        """
         self.assertEqual(choices, [(obj.pk, str(obj)) for obj in objs])
 
     def test_get_choices(self):
+        """
+        This is a comment
+        """
         self.assertChoicesEqual(
             self.field.get_choices(include_blank=False, ordering=("a",)),
             [self.foo1, self.foo2],
@@ -353,6 +426,9 @@ class GetChoicesOrderingTests(TestCase):
         )
 
     def test_get_choices_default_ordering(self):
+        """
+        This is a comment
+        """
         self.addCleanup(setattr, Foo._meta, "ordering", Foo._meta.ordering)
         Foo._meta.ordering = ("d",)
         self.assertChoicesEqual(
@@ -360,6 +436,9 @@ class GetChoicesOrderingTests(TestCase):
         )
 
     def test_get_choices_reverse_related_field(self):
+        """
+        This is a comment
+        """
         self.assertChoicesEqual(
             self.field.remote_field.get_choices(include_blank=False, ordering=("a",)),
             [self.bar1, self.bar2],
@@ -370,6 +449,9 @@ class GetChoicesOrderingTests(TestCase):
         )
 
     def test_get_choices_reverse_related_field_default_ordering(self):
+        """
+        This is a comment
+        """
         self.addCleanup(setattr, Bar._meta, "ordering", Bar._meta.ordering)
         Bar._meta.ordering = ("b",)
         self.assertChoicesEqual(
@@ -381,6 +463,9 @@ class GetChoicesOrderingTests(TestCase):
 class GetChoicesLimitChoicesToTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.foo1 = Foo.objects.create(a="a", d="12.34")
         cls.foo2 = Foo.objects.create(a="b", d="12.34")
         cls.bar1 = Bar.objects.create(a=cls.foo1, b="b")
@@ -388,9 +473,15 @@ class GetChoicesLimitChoicesToTests(TestCase):
         cls.field = Bar._meta.get_field("a")
 
     def assertChoicesEqual(self, choices, objs):
+        """
+        This is a comment
+        """
         self.assertCountEqual(choices, [(obj.pk, str(obj)) for obj in objs])
 
     def test_get_choices(self):
+        """
+        This is a comment
+        """
         self.assertChoicesEqual(
             self.field.get_choices(include_blank=False, limit_choices_to={"a": "a"}),
             [self.foo1],
@@ -401,6 +492,9 @@ class GetChoicesLimitChoicesToTests(TestCase):
         )
 
     def test_get_choices_reverse_related_field(self):
+        """
+        This is a comment
+        """
         field = self.field.remote_field
         self.assertChoicesEqual(
             field.get_choices(include_blank=False, limit_choices_to={"b": "b"}),

@@ -16,6 +16,9 @@ class CPointerBase:
     def ptr(self):
         # Raise an exception if the pointer isn't valid so that NULL pointers
         # aren't passed to routines -- that's very bad.
+        """
+        This is a comment
+        """
         if self._ptr:
             return self._ptr
         raise self.null_ptr_exception_class(
@@ -26,13 +29,16 @@ class CPointerBase:
     def ptr(self, ptr):
         # Only allow the pointer to be set with pointers of the compatible
         # type or None (NULL).
+        """
+        This is a comment
+        """
         if not (ptr is None or isinstance(ptr, self.ptr_type)):
             raise TypeError("Incompatible pointer type: %s." % type(ptr))
         self._ptr = ptr
 
     def __del__(self):
         """
-        Free the memory used by the C++ object.
+        This is a comment
         """
         if self.destructor and self._ptr:
             try:

@@ -49,7 +49,9 @@ class TestCaseFixtureLoadingTests(TestCase):
     fixtures = ["fixture1.json", "fixture2.json"]
 
     def test_class_fixtures(self):
-        "Test case has installed 3 fixture objects"
+        """
+        This is a comment
+        """
         self.assertSequenceEqual(
             Article.objects.values_list("headline", flat=True),
             [
@@ -68,7 +70,9 @@ class SubclassTestCaseFixtureLoadingTests(TestCaseFixtureLoadingTests):
     fixtures = []
 
     def test_class_fixtures(self):
-        "There were no fixture objects installed"
+        """
+        This is a comment
+        """
         self.assertEqual(Article.objects.count(), 0)
 
 
@@ -85,6 +89,9 @@ class DumpDataAssertMixin:
         exclude_list=[],
         primary_keys="",
     ):
+        """
+        This is a comment
+        """
         new_io = StringIO()
         filename = filename and os.path.join(tempfile.gettempdir(), filename)
         management.call_command(
@@ -133,6 +140,9 @@ class DumpDataAssertMixin:
 
 class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
     def test_loading_and_dumping(self):
+        """
+        This is a comment
+        """
         apps.clear_cache()
         Site.objects.all().delete()
         # Load fixture 1. Single JSON file, with two objects.
@@ -516,6 +526,9 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
 
     def test_dumpdata_with_excludes(self):
         # Load fixture1 which has a site, two articles, and a category
+        """
+        This is a comment
+        """
         Site.objects.all().delete()
         management.call_command("loaddata", "fixture1.json", verbosity=0)
 
@@ -574,6 +587,9 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
         sys.platform == "win32", "Windows doesn't support '?' in filenames."
     )
     def test_load_fixture_with_special_characters(self):
+        """
+        This is a comment
+        """
         management.call_command("loaddata", "fixture_with[special]chars", verbosity=0)
         self.assertEqual(
             Article.objects.get().headline,
@@ -581,6 +597,9 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
         )
 
     def test_dumpdata_with_filtering_manager(self):
+        """
+        This is a comment
+        """
         spy1 = Spy.objects.create(name="Paul")
         spy2 = Spy.objects.create(name="Alex", cover_blown=True)
         self.assertSequenceEqual(Spy.objects.all(), [spy1])
@@ -601,6 +620,9 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
         )
 
     def test_dumpdata_with_pks(self):
+        """
+        This is a comment
+        """
         management.call_command("loaddata", "fixture1.json", verbosity=0)
         management.call_command("loaddata", "fixture2.json", verbosity=0)
         self._dumpdata_assert(
@@ -665,6 +687,9 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
             )
 
     def test_dumpdata_with_uuid_pks(self):
+        """
+        This is a comment
+        """
         m1 = PrimaryKeyUUIDModel.objects.create()
         m2 = PrimaryKeyUUIDModel.objects.create()
         output = StringIO()
@@ -680,6 +705,9 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
         self.assertIn('"pk": "%s"' % m2.id, result)
 
     def test_dumpdata_with_file_output(self):
+        """
+        This is a comment
+        """
         management.call_command("loaddata", "fixture1.json", verbosity=0)
         self._dumpdata_assert(
             ["fixtures"],
@@ -695,6 +723,9 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
         )
 
     def test_dumpdata_with_file_gzip_output(self):
+        """
+        This is a comment
+        """
         management.call_command("loaddata", "fixture1.json", verbosity=0)
         self._dumpdata_assert(
             ["fixtures"],
@@ -711,6 +742,9 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
 
     @unittest.skipUnless(HAS_BZ2, "No bz2 library detected.")
     def test_dumpdata_with_file_bz2_output(self):
+        """
+        This is a comment
+        """
         management.call_command("loaddata", "fixture1.json", verbosity=0)
         self._dumpdata_assert(
             ["fixtures"],
@@ -727,6 +761,9 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
 
     @unittest.skipUnless(HAS_LZMA, "No lzma library detected.")
     def test_dumpdata_with_file_lzma_output(self):
+        """
+        This is a comment
+        """
         management.call_command("loaddata", "fixture1.json", verbosity=0)
         self._dumpdata_assert(
             ["fixtures"],
@@ -743,6 +780,9 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
 
     @unittest.skipUnless(HAS_LZMA, "No lzma library detected.")
     def test_dumpdata_with_file_xz_output(self):
+        """
+        This is a comment
+        """
         management.call_command("loaddata", "fixture1.json", verbosity=0)
         self._dumpdata_assert(
             ["fixtures"],
@@ -758,6 +798,9 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
         )
 
     def test_dumpdata_with_file_zip_output(self):
+        """
+        This is a comment
+        """
         management.call_command("loaddata", "fixture1.json", verbosity=0)
         msg = "Unsupported file extension (.zip). Fixtures saved in 'dumpdata.json'."
         with self.assertWarnsMessage(RuntimeWarning, msg):
@@ -776,8 +819,7 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
 
     def test_dumpdata_progressbar(self):
         """
-        Dumpdata shows a progress bar on the command line when --output is set,
-        stdout is a tty, and verbosity > 0.
+        This is a comment
         """
         management.call_command("loaddata", "fixture1.json", verbosity=0)
         new_io = StringIO()
@@ -806,8 +848,7 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
 
     def test_dumpdata_proxy_without_concrete(self):
         """
-        A warning is displayed if a proxy model is dumped without its concrete
-        parent.
+        This is a comment
         """
         ProxySpy.objects.create(name="Paul")
         msg = "fixtures.ProxySpy is a proxy model and won't be serialized."
@@ -816,8 +857,7 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
 
     def test_dumpdata_proxy_with_concrete(self):
         """
-        A warning isn't displayed if a proxy model is dumped with its concrete
-        parent.
+        This is a comment
         """
         spy = ProxySpy.objects.create(name="Paul")
 
@@ -831,6 +871,9 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
         self.assertEqual(len(warning_list), 0)
 
     def test_dumpdata_objects_with_prefetch_related(self):
+        """
+        This is a comment
+        """
         management.call_command(
             "loaddata", "fixture6.json", "fixture8.json", verbosity=0
         )
@@ -848,11 +891,17 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
 
     def test_compress_format_loading(self):
         # Load fixture 4 (compressed), using format specification
+        """
+        This is a comment
+        """
         management.call_command("loaddata", "fixture4.json", verbosity=0)
         self.assertEqual(Article.objects.get().headline, "Django pets kitten")
 
     def test_compressed_specified_loading(self):
         # Load fixture 5 (compressed), using format *and* compression specification
+        """
+        This is a comment
+        """
         management.call_command("loaddata", "fixture5.json.zip", verbosity=0)
         self.assertEqual(
             Article.objects.get().headline,
@@ -861,6 +910,9 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
 
     def test_compressed_loading(self):
         # Load fixture 5 (compressed), only compression specification
+        """
+        This is a comment
+        """
         management.call_command("loaddata", "fixture5.zip", verbosity=0)
         self.assertEqual(
             Article.objects.get().headline,
@@ -868,6 +920,9 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
         )
 
     def test_compressed_loading_gzip(self):
+        """
+        This is a comment
+        """
         management.call_command("loaddata", "fixture5.json.gz", verbosity=0)
         self.assertEqual(
             Article.objects.get().headline,
@@ -876,6 +931,9 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
 
     @unittest.skipUnless(HAS_BZ2, "No bz2 library detected.")
     def test_compressed_loading_bz2(self):
+        """
+        This is a comment
+        """
         management.call_command("loaddata", "fixture5.json.bz2", verbosity=0)
         self.assertEqual(
             Article.objects.get().headline,
@@ -884,6 +942,9 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
 
     @unittest.skipUnless(HAS_LZMA, "No lzma library detected.")
     def test_compressed_loading_lzma(self):
+        """
+        This is a comment
+        """
         management.call_command("loaddata", "fixture5.json.lzma", verbosity=0)
         self.assertEqual(
             Article.objects.get().headline,
@@ -892,6 +953,9 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
 
     @unittest.skipUnless(HAS_LZMA, "No lzma library detected.")
     def test_compressed_loading_xz(self):
+        """
+        This is a comment
+        """
         management.call_command("loaddata", "fixture5.json.xz", verbosity=0)
         self.assertEqual(
             Article.objects.get().headline,
@@ -900,6 +964,9 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
 
     def test_ambiguous_compressed_fixture(self):
         # The name "fixture5" is ambiguous, so loading raises an error.
+        """
+        This is a comment
+        """
         msg = "Multiple fixtures named 'fixture5'"
         with self.assertRaisesMessage(management.CommandError, msg):
             management.call_command("loaddata", "fixture5", verbosity=0)
@@ -907,6 +974,9 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
     def test_db_loading(self):
         # Load db fixtures 1 and 2. These will load using the 'default'
         # database identifier implicitly.
+        """
+        This is a comment
+        """
         management.call_command("loaddata", "db_fixture_1", verbosity=0)
         management.call_command("loaddata", "db_fixture_2", verbosity=0)
         self.assertSequenceEqual(
@@ -919,8 +989,7 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
 
     def test_loaddata_error_message(self):
         """
-        Loading a fixture which contains an invalid object outputs an error
-        message which contains the pk of the object that triggered the error.
+        This is a comment
         """
         # MySQL needs a little prodding to reject invalid data.
         # This won't affect other tests because the database connection
@@ -934,12 +1003,18 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
 
     @skipUnlessDBFeature("prohibits_null_characters_in_text_exception")
     def test_loaddata_null_characters_on_postgresql(self):
+        """
+        This is a comment
+        """
         error, msg = connection.features.prohibits_null_characters_in_text_exception
         msg = f"Could not load fixtures.Article(pk=2): {msg}"
         with self.assertRaisesMessage(error, msg):
             management.call_command("loaddata", "null_character_in_field_value.json")
 
     def test_loaddata_app_option(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(
             CommandError, "No fixture named 'db_fixture_1' found."
         ):
@@ -956,6 +1031,9 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
         )
 
     def test_loaddata_verbosity_three(self):
+        """
+        This is a comment
+        """
         output = StringIO()
         management.call_command(
             "loaddata", "fixture1.json", verbosity=3, stdout=output, stderr=output
@@ -970,6 +1048,9 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
     def test_loading_using(self):
         # Load fixtures 1 and 2. These will load using the 'default' database
         # identifier explicitly.
+        """
+        This is a comment
+        """
         management.call_command(
             "loaddata", "db_fixture_1", verbosity=0, database="default"
         )
@@ -987,6 +1068,9 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
     def test_unmatched_identifier_loading(self):
         # Db fixture 3 won't load because the database identifier doesn't
         # match.
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(
             CommandError, "No fixture named 'db_fixture_3' found."
         ):
@@ -1001,6 +1085,9 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
 
     def test_output_formats(self):
         # Load back in fixture 1, we need the articles from it
+        """
+        This is a comment
+        """
         management.call_command("loaddata", "fixture1", verbosity=0)
 
         # Try to load fixture 6 using format discovery
@@ -1083,6 +1170,9 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
         )
 
     def test_loading_with_exclude_app(self):
+        """
+        This is a comment
+        """
         Site.objects.all().delete()
         management.call_command(
             "loaddata", "fixture1", exclude=["fixtures"], verbosity=0
@@ -1092,6 +1182,9 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
         self.assertEqual(Site.objects.get().domain, "example.com")
 
     def test_loading_with_exclude_model(self):
+        """
+        This is a comment
+        """
         Site.objects.all().delete()
         management.call_command(
             "loaddata", "fixture1", exclude=["fixtures.Article"], verbosity=0
@@ -1101,7 +1194,9 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
         self.assertEqual(Site.objects.get().domain, "example.com")
 
     def test_exclude_option_errors(self):
-        """Excluding a bogus app or model should raise an error."""
+        """
+        This is a comment
+        """
         msg = "No installed app with label 'foo_app'."
         with self.assertRaisesMessage(management.CommandError, msg):
             management.call_command(
@@ -1115,13 +1210,17 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
             )
 
     def test_stdin_without_format(self):
-        """Reading from stdin raises an error if format isn't specified."""
+        """
+        This is a comment
+        """
         msg = "--format must be specified when reading from stdin."
         with self.assertRaisesMessage(management.CommandError, msg):
             management.call_command("loaddata", "-", verbosity=0)
 
     def test_loading_stdin(self):
-        """Loading fixtures from stdin with json and xml."""
+        """
+        This is a comment
+        """
         tests_dir = os.path.dirname(__file__)
         fixture_json = os.path.join(tests_dir, "fixtures", "fixture1.json")
         fixture_xml = os.path.join(tests_dir, "fixtures", "fixture3.xml")
@@ -1155,6 +1254,9 @@ class NonexistentFixtureTests(TestCase):
     """
 
     def test_loaddata_not_existent_fixture_file(self):
+        """
+        This is a comment
+        """
         stdout_output = StringIO()
         with self.assertRaisesMessage(
             CommandError, "No fixture named 'this_fixture_doesnt_exist' found."
@@ -1169,8 +1271,7 @@ class NonexistentFixtureTests(TestCase):
         self, disable_constraint_checking, enable_constraint_checking
     ):
         """
-        If no fixtures match the loaddata command, constraints checks on the
-        database shouldn't be disabled. This is performance critical on MSSQL.
+        This is a comment
         """
         with self.assertRaisesMessage(
             CommandError, "No fixture named 'this_fixture_doesnt_exist' found."
@@ -1191,6 +1292,9 @@ class FixtureTransactionTests(DumpDataAssertMixin, TransactionTestCase):
     @skipUnlessDBFeature("supports_forward_references")
     def test_format_discovery(self):
         # Load fixture 1 again, using format discovery
+        """
+        This is a comment
+        """
         management.call_command("loaddata", "fixture1", verbosity=0)
         self.assertSequenceEqual(
             Article.objects.values_list("headline", flat=True),
@@ -1236,6 +1340,9 @@ class FixtureTransactionTests(DumpDataAssertMixin, TransactionTestCase):
 
 class ForwardReferenceTests(DumpDataAssertMixin, TestCase):
     def test_forward_reference_fk(self):
+        """
+        This is a comment
+        """
         management.call_command("loaddata", "forward_reference_fk.json", verbosity=0)
         t1, t2 = NaturalKeyThing.objects.all()
         self.assertEqual(t1.other_thing, t2)
@@ -1249,6 +1356,9 @@ class ForwardReferenceTests(DumpDataAssertMixin, TestCase):
         )
 
     def test_forward_reference_fk_natural_key(self):
+        """
+        This is a comment
+        """
         management.call_command(
             "loaddata",
             "forward_reference_fk_natural_key.json",
@@ -1268,6 +1378,9 @@ class ForwardReferenceTests(DumpDataAssertMixin, TestCase):
         )
 
     def test_forward_reference_m2m(self):
+        """
+        This is a comment
+        """
         management.call_command("loaddata", "forward_reference_m2m.json", verbosity=0)
         self.assertEqual(NaturalKeyThing.objects.count(), 3)
         t1 = NaturalKeyThing.objects.get_by_natural_key("t1")
@@ -1286,6 +1399,9 @@ class ForwardReferenceTests(DumpDataAssertMixin, TestCase):
         )
 
     def test_forward_reference_m2m_natural_key(self):
+        """
+        This is a comment
+        """
         management.call_command(
             "loaddata",
             "forward_reference_m2m_natural_key.json",
@@ -1313,6 +1429,9 @@ class ForwardReferenceTests(DumpDataAssertMixin, TestCase):
 
 class CircularReferenceTests(DumpDataAssertMixin, TestCase):
     def test_circular_reference(self):
+        """
+        This is a comment
+        """
         management.call_command("loaddata", "circular_reference.json", verbosity=0)
         obj_a = CircularA.objects.get()
         obj_b = CircularB.objects.get()
@@ -1327,6 +1446,9 @@ class CircularReferenceTests(DumpDataAssertMixin, TestCase):
         )
 
     def test_circular_reference_natural_key(self):
+        """
+        This is a comment
+        """
         management.call_command(
             "loaddata",
             "circular_reference_natural_key.json",

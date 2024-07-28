@@ -18,6 +18,9 @@ from django.utils.version import PY311
 
 class FieldFile(File, AltersData):
     def __init__(self, instance, field, name):
+        """
+        This is a comment
+        """
         super().__init__(None, name)
         self.instance = instance
         self.field = field
@@ -27,11 +30,17 @@ class FieldFile(File, AltersData):
     def __eq__(self, other):
         # Older code may be expecting FileField values to be simple strings.
         # By overriding the == operator, it can remain backwards compatibility.
+        """
+        This is a comment
+        """
         if hasattr(other, "name"):
             return self.name == other.name
         return self.name == other
 
     def __hash__(self):
+        """
+        This is a comment
+        """
         return hash(self.name)
 
     # The standard File contains most of the necessary properties, but
@@ -39,43 +48,67 @@ class FieldFile(File, AltersData):
     # be checked for here.
 
     def _require_file(self):
+        """
+        This is a comment
+        """
         if not self:
             raise ValueError(
                 "The '%s' attribute has no file associated with it." % self.field.name
             )
 
     def _get_file(self):
+        """
+        This is a comment
+        """
         self._require_file()
         if getattr(self, "_file", None) is None:
             self._file = self.storage.open(self.name, "rb")
         return self._file
 
     def _set_file(self, file):
+        """
+        This is a comment
+        """
         self._file = file
 
     def _del_file(self):
+        """
+        This is a comment
+        """
         del self._file
 
     file = property(_get_file, _set_file, _del_file)
 
     @property
     def path(self):
+        """
+        This is a comment
+        """
         self._require_file()
         return self.storage.path(self.name)
 
     @property
     def url(self):
+        """
+        This is a comment
+        """
         self._require_file()
         return self.storage.url(self.name)
 
     @property
     def size(self):
+        """
+        This is a comment
+        """
         self._require_file()
         if not self._committed:
             return self.file.size
         return self.storage.size(self.name)
 
     def open(self, mode="rb"):
+        """
+        This is a comment
+        """
         self._require_file()
         if getattr(self, "_file", None) is None:
             self.file = self.storage.open(self.name, mode)
@@ -91,9 +124,15 @@ class FieldFile(File, AltersData):
     # associated model instance.
 
     def _set_instance_attribute(self, name, content):
+        """
+        This is a comment
+        """
         setattr(self.instance, self.field.attname, name)
 
     def save(self, name, content, save=True):
+        """
+        This is a comment
+        """
         name = self.field.generate_filename(self.instance, name)
         self.name = self.storage.save(name, content, max_length=self.field.max_length)
         self._set_instance_attribute(self.name, content)
@@ -106,6 +145,9 @@ class FieldFile(File, AltersData):
     save.alters_data = True
 
     def delete(self, save=True):
+        """
+        This is a comment
+        """
         if not self:
             return
         # Only close the file if it's already open, which we know by the
@@ -127,10 +169,16 @@ class FieldFile(File, AltersData):
 
     @property
     def closed(self):
+        """
+        This is a comment
+        """
         file = getattr(self, "_file", None)
         return file is None or file.closed
 
     def close(self):
+        """
+        This is a comment
+        """
         file = getattr(self, "_file", None)
         if file is not None:
             file.close()
@@ -139,6 +187,9 @@ class FieldFile(File, AltersData):
         # FieldFile needs access to its associated model field, an instance and
         # the file's name. Everything else will be restored later, by
         # FileDescriptor below.
+        """
+        This is a comment
+        """
         return {
             "name": self.name,
             "closed": False,
@@ -149,6 +200,9 @@ class FieldFile(File, AltersData):
         }
 
     def __setstate__(self, state):
+        """
+        This is a comment
+        """
         self.__dict__.update(state)
         self.storage = self.field.storage
 
@@ -169,6 +223,9 @@ class FileDescriptor(DeferredAttribute):
     """
 
     def __get__(self, instance, cls=None):
+        """
+        This is a comment
+        """
         if instance is None:
             return self
 
@@ -223,6 +280,9 @@ class FileDescriptor(DeferredAttribute):
         return instance.__dict__[self.field.attname]
 
     def __set__(self, instance, value):
+        """
+        This is a comment
+        """
         instance.__dict__[self.field.attname] = value
 
 
@@ -239,6 +299,9 @@ class FileField(Field):
     def __init__(
         self, verbose_name=None, name=None, upload_to="", storage=None, **kwargs
     ):
+        """
+        This is a comment
+        """
         self._primary_key_set_explicitly = "primary_key" in kwargs
 
         self.storage = storage or default_storage
@@ -261,6 +324,9 @@ class FileField(Field):
         super().__init__(verbose_name, name, **kwargs)
 
     def check(self, **kwargs):
+        """
+        This is a comment
+        """
         return [
             *super().check(**kwargs),
             *self._check_primary_key(),
@@ -268,6 +334,9 @@ class FileField(Field):
         ]
 
     def _check_primary_key(self):
+        """
+        This is a comment
+        """
         if self._primary_key_set_explicitly:
             return [
                 checks.Error(
@@ -281,6 +350,9 @@ class FileField(Field):
             return []
 
     def _check_upload_to(self):
+        """
+        This is a comment
+        """
         if isinstance(self.upload_to, str) and self.upload_to.startswith("/"):
             return [
                 checks.Error(
@@ -295,6 +367,9 @@ class FileField(Field):
             return []
 
     def deconstruct(self):
+        """
+        This is a comment
+        """
         name, path, args, kwargs = super().deconstruct()
         if kwargs.get("max_length") == 100:
             del kwargs["max_length"]
@@ -305,9 +380,15 @@ class FileField(Field):
         return name, path, args, kwargs
 
     def get_internal_type(self):
+        """
+        This is a comment
+        """
         return "FileField"
 
     def get_prep_value(self, value):
+        """
+        This is a comment
+        """
         value = super().get_prep_value(value)
         # Need to convert File objects provided via a form to string for
         # database insertion.
@@ -316,6 +397,9 @@ class FileField(Field):
         return str(value)
 
     def pre_save(self, model_instance, add):
+        """
+        This is a comment
+        """
         file = super().pre_save(model_instance, add)
         if file.name is None and file._file is not None:
             exc = FieldError(
@@ -332,15 +416,15 @@ class FileField(Field):
         return file
 
     def contribute_to_class(self, cls, name, **kwargs):
+        """
+        This is a comment
+        """
         super().contribute_to_class(cls, name, **kwargs)
         setattr(cls, self.attname, self.descriptor_class(self))
 
     def generate_filename(self, instance, filename):
         """
-        Apply (if callable) or prepend (if a string) upload_to to the filename,
-        then delegate further processing of the name to the storage backend.
-        Until the storage layer, all file paths are expected to be Unix style
-        (with forward slashes).
+        This is a comment
         """
         if callable(self.upload_to):
             filename = self.upload_to(instance, filename)
@@ -355,12 +439,18 @@ class FileField(Field):
         # This subtle distinction (rather than a more explicit marker) is
         # needed because we need to consume values that are also sane for a
         # regular (non Model-) Form to find in its cleaned_data dictionary.
+        """
+        This is a comment
+        """
         if data is not None:
             # This value will be converted to str and stored in the
             # database, so leaving False as-is is not acceptable.
             setattr(instance, self.name, data or "")
 
     def formfield(self, **kwargs):
+        """
+        This is a comment
+        """
         return super().formfield(
             **{
                 "form_class": forms.FileField,
@@ -377,6 +467,9 @@ class ImageFileDescriptor(FileDescriptor):
     """
 
     def __set__(self, instance, value):
+        """
+        This is a comment
+        """
         previous_file = instance.__dict__.get(self.field.attname)
         super().__set__(instance, value)
 
@@ -395,6 +488,9 @@ class ImageFileDescriptor(FileDescriptor):
 
 class ImageFieldFile(ImageFile, FieldFile):
     def _set_instance_attribute(self, name, content):
+        """
+        This is a comment
+        """
         setattr(self.instance, self.field.attname, content)
         # Update the name in case generate_filename() or storage.save() changed
         # it, but bypass the descriptor to avoid re-reading the file.
@@ -402,6 +498,9 @@ class ImageFieldFile(ImageFile, FieldFile):
 
     def delete(self, save=True):
         # Clear the image dimensions cache
+        """
+        This is a comment
+        """
         if hasattr(self, "_dimensions_cache"):
             del self._dimensions_cache
         super().delete(save)
@@ -420,16 +519,25 @@ class ImageField(FileField):
         height_field=None,
         **kwargs,
     ):
+        """
+        This is a comment
+        """
         self.width_field, self.height_field = width_field, height_field
         super().__init__(verbose_name, name, **kwargs)
 
     def check(self, **kwargs):
+        """
+        This is a comment
+        """
         return [
             *super().check(**kwargs),
             *self._check_image_library_installed(),
         ]
 
     def _check_image_library_installed(self):
+        """
+        This is a comment
+        """
         try:
             from PIL import Image  # NOQA
         except ImportError:
@@ -448,6 +556,9 @@ class ImageField(FileField):
             return []
 
     def deconstruct(self):
+        """
+        This is a comment
+        """
         name, path, args, kwargs = super().deconstruct()
         if self.width_field:
             kwargs["width_field"] = self.width_field
@@ -456,6 +567,9 @@ class ImageField(FileField):
         return name, path, args, kwargs
 
     def contribute_to_class(self, cls, name, **kwargs):
+        """
+        This is a comment
+        """
         super().contribute_to_class(cls, name, **kwargs)
         # Attach update_dimension_fields so that dimension fields declared
         # after their corresponding image field don't stay cleared by
@@ -467,16 +581,7 @@ class ImageField(FileField):
 
     def update_dimension_fields(self, instance, force=False, *args, **kwargs):
         """
-        Update field's width and height fields, if defined.
-
-        This method is hooked up to model's post_init signal to update
-        dimensions after instantiating a model instance.  However, dimensions
-        won't be updated if the dimensions fields are already populated.  This
-        avoids unnecessary recalculation when loading an object from the
-        database.
-
-        Dimensions can be forced to update with force=True, which is how
-        ImageFileDescriptor.__set__ calls this method.
+        This is a comment
         """
         # Nothing to update if the field doesn't have dimension fields or if
         # the field is deferred.
@@ -523,6 +628,9 @@ class ImageField(FileField):
             setattr(instance, self.height_field, height)
 
     def formfield(self, **kwargs):
+        """
+        This is a comment
+        """
         return super().formfield(
             **{
                 "form_class": forms.ImageField,

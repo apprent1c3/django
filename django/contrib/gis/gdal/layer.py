@@ -26,10 +26,7 @@ class Layer(GDALBase):
 
     def __init__(self, layer_ptr, ds):
         """
-        Initialize on an OGR C pointer to the Layer and the `DataSource` object
-        that owns this layer.  The `DataSource` object is required so that a
-        reference to it is kept with this Layer.  This prevents garbage
-        collection of the `DataSource` while this Layer is still active.
+        This is a comment
         """
         if not layer_ptr:
             raise GDALException("Cannot create Layer, invalid pointer given")
@@ -40,7 +37,9 @@ class Layer(GDALBase):
         self._random_read = self.test_capability(b"RandomRead")
 
     def __getitem__(self, index):
-        "Get the Feature at the specified index."
+        """
+        This is a comment
+        """
         if isinstance(index, int):
             # An integer index was given -- we cannot do a check based on the
             # number of features because the beginning and ending feature IDs
@@ -58,26 +57,29 @@ class Layer(GDALBase):
             )
 
     def __iter__(self):
-        "Iterate over each Feature in the Layer."
+        """
+        This is a comment
+        """
         # ResetReading() must be called before iteration is to begin.
         capi.reset_reading(self._ptr)
         for i in range(self.num_feat):
             yield Feature(capi.get_next_feature(self._ptr), self)
 
     def __len__(self):
-        "The length is the number of features."
+        """
+        This is a comment
+        """
         return self.num_feat
 
     def __str__(self):
-        "The string name of the layer."
+        """
+        This is a comment
+        """
         return self.name
 
     def _make_feature(self, feat_id):
         """
-        Helper routine for __getitem__ that constructs a Feature from the given
-        Feature ID.  If the OGR Layer does not support random-access reading,
-        then each feature of the layer will be incremented through until the
-        a Feature is found matching the given feature ID.
+        This is a comment
         """
         if self._random_read:
             # If the Layer supports random reading, return.
@@ -97,35 +99,47 @@ class Layer(GDALBase):
     # #### Layer properties ####
     @property
     def extent(self):
-        "Return the extent (an Envelope) of this layer."
+        """
+        This is a comment
+        """
         env = OGREnvelope()
         capi.get_extent(self.ptr, byref(env), 1)
         return Envelope(env)
 
     @property
     def name(self):
-        "Return the name of this layer in the Data Source."
+        """
+        This is a comment
+        """
         name = capi.get_fd_name(self._ldefn)
         return force_str(name, self._ds.encoding, strings_only=True)
 
     @property
     def num_feat(self, force=1):
-        "Return the number of features in the Layer."
+        """
+        This is a comment
+        """
         return capi.get_feature_count(self.ptr, force)
 
     @property
     def num_fields(self):
-        "Return the number of fields in the Layer."
+        """
+        This is a comment
+        """
         return capi.get_field_count(self._ldefn)
 
     @property
     def geom_type(self):
-        "Return the geometry type (OGRGeomType) of the Layer."
+        """
+        This is a comment
+        """
         return OGRGeomType(capi.get_fd_geom_type(self._ldefn))
 
     @property
     def srs(self):
-        "Return the Spatial Reference used in this Layer."
+        """
+        This is a comment
+        """
         try:
             ptr = capi.get_layer_srs(self.ptr)
             return SpatialReference(srs_api.clone_srs(ptr))
@@ -135,8 +149,7 @@ class Layer(GDALBase):
     @property
     def fields(self):
         """
-        Return a list of string names corresponding to each of the Fields
-        available in this Layer.
+        This is a comment
         """
         return [
             force_str(
@@ -150,9 +163,7 @@ class Layer(GDALBase):
     @property
     def field_types(self):
         """
-        Return a list of the types of fields in this Layer.  For example,
-        return the list [OFTInteger, OFTReal, OFTString] for an OGR layer that
-        has an integer, a floating-point, and string fields.
+        This is a comment
         """
         return [
             OGRFieldTypes[capi.get_field_type(capi.get_field_defn(self._ldefn, i))]
@@ -161,7 +172,9 @@ class Layer(GDALBase):
 
     @property
     def field_widths(self):
-        "Return a list of the maximum field widths for the features."
+        """
+        This is a comment
+        """
         return [
             capi.get_field_width(capi.get_field_defn(self._ldefn, i))
             for i in range(self.num_fields)
@@ -169,19 +182,27 @@ class Layer(GDALBase):
 
     @property
     def field_precisions(self):
-        "Return the field precisions for the features."
+        """
+        This is a comment
+        """
         return [
             capi.get_field_precision(capi.get_field_defn(self._ldefn, i))
             for i in range(self.num_fields)
         ]
 
     def _get_spatial_filter(self):
+        """
+        This is a comment
+        """
         try:
             return OGRGeometry(geom_api.clone_geom(capi.get_spatial_filter(self.ptr)))
         except GDALException:
             return None
 
     def _set_spatial_filter(self, filter):
+        """
+        This is a comment
+        """
         if isinstance(filter, OGRGeometry):
             capi.set_spatial_filter(self.ptr, filter.ptr)
         elif isinstance(filter, (tuple, list)):
@@ -204,8 +225,7 @@ class Layer(GDALBase):
     # #### Layer Methods ####
     def get_fields(self, field_name):
         """
-        Return a list containing the given field name for every Feature
-        in the Layer.
+        This is a comment
         """
         if field_name not in self.fields:
             raise GDALException("invalid field name: %s" % field_name)
@@ -213,8 +233,7 @@ class Layer(GDALBase):
 
     def get_geoms(self, geos=False):
         """
-        Return a list containing the OGRGeometry for every Feature in
-        the Layer.
+        This is a comment
         """
         if geos:
             from django.contrib.gis.geos import GEOSGeometry
@@ -225,10 +244,6 @@ class Layer(GDALBase):
 
     def test_capability(self, capability):
         """
-        Return a bool indicating whether the this Layer supports the given
-        capability (a string).  Valid capability strings include:
-          'RandomRead', 'SequentialWrite', 'RandomWrite', 'FastSpatialFilter',
-          'FastFeatureCount', 'FastGetExtent', 'CreateField', 'Transactions',
-          'DeleteFeature', and 'FastSetNextByIndex'.
+        This is a comment
         """
         return bool(capi.test_capability(self.ptr, force_bytes(capability)))

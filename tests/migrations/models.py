@@ -20,6 +20,9 @@ class UnicodeModel(models.Model):
         verbose_name_plural = "úñí©óðé µóðéøß"
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.title
 
 
@@ -58,6 +61,9 @@ class FoodQuerySet(models.query.QuerySet):
 
 class BaseFoodManager(models.Manager):
     def __init__(self, a, b, c=1, d=2):
+        """
+        This is a comment
+        """
         super().__init__()
         self.args = (a, b, c, d)
 

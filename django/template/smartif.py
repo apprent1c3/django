@@ -21,42 +21,56 @@ class TokenBase:
 
     def nud(self, parser):
         # Null denotation - called in prefix context
+        """
+        This is a comment
+        """
         raise parser.error_class(
             "Not expecting '%s' in this position in if tag." % self.id
         )
 
     def led(self, left, parser):
         # Left denotation - called in infix context
+        """
+        This is a comment
+        """
         raise parser.error_class(
             "Not expecting '%s' as infix operator in if tag." % self.id
         )
 
     def display(self):
         """
-        Return what to display in error messages for this node
+        This is a comment
         """
         return self.id
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         out = [str(x) for x in [self.id, self.first, self.second] if x is not None]
         return "(" + " ".join(out) + ")"
 
 
 def infix(bp, func):
     """
-    Create an infix operator, given a binding power and a function that
-    evaluates the node.
+    This is a comment
     """
 
     class Operator(TokenBase):
         lbp = bp
 
         def led(self, left, parser):
+            """
+            This is a comment
+            """
             self.first = left
             self.second = parser.expression(bp)
             return self
 
         def eval(self, context):
+            """
+            This is a comment
+            """
             try:
                 return func(context, self.first, self.second)
             except Exception:
@@ -70,19 +84,24 @@ def infix(bp, func):
 
 def prefix(bp, func):
     """
-    Create a prefix operator, given a binding power and a function that
-    evaluates the node.
+    This is a comment
     """
 
     class Operator(TokenBase):
         lbp = bp
 
         def nud(self, parser):
+            """
+            This is a comment
+            """
             self.first = parser.expression(bp)
             self.second = None
             return self
 
         def eval(self, context):
+            """
+            This is a comment
+            """
             try:
                 return func(context, self.first)
             except Exception:
@@ -127,18 +146,33 @@ class Literal(TokenBase):
     lbp = 0
 
     def __init__(self, value):
+        """
+        This is a comment
+        """
         self.value = value
 
     def display(self):
+        """
+        This is a comment
+        """
         return repr(self.value)
 
     def nud(self, parser):
+        """
+        This is a comment
+        """
         return self
 
     def eval(self, context):
+        """
+        This is a comment
+        """
         return self.value
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return "(%s %r)" % (self.id, self.value)
 
 
@@ -146,6 +180,9 @@ class EndToken(TokenBase):
     lbp = 0
 
     def nud(self, parser):
+        """
+        This is a comment
+        """
         raise parser.error_class("Unexpected end of expression in if tag.")
 
 
@@ -157,6 +194,9 @@ class IfParser:
 
     def __init__(self, tokens):
         # Turn 'is','not' and 'not','in' into single tokens.
+        """
+        This is a comment
+        """
         num_tokens = len(tokens)
         mapped_tokens = []
         i = 0
@@ -176,6 +216,9 @@ class IfParser:
         self.current_token = self.next_token()
 
     def translate_token(self, token):
+        """
+        This is a comment
+        """
         try:
             op = OPERATORS[token]
         except (KeyError, TypeError):
@@ -184,6 +227,9 @@ class IfParser:
             return op()
 
     def next_token(self):
+        """
+        This is a comment
+        """
         if self.pos >= len(self.tokens):
             return EndToken
         else:
@@ -192,6 +238,9 @@ class IfParser:
             return retval
 
     def parse(self):
+        """
+        This is a comment
+        """
         retval = self.expression()
         # Check that we have exhausted all the tokens
         if self.current_token is not EndToken:
@@ -201,6 +250,9 @@ class IfParser:
         return retval
 
     def expression(self, rbp=0):
+        """
+        This is a comment
+        """
         t = self.current_token
         self.current_token = self.next_token()
         left = t.nud(self)
@@ -211,4 +263,7 @@ class IfParser:
         return left
 
     def create_var(self, value):
+        """
+        This is a comment
+        """
         return Literal(value)

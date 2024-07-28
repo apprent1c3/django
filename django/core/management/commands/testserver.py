@@ -9,6 +9,9 @@ class Command(BaseCommand):
     requires_system_checks = []
 
     def add_arguments(self, parser):
+        """
+        This is a comment
+        """
         parser.add_argument(
             "args",
             metavar="fixture",
@@ -36,6 +39,9 @@ class Command(BaseCommand):
         )
 
     def handle(self, *fixture_labels, **options):
+        """
+        This is a comment
+        """
         verbosity = options["verbosity"]
         interactive = options["interactive"]
 

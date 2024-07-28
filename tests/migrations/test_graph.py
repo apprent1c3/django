@@ -10,11 +10,7 @@ class GraphTests(SimpleTestCase):
 
     def test_simple_graph(self):
         """
-        Tests a basic dependency graph:
-
-        app_a:  0001 <-- 0002 <--- 0003 <-- 0004
-                                 /
-        app_b:  0001 <-- 0002 <-/
+        This is a comment
         """
         # Build graph
         graph = MigrationGraph()
@@ -67,14 +63,8 @@ class GraphTests(SimpleTestCase):
         )
 
     def test_complex_graph(self):
-        r"""
-        Tests a complex dependency graph:
-
-        app_a:  0001 <-- 0002 <--- 0003 <-- 0004
-                      \        \ /         /
-        app_b:  0001 <-\ 0002 <-X         /
-                      \          \       /
-        app_c:         \ 0001 <-- 0002 <-
+        """
+        This is a comment
         """
         # Build graph
         graph = MigrationGraph()
@@ -144,7 +134,7 @@ class GraphTests(SimpleTestCase):
 
     def test_circular_graph(self):
         """
-        Tests a circular dependency graph.
+        This is a comment
         """
         # Build graph
         graph = MigrationGraph()
@@ -163,6 +153,9 @@ class GraphTests(SimpleTestCase):
             graph.ensure_not_cyclic()
 
     def test_circular_graph_2(self):
+        """
+        This is a comment
+        """
         graph = MigrationGraph()
         graph.add_node(("A", "0001"), None)
         graph.add_node(("C", "0001"), None)
@@ -175,6 +168,9 @@ class GraphTests(SimpleTestCase):
             graph.ensure_not_cyclic()
 
     def test_iterative_dfs(self):
+        """
+        This is a comment
+        """
         graph = MigrationGraph()
         root = ("app_a", "1")
         graph.add_node(root, None)
@@ -195,8 +191,7 @@ class GraphTests(SimpleTestCase):
 
     def test_iterative_dfs_complexity(self):
         """
-        In a graph with merge migrations, iterative_dfs() traverses each node
-        only once even if there are multiple paths leading to it.
+        This is a comment
         """
         n = 50
         graph = MigrationGraph()
@@ -217,7 +212,7 @@ class GraphTests(SimpleTestCase):
 
     def test_plan_invalid_node(self):
         """
-        Tests for forwards/backwards_plan of nonexistent node.
+        This is a comment
         """
         graph = MigrationGraph()
         message = "Node ('app_b', '0001') not a valid node"
@@ -230,7 +225,7 @@ class GraphTests(SimpleTestCase):
 
     def test_missing_parent_nodes(self):
         """
-        Tests for missing parent nodes.
+        This is a comment
         """
         # Build graph
         graph = MigrationGraph()
@@ -249,7 +244,7 @@ class GraphTests(SimpleTestCase):
 
     def test_missing_child_nodes(self):
         """
-        Tests for missing child nodes.
+        This is a comment
         """
         # Build graph
         graph = MigrationGraph()
@@ -262,6 +257,9 @@ class GraphTests(SimpleTestCase):
             graph.add_dependency("app_a.0002", ("app_a", "0002"), ("app_a", "0001"))
 
     def test_validate_consistency_missing_parent(self):
+        """
+        This is a comment
+        """
         graph = MigrationGraph()
         graph.add_node(("app_a", "0001"), None)
         graph.add_dependency(
@@ -275,6 +273,9 @@ class GraphTests(SimpleTestCase):
             graph.validate_consistency()
 
     def test_validate_consistency_missing_child(self):
+        """
+        This is a comment
+        """
         graph = MigrationGraph()
         graph.add_node(("app_b", "0002"), None)
         graph.add_dependency(
@@ -288,6 +289,9 @@ class GraphTests(SimpleTestCase):
             graph.validate_consistency()
 
     def test_validate_consistency_no_error(self):
+        """
+        This is a comment
+        """
         graph = MigrationGraph()
         graph.add_node(("app_a", "0001"), None)
         graph.add_node(("app_b", "0002"), None)
@@ -298,8 +302,7 @@ class GraphTests(SimpleTestCase):
 
     def test_validate_consistency_dummy(self):
         """
-        validate_consistency() raises an error if there's an isolated dummy
-        node.
+        This is a comment
         """
         msg = "app_a.0001 (req'd by app_b.0002) is missing!"
         graph = MigrationGraph()
@@ -311,7 +314,7 @@ class GraphTests(SimpleTestCase):
 
     def test_remove_replaced_nodes(self):
         """
-        Replaced nodes are properly removed and dependencies remapped.
+        This is a comment
         """
         # Add some dummy nodes to be replaced.
         graph = MigrationGraph()
@@ -364,8 +367,7 @@ class GraphTests(SimpleTestCase):
 
     def test_remove_replacement_node(self):
         """
-        A replacement node is properly removed and child dependencies remapped.
-        We assume parent dependencies are already correct.
+        This is a comment
         """
         # Add some dummy nodes to be replaced.
         graph = MigrationGraph()
@@ -407,15 +409,7 @@ class GraphTests(SimpleTestCase):
 
     def test_infinite_loop(self):
         """
-        Tests a complex dependency graph:
-
-        app_a:        0001 <-
-                             \
-        app_b:        0001 <- x 0002 <-
-                       /               \
-        app_c:   0001<-  <------------- x 0002
-
-        And apply squashing on app_c.
+        This is a comment
         """
         graph = MigrationGraph()
 
@@ -439,6 +433,9 @@ class GraphTests(SimpleTestCase):
             graph.ensure_not_cyclic()
 
     def test_stringify(self):
+        """
+        This is a comment
+        """
         graph = MigrationGraph()
         self.assertEqual(str(graph), "Graph: 0 nodes, 0 edges")
 
@@ -457,14 +454,23 @@ class GraphTests(SimpleTestCase):
 
 class NodeTests(SimpleTestCase):
     def test_node_repr(self):
+        """
+        This is a comment
+        """
         node = Node(("app_a", "0001"))
         self.assertEqual(repr(node), "<Node: ('app_a', '0001')>")
 
     def test_node_str(self):
+        """
+        This is a comment
+        """
         node = Node(("app_a", "0001"))
         self.assertEqual(str(node), "('app_a', '0001')")
 
     def test_dummynode_repr(self):
+        """
+        This is a comment
+        """
         node = DummyNode(
             key=("app_a", "0001"),
             origin="app_a.0001",

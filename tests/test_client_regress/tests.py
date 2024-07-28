@@ -29,6 +29,9 @@ from .views import CustomTestException
 class TestDataMixin:
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.u1 = User.objects.create_user(username="testclient", password="password")
         cls.staff = User.objects.create_user(
             username="staff", password="password", is_staff=True
@@ -38,7 +41,9 @@ class TestDataMixin:
 @override_settings(ROOT_URLCONF="test_client_regress.urls")
 class AssertContainsTests(SimpleTestCase):
     def test_contains(self):
-        "Responses can be inspected for content, including counting repeated substrings"
+        """
+        This is a comment
+        """
         response = self.client.get("/no_template_view/")
 
         self.assertNotContains(response, "never")
@@ -217,58 +222,73 @@ class AssertContainsTests(SimpleTestCase):
             self.assertNotContains(response, "very")
 
     def test_unicode_contains(self):
-        "Unicode characters can be found in template context"
+        """
+        This is a comment
+        """
         # Regression test for #10183
         r = self.client.get("/check_unicode/")
         self.assertContains(r, "さかき")
         self.assertContains(r, b"\xe5\xb3\xa0".decode())
 
     def test_unicode_not_contains(self):
-        "Unicode characters can be searched for, and not found in template context"
+        """
+        This is a comment
+        """
         # Regression test for #10183
         r = self.client.get("/check_unicode/")
         self.assertNotContains(r, "はたけ")
         self.assertNotContains(r, b"\xe3\x81\xaf\xe3\x81\x9f\xe3\x81\x91".decode())
 
     def test_binary_contains(self):
+        """
+        This is a comment
+        """
         r = self.client.get("/check_binary/")
         self.assertContains(r, b"%PDF-1.4\r\n%\x93\x8c\x8b\x9e")
         with self.assertRaises(AssertionError):
             self.assertContains(r, b"%PDF-1.4\r\n%\x93\x8c\x8b\x9e", count=2)
 
     def test_binary_not_contains(self):
+        """
+        This is a comment
+        """
         r = self.client.get("/check_binary/")
         self.assertNotContains(r, b"%ODF-1.4\r\n%\x93\x8c\x8b\x9e")
         with self.assertRaises(AssertionError):
             self.assertNotContains(r, b"%PDF-1.4\r\n%\x93\x8c\x8b\x9e")
 
     def test_nontext_contains(self):
+        """
+        This is a comment
+        """
         r = self.client.get("/no_template_view/")
         self.assertContains(r, gettext_lazy("once"))
 
     def test_nontext_not_contains(self):
+        """
+        This is a comment
+        """
         r = self.client.get("/no_template_view/")
         self.assertNotContains(r, gettext_lazy("never"))
 
     def test_assert_contains_renders_template_response(self):
         """
-        An unrendered SimpleTemplateResponse may be used in assertContains().
+        This is a comment
         """
         template = engines["django"].from_string("Hello")
         response = SimpleTemplateResponse(template)
         self.assertContains(response, "Hello")
 
     def test_assert_contains_using_non_template_response(self):
-        """auto-rendering does not affect responses that aren't
-        instances (or subclasses) of SimpleTemplateResponse.
-        Refs #15826.
+        """
+        This is a comment
         """
         response = HttpResponse("Hello")
         self.assertContains(response, "Hello")
 
     def test_assert_not_contains_renders_template_response(self):
         """
-        An unrendered SimpleTemplateResponse may be used in assertNotContains().
+        This is a comment
         """
         template = engines["django"].from_string("Hello")
         response = SimpleTemplateResponse(template)
@@ -276,8 +296,7 @@ class AssertContainsTests(SimpleTestCase):
 
     def test_assert_not_contains_using_non_template_response(self):
         """
-        auto-rendering does not affect responses that aren't instances (or
-        subclasses) of SimpleTemplateResponse.
+        This is a comment
         """
         response = HttpResponse("Hello")
         self.assertNotContains(response, "Bye")
@@ -286,7 +305,9 @@ class AssertContainsTests(SimpleTestCase):
 @override_settings(ROOT_URLCONF="test_client_regress.urls")
 class AssertTemplateUsedTests(TestDataMixin, TestCase):
     def test_no_context(self):
-        "Template usage assertions work then templates aren't in use"
+        """
+        This is a comment
+        """
         response = self.client.get("/no_template_view/")
 
         # The no template case doesn't mess with the template assertions
@@ -307,7 +328,9 @@ class AssertTemplateUsedTests(TestDataMixin, TestCase):
             self.assertTemplateUsed(response, "GET Template", count=2)
 
     def test_single_context(self):
-        "Template assertions work when there is a single context"
+        """
+        This is a comment
+        """
         response = self.client.get("/post_view/", {})
         msg = (
             ": Template 'Empty GET Template' was used unexpectedly in "
@@ -337,7 +360,9 @@ class AssertTemplateUsedTests(TestDataMixin, TestCase):
             )
 
     def test_multiple_context(self):
-        "Template assertions work when there are multiple contexts"
+        """
+        This is a comment
+        """
         post_data = {
             "text": "Hello World",
             "email": "foo@example.com",
@@ -366,7 +391,9 @@ class AssertTemplateUsedTests(TestDataMixin, TestCase):
             self.assertTemplateUsed(response, "base.html", count=2)
 
     def test_template_rendered_multiple_times(self):
-        """Template assertions work when a template is rendered multiple times."""
+        """
+        This is a comment
+        """
         response = self.client.get("/render_template_multiple_times/")
 
         self.assertTemplateUsed(response, "base.html", count=2)
@@ -375,7 +402,9 @@ class AssertTemplateUsedTests(TestDataMixin, TestCase):
 @override_settings(ROOT_URLCONF="test_client_regress.urls")
 class AssertRedirectsTests(SimpleTestCase):
     def test_redirect_page(self):
-        "An assertion is raised if the original page couldn't be retrieved as expected"
+        """
+        This is a comment
+        """
         # This page will redirect with code 301, not 302
         response = self.client.get("/permanent_redirect_view/")
         try:
@@ -398,8 +427,7 @@ class AssertRedirectsTests(SimpleTestCase):
 
     def test_lost_query(self):
         """
-        An assertion is raised if the redirect location doesn't preserve GET
-        parameters.
+        This is a comment
         """
         response = self.client.get("/redirect_view/", {"var": "value"})
         try:
@@ -420,7 +448,9 @@ class AssertRedirectsTests(SimpleTestCase):
             )
 
     def test_incorrect_target(self):
-        "An assertion is raised if the response redirects to another target"
+        """
+        This is a comment
+        """
         response = self.client.get("/permanent_redirect_view/")
         try:
             # Should redirect to get_view
@@ -434,8 +464,7 @@ class AssertRedirectsTests(SimpleTestCase):
 
     def test_target_page(self):
         """
-        An assertion is raised if the response redirect target cannot be
-        retrieved as expected.
+        This is a comment
         """
         response = self.client.get("/double_redirect_view/")
         try:
@@ -461,7 +490,9 @@ class AssertRedirectsTests(SimpleTestCase):
             )
 
     def test_redirect_chain(self):
-        "You can follow a redirect chain of multiple redirects"
+        """
+        This is a comment
+        """
         response = self.client.get("/redirects/further/more/", {}, follow=True)
         self.assertRedirects(
             response, "/no_template_view/", status_code=302, target_status_code=200
@@ -471,7 +502,9 @@ class AssertRedirectsTests(SimpleTestCase):
         self.assertEqual(response.redirect_chain[0], ("/no_template_view/", 302))
 
     def test_multiple_redirect_chain(self):
-        "You can follow a redirect chain of multiple redirects"
+        """
+        This is a comment
+        """
         response = self.client.get("/redirects/", {}, follow=True)
         self.assertRedirects(
             response, "/no_template_view/", status_code=302, target_status_code=200
@@ -483,14 +516,18 @@ class AssertRedirectsTests(SimpleTestCase):
         self.assertEqual(response.redirect_chain[2], ("/no_template_view/", 302))
 
     def test_redirect_chain_to_non_existent(self):
-        "You can follow a chain to a nonexistent view."
+        """
+        This is a comment
+        """
         response = self.client.get("/redirect_to_non_existent_view2/", {}, follow=True)
         self.assertRedirects(
             response, "/non_existent_view/", status_code=302, target_status_code=404
         )
 
     def test_redirect_chain_to_self(self):
-        "Redirections to self are caught and escaped"
+        """
+        This is a comment
+        """
         with self.assertRaises(RedirectCycleError) as context:
             self.client.get("/redirect_to_self/", {}, follow=True)
         response = context.exception.last_response
@@ -501,7 +538,9 @@ class AssertRedirectsTests(SimpleTestCase):
         self.assertEqual(len(response.redirect_chain), 2)
 
     def test_redirect_to_self_with_changing_query(self):
-        "Redirections don't loop forever even if query is changing"
+        """
+        This is a comment
+        """
         with self.assertRaises(RedirectCycleError):
             self.client.get(
                 "/redirect_to_self_with_changing_query_view/",
@@ -510,7 +549,9 @@ class AssertRedirectsTests(SimpleTestCase):
             )
 
     def test_circular_redirect(self):
-        "Circular redirect chains are caught and escaped"
+        """
+        This is a comment
+        """
         with self.assertRaises(RedirectCycleError) as context:
             self.client.get("/circular_redirect_1/", {}, follow=True)
         response = context.exception.last_response
@@ -521,38 +562,50 @@ class AssertRedirectsTests(SimpleTestCase):
         self.assertEqual(len(response.redirect_chain), 4)
 
     def test_redirect_chain_post(self):
-        "A redirect chain will be followed from an initial POST post"
+        """
+        This is a comment
+        """
         response = self.client.post("/redirects/", {"nothing": "to_send"}, follow=True)
         self.assertRedirects(response, "/no_template_view/", 302, 200)
         self.assertEqual(len(response.redirect_chain), 3)
 
     def test_redirect_chain_head(self):
-        "A redirect chain will be followed from an initial HEAD request"
+        """
+        This is a comment
+        """
         response = self.client.head("/redirects/", {"nothing": "to_send"}, follow=True)
         self.assertRedirects(response, "/no_template_view/", 302, 200)
         self.assertEqual(len(response.redirect_chain), 3)
 
     def test_redirect_chain_options(self):
-        "A redirect chain will be followed from an initial OPTIONS request"
+        """
+        This is a comment
+        """
         response = self.client.options("/redirects/", follow=True)
         self.assertRedirects(response, "/no_template_view/", 302, 200)
         self.assertEqual(len(response.redirect_chain), 3)
 
     def test_redirect_chain_put(self):
-        "A redirect chain will be followed from an initial PUT request"
+        """
+        This is a comment
+        """
         response = self.client.put("/redirects/", follow=True)
         self.assertRedirects(response, "/no_template_view/", 302, 200)
         self.assertEqual(len(response.redirect_chain), 3)
 
     def test_redirect_chain_delete(self):
-        "A redirect chain will be followed from an initial DELETE request"
+        """
+        This is a comment
+        """
         response = self.client.delete("/redirects/", follow=True)
         self.assertRedirects(response, "/no_template_view/", 302, 200)
         self.assertEqual(len(response.redirect_chain), 3)
 
     @modify_settings(ALLOWED_HOSTS={"append": "otherserver"})
     def test_redirect_to_different_host(self):
-        "The test client will preserve scheme, host and port changes"
+        """
+        This is a comment
+        """
         response = self.client.get("/redirect_other_host/", follow=True)
         self.assertRedirects(
             response,
@@ -576,8 +629,7 @@ class AssertRedirectsTests(SimpleTestCase):
 
     def test_redirect_chain_on_non_redirect_page(self):
         """
-        An assertion is raised if the original page couldn't be retrieved as
-        expected.
+        This is a comment
         """
         # This page will redirect with code 301, not 302
         response = self.client.get("/get_view/", follow=True)
@@ -600,7 +652,9 @@ class AssertRedirectsTests(SimpleTestCase):
             )
 
     def test_redirect_on_non_redirect_page(self):
-        "An assertion is raised if the original page couldn't be retrieved as expected"
+        """
+        This is a comment
+        """
         # This page will redirect with code 301, not 302
         response = self.client.get("/get_view/")
         try:
@@ -623,8 +677,7 @@ class AssertRedirectsTests(SimpleTestCase):
 
     def test_redirect_scheme(self):
         """
-        An assertion is raised if the response doesn't have the scheme
-        specified in expected_url.
+        This is a comment
         """
 
         # For all possible True/False combinations of follow and secure
@@ -643,7 +696,9 @@ class AssertRedirectsTests(SimpleTestCase):
                 )
 
     def test_redirect_fetch_redirect_response(self):
-        """Preserve extra headers of requests made with django.test.Client."""
+        """
+        This is a comment
+        """
         methods = (
             "get",
             "post",
@@ -688,7 +743,9 @@ class AssertRedirectsTests(SimpleTestCase):
 @override_settings(ROOT_URLCONF="test_client_regress.urls")
 class LoginTests(TestDataMixin, TestCase):
     def test_login_different_client(self):
-        "Using a different test client doesn't violate authentication"
+        """
+        This is a comment
+        """
 
         # Create a second client, and log in.
         c = Client()
@@ -709,7 +766,9 @@ class LoginTests(TestDataMixin, TestCase):
 )
 class SessionEngineTests(TestDataMixin, TestCase):
     def test_login(self):
-        "A session engine that modifies the session key can be used to log in"
+        """
+        This is a comment
+        """
         login = self.client.login(username="testclient", password="password")
         self.assertTrue(login, "Could not log in")
 
@@ -724,25 +783,33 @@ class SessionEngineTests(TestDataMixin, TestCase):
 )
 class URLEscapingTests(SimpleTestCase):
     def test_simple_argument_get(self):
-        "Get a view that has a simple string argument"
+        """
+        This is a comment
+        """
         response = self.client.get(reverse("arg_view", args=["Slartibartfast"]))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, b"Howdy, Slartibartfast")
 
     def test_argument_with_space_get(self):
-        "Get a view that has a string argument that requires escaping"
+        """
+        This is a comment
+        """
         response = self.client.get(reverse("arg_view", args=["Arthur Dent"]))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, b"Hi, Arthur")
 
     def test_simple_argument_post(self):
-        "Post for a view that has a simple string argument"
+        """
+        This is a comment
+        """
         response = self.client.post(reverse("arg_view", args=["Slartibartfast"]))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, b"Howdy, Slartibartfast")
 
     def test_argument_with_space_post(self):
-        "Post for a view that has a string argument that requires escaping"
+        """
+        This is a comment
+        """
         response = self.client.post(reverse("arg_view", args=["Arthur Dent"]))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, b"Hi, Arthur")
@@ -751,7 +818,9 @@ class URLEscapingTests(SimpleTestCase):
 @override_settings(ROOT_URLCONF="test_client_regress.urls")
 class ExceptionTests(TestDataMixin, TestCase):
     def test_exception_cleared(self):
-        "#5836 - A stale user exception isn't re-raised by the test client."
+        """
+        This is a comment
+        """
 
         login = self.client.login(username="testclient", password="password")
         self.assertTrue(login, "Could not log in")
@@ -777,7 +846,9 @@ class TemplateExceptionTests(SimpleTestCase):
         ]
     )
     def test_bad_404_template(self):
-        "Errors found when rendering 404 error templates are re-raised"
+        """
+        This is a comment
+        """
         with self.assertRaises(TemplateSyntaxError):
             self.client.get("/no_such_view/")
 
@@ -788,7 +859,9 @@ class TemplateExceptionTests(SimpleTestCase):
 @override_settings(ROOT_URLCONF="test_client_regress.urls")
 class UrlconfSubstitutionTests(SimpleTestCase):
     def test_urlconf_was_changed(self):
-        "TestCase can enforce a custom URLconf on a per-test basis"
+        """
+        This is a comment
+        """
         url = reverse("arg_view", args=["somename"])
         self.assertEqual(url, "/arg_view/somename/")
 
@@ -797,9 +870,8 @@ class UrlconfSubstitutionTests(SimpleTestCase):
 # name is to ensure alphabetical ordering.
 class zzUrlconfSubstitutionTests(SimpleTestCase):
     def test_urlconf_was_reverted(self):
-        """URLconf is reverted to original value after modification in a TestCase
-
-        This will not find a match as the default ROOT_URLCONF is empty.
+        """
+        This is a comment
         """
         with self.assertRaises(NoReverseMatch):
             reverse("arg_view", args=["somename"])
@@ -808,7 +880,9 @@ class zzUrlconfSubstitutionTests(SimpleTestCase):
 @override_settings(ROOT_URLCONF="test_client_regress.urls")
 class ContextTests(TestDataMixin, TestCase):
     def test_single_context(self):
-        "Context variables can be retrieved from a single context"
+        """
+        This is a comment
+        """
         response = self.client.get("/request_data/", data={"foo": "whiz"})
         self.assertIsInstance(response.context, RequestContext)
         self.assertIn("get-foo", response.context)
@@ -819,7 +893,9 @@ class ContextTests(TestDataMixin, TestCase):
             response.context["does-not-exist"]
 
     def test_inherited_context(self):
-        "Context variables can be retrieved from a list of contexts"
+        """
+        This is a comment
+        """
         response = self.client.get("/request_data_extended/", data={"foo": "whiz"})
         self.assertEqual(response.context.__class__, ContextList)
         self.assertEqual(len(response.context), 2)
@@ -831,6 +907,9 @@ class ContextTests(TestDataMixin, TestCase):
             response.context["does-not-exist"]
 
     def test_contextlist_keys(self):
+        """
+        This is a comment
+        """
         c1 = Context()
         c1.update({"hello": "world", "goodbye": "john"})
         c1.update({"hello": "dolly", "dolly": "parton"})
@@ -846,6 +925,9 @@ class ContextTests(TestDataMixin, TestCase):
         )
 
     def test_contextlist_get(self):
+        """
+        This is a comment
+        """
         c1 = Context({"hello": "world", "goodbye": "john"})
         c2 = Context({"goodbye": "world", "python": "rocks"})
         k = ContextList([c1, c2])
@@ -858,6 +940,9 @@ class ContextTests(TestDataMixin, TestCase):
         # Need to insert a context processor that assumes certain things about
         # the request instance. This triggers a bug caused by some ways of
         # copying RequestContext.
+        """
+        This is a comment
+        """
         with self.settings(
             TEMPLATES=[
                 {
@@ -876,7 +961,7 @@ class ContextTests(TestDataMixin, TestCase):
 
     def test_nested_requests(self):
         """
-        response.context is not lost when view call another view.
+        This is a comment
         """
         response = self.client.get("/nested_view/")
         self.assertIsInstance(response.context, RequestContext)
@@ -886,7 +971,9 @@ class ContextTests(TestDataMixin, TestCase):
 @override_settings(ROOT_URLCONF="test_client_regress.urls")
 class SessionTests(TestDataMixin, TestCase):
     def test_session(self):
-        "The session isn't lost if a user logs in"
+        """
+        This is a comment
+        """
         # The session doesn't exist to start.
         response = self.client.get("/check_session/")
         self.assertEqual(response.status_code, 200)
@@ -912,6 +999,9 @@ class SessionTests(TestDataMixin, TestCase):
         self.assertEqual(response.content, b"YES")
 
     def test_session_initiated(self):
+        """
+        This is a comment
+        """
         session = self.client.session
         session["session_var"] = "foo"
         session.save()
@@ -920,7 +1010,9 @@ class SessionTests(TestDataMixin, TestCase):
         self.assertEqual(response.content, b"foo")
 
     def test_logout(self):
-        """Logout should work whether the user is logged in or not (#9978)."""
+        """
+        This is a comment
+        """
         self.client.logout()
         login = self.client.login(username="testclient", password="password")
         self.assertTrue(login, "Could not log in")
@@ -928,9 +1020,14 @@ class SessionTests(TestDataMixin, TestCase):
         self.client.logout()
 
     def test_logout_with_user(self):
-        """Logout should send user_logged_out signal if user was logged in."""
+        """
+        This is a comment
+        """
 
         def listener(*args, **kwargs):
+            """
+            This is a comment
+            """
             listener.executed = True
             self.assertEqual(kwargs["sender"], User)
 
@@ -944,9 +1041,14 @@ class SessionTests(TestDataMixin, TestCase):
 
     @override_settings(AUTH_USER_MODEL="test_client_regress.CustomUser")
     def test_logout_with_custom_user(self):
-        """Logout should send user_logged_out signal if custom user was logged in."""
+        """
+        This is a comment
+        """
 
         def listener(*args, **kwargs):
+            """
+            This is a comment
+            """
             self.assertEqual(kwargs["sender"], CustomUser)
             listener.executed = True
 
@@ -968,9 +1070,14 @@ class SessionTests(TestDataMixin, TestCase):
         )
     )
     def test_logout_with_custom_auth_backend(self):
-        "Request a logout after logging in with custom authentication backend"
+        """
+        This is a comment
+        """
 
         def listener(*args, **kwargs):
+            """
+            This is a comment
+            """
             self.assertEqual(kwargs["sender"], CustomUser)
             listener.executed = True
 
@@ -986,9 +1093,14 @@ class SessionTests(TestDataMixin, TestCase):
         self.assertTrue(listener.executed)
 
     def test_logout_without_user(self):
-        """Logout should send signal even if user not authenticated."""
+        """
+        This is a comment
+        """
 
         def listener(user, *args, **kwargs):
+            """
+            This is a comment
+            """
             listener.user = user
             listener.executed = True
 
@@ -1003,9 +1115,14 @@ class SessionTests(TestDataMixin, TestCase):
         self.assertIsNone(listener.user)
 
     def test_login_with_user(self):
-        """Login should send user_logged_in signal on successful login."""
+        """
+        This is a comment
+        """
 
         def listener(*args, **kwargs):
+            """
+            This is a comment
+            """
             listener.executed = True
 
         listener.executed = False
@@ -1017,9 +1134,14 @@ class SessionTests(TestDataMixin, TestCase):
         self.assertTrue(listener.executed)
 
     def test_login_without_signal(self):
-        """Login shouldn't send signal if user wasn't logged in"""
+        """
+        This is a comment
+        """
 
         def listener(*args, **kwargs):
+            """
+            This is a comment
+            """
             listener.executed = True
 
         listener.executed = False
@@ -1034,19 +1156,25 @@ class SessionTests(TestDataMixin, TestCase):
 @override_settings(ROOT_URLCONF="test_client_regress.urls")
 class RequestMethodTests(SimpleTestCase):
     def test_get(self):
-        "Request a view via request method GET"
+        """
+        This is a comment
+        """
         response = self.client.get("/request_methods/")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, b"request method: GET")
 
     def test_post(self):
-        "Request a view via request method POST"
+        """
+        This is a comment
+        """
         response = self.client.post("/request_methods/")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, b"request method: POST")
 
     def test_head(self):
-        "Request a view via request method HEAD"
+        """
+        This is a comment
+        """
         response = self.client.head("/request_methods/")
         self.assertEqual(response.status_code, 200)
         # A HEAD request doesn't return any content.
@@ -1054,25 +1182,33 @@ class RequestMethodTests(SimpleTestCase):
         self.assertEqual(response.content, b"")
 
     def test_options(self):
-        "Request a view via request method OPTIONS"
+        """
+        This is a comment
+        """
         response = self.client.options("/request_methods/")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, b"request method: OPTIONS")
 
     def test_put(self):
-        "Request a view via request method PUT"
+        """
+        This is a comment
+        """
         response = self.client.put("/request_methods/")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, b"request method: PUT")
 
     def test_delete(self):
-        "Request a view via request method DELETE"
+        """
+        This is a comment
+        """
         response = self.client.delete("/request_methods/")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, b"request method: DELETE")
 
     def test_patch(self):
-        "Request a view via request method PATCH"
+        """
+        This is a comment
+        """
         response = self.client.patch("/request_methods/")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, b"request method: PATCH")
@@ -1081,7 +1217,9 @@ class RequestMethodTests(SimpleTestCase):
 @override_settings(ROOT_URLCONF="test_client_regress.urls")
 class RequestMethodStringDataTests(SimpleTestCase):
     def test_post(self):
-        "Request a view with string data via request method POST"
+        """
+        This is a comment
+        """
         # Regression test for #11371
         data = '{"test": "json"}'
         response = self.client.post(
@@ -1091,7 +1229,9 @@ class RequestMethodStringDataTests(SimpleTestCase):
         self.assertEqual(response.content, b"request method: POST")
 
     def test_put(self):
-        "Request a view with string data via request method PUT"
+        """
+        This is a comment
+        """
         # Regression test for #11371
         data = '{"test": "json"}'
         response = self.client.put(
@@ -1101,7 +1241,9 @@ class RequestMethodStringDataTests(SimpleTestCase):
         self.assertEqual(response.content, b"request method: PUT")
 
     def test_patch(self):
-        "Request a view with string data via request method PATCH"
+        """
+        This is a comment
+        """
         # Regression test for #17797
         data = '{"test": "json"}'
         response = self.client.patch(
@@ -1111,7 +1253,9 @@ class RequestMethodStringDataTests(SimpleTestCase):
         self.assertEqual(response.content, b"request method: PATCH")
 
     def test_empty_string_data(self):
-        "Request a view with empty string data via request method GET/POST/HEAD"
+        """
+        This is a comment
+        """
         # Regression test for #21740
         response = self.client.get("/body/", data="", content_type="application/json")
         self.assertEqual(response.content, b"")
@@ -1121,21 +1265,33 @@ class RequestMethodStringDataTests(SimpleTestCase):
         self.assertEqual(response.content, b"")
 
     def test_json_bytes(self):
+        """
+        This is a comment
+        """
         response = self.client.post(
             "/body/", data=b"{'value': 37}", content_type="application/json"
         )
         self.assertEqual(response.content, b"{'value': 37}")
 
     def test_json(self):
+        """
+        This is a comment
+        """
         response = self.client.get("/json_response/")
         self.assertEqual(response.json(), {"key": "value"})
 
     def test_json_charset(self):
+        """
+        This is a comment
+        """
         response = self.client.get("/json_response_latin1/")
         self.assertEqual(response.charset, "latin1")
         self.assertEqual(response.json(), {"a": "Å"})
 
     def test_json_structured_suffixes(self):
+        """
+        This is a comment
+        """
         valid_types = (
             "application/vnd.api+json",
             "application/vnd.api.foo+json",
@@ -1151,10 +1307,16 @@ class RequestMethodStringDataTests(SimpleTestCase):
             self.assertEqual(response.json(), {"key": "value"})
 
     def test_json_multiple_access(self):
+        """
+        This is a comment
+        """
         response = self.client.get("/json_response/")
         self.assertIs(response.json(), response.json())
 
     def test_json_wrong_header(self):
+        """
+        This is a comment
+        """
         response = self.client.get("/body/")
         msg = (
             'Content-Type header is "text/html; charset=utf-8", not "application/json"'
@@ -1168,6 +1330,9 @@ class RequestMethodStringDataTests(SimpleTestCase):
 )
 class QueryStringTests(SimpleTestCase):
     def test_get_like_requests(self):
+        """
+        This is a comment
+        """
         for method_name in ("get", "head"):
             # A GET-like request can pass a query string as data (#10571)
             method = getattr(self.client, method_name)
@@ -1189,6 +1354,9 @@ class QueryStringTests(SimpleTestCase):
 
     def test_post_like_requests(self):
         # A POST-like request can pass a query string as data
+        """
+        This is a comment
+        """
         response = self.client.post("/request_data/", data={"foo": "whiz"})
         self.assertIsNone(response.context["get-foo"])
         self.assertEqual(response.context["post-foo"], "whiz")
@@ -1219,7 +1387,9 @@ class PayloadEncodingTests(SimpleTestCase):
     """Regression tests for #10571."""
 
     def test_simple_payload(self):
-        """A simple ASCII-only text can be POSTed."""
+        """
+        This is a comment
+        """
         text = "English: mountain pass"
         response = self.client.post(
             "/parse_encoded_text/", text, content_type="text/plain"
@@ -1227,7 +1397,9 @@ class PayloadEncodingTests(SimpleTestCase):
         self.assertEqual(response.content, text.encode())
 
     def test_utf8_payload(self):
-        """Non-ASCII data encoded as UTF-8 can be POSTed."""
+        """
+        This is a comment
+        """
         text = "dog: собака"
         response = self.client.post(
             "/parse_encoded_text/", text, content_type="text/plain; charset=utf-8"
@@ -1235,7 +1407,9 @@ class PayloadEncodingTests(SimpleTestCase):
         self.assertEqual(response.content, text.encode())
 
     def test_utf16_payload(self):
-        """Non-ASCII data encoded as UTF-16 can be POSTed."""
+        """
+        This is a comment
+        """
         text = "dog: собака"
         response = self.client.post(
             "/parse_encoded_text/", text, content_type="text/plain; charset=utf-16"
@@ -1243,7 +1417,9 @@ class PayloadEncodingTests(SimpleTestCase):
         self.assertEqual(response.content, text.encode("utf-16"))
 
     def test_non_utf_payload(self):
-        """Non-ASCII data as a non-UTF based encoding can be POSTed."""
+        """
+        This is a comment
+        """
         text = "dog: собака"
         response = self.client.post(
             "/parse_encoded_text/", text, content_type="text/plain; charset=koi8-r"
@@ -1253,14 +1429,23 @@ class PayloadEncodingTests(SimpleTestCase):
 
 class DummyFile:
     def __init__(self, filename):
+        """
+        This is a comment
+        """
         self.name = filename
 
     def read(self):
+        """
+        This is a comment
+        """
         return b"TEST_FILE_CONTENT"
 
 
 class UploadedFileEncodingTest(SimpleTestCase):
     def test_file_encoding(self):
+        """
+        This is a comment
+        """
         encoded_file = encode_file(
             "TEST_BOUNDARY", "TEST_KEY", DummyFile("test_name.bin")
         )
@@ -1273,6 +1458,9 @@ class UploadedFileEncodingTest(SimpleTestCase):
         self.assertEqual(b"TEST_FILE_CONTENT", encoded_file[-1])
 
     def test_guesses_content_type_on_file_encoding(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             b"Content-Type: application/octet-stream",
             encode_file("IGNORE", "IGNORE", DummyFile("file.bin"))[2],
@@ -1301,7 +1489,9 @@ class UploadedFileEncodingTest(SimpleTestCase):
 )
 class RequestHeadersTest(SimpleTestCase):
     def test_client_headers(self):
-        "A test client can receive custom headers"
+        """
+        This is a comment
+        """
         response = self.client.get(
             "/check_headers/", headers={"x-arg-check": "Testing 123"}
         )
@@ -1309,7 +1499,9 @@ class RequestHeadersTest(SimpleTestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_client_headers_redirect(self):
-        "Test client headers are preserved through redirects"
+        """
+        This is a comment
+        """
         response = self.client.get(
             "/check_headers_redirect/",
             follow=True,
@@ -1331,23 +1523,27 @@ class ReadLimitedStreamTest(SimpleTestCase):
     """
 
     def test_body_from_empty_request(self):
-        """HttpRequest.body on a test client GET request should return
-        the empty string."""
+        """
+        This is a comment
+        """
         self.assertEqual(self.client.get("/body/").content, b"")
 
     def test_read_from_empty_request(self):
-        """HttpRequest.read() on a test client GET request should return the
-        empty string."""
+        """
+        This is a comment
+        """
         self.assertEqual(self.client.get("/read_all/").content, b"")
 
     def test_read_numbytes_from_empty_request(self):
-        """HttpRequest.read(LARGE_BUFFER) on a test client GET request should
-        return the empty string."""
+        """
+        This is a comment
+        """
         self.assertEqual(self.client.get("/read_buffer/").content, b"")
 
     def test_read_from_nonempty_request(self):
-        """HttpRequest.read() on a test client PUT request with some payload
-        should return that payload."""
+        """
+        This is a comment
+        """
         payload = b"foobar"
         self.assertEqual(
             self.client.put(
@@ -1357,8 +1553,9 @@ class ReadLimitedStreamTest(SimpleTestCase):
         )
 
     def test_read_numbytes_from_nonempty_request(self):
-        """HttpRequest.read(LARGE_BUFFER) on a test client PUT request with
-        some payload should return that payload."""
+        """
+        This is a comment
+        """
         payload = b"foobar"
         self.assertEqual(
             self.client.put(
@@ -1379,20 +1576,32 @@ class RequestFactoryStateTest(SimpleTestCase):
     # them with any other set of tests.
 
     def common_test_that_should_always_pass(self):
+        """
+        This is a comment
+        """
         request = RequestFactory().get("/")
         request.session = {}
         self.assertFalse(hasattr(request, "user"))
 
     def test_request(self):
+        """
+        This is a comment
+        """
         self.common_test_that_should_always_pass()
 
     def test_request_after_client(self):
         # apart from the next line the three tests are identical
+        """
+        This is a comment
+        """
         self.client.get("/")
         self.common_test_that_should_always_pass()
 
     def test_request_after_client_2(self):
         # This test is executed after the previous one
+        """
+        This is a comment
+        """
         self.common_test_that_should_always_pass()
 
 
@@ -1404,6 +1613,9 @@ class RequestFactoryEnvironmentTests(SimpleTestCase):
     """
 
     def test_should_set_correct_env_variables(self):
+        """
+        This is a comment
+        """
         request = RequestFactory().get("/path/")
 
         self.assertEqual(request.META.get("REMOTE_ADDR"), "127.0.0.1")
@@ -1415,6 +1627,9 @@ class RequestFactoryEnvironmentTests(SimpleTestCase):
         )
 
     def test_cookies(self):
+        """
+        This is a comment
+        """
         factory = RequestFactory()
         factory.cookies.load('A="B"; C="D"; Path=/; Version=1')
         request = factory.get("/")

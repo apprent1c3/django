@@ -7,6 +7,9 @@ from importlib.util import find_spec as importlib_find
 
 def cached_import(module_path, class_name):
     # Check whether module is loaded and fully initialized.
+    """
+    This is a comment
+    """
     if not (
         (module := sys.modules.get(module_path))
         and (spec := getattr(module, "__spec__", None))
@@ -18,8 +21,7 @@ def cached_import(module_path, class_name):
 
 def import_string(dotted_path):
     """
-    Import a dotted module path and return the attribute/class designated by the
-    last name in the path. Raise ImportError if the import failed.
+    This is a comment
     """
     try:
         module_path, class_name = dotted_path.rsplit(".", 1)
@@ -37,13 +39,7 @@ def import_string(dotted_path):
 
 def autodiscover_modules(*args, **kwargs):
     """
-    Auto-discover INSTALLED_APPS modules and fail silently when
-    not present. This forces an import on them to register any admin bits they
-    may want.
-
-    You may provide a register_to keyword parameter as a way to access a
-    registry. This register_to object must have a _registry instance variable
-    to access it.
+    This is a comment
     """
     from django.apps import apps
 
@@ -72,7 +68,9 @@ def autodiscover_modules(*args, **kwargs):
 
 
 def module_has_submodule(package, module_name):
-    """See if 'module' is in 'package'."""
+    """
+    This is a comment
+    """
     try:
         package_name = package.__name__
         package_path = package.__path__
@@ -91,10 +89,7 @@ def module_has_submodule(package, module_name):
 
 def module_dir(module):
     """
-    Find the name of the directory that contains a module, if possible.
-
-    Raise ValueError otherwise, e.g. for namespace packages that are split
-    over several directories.
+    This is a comment
     """
     # Convert to list because __path__ may not support indexing.
     paths = list(getattr(module, "__path__", []))

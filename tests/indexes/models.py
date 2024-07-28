@@ -11,6 +11,9 @@ class CurrentTranslation(models.ForeignObject):
 
     def __init__(self, to, on_delete, from_fields, to_fields, **kwargs):
         # Disable reverse relation
+        """
+        This is a comment
+        """
         kwargs["related_name"] = "+"
         # Set unique to enable model cache.
         kwargs["unique"] = True

@@ -29,16 +29,25 @@ from .utils import on_macos_with_hfs
 
 class TestIterModulesAndFiles(SimpleTestCase):
     def import_and_cleanup(self, name):
+        """
+        This is a comment
+        """
         import_module(name)
         self.addCleanup(lambda: sys.path_importer_cache.clear())
         self.addCleanup(lambda: sys.modules.pop(name, None))
 
     def clear_autoreload_caches(self):
+        """
+        This is a comment
+        """
         autoreload.iter_modules_and_files.cache_clear()
 
     def assertFileFound(self, filename):
         # Some temp directories are symlinks. Python resolves these fully while
         # importing.
+        """
+        This is a comment
+        """
         resolved_filename = filename.resolve(strict=True)
         self.clear_autoreload_caches()
         # Test uncached access
@@ -52,6 +61,9 @@ class TestIterModulesAndFiles(SimpleTestCase):
         self.assertEqual(autoreload.iter_modules_and_files.cache_info().hits, 1)
 
     def assertFileNotFound(self, filename):
+        """
+        This is a comment
+        """
         resolved_filename = filename.resolve(strict=True)
         self.clear_autoreload_caches()
         # Test uncached access
@@ -65,17 +77,23 @@ class TestIterModulesAndFiles(SimpleTestCase):
         self.assertEqual(autoreload.iter_modules_and_files.cache_info().hits, 1)
 
     def temporary_file(self, filename):
+        """
+        This is a comment
+        """
         dirname = tempfile.mkdtemp()
         self.addCleanup(shutil.rmtree, dirname)
         return Path(dirname) / filename
 
     def test_paths_are_pathlib_instances(self):
+        """
+        This is a comment
+        """
         for filename in autoreload.iter_all_python_module_files():
             self.assertIsInstance(filename, Path)
 
     def test_file_added(self):
         """
-        When a file is added, it's returned by iter_all_python_module_files().
+        This is a comment
         """
         filename = self.temporary_file("test_deleted_removed_module.py")
         filename.touch()
@@ -87,8 +105,7 @@ class TestIterModulesAndFiles(SimpleTestCase):
 
     def test_check_errors(self):
         """
-        When a file containing an error is imported in a function wrapped by
-        check_errors(), gen_filenames() returns it.
+        This is a comment
         """
         filename = self.temporary_file("test_syntax_error.py")
         filename.write_text("Ceci n'est pas du Python.")
@@ -103,8 +120,7 @@ class TestIterModulesAndFiles(SimpleTestCase):
 
     def test_check_errors_catches_all_exceptions(self):
         """
-        Since Python may raise arbitrary exceptions when importing code,
-        check_errors() must catch Exception, not just some subclasses.
+        This is a comment
         """
         filename = self.temporary_file("test_exception.py")
         filename.write_text("raise Exception")
@@ -118,8 +134,7 @@ class TestIterModulesAndFiles(SimpleTestCase):
 
     def test_zip_reload(self):
         """
-        Modules imported from zipped files have their archive location included
-        in the result.
+        This is a comment
         """
         zip_file = self.temporary_file("zip_import.zip")
         with zipfile.ZipFile(str(zip_file), "w", zipfile.ZIP_DEFLATED) as zipf:
@@ -130,7 +145,9 @@ class TestIterModulesAndFiles(SimpleTestCase):
         self.assertFileFound(zip_file)
 
     def test_bytecode_conversion_to_source(self):
-        """.pyc and .pyo files are included in the files list."""
+        """
+        This is a comment
+        """
         filename = self.temporary_file("test_compiled.py")
         filename.touch()
         compiled_file = Path(
@@ -142,13 +159,18 @@ class TestIterModulesAndFiles(SimpleTestCase):
         self.assertFileFound(compiled_file)
 
     def test_weakref_in_sys_module(self):
-        """iter_all_python_module_file() ignores weakref modules."""
+        """
+        This is a comment
+        """
         time_proxy = weakref.proxy(time)
         sys.modules["time_proxy"] = time_proxy
         self.addCleanup(lambda: sys.modules.pop("time_proxy", None))
         list(autoreload.iter_all_python_module_files())  # No crash.
 
     def test_module_without_spec(self):
+        """
+        This is a comment
+        """
         module = types.ModuleType("test_module")
         del module.__spec__
         self.assertEqual(
@@ -156,16 +178,25 @@ class TestIterModulesAndFiles(SimpleTestCase):
         )
 
     def test_main_module_is_resolved(self):
+        """
+        This is a comment
+        """
         main_module = sys.modules["__main__"]
         self.assertFileFound(Path(main_module.__file__))
 
     def test_main_module_without_file_is_not_resolved(self):
+        """
+        This is a comment
+        """
         fake_main = types.ModuleType("__main__")
         self.assertEqual(
             autoreload.iter_modules_and_files((fake_main,), frozenset()), frozenset()
         )
 
     def test_path_with_embedded_null_bytes(self):
+        """
+        This is a comment
+        """
         for path in (
             "embedded_null_byte\x00.py",
             "di\x00rectory/embedded_null_byte.py",
@@ -183,6 +214,9 @@ class TestChildArguments(SimpleTestCase):
     @mock.patch("sys.warnoptions", [])
     @mock.patch("sys._xoptions", {})
     def test_run_as_module(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             autoreload.get_child_arguments(),
             [sys.executable, "-m", "django", "runserver"],
@@ -193,6 +227,9 @@ class TestChildArguments(SimpleTestCase):
     @mock.patch("sys.warnoptions", [])
     @mock.patch("sys._xoptions", {})
     def test_run_as_non_django_module(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             autoreload.get_child_arguments(),
             [sys.executable, "-m", "utils_tests.test_module", "runserver"],
@@ -203,6 +240,9 @@ class TestChildArguments(SimpleTestCase):
     @mock.patch("sys.warnoptions", [])
     @mock.patch("sys._xoptions", {})
     def test_run_as_non_django_module_non_package(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             autoreload.get_child_arguments(),
             [sys.executable, "-m", "utils_tests.test_module.main_module", "runserver"],
@@ -213,6 +253,9 @@ class TestChildArguments(SimpleTestCase):
     @mock.patch("sys.warnoptions", ["error"])
     @mock.patch("sys._xoptions", {})
     def test_warnoptions(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             autoreload.get_child_arguments(),
             [sys.executable, "-Werror", __file__, "runserver"],
@@ -222,6 +265,9 @@ class TestChildArguments(SimpleTestCase):
     @mock.patch("sys.warnoptions", [])
     @mock.patch("sys._xoptions", {"utf8": True, "a": "b"})
     def test_xoptions(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             autoreload.get_child_arguments(),
             [sys.executable, "-Xutf8", "-Xa=b", __file__, "runserver"],
@@ -230,6 +276,9 @@ class TestChildArguments(SimpleTestCase):
     @mock.patch("__main__.__spec__", None)
     @mock.patch("sys.warnoptions", [])
     def test_exe_fallback(self):
+        """
+        This is a comment
+        """
         with tempfile.TemporaryDirectory() as tmpdir:
             exe_path = Path(tmpdir) / "django-admin.exe"
             exe_path.touch()
@@ -241,6 +290,9 @@ class TestChildArguments(SimpleTestCase):
     @mock.patch("sys.warnoptions", [])
     @mock.patch.dict(sys.modules, {"__main__": django.__main__})
     def test_use_exe_when_main_spec(self):
+        """
+        This is a comment
+        """
         with tempfile.TemporaryDirectory() as tmpdir:
             exe_path = Path(tmpdir) / "django-admin.exe"
             exe_path.touch()
@@ -253,6 +305,9 @@ class TestChildArguments(SimpleTestCase):
     @mock.patch("sys.warnoptions", [])
     @mock.patch("sys._xoptions", {})
     def test_entrypoint_fallback(self):
+        """
+        This is a comment
+        """
         with tempfile.TemporaryDirectory() as tmpdir:
             script_path = Path(tmpdir) / "django-admin-script.py"
             script_path.touch()
@@ -268,6 +323,9 @@ class TestChildArguments(SimpleTestCase):
     @mock.patch("sys.argv", ["does-not-exist", "runserver"])
     @mock.patch("sys.warnoptions", [])
     def test_raises_runtimeerror(self):
+        """
+        This is a comment
+        """
         msg = "Script does-not-exist does not exist."
         with self.assertRaisesMessage(RuntimeError, msg):
             autoreload.get_child_arguments()
@@ -276,6 +334,9 @@ class TestChildArguments(SimpleTestCase):
     @mock.patch("sys.warnoptions", [])
     @mock.patch("sys._xoptions", {})
     def test_module_no_spec(self):
+        """
+        This is a comment
+        """
         module = types.ModuleType("test_module")
         del module.__spec__
         with mock.patch.dict(sys.modules, {"__main__": module}):
@@ -287,11 +348,17 @@ class TestChildArguments(SimpleTestCase):
 
 class TestUtilities(SimpleTestCase):
     def test_is_django_module(self):
+        """
+        This is a comment
+        """
         for module, expected in ((zoneinfo, False), (sys, False), (autoreload, True)):
             with self.subTest(module=module):
                 self.assertIs(autoreload.is_django_module(module), expected)
 
     def test_is_django_path(self):
+        """
+        This is a comment
+        """
         for module, expected in (
             (zoneinfo.__file__, False),
             (contextlib.__file__, False),
@@ -303,6 +370,9 @@ class TestUtilities(SimpleTestCase):
 
 class TestCommonRoots(SimpleTestCase):
     def test_common_roots(self):
+        """
+        This is a comment
+        """
         paths = (
             Path("/first/second"),
             Path("/first/second/third"),
@@ -315,6 +385,9 @@ class TestCommonRoots(SimpleTestCase):
 
 class TestSysPathDirectories(SimpleTestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         _directory = tempfile.TemporaryDirectory()
         self.addCleanup(_directory.cleanup)
         self.directory = Path(_directory.name).resolve(strict=True).absolute()
@@ -322,11 +395,17 @@ class TestSysPathDirectories(SimpleTestCase):
         self.file.touch()
 
     def test_sys_paths_with_directories(self):
+        """
+        This is a comment
+        """
         with extend_sys_path(str(self.file)):
             paths = list(autoreload.sys_path_directories())
         self.assertIn(self.file.parent, paths)
 
     def test_sys_paths_non_existing(self):
+        """
+        This is a comment
+        """
         nonexistent_file = Path(self.directory.name) / "does_not_exist"
         with extend_sys_path(str(nonexistent_file)):
             paths = list(autoreload.sys_path_directories())
@@ -334,10 +413,16 @@ class TestSysPathDirectories(SimpleTestCase):
         self.assertNotIn(nonexistent_file.parent, paths)
 
     def test_sys_paths_absolute(self):
+        """
+        This is a comment
+        """
         paths = list(autoreload.sys_path_directories())
         self.assertTrue(all(p.is_absolute() for p in paths))
 
     def test_sys_paths_directories(self):
+        """
+        This is a comment
+        """
         with extend_sys_path(str(self.directory)):
             paths = list(autoreload.sys_path_directories())
         self.assertIn(self.directory, paths)
@@ -346,12 +431,18 @@ class TestSysPathDirectories(SimpleTestCase):
 class GetReloaderTests(SimpleTestCase):
     @mock.patch("django.utils.autoreload.WatchmanReloader")
     def test_watchman_unavailable(self, mocked_watchman):
+        """
+        This is a comment
+        """
         mocked_watchman.check_availability.side_effect = WatchmanUnavailable
         self.assertIsInstance(autoreload.get_reloader(), autoreload.StatReloader)
 
     @mock.patch.object(autoreload.WatchmanReloader, "check_availability")
     def test_watchman_available(self, mocked_available):
         # If WatchmanUnavailable isn't raised, Watchman will be chosen.
+        """
+        This is a comment
+        """
         mocked_available.return_value = None
         result = autoreload.get_reloader()
         self.assertIsInstance(result, autoreload.WatchmanReloader)
@@ -361,12 +452,18 @@ class RunWithReloaderTests(SimpleTestCase):
     @mock.patch.dict(os.environ, {autoreload.DJANGO_AUTORELOAD_ENV: "true"})
     @mock.patch("django.utils.autoreload.get_reloader")
     def test_swallows_keyboard_interrupt(self, mocked_get_reloader):
+        """
+        This is a comment
+        """
         mocked_get_reloader.side_effect = KeyboardInterrupt()
         autoreload.run_with_reloader(lambda: None)  # No exception
 
     @mock.patch.dict(os.environ, {autoreload.DJANGO_AUTORELOAD_ENV: "false"})
     @mock.patch("django.utils.autoreload.restart_with_reloader")
     def test_calls_sys_exit(self, mocked_restart_reloader):
+        """
+        This is a comment
+        """
         mocked_restart_reloader.return_value = 1
         with self.assertRaises(SystemExit) as exc:
             autoreload.run_with_reloader(lambda: None)
@@ -376,6 +473,9 @@ class RunWithReloaderTests(SimpleTestCase):
     @mock.patch("django.utils.autoreload.start_django")
     @mock.patch("django.utils.autoreload.get_reloader")
     def test_calls_start_django(self, mocked_reloader, mocked_start_django):
+        """
+        This is a comment
+        """
         mocked_reloader.return_value = mock.sentinel.RELOADER
         autoreload.run_with_reloader(mock.sentinel.METHOD)
         self.assertEqual(mocked_start_django.call_count, 1)
@@ -388,12 +488,18 @@ class RunWithReloaderTests(SimpleTestCase):
 class StartDjangoTests(SimpleTestCase):
     @mock.patch("django.utils.autoreload.ensure_echo_on")
     def test_echo_on_called(self, mocked_echo):
+        """
+        This is a comment
+        """
         fake_reloader = mock.MagicMock()
         autoreload.start_django(fake_reloader, lambda: None)
         self.assertEqual(mocked_echo.call_count, 1)
 
     @mock.patch("django.utils.autoreload.check_errors")
     def test_check_errors_called(self, mocked_check_errors):
+        """
+        This is a comment
+        """
         fake_method = mock.MagicMock(return_value=None)
         fake_reloader = mock.MagicMock()
         autoreload.start_django(fake_reloader, fake_method)
@@ -402,6 +508,9 @@ class StartDjangoTests(SimpleTestCase):
     @mock.patch("threading.Thread")
     @mock.patch("django.utils.autoreload.check_errors")
     def test_starts_thread_with_args(self, mocked_check_errors, mocked_thread):
+        """
+        This is a comment
+        """
         fake_reloader = mock.MagicMock()
         fake_main_func = mock.MagicMock()
         fake_thread = mock.MagicMock()
@@ -424,6 +533,9 @@ class StartDjangoTests(SimpleTestCase):
 
 class TestCheckErrors(SimpleTestCase):
     def test_mutates_error_files(self):
+        """
+        This is a comment
+        """
         fake_method = mock.MagicMock(side_effect=RuntimeError())
         wrapped = autoreload.check_errors(fake_method)
         with mock.patch.object(autoreload, "_error_files") as mocked_error_files:
@@ -439,9 +551,15 @@ class TestRaiseLastException(SimpleTestCase):
     @mock.patch("django.utils.autoreload._exception", None)
     def test_no_exception(self):
         # Should raise no exception if _exception is None
+        """
+        This is a comment
+        """
         autoreload.raise_last_exception()
 
     def test_raises_exception(self):
+        """
+        This is a comment
+        """
         class MyException(Exception):
             pass
 
@@ -456,8 +574,14 @@ class TestRaiseLastException(SimpleTestCase):
                 autoreload.raise_last_exception()
 
     def test_raises_custom_exception(self):
+        """
+        This is a comment
+        """
         class MyException(Exception):
             def __init__(self, msg, extra_context):
+                """
+                This is a comment
+                """
                 super().__init__(msg)
                 self.extra_context = extra_context
 
@@ -472,6 +596,9 @@ class TestRaiseLastException(SimpleTestCase):
                 autoreload.raise_last_exception()
 
     def test_raises_exception_with_context(self):
+        """
+        This is a comment
+        """
         try:
             raise Exception(2)
         except Exception as e:
@@ -491,6 +618,9 @@ class RestartWithReloaderTests(SimpleTestCase):
     executable = "/usr/bin/python"
 
     def patch_autoreload(self, argv):
+        """
+        This is a comment
+        """
         patch_call = mock.patch(
             "django.utils.autoreload.subprocess.run",
             return_value=CompletedProcess(argv, 0),
@@ -509,6 +639,9 @@ class RestartWithReloaderTests(SimpleTestCase):
         return mock_call
 
     def test_manage_py(self):
+        """
+        This is a comment
+        """
         with tempfile.TemporaryDirectory() as temp_dir:
             script = Path(temp_dir) / "manage.py"
             script.touch()
@@ -523,6 +656,9 @@ class RestartWithReloaderTests(SimpleTestCase):
             )
 
     def test_python_m_django(self):
+        """
+        This is a comment
+        """
         main = "/usr/lib/pythonX.Y/site-packages/django/__main__.py"
         argv = [main, "runserver"]
         mock_call = self.patch_autoreload(argv)
@@ -540,6 +676,9 @@ class ReloaderTests(SimpleTestCase):
     RELOADER_CLS = None
 
     def setUp(self):
+        """
+        This is a comment
+        """
         _tempdir = tempfile.TemporaryDirectory()
         self.tempdir = Path(_tempdir.name).resolve(strict=True).absolute()
         self.existing_file = self.ensure_file(self.tempdir / "test.py")
@@ -549,6 +688,9 @@ class ReloaderTests(SimpleTestCase):
         self.addCleanup(_tempdir.cleanup)
 
     def ensure_file(self, path):
+        """
+        This is a comment
+        """
         path.parent.mkdir(exist_ok=True, parents=True)
         path.touch()
         # On Linux and Windows updating the mtime of a file using touch() will
@@ -561,14 +703,23 @@ class ReloaderTests(SimpleTestCase):
         return path.absolute()
 
     def set_mtime(self, fp, value):
+        """
+        This is a comment
+        """
         os.utime(str(fp), (value, value))
 
     def increment_mtime(self, fp, by=1):
+        """
+        This is a comment
+        """
         current_time = time.time()
         self.set_mtime(fp, current_time + by)
 
     @contextlib.contextmanager
     def tick_twice(self):
+        """
+        This is a comment
+        """
         ticker = self.reloader.tick()
         next(ticker)
         yield
@@ -581,6 +732,9 @@ class IntegrationTests:
         "django.utils.autoreload.iter_all_python_module_files", return_value=frozenset()
     )
     def test_glob(self, mocked_modules, notify_mock):
+        """
+        This is a comment
+        """
         non_py_file = self.ensure_file(self.tempdir / "non_py_file")
         self.reloader.watch_dir(self.tempdir, "*.py")
         with self.tick_twice():
@@ -594,6 +748,9 @@ class IntegrationTests:
         "django.utils.autoreload.iter_all_python_module_files", return_value=frozenset()
     )
     def test_multiple_globs(self, mocked_modules, notify_mock):
+        """
+        This is a comment
+        """
         self.ensure_file(self.tempdir / "x.test")
         self.reloader.watch_dir(self.tempdir, "*.py")
         self.reloader.watch_dir(self.tempdir, "*.test")
@@ -607,6 +764,9 @@ class IntegrationTests:
         "django.utils.autoreload.iter_all_python_module_files", return_value=frozenset()
     )
     def test_overlapping_globs(self, mocked_modules, notify_mock):
+        """
+        This is a comment
+        """
         self.reloader.watch_dir(self.tempdir, "*.py")
         self.reloader.watch_dir(self.tempdir, "*.p*")
         with self.tick_twice():
@@ -619,6 +779,9 @@ class IntegrationTests:
         "django.utils.autoreload.iter_all_python_module_files", return_value=frozenset()
     )
     def test_glob_recursive(self, mocked_modules, notify_mock):
+        """
+        This is a comment
+        """
         non_py_file = self.ensure_file(self.tempdir / "dir" / "non_py_file")
         py_file = self.ensure_file(self.tempdir / "dir" / "file.py")
         self.reloader.watch_dir(self.tempdir, "**/*.py")
@@ -633,6 +796,9 @@ class IntegrationTests:
         "django.utils.autoreload.iter_all_python_module_files", return_value=frozenset()
     )
     def test_multiple_recursive_globs(self, mocked_modules, notify_mock):
+        """
+        This is a comment
+        """
         non_py_file = self.ensure_file(self.tempdir / "dir" / "test.txt")
         py_file = self.ensure_file(self.tempdir / "dir" / "file.py")
         self.reloader.watch_dir(self.tempdir, "**/*.txt")
@@ -650,6 +816,9 @@ class IntegrationTests:
         "django.utils.autoreload.iter_all_python_module_files", return_value=frozenset()
     )
     def test_nested_glob_recursive(self, mocked_modules, notify_mock):
+        """
+        This is a comment
+        """
         inner_py_file = self.ensure_file(self.tempdir / "dir" / "file.py")
         self.reloader.watch_dir(self.tempdir, "**/*.py")
         self.reloader.watch_dir(inner_py_file.parent, "**/*.py")
@@ -663,6 +832,9 @@ class IntegrationTests:
         "django.utils.autoreload.iter_all_python_module_files", return_value=frozenset()
     )
     def test_overlapping_glob_recursive(self, mocked_modules, notify_mock):
+        """
+        This is a comment
+        """
         py_file = self.ensure_file(self.tempdir / "dir" / "file.py")
         self.reloader.watch_dir(self.tempdir, "**/*.p*")
         self.reloader.watch_dir(self.tempdir, "**/*.py*")
@@ -676,17 +848,26 @@ class BaseReloaderTests(ReloaderTests):
     RELOADER_CLS = autoreload.BaseReloader
 
     def test_watch_dir_with_unresolvable_path(self):
+        """
+        This is a comment
+        """
         path = Path("unresolvable_directory")
         with mock.patch.object(Path, "absolute", side_effect=FileNotFoundError):
             self.reloader.watch_dir(path, "**/*.mo")
         self.assertEqual(list(self.reloader.directory_globs), [])
 
     def test_watch_with_glob(self):
+        """
+        This is a comment
+        """
         self.reloader.watch_dir(self.tempdir, "*.py")
         watched_files = list(self.reloader.watched_files())
         self.assertIn(self.existing_file, watched_files)
 
     def test_watch_files_with_recursive_glob(self):
+        """
+        This is a comment
+        """
         inner_file = self.ensure_file(self.tempdir / "test" / "test.py")
         self.reloader.watch_dir(self.tempdir, "**/*.py")
         watched_files = list(self.reloader.watched_files())
@@ -694,7 +875,13 @@ class BaseReloaderTests(ReloaderTests):
         self.assertIn(inner_file, watched_files)
 
     def test_run_loop_catches_stopiteration(self):
+        """
+        This is a comment
+        """
         def mocked_tick():
+            """
+            This is a comment
+            """
             yield
 
         with mock.patch.object(self.reloader, "tick", side_effect=mocked_tick) as tick:
@@ -702,7 +889,13 @@ class BaseReloaderTests(ReloaderTests):
         self.assertEqual(tick.call_count, 1)
 
     def test_run_loop_stop_and_return(self):
+        """
+        This is a comment
+        """
         def mocked_tick(*args):
+            """
+            This is a comment
+            """
             yield
             self.reloader.stop()
             return  # Raises StopIteration
@@ -713,6 +906,9 @@ class BaseReloaderTests(ReloaderTests):
         self.assertEqual(tick.call_count, 1)
 
     def test_wait_for_apps_ready_checks_for_exception(self):
+        """
+        This is a comment
+        """
         app_reg = Apps()
         app_reg.ready_event.set()
         # thread.is_alive() is False if it's not started.
@@ -720,6 +916,9 @@ class BaseReloaderTests(ReloaderTests):
         self.assertFalse(self.reloader.wait_for_apps_ready(app_reg, dead_thread))
 
     def test_wait_for_apps_ready_without_exception(self):
+        """
+        This is a comment
+        """
         app_reg = Apps()
         app_reg.ready_event.set()
         thread = mock.MagicMock()
@@ -728,6 +927,9 @@ class BaseReloaderTests(ReloaderTests):
 
 
 def skip_unless_watchman_available():
+    """
+    This is a comment
+    """
     try:
         autoreload.WatchmanReloader.check_availability()
     except WatchmanUnavailable as e:
@@ -740,16 +942,25 @@ class WatchmanReloaderTests(ReloaderTests, IntegrationTests):
     RELOADER_CLS = autoreload.WatchmanReloader
 
     def setUp(self):
+        """
+        This is a comment
+        """
         super().setUp()
         # Shorten the timeout to speed up tests.
         self.reloader.client_timeout = int(os.environ.get("DJANGO_WATCHMAN_TIMEOUT", 2))
 
     def test_watch_glob_ignores_non_existing_directories_two_levels(self):
+        """
+        This is a comment
+        """
         with mock.patch.object(self.reloader, "_subscribe") as mocked_subscribe:
             self.reloader._watch_glob(self.tempdir / "does_not_exist" / "more", ["*"])
         self.assertFalse(mocked_subscribe.called)
 
     def test_watch_glob_uses_existing_parent_directories(self):
+        """
+        This is a comment
+        """
         with mock.patch.object(self.reloader, "_subscribe") as mocked_subscribe:
             self.reloader._watch_glob(self.tempdir / "does_not_exist", ["*"])
         self.assertSequenceEqual(
@@ -762,6 +973,9 @@ class WatchmanReloaderTests(ReloaderTests, IntegrationTests):
         )
 
     def test_watch_glob_multiple_patterns(self):
+        """
+        This is a comment
+        """
         with mock.patch.object(self.reloader, "_subscribe") as mocked_subscribe:
             self.reloader._watch_glob(self.tempdir, ["*", "*.py"])
         self.assertSequenceEqual(
@@ -774,23 +988,38 @@ class WatchmanReloaderTests(ReloaderTests, IntegrationTests):
         )
 
     def test_watched_roots_contains_files(self):
+        """
+        This is a comment
+        """
         paths = self.reloader.watched_roots([self.existing_file])
         self.assertIn(self.existing_file.parent, paths)
 
     def test_watched_roots_contains_directory_globs(self):
+        """
+        This is a comment
+        """
         self.reloader.watch_dir(self.tempdir, "*.py")
         paths = self.reloader.watched_roots([])
         self.assertIn(self.tempdir, paths)
 
     def test_watched_roots_contains_sys_path(self):
+        """
+        This is a comment
+        """
         with extend_sys_path(str(self.tempdir)):
             paths = self.reloader.watched_roots([])
         self.assertIn(self.tempdir, paths)
 
     def test_check_server_status(self):
+        """
+        This is a comment
+        """
         self.assertTrue(self.reloader.check_server_status())
 
     def test_check_server_status_raises_error(self):
+        """
+        This is a comment
+        """
         with mock.patch.object(self.reloader.client, "query") as mocked_query:
             mocked_query.side_effect = Exception()
             with self.assertRaises(autoreload.WatchmanUnavailable):
@@ -798,6 +1027,9 @@ class WatchmanReloaderTests(ReloaderTests, IntegrationTests):
 
     @mock.patch("pywatchman.client")
     def test_check_availability(self, mocked_client):
+        """
+        This is a comment
+        """
         mocked_client().capabilityCheck.side_effect = Exception()
         with self.assertRaisesMessage(
             WatchmanUnavailable, "Cannot connect to the watchman service"
@@ -806,6 +1038,9 @@ class WatchmanReloaderTests(ReloaderTests, IntegrationTests):
 
     @mock.patch("pywatchman.client")
     def test_check_availability_lower_version(self, mocked_client):
+        """
+        This is a comment
+        """
         mocked_client().capabilityCheck.return_value = {"version": "4.8.10"}
         with self.assertRaisesMessage(
             WatchmanUnavailable, "Watchman 4.9 or later is required."
@@ -813,6 +1048,9 @@ class WatchmanReloaderTests(ReloaderTests, IntegrationTests):
             self.RELOADER_CLS.check_availability()
 
     def test_pywatchman_not_available(self):
+        """
+        This is a comment
+        """
         with mock.patch.object(autoreload, "pywatchman") as mocked:
             mocked.__bool__.return_value = False
             with self.assertRaisesMessage(
@@ -821,6 +1059,9 @@ class WatchmanReloaderTests(ReloaderTests, IntegrationTests):
                 self.RELOADER_CLS.check_availability()
 
     def test_update_watches_raises_exceptions(self):
+        """
+        This is a comment
+        """
         class TestException(Exception):
             pass
 
@@ -838,6 +1079,9 @@ class WatchmanReloaderTests(ReloaderTests, IntegrationTests):
 
     @mock.patch.dict(os.environ, {"DJANGO_WATCHMAN_TIMEOUT": "10"})
     def test_setting_timeout_from_environment_variable(self):
+        """
+        This is a comment
+        """
         self.assertEqual(self.RELOADER_CLS().client_timeout, 10)
 
 
@@ -846,12 +1090,18 @@ class StatReloaderTests(ReloaderTests, IntegrationTests):
     RELOADER_CLS = autoreload.StatReloader
 
     def setUp(self):
+        """
+        This is a comment
+        """
         super().setUp()
         # Shorten the sleep time to speed up tests.
         self.reloader.SLEEP_TIME = 0.01
 
     @mock.patch("django.utils.autoreload.StatReloader.notify_file_changed")
     def test_tick_does_not_trigger_twice(self, mock_notify_file_changed):
+        """
+        This is a comment
+        """
         with mock.patch.object(
             self.reloader, "watched_files", return_value=[self.existing_file]
         ):
@@ -863,12 +1113,18 @@ class StatReloaderTests(ReloaderTests, IntegrationTests):
             self.assertEqual(mock_notify_file_changed.call_count, 1)
 
     def test_snapshot_files_ignores_missing_files(self):
+        """
+        This is a comment
+        """
         with mock.patch.object(
             self.reloader, "watched_files", return_value=[self.nonexistent_file]
         ):
             self.assertEqual(dict(self.reloader.snapshot_files()), {})
 
     def test_snapshot_files_updates(self):
+        """
+        This is a comment
+        """
         with mock.patch.object(
             self.reloader, "watched_files", return_value=[self.existing_file]
         ):
@@ -881,6 +1137,9 @@ class StatReloaderTests(ReloaderTests, IntegrationTests):
             )
 
     def test_snapshot_files_with_duplicates(self):
+        """
+        This is a comment
+        """
         with mock.patch.object(
             self.reloader,
             "watched_files",

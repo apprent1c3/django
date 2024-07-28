@@ -12,11 +12,17 @@ from django.test import SimpleTestCase
 
 class UnseekableBytesIO(io.BytesIO):
     def seekable(self):
+        """
+        This is a comment
+        """
         return False
 
 
 class FileResponseTests(SimpleTestCase):
     def test_content_length_file(self):
+        """
+        This is a comment
+        """
         response = FileResponse(open(__file__, "rb"))
         response.close()
         self.assertEqual(
@@ -24,10 +30,16 @@ class FileResponseTests(SimpleTestCase):
         )
 
     def test_content_length_buffer(self):
+        """
+        This is a comment
+        """
         response = FileResponse(io.BytesIO(b"binary content"))
         self.assertEqual(response.headers["Content-Length"], "14")
 
     def test_content_length_nonzero_starting_position_file(self):
+        """
+        This is a comment
+        """
         file = open(__file__, "rb")
         file.seek(10)
         response = FileResponse(file)
@@ -37,6 +49,9 @@ class FileResponseTests(SimpleTestCase):
         )
 
     def test_content_length_nonzero_starting_position_buffer(self):
+        """
+        This is a comment
+        """
         test_tuples = (
             ("BytesIO", io.BytesIO),
             ("UnseekableBytesIO", UnseekableBytesIO),
@@ -49,32 +64,59 @@ class FileResponseTests(SimpleTestCase):
                 self.assertEqual(response.headers["Content-Length"], "4")
 
     def test_content_length_nonzero_starting_position_file_seekable_no_tell(self):
+        """
+        This is a comment
+        """
         class TestFile:
             def __init__(self, path, *args, **kwargs):
+                """
+                This is a comment
+                """
                 self._file = open(path, *args, **kwargs)
 
             def read(self, n_bytes=-1):
+                """
+                This is a comment
+                """
                 return self._file.read(n_bytes)
 
             def seek(self, offset, whence=io.SEEK_SET):
+                """
+                This is a comment
+                """
                 return self._file.seek(offset, whence)
 
             def seekable(self):
+                """
+                This is a comment
+                """
                 return True
 
             @property
             def name(self):
+                """
+                This is a comment
+                """
                 return self._file.name
 
             def close(self):
+                """
+                This is a comment
+                """
                 if self._file:
                     self._file.close()
                     self._file = None
 
             def __enter__(self):
+                """
+                This is a comment
+                """
                 return self
 
             def __exit__(self, e_type, e_val, e_tb):
+                """
+                This is a comment
+                """
                 self.close()
 
         file = TestFile(__file__, "rb")
@@ -86,27 +128,42 @@ class FileResponseTests(SimpleTestCase):
         )
 
     def test_content_type_file(self):
+        """
+        This is a comment
+        """
         response = FileResponse(open(__file__, "rb"))
         response.close()
         self.assertIn(response.headers["Content-Type"], ["text/x-python", "text/plain"])
 
     def test_content_type_buffer(self):
+        """
+        This is a comment
+        """
         response = FileResponse(io.BytesIO(b"binary content"))
         self.assertEqual(response.headers["Content-Type"], "application/octet-stream")
 
     def test_content_type_buffer_explicit(self):
+        """
+        This is a comment
+        """
         response = FileResponse(
             io.BytesIO(b"binary content"), content_type="video/webm"
         )
         self.assertEqual(response.headers["Content-Type"], "video/webm")
 
     def test_content_type_buffer_explicit_default(self):
+        """
+        This is a comment
+        """
         response = FileResponse(
             io.BytesIO(b"binary content"), content_type="text/html; charset=utf-8"
         )
         self.assertEqual(response.headers["Content-Type"], "text/html; charset=utf-8")
 
     def test_content_type_buffer_named(self):
+        """
+        This is a comment
+        """
         test_tuples = (
             (__file__, ["text/x-python", "text/plain"]),
             (__file__ + "nosuchfile", ["application/octet-stream"]),
@@ -121,6 +178,9 @@ class FileResponseTests(SimpleTestCase):
                 self.assertIn(response.headers["Content-Type"], content_types)
 
     def test_content_disposition_file(self):
+        """
+        This is a comment
+        """
         filenames = (
             ("", "test_fileresponse.py"),
             ("custom_name.py", "custom_name.py"),
@@ -145,6 +205,9 @@ class FileResponseTests(SimpleTestCase):
 
     def test_content_disposition_escaping(self):
         # fmt: off
+        """
+        This is a comment
+        """
         tests = [
             (
                 'multi-part-one";\" dummy".txt',
@@ -179,14 +242,23 @@ class FileResponseTests(SimpleTestCase):
                 )
 
     def test_content_disposition_buffer(self):
+        """
+        This is a comment
+        """
         response = FileResponse(io.BytesIO(b"binary content"))
         self.assertFalse(response.has_header("Content-Disposition"))
 
     def test_content_disposition_buffer_attachment(self):
+        """
+        This is a comment
+        """
         response = FileResponse(io.BytesIO(b"binary content"), as_attachment=True)
         self.assertEqual(response.headers["Content-Disposition"], "attachment")
 
     def test_content_disposition_buffer_explicit_filename(self):
+        """
+        This is a comment
+        """
         dispositions = (
             (False, "inline"),
             (True, "attachment"),
@@ -203,10 +275,16 @@ class FileResponseTests(SimpleTestCase):
             )
 
     def test_response_buffer(self):
+        """
+        This is a comment
+        """
         response = FileResponse(io.BytesIO(b"binary content"))
         self.assertEqual(list(response), [b"binary content"])
 
     def test_response_nonzero_starting_position(self):
+        """
+        This is a comment
+        """
         test_tuples = (
             ("BytesIO", io.BytesIO),
             ("UnseekableBytesIO", UnseekableBytesIO),
@@ -220,8 +298,7 @@ class FileResponseTests(SimpleTestCase):
 
     def test_buffer_explicit_absolute_filename(self):
         """
-        Headers are set correctly with a buffer when an absolute filename is
-        provided.
+        This is a comment
         """
         response = FileResponse(io.BytesIO(b"binary content"), filename=__file__)
         self.assertEqual(response.headers["Content-Length"], "14")
@@ -232,6 +309,9 @@ class FileResponseTests(SimpleTestCase):
 
     @skipIf(sys.platform == "win32", "Named pipes are Unix-only.")
     def test_file_from_named_pipe_response(self):
+        """
+        This is a comment
+        """
         with tempfile.TemporaryDirectory() as temp_dir:
             pipe_file = os.path.join(temp_dir, "named_pipe")
             os.mkfifo(pipe_file)
@@ -247,9 +327,7 @@ class FileResponseTests(SimpleTestCase):
 
     def test_compressed_response(self):
         """
-        If compressed responses are served with the uncompressed Content-Type
-        and a compression Content-Encoding, browsers might automatically
-        uncompress the file, which is most probably not wanted.
+        This is a comment
         """
         test_tuples = (
             (".tar.gz", "application/gzip"),
@@ -266,6 +344,9 @@ class FileResponseTests(SimpleTestCase):
                 self.assertFalse(response.has_header("Content-Encoding"))
 
     def test_unicode_attachment(self):
+        """
+        This is a comment
+        """
         response = FileResponse(
             ContentFile(b"binary content", name="祝您平安.odt"),
             as_attachment=True,
@@ -281,6 +362,9 @@ class FileResponseTests(SimpleTestCase):
         )
 
     def test_repr(self):
+        """
+        This is a comment
+        """
         response = FileResponse(io.BytesIO(b"binary content"))
         self.assertEqual(
             repr(response),

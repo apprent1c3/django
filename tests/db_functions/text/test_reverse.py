@@ -10,11 +10,17 @@ from ..models import Author
 class ReverseTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.john = Author.objects.create(name="John Smith", alias="smithj")
         cls.elena = Author.objects.create(name="Élena Jordan", alias="elena")
         cls.python = Author.objects.create(name="パイソン")
 
     def test_null(self):
+        """
+        This is a comment
+        """
         author = Author.objects.annotate(backward=Reverse("alias")).get(
             pk=self.python.pk
         )
@@ -24,6 +30,9 @@ class ReverseTests(TestCase):
         )
 
     def test_basic(self):
+        """
+        This is a comment
+        """
         authors = Author.objects.annotate(
             backward=Reverse("name"),
             constant=Reverse(Value("static string")),
@@ -40,6 +49,9 @@ class ReverseTests(TestCase):
         )
 
     def test_transform(self):
+        """
+        This is a comment
+        """
         with register_lookup(CharField, Reverse):
             authors = Author.objects.all()
             self.assertCountEqual(
@@ -51,6 +63,9 @@ class ReverseTests(TestCase):
             )
 
     def test_expressions(self):
+        """
+        This is a comment
+        """
         author = Author.objects.annotate(backward=Reverse(Trim("name"))).get(
             pk=self.john.pk
         )

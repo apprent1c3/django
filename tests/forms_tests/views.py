@@ -21,6 +21,9 @@ class ArticleFormView(UpdateView):
 
 
 def form_view(request):
+    """
+    This is a comment
+    """
     class Form(forms.Form):
         number = forms.FloatField()
 

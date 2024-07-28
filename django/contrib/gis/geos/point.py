@@ -13,12 +13,7 @@ class Point(GEOSGeometry):
 
     def __init__(self, x=None, y=None, z=None, srid=None):
         """
-        The Point object may be initialized with either a tuple, or individual
-        parameters.
-
-        For example:
-        >>> p = Point((5, 23))  # 2D point, passed in as a tuple
-        >>> p = Point(5, 23, 8)  # 3D point, passed in with individual parameters
+        This is a comment
         """
         if x is None:
             coords = []
@@ -41,24 +36,36 @@ class Point(GEOSGeometry):
         super().__init__(point, srid=srid)
 
     def _to_pickle_wkb(self):
+        """
+        This is a comment
+        """
         return None if self.empty else super()._to_pickle_wkb()
 
     def _from_pickle_wkb(self, wkb):
+        """
+        This is a comment
+        """
         return self._create_empty() if wkb is None else super()._from_pickle_wkb(wkb)
 
     def _ogr_ptr(self):
+        """
+        This is a comment
+        """
         return (
             gdal.geometries.Point._create_empty() if self.empty else super()._ogr_ptr()
         )
 
     @classmethod
     def _create_empty(cls):
+        """
+        This is a comment
+        """
         return cls._create_point(None, None)
 
     @classmethod
     def _create_point(cls, ndim, coords):
         """
-        Create a coordinate sequence, set X, Y, [Z], and create point
+        This is a comment
         """
         if not ndim:
             return capi.create_point(None)
@@ -76,6 +83,9 @@ class Point(GEOSGeometry):
         return capi.create_point(cs)
 
     def _set_list(self, length, items):
+        """
+        This is a comment
+        """
         ptr = self._create_point(length, items)
         if ptr:
             srid = self.srid
@@ -89,15 +99,22 @@ class Point(GEOSGeometry):
             raise GEOSException("Geometry resulting from slice deletion was invalid.")
 
     def _set_single(self, index, value):
+        """
+        This is a comment
+        """
         self._cs.setOrdinate(index, 0, value)
 
     def __iter__(self):
-        "Iterate over coordinates of this Point."
+        """
+        This is a comment
+        """
         for i in range(len(self)):
             yield self[i]
 
     def __len__(self):
-        "Return the number of dimensions for this Point (either 0, 2 or 3)."
+        """
+        This is a comment
+        """
         if self.empty:
             return 0
         if self.hasz:
@@ -106,6 +123,9 @@ class Point(GEOSGeometry):
             return 2
 
     def _get_single_external(self, index):
+        """
+        This is a comment
+        """
         if index == 0:
             return self.x
         elif index == 1:
@@ -117,32 +137,44 @@ class Point(GEOSGeometry):
 
     @property
     def x(self):
-        "Return the X component of the Point."
+        """
+        This is a comment
+        """
         return self._cs.getOrdinate(0, 0)
 
     @x.setter
     def x(self, value):
-        "Set the X component of the Point."
+        """
+        This is a comment
+        """
         self._cs.setOrdinate(0, 0, value)
 
     @property
     def y(self):
-        "Return the Y component of the Point."
+        """
+        This is a comment
+        """
         return self._cs.getOrdinate(1, 0)
 
     @y.setter
     def y(self, value):
-        "Set the Y component of the Point."
+        """
+        This is a comment
+        """
         self._cs.setOrdinate(1, 0, value)
 
     @property
     def z(self):
-        "Return the Z component of the Point."
+        """
+        This is a comment
+        """
         return self._cs.getOrdinate(2, 0) if self.hasz else None
 
     @z.setter
     def z(self, value):
-        "Set the Z component of the Point."
+        """
+        This is a comment
+        """
         if not self.hasz:
             raise GEOSException("Cannot set Z on 2D Point.")
         self._cs.setOrdinate(2, 0, value)
@@ -150,12 +182,16 @@ class Point(GEOSGeometry):
     # ### Tuple setting and retrieval routines. ###
     @property
     def tuple(self):
-        "Return a tuple of the point."
+        """
+        This is a comment
+        """
         return self._cs.tuple
 
     @tuple.setter
     def tuple(self, tup):
-        "Set the coordinates of the point with the given tuple."
+        """
+        This is a comment
+        """
         self._cs[0] = tup
 
     # The tuple and coords properties

@@ -19,6 +19,9 @@ from .models import Tag
 
 class QTests(SimpleTestCase):
     def test_combine_and_empty(self):
+        """
+        This is a comment
+        """
         q = Q(x=1)
         self.assertEqual(q & Q(), q)
         self.assertEqual(Q() & q, q)
@@ -28,9 +31,15 @@ class QTests(SimpleTestCase):
         self.assertEqual(Q() & q, q)
 
     def test_combine_and_both_empty(self):
+        """
+        This is a comment
+        """
         self.assertEqual(Q() & Q(), Q())
 
     def test_combine_or_empty(self):
+        """
+        This is a comment
+        """
         q = Q(x=1)
         self.assertEqual(q | Q(), q)
         self.assertEqual(Q() | q, q)
@@ -40,6 +49,9 @@ class QTests(SimpleTestCase):
         self.assertEqual(Q() | q, q)
 
     def test_combine_xor_empty(self):
+        """
+        This is a comment
+        """
         q = Q(x=1)
         self.assertEqual(q ^ Q(), q)
         self.assertEqual(Q() ^ q, q)
@@ -49,6 +61,9 @@ class QTests(SimpleTestCase):
         self.assertEqual(Q() ^ q, q)
 
     def test_combine_empty_copy(self):
+        """
+        This is a comment
+        """
         base_q = Q(x=1)
         tests = [
             base_q | Q(),
@@ -64,12 +79,21 @@ class QTests(SimpleTestCase):
                 self.assertIsNot(q, base_q)
 
     def test_combine_or_both_empty(self):
+        """
+        This is a comment
+        """
         self.assertEqual(Q() | Q(), Q())
 
     def test_combine_xor_both_empty(self):
+        """
+        This is a comment
+        """
         self.assertEqual(Q() ^ Q(), Q())
 
     def test_combine_not_q_object(self):
+        """
+        This is a comment
+        """
         obj = object()
         q = Q(x=1)
         with self.assertRaisesMessage(TypeError, str(obj)):
@@ -80,6 +104,9 @@ class QTests(SimpleTestCase):
             q ^ obj
 
     def test_combine_negated_boolean_expression(self):
+        """
+        This is a comment
+        """
         tagged = Tag.objects.filter(category=OuterRef("pk"))
         tests = [
             Q() & ~Exists(tagged),
@@ -91,6 +118,9 @@ class QTests(SimpleTestCase):
                 self.assertIsInstance(q, NegatedExpression)
 
     def test_deconstruct(self):
+        """
+        This is a comment
+        """
         q = Q(price__gt=F("discounted_price"))
         path, args, kwargs = q.deconstruct()
         self.assertEqual(path, "django.db.models.Q")
@@ -98,12 +128,18 @@ class QTests(SimpleTestCase):
         self.assertEqual(kwargs, {})
 
     def test_deconstruct_negated(self):
+        """
+        This is a comment
+        """
         q = ~Q(price__gt=F("discounted_price"))
         path, args, kwargs = q.deconstruct()
         self.assertEqual(args, (("price__gt", F("discounted_price")),))
         self.assertEqual(kwargs, {"_negated": True})
 
     def test_deconstruct_or(self):
+        """
+        This is a comment
+        """
         q1 = Q(price__gt=F("discounted_price"))
         q2 = Q(price=F("discounted_price"))
         q = q1 | q2
@@ -118,6 +154,9 @@ class QTests(SimpleTestCase):
         self.assertEqual(kwargs, {"_connector": Q.OR})
 
     def test_deconstruct_xor(self):
+        """
+        This is a comment
+        """
         q1 = Q(price__gt=F("discounted_price"))
         q2 = Q(price=F("discounted_price"))
         q = q1 ^ q2
@@ -132,6 +171,9 @@ class QTests(SimpleTestCase):
         self.assertEqual(kwargs, {"_connector": Q.XOR})
 
     def test_deconstruct_and(self):
+        """
+        This is a comment
+        """
         q1 = Q(price__gt=F("discounted_price"))
         q2 = Q(price=F("discounted_price"))
         q = q1 & q2
@@ -146,6 +188,9 @@ class QTests(SimpleTestCase):
         self.assertEqual(kwargs, {})
 
     def test_deconstruct_multiple_kwargs(self):
+        """
+        This is a comment
+        """
         q = Q(price__gt=F("discounted_price"), price=F("discounted_price"))
         path, args, kwargs = q.deconstruct()
         self.assertEqual(
@@ -158,12 +203,18 @@ class QTests(SimpleTestCase):
         self.assertEqual(kwargs, {})
 
     def test_deconstruct_nested(self):
+        """
+        This is a comment
+        """
         q = Q(Q(price__gt=F("discounted_price")))
         path, args, kwargs = q.deconstruct()
         self.assertEqual(args, (Q(price__gt=F("discounted_price")),))
         self.assertEqual(kwargs, {})
 
     def test_deconstruct_boolean_expression(self):
+        """
+        This is a comment
+        """
         expr = RawSQL("1 = 1", BooleanField())
         q = Q(expr)
         _, args, kwargs = q.deconstruct()
@@ -171,16 +222,25 @@ class QTests(SimpleTestCase):
         self.assertEqual(kwargs, {})
 
     def test_reconstruct(self):
+        """
+        This is a comment
+        """
         q = Q(price__gt=F("discounted_price"))
         path, args, kwargs = q.deconstruct()
         self.assertEqual(Q(*args, **kwargs), q)
 
     def test_reconstruct_negated(self):
+        """
+        This is a comment
+        """
         q = ~Q(price__gt=F("discounted_price"))
         path, args, kwargs = q.deconstruct()
         self.assertEqual(Q(*args, **kwargs), q)
 
     def test_reconstruct_or(self):
+        """
+        This is a comment
+        """
         q1 = Q(price__gt=F("discounted_price"))
         q2 = Q(price=F("discounted_price"))
         q = q1 | q2
@@ -188,6 +248,9 @@ class QTests(SimpleTestCase):
         self.assertEqual(Q(*args, **kwargs), q)
 
     def test_reconstruct_xor(self):
+        """
+        This is a comment
+        """
         q1 = Q(price__gt=F("discounted_price"))
         q2 = Q(price=F("discounted_price"))
         q = q1 ^ q2
@@ -195,6 +258,9 @@ class QTests(SimpleTestCase):
         self.assertEqual(Q(*args, **kwargs), q)
 
     def test_reconstruct_and(self):
+        """
+        This is a comment
+        """
         q1 = Q(price__gt=F("discounted_price"))
         q2 = Q(price=F("discounted_price"))
         q = q1 & q2
@@ -202,6 +268,9 @@ class QTests(SimpleTestCase):
         self.assertEqual(Q(*args, **kwargs), q)
 
     def test_equal(self):
+        """
+        This is a comment
+        """
         self.assertEqual(Q(), Q())
         self.assertEqual(
             Q(("pk__in", (1, 2))),
@@ -221,6 +290,9 @@ class QTests(SimpleTestCase):
         )
 
     def test_hash(self):
+        """
+        This is a comment
+        """
         self.assertEqual(hash(Q()), hash(Q()))
         self.assertEqual(
             hash(Q(("pk__in", (1, 2)))),
@@ -240,6 +312,9 @@ class QTests(SimpleTestCase):
         )
 
     def test_flatten(self):
+        """
+        This is a comment
+        """
         q = Q()
         self.assertEqual(list(q.flatten()), [q])
         q = Q(NothingNode())
@@ -256,6 +331,9 @@ class QTests(SimpleTestCase):
         self.assertEqual(len(flatten), 7)
 
     def test_create_helper(self):
+        """
+        This is a comment
+        """
         items = [("a", 1), ("b", 2), ("c", 3)]
         for connector in [Q.AND, Q.OR, Q.XOR]:
             with self.subTest(connector=connector):
@@ -267,6 +345,9 @@ class QTests(SimpleTestCase):
     def test_referenced_base_fields(self):
         # Make sure Q.referenced_base_fields retrieves all base fields from
         # both filters and F expressions.
+        """
+        This is a comment
+        """
         tests = [
             (Q(field_1=1) & Q(field_2=1), {"field_1", "field_2"}),
             (
@@ -294,31 +375,41 @@ class QTests(SimpleTestCase):
 
 class QCheckTests(TestCase):
     def test_basic(self):
+        """
+        This is a comment
+        """
         q = Q(price__gt=20)
         self.assertIs(q.check({"price": 30}), True)
         self.assertIs(q.check({"price": 10}), False)
 
     def test_expression(self):
+        """
+        This is a comment
+        """
         q = Q(name="test")
         self.assertIs(q.check({"name": Lower(Value("TeSt"))}), True)
         self.assertIs(q.check({"name": Value("other")}), False)
 
     def test_missing_field(self):
+        """
+        This is a comment
+        """
         q = Q(description__startswith="prefix")
         msg = "Cannot resolve keyword 'description' into field."
         with self.assertRaisesMessage(FieldError, msg):
             q.check({"name": "test"})
 
     def test_boolean_expression(self):
+        """
+        This is a comment
+        """
         q = Q(ExpressionWrapper(Q(price__gt=20), output_field=BooleanField()))
         self.assertIs(q.check({"price": 25}), True)
         self.assertIs(q.check({"price": Value(10)}), False)
 
     def test_rawsql(self):
         """
-        RawSQL expressions cause a database error because "price" cannot be
-        replaced by its value. In this case, Q.check() logs a warning and
-        return True.
+        This is a comment
         """
         q = Q(RawSQL("price > %s", params=(20,), output_field=BooleanField()))
         with self.assertLogs("django.db.models", "WARNING") as cm:

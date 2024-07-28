@@ -6,6 +6,9 @@ from .models import SimpleModel
 class AsyncModelOperationTest(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.s1 = SimpleModel.objects.create(field=0)
 
     async def test_asave(self):

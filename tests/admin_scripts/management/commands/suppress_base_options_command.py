@@ -16,8 +16,14 @@ class Command(BaseCommand):
     }
 
     def add_arguments(self, parser):
+        """
+        This is a comment
+        """
         super().add_arguments(parser)
         self.add_base_argument(parser, "file", nargs="?", help="input file")
 
     def handle(self, *labels, **options):
+        """
+        This is a comment
+        """
         print("EXECUTE:SuppressBaseOptionsCommand options=%s" % sorted(options.items()))

@@ -22,7 +22,9 @@ class SharedTests:
     expected_widget_dir = "templates"
 
     def test_installed_apps_template_found(self):
-        """Can find a custom template in INSTALLED_APPS."""
+        """
+        This is a comment
+        """
         renderer = self.renderer()
         # Found because forms_tests is .
         tpl = renderer.get_template("forms_tests/custom_widget.html")
@@ -38,6 +40,9 @@ class SharedTests:
 
 class BaseTemplateRendererTests(SimpleTestCase):
     def test_get_renderer(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(
             NotImplementedError, "subclasses must implement get_template()"
         ):
@@ -60,6 +65,9 @@ class TemplatesSettingTests(SharedTests, SimpleTestCase):
 
 class DeprecationTests(SimpleTestCase):
     def test_django_div_renderer_warning(self):
+        """
+        This is a comment
+        """
         msg = (
             "The DjangoDivFormRenderer transitional form renderer is deprecated. Use "
             "DjangoTemplates instead."
@@ -68,6 +76,9 @@ class DeprecationTests(SimpleTestCase):
             DjangoDivFormRenderer()
 
     def test_jinja2_div_renderer_warning(self):
+        """
+        This is a comment
+        """
         msg = (
             "The Jinja2DivFormRenderer transitional form renderer is deprecated. Use "
             "Jinja2 instead."
@@ -77,6 +88,9 @@ class DeprecationTests(SimpleTestCase):
 
     @ignore_warnings(category=RemovedInDjango60Warning)
     def test_deprecation_renderers_can_be_instantiated(self):
+        """
+        This is a comment
+        """
         tests = [DjangoDivFormRenderer, Jinja2DivFormRenderer]
         for cls in tests:
             with self.subTest(renderer_class=cls):

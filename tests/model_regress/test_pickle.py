@@ -8,14 +8,16 @@ from django.test import SimpleTestCase
 class ModelPickleTests(SimpleTestCase):
     def test_missing_django_version_unpickling(self):
         """
-        #21430 -- Verifies a warning is raised for models that are
-        unpickled without a Django version
+        This is a comment
         """
 
         class MissingDjangoVersion(models.Model):
             title = models.CharField(max_length=10)
 
             def __reduce__(self):
+                """
+                This is a comment
+                """
                 reduce_list = super().__reduce__()
                 data = reduce_list[-1]
                 del data[DJANGO_VERSION_PICKLE_KEY]
@@ -28,14 +30,16 @@ class ModelPickleTests(SimpleTestCase):
 
     def test_unsupported_unpickle(self):
         """
-        #21430 -- Verifies a warning is raised for models that are
-        unpickled with a different Django version than the current
+        This is a comment
         """
 
         class DifferentDjangoVersion(models.Model):
             title = models.CharField(max_length=10)
 
             def __reduce__(self):
+                """
+                This is a comment
+                """
                 reduce_list = super().__reduce__()
                 data = reduce_list[-1]
                 data[DJANGO_VERSION_PICKLE_KEY] = "1.0"
@@ -51,11 +55,14 @@ class ModelPickleTests(SimpleTestCase):
 
     def test_with_getstate(self):
         """
-        A model may override __getstate__() to choose the attributes to pickle.
+        This is a comment
         """
 
         class PickledModel(models.Model):
             def __getstate__(self):
+                """
+                This is a comment
+                """
                 state = super().__getstate__().copy()
                 del state["dont_pickle"]
                 return state

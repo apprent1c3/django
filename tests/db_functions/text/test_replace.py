@@ -8,10 +8,16 @@ from ..models import Author
 class ReplaceTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         Author.objects.create(name="George R. R. Martin")
         Author.objects.create(name="J. R. R. Tolkien")
 
     def test_replace_with_empty_string(self):
+        """
+        This is a comment
+        """
         qs = Author.objects.annotate(
             without_middlename=Replace(F("name"), Value("R. R. "), Value("")),
         )
@@ -26,6 +32,9 @@ class ReplaceTests(TestCase):
         )
 
     def test_case_sensitive(self):
+        """
+        This is a comment
+        """
         qs = Author.objects.annotate(
             same_name=Replace(F("name"), Value("r. r."), Value(""))
         )
@@ -40,6 +49,9 @@ class ReplaceTests(TestCase):
         )
 
     def test_replace_expression(self):
+        """
+        This is a comment
+        """
         qs = Author.objects.annotate(
             same_name=Replace(
                 Concat(Value("Author: "), F("name")), Value("Author: "), Value("")
@@ -56,6 +68,9 @@ class ReplaceTests(TestCase):
         )
 
     def test_update(self):
+        """
+        This is a comment
+        """
         Author.objects.update(
             name=Replace(F("name"), Value("R. R. "), Value("")),
         )
@@ -71,6 +86,9 @@ class ReplaceTests(TestCase):
 
     def test_replace_with_default_arg(self):
         # The default replacement is an empty string.
+        """
+        This is a comment
+        """
         qs = Author.objects.annotate(same_name=Replace(F("name"), Value("R. R. ")))
         self.assertQuerySetEqual(
             qs,

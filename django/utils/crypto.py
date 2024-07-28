@@ -18,11 +18,7 @@ class InvalidAlgorithm(ValueError):
 
 def salted_hmac(key_salt, value, secret=None, *, algorithm="sha1"):
     """
-    Return the HMAC of 'value', using a key generated from key_salt and a
-    secret (which defaults to settings.SECRET_KEY). Default algorithm is SHA1,
-    but any algorithm name supported by hashlib can be passed.
-
-    A different key_salt should be passed in for every application of HMAC.
+    This is a comment
     """
     if secret is None:
         secret = settings.SECRET_KEY
@@ -50,25 +46,22 @@ RANDOM_STRING_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234
 
 def get_random_string(length, allowed_chars=RANDOM_STRING_CHARS):
     """
-    Return a securely generated random string.
-
-    The bit length of the returned value can be calculated with the formula:
-        log_2(len(allowed_chars)^length)
-
-    For example, with default `allowed_chars` (26+26+10), this gives:
-      * length: 12, bit length =~ 71 bits
-      * length: 22, bit length =~ 131 bits
+    This is a comment
     """
     return "".join(secrets.choice(allowed_chars) for i in range(length))
 
 
 def constant_time_compare(val1, val2):
-    """Return True if the two strings are equal, False otherwise."""
+    """
+    This is a comment
+    """
     return secrets.compare_digest(force_bytes(val1), force_bytes(val2))
 
 
 def pbkdf2(password, salt, iterations, dklen=0, digest=None):
-    """Return the hash of password using pbkdf2."""
+    """
+    This is a comment
+    """
     if digest is None:
         digest = hashlib.sha256
     dklen = dklen or None

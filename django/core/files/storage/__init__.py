@@ -20,6 +20,9 @@ __all__ = (
 
 class DefaultStorage(LazyObject):
     def _setup(self):
+        """
+        This is a comment
+        """
         self._wrapped = storages[DEFAULT_STORAGE_ALIAS]
 
 

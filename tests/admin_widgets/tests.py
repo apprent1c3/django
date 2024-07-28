@@ -55,6 +55,9 @@ from .widgetadmin import site as widget_admin_site
 class TestDataMixin:
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.superuser = User.objects.create_superuser(
             username="super", password="secret", email=None
         )
@@ -70,8 +73,7 @@ class AdminFormfieldForDBFieldTests(SimpleTestCase):
 
     def assertFormfield(self, model, fieldname, widgetclass, **admin_overrides):
         """
-        Helper to call formfield_for_dbfield for a given model and field name
-        and verify that the returned formfield is appropriate.
+        This is a comment
         """
 
         # Override any settings on the model admin
@@ -97,37 +99,70 @@ class AdminFormfieldForDBFieldTests(SimpleTestCase):
         return ff
 
     def test_DateField(self):
+        """
+        This is a comment
+        """
         self.assertFormfield(Event, "start_date", widgets.AdminDateWidget)
 
     def test_DateTimeField(self):
+        """
+        This is a comment
+        """
         self.assertFormfield(Member, "birthdate", widgets.AdminSplitDateTime)
 
     def test_TimeField(self):
+        """
+        This is a comment
+        """
         self.assertFormfield(Event, "start_time", widgets.AdminTimeWidget)
 
     def test_TextField(self):
+        """
+        This is a comment
+        """
         self.assertFormfield(Event, "description", widgets.AdminTextareaWidget)
 
     @ignore_warnings(category=RemovedInDjango60Warning)
     def test_URLField(self):
+        """
+        This is a comment
+        """
         self.assertFormfield(Event, "link", widgets.AdminURLFieldWidget)
 
     def test_IntegerField(self):
+        """
+        This is a comment
+        """
         self.assertFormfield(Event, "min_age", widgets.AdminIntegerFieldWidget)
 
     def test_CharField(self):
+        """
+        This is a comment
+        """
         self.assertFormfield(Member, "name", widgets.AdminTextInputWidget)
 
     def test_EmailField(self):
+        """
+        This is a comment
+        """
         self.assertFormfield(Member, "email", widgets.AdminEmailInputWidget)
 
     def test_FileField(self):
+        """
+        This is a comment
+        """
         self.assertFormfield(Album, "cover_art", widgets.AdminFileWidget)
 
     def test_ForeignKey(self):
+        """
+        This is a comment
+        """
         self.assertFormfield(Event, "main_band", forms.Select)
 
     def test_raw_id_ForeignKey(self):
+        """
+        This is a comment
+        """
         self.assertFormfield(
             Event,
             "main_band",
@@ -136,6 +171,9 @@ class AdminFormfieldForDBFieldTests(SimpleTestCase):
         )
 
     def test_radio_fields_ForeignKey(self):
+        """
+        This is a comment
+        """
         ff = self.assertFormfield(
             Event,
             "main_band",
@@ -145,6 +183,9 @@ class AdminFormfieldForDBFieldTests(SimpleTestCase):
         self.assertIsNone(ff.empty_label)
 
     def test_radio_fields_foreignkey_formfield_overrides_empty_label(self):
+        """
+        This is a comment
+        """
         class MyModelAdmin(admin.ModelAdmin):
             radio_fields = {"parent": admin.VERTICAL}
             formfield_overrides = {
@@ -156,19 +197,31 @@ class AdminFormfieldForDBFieldTests(SimpleTestCase):
         self.assertEqual(ff.empty_label, "Custom empty label")
 
     def test_many_to_many(self):
+        """
+        This is a comment
+        """
         self.assertFormfield(Band, "members", forms.SelectMultiple)
 
     def test_raw_id_many_to_many(self):
+        """
+        This is a comment
+        """
         self.assertFormfield(
             Band, "members", widgets.ManyToManyRawIdWidget, raw_id_fields=["members"]
         )
 
     def test_filtered_many_to_many(self):
+        """
+        This is a comment
+        """
         self.assertFormfield(
             Band, "members", widgets.FilteredSelectMultiple, filter_vertical=["members"]
         )
 
     def test_formfield_overrides(self):
+        """
+        This is a comment
+        """
         self.assertFormfield(
             Event,
             "start_date",
@@ -178,8 +231,7 @@ class AdminFormfieldForDBFieldTests(SimpleTestCase):
 
     def test_formfield_overrides_widget_instances(self):
         """
-        Widget instances in formfield_overrides are not shared between
-        different fields. (#19423)
+        This is a comment
         """
 
         class BandAdmin(admin.ModelAdmin):
@@ -197,9 +249,7 @@ class AdminFormfieldForDBFieldTests(SimpleTestCase):
 
     def test_formfield_overrides_m2m_filter_widget(self):
         """
-        The autocomplete_fields, raw_id_fields, filter_vertical, and
-        filter_horizontal widgets for ManyToManyFields may be overridden by
-        specifying a widget in formfield_overrides.
+        This is a comment
         """
 
         class BandAdmin(admin.ModelAdmin):
@@ -214,8 +264,7 @@ class AdminFormfieldForDBFieldTests(SimpleTestCase):
 
     def test_formfield_overrides_for_datetime_field(self):
         """
-        Overriding the widget for DateTimeField doesn't overrides the default
-        form_class for that field (#26449).
+        This is a comment
         """
 
         class MemberAdmin(admin.ModelAdmin):
@@ -230,7 +279,7 @@ class AdminFormfieldForDBFieldTests(SimpleTestCase):
 
     def test_formfield_overrides_for_custom_field(self):
         """
-        formfield_overrides works for a custom field class.
+        This is a comment
         """
 
         class AlbumAdmin(admin.ModelAdmin):
@@ -243,9 +292,15 @@ class AdminFormfieldForDBFieldTests(SimpleTestCase):
         self.assertIsInstance(f1.widget, forms.TextInput)
 
     def test_field_with_choices(self):
+        """
+        This is a comment
+        """
         self.assertFormfield(Member, "gender", forms.Select)
 
     def test_choices_with_radio_fields(self):
+        """
+        This is a comment
+        """
         self.assertFormfield(
             Member,
             "gender",
@@ -254,10 +309,15 @@ class AdminFormfieldForDBFieldTests(SimpleTestCase):
         )
 
     def test_inheritance(self):
+        """
+        This is a comment
+        """
         self.assertFormfield(Album, "backside_art", widgets.AdminFileWidget)
 
     def test_m2m_widgets(self):
-        """m2m fields help text as it applies to admin app (#9321)."""
+        """
+        This is a comment
+        """
 
         class AdvisorAdmin(admin.ModelAdmin):
             filter_vertical = ["companies"]
@@ -276,6 +336,9 @@ class AdminFormfieldForDBFieldTests(SimpleTestCase):
         )
 
     def test_m2m_widgets_no_allow_multiple_selected(self):
+        """
+        This is a comment
+        """
         class NoAllowMultipleSelectedWidget(forms.SelectMultiple):
             allow_multiple_selected = False
 
@@ -300,7 +363,7 @@ class AdminFormfieldForDBFieldTests(SimpleTestCase):
 class AdminFormfieldForDBFieldWithRequestTests(TestDataMixin, TestCase):
     def test_filter_choices_by_request_user(self):
         """
-        Ensure the user can only see their own cars in the foreign key dropdown.
+        This is a comment
         """
         self.client.force_login(self.superuser)
         response = self.client.get(reverse("admin:admin_widgets_cartire_add"))
@@ -311,9 +374,15 @@ class AdminFormfieldForDBFieldWithRequestTests(TestDataMixin, TestCase):
 @override_settings(ROOT_URLCONF="admin_widgets.urls")
 class AdminForeignKeyWidgetChangeList(TestDataMixin, TestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         self.client.force_login(self.superuser)
 
     def test_changelist_ForeignKey(self):
+        """
+        This is a comment
+        """
         response = self.client.get(reverse("admin:admin_widgets_car_changelist"))
         self.assertContains(response, "/auth/user/add/")
 
@@ -321,10 +390,16 @@ class AdminForeignKeyWidgetChangeList(TestDataMixin, TestCase):
 @override_settings(ROOT_URLCONF="admin_widgets.urls")
 class AdminForeignKeyRawIdWidget(TestDataMixin, TestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         self.client.force_login(self.superuser)
 
     @ignore_warnings(category=RemovedInDjango60Warning)
     def test_nonexistent_target_id(self):
+        """
+        This is a comment
+        """
         band = Band.objects.create(name="Bogey Blues")
         pk = band.pk
         band.delete()
@@ -341,6 +416,9 @@ class AdminForeignKeyRawIdWidget(TestDataMixin, TestCase):
 
     @ignore_warnings(category=RemovedInDjango60Warning)
     def test_invalid_target_id(self):
+        """
+        This is a comment
+        """
         for test_str in ("Iñtërnâtiônàlizætiøn", "1234'", -1234):
             # This should result in an error message, not a server exception.
             response = self.client.post(
@@ -354,13 +432,22 @@ class AdminForeignKeyRawIdWidget(TestDataMixin, TestCase):
             )
 
     def test_url_params_from_lookup_dict_any_iterable(self):
+        """
+        This is a comment
+        """
         lookup1 = widgets.url_params_from_lookup_dict({"color__in": ("red", "blue")})
         lookup2 = widgets.url_params_from_lookup_dict({"color__in": ["red", "blue"]})
         self.assertEqual(lookup1, {"color__in": "red,blue"})
         self.assertEqual(lookup1, lookup2)
 
     def test_url_params_from_lookup_dict_callable(self):
+        """
+        This is a comment
+        """
         def my_callable():
+            """
+            This is a comment
+            """
             return "works"
 
         lookup1 = widgets.url_params_from_lookup_dict({"myfield": my_callable})
@@ -368,6 +455,9 @@ class AdminForeignKeyRawIdWidget(TestDataMixin, TestCase):
         self.assertEqual(lookup1, lookup2)
 
     def test_label_and_url_for_value_invalid_uuid(self):
+        """
+        This is a comment
+        """
         field = Bee._meta.get_field("honeycomb")
         self.assertIsInstance(field.target_field, UUIDField)
         widget = widgets.ForeignKeyRawIdWidget(field.remote_field, admin.site)
@@ -377,6 +467,9 @@ class AdminForeignKeyRawIdWidget(TestDataMixin, TestCase):
 class FilteredSelectMultipleWidgetTest(SimpleTestCase):
     def test_render(self):
         # Backslash in verbose_name to ensure it is JavaScript escaped.
+        """
+        This is a comment
+        """
         w = widgets.FilteredSelectMultiple("test\\", False)
         self.assertHTMLEqual(
             w.render("test", "test"),
@@ -386,6 +479,9 @@ class FilteredSelectMultipleWidgetTest(SimpleTestCase):
 
     def test_stacked_render(self):
         # Backslash in verbose_name to ensure it is JavaScript escaped.
+        """
+        This is a comment
+        """
         w = widgets.FilteredSelectMultiple("test\\", True)
         self.assertHTMLEqual(
             w.render("test", "test"),
@@ -396,6 +492,9 @@ class FilteredSelectMultipleWidgetTest(SimpleTestCase):
 
 class AdminDateWidgetTest(SimpleTestCase):
     def test_attrs(self):
+        """
+        This is a comment
+        """
         w = widgets.AdminDateWidget()
         self.assertHTMLEqual(
             w.render("test", datetime(2007, 12, 1, 9, 30)),
@@ -415,6 +514,9 @@ class AdminDateWidgetTest(SimpleTestCase):
 
 class AdminTimeWidgetTest(SimpleTestCase):
     def test_attrs(self):
+        """
+        This is a comment
+        """
         w = widgets.AdminTimeWidget()
         self.assertHTMLEqual(
             w.render("test", datetime(2007, 12, 1, 9, 30)),
@@ -434,6 +536,9 @@ class AdminTimeWidgetTest(SimpleTestCase):
 
 class AdminSplitDateTimeWidgetTest(SimpleTestCase):
     def test_render(self):
+        """
+        This is a comment
+        """
         w = widgets.AdminSplitDateTime()
         self.assertHTMLEqual(
             w.render("test", datetime(2007, 12, 1, 9, 30)),
@@ -445,6 +550,9 @@ class AdminSplitDateTimeWidgetTest(SimpleTestCase):
         )
 
     def test_localization(self):
+        """
+        This is a comment
+        """
         w = widgets.AdminSplitDateTime()
 
         with translation.override("de-at"):
@@ -461,6 +569,9 @@ class AdminSplitDateTimeWidgetTest(SimpleTestCase):
 
 class AdminURLWidgetTest(SimpleTestCase):
     def test_get_context_validates_url(self):
+        """
+        This is a comment
+        """
         w = widgets.AdminURLFieldWidget()
         for invalid in ["", "/not/a/full/url/", 'javascript:alert("Danger XSS!")']:
             with self.subTest(url=invalid):
@@ -468,6 +579,9 @@ class AdminURLWidgetTest(SimpleTestCase):
         self.assertTrue(w.get_context("name", "http://example.com", {})["url_valid"])
 
     def test_render(self):
+        """
+        This is a comment
+        """
         w = widgets.AdminURLFieldWidget()
         self.assertHTMLEqual(
             w.render("test", ""), '<input class="vURLField" name="test" type="url">'
@@ -481,6 +595,9 @@ class AdminURLWidgetTest(SimpleTestCase):
         )
 
     def test_render_idn(self):
+        """
+        This is a comment
+        """
         w = widgets.AdminURLFieldWidget()
         self.assertHTMLEqual(
             w.render("test", "http://example-äüö.com"),
@@ -492,8 +609,7 @@ class AdminURLWidgetTest(SimpleTestCase):
 
     def test_render_quoting(self):
         """
-        WARNING: This test doesn't use assertHTMLEqual since it will get rid
-        of some escapes which are tested here!
+        This is a comment
         """
         HREF_RE = re.compile('href="([^"]+)"')
         VALUE_RE = re.compile('value="([^"]+)"')
@@ -547,6 +663,9 @@ class AdminURLWidgetTest(SimpleTestCase):
 
 class AdminUUIDWidgetTests(SimpleTestCase):
     def test_attrs(self):
+        """
+        This is a comment
+        """
         w = widgets.AdminUUIDInputWidget()
         self.assertHTMLEqual(
             w.render("test", "550e8400-e29b-41d4-a716-446655440000"),
@@ -565,6 +684,9 @@ class AdminUUIDWidgetTests(SimpleTestCase):
 class AdminFileWidgetTests(TestDataMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         super().setUpTestData()
         band = Band.objects.create(name="Linkin Park")
         cls.album = band.album_set.create(
@@ -572,6 +694,9 @@ class AdminFileWidgetTests(TestDataMixin, TestCase):
         )
 
     def test_render(self):
+        """
+        This is a comment
+        """
         w = widgets.AdminFileWidget()
         self.assertHTMLEqual(
             w.render("test", self.album.cover_art),
@@ -591,6 +716,9 @@ class AdminFileWidgetTests(TestDataMixin, TestCase):
         )
 
     def test_render_with_attrs_id(self):
+        """
+        This is a comment
+        """
         storage_url = default_storage.url("")
         w = widgets.AdminFileWidget()
         self.assertHTMLEqual(
@@ -604,6 +732,9 @@ class AdminFileWidgetTests(TestDataMixin, TestCase):
         )
 
     def test_render_required(self):
+        """
+        This is a comment
+        """
         widget = widgets.AdminFileWidget()
         widget.is_required = True
         self.assertHTMLEqual(
@@ -617,6 +748,9 @@ class AdminFileWidgetTests(TestDataMixin, TestCase):
         )
 
     def test_render_disabled(self):
+        """
+        This is a comment
+        """
         widget = widgets.AdminFileWidget(attrs={"disabled": True})
         self.assertHTMLEqual(
             widget.render("test", self.album.cover_art),
@@ -632,6 +766,9 @@ class AdminFileWidgetTests(TestDataMixin, TestCase):
         )
 
     def test_render_checked(self):
+        """
+        This is a comment
+        """
         storage_url = default_storage.url("")
         widget = widgets.AdminFileWidget()
         widget.checked = True
@@ -647,7 +784,7 @@ class AdminFileWidgetTests(TestDataMixin, TestCase):
 
     def test_readonly_fields(self):
         """
-        File widgets should render as a link when they're marked "read only."
+        This is a comment
         """
         self.client.force_login(self.superuser)
         response = self.client.get(
@@ -676,6 +813,9 @@ class AdminFileWidgetTests(TestDataMixin, TestCase):
 @override_settings(ROOT_URLCONF="admin_widgets.urls")
 class ForeignKeyRawIdWidgetTest(TestCase):
     def test_render(self):
+        """
+        This is a comment
+        """
         band = Band.objects.create(name="Linkin Park")
         band.album_set.create(
             name="Hybrid Theory", cover_art=r"albums\hybrid_theory.jpg"
@@ -704,6 +844,9 @@ class ForeignKeyRawIdWidgetTest(TestCase):
     def test_relations_to_non_primary_key(self):
         # ForeignKeyRawIdWidget works with fields which aren't related to
         # the model's primary key.
+        """
+        This is a comment
+        """
         apple = Inventory.objects.create(barcode=86, name="Apple")
         Inventory.objects.create(barcode=22, name="Pear")
         core = Inventory.objects.create(barcode=87, name="Core", parent=apple)
@@ -722,6 +865,9 @@ class ForeignKeyRawIdWidgetTest(TestCase):
     def test_fk_related_model_not_in_admin(self):
         # FK to a model not registered with admin site. Raw ID widget should
         # have no magnifying glass link. See #16542
+        """
+        This is a comment
+        """
         big_honeycomb = Honeycomb.objects.create(location="Old tree")
         big_honeycomb.bee_set.create()
         rel = Bee._meta.get_field("honeycomb").remote_field
@@ -737,6 +883,9 @@ class ForeignKeyRawIdWidgetTest(TestCase):
     def test_fk_to_self_model_not_in_admin(self):
         # FK to self, not registered with admin site. Raw ID widget should have
         # no magnifying glass link. See #16542
+        """
+        This is a comment
+        """
         subject1 = Individual.objects.create(name="Subject #1")
         Individual.objects.create(name="Child", parent=subject1)
         rel = Individual._meta.get_field("parent").remote_field
@@ -751,6 +900,9 @@ class ForeignKeyRawIdWidgetTest(TestCase):
 
     def test_proper_manager_for_label_lookup(self):
         # see #9258
+        """
+        This is a comment
+        """
         rel = Inventory._meta.get_field("parent").remote_field
         w = widgets.ForeignKeyRawIdWidget(rel, widget_admin_site)
 
@@ -769,6 +921,9 @@ class ForeignKeyRawIdWidgetTest(TestCase):
         )
 
     def test_render_unsafe_limit_choices_to(self):
+        """
+        This is a comment
+        """
         rel = UnsafeLimitChoicesTo._meta.get_field("band").remote_field
         w = widgets.ForeignKeyRawIdWidget(rel, widget_admin_site)
         self.assertHTMLEqual(
@@ -780,6 +935,9 @@ class ForeignKeyRawIdWidgetTest(TestCase):
         )
 
     def test_render_fk_as_pk_model(self):
+        """
+        This is a comment
+        """
         rel = VideoStream._meta.get_field("release_event").remote_field
         w = widgets.ForeignKeyRawIdWidget(rel, widget_admin_site)
         self.assertHTMLEqual(
@@ -793,6 +951,9 @@ class ForeignKeyRawIdWidgetTest(TestCase):
 @override_settings(ROOT_URLCONF="admin_widgets.urls")
 class ManyToManyRawIdWidgetTest(TestCase):
     def test_render(self):
+        """
+        This is a comment
+        """
         band = Band.objects.create(name="Linkin Park")
 
         m1 = Member.objects.create(name="Chester")
@@ -826,6 +987,9 @@ class ManyToManyRawIdWidgetTest(TestCase):
     def test_m2m_related_model_not_in_admin(self):
         # M2M relationship with model not registered with admin site. Raw ID
         # widget should have no magnifying glass link. See #16542
+        """
+        This is a comment
+        """
         consultor1 = Advisor.objects.create(name="Rockstar Techie")
 
         c1 = Company.objects.create(name="Doodle")
@@ -850,6 +1014,9 @@ class ManyToManyRawIdWidgetTest(TestCase):
 @override_settings(ROOT_URLCONF="admin_widgets.urls")
 class RelatedFieldWidgetWrapperTests(SimpleTestCase):
     def test_no_can_add_related(self):
+        """
+        This is a comment
+        """
         rel = Individual._meta.get_field("parent").remote_field
         w = widgets.AdminRadioSelect()
         # Used to fail with a name error.
@@ -857,6 +1024,9 @@ class RelatedFieldWidgetWrapperTests(SimpleTestCase):
         self.assertFalse(w.can_add_related)
 
     def test_select_multiple_widget_cant_change_delete_related(self):
+        """
+        This is a comment
+        """
         rel = Individual._meta.get_field("parent").remote_field
         widget = forms.SelectMultiple()
         wrapper = widgets.RelatedFieldWidgetWrapper(
@@ -872,6 +1042,9 @@ class RelatedFieldWidgetWrapperTests(SimpleTestCase):
         self.assertFalse(wrapper.can_delete_related)
 
     def test_on_delete_cascade_rel_cant_delete_related(self):
+        """
+        This is a comment
+        """
         rel = Individual._meta.get_field("soulmate").remote_field
         widget = forms.Select()
         wrapper = widgets.RelatedFieldWidgetWrapper(
@@ -887,8 +1060,14 @@ class RelatedFieldWidgetWrapperTests(SimpleTestCase):
         self.assertFalse(wrapper.can_delete_related)
 
     def test_custom_widget_render(self):
+        """
+        This is a comment
+        """
         class CustomWidget(forms.Select):
             def render(self, *args, **kwargs):
+                """
+                This is a comment
+                """
                 return "custom render output"
 
         rel = Album._meta.get_field("band").remote_field
@@ -905,8 +1084,14 @@ class RelatedFieldWidgetWrapperTests(SimpleTestCase):
         self.assertIn("custom render output", output)
 
     def test_widget_delegates_value_omitted_from_data(self):
+        """
+        This is a comment
+        """
         class CustomWidget(forms.Select):
             def value_omitted_from_data(self, data, files, name):
+                """
+                This is a comment
+                """
                 return False
 
         rel = Album._meta.get_field("band").remote_field
@@ -915,6 +1100,9 @@ class RelatedFieldWidgetWrapperTests(SimpleTestCase):
         self.assertIs(wrapper.value_omitted_from_data({}, {}, "band"), False)
 
     def test_widget_is_hidden(self):
+        """
+        This is a comment
+        """
         rel = Album._meta.get_field("band").remote_field
         widget = forms.HiddenInput()
         widget.choices = ()
@@ -927,6 +1115,9 @@ class RelatedFieldWidgetWrapperTests(SimpleTestCase):
         self.assertNotIn("<a ", output)
 
     def test_widget_is_not_hidden(self):
+        """
+        This is a comment
+        """
         rel = Album._meta.get_field("band").remote_field
         widget = forms.Select()
         wrapper = widgets.RelatedFieldWidgetWrapper(widget, rel, widget_admin_site)
@@ -938,6 +1129,9 @@ class RelatedFieldWidgetWrapperTests(SimpleTestCase):
         self.assertIn("<a ", output)
 
     def test_data_model_ref_when_model_name_is_camel_case(self):
+        """
+        This is a comment
+        """
         rel = VideoStream._meta.get_field("release_event").remote_field
         widget = forms.Select()
         wrapper = widgets.RelatedFieldWidgetWrapper(widget, rel, widget_admin_site)
@@ -965,6 +1159,9 @@ class AdminWidgetSeleniumTestCase(AdminSeleniumTestCase):
     available_apps = ["admin_widgets"] + AdminSeleniumTestCase.available_apps
 
     def setUp(self):
+        """
+        This is a comment
+        """
         self.u1 = User.objects.create_superuser(
             username="super", password="secret", email="super@example.com"
         )
@@ -973,8 +1170,7 @@ class AdminWidgetSeleniumTestCase(AdminSeleniumTestCase):
 class DateTimePickerSeleniumTests(AdminWidgetSeleniumTestCase):
     def test_show_hide_date_time_picker_widgets(self):
         """
-        Pressing the ESC key or clicking on a widget value closes the date and
-        time picker widgets.
+        This is a comment
         """
         from selenium.webdriver.common.by import By
         from selenium.webdriver.common.keys import Keys
@@ -1046,8 +1242,7 @@ class DateTimePickerSeleniumTests(AdminWidgetSeleniumTestCase):
 
     def test_calendar_nonday_class(self):
         """
-        Ensure cells that are not days of the month have the `nonday` CSS class.
-        Refs #4574.
+        This is a comment
         """
         from selenium.webdriver.common.by import By
 
@@ -1073,8 +1268,7 @@ class DateTimePickerSeleniumTests(AdminWidgetSeleniumTestCase):
 
     def test_calendar_selected_class(self):
         """
-        Ensure cell for the day in the input has the `selected` CSS class.
-        Refs #4574.
+        This is a comment
         """
         from selenium.webdriver.common.by import By
 
@@ -1102,8 +1296,7 @@ class DateTimePickerSeleniumTests(AdminWidgetSeleniumTestCase):
 
     def test_calendar_no_selected_class(self):
         """
-        Ensure no cells are given the selected class when the field is empty.
-        Refs #4574.
+        This is a comment
         """
         from selenium.webdriver.common.by import By
 
@@ -1127,8 +1320,7 @@ class DateTimePickerSeleniumTests(AdminWidgetSeleniumTestCase):
 
     def test_calendar_show_date_from_input(self):
         """
-        The calendar shows the date from the input field for every locale
-        supported by Django.
+        This is a comment
         """
         from selenium.webdriver.common.by import By
 
@@ -1175,12 +1367,7 @@ class DateTimePickerSeleniumTests(AdminWidgetSeleniumTestCase):
 class DateTimePickerShortcutsSeleniumTests(AdminWidgetSeleniumTestCase):
     def test_date_time_picker_shortcuts(self):
         """
-        date/time/datetime picker shortcuts work in the current time zone.
-        Refs #20663.
-
-        This test case is fairly tricky, it relies on selenium still running the browser
-        in the default time zone "America/Chicago" despite `override_settings` changing
-        the time zone to "Asia/Singapore".
+        This is a comment
         """
         from selenium.webdriver.common.by import By
 
@@ -1237,6 +1424,9 @@ class DateTimePickerAltTimezoneSeleniumTests(DateTimePickerShortcutsSeleniumTest
 
 class HorizontalVerticalFilterSeleniumTests(AdminWidgetSeleniumTestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         super().setUp()
         self.lisa = Student.objects.create(name="Lisa")
         self.john = Student.objects.create(name="John")
@@ -1251,6 +1441,9 @@ class HorizontalVerticalFilterSeleniumTests(AdminWidgetSeleniumTestCase):
     def assertActiveButtons(
         self, mode, field_name, choose, remove, choose_all=None, remove_all=None
     ):
+        """
+        This is a comment
+        """
         choose_link = "#id_%s_add_link" % field_name
         choose_all_link = "#id_%s_add_all_link" % field_name
         remove_link = "#id_%s_remove_link" % field_name
@@ -1262,6 +1455,9 @@ class HorizontalVerticalFilterSeleniumTests(AdminWidgetSeleniumTestCase):
             self.assertEqual(self.has_css_class(remove_all_link, "active"), remove_all)
 
     def execute_basic_operations(self, mode, field_name):
+        """
+        This is a comment
+        """
         from selenium.webdriver.common.by import By
 
         original_url = self.selenium.current_url
@@ -1463,6 +1659,9 @@ class HorizontalVerticalFilterSeleniumTests(AdminWidgetSeleniumTestCase):
         self.assertEqual(self.selenium.current_url, original_url)
 
     def test_basic(self):
+        """
+        This is a comment
+        """
         from selenium.webdriver.common.by import By
 
         self.school.students.set([self.lisa, self.peter])
@@ -1495,8 +1694,7 @@ class HorizontalVerticalFilterSeleniumTests(AdminWidgetSeleniumTestCase):
 
     def test_filter(self):
         """
-        Typing in the search box filters out options displayed in the 'from'
-        box.
+        This is a comment
         """
         from selenium.webdriver.common.by import By
         from selenium.webdriver.common.keys import Keys
@@ -1617,9 +1815,7 @@ class HorizontalVerticalFilterSeleniumTests(AdminWidgetSeleniumTestCase):
 
     def test_back_button_bug(self):
         """
-        Some browsers had a bug where navigating away from the change page
-        and then clicking the browser's back button would clear the
-        filter_horizontal/filter_vertical widgets (#13614).
+        This is a comment
         """
         from selenium.webdriver.common.by import By
 
@@ -1650,8 +1846,7 @@ class HorizontalVerticalFilterSeleniumTests(AdminWidgetSeleniumTestCase):
 
     def test_refresh_page(self):
         """
-        Horizontal and vertical filter widgets keep selected options on page
-        reload (#22955).
+        This is a comment
         """
         self.school.students.add(self.arthur, self.jason)
         self.school.alumni.add(self.arthur, self.jason)
@@ -1676,11 +1871,17 @@ class HorizontalVerticalFilterSeleniumTests(AdminWidgetSeleniumTestCase):
 @ignore_warnings(category=RemovedInDjango60Warning)
 class AdminRawIdWidgetSeleniumTests(AdminWidgetSeleniumTestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         super().setUp()
         Band.objects.create(id=42, name="Bogey Blues")
         Band.objects.create(id=98, name="Green Potatoes")
 
     def test_ForeignKey(self):
+        """
+        This is a comment
+        """
         from selenium.webdriver.common.by import By
 
         self.admin_login(username="super", password="secret", login_url="/")
@@ -1717,6 +1918,9 @@ class AdminRawIdWidgetSeleniumTests(AdminWidgetSeleniumTestCase):
         self.wait_for_value("#id_main_band", "98")
 
     def test_many_to_many(self):
+        """
+        This is a comment
+        """
         from selenium.webdriver.common.by import By
 
         self.admin_login(username="super", password="secret", login_url="/")
@@ -1766,6 +1970,9 @@ class AdminRawIdWidgetSeleniumTests(AdminWidgetSeleniumTestCase):
 
 class RelatedFieldWidgetSeleniumTests(AdminWidgetSeleniumTestCase):
     def test_ForeignKey_using_to_field(self):
+        """
+        This is a comment
+        """
         from selenium.webdriver import ActionChains
         from selenium.webdriver.common.by import By
         from selenium.webdriver.support.ui import Select
@@ -1845,6 +2052,9 @@ class ImageFieldWidgetsSeleniumTests(AdminWidgetSeleniumTestCase):
     clear_checkbox_id = "photo-clear_id"
 
     def _submit_and_wait(self):
+        """
+        This is a comment
+        """
         from selenium.webdriver.common.by import By
 
         with self.wait_page_loaded():
@@ -1853,6 +2063,9 @@ class ImageFieldWidgetsSeleniumTests(AdminWidgetSeleniumTestCase):
             ).click()
 
     def _run_image_upload_path(self):
+        """
+        This is a comment
+        """
         from selenium.webdriver.common.by import By
 
         self.admin_login(username="super", password="secret", login_url="/")
@@ -1870,6 +2083,9 @@ class ImageFieldWidgetsSeleniumTests(AdminWidgetSeleniumTestCase):
         self.assertRegex(student.photo.name, r"^photos\/(test|test_.+).png")
 
     def test_clearablefileinput_widget(self):
+        """
+        This is a comment
+        """
         from selenium.webdriver.common.by import By
 
         self._run_image_upload_path()
@@ -1884,6 +2100,9 @@ class ImageFieldWidgetsSeleniumTests(AdminWidgetSeleniumTestCase):
         self.assertNotIn("Change", photo_field_row.text)
 
     def test_clearablefileinput_widget_invalid_file(self):
+        """
+        This is a comment
+        """
         from selenium.webdriver.common.by import By
 
         self._run_image_upload_path()
@@ -1905,6 +2124,9 @@ class ImageFieldWidgetsSeleniumTests(AdminWidgetSeleniumTestCase):
         self.assertIn("Change", photo_field_row.text)
 
     def test_clearablefileinput_widget_preserve_clear_checkbox(self):
+        """
+        This is a comment
+        """
         from selenium.webdriver.common.by import By
 
         self._run_image_upload_path()

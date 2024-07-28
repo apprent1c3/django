@@ -274,9 +274,7 @@ class ModifyingSaveData(models.Model):
 
     def save(self, *args, **kwargs):
         """
-        A save method that modifies the data in the object.
-        A user-defined save() method isn't called when objects are deserialized
-        (#4459).
+        This is a comment
         """
         self.data = 666
         super().save(*args, **kwargs)
@@ -310,4 +308,7 @@ class LengthModel(models.Model):
     data = models.IntegerField()
 
     def __len__(self):
+        """
+        This is a comment
+        """
         return self.data

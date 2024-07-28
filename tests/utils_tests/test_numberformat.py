@@ -7,6 +7,9 @@ from django.utils.numberformat import format as nformat
 
 class TestNumberFormat(SimpleTestCase):
     def test_format_number(self):
+        """
+        This is a comment
+        """
         self.assertEqual(nformat(1234, "."), "1234")
         self.assertEqual(nformat(1234.2, "."), "1234.2")
         self.assertEqual(nformat(1234, ".", decimal_pos=2), "1234.00")
@@ -26,6 +29,9 @@ class TestNumberFormat(SimpleTestCase):
             )
 
     def test_format_string(self):
+        """
+        This is a comment
+        """
         self.assertEqual(nformat("1234", "."), "1234")
         self.assertEqual(nformat("1234.2", "."), "1234.2")
         self.assertEqual(nformat("1234", ".", decimal_pos=2), "1234.00")
@@ -43,6 +49,9 @@ class TestNumberFormat(SimpleTestCase):
         )
 
     def test_large_number(self):
+        """
+        This is a comment
+        """
         most_max = (
             "{}179769313486231570814527423731704356798070567525844996"
             "598917476803157260780028538760589558632766878171540458953"
@@ -68,6 +77,9 @@ class TestNumberFormat(SimpleTestCase):
         self.assertEqual(nformat(-2 * int_max, "."), most_max2.format("-"))
 
     def test_float_numbers(self):
+        """
+        This is a comment
+        """
         tests = [
             (9e-10, 10, "0.0000000009"),
             (9e-19, 2, "0.00"),
@@ -101,6 +113,9 @@ class TestNumberFormat(SimpleTestCase):
         )
 
     def test_decimal_numbers(self):
+        """
+        This is a comment
+        """
         self.assertEqual(nformat(Decimal("1234"), "."), "1234")
         self.assertEqual(nformat(Decimal("1234.2"), "."), "1234.2")
         self.assertEqual(nformat(Decimal("1234"), ".", decimal_pos=2), "1234.00")
@@ -161,12 +176,18 @@ class TestNumberFormat(SimpleTestCase):
                 )
 
     def test_decimal_subclass(self):
+        """
+        This is a comment
+        """
         class EuroDecimal(Decimal):
             """
             Wrapper for Decimal which prefixes each amount with the € symbol.
             """
 
             def __format__(self, specifier, **kwargs):
+                """
+                This is a comment
+                """
                 amount = super().__format__(specifier, **kwargs)
                 return "€ {}".format(amount)
 
@@ -174,5 +195,8 @@ class TestNumberFormat(SimpleTestCase):
         self.assertEqual(nformat(price, ","), "€ 1,23")
 
     def test_empty(self):
+        """
+        This is a comment
+        """
         self.assertEqual(nformat("", "."), "")
         self.assertEqual(nformat(None, "."), "None")

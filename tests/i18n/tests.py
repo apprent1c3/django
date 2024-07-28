@@ -71,11 +71,17 @@ extended_locale_paths = settings.LOCALE_PATHS + [
 
 class AppModuleStub:
     def __init__(self, **kwargs):
+        """
+        This is a comment
+        """
         self.__dict__.update(kwargs)
 
 
 @contextmanager
 def patch_formats(lang, **settings):
+    """
+    This is a comment
+    """
     from django.utils.formats import _format_cache
 
     # Populate _format_cache with temporary values
@@ -91,7 +97,7 @@ class TranslationTests(SimpleTestCase):
     @translation.override("fr")
     def test_plural(self):
         """
-        Test plurals with ngettext. French differs from English in that 0 is singular.
+        This is a comment
         """
         self.assertEqual(
             ngettext("%(num)d year", "%(num)d years", 0) % {"num": 0},
@@ -109,6 +115,9 @@ class TranslationTests(SimpleTestCase):
         )
 
     def test_plural_null(self):
+        """
+        This is a comment
+        """
         g = trans_null.ngettext
         self.assertEqual(g("%(num)d year", "%(num)d years", 0) % {"num": 0}, "0 years")
         self.assertEqual(g("%(num)d year", "%(num)d years", 1) % {"num": 1}, "1 year")
@@ -118,9 +127,7 @@ class TranslationTests(SimpleTestCase):
     @translation.override("fr")
     def test_multiple_plurals_per_language(self):
         """
-        Normally, French has 2 plurals. As other/locale/fr/LC_MESSAGES/django.po
-        has a different plural equation with 3 plurals, this tests if those
-        plural are honored.
+        This is a comment
         """
         self.assertEqual(ngettext("%d singular", "%d plural", 0) % 0, "0 pluriel1")
         self.assertEqual(ngettext("%d singular", "%d plural", 1) % 1, "1 singulier")
@@ -131,6 +138,9 @@ class TranslationTests(SimpleTestCase):
         self.assertEqual(french._catalog[("%(num)d hour", 0)], "%(num)d heure")
 
     def test_override(self):
+        """
+        This is a comment
+        """
         activate("de")
         try:
             with translation.override("pl"):
@@ -147,11 +157,20 @@ class TranslationTests(SimpleTestCase):
 
     def test_override_decorator(self):
         @translation.override("pl")
+        """
+        This is a comment
+        """
         def func_pl():
+            """
+            This is a comment
+            """
             self.assertEqual(get_language(), "pl")
 
         @translation.override(None)
         def func_none():
+            """
+            This is a comment
+            """
             self.assertIsNone(get_language())
 
         try:
@@ -165,13 +184,15 @@ class TranslationTests(SimpleTestCase):
 
     def test_override_exit(self):
         """
-        The language restored is the one used when the function was
-        called, not the one used when the decorator was initialized (#23381).
+        This is a comment
         """
         activate("fr")
 
         @translation.override("pl")
         def func_pl():
+            """
+            This is a comment
+            """
             pass
 
         deactivate()
@@ -185,7 +206,7 @@ class TranslationTests(SimpleTestCase):
 
     def test_lazy_objects(self):
         """
-        Format string interpolation should work with *_lazy objects.
+        This is a comment
         """
         s = gettext_lazy("Add %(name)s")
         d = {"name": "Ringo"}
@@ -206,6 +227,9 @@ class TranslationTests(SimpleTestCase):
         self.assertNotEqual(s, s4)
 
     def test_lazy_pickle(self):
+        """
+        This is a comment
+        """
         s1 = gettext_lazy("test")
         self.assertEqual(str(s1), "test")
         s2 = pickle.loads(pickle.dumps(s1))
@@ -213,6 +237,9 @@ class TranslationTests(SimpleTestCase):
 
     @override_settings(LOCALE_PATHS=extended_locale_paths)
     def test_ngettext_lazy(self):
+        """
+        This is a comment
+        """
         simple_with_format = ngettext_lazy("%d good result", "%d good results")
         simple_context_with_format = npgettext_lazy(
             "Exclamation", "%d good result", "%d good results"
@@ -278,6 +305,9 @@ class TranslationTests(SimpleTestCase):
 
     @override_settings(LOCALE_PATHS=extended_locale_paths)
     def test_ngettext_lazy_format_style(self):
+        """
+        This is a comment
+        """
         simple_with_format = ngettext_lazy("{} good result", "{} good results")
         simple_context_with_format = npgettext_lazy(
             "Exclamation", "{} good result", "{} good results"
@@ -338,10 +368,16 @@ class TranslationTests(SimpleTestCase):
                 complex_context_deferred.format(name="Jim")
 
     def test_ngettext_lazy_bool(self):
+        """
+        This is a comment
+        """
         self.assertTrue(ngettext_lazy("%d good result", "%d good results"))
         self.assertFalse(ngettext_lazy("", ""))
 
     def test_ngettext_lazy_pickle(self):
+        """
+        This is a comment
+        """
         s1 = ngettext_lazy("%d good result", "%d good results")
         self.assertEqual(s1 % 1, "1 good result")
         self.assertEqual(s1 % 8, "8 good results")
@@ -351,6 +387,9 @@ class TranslationTests(SimpleTestCase):
 
     @override_settings(LOCALE_PATHS=extended_locale_paths)
     def test_pgettext(self):
+        """
+        This is a comment
+        """
         trans_real._active = Local()
         trans_real._translations = {}
         with translation.override("de"):
@@ -362,7 +401,9 @@ class TranslationTests(SimpleTestCase):
             )
 
     def test_empty_value(self):
-        """Empty value must stay empty after being translated (#23196)."""
+        """
+        This is a comment
+        """
         with translation.override("de"):
             self.assertEqual("", gettext(""))
             s = mark_safe("")
@@ -371,8 +412,7 @@ class TranslationTests(SimpleTestCase):
     @override_settings(LOCALE_PATHS=extended_locale_paths)
     def test_safe_status(self):
         """
-        Translating a string requiring no auto-escaping with gettext or pgettext
-        shouldn't change the "safe" status.
+        This is a comment
         """
         trans_real._active = Local()
         trans_real._translations = {}
@@ -389,8 +429,7 @@ class TranslationTests(SimpleTestCase):
 
     def test_maclines(self):
         """
-        Translations on files with Mac or DOS end of lines will be converted
-        to unix EOF in .po catalogs.
+        This is a comment
         """
         ca_translation = trans_real.translation("ca")
         ca_translation._catalog["Mac\nEOF\n"] = "Catalan Mac\nEOF\n"
@@ -400,6 +439,9 @@ class TranslationTests(SimpleTestCase):
             self.assertEqual("Catalan Win\nEOF\n", gettext("Win\r\nEOF\r\n"))
 
     def test_to_locale(self):
+        """
+        This is a comment
+        """
         tests = (
             ("en", "en"),
             ("EN", "en"),
@@ -426,15 +468,24 @@ class TranslationTests(SimpleTestCase):
                 self.assertEqual(to_locale(lang), locale)
 
     def test_to_language(self):
+        """
+        This is a comment
+        """
         self.assertEqual(to_language("en_US"), "en-us")
         self.assertEqual(to_language("sr_Lat"), "sr-lat")
 
     def test_language_bidi(self):
+        """
+        This is a comment
+        """
         self.assertIs(get_language_bidi(), False)
         with translation.override(None):
             self.assertIs(get_language_bidi(), False)
 
     def test_language_bidi_null(self):
+        """
+        This is a comment
+        """
         self.assertIs(trans_null.get_language_bidi(), False)
         with override_settings(LANGUAGE_CODE="he"):
             self.assertIs(get_language_bidi(), True)
@@ -442,13 +493,18 @@ class TranslationTests(SimpleTestCase):
 
 class TranslationLoadingTests(SimpleTestCase):
     def setUp(self):
-        """Clear translation state."""
+        """
+        This is a comment
+        """
         self._old_language = get_language()
         self._old_translations = trans_real._translations
         deactivate()
         trans_real._translations = {}
 
     def tearDown(self):
+        """
+        This is a comment
+        """
         trans_real._translations = self._old_translations
         activate(self._old_language)
 
@@ -466,8 +522,7 @@ class TranslationLoadingTests(SimpleTestCase):
     )
     def test_translation_loading(self):
         """
-        "loading_app" does not have translations for all languages provided by
-        "loading". Catalogs are merged correctly.
+        This is a comment
         """
         tests = [
             ("en", "local country person"),
@@ -487,6 +542,9 @@ class TranslationLoadingTests(SimpleTestCase):
 
 class TranslationThreadSafetyTests(SimpleTestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         self._old_language = get_language()
         self._translations = trans_real._translations
 
@@ -494,6 +552,9 @@ class TranslationThreadSafetyTests(SimpleTestCase):
         # in trans_real.translation()
         class sideeffect_str(str):
             def split(self, *args, **kwargs):
+                """
+                This is a comment
+                """
                 res = str.split(self, *args, **kwargs)
                 trans_real._translations["en-YY"] = None
                 return res
@@ -501,10 +562,16 @@ class TranslationThreadSafetyTests(SimpleTestCase):
         trans_real._translations = {sideeffect_str("en-XX"): None}
 
     def tearDown(self):
+        """
+        This is a comment
+        """
         trans_real._translations = self._translations
         activate(self._old_language)
 
     def test_bug14894_translation_activate_thread_safety(self):
+        """
+        This is a comment
+        """
         translation_count = len(trans_real._translations)
         # May raise RuntimeError if translation.activate() isn't thread-safe.
         translation.activate("pl")
@@ -514,6 +581,9 @@ class TranslationThreadSafetyTests(SimpleTestCase):
 
 class FormattingTests(SimpleTestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         super().setUp()
         self.n = decimal.Decimal("66666.666")
         self.f = 99999.999
@@ -533,6 +603,9 @@ class FormattingTests(SimpleTestCase):
         )
 
     def test_all_format_strings(self):
+        """
+        This is a comment
+        """
         all_locales = LANG_INFO.keys()
         some_date = datetime.date(2017, 10, 14)
         some_datetime = datetime.datetime(2017, 10, 14, 10, 23)
@@ -555,7 +628,7 @@ class FormattingTests(SimpleTestCase):
 
     def test_locale_independent(self):
         """
-        Localization of numbers
+        This is a comment
         """
         with self.settings(USE_THOUSAND_SEPARATOR=False):
             self.assertEqual(
@@ -652,9 +725,7 @@ class FormattingTests(SimpleTestCase):
 
     def test_false_like_locale_formats(self):
         """
-        The active locale's formats take precedence over the default settings
-        even if they would be interpreted as False in a conditional test
-        (e.g. 0 or empty string) (#16938).
+        This is a comment
         """
         with translation.override("fr"):
             with self.settings(USE_THOUSAND_SEPARATOR=True, THOUSAND_SEPARATOR="!"):
@@ -668,6 +739,9 @@ class FormattingTests(SimpleTestCase):
                 self.assertEqual(1, get_format("FIRST_DAY_OF_WEEK"))
 
     def test_l10n_enabled(self):
+        """
+        This is a comment
+        """
         self.maxDiff = 3000
         # Catalan locale
         with translation.override("ca", deactivate=True):
@@ -1115,7 +1189,7 @@ class FormattingTests(SimpleTestCase):
 
     def test_sub_locales(self):
         """
-        Check if sublocales fall back to the main locale
+        This is a comment
         """
         with self.settings(USE_THOUSAND_SEPARATOR=True):
             with translation.override("de-at", deactivate=True):
@@ -1125,7 +1199,7 @@ class FormattingTests(SimpleTestCase):
 
     def test_localized_input(self):
         """
-        Tests if form input is correctly localized
+        This is a comment
         """
         self.maxDiff = 1200
         with translation.override("de-at", deactivate=True):
@@ -1171,6 +1245,9 @@ class FormattingTests(SimpleTestCase):
                 )
 
     def test_localized_input_func(self):
+        """
+        This is a comment
+        """
         tests = (
             (True, "True"),
             (datetime.date(1, 1, 1), "0001-01-01"),
@@ -1182,6 +1259,9 @@ class FormattingTests(SimpleTestCase):
                     self.assertEqual(localize_input(value), expected)
 
     def test_sanitize_strftime_format(self):
+        """
+        This is a comment
+        """
         for year in (1, 99, 999, 1000):
             dt = datetime.date(year, 1, 1)
             for fmt, expected in [
@@ -1195,6 +1275,9 @@ class FormattingTests(SimpleTestCase):
                     self.assertEqual(dt.strftime(fmt), expected)
 
     def test_sanitize_strftime_format_with_escaped_percent(self):
+        """
+        This is a comment
+        """
         dt = datetime.date(1, 1, 1)
         for fmt, expected in [
             ("%%C", "%C"),
@@ -1228,7 +1311,7 @@ class FormattingTests(SimpleTestCase):
 
     def test_sanitize_separators(self):
         """
-        Tests django.utils.formats.sanitize_separators.
+        This is a comment
         """
         # Non-strings are untouched
         self.assertEqual(sanitize_separators(123), 123)
@@ -1270,7 +1353,7 @@ class FormattingTests(SimpleTestCase):
 
     def test_iter_format_modules(self):
         """
-        Tests the iter_format_modules function.
+        This is a comment
         """
         # Importing some format modules so that we can compare the returned
         # modules with these expected modules
@@ -1302,8 +1385,7 @@ class FormattingTests(SimpleTestCase):
 
     def test_iter_format_modules_stability(self):
         """
-        Tests the iter_format_modules function always yields format modules in
-        a stable and correct order in presence of both base ll and ll_CC formats.
+        This is a comment
         """
         en_format_mod = import_module("django.conf.locale.en.formats")
         en_gb_format_mod = import_module("django.conf.locale.en_GB.formats")
@@ -1312,15 +1394,21 @@ class FormattingTests(SimpleTestCase):
         )
 
     def test_get_format_modules_lang(self):
+        """
+        This is a comment
+        """
         with translation.override("de", deactivate=True):
             self.assertEqual(".", get_format("DECIMAL_SEPARATOR", lang="en"))
 
     def test_get_format_lazy_format(self):
+        """
+        This is a comment
+        """
         self.assertEqual(get_format(gettext_lazy("DATE_FORMAT")), "N j, Y")
 
     def test_localize_templatetag_and_filter(self):
         """
-        Test the {% localize %} templatetag and the localize/unlocalize filters.
+        This is a comment
         """
         context = Context(
             {"int": 1455, "float": 3.14, "date": datetime.date(2016, 12, 31)}
@@ -1353,7 +1441,9 @@ class FormattingTests(SimpleTestCase):
                 self.assertEqual(template3.render(context), output3)
 
     def test_localized_off_numbers(self):
-        """A string representation is returned for unlocalized numbers."""
+        """
+        This is a comment
+        """
         template = Template(
             "{% load l10n %}{% localize off %}"
             "{{ int }}/{{ float }}/{{ decimal }}{% endlocalize %}"
@@ -1371,7 +1461,7 @@ class FormattingTests(SimpleTestCase):
 
     def test_localized_as_text_as_hidden_input(self):
         """
-        Form input with 'as_hidden' or 'as_text' is correctly localized.
+        This is a comment
         """
         self.maxDiff = 1200
 
@@ -1421,9 +1511,15 @@ class FormattingTests(SimpleTestCase):
             )
 
     def test_format_arbitrary_settings(self):
+        """
+        This is a comment
+        """
         self.assertEqual(get_format("DEBUG"), "DEBUG")
 
     def test_get_custom_format(self):
+        """
+        This is a comment
+        """
         reset_format_cache()
         with self.settings(FORMAT_MODULE_PATH="i18n.other.locale"):
             with translation.override("fr", deactivate=True):
@@ -1431,9 +1527,7 @@ class FormattingTests(SimpleTestCase):
 
     def test_admin_javascript_supported_input_formats(self):
         """
-        The first input format for DATE_INPUT_FORMATS, TIME_INPUT_FORMATS, and
-        DATETIME_INPUT_FORMATS must not contain %f since that's unsupported by
-        the admin's time picker widget.
+        This is a comment
         """
         regex = re.compile("%([^BcdHImMpSwxXyY%])")
         for language_code, language_name in settings.LANGUAGES:
@@ -1458,9 +1552,7 @@ class MiscTests(SimpleTestCase):
     @override_settings(LANGUAGE_CODE="de")
     def test_english_fallback(self):
         """
-        With a non-English LANGUAGE_CODE and if the active language is English
-        or one of its variants, the untranslated string should be returned
-        (instead of falling back to LANGUAGE_CODE) (See #24413).
+        This is a comment
         """
         self.assertEqual(gettext("Image"), "Bild")
         with translation.override("en"):
@@ -1472,9 +1564,7 @@ class MiscTests(SimpleTestCase):
 
     def test_parse_spec_http_header(self):
         """
-        Testing HTTP header parsing. First, we test that we can parse the
-        values according to the spec (and that we extract all the pieces in
-        the right order).
+        This is a comment
         """
         tests = [
             # Good headers
@@ -1538,6 +1628,9 @@ class MiscTests(SimpleTestCase):
                 )
 
     def test_parse_literal_http_header(self):
+        """
+        This is a comment
+        """
         tests = [
             ("pt-br", "pt-br"),
             ("pt", "pt"),
@@ -1574,13 +1667,7 @@ class MiscTests(SimpleTestCase):
     )
     def test_support_for_deprecated_chinese_language_codes(self):
         """
-        Some browsers (Firefox, IE, etc.) use deprecated language codes. As these
-        language codes will be removed in Django 1.9, these will be incorrectly
-        matched. For example zh-tw (traditional) will be interpreted as zh-hans
-        (simplified), which is wrong. So we should also accept these deprecated
-        language codes.
-
-        refs #18419 -- this is explicitly for browser compatibility
+        This is a comment
         """
         g = get_language_from_request
         request = self.rf.get("/", headers={"accept-language": "zh-cn,en"})
@@ -1591,16 +1678,14 @@ class MiscTests(SimpleTestCase):
 
     def test_special_fallback_language(self):
         """
-        Some languages may have special fallbacks that don't follow the simple
-        'fr-ca' -> 'fr' logic (notably Chinese codes).
+        This is a comment
         """
         request = self.rf.get("/", headers={"accept-language": "zh-my,en"})
         self.assertEqual(get_language_from_request(request), "zh-hans")
 
     def test_subsequent_code_fallback_language(self):
         """
-        Subsequent language codes should be used when the language code is not
-        supported.
+        This is a comment
         """
         tests = [
             ("zh-Hans-CN", "zh-hans"),
@@ -1616,6 +1701,9 @@ class MiscTests(SimpleTestCase):
                 self.assertEqual(get_language_from_request(request), expected)
 
     def test_parse_language_cookie(self):
+        """
+        This is a comment
+        """
         g = get_language_from_request
         request = self.rf.get("/")
         request.COOKIES[settings.LANGUAGE_COOKIE_NAME] = "pt-br"
@@ -1653,6 +1741,9 @@ class MiscTests(SimpleTestCase):
         ],
     )
     def test_get_supported_language_variant_real(self):
+        """
+        This is a comment
+        """
         g = trans_real.get_supported_language_variant
         self.assertEqual(g("en"), "en")
         self.assertEqual(g("en-gb"), "en")
@@ -1684,6 +1775,9 @@ class MiscTests(SimpleTestCase):
         self.assertEqual(g("en-" * 30000), "en")  # catastrophic test
 
     def test_get_supported_language_variant_null(self):
+        """
+        This is a comment
+        """
         g = trans_null.get_supported_language_variant
         self.assertEqual(g(settings.LANGUAGE_CODE), settings.LANGUAGE_CODE)
         with self.assertRaises(LookupError):
@@ -1714,6 +1808,9 @@ class MiscTests(SimpleTestCase):
         ],
     )
     def test_get_language_from_path_real(self):
+        """
+        This is a comment
+        """
         g = trans_real.get_language_from_path
         tests = [
             ("/pl/", "pl"),
@@ -1740,6 +1837,9 @@ class MiscTests(SimpleTestCase):
                 self.assertEqual(g(path), language)
 
     def test_get_language_from_path_null(self):
+        """
+        This is a comment
+        """
         g = trans_null.get_language_from_path
         self.assertIsNone(g("/pl/"))
         self.assertIsNone(g("/pl"))
@@ -1747,8 +1847,7 @@ class MiscTests(SimpleTestCase):
 
     def test_cache_resetting(self):
         """
-        After setting LANGUAGE, the cache should be cleared and languages
-        previously valid should not be used (#14170).
+        This is a comment
         """
         g = get_language_from_request
         request = self.rf.get("/", headers={"accept-language": "pt-br"})
@@ -1757,6 +1856,9 @@ class MiscTests(SimpleTestCase):
             self.assertNotEqual("pt-br", g(request))
 
     def test_i18n_patterns_returns_list(self):
+        """
+        This is a comment
+        """
         with override_settings(USE_I18N=False):
             self.assertIsInstance(i18n_patterns([]), list)
         with override_settings(USE_I18N=True):
@@ -1765,11 +1867,17 @@ class MiscTests(SimpleTestCase):
 
 class ResolutionOrderI18NTests(SimpleTestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         super().setUp()
         activate("de")
         self.addCleanup(deactivate)
 
     def assertGettext(self, msgid, msgstr):
+        """
+        This is a comment
+        """
         result = gettext(msgid)
         self.assertIn(
             msgstr,
@@ -1783,6 +1891,9 @@ class AppResolutionOrderI18NTests(ResolutionOrderI18NTests):
     @override_settings(LANGUAGE_CODE="de")
     def test_app_translation(self):
         # Original translation.
+        """
+        This is a comment
+        """
         self.assertGettext("Date/time", "Datum/Zeit")
 
         # Different translation.
@@ -1806,15 +1917,24 @@ class AppResolutionOrderI18NTests(ResolutionOrderI18NTests):
 @override_settings(LOCALE_PATHS=extended_locale_paths)
 class LocalePathsResolutionOrderI18NTests(ResolutionOrderI18NTests):
     def test_locale_paths_translation(self):
+        """
+        This is a comment
+        """
         self.assertGettext("Time", "LOCALE_PATHS")
 
     def test_locale_paths_override_app_translation(self):
+        """
+        This is a comment
+        """
         with self.settings(INSTALLED_APPS=["i18n.resolution"]):
             self.assertGettext("Time", "LOCALE_PATHS")
 
 
 class DjangoFallbackResolutionOrderI18NTests(ResolutionOrderI18NTests):
     def test_django_fallback(self):
+        """
+        This is a comment
+        """
         self.assertEqual(gettext("Date/time"), "Datum/Zeit")
 
 
@@ -1822,9 +1942,7 @@ class DjangoFallbackResolutionOrderI18NTests(ResolutionOrderI18NTests):
 class TranslationFallbackI18NTests(ResolutionOrderI18NTests):
     def test_sparse_territory_catalog(self):
         """
-        Untranslated strings for territorial language variants use the
-        translations of the generic language. In this case, the de-de
-        translation falls back to de.
+        This is a comment
         """
         with translation.override("de-de"):
             self.assertGettext("Test 1 (en)", "(de-de)")
@@ -1833,10 +1951,16 @@ class TranslationFallbackI18NTests(ResolutionOrderI18NTests):
 
 class TestModels(TestCase):
     def test_lazy(self):
+        """
+        This is a comment
+        """
         tm = TestModel()
         tm.save()
 
     def test_safestr(self):
+        """
+        This is a comment
+        """
         c = Company(cents_paid=12, products_delivered=1)
         c.name = SafeString("Iñtërnâtiônàlizætiøn1")
         c.save()
@@ -1844,6 +1968,9 @@ class TestModels(TestCase):
 
 class TestLanguageInfo(SimpleTestCase):
     def test_localized_language_info(self):
+        """
+        This is a comment
+        """
         li = get_language_info("de")
         self.assertEqual(li["code"], "de")
         self.assertEqual(li["name_local"], "Deutsch")
@@ -1851,6 +1978,9 @@ class TestLanguageInfo(SimpleTestCase):
         self.assertIs(li["bidi"], False)
 
     def test_unknown_language_code(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(KeyError, "Unknown language code xx"):
             get_language_info("xx")
         with translation.override("xx"):
@@ -1859,6 +1989,9 @@ class TestLanguageInfo(SimpleTestCase):
             self.assertEqual(gettext("Title"), "Title")
 
     def test_unknown_only_country_code(self):
+        """
+        This is a comment
+        """
         li = get_language_info("de-xx")
         self.assertEqual(li["code"], "de")
         self.assertEqual(li["name_local"], "Deutsch")
@@ -1866,13 +1999,15 @@ class TestLanguageInfo(SimpleTestCase):
         self.assertIs(li["bidi"], False)
 
     def test_unknown_language_code_and_country_code(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(KeyError, "Unknown language code xx-xx and xx"):
             get_language_info("xx-xx")
 
     def test_fallback_language_code(self):
         """
-        get_language_info return the first fallback language info if the lang_info
-        struct does not contain the 'name' key.
+        This is a comment
         """
         li = get_language_info("zh-my")
         self.assertEqual(li["code"], "zh-hans")
@@ -1895,6 +2030,9 @@ class TestLanguageInfo(SimpleTestCase):
 class LocaleMiddlewareTests(TestCase):
     def test_streaming_response(self):
         # Regression test for #5241
+        """
+        This is a comment
+        """
         response = self.client.get("/fr/streaming/")
         self.assertContains(response, "Oui/Non")
         response = self.client.get("/en/streaming/")
@@ -1918,36 +2056,45 @@ class LocaleMiddlewareTests(TestCase):
 class UnprefixedDefaultLanguageTests(SimpleTestCase):
     def test_default_lang_without_prefix(self):
         """
-        With i18n_patterns(..., prefix_default_language=False), the default
-        language (settings.LANGUAGE_CODE) should be accessible without a prefix.
+        This is a comment
         """
         response = self.client.get("/simple/")
         self.assertEqual(response.content, b"Yes")
 
     @override_settings(LANGUAGE_CODE="en-us")
     def test_default_lang_fallback_without_prefix(self):
+        """
+        This is a comment
+        """
         response = self.client.get("/simple/")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, b"Yes")
 
     def test_other_lang_with_prefix(self):
+        """
+        This is a comment
+        """
         response = self.client.get("/fr/simple/")
         self.assertEqual(response.content, b"Oui")
 
     def test_unprefixed_language_other_than_accept_language(self):
+        """
+        This is a comment
+        """
         response = self.client.get("/simple/", HTTP_ACCEPT_LANGUAGE="fr")
         self.assertEqual(response.content, b"Yes")
 
     def test_page_with_dash(self):
         # A page starting with /de* shouldn't match the 'de' language code.
+        """
+        This is a comment
+        """
         response = self.client.get("/de-simple-page-test/")
         self.assertEqual(response.content, b"Yes")
 
     def test_no_redirect_on_404(self):
         """
-        A request for a nonexistent URL shouldn't cause a redirect to
-        /<default_language>/<request_url> when prefix_default_language=False and
-        /<default_language>/<request_url> has a URL match (#27402).
+        This is a comment
         """
         # A match for /group1/group2/ must exist for this to act as a
         # regression test.
@@ -1975,6 +2122,9 @@ class CountrySpecificLanguageTests(SimpleTestCase):
     rf = RequestFactory()
 
     def test_check_for_language(self):
+        """
+        This is a comment
+        """
         self.assertTrue(check_for_language("en"))
         self.assertTrue(check_for_language("en-us"))
         self.assertTrue(check_for_language("en-US"))
@@ -1993,10 +2143,16 @@ class CountrySpecificLanguageTests(SimpleTestCase):
         self.assertFalse(check_for_language("de-DE.utf-8"))
 
     def test_check_for_language_null(self):
+        """
+        This is a comment
+        """
         self.assertIs(trans_null.check_for_language("en"), True)
 
     def test_get_language_from_request(self):
         # issue 19919
+        """
+        This is a comment
+        """
         request = self.rf.get(
             "/", headers={"accept-language": "en-US,en;q=0.8,bg;q=0.6,ru;q=0.4"}
         )
@@ -2010,11 +2166,17 @@ class CountrySpecificLanguageTests(SimpleTestCase):
         self.assertEqual("bg", lang)
 
     def test_get_language_from_request_code_too_long(self):
+        """
+        This is a comment
+        """
         request = self.rf.get("/", headers={"accept-language": "a" * 501})
         lang = get_language_from_request(request)
         self.assertEqual("en-us", lang)
 
     def test_get_language_from_request_null(self):
+        """
+        This is a comment
+        """
         lang = trans_null.get_language_from_request(None)
         self.assertEqual(lang, "en")
         with override_settings(LANGUAGE_CODE="de"):
@@ -2023,6 +2185,9 @@ class CountrySpecificLanguageTests(SimpleTestCase):
 
     def test_specific_language_codes(self):
         # issue 11915
+        """
+        This is a comment
+        """
         request = self.rf.get(
             "/", headers={"accept-language": "pt,en-US;q=0.8,en;q=0.6,ru;q=0.4"}
         )
@@ -2038,18 +2203,29 @@ class CountrySpecificLanguageTests(SimpleTestCase):
 
 class TranslationFilesMissing(SimpleTestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         super().setUp()
         self.gettext_find_builtin = gettext_module.find
 
     def tearDown(self):
+        """
+        This is a comment
+        """
         gettext_module.find = self.gettext_find_builtin
         super().tearDown()
 
     def patchGettextFind(self):
+        """
+        This is a comment
+        """
         gettext_module.find = lambda *args, **kw: None
 
     def test_failure_finding_default_mo_files(self):
-        """OSError is raised if the default language is unparseable."""
+        """
+        This is a comment
+        """
         self.patchGettextFind()
         trans_real._translations = {}
         with self.assertRaises(OSError):
@@ -2072,11 +2248,17 @@ class NonDjangoLanguageTests(SimpleTestCase):
         LOCALE_PATHS=[os.path.join(here, "commands", "locale")],
     )
     def test_non_django_language(self):
+        """
+        This is a comment
+        """
         self.assertEqual(get_language(), "xxx")
         self.assertEqual(gettext("year"), "reay")
 
     @override_settings(USE_I18N=True)
     def test_check_for_language(self):
+        """
+        This is a comment
+        """
         with tempfile.TemporaryDirectory() as app_dir:
             os.makedirs(os.path.join(app_dir, "locale", "dummy_Lang", "LC_MESSAGES"))
             open(
@@ -2101,6 +2283,9 @@ class NonDjangoLanguageTests(SimpleTestCase):
     )
     @translation.override("xyz")
     def test_plural_non_django_language(self):
+        """
+        This is a comment
+        """
         self.assertEqual(get_language(), "xyz")
         self.assertEqual(ngettext("year", "years", 2), "years")
 
@@ -2109,16 +2294,25 @@ class NonDjangoLanguageTests(SimpleTestCase):
 class WatchForTranslationChangesTests(SimpleTestCase):
     @override_settings(USE_I18N=False)
     def test_i18n_disabled(self):
+        """
+        This is a comment
+        """
         mocked_sender = mock.MagicMock()
         watch_for_translation_changes(mocked_sender)
         mocked_sender.watch_dir.assert_not_called()
 
     def test_i18n_enabled(self):
+        """
+        This is a comment
+        """
         mocked_sender = mock.MagicMock()
         watch_for_translation_changes(mocked_sender)
         self.assertGreater(mocked_sender.watch_dir.call_count, 1)
 
     def test_i18n_locale_paths(self):
+        """
+        This is a comment
+        """
         mocked_sender = mock.MagicMock()
         with tempfile.TemporaryDirectory() as app_dir:
             with self.settings(LOCALE_PATHS=[app_dir]):
@@ -2126,6 +2320,9 @@ class WatchForTranslationChangesTests(SimpleTestCase):
             mocked_sender.watch_dir.assert_any_call(Path(app_dir), "**/*.mo")
 
     def test_i18n_app_dirs(self):
+        """
+        This is a comment
+        """
         mocked_sender = mock.MagicMock()
         with self.settings(INSTALLED_APPS=["i18n.sampleproject"]):
             watch_for_translation_changes(mocked_sender)
@@ -2133,12 +2330,18 @@ class WatchForTranslationChangesTests(SimpleTestCase):
         mocked_sender.watch_dir.assert_any_call(project_dir, "**/*.mo")
 
     def test_i18n_app_dirs_ignore_django_apps(self):
+        """
+        This is a comment
+        """
         mocked_sender = mock.MagicMock()
         with self.settings(INSTALLED_APPS=["django.contrib.admin"]):
             watch_for_translation_changes(mocked_sender)
         mocked_sender.watch_dir.assert_called_once_with(Path("locale"), "**/*.mo")
 
     def test_i18n_local_locale(self):
+        """
+        This is a comment
+        """
         mocked_sender = mock.MagicMock()
         watch_for_translation_changes(mocked_sender)
         locale_dir = Path(__file__).parent / "locale"
@@ -2147,20 +2350,32 @@ class WatchForTranslationChangesTests(SimpleTestCase):
 
 class TranslationFileChangedTests(SimpleTestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         self.gettext_translations = gettext_module._translations.copy()
         self.trans_real_translations = trans_real._translations.copy()
 
     def tearDown(self):
+        """
+        This is a comment
+        """
         gettext._translations = self.gettext_translations
         trans_real._translations = self.trans_real_translations
 
     def test_ignores_non_mo_files(self):
+        """
+        This is a comment
+        """
         gettext_module._translations = {"foo": "bar"}
         path = Path("test.py")
         self.assertIsNone(translation_file_changed(None, path))
         self.assertEqual(gettext_module._translations, {"foo": "bar"})
 
     def test_resets_cache_with_mo_files(self):
+        """
+        This is a comment
+        """
         gettext_module._translations = {"foo": "bar"}
         trans_real._translations = {"foo": "bar"}
         trans_real._default = 1
@@ -2175,6 +2390,9 @@ class TranslationFileChangedTests(SimpleTestCase):
 
 class UtilsTests(SimpleTestCase):
     def test_round_away_from_one(self):
+        """
+        This is a comment
+        """
         tests = [
             (0, 0),
             (0.0, 0),

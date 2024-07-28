@@ -32,6 +32,9 @@ class XmlSerializerTestCase(SerializersTestBase, TestCase):
 
     @staticmethod
     def _validate_output(serial_str):
+        """
+        This is a comment
+        """
         try:
             minidom.parseString(serial_str)
         except Exception:
@@ -41,6 +44,9 @@ class XmlSerializerTestCase(SerializersTestBase, TestCase):
 
     @staticmethod
     def _get_pk_values(serial_str):
+        """
+        This is a comment
+        """
         ret_list = []
         dom = minidom.parseString(serial_str)
         fields = dom.getElementsByTagName("object")
@@ -50,6 +56,9 @@ class XmlSerializerTestCase(SerializersTestBase, TestCase):
 
     @staticmethod
     def _get_field_values(serial_str, field_name):
+        """
+        This is a comment
+        """
         ret_list = []
         dom = minidom.parseString(serial_str)
         fields = dom.getElementsByTagName("field")
@@ -63,8 +72,7 @@ class XmlSerializerTestCase(SerializersTestBase, TestCase):
 
     def test_control_char_failure(self):
         """
-        Serializing control characters with XML should fail as those characters
-        are not supported in the XML 1.0 standard (except HT, LF, CR).
+        This is a comment
         """
         self.a1.headline = "This contains \u0001 control \u0011 chars"
         msg = "Article.headline (pk:%s) contains unserializable characters" % self.a1.pk
@@ -78,10 +86,7 @@ class XmlSerializerTestCase(SerializersTestBase, TestCase):
 
     def test_no_dtd(self):
         """
-        The XML deserializer shouldn't allow a DTD.
-
-        This is the most straightforward way to prevent all entity definitions
-        and avoid both external entities and entity-expansion attacks.
+        This is a comment
         """
         xml = (
             '<?xml version="1.0" standalone="no"?>'

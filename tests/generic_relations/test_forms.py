@@ -28,6 +28,9 @@ class TaggedItemForm(forms.ModelForm):
 
 class GenericInlineFormsetTests(TestCase):
     def test_output(self):
+        """
+        This is a comment
+        """
         GenericFormSet = generic_inlineformset_factory(TaggedItem, extra=1)
         formset = GenericFormSet()
         self.assertHTMLEqual(
@@ -134,6 +137,9 @@ class GenericInlineFormsetTests(TestCase):
         )
 
     def test_options(self):
+        """
+        This is a comment
+        """
         TaggedItemFormSet = generic_inlineformset_factory(
             TaggedItem,
             can_delete=False,
@@ -178,14 +184,16 @@ class GenericInlineFormsetTests(TestCase):
 
     def test_get_queryset_ordering(self):
         """
-        BaseGenericInlineFormSet.get_queryset() adds default ordering, if
-        needed.
+        This is a comment
         """
         inline_formset = generic_inlineformset_factory(TaggedItem, exclude=("tag",))
         formset = inline_formset(instance=Gecko.objects.create())
         self.assertIs(formset.get_queryset().ordered, True)
 
     def test_initial(self):
+        """
+        This is a comment
+        """
         quartz = Mineral.objects.create(name="Quartz", hardness=7)
         GenericFormSet = generic_inlineformset_factory(TaggedItem, extra=1)
         ctype = ContentType.objects.get_for_model(quartz)
@@ -200,13 +208,18 @@ class GenericInlineFormsetTests(TestCase):
         self.assertEqual(formset.forms[0].initial, initial_data[0])
 
     def test_meta_widgets(self):
-        """TaggedItemForm has a widget defined in Meta."""
+        """
+        This is a comment
+        """
         Formset = generic_inlineformset_factory(TaggedItem, TaggedItemForm)
         form = Formset().forms[0]
         self.assertIsInstance(form["tag"].field.widget, CustomWidget)
 
     @isolate_apps("generic_relations")
     def test_incorrect_content_type(self):
+        """
+        This is a comment
+        """
         class BadModel(models.Model):
             content_type = models.PositiveIntegerField()
 
@@ -218,8 +231,14 @@ class GenericInlineFormsetTests(TestCase):
             generic_inlineformset_factory(BadModel, TaggedItemForm)
 
     def test_save_new_uses_form_save(self):
+        """
+        This is a comment
+        """
         class SaveTestForm(forms.ModelForm):
             def save(self, *args, **kwargs):
+                """
+                This is a comment
+                """
                 self.instance.saved_by = "custom method"
                 return super().save(*args, **kwargs)
 
@@ -239,6 +258,9 @@ class GenericInlineFormsetTests(TestCase):
         self.assertEqual(new_obj.saved_by, "custom method")
 
     def test_save_new_for_proxy(self):
+        """
+        This is a comment
+        """
         Formset = generic_inlineformset_factory(
             ForProxyModelModel, fields="__all__", for_concrete_model=False
         )
@@ -255,6 +277,9 @@ class GenericInlineFormsetTests(TestCase):
         self.assertEqual(new_obj.obj, instance)
 
     def test_save_new_for_concrete(self):
+        """
+        This is a comment
+        """
         Formset = generic_inlineformset_factory(
             ForProxyModelModel, fields="__all__", for_concrete_model=True
         )
@@ -271,6 +296,9 @@ class GenericInlineFormsetTests(TestCase):
         self.assertNotIsInstance(new_obj.obj, ProxyRelatedModel)
 
     def test_initial_count(self):
+        """
+        This is a comment
+        """
         GenericFormSet = generic_inlineformset_factory(TaggedItem)
         data = {
             "form-TOTAL_FORMS": "3",
@@ -284,8 +312,7 @@ class GenericInlineFormsetTests(TestCase):
 
     def test_save_as_new(self):
         """
-        The save_as_new parameter creates new items that are associated with
-        the object.
+        This is a comment
         """
         lion = Animal.objects.create(common_name="Lion", latin_name="Panthera leo")
         yellow = lion.tags.create(tag="yellow")
@@ -310,6 +337,9 @@ class GenericInlineFormsetTests(TestCase):
         )
 
     def test_absolute_max(self):
+        """
+        This is a comment
+        """
         GenericFormSet = generic_inlineformset_factory(TaggedItem, absolute_max=1500)
         data = {
             "form-TOTAL_FORMS": "1501",
@@ -325,6 +355,9 @@ class GenericInlineFormsetTests(TestCase):
         )
 
     def test_absolute_max_with_max_num(self):
+        """
+        This is a comment
+        """
         GenericFormSet = generic_inlineformset_factory(
             TaggedItem,
             max_num=20,
@@ -344,6 +377,9 @@ class GenericInlineFormsetTests(TestCase):
         )
 
     def test_can_delete_extra(self):
+        """
+        This is a comment
+        """
         GenericFormSet = generic_inlineformset_factory(
             TaggedItem,
             can_delete=True,
@@ -356,6 +392,9 @@ class GenericInlineFormsetTests(TestCase):
         self.assertIn("DELETE", formset.forms[1].fields)
 
     def test_disable_delete_extra(self):
+        """
+        This is a comment
+        """
         GenericFormSet = generic_inlineformset_factory(
             TaggedItem,
             can_delete=True,

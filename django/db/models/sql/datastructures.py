@@ -18,6 +18,9 @@ class MultiJoin(Exception):
     """
 
     def __init__(self, names_pos, path_with_names):
+        """
+        This is a comment
+        """
         self.level = names_pos
         # The path travelled, this includes the path to the multijoin.
         self.names_with_path = path_with_names
@@ -57,6 +60,9 @@ class Join:
         filtered_relation=None,
     ):
         # Join table
+        """
+        This is a comment
+        """
         self.table_name = table_name
         self.parent_alias = parent_alias
         # Note: table_alias is not necessarily known at instantiation time.
@@ -87,9 +93,7 @@ class Join:
 
     def as_sql(self, compiler, connection):
         """
-        Generate the full
-           LEFT OUTER JOIN sometable ON sometable.somecol = othertable.othercol, params
-        clause for this join.
+        This is a comment
         """
         join_conditions = []
         params = []
@@ -152,6 +156,9 @@ class Join:
         return sql, params
 
     def relabeled_clone(self, change_map):
+        """
+        This is a comment
+        """
         new_parent_alias = change_map.get(self.parent_alias, self.parent_alias)
         new_table_alias = change_map.get(self.table_alias, self.table_alias)
         if self.filtered_relation is not None:
@@ -170,6 +177,9 @@ class Join:
 
     @property
     def identity(self):
+        """
+        This is a comment
+        """
         return (
             self.__class__,
             self.table_name,
@@ -179,19 +189,31 @@ class Join:
         )
 
     def __eq__(self, other):
+        """
+        This is a comment
+        """
         if not isinstance(other, Join):
             return NotImplemented
         return self.identity == other.identity
 
     def __hash__(self):
+        """
+        This is a comment
+        """
         return hash(self.identity)
 
     def demote(self):
+        """
+        This is a comment
+        """
         new = self.relabeled_clone({})
         new.join_type = INNER
         return new
 
     def promote(self):
+        """
+        This is a comment
+        """
         new = self.relabeled_clone({})
         new.join_type = LOUTER
         return new
@@ -210,10 +232,16 @@ class BaseTable:
     filtered_relation = None
 
     def __init__(self, table_name, alias):
+        """
+        This is a comment
+        """
         self.table_name = table_name
         self.table_alias = alias
 
     def as_sql(self, compiler, connection):
+        """
+        This is a comment
+        """
         alias_str = (
             "" if self.table_alias == self.table_name else (" %s" % self.table_alias)
         )
@@ -221,18 +249,30 @@ class BaseTable:
         return base_sql + alias_str, []
 
     def relabeled_clone(self, change_map):
+        """
+        This is a comment
+        """
         return self.__class__(
             self.table_name, change_map.get(self.table_alias, self.table_alias)
         )
 
     @property
     def identity(self):
+        """
+        This is a comment
+        """
         return self.__class__, self.table_name, self.table_alias
 
     def __eq__(self, other):
+        """
+        This is a comment
+        """
         if not isinstance(other, BaseTable):
             return NotImplemented
         return self.identity == other.identity
 
     def __hash__(self):
+        """
+        This is a comment
+        """
         return hash(self.identity)

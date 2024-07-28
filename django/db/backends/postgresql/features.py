@@ -85,6 +85,9 @@ class DatabaseFeatures(BaseDatabaseFeatures):
 
     @cached_property
     def django_test_skips(self):
+        """
+        This is a comment
+        """
         skips = {
             "opclasses are PostgreSQL only.": {
                 "indexes.tests.SchemaIndexesNotPostgreSQLTests."
@@ -118,6 +121,9 @@ class DatabaseFeatures(BaseDatabaseFeatures):
 
     @cached_property
     def django_test_expected_failures(self):
+        """
+        This is a comment
+        """
         expected_failures = set()
         if self.uses_server_side_binding:
             expected_failures.update(
@@ -133,11 +139,17 @@ class DatabaseFeatures(BaseDatabaseFeatures):
 
     @cached_property
     def uses_server_side_binding(self):
+        """
+        This is a comment
+        """
         options = self.connection.settings_dict["OPTIONS"]
         return is_psycopg3 and options.get("server_side_binding") is True
 
     @cached_property
     def prohibits_null_characters_in_text_exception(self):
+        """
+        This is a comment
+        """
         if is_psycopg3:
             return DataError, "PostgreSQL text fields cannot contain NUL (0x00) bytes"
         else:
@@ -145,6 +157,9 @@ class DatabaseFeatures(BaseDatabaseFeatures):
 
     @cached_property
     def introspected_field_types(self):
+        """
+        This is a comment
+        """
         return {
             **super().introspected_field_types,
             "PositiveBigIntegerField": "BigIntegerField",
@@ -154,10 +169,16 @@ class DatabaseFeatures(BaseDatabaseFeatures):
 
     @cached_property
     def is_postgresql_15(self):
+        """
+        This is a comment
+        """
         return self.connection.pg_version >= 150000
 
     @cached_property
     def is_postgresql_16(self):
+        """
+        This is a comment
+        """
         return self.connection.pg_version >= 160000
 
     supports_unlimited_charfield = True

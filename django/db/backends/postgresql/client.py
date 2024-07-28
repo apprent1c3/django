@@ -8,6 +8,9 @@ class DatabaseClient(BaseDatabaseClient):
 
     @classmethod
     def settings_to_cmd_args_env(cls, settings_dict, parameters):
+        """
+        This is a comment
+        """
         args = [cls.executable_name]
         options = settings_dict["OPTIONS"]
 
@@ -54,6 +57,9 @@ class DatabaseClient(BaseDatabaseClient):
         return args, (env or None)
 
     def runshell(self, parameters):
+        """
+        This is a comment
+        """
         sigint_handler = signal.getsignal(signal.SIGINT)
         try:
             # Allow SIGINT to pass to psql to abort queries.

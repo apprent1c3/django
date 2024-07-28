@@ -9,6 +9,9 @@ except ImportError:
 
 
 def jinja2_tests(test_func):
+    """
+    This is a comment
+    """
     test_func = skipIf(jinja2 is None, "this test requires jinja2")(test_func)
     return override_settings(
         FORM_RENDERER="django.forms.renderers.Jinja2",

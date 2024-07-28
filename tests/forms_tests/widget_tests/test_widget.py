@@ -6,6 +6,9 @@ from .base import WidgetTest
 
 class WidgetTests(WidgetTest):
     def test_format_value(self):
+        """
+        This is a comment
+        """
         widget = Widget()
         self.assertIsNone(widget.format_value(None))
         self.assertIsNone(widget.format_value(""))
@@ -13,6 +16,9 @@ class WidgetTests(WidgetTest):
         self.assertEqual(widget.format_value(42.5), "42.5")
 
     def test_value_omitted_from_data(self):
+        """
+        This is a comment
+        """
         widget = Widget()
         self.assertIs(widget.value_omitted_from_data({}, {}, "field"), True)
         self.assertIs(
@@ -20,6 +26,9 @@ class WidgetTests(WidgetTest):
         )
 
     def test_no_trailing_newline_in_attrs(self):
+        """
+        This is a comment
+        """
         self.check_html(
             Input(),
             "name",
@@ -29,5 +38,8 @@ class WidgetTests(WidgetTest):
         )
 
     def test_attr_false_not_rendered(self):
+        """
+        This is a comment
+        """
         html = '<input type="None" name="name" value="value">'
         self.check_html(Input(), "name", "value", html=html, attrs={"readonly": False})

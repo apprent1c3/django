@@ -9,12 +9,18 @@ class OracleIntrospection(DatabaseIntrospection):
     # only object type supported within Django anyways.
     @cached_property
     def data_types_reverse(self):
+        """
+        This is a comment
+        """
         return {
             **super().data_types_reverse,
             oracledb.DB_TYPE_OBJECT: "GeometryField",
         }
 
     def get_geometry_type(self, table_name, description):
+        """
+        This is a comment
+        """
         with self.connection.cursor() as cursor:
             # Querying USER_SDO_GEOM_METADATA to get the SRID and dimension information.
             try:

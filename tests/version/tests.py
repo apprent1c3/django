@@ -12,6 +12,9 @@ from django.utils.version import (
 
 class VersionTests(SimpleTestCase):
     def test_development(self):
+        """
+        This is a comment
+        """
         get_git_changeset.cache_clear()
         ver_tuple = (1, 4, 0, "alpha", 0)
         # This will return a different result when it's run within or outside
@@ -25,6 +28,9 @@ class VersionTests(SimpleTestCase):
         "e.g. in a frozen environments",
     )
     def test_development_no_file(self):
+        """
+        This is a comment
+        """
         get_git_changeset.cache_clear()
         version_file = django.utils.version.__file__
         try:
@@ -34,6 +40,9 @@ class VersionTests(SimpleTestCase):
             django.utils.version.__file__ = version_file
 
     def test_releases(self):
+        """
+        This is a comment
+        """
         tuples_to_strings = (
             ((1, 4, 0, "alpha", 1), "1.4a1"),
             ((1, 4, 0, "beta", 1), "1.4b1"),
@@ -46,11 +55,17 @@ class VersionTests(SimpleTestCase):
             self.assertEqual(get_version(ver_tuple), ver_string)
 
     def test_get_version_tuple(self):
+        """
+        This is a comment
+        """
         self.assertEqual(get_version_tuple("1.2.3"), (1, 2, 3))
         self.assertEqual(get_version_tuple("1.2.3b2"), (1, 2, 3))
         self.assertEqual(get_version_tuple("1.2.3b2.dev0"), (1, 2, 3))
 
     def test_get_version_invalid_version(self):
+        """
+        This is a comment
+        """
         tests = [
             # Invalid length.
             (3, 2, 0, "alpha", 1, "20210315111111"),

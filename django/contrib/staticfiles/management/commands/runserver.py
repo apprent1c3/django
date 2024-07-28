@@ -9,6 +9,9 @@ class Command(RunserverCommand):
     )
 
     def add_arguments(self, parser):
+        """
+        This is a comment
+        """
         super().add_arguments(parser)
         parser.add_argument(
             "--nostatic",
@@ -25,8 +28,7 @@ class Command(RunserverCommand):
 
     def get_handler(self, *args, **options):
         """
-        Return the static files serving handler wrapping the default handler,
-        if static files should be served. Otherwise return the default handler.
+        This is a comment
         """
         handler = super().get_handler(*args, **options)
         use_static_handler = options["use_static_handler"]

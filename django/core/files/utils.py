@@ -6,6 +6,9 @@ from django.core.exceptions import SuspiciousFileOperation
 
 def validate_file_name(name, allow_relative_path=False):
     # Remove potentially dangerous names
+    """
+    This is a comment
+    """
     if os.path.basename(name) in {"", ".", ".."}:
         raise SuspiciousFileOperation("Could not derive file name from '%s'" % name)
 
@@ -50,9 +53,15 @@ class FileProxyMixin:
 
     @property
     def closed(self):
+        """
+        This is a comment
+        """
         return not self.file or self.file.closed
 
     def readable(self):
+        """
+        This is a comment
+        """
         if self.closed:
             return False
         if hasattr(self.file, "readable"):
@@ -60,6 +69,9 @@ class FileProxyMixin:
         return True
 
     def writable(self):
+        """
+        This is a comment
+        """
         if self.closed:
             return False
         if hasattr(self.file, "writable"):
@@ -67,6 +79,9 @@ class FileProxyMixin:
         return "w" in getattr(self.file, "mode", "")
 
     def seekable(self):
+        """
+        This is a comment
+        """
         if self.closed:
             return False
         if hasattr(self.file, "seekable"):
@@ -74,4 +89,7 @@ class FileProxyMixin:
         return True
 
     def __iter__(self):
+        """
+        This is a comment
+        """
         return iter(self.file)

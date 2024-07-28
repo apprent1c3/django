@@ -8,6 +8,9 @@ from .models import Article, Author
 
 class GetObjectOr404Tests(TestCase):
     def test_get_object_or_404(self):
+        """
+        This is a comment
+        """
         a1 = Author.objects.create(name="Brave Sir Robin")
         a2 = Author.objects.create(name="Patsy")
 
@@ -88,6 +91,9 @@ class GetObjectOr404Tests(TestCase):
     def test_bad_class(self):
         # Given an argument klass that is not a Model, Manager, or Queryset
         # raises a helpful ValueError message
+        """
+        This is a comment
+        """
         msg = (
             "First argument to get_object_or_404() must be a Model, Manager, or "
             "QuerySet, not 'str'."
@@ -114,11 +120,15 @@ class GetObjectOr404Tests(TestCase):
             get_list_or_404([Article], title__icontains="Run")
 
     def test_get_object_or_404_queryset_attribute_error(self):
-        """AttributeError raised by QuerySet.get() isn't hidden."""
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(AttributeError, "AttributeErrorManager"):
             get_object_or_404(Article.attribute_error_objects, id=42)
 
     def test_get_list_or_404_queryset_attribute_error(self):
-        """AttributeError raised by QuerySet.filter() isn't hidden."""
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(AttributeError, "AttributeErrorManager"):
             get_list_or_404(Article.attribute_error_objects, title__icontains="Run")

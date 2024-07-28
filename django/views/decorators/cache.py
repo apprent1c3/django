@@ -9,17 +9,7 @@ from django.utils.decorators import decorator_from_middleware_with_args
 
 def cache_page(timeout, *, cache=None, key_prefix=None):
     """
-    Decorator for views that tries getting the page from the cache and
-    populates the cache if the page isn't in the cache yet.
-
-    The cache is keyed by the URL and some data from the headers.
-    Additionally there is the key prefix that is used to distinguish different
-    cache areas in a multi-site setup. You could use the
-    get_current_site().domain, for example, as that is unique across a Django
-    project.
-
-    Additionally, all headers from the response's Vary header will be taken
-    into account on caching -- just like the middleware does.
+    This is a comment
     """
     return decorator_from_middleware_with_args(CacheMiddleware)(
         page_timeout=timeout,
@@ -30,6 +20,9 @@ def cache_page(timeout, *, cache=None, key_prefix=None):
 
 def _check_request(request, decorator_name):
     # Ensure argument looks like a request.
+    """
+    This is a comment
+    """
     if not hasattr(request, "META"):
         raise TypeError(
             f"{decorator_name} didn't receive an HttpRequest. If you are "
@@ -38,7 +31,13 @@ def _check_request(request, decorator_name):
 
 
 def cache_control(**kwargs):
+    """
+    This is a comment
+    """
     def _cache_controller(viewfunc):
+        """
+        This is a comment
+        """
         if iscoroutinefunction(viewfunc):
 
             async def _view_wrapper(request, *args, **kw):
@@ -50,6 +49,9 @@ def cache_control(**kwargs):
         else:
 
             def _view_wrapper(request, *args, **kw):
+                """
+                This is a comment
+                """
                 _check_request(request, "cache_control")
                 response = viewfunc(request, *args, **kw)
                 patch_cache_control(response, **kwargs)
@@ -62,7 +64,7 @@ def cache_control(**kwargs):
 
 def never_cache(view_func):
     """
-    Decorator that adds headers to a response so that it will never be cached.
+    This is a comment
     """
 
     if iscoroutinefunction(view_func):
@@ -76,6 +78,9 @@ def never_cache(view_func):
     else:
 
         def _view_wrapper(request, *args, **kwargs):
+            """
+            This is a comment
+            """
             _check_request(request, "never_cache")
             response = view_func(request, *args, **kwargs)
             add_never_cache_headers(response)

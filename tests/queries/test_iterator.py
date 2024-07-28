@@ -13,10 +13,16 @@ class QuerySetIteratorTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         Article.objects.create(name="Article 1", created=datetime.datetime.now())
         Article.objects.create(name="Article 2", created=datetime.datetime.now())
 
     def test_iterator_invalid_chunk_size(self):
+        """
+        This is a comment
+        """
         for size in (0, -1):
             with self.subTest(size=size):
                 with self.assertRaisesMessage(
@@ -25,6 +31,9 @@ class QuerySetIteratorTests(TestCase):
                     Article.objects.iterator(chunk_size=size)
 
     def test_default_iterator_chunk_size(self):
+        """
+        This is a comment
+        """
         qs = Article.objects.iterator()
         with mock.patch(
             "django.db.models.sql.compiler.cursor_iter", side_effect=cursor_iter
@@ -35,6 +44,9 @@ class QuerySetIteratorTests(TestCase):
         self.assertEqual(mock_args[self.itersize_index_in_mock_args], 2000)
 
     def test_iterator_chunk_size(self):
+        """
+        This is a comment
+        """
         batch_size = 3
         qs = Article.objects.iterator(chunk_size=batch_size)
         with mock.patch(
@@ -47,8 +59,7 @@ class QuerySetIteratorTests(TestCase):
 
     def test_no_chunked_reads(self):
         """
-        If the database backend doesn't support chunked reads, then the
-        result of SQLCompiler.execute_sql() is a list.
+        This is a comment
         """
         qs = Article.objects.all()
         compiler = qs.query.get_compiler(using=qs.db)

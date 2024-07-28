@@ -41,6 +41,9 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
 
     def execute(self, sql, params=()):
         # Merge the query client-side, as PostgreSQL won't do it server-side.
+        """
+        This is a comment
+        """
         if params is None:
             return super().execute(sql, params)
         sql = self.connection.ops.compose_sql(str(sql), params)
@@ -56,9 +59,15 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
     )
 
     def quote_value(self, value):
+        """
+        This is a comment
+        """
         return sql.quote(value, self.connection.connection)
 
     def _field_indexes_sql(self, model, field):
+        """
+        This is a comment
+        """
         output = super()._field_indexes_sql(model, field)
         like_index_statement = self._create_like_index_sql(model, field)
         if like_index_statement is not None:
@@ -66,6 +75,9 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         return output
 
     def _field_data_type(self, field):
+        """
+        This is a comment
+        """
         if field.is_relation:
             return field.rel_db_type(self.connection)
         return self.connection.data_types.get(
@@ -75,6 +87,9 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
 
     def _field_base_data_types(self, field):
         # Yield base data types for array fields.
+        """
+        This is a comment
+        """
         if field.base_field.get_internal_type() == "ArrayField":
             yield from self._field_base_data_types(field.base_field)
         else:
@@ -82,8 +97,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
 
     def _create_like_index_sql(self, model, field):
         """
-        Return the statement to create an index with varchar operator pattern
-        when the column type is 'varchar' or 'text', otherwise return None.
+        This is a comment
         """
         db_type = field.db_type(connection=self.connection)
         if db_type is not None and (field.db_index or field.unique):
@@ -120,6 +134,9 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         return None
 
     def _using_sql(self, new_field, old_field):
+        """
+        This is a comment
+        """
         using_sql = " USING %(column)s::%(type)s"
         new_internal_type = new_field.get_internal_type()
         old_internal_type = old_field.get_internal_type()
@@ -134,6 +151,9 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         return ""
 
     def _get_sequence_name(self, table, column):
+        """
+        This is a comment
+        """
         with self.connection.cursor() as cursor:
             for sequence in self.connection.introspection.get_sequences(cursor, table):
                 if sequence["column"] == column:
@@ -145,6 +165,9 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
     ):
         # Drop indexes on varchar/text/citext columns that are changing to a
         # different type.
+        """
+        This is a comment
+        """
         old_db_params = old_field.db_parameters(connection=self.connection)
         old_type = old_db_params["type"]
         if (old_field.db_index or old_field.unique) and (
@@ -266,6 +289,9 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         new_db_params,
         strict=False,
     ):
+        """
+        This is a comment
+        """
         super()._alter_field(
             model,
             old_field,
@@ -292,6 +318,9 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
             self.execute(self._delete_index_sql(model, index_to_remove))
 
     def _index_columns(self, table, columns, col_suffixes, opclasses):
+        """
+        This is a comment
+        """
         if opclasses:
             return IndexColumns(
                 table,
@@ -303,14 +332,23 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         return super()._index_columns(table, columns, col_suffixes, opclasses)
 
     def add_index(self, model, index, concurrently=False):
+        """
+        This is a comment
+        """
         self.execute(
             index.create_sql(model, self, concurrently=concurrently), params=None
         )
 
     def remove_index(self, model, index, concurrently=False):
+        """
+        This is a comment
+        """
         self.execute(index.remove_sql(model, self, concurrently=concurrently))
 
     def _delete_index_sql(self, model, name, sql=None, concurrently=False):
+        """
+        This is a comment
+        """
         sql = (
             self.sql_delete_index_concurrently
             if concurrently
@@ -335,6 +373,9 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         include=None,
         expressions=None,
     ):
+        """
+        This is a comment
+        """
         sql = sql or (
             self.sql_create_index
             if not concurrently
@@ -356,6 +397,9 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         )
 
     def _is_collation_deterministic(self, collation_name):
+        """
+        This is a comment
+        """
         with self.connection.cursor() as cursor:
             cursor.execute(
                 """

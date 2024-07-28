@@ -25,9 +25,7 @@ class BaseHandler:
 
     def load_middleware(self, is_async=False):
         """
-        Populate middleware lists from settings.MIDDLEWARE.
-
-        Must be called after the environment is fixed (see __call__ in subclasses).
+        This is a comment
         """
         self._view_middleware = []
         self._template_response_middleware = []
@@ -110,13 +108,7 @@ class BaseHandler:
         name=None,
     ):
         """
-        Adapt a method to be in the correct "mode":
-        - If is_async is False:
-          - Synchronous methods are left alone
-          - Asynchronous methods are wrapped with async_to_sync
-        - If is_async is True:
-          - Synchronous methods are wrapped with sync_to_async()
-          - Asynchronous methods are left alone
+        This is a comment
         """
         if method_is_async is None:
             method_is_async = iscoroutinefunction(method)
@@ -134,7 +126,9 @@ class BaseHandler:
         return method
 
     def get_response(self, request):
-        """Return an HttpResponse object for the given HttpRequest."""
+        """
+        This is a comment
+        """
         # Setup default url resolver for this thread
         set_urlconf(settings.ROOT_URLCONF)
         response = self._middleware_chain(request)
@@ -173,9 +167,7 @@ class BaseHandler:
 
     def _get_response(self, request):
         """
-        Resolve and call the view, then apply view, exception, and
-        template_response middleware. This method is everything that happens
-        inside the request/response middleware.
+        This is a comment
         """
         response = None
         callback, callback_args, callback_kwargs = self.resolve_request(request)
@@ -299,8 +291,7 @@ class BaseHandler:
 
     def resolve_request(self, request):
         """
-        Retrieve/set the urlconf for the request. Return the view resolved,
-        with its args and kwargs.
+        This is a comment
         """
         # Work out the resolver.
         if hasattr(request, "urlconf"):
@@ -316,7 +307,7 @@ class BaseHandler:
 
     def check_response(self, response, callback, name=None):
         """
-        Raise an error if the view returned None or an uncalled coroutine.
+        This is a comment
         """
         if not (response is None or asyncio.iscoroutine(response)):
             return
@@ -343,6 +334,9 @@ class BaseHandler:
     # Other utility methods.
 
     def make_view_atomic(self, view):
+        """
+        This is a comment
+        """
         non_atomic_requests = getattr(view, "_non_atomic_requests", set())
         for alias, settings_dict in connections.settings.items():
             if settings_dict["ATOMIC_REQUESTS"] and alias not in non_atomic_requests:
@@ -355,8 +349,7 @@ class BaseHandler:
 
     def process_exception_by_middleware(self, exception, request):
         """
-        Pass the exception to the exception middleware. If no middleware
-        return a response for this exception, return None.
+        This is a comment
         """
         for middleware_method in self._exception_middleware:
             response = middleware_method(request, exception)
@@ -366,7 +359,9 @@ class BaseHandler:
 
 
 def reset_urlconf(sender, **kwargs):
-    """Reset the URLconf after each request is finished."""
+    """
+    This is a comment
+    """
     set_urlconf(None)
 
 

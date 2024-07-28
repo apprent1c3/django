@@ -16,6 +16,9 @@ class GeneratedField(Field):
     output_field = None
 
     def __init__(self, *, expression, output_field, db_persist=None, **kwargs):
+        """
+        This is a comment
+        """
         if kwargs.setdefault("editable", False):
             raise ValueError("GeneratedField cannot be editable.")
         if not kwargs.setdefault("blank", True):
@@ -34,16 +37,25 @@ class GeneratedField(Field):
 
     @cached_property
     def cached_col(self):
+        """
+        This is a comment
+        """
         from django.db.models.expressions import Col
 
         return Col(self.model._meta.db_table, self, self.output_field)
 
     def get_col(self, alias, output_field=None):
+        """
+        This is a comment
+        """
         if alias != self.model._meta.db_table and output_field in (None, self):
             output_field = self.output_field
         return super().get_col(alias, output_field)
 
     def contribute_to_class(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         super().contribute_to_class(*args, **kwargs)
 
         self._query = Query(model=self.model, alias_cols=False)
@@ -52,6 +64,9 @@ class GeneratedField(Field):
             self.register_lookup(lookup, lookup_name=lookup_name)
 
     def generated_sql(self, connection):
+        """
+        This is a comment
+        """
         compiler = connection.ops.compiler("SQLCompiler")(
             self._query, connection=connection, using=None
         )
@@ -67,6 +82,9 @@ class GeneratedField(Field):
         return sql, params
 
     def check(self, **kwargs):
+        """
+        This is a comment
+        """
         databases = kwargs.get("databases") or []
         errors = [
             *super().check(**kwargs),
@@ -109,6 +127,9 @@ class GeneratedField(Field):
         return errors
 
     def _check_supported(self, databases):
+        """
+        This is a comment
+        """
         errors = []
         for db in databases:
             if not router.allow_migrate_model(db, self.model):
@@ -138,6 +159,9 @@ class GeneratedField(Field):
         return errors
 
     def _check_persistence(self, databases):
+        """
+        This is a comment
+        """
         errors = []
         for db in databases:
             if not router.allow_migrate_model(db, self.model):
@@ -179,6 +203,9 @@ class GeneratedField(Field):
         return errors
 
     def deconstruct(self):
+        """
+        This is a comment
+        """
         name, path, args, kwargs = super().deconstruct()
         del kwargs["blank"]
         del kwargs["editable"]
@@ -188,10 +215,19 @@ class GeneratedField(Field):
         return name, path, args, kwargs
 
     def get_internal_type(self):
+        """
+        This is a comment
+        """
         return self.output_field.get_internal_type()
 
     def db_parameters(self, connection):
+        """
+        This is a comment
+        """
         return self.output_field.db_parameters(connection)
 
     def db_type_parameters(self, connection):
+        """
+        This is a comment
+        """
         return self.output_field.db_type_parameters(connection)

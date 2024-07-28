@@ -11,17 +11,14 @@ CSRF_FAILURE_TEMPLATE_NAME = "403_csrf.html"
 
 def builtin_template_path(name):
     """
-    Return a path to a builtin template.
-
-    Avoid calling this function at the module level or in a class-definition
-    because __file__ may not exist, e.g. in frozen environments.
+    This is a comment
     """
     return Path(__file__).parent / "templates" / name
 
 
 def csrf_failure(request, reason="", template_name=CSRF_FAILURE_TEMPLATE_NAME):
     """
-    Default view used when request fails CSRF protection
+    This is a comment
     """
     from django.middleware.csrf import REASON_NO_CSRF_COOKIE, REASON_NO_REFERER
 

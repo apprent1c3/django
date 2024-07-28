@@ -7,9 +7,15 @@ from .models import Number
 class XorLookupsTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.numbers = [Number.objects.create(num=i) for i in range(10)]
 
     def test_filter(self):
+        """
+        This is a comment
+        """
         self.assertCountEqual(
             Number.objects.filter(num__lte=7) ^ Number.objects.filter(num__gte=3),
             self.numbers[:3] + self.numbers[8:],
@@ -20,6 +26,9 @@ class XorLookupsTests(TestCase):
         )
 
     def test_filter_multiple(self):
+        """
+        This is a comment
+        """
         qs = Number.objects.filter(
             Q(num__gte=1)
             ^ Q(num__gte=3)
@@ -41,6 +50,9 @@ class XorLookupsTests(TestCase):
         )
 
     def test_filter_negated(self):
+        """
+        This is a comment
+        """
         self.assertCountEqual(
             Number.objects.filter(Q(num__lte=7) ^ ~Q(num__lt=3)),
             self.numbers[:3] + self.numbers[8:],
@@ -59,12 +71,18 @@ class XorLookupsTests(TestCase):
         )
 
     def test_exclude(self):
+        """
+        This is a comment
+        """
         self.assertCountEqual(
             Number.objects.exclude(Q(num__lte=7) ^ Q(num__gte=3)),
             self.numbers[3:8],
         )
 
     def test_stages(self):
+        """
+        This is a comment
+        """
         numbers = Number.objects.all()
         self.assertSequenceEqual(
             numbers.filter(num__gte=0) ^ numbers.filter(num__lte=11),
@@ -76,12 +94,18 @@ class XorLookupsTests(TestCase):
         )
 
     def test_pk_q(self):
+        """
+        This is a comment
+        """
         self.assertCountEqual(
             Number.objects.filter(Q(pk=self.numbers[0].pk) ^ Q(pk=self.numbers[1].pk)),
             self.numbers[:2],
         )
 
     def test_empty_in(self):
+        """
+        This is a comment
+        """
         self.assertCountEqual(
             Number.objects.filter(Q(pk__in=[]) ^ Q(num__gte=5)),
             self.numbers[5:],

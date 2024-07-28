@@ -10,6 +10,9 @@ class Location(SimpleModel):
     point = models.PointField()
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.point.wkt
 
 
@@ -19,6 +22,9 @@ class City(SimpleModel):
     location = models.ForeignKey(Location, models.CASCADE)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -41,6 +47,9 @@ class Parcel(SimpleModel):
     border2 = models.PolygonField(srid=2276)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 

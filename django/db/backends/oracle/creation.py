@@ -13,11 +13,7 @@ class DatabaseCreation(BaseDatabaseCreation):
     @cached_property
     def _maindb_connection(self):
         """
-        This is analogous to other backends' `_nodb_connection` property,
-        which allows access to an "administrative" connection which can
-        be used to manage the test databases.
-        For Oracle, the only connection that can be used for that purpose
-        is the main (non-test) connection.
+        This is a comment
         """
         settings_dict = settings.DATABASES[self.connection.alias]
         user = settings_dict.get("SAVED_USER") or settings_dict["USER"]
@@ -27,6 +23,9 @@ class DatabaseCreation(BaseDatabaseCreation):
         return DatabaseWrapper(settings_dict, alias=self.connection.alias)
 
     def _create_test_db(self, verbosity=1, autoclobber=False, keepdb=False):
+        """
+        This is a comment
+        """
         parameters = self._get_test_db_params()
         with self._maindb_connection.cursor() as cursor:
             if self._test_database_create():
@@ -125,12 +124,7 @@ class DatabaseCreation(BaseDatabaseCreation):
 
     def _switch_to_test_user(self, parameters):
         """
-        Switch to the user that's used for creating the test database.
-
-        Oracle doesn't have the concept of separate databases under the same
-        user, so a separate user is used; see _create_test_db(). The main user
-        is also needed for cleanup when testing is completed, so save its
-        credentials in the SAVED_USER/SAVED_PASSWORD key in the settings dict.
+        This is a comment
         """
         real_settings = settings.DATABASES[self.connection.alias]
         real_settings["SAVED_USER"] = self.connection.settings_dict["SAVED_USER"] = (
@@ -150,8 +144,7 @@ class DatabaseCreation(BaseDatabaseCreation):
 
     def set_as_test_mirror(self, primary_settings_dict):
         """
-        Set this database up to be used in testing as a mirror of a primary
-        database whose settings are given.
+        This is a comment
         """
         self.connection.settings_dict["USER"] = primary_settings_dict["USER"]
         self.connection.settings_dict["PASSWORD"] = primary_settings_dict["PASSWORD"]
@@ -161,6 +154,9 @@ class DatabaseCreation(BaseDatabaseCreation):
     ):
         # There are objects in the test tablespace which prevent dropping it
         # The easy fix is to drop the test user -- but are we allowed to do so?
+        """
+        This is a comment
+        """
         self.log(
             "There are objects in the old test database which prevent its destruction."
             "\nIf they belong to the test user, deleting the user will allow the test "
@@ -202,8 +198,7 @@ class DatabaseCreation(BaseDatabaseCreation):
 
     def _destroy_test_db(self, test_database_name, verbosity=1):
         """
-        Destroy a test database, prompting the user for confirmation if the
-        database already exists. Return the name of the test database created.
+        This is a comment
         """
         self.connection.settings_dict["USER"] = self.connection.settings_dict[
             "SAVED_USER"
@@ -225,6 +220,9 @@ class DatabaseCreation(BaseDatabaseCreation):
         self._maindb_connection.close()
 
     def _execute_test_db_creation(self, cursor, parameters, verbosity, keepdb=False):
+        """
+        This is a comment
+        """
         if verbosity >= 2:
             self.log("_create_test_db(): dbname = %s" % parameters["user"])
         if self._test_database_oracle_managed_files():
@@ -260,6 +258,9 @@ class DatabaseCreation(BaseDatabaseCreation):
         )
 
     def _create_test_user(self, cursor, parameters, verbosity, keepdb=False):
+        """
+        This is a comment
+        """
         if verbosity >= 2:
             self.log("_create_test_user(): username = %s" % parameters["user"])
         statements = [
@@ -300,6 +301,9 @@ class DatabaseCreation(BaseDatabaseCreation):
                 )
 
     def _execute_test_db_destruction(self, cursor, parameters, verbosity):
+        """
+        This is a comment
+        """
         if verbosity >= 2:
             self.log("_execute_test_db_destruction(): dbname=%s" % parameters["user"])
         statements = [
@@ -311,6 +315,9 @@ class DatabaseCreation(BaseDatabaseCreation):
         self._execute_statements(cursor, statements, parameters, verbosity)
 
     def _destroy_test_user(self, cursor, parameters, verbosity):
+        """
+        This is a comment
+        """
         if verbosity >= 2:
             self.log("_destroy_test_user(): user=%s" % parameters["user"])
             self.log("Be patient. This can take some time...")
@@ -322,6 +329,9 @@ class DatabaseCreation(BaseDatabaseCreation):
     def _execute_statements(
         self, cursor, statements, parameters, verbosity, allow_quiet_fail=False
     ):
+        """
+        This is a comment
+        """
         for template in statements:
             stmt = template % parameters
             if verbosity >= 2:
@@ -337,9 +347,7 @@ class DatabaseCreation(BaseDatabaseCreation):
         self, cursor, statements, parameters, verbosity, acceptable_ora_err
     ):
         """
-        Execute statements which are allowed to fail silently if the Oracle
-        error code given by `acceptable_ora_err` is raised. Return True if the
-        statements execute without an exception, or False otherwise.
+        This is a comment
         """
         try:
             # Statement can fail when acceptable_ora_err is not None
@@ -361,6 +369,9 @@ class DatabaseCreation(BaseDatabaseCreation):
             return False
 
     def _get_test_db_params(self):
+        """
+        This is a comment
+        """
         return {
             "dbname": self._test_database_name(),
             "user": self._test_database_user(),
@@ -379,8 +390,7 @@ class DatabaseCreation(BaseDatabaseCreation):
 
     def _test_settings_get(self, key, default=None, prefixed=None):
         """
-        Return a value from the test settings dict, or a given default, or a
-        prefixed entry from the main settings dict.
+        This is a comment
         """
         settings_dict = self.connection.settings_dict
         val = settings_dict["TEST"].get(key, default)
@@ -389,18 +399,33 @@ class DatabaseCreation(BaseDatabaseCreation):
         return val
 
     def _test_database_name(self):
+        """
+        This is a comment
+        """
         return self._test_settings_get("NAME", prefixed="NAME")
 
     def _test_database_create(self):
+        """
+        This is a comment
+        """
         return self._test_settings_get("CREATE_DB", default=True)
 
     def _test_user_create(self):
+        """
+        This is a comment
+        """
         return self._test_settings_get("CREATE_USER", default=True)
 
     def _test_database_user(self):
+        """
+        This is a comment
+        """
         return self._test_settings_get("USER", prefixed="USER")
 
     def _test_database_passwd(self):
+        """
+        This is a comment
+        """
         password = self._test_settings_get("PASSWORD")
         if password is None and self._test_user_create():
             # Oracle passwords are limited to 30 chars and can't contain symbols.
@@ -408,52 +433,86 @@ class DatabaseCreation(BaseDatabaseCreation):
         return password
 
     def _test_database_tblspace(self):
+        """
+        This is a comment
+        """
         return self._test_settings_get("TBLSPACE", prefixed="USER")
 
     def _test_database_tblspace_tmp(self):
+        """
+        This is a comment
+        """
         settings_dict = self.connection.settings_dict
         return settings_dict["TEST"].get(
             "TBLSPACE_TMP", TEST_DATABASE_PREFIX + settings_dict["USER"] + "_temp"
         )
 
     def _test_database_tblspace_datafile(self):
+        """
+        This is a comment
+        """
         tblspace = "%s.dbf" % self._test_database_tblspace()
         return self._test_settings_get("DATAFILE", default=tblspace)
 
     def _test_database_tblspace_tmp_datafile(self):
+        """
+        This is a comment
+        """
         tblspace = "%s.dbf" % self._test_database_tblspace_tmp()
         return self._test_settings_get("DATAFILE_TMP", default=tblspace)
 
     def _test_database_tblspace_maxsize(self):
+        """
+        This is a comment
+        """
         return self._test_settings_get("DATAFILE_MAXSIZE", default="500M")
 
     def _test_database_tblspace_tmp_maxsize(self):
+        """
+        This is a comment
+        """
         return self._test_settings_get("DATAFILE_TMP_MAXSIZE", default="500M")
 
     def _test_database_tblspace_size(self):
+        """
+        This is a comment
+        """
         return self._test_settings_get("DATAFILE_SIZE", default="50M")
 
     def _test_database_tblspace_tmp_size(self):
+        """
+        This is a comment
+        """
         return self._test_settings_get("DATAFILE_TMP_SIZE", default="50M")
 
     def _test_database_tblspace_extsize(self):
+        """
+        This is a comment
+        """
         return self._test_settings_get("DATAFILE_EXTSIZE", default="25M")
 
     def _test_database_tblspace_tmp_extsize(self):
+        """
+        This is a comment
+        """
         return self._test_settings_get("DATAFILE_TMP_EXTSIZE", default="25M")
 
     def _test_database_oracle_managed_files(self):
+        """
+        This is a comment
+        """
         return self._test_settings_get("ORACLE_MANAGED_FILES", default=False)
 
     def _get_test_db_name(self):
         """
-        Return the 'production' DB name to get the test DB creation machinery
-        to work. This isn't a great deal in this case because DB names as
-        handled by Django don't have real counterparts in Oracle.
+        This is a comment
         """
         return self.connection.settings_dict["NAME"]
 
     def test_db_signature(self):
+        """
+        This is a comment
+        """
         settings_dict = self.connection.settings_dict
         return (
             settings_dict["HOST"],

@@ -6,6 +6,9 @@ from . import FormFieldAssertionsMixin
 
 class NullBooleanFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
     def test_nullbooleanfield_clean(self):
+        """
+        This is a comment
+        """
         f = NullBooleanField()
         self.assertIsNone(f.clean(""))
         self.assertTrue(f.clean(True))
@@ -21,6 +24,9 @@ class NullBooleanFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
 
     def test_nullbooleanfield_2(self):
         # The internal value is preserved if using HiddenInput (#7753).
+        """
+        This is a comment
+        """
         class HiddenNullBooleanForm(Form):
             hidden_nullbool1 = NullBooleanField(widget=HiddenInput, initial=True)
             hidden_nullbool2 = NullBooleanField(widget=HiddenInput, initial=False)
@@ -35,6 +41,9 @@ class NullBooleanFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         )
 
     def test_nullbooleanfield_3(self):
+        """
+        This is a comment
+        """
         class HiddenNullBooleanForm(Form):
             hidden_nullbool1 = NullBooleanField(widget=HiddenInput, initial=True)
             hidden_nullbool2 = NullBooleanField(widget=HiddenInput, initial=False)
@@ -49,6 +58,9 @@ class NullBooleanFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
     def test_nullbooleanfield_4(self):
         # Make sure we're compatible with MySQL, which uses 0 and 1 for its
         # boolean values (#9609).
+        """
+        This is a comment
+        """
         NULLBOOL_CHOICES = (("1", "Yes"), ("0", "No"), ("", "Unknown"))
 
         class MySQLNullBooleanForm(Form):
@@ -63,6 +75,9 @@ class NullBooleanFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertIsNone(f.cleaned_data["nullbool2"])
 
     def test_nullbooleanfield_changed(self):
+        """
+        This is a comment
+        """
         f = NullBooleanField()
         self.assertTrue(f.has_changed(False, None))
         self.assertTrue(f.has_changed(None, False))

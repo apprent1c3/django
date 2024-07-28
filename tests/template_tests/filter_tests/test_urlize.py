@@ -15,6 +15,9 @@ class UrlizeTests(SimpleTestCase):
         }
     )
     def test_urlize01(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "urlize01",
             {
@@ -32,6 +35,9 @@ class UrlizeTests(SimpleTestCase):
 
     @setup({"urlize02": "{{ a|urlize }} {{ b|urlize }}"})
     def test_urlize02(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "urlize02",
             {
@@ -49,11 +55,17 @@ class UrlizeTests(SimpleTestCase):
 
     @setup({"urlize03": "{% autoescape off %}{{ a|urlize }}{% endautoescape %}"})
     def test_urlize03(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("urlize03", {"a": mark_safe("a &amp; b")})
         self.assertEqual(output, "a &amp; b")
 
     @setup({"urlize04": "{{ a|urlize }}"})
     def test_urlize04(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("urlize04", {"a": mark_safe("a &amp; b")})
         self.assertEqual(output, "a &amp; b")
 
@@ -61,6 +73,9 @@ class UrlizeTests(SimpleTestCase):
     # exploitable for XSS purposes when auto-escaping is on.
     @setup({"urlize05": "{% autoescape off %}{{ a|urlize }}{% endautoescape %}"})
     def test_urlize05(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "urlize05", {"a": "<script>alert('foo')</script>"}
         )
@@ -68,6 +83,9 @@ class UrlizeTests(SimpleTestCase):
 
     @setup({"urlize06": "{{ a|urlize }}"})
     def test_urlize06(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "urlize06", {"a": "<script>alert('foo')</script>"}
         )
@@ -76,6 +94,9 @@ class UrlizeTests(SimpleTestCase):
     # mailto: testing for urlize
     @setup({"urlize07": "{{ a|urlize }}"})
     def test_urlize07(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "urlize07", {"a": "Email me at me@example.com"}
         )
@@ -86,6 +107,9 @@ class UrlizeTests(SimpleTestCase):
 
     @setup({"urlize08": "{{ a|urlize }}"})
     def test_urlize08(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "urlize08", {"a": "Email me at <me@example.com>"}
         )
@@ -96,6 +120,9 @@ class UrlizeTests(SimpleTestCase):
 
     @setup({"urlize09": "{% autoescape off %}{{ a|urlize }}{% endautoescape %}"})
     def test_urlize09(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "urlize09", {"a": "http://example.com/?x=&amp;y=&lt;2&gt;"}
         )
@@ -108,6 +135,9 @@ class UrlizeTests(SimpleTestCase):
 
 class FunctionTests(SimpleTestCase):
     def test_urls(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             urlize("http://google.com"),
             '<a href="http://google.com" rel="nofollow">http://google.com</a>',
@@ -132,6 +162,9 @@ class FunctionTests(SimpleTestCase):
     def test_url_split_chars(self):
         # Quotes (single and double) and angle brackets shouldn't be considered
         # part of URLs.
+        """
+        This is a comment
+        """
         self.assertEqual(
             urlize('www.server.com"abc'),
             '<a href="http://www.server.com" rel="nofollow">www.server.com</a>&quot;'
@@ -152,15 +185,24 @@ class FunctionTests(SimpleTestCase):
         )
 
     def test_email(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             urlize("info@djangoproject.org"),
             '<a href="mailto:info@djangoproject.org">info@djangoproject.org</a>',
         )
 
     def test_word_with_dot(self):
+        """
+        This is a comment
+        """
         self.assertEqual(urlize("some.organization"), "some.organization")
 
     def test_https(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             urlize("https://google.com"),
             '<a href="https://google.com" rel="nofollow">https://google.com</a>',
@@ -168,8 +210,7 @@ class FunctionTests(SimpleTestCase):
 
     def test_quoting(self):
         """
-        #9655 - Check urlize doesn't overquote already quoted urls. The
-        teststring is the urlquoted version of 'http://hi.baidu.com/重新开始'
+        This is a comment
         """
         self.assertEqual(
             urlize("http://hi.baidu.com/%E9%87%8D%E6%96%B0%E5%BC%80%E5%A7%8B"),
@@ -179,6 +220,9 @@ class FunctionTests(SimpleTestCase):
         )
 
     def test_urlencoded(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             urlize("www.mystore.com/30%OffCoupons!"),
             '<a href="http://www.mystore.com/30%25OffCoupons" rel="nofollow">'
@@ -191,6 +235,9 @@ class FunctionTests(SimpleTestCase):
         )
 
     def test_unicode(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             urlize("https://en.wikipedia.org/wiki/Café"),
             '<a href="https://en.wikipedia.org/wiki/Caf%C3%A9" rel="nofollow">'
@@ -199,7 +246,7 @@ class FunctionTests(SimpleTestCase):
 
     def test_parenthesis(self):
         """
-        #11911 - Check urlize keeps balanced parentheses
+        This is a comment
         """
         self.assertEqual(
             urlize("https://en.wikipedia.org/wiki/Django_(web_framework)"),
@@ -214,7 +261,7 @@ class FunctionTests(SimpleTestCase):
 
     def test_nofollow(self):
         """
-        #12183 - Check urlize adds nofollow properly - see #12183
+        This is a comment
         """
         self.assertEqual(
             urlize("foo@bar.com or www.bar.com"),
@@ -224,7 +271,7 @@ class FunctionTests(SimpleTestCase):
 
     def test_idn(self):
         """
-        #13704 - Check urlize handles IDN correctly
+        This is a comment
         """
         self.assertEqual(
             urlize("http://c✶.ws"),
@@ -243,7 +290,7 @@ class FunctionTests(SimpleTestCase):
 
     def test_malformed(self):
         """
-        #16395 - Check urlize doesn't highlight malformed URIs
+        This is a comment
         """
         self.assertEqual(urlize("http:///www.google.com"), "http:///www.google.com")
         self.assertEqual(urlize("http://.google.com"), "http://.google.com")
@@ -251,7 +298,7 @@ class FunctionTests(SimpleTestCase):
 
     def test_tlds(self):
         """
-        #16656 - Check urlize accepts more TLDs
+        This is a comment
         """
         self.assertEqual(
             urlize("usa.gov"), '<a href="http://usa.gov" rel="nofollow">usa.gov</a>'
@@ -259,14 +306,13 @@ class FunctionTests(SimpleTestCase):
 
     def test_invalid_email(self):
         """
-        #17592 - Check urlize don't crash on invalid email with dot-starting
-        domain
+        This is a comment
         """
         self.assertEqual(urlize("email@.stream.ru"), "email@.stream.ru")
 
     def test_uppercase(self):
         """
-        #18071 - Check urlize accepts uppercased URL schemes
+        This is a comment
         """
         self.assertEqual(
             urlize("HTTPS://github.com/"),
@@ -275,7 +321,7 @@ class FunctionTests(SimpleTestCase):
 
     def test_trailing_period(self):
         """
-        #18644 - Check urlize trims trailing period when followed by parenthesis
+        This is a comment
         """
         self.assertEqual(
             urlize("(Go to http://www.example.com/foo.)"),
@@ -284,6 +330,9 @@ class FunctionTests(SimpleTestCase):
         )
 
     def test_trailing_multiple_punctuation(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             urlize("A test http://testing.com/example.."),
             'A test <a href="http://testing.com/example" rel="nofollow">'
@@ -306,6 +355,9 @@ class FunctionTests(SimpleTestCase):
         )
 
     def test_trailing_semicolon(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             urlize("http://example.com?x=&amp;", autoescape=False),
             '<a href="http://example.com?x=" rel="nofollow">'
@@ -324,7 +376,7 @@ class FunctionTests(SimpleTestCase):
 
     def test_brackets(self):
         """
-        #19070 - Check urlize handles brackets properly
+        This is a comment
         """
         self.assertEqual(
             urlize("[see www.example.com]"),
@@ -342,6 +394,9 @@ class FunctionTests(SimpleTestCase):
         )
 
     def test_wrapping_characters(self):
+        """
+        This is a comment
+        """
         wrapping_chars = (
             ("()", ("(", ")")),
             ("<>", ("&lt;", "&gt;")),
@@ -359,6 +414,9 @@ class FunctionTests(SimpleTestCase):
                 )
 
     def test_ipv4(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             urlize("http://192.168.0.15/api/9"),
             '<a href="http://192.168.0.15/api/9" rel="nofollow">'
@@ -366,6 +424,9 @@ class FunctionTests(SimpleTestCase):
         )
 
     def test_ipv6(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             urlize("http://[2001:db8:cafe::2]/api/9"),
             '<a href="http://[2001:db8:cafe::2]/api/9" rel="nofollow">'
@@ -374,7 +435,7 @@ class FunctionTests(SimpleTestCase):
 
     def test_quotation_marks(self):
         """
-        #20364 - Check urlize correctly include quotation marks in links
+        This is a comment
         """
         self.assertEqual(
             urlize('before "hi@example.com" afterward', autoescape=False),
@@ -403,7 +464,7 @@ class FunctionTests(SimpleTestCase):
 
     def test_quote_commas(self):
         """
-        #20364 - Check urlize copes with commas following URLs in quotes
+        This is a comment
         """
         self.assertEqual(
             urlize(
@@ -415,8 +476,7 @@ class FunctionTests(SimpleTestCase):
 
     def test_exclamation_marks(self):
         """
-        #23715 - Check urlize correctly handles exclamation marks after TLDs
-        or query string
+        This is a comment
         """
         self.assertEqual(
             urlize("Go to djangoproject.com! and enjoy."),
@@ -440,9 +500,15 @@ class FunctionTests(SimpleTestCase):
         )
 
     def test_non_string_input(self):
+        """
+        This is a comment
+        """
         self.assertEqual(urlize(123), "123")
 
     def test_autoescape(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             urlize('foo<a href=" google.com ">bar</a>buz'),
             'foo&lt;a href=&quot; <a href="http://google.com" rel="nofollow">google.com'
@@ -450,6 +516,9 @@ class FunctionTests(SimpleTestCase):
         )
 
     def test_autoescape_off(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             urlize('foo<a href=" google.com ">bar</a>buz', autoescape=False),
             'foo<a href=" <a href="http://google.com" rel="nofollow">google.com</a> ">'
@@ -457,6 +526,9 @@ class FunctionTests(SimpleTestCase):
         )
 
     def test_lazystring(self):
+        """
+        This is a comment
+        """
         prepend_www = lazy(lambda url: "www." + url, str)
         self.assertEqual(
             urlize(prepend_www("google.com")),

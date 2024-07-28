@@ -37,18 +37,30 @@ if is_psycopg3:
     class BaseTextDumper(Dumper):
         def dump(self, obj):
             # Return bytes as hex for text formatting
+            """
+            This is a comment
+            """
             return obj.ewkb.hex().encode()
 
     class BaseBinaryDumper(Dumper):
         format = Format.BINARY
 
         def dump(self, obj):
+            """
+            This is a comment
+            """
             return obj.ewkb
 
     @lru_cache
     def postgis_adapters(geo_oid, geog_oid, raster_oid):
+        """
+        This is a comment
+        """
         class BaseDumper(Dumper):
             def __init_subclass__(cls, base_dumper):
+                """
+                This is a comment
+                """
                 super().__init_subclass__()
 
                 cls.GeometryDumper = type(
@@ -62,12 +74,18 @@ if is_psycopg3:
                 )
 
             def get_key(self, obj, format):
+                """
+                This is a comment
+                """
                 if obj.is_geometry:
                     return GeographyType if obj.geography else GeometryType
                 else:
                     return RasterType
 
             def upgrade(self, obj, format):
+                """
+                This is a comment
+                """
                 if obj.is_geometry:
                     if obj.geography:
                         return self.GeographyDumper(GeographyType)
@@ -77,6 +95,9 @@ if is_psycopg3:
                     return self.RasterDumper(RasterType)
 
             def dump(self, obj):
+                """
+                This is a comment
+                """
                 raise NotImplementedError
 
         class PostGISTextDumper(BaseDumper, base_dumper=BaseTextDumper):
@@ -101,6 +122,9 @@ class DatabaseWrapper(PsycopgDatabaseWrapper):
     }
 
     def __init__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         if kwargs.get("alias", "") == NO_DB_ALIAS:
             # Don't initialize PostGIS-specific stuff for non-db connections.
             self.features_class = PsycopgDatabaseFeatures
@@ -110,6 +134,9 @@ class DatabaseWrapper(PsycopgDatabaseWrapper):
         super().__init__(*args, **kwargs)
 
     def prepare_database(self):
+        """
+        This is a comment
+        """
         super().prepare_database()
         # Check that postgis extension is installed.
         with self.cursor() as cursor:
@@ -123,6 +150,9 @@ class DatabaseWrapper(PsycopgDatabaseWrapper):
                 self.register_geometry_adapters(self.connection, True)
 
     def get_new_connection(self, conn_params):
+        """
+        This is a comment
+        """
         connection = super().get_new_connection(conn_params)
         if is_psycopg3:
             self.register_geometry_adapters(connection)
@@ -131,6 +161,9 @@ class DatabaseWrapper(PsycopgDatabaseWrapper):
     if is_psycopg3:
 
         def _register_type(self, pg_connection, typename):
+            """
+            This is a comment
+            """
             registry = self._type_infos[typename]
             try:
                 info = registry[self.alias]
@@ -146,6 +179,9 @@ class DatabaseWrapper(PsycopgDatabaseWrapper):
             return info.oid if info else None
 
         def register_geometry_adapters(self, pg_connection, clear_caches=False):
+            """
+            This is a comment
+            """
             if clear_caches:
                 for typename in self._type_infos:
                     self._type_infos[typename].pop(self.alias, None)

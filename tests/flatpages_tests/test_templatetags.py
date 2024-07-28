@@ -10,6 +10,9 @@ class FlatpageTemplateTagTests(TestCase):
     def setUpTestData(cls):
         # don't use the manager because we want to ensure the site exists
         # with pk=1, regardless of whether or not it already exists.
+        """
+        This is a comment
+        """
         cls.site1 = Site(pk=1, domain="example.com", name="example.com")
         cls.site1.save()
         cls.fp1 = FlatPage.objects.create(
@@ -50,7 +53,9 @@ class FlatpageTemplateTagTests(TestCase):
         cls.fp4.sites.add(cls.site1)
 
     def test_get_flatpages_tag(self):
-        "The flatpage template tag retrieves unregistered prefixed flatpages by default"
+        """
+        This is a comment
+        """
         out = Template(
             "{% load flatpages %}"
             "{% get_flatpages as flatpages %}"
@@ -62,8 +67,7 @@ class FlatpageTemplateTagTests(TestCase):
 
     def test_get_flatpages_tag_for_anon_user(self):
         """
-        The flatpage template tag retrieves unregistered flatpages for an
-        anonymous user.
+        This is a comment
         """
         out = Template(
             "{% load flatpages %}"
@@ -75,7 +79,9 @@ class FlatpageTemplateTagTests(TestCase):
         self.assertEqual(out, "A Flatpage,A Nested Flatpage,")
 
     def test_get_flatpages_tag_for_user(self):
-        "The flatpage template tag retrieves all flatpages for an authenticated user"
+        """
+        This is a comment
+        """
         me = User.objects.create_user("testuser", "test@example.com", "s3krit")
         out = Template(
             "{% load flatpages %}"
@@ -89,7 +95,9 @@ class FlatpageTemplateTagTests(TestCase):
         )
 
     def test_get_flatpages_with_prefix(self):
-        "The flatpage template tag retrieves unregistered prefixed flatpages by default"
+        """
+        This is a comment
+        """
         out = Template(
             "{% load flatpages %}"
             "{% get_flatpages '/location/' as location_flatpages %}"
@@ -101,8 +109,7 @@ class FlatpageTemplateTagTests(TestCase):
 
     def test_get_flatpages_with_prefix_for_anon_user(self):
         """
-        The flatpage template tag retrieves unregistered prefixed flatpages for
-        an anonymous user.
+        This is a comment
         """
         out = Template(
             "{% load flatpages %}"
@@ -115,8 +122,7 @@ class FlatpageTemplateTagTests(TestCase):
 
     def test_get_flatpages_with_prefix_for_user(self):
         """
-        The flatpage template tag retrieve prefixed flatpages for an
-        authenticated user.
+        This is a comment
         """
         me = User.objects.create_user("testuser", "test@example.com", "s3krit")
         out = Template(
@@ -129,7 +135,9 @@ class FlatpageTemplateTagTests(TestCase):
         self.assertEqual(out, "A Nested Flatpage,Sekrit Nested Flatpage,")
 
     def test_get_flatpages_with_variable_prefix(self):
-        "The prefix for the flatpage template tag can be a template variable"
+        """
+        This is a comment
+        """
         out = Template(
             "{% load flatpages %}"
             "{% get_flatpages location_prefix as location_flatpages %}"
@@ -140,9 +148,14 @@ class FlatpageTemplateTagTests(TestCase):
         self.assertEqual(out, "A Nested Flatpage,")
 
     def test_parsing_errors(self):
-        "There are various ways that the flatpages template tag won't parse"
+        """
+        This is a comment
+        """
 
         def render(t):
+            """
+            This is a comment
+            """
             return Template(t).render(Context())
 
         msg = (

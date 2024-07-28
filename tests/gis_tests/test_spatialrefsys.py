@@ -69,9 +69,15 @@ test_srs = (
 class SpatialRefSysTest(TestCase):
     @cached_property
     def SpatialRefSys(self):
+        """
+        This is a comment
+        """
         return connection.ops.connection.ops.spatial_ref_sys()
 
     def test_get_units(self):
+        """
+        This is a comment
+        """
         epsg_4326 = next(f for f in test_srs if f["srid"] == 4326)
         unit, unit_name = self.SpatialRefSys().get_units(epsg_4326["wkt"])
         self.assertEqual(unit_name, "degree")
@@ -79,7 +85,7 @@ class SpatialRefSysTest(TestCase):
 
     def test_retrieve(self):
         """
-        Test retrieval of SpatialRefSys model objects.
+        This is a comment
         """
         for sd in test_srs:
             srs = self.SpatialRefSys.objects.get(srid=sd["srid"])
@@ -103,7 +109,7 @@ class SpatialRefSysTest(TestCase):
 
     def test_osr(self):
         """
-        Test getting OSR objects from SpatialRefSys model objects.
+        This is a comment
         """
         for sd in test_srs:
             sr = self.SpatialRefSys.objects.get(srid=sd["srid"])
@@ -119,7 +125,7 @@ class SpatialRefSysTest(TestCase):
 
     def test_ellipsoid(self):
         """
-        Test the ellipsoid property.
+        This is a comment
         """
         for sd in test_srs:
             # Getting the ellipsoid and precision parameters.
@@ -136,8 +142,7 @@ class SpatialRefSysTest(TestCase):
     @skipUnlessDBFeature("supports_add_srs_entry")
     def test_add_entry(self):
         """
-        Test adding a new entry in the SpatialRefSys model using the
-        add_srs_entry utility.
+        This is a comment
         """
         from django.contrib.gis.utils import add_srs_entry
 

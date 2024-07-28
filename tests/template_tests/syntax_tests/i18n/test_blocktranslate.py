@@ -17,6 +17,9 @@ from .base import MultipleLocaleActivationTestCase, extended_locale_paths, here
 
 
 def setup(templates, *args, **kwargs):
+    """
+    This is a comment
+    """
     blocktranslate_setup = base_setup(templates, *args, **kwargs)
     blocktrans_setup = base_setup(
         {
@@ -34,7 +37,13 @@ def setup(templates, *args, **kwargs):
 
     def decorator(func):
         @wraps(func)
+        """
+        This is a comment
+        """
         def inner(self, *args):
+            """
+            This is a comment
+            """
             signature = inspect.signature(func)
             for tag_name, setup_func in tags.items():
                 if "tag_name" in signature.parameters:
@@ -58,7 +67,9 @@ class I18nBlockTransTagTests(SimpleTestCase):
         }
     )
     def test_i18n03(self):
-        """simple translation of a variable"""
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("i18n03", {"anton": "Å"})
         self.assertEqual(output, "Å")
 
@@ -71,7 +82,9 @@ class I18nBlockTransTagTests(SimpleTestCase):
         }
     )
     def test_i18n04(self):
-        """simple translation of a variable and filter"""
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("i18n04", {"anton": "Å"})
         self.assertEqual(output, "å")
 
@@ -85,7 +98,9 @@ class I18nBlockTransTagTests(SimpleTestCase):
         }
     )
     def test_legacyi18n04(self):
-        """simple translation of a variable and filter"""
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("legacyi18n04", {"anton": "Å"})
         self.assertEqual(output, "å")
 
@@ -98,7 +113,9 @@ class I18nBlockTransTagTests(SimpleTestCase):
         }
     )
     def test_i18n05(self):
-        """simple translation of a string with interpolation"""
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("i18n05", {"anton": "yyy"})
         self.assertEqual(output, "xxxyyyxxx")
 
@@ -110,7 +127,9 @@ class I18nBlockTransTagTests(SimpleTestCase):
         }
     )
     def test_i18n07(self):
-        """translation of singular form"""
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("i18n07", {"number": 1})
         self.assertEqual(output, "singular")
 
@@ -122,7 +141,9 @@ class I18nBlockTransTagTests(SimpleTestCase):
         }
     )
     def test_legacyi18n07(self):
-        """translation of singular form"""
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("legacyi18n07", {"number": 1})
         self.assertEqual(output, "singular")
 
@@ -134,7 +155,9 @@ class I18nBlockTransTagTests(SimpleTestCase):
         }
     )
     def test_i18n08(self):
-        """translation of plural form"""
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("i18n08", {"number": 2})
         self.assertEqual(output, "2 plural")
 
@@ -146,7 +169,9 @@ class I18nBlockTransTagTests(SimpleTestCase):
         }
     )
     def test_legacyi18n08(self):
-        """translation of plural form"""
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("legacyi18n08", {"number": 2})
         self.assertEqual(output, "2 plural")
 
@@ -161,8 +186,7 @@ class I18nBlockTransTagTests(SimpleTestCase):
     )
     def test_i18n17(self):
         """
-        Escaping inside blocktranslate and translate works as if it was
-        directly in the template.
+        This is a comment
         """
         output = self.engine.render_to_string("i18n17", {"anton": "α & β"})
         self.assertEqual(output, "α &amp; β")
@@ -177,6 +201,9 @@ class I18nBlockTransTagTests(SimpleTestCase):
         }
     )
     def test_i18n18(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("i18n18", {"anton": "α & β"})
         self.assertEqual(output, "α &amp; β")
 
@@ -188,6 +215,9 @@ class I18nBlockTransTagTests(SimpleTestCase):
         }
     )
     def test_i18n19(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("i18n19", {"andrew": "a & b"})
         self.assertEqual(output, "a &amp; b")
 
@@ -199,6 +229,9 @@ class I18nBlockTransTagTests(SimpleTestCase):
         }
     )
     def test_i18n21(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("i18n21", {"andrew": mark_safe("a & b")})
         self.assertEqual(output, "a & b")
 
@@ -212,6 +245,9 @@ class I18nBlockTransTagTests(SimpleTestCase):
         }
     )
     def test_legacyi18n17(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("legacyi18n17", {"anton": "α & β"})
         self.assertEqual(output, "α &amp; β")
 
@@ -223,6 +259,9 @@ class I18nBlockTransTagTests(SimpleTestCase):
         }
     )
     def test_legacyi18n18(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("legacyi18n18", {"anton": "α & β"})
         self.assertEqual(output, "α &amp; β")
 
@@ -235,7 +274,7 @@ class I18nBlockTransTagTests(SimpleTestCase):
     )
     def test_i18n26(self):
         """
-        translation of plural form with extra field in singular form (#13568)
+        This is a comment
         """
         output = self.engine.render_to_string(
             "i18n26", {"myextra_field": "test", "number": 1}
@@ -253,6 +292,9 @@ class I18nBlockTransTagTests(SimpleTestCase):
         }
     )
     def test_legacyi18n26(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "legacyi18n26", {"myextra_field": "test", "number": 1}
         )
@@ -266,7 +308,9 @@ class I18nBlockTransTagTests(SimpleTestCase):
         }
     )
     def test_i18n27(self):
-        """translation of singular form in Russian (#14126)"""
+        """
+        This is a comment
+        """
         with translation.override("ru"):
             output = self.engine.render_to_string("i18n27", {"number": 1})
         self.assertEqual(
@@ -281,6 +325,9 @@ class I18nBlockTransTagTests(SimpleTestCase):
         }
     )
     def test_legacyi18n27(self):
+        """
+        This is a comment
+        """
         with translation.override("ru"):
             output = self.engine.render_to_string("legacyi18n27", {"number": 1})
         self.assertEqual(
@@ -297,7 +344,9 @@ class I18nBlockTransTagTests(SimpleTestCase):
         }
     )
     def test_i18n28(self):
-        """simple translation of multiple variables"""
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("i18n28", {"anton": "α", "berta": "β"})
         self.assertEqual(output, "α + β")
 
@@ -309,6 +358,9 @@ class I18nBlockTransTagTests(SimpleTestCase):
         }
     )
     def test_legacyi18n28(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "legacyi18n28", {"anton": "α", "berta": "β"}
         )
@@ -325,6 +377,9 @@ class I18nBlockTransTagTests(SimpleTestCase):
         }
     )
     def test_i18n34(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("i18n34")
         if self.engine.string_if_invalid:
             self.assertEqual(output, "INVALID")
@@ -340,6 +395,9 @@ class I18nBlockTransTagTests(SimpleTestCase):
         }
     )
     def test_i18n34_2(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("i18n34_2")
         if self.engine.string_if_invalid:
             self.assertEqual(output, "INVALID")
@@ -355,6 +413,9 @@ class I18nBlockTransTagTests(SimpleTestCase):
         }
     )
     def test_i18n34_3(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("i18n34_3", {"anton": "\xce\xb1"})
         if self.engine.string_if_invalid:
             self.assertEqual(output, "INVALID")
@@ -369,6 +430,9 @@ class I18nBlockTransTagTests(SimpleTestCase):
         }
     )
     def test_i18n37(self):
+        """
+        This is a comment
+        """
         with translation.override("de"):
             output = self.engine.render_to_string("i18n37")
         self.assertEqual(output, "Error: Seite nicht gefunden")
@@ -384,6 +448,9 @@ class I18nBlockTransTagTests(SimpleTestCase):
         }
     )
     def test_i18n39(self):
+        """
+        This is a comment
+        """
         with translation.override("de"):
             output = self.engine.render_to_string("i18n39")
         self.assertEqual(output, ">Seite nicht gefunden<")
@@ -398,6 +465,9 @@ class I18nBlockTransTagTests(SimpleTestCase):
         }
     )
     def test_i18n40(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("i18n40")
         self.assertEqual(output, "")
 
@@ -412,6 +482,9 @@ class I18nBlockTransTagTests(SimpleTestCase):
         }
     )
     def test_i18n41(self):
+        """
+        This is a comment
+        """
         with translation.override("de"):
             output = self.engine.render_to_string("i18n41")
         self.assertEqual(output, ">Error: Seite nicht gefunden<")
@@ -428,6 +501,9 @@ class I18nBlockTransTagTests(SimpleTestCase):
         }
     )
     def test_i18n_asvar_safestring(self):
+        """
+        This is a comment
+        """
         context = {"title": "<Main Title>"}
         output = self.engine.render_to_string("i18n_asvar_safestring", context=context)
         self.assertEqual(output, "&lt;Main Title&gt;other text")
@@ -440,6 +516,9 @@ class I18nBlockTransTagTests(SimpleTestCase):
         }
     )
     def test_blocktrans_syntax_error_missing_assignment(self, tag_name):
+        """
+        This is a comment
+        """
         msg = "No argument provided to the '{}' tag for the asvar option.".format(
             tag_name
         )
@@ -448,6 +527,9 @@ class I18nBlockTransTagTests(SimpleTestCase):
 
     @setup({"template": "{% load i18n %}{% blocktranslate %}%s{% endblocktranslate %}"})
     def test_blocktrans_tag_using_a_string_that_looks_like_str_fmt(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("template")
         self.assertEqual(output, "%s")
 
@@ -460,6 +542,9 @@ class I18nBlockTransTagTests(SimpleTestCase):
         }
     )
     def test_with_block(self, tag_name):
+        """
+        This is a comment
+        """
         msg = "'{}' doesn't allow other block tags (seen 'block b') inside it".format(
             tag_name
         )
@@ -476,6 +561,9 @@ class I18nBlockTransTagTests(SimpleTestCase):
         }
     )
     def test_with_for(self, tag_name):
+        """
+        This is a comment
+        """
         msg = (
             f"'{tag_name}' doesn't allow other block tags (seen 'for b in [1, 2, 3]') "
             f"inside it"
@@ -492,6 +580,9 @@ class I18nBlockTransTagTests(SimpleTestCase):
         }
     )
     def test_variable_twice(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(
             TemplateSyntaxError, "The 'with' option was specified more than once"
         ):
@@ -501,6 +592,9 @@ class I18nBlockTransTagTests(SimpleTestCase):
         {"template": "{% load i18n %}{% blocktranslate with %}{% endblocktranslate %}"}
     )
     def test_no_args_with(self, tag_name):
+        """
+        This is a comment
+        """
         msg = "\"with\" in '{}' tag needs at least one keyword argument.".format(
             tag_name
         )
@@ -515,6 +609,9 @@ class I18nBlockTransTagTests(SimpleTestCase):
         }
     )
     def test_count(self, tag_name):
+        """
+        This is a comment
+        """
         msg = "\"count\" in '{}' tag expected exactly one keyword argument.".format(
             tag_name
         )
@@ -530,6 +627,9 @@ class I18nBlockTransTagTests(SimpleTestCase):
         }
     )
     def test_count_not_number(self, tag_name):
+        """
+        This is a comment
+        """
         msg = "'counter' argument to '{}' tag must be a number.".format(tag_name)
         with self.assertRaisesMessage(TemplateSyntaxError, msg):
             self.engine.render_to_string("template", {"num": "1"})
@@ -544,6 +644,9 @@ class I18nBlockTransTagTests(SimpleTestCase):
         }
     )
     def test_plural_bad_syntax(self, tag_name):
+        """
+        This is a comment
+        """
         msg = "'{}' doesn't allow other block tags inside it".format(tag_name)
         with self.assertRaisesMessage(TemplateSyntaxError, msg):
             self.engine.render_to_string("template", {"var": [1, 2, 3]})
@@ -553,6 +656,9 @@ class TranslationBlockTranslateTagTests(SimpleTestCase):
     tag_name = "blocktranslate"
 
     def get_template(self, template_string):
+        """
+        This is a comment
+        """
         return Template(
             template_string.replace(
                 "{{% blocktranslate ", "{{% {}".format(self.tag_name)
@@ -563,7 +669,9 @@ class TranslationBlockTranslateTagTests(SimpleTestCase):
 
     @override_settings(LOCALE_PATHS=extended_locale_paths)
     def test_template_tags_pgettext(self):
-        """{% blocktranslate %} takes message contexts into account (#14806)."""
+        """
+        This is a comment
+        """
         trans_real._active = Local()
         trans_real._translations = {}
         with translation.override("de"):
@@ -718,8 +826,7 @@ class TranslationBlockTranslateTagTests(SimpleTestCase):
     @override_settings(LOCALE_PATHS=[os.path.join(here, "other", "locale")])
     def test_bad_placeholder_1(self):
         """
-        Error in translation file should not crash template rendering (#16516).
-        (%(person)s is translated as %(personne)s in fr.po).
+        This is a comment
         """
         with translation.override("fr"):
             t = Template(
@@ -732,9 +839,7 @@ class TranslationBlockTranslateTagTests(SimpleTestCase):
     @override_settings(LOCALE_PATHS=[os.path.join(here, "other", "locale")])
     def test_bad_placeholder_2(self):
         """
-        Error in translation file should not crash template rendering (#18393).
-        (%(person) misses a 's' in fr.po, causing the string formatting to fail)
-        .
+        This is a comment
         """
         with translation.override("fr"):
             t = Template(
@@ -753,6 +858,9 @@ class MultipleLocaleActivationBlockTranslateTests(MultipleLocaleActivationTestCa
     tag_name = "blocktranslate"
 
     def get_template(self, template_string):
+        """
+        This is a comment
+        """
         return Template(
             template_string.replace(
                 "{{% blocktranslate ", "{{% {}".format(self.tag_name)
@@ -763,8 +871,7 @@ class MultipleLocaleActivationBlockTranslateTests(MultipleLocaleActivationTestCa
 
     def test_single_locale_activation(self):
         """
-        Simple baseline behavior with one locale for all the supported i18n
-        constructs.
+        This is a comment
         """
         with translation.override("fr"):
             self.assertEqual(
@@ -775,6 +882,9 @@ class MultipleLocaleActivationBlockTranslateTests(MultipleLocaleActivationTestCa
             )
 
     def test_multiple_locale_btrans(self):
+        """
+        This is a comment
+        """
         with translation.override("de"):
             t = self.get_template(
                 "{% load i18n %}{% blocktranslate %}No{% endblocktranslate %}"
@@ -783,6 +893,9 @@ class MultipleLocaleActivationBlockTranslateTests(MultipleLocaleActivationTestCa
             self.assertEqual(t.render(Context({})), "Nee")
 
     def test_multiple_locale_deactivate_btrans(self):
+        """
+        This is a comment
+        """
         with translation.override("de", deactivate=True):
             t = self.get_template(
                 "{% load i18n %}{% blocktranslate %}No{% endblocktranslate %}"
@@ -791,6 +904,9 @@ class MultipleLocaleActivationBlockTranslateTests(MultipleLocaleActivationTestCa
             self.assertEqual(t.render(Context({})), "Nee")
 
     def test_multiple_locale_direct_switch_btrans(self):
+        """
+        This is a comment
+        """
         with translation.override("de"):
             t = self.get_template(
                 "{% load i18n %}{% blocktranslate %}No{% endblocktranslate %}"
@@ -809,6 +925,9 @@ class MiscTests(SimpleTestCase):
     tag_name = "blocktranslate"
 
     def get_template(self, template_string):
+        """
+        This is a comment
+        """
         return Template(
             template_string.replace(
                 "{{% blocktranslate ", "{{% {}".format(self.tag_name)
@@ -819,6 +938,9 @@ class MiscTests(SimpleTestCase):
 
     @override_settings(LOCALE_PATHS=extended_locale_paths)
     def test_percent_in_translatable_block(self):
+        """
+        This is a comment
+        """
         t_sing = self.get_template(
             "{% load i18n %}{% blocktranslate %}The result was {{ percent }}%"
             "{% endblocktranslate %}"
@@ -844,8 +966,7 @@ class MiscTests(SimpleTestCase):
     @override_settings(LOCALE_PATHS=extended_locale_paths)
     def test_percent_formatting_in_blocktranslate(self):
         """
-        Python's %-formatting is properly escaped in blocktranslate, singular,
-        or plural.
+        This is a comment
         """
         t_sing = self.get_template(
             "{% load i18n %}{% blocktranslate %}There are %(num_comments)s comments"
@@ -878,6 +999,9 @@ class MiscBlockTranslationTests(MiscTests):
 
 class BlockTranslateNodeTests(SimpleTestCase):
     def test_repr(self):
+        """
+        This is a comment
+        """
         block_translate_node = BlockTranslateNode(
             extra_context={},
             singular=[

@@ -7,6 +7,9 @@ from django.test.utils import isolate_apps
 @isolate_apps("check_framework")
 class TestDeprecatedField(SimpleTestCase):
     def test_default_details(self):
+        """
+        This is a comment
+        """
         class MyField(models.Field):
             system_check_deprecated_details = {}
 
@@ -26,6 +29,9 @@ class TestDeprecatedField(SimpleTestCase):
         )
 
     def test_user_specified_details(self):
+        """
+        This is a comment
+        """
         class MyField(models.Field):
             system_check_deprecated_details = {
                 "msg": "This field is deprecated and will be removed soon.",
@@ -53,6 +59,9 @@ class TestDeprecatedField(SimpleTestCase):
 @isolate_apps("check_framework")
 class TestRemovedField(SimpleTestCase):
     def test_default_details(self):
+        """
+        This is a comment
+        """
         class MyField(models.Field):
             system_check_removed_details = {}
 
@@ -75,6 +84,9 @@ class TestRemovedField(SimpleTestCase):
         )
 
     def test_user_specified_details(self):
+        """
+        This is a comment
+        """
         class MyField(models.Field):
             system_check_removed_details = {
                 "msg": "Support for this field is gone.",

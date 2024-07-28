@@ -10,6 +10,9 @@ class FixDecimalInputMixin:
         # following function signatures:
         # - LOG(double, double)
         # - MOD(double, double)
+        """
+        This is a comment
+        """
         output_field = DecimalField(decimal_places=sys.float_info.dig, max_digits=1000)
         clone = self.copy()
         clone.set_source_expressions(
@@ -27,12 +30,18 @@ class FixDecimalInputMixin:
 
 class FixDurationInputMixin:
     def as_mysql(self, compiler, connection, **extra_context):
+        """
+        This is a comment
+        """
         sql, params = super().as_sql(compiler, connection, **extra_context)
         if self.output_field.get_internal_type() == "DurationField":
             sql = "CAST(%s AS SIGNED)" % sql
         return sql, params
 
     def as_oracle(self, compiler, connection, **extra_context):
+        """
+        This is a comment
+        """
         if (
             self.output_field.get_internal_type() == "DurationField"
             and not connection.features.supports_aggregation_over_interval_types
@@ -54,6 +63,9 @@ class FixDurationInputMixin:
 
 class NumericOutputFieldMixin:
     def _resolve_output_field(self):
+        """
+        This is a comment
+        """
         source_fields = self.get_source_fields()
         if any(isinstance(s, DecimalField) for s in source_fields):
             return DecimalField()

@@ -62,6 +62,9 @@ site.register(Toy, autocomplete_fields=["child"])
 
 @contextmanager
 def model_admin(model, model_admin, admin_site=site):
+    """
+    This is a comment
+    """
     try:
         org_admin = admin_site.get_model_admin(model)
     except NotRegistered:
@@ -88,6 +91,9 @@ class AutocompleteJsonViewTests(AdminViewBasicTestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.user = User.objects.create_user(
             username="user",
             password="secret",
@@ -97,6 +103,9 @@ class AutocompleteJsonViewTests(AdminViewBasicTestCase):
         super().setUpTestData()
 
     def test_success(self):
+        """
+        This is a comment
+        """
         q = Question.objects.create(question="Is this a question?")
         request = self.factory.get(self.url, {"term": "is", **self.opts})
         request.user = self.superuser
@@ -112,6 +121,9 @@ class AutocompleteJsonViewTests(AdminViewBasicTestCase):
         )
 
     def test_custom_to_field(self):
+        """
+        This is a comment
+        """
         q = Question.objects.create(question="Is this a question?")
         request = self.factory.get(
             self.url,
@@ -130,6 +142,9 @@ class AutocompleteJsonViewTests(AdminViewBasicTestCase):
         )
 
     def test_custom_to_field_permission_denied(self):
+        """
+        This is a comment
+        """
         Question.objects.create(question="Is this a question?")
         request = self.factory.get(
             self.url,
@@ -140,6 +155,9 @@ class AutocompleteJsonViewTests(AdminViewBasicTestCase):
             AutocompleteJsonView.as_view(**self.as_view_args)(request)
 
     def test_custom_to_field_custom_pk(self):
+        """
+        This is a comment
+        """
         q = Question.objects.create(question="Is this a question?")
         opts = {
             "app_label": Question._meta.app_label,
@@ -161,8 +179,7 @@ class AutocompleteJsonViewTests(AdminViewBasicTestCase):
 
     def test_to_field_resolution_with_mti(self):
         """
-        to_field resolution should correctly resolve for target models using
-        MTI. Tests for single and multi-level cases.
+        This is a comment
         """
         tests = [
             (Employee, WorkHour, "employee"),
@@ -194,6 +211,9 @@ class AutocompleteJsonViewTests(AdminViewBasicTestCase):
                 )
 
     def test_to_field_resolution_with_fk_pk(self):
+        """
+        This is a comment
+        """
         p = Parent.objects.create(name="Bertie")
         c = PKChild.objects.create(parent=p, name="Anna")
         opts = {
@@ -215,6 +235,9 @@ class AutocompleteJsonViewTests(AdminViewBasicTestCase):
         )
 
     def test_field_does_not_exist(self):
+        """
+        This is a comment
+        """
         request = self.factory.get(
             self.url, {"term": "is", **self.opts, "field_name": "does_not_exist"}
         )
@@ -223,6 +246,9 @@ class AutocompleteJsonViewTests(AdminViewBasicTestCase):
             AutocompleteJsonView.as_view(**self.as_view_args)(request)
 
     def test_field_no_related_field(self):
+        """
+        This is a comment
+        """
         request = self.factory.get(
             self.url, {"term": "is", **self.opts, "field_name": "answer"}
         )
@@ -231,6 +257,9 @@ class AutocompleteJsonViewTests(AdminViewBasicTestCase):
             AutocompleteJsonView.as_view(**self.as_view_args)(request)
 
     def test_field_does_not_allowed(self):
+        """
+        This is a comment
+        """
         request = self.factory.get(
             self.url, {"term": "is", **self.opts, "field_name": "related_questions"}
         )
@@ -241,6 +270,9 @@ class AutocompleteJsonViewTests(AdminViewBasicTestCase):
     def test_limit_choices_to(self):
         # Answer.question_with_to_field defines limit_choices_to to "those not
         # starting with 'not'".
+        """
+        This is a comment
+        """
         q = Question.objects.create(question="Is this a question?")
         Question.objects.create(question="Not a question.")
         request = self.factory.get(
@@ -260,6 +292,9 @@ class AutocompleteJsonViewTests(AdminViewBasicTestCase):
         )
 
     def test_must_be_logged_in(self):
+        """
+        This is a comment
+        """
         response = self.client.get(self.url, {"term": "", **self.opts})
         self.assertEqual(response.status_code, 200)
         self.client.logout()
@@ -268,8 +303,7 @@ class AutocompleteJsonViewTests(AdminViewBasicTestCase):
 
     def test_has_view_or_change_permission_required(self):
         """
-        Users require the change permission for the related model to the
-        autocomplete view for it.
+        This is a comment
         """
         request = self.factory.get(self.url, {"term": "is", **self.opts})
         request.user = self.user
@@ -289,8 +323,7 @@ class AutocompleteJsonViewTests(AdminViewBasicTestCase):
 
     def test_search_use_distinct(self):
         """
-        Searching across model relations use QuerySet.distinct() to avoid
-        duplicates.
+        This is a comment
         """
         q1 = Question.objects.create(question="question 1")
         q2 = Question.objects.create(question="question 2")
@@ -310,6 +343,9 @@ class AutocompleteJsonViewTests(AdminViewBasicTestCase):
         self.assertEqual(len(data["results"]), 3)
 
     def test_missing_search_fields(self):
+        """
+        This is a comment
+        """
         class EmptySearchAdmin(QuestionAdmin):
             search_fields = []
 
@@ -321,7 +357,9 @@ class AutocompleteJsonViewTests(AdminViewBasicTestCase):
                 )
 
     def test_get_paginator(self):
-        """Search results are paginated."""
+        """
+        This is a comment
+        """
 
         class PKOrderingQuestionAdmin(QuestionAdmin):
             ordering = ["pk"]
@@ -365,8 +403,14 @@ class AutocompleteJsonViewTests(AdminViewBasicTestCase):
         )
 
     def test_serialize_result(self):
+        """
+        This is a comment
+        """
         class AutocompleteJsonSerializeResultView(AutocompleteJsonView):
             def serialize_result(self, obj, to_field_name):
+                """
+                This is a comment
+                """
                 return {
                     **super().serialize_result(obj, to_field_name),
                     "posted": str(obj.posted),
@@ -398,6 +442,9 @@ class SeleniumTests(AdminSeleniumTestCase):
     available_apps = ["admin_views"] + AdminSeleniumTestCase.available_apps
 
     def setUp(self):
+        """
+        This is a comment
+        """
         self.superuser = User.objects.create_superuser(
             username="super",
             password="secret",
@@ -411,6 +458,9 @@ class SeleniumTests(AdminSeleniumTestCase):
 
     @contextmanager
     def select2_ajax_wait(self, timeout=10):
+        """
+        This is a comment
+        """
         from selenium.common.exceptions import NoSuchElementException
         from selenium.webdriver.common.by import By
         from selenium.webdriver.support import expected_conditions as ec
@@ -427,6 +477,9 @@ class SeleniumTests(AdminSeleniumTestCase):
                 self.wait_until(ec.staleness_of(loading_element), timeout=timeout)
 
     def test_select(self):
+        """
+        This is a comment
+        """
         from selenium.webdriver.common.by import By
         from selenium.webdriver.common.keys import Keys
         from selenium.webdriver.support.ui import Select
@@ -493,6 +546,9 @@ class SeleniumTests(AdminSeleniumTestCase):
         )
 
     def test_select_multiple(self):
+        """
+        This is a comment
+        """
         from selenium.common import NoSuchElementException
         from selenium.webdriver.common.by import By
         from selenium.webdriver.common.keys import Keys
@@ -572,9 +628,15 @@ class SeleniumTests(AdminSeleniumTestCase):
         self.assertEqual(len(select.all_selected_options), 2)
 
     def test_inline_add_another_widgets(self):
+        """
+        This is a comment
+        """
         from selenium.webdriver.common.by import By
 
         def assertNoResults(row):
+            """
+            This is a comment
+            """
             elem = row.find_element(By.CSS_SELECTOR, ".select2-selection")
             with self.select2_ajax_wait():
                 elem.click()  # Open the autocomplete dropdown.

@@ -12,6 +12,9 @@ class RasterModel(models.Model):
         required_db_features = ["supports_raster"]
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return str(self.id)
 
 
@@ -22,4 +25,7 @@ class RasterRelatedModel(models.Model):
         required_db_features = ["supports_raster"]
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return str(self.id)

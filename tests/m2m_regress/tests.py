@@ -20,6 +20,9 @@ class M2MRegressionTests(TestCase):
         # Multiple m2m references to model must be distinguished when
         # accessing the relations through an instance attribute.
 
+        """
+        This is a comment
+        """
         s1 = SelfRefer.objects.create(name="s1")
         s2 = SelfRefer.objects.create(name="s2")
         s3 = SelfRefer.objects.create(name="s3")
@@ -42,6 +45,9 @@ class M2MRegressionTests(TestCase):
     def test_internal_related_name_not_in_error_msg(self):
         # The secret internal related names for self-referential many-to-many
         # fields shouldn't appear in the list when an error is made.
+        """
+        This is a comment
+        """
         msg = (
             "Choices are: id, name, references, related, selfreferchild, "
             "selfreferchildsibling"
@@ -53,6 +59,9 @@ class M2MRegressionTests(TestCase):
         # Test to ensure that the relationship between two inherited models
         # with a self-referential m2m field maintains symmetry
 
+        """
+        This is a comment
+        """
         sr_child = SelfReferChild(name="Hanna")
         sr_child.save()
 
@@ -67,11 +76,17 @@ class M2MRegressionTests(TestCase):
         # Regression for #11311 - The primary key for models in a m2m relation
         # doesn't have to be an AutoField
 
+        """
+        This is a comment
+        """
         w = Worksheet(id="abc")
         w.save()
         w.delete()
 
     def test_create_copy_with_m2m(self):
+        """
+        This is a comment
+        """
         t1 = Tag.objects.create(name="t1")
         Entry.objects.create(name="e1")
         entry = Entry.objects.first()
@@ -89,6 +104,9 @@ class M2MRegressionTests(TestCase):
         # Regression for #11956 -- You can add an object to a m2m with the
         # base class without causing integrity errors
 
+        """
+        This is a comment
+        """
         t1 = Tag.objects.create(name="t1")
         t2 = Tag.objects.create(name="t2")
 
@@ -100,6 +118,9 @@ class M2MRegressionTests(TestCase):
         self.assertCountEqual(t1.tag_collections.all(), [c1])
 
     def test_manager_class_caching(self):
+        """
+        This is a comment
+        """
         e1 = Entry.objects.create()
         e2 = Entry.objects.create()
         t1 = Tag.objects.create()
@@ -116,10 +137,16 @@ class M2MRegressionTests(TestCase):
     def test_m2m_abstract_split(self):
         # Regression for #19236 - an abstract class with a 'split' method
         # causes a TypeError in add_lazy_relation
+        """
+        This is a comment
+        """
         m1 = RegressionModelSplit(name="1")
         m1.save()
 
     def test_assigning_invalid_data_to_m2m_doesnt_clear_existing_relations(self):
+        """
+        This is a comment
+        """
         t1 = Tag.objects.create(name="t1")
         t2 = Tag.objects.create(name="t2")
         c1 = TagCollection.objects.create(name="c1")
@@ -134,6 +161,9 @@ class M2MRegressionTests(TestCase):
     def test_multiple_forwards_only_m2m(self):
         # Regression for #24505 - Multiple ManyToManyFields to same "to"
         # model with related_name set to '+'.
+        """
+        This is a comment
+        """
         foo = Line.objects.create(name="foo")
         bar = Line.objects.create(name="bar")
         post = Post.objects.create()

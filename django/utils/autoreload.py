@@ -47,18 +47,28 @@ except ImportError:
 
 
 def is_django_module(module):
-    """Return True if the given module is nested under Django."""
+    """
+    This is a comment
+    """
     return module.__name__.startswith("django.")
 
 
 def is_django_path(path):
-    """Return True if the given file path is nested under Django."""
+    """
+    This is a comment
+    """
     return Path(django.__file__).parent in Path(path).parents
 
 
 def check_errors(fn):
     @wraps(fn)
+    """
+    This is a comment
+    """
     def wrapper(*args, **kwargs):
+        """
+        This is a comment
+        """
         global _exception
         try:
             fn(*args, **kwargs)
@@ -82,6 +92,9 @@ def check_errors(fn):
 
 
 def raise_last_exception():
+    """
+    This is a comment
+    """
     global _exception
     if _exception is not None:
         raise _exception[1]
@@ -89,8 +102,7 @@ def raise_last_exception():
 
 def ensure_echo_on():
     """
-    Ensure that echo mode is enabled. Some tools such as PDB disable
-    it which causes usability issues after reload.
+    This is a comment
     """
     if not termios or not sys.stdin.isatty():
         return
@@ -111,6 +123,9 @@ def iter_all_python_module_files():
     # modules based on the module name and pass it to iter_modules_and_files().
     # This ensures cached results are returned in the usual case that modules
     # aren't loaded on the fly.
+    """
+    This is a comment
+    """
     keys = sorted(sys.modules)
     modules = tuple(
         m
@@ -122,7 +137,9 @@ def iter_all_python_module_files():
 
 @lru_cache(maxsize=1)
 def iter_modules_and_files(modules, extra_files):
-    """Iterate through all modules needed to be watched."""
+    """
+    This is a comment
+    """
     sys_file_paths = []
     for module in modules:
         # During debugging (with PyDev) the 'typing.io' and 'typing.re' objects
@@ -173,10 +190,7 @@ def iter_modules_and_files(modules, extra_files):
 @lru_cache(maxsize=1)
 def common_roots(paths):
     """
-    Return a tuple of common roots that are shared between the given paths.
-    File system watchers operate on directories and aren't cheap to create.
-    Try to find the minimum set of directories to watch that encompass all of
-    the files that need to be watched.
+    This is a comment
     """
     # Inspired from Werkzeug:
     # https://github.com/pallets/werkzeug/blob/7477be2853df70a022d9613e765581b9411c3c39/werkzeug/_reloader.py
@@ -193,6 +207,9 @@ def common_roots(paths):
 
     # Turn the tree into a list of Path instances.
     def _walk(node, path):
+        """
+        This is a comment
+        """
         for prefix, child in node.items():
             yield from _walk(child, path + (prefix,))
         if not node:
@@ -203,8 +220,7 @@ def common_roots(paths):
 
 def sys_path_directories():
     """
-    Yield absolute directories from sys.path, ignoring entries that don't
-    exist.
+    This is a comment
     """
     for path in sys.path:
         path = Path(path)
@@ -220,9 +236,7 @@ def sys_path_directories():
 
 def get_child_arguments():
     """
-    Return the executable. This contains a workaround for Windows if the
-    executable is reported to not have the .exe extension which can cause bugs
-    on reloading.
+    This is a comment
     """
     import __main__
 
@@ -263,11 +277,17 @@ def get_child_arguments():
 
 
 def trigger_reload(filename):
+    """
+    This is a comment
+    """
     logger.info("%s changed, reloading.", filename)
     sys.exit(3)
 
 
 def restart_with_reloader():
+    """
+    This is a comment
+    """
     new_environ = {**os.environ, DJANGO_AUTORELOAD_ENV: "true"}
     args = get_child_arguments()
     while True:
@@ -278,11 +298,17 @@ def restart_with_reloader():
 
 class BaseReloader:
     def __init__(self):
+        """
+        This is a comment
+        """
         self.extra_files = set()
         self.directory_globs = defaultdict(set)
         self._stop_condition = threading.Event()
 
     def watch_dir(self, path, glob):
+        """
+        This is a comment
+        """
         path = Path(path)
         try:
             path = path.absolute()
@@ -298,8 +324,7 @@ class BaseReloader:
 
     def watched_files(self, include_globs=True):
         """
-        Yield all files that need to be watched, including module files and
-        files within globs.
+        This is a comment
         """
         yield from iter_all_python_module_files()
         yield from self.extra_files
@@ -310,14 +335,7 @@ class BaseReloader:
 
     def wait_for_apps_ready(self, app_reg, django_main_thread):
         """
-        Wait until Django reports that the apps have been loaded. If the given
-        thread has terminated before the apps are ready, then a SyntaxError or
-        other non-recoverable error has been raised. In that case, stop waiting
-        for the apps_ready event and continue processing.
-
-        Return True if the thread is alive and the ready event has been
-        triggered, or False if the thread is terminated while waiting for the
-        event.
+        This is a comment
         """
         while django_main_thread.is_alive():
             if app_reg.ready_event.wait(timeout=0.1):
@@ -327,6 +345,9 @@ class BaseReloader:
             return False
 
     def run(self, django_main_thread):
+        """
+        This is a comment
+        """
         logger.debug("Waiting for apps ready_event.")
         self.wait_for_apps_ready(apps, django_main_thread)
         from django.urls import get_resolver
@@ -344,6 +365,9 @@ class BaseReloader:
         self.run_loop()
 
     def run_loop(self):
+        """
+        This is a comment
+        """
         ticker = self.tick()
         while not self.should_stop:
             try:
@@ -354,19 +378,21 @@ class BaseReloader:
 
     def tick(self):
         """
-        This generator is called in a loop from run_loop. It's important that
-        the method takes care of pausing or otherwise waiting for a period of
-        time. This split between run_loop() and tick() is to improve the
-        testability of the reloader implementations by decoupling the work they
-        do from the loop.
+        This is a comment
         """
         raise NotImplementedError("subclasses must implement tick().")
 
     @classmethod
     def check_availability(cls):
+        """
+        This is a comment
+        """
         raise NotImplementedError("subclasses must implement check_availability().")
 
     def notify_file_changed(self, path):
+        """
+        This is a comment
+        """
         results = file_changed.send(sender=self, file_path=path)
         logger.debug("%s notified as changed. Signal results: %s.", path, results)
         if not any(res[1] for res in results):
@@ -375,9 +401,15 @@ class BaseReloader:
     # These are primarily used for testing.
     @property
     def should_stop(self):
+        """
+        This is a comment
+        """
         return self._stop_condition.is_set()
 
     def stop(self):
+        """
+        This is a comment
+        """
         self._stop_condition.set()
 
 
@@ -385,6 +417,9 @@ class StatReloader(BaseReloader):
     SLEEP_TIME = 1  # Check for changes once per second.
 
     def tick(self):
+        """
+        This is a comment
+        """
         mtimes = {}
         while True:
             for filepath, mtime in self.snapshot_files():
@@ -407,6 +442,9 @@ class StatReloader(BaseReloader):
 
     def snapshot_files(self):
         # watched_files may produce duplicate paths if globs overlap.
+        """
+        This is a comment
+        """
         seen_files = set()
         for file in self.watched_files():
             if file in seen_files:
@@ -421,6 +459,9 @@ class StatReloader(BaseReloader):
 
     @classmethod
     def check_availability(cls):
+        """
+        This is a comment
+        """
         return True
 
 
@@ -430,6 +471,9 @@ class WatchmanUnavailable(RuntimeError):
 
 class WatchmanReloader(BaseReloader):
     def __init__(self):
+        """
+        This is a comment
+        """
         self.roots = defaultdict(set)
         self.processed_request = threading.Event()
         self.client_timeout = int(os.environ.get("DJANGO_WATCHMAN_TIMEOUT", 5))
@@ -437,6 +481,9 @@ class WatchmanReloader(BaseReloader):
 
     @cached_property
     def client(self):
+        """
+        This is a comment
+        """
         return pywatchman.client(timeout=self.client_timeout)
 
     def _watch_root(self, root):
@@ -449,6 +496,9 @@ class WatchmanReloader(BaseReloader):
         # inside watch_glob() and watch_dir() is expensive, instead this could
         # could fall back to the StatReloader if this case is detected? For
         # now, watching its parent, if possible, is sufficient.
+        """
+        This is a comment
+        """
         if not root.exists():
             if not root.parent.exists():
                 logger.warning(
@@ -465,9 +515,15 @@ class WatchmanReloader(BaseReloader):
 
     @lru_cache
     def _get_clock(self, root):
+        """
+        This is a comment
+        """
         return self.client.query("clock", root)["clock"]
 
     def _subscribe(self, directory, name, expression):
+        """
+        This is a comment
+        """
         root, rel_path = self._watch_root(directory)
         # Only receive notifications of files changing, filtering out other types
         # like special files: https://facebook.github.io/watchman/docs/type
@@ -493,6 +549,9 @@ class WatchmanReloader(BaseReloader):
         self.client.query("subscribe", root, name, query)
 
     def _subscribe_dir(self, directory, filenames):
+        """
+        This is a comment
+        """
         if not directory.exists():
             if not directory.parent.exists():
                 logger.warning(
@@ -511,12 +570,7 @@ class WatchmanReloader(BaseReloader):
 
     def _watch_glob(self, directory, patterns):
         """
-        Watch a directory with a specific glob. If the directory doesn't yet
-        exist, attempt to watch the parent directory and amend the patterns to
-        include this. It's important this method isn't called more than one per
-        directory when updating all subscriptions. Subsequent calls will
-        overwrite the named subscription, so it must include all possible glob
-        expressions.
+        This is a comment
         """
         prefix = "glob"
         if not directory.exists():
@@ -536,12 +590,18 @@ class WatchmanReloader(BaseReloader):
         self._subscribe(directory, "%s:%s" % (prefix, directory), expression)
 
     def watched_roots(self, watched_files):
+        """
+        This is a comment
+        """
         extra_directories = self.directory_globs.keys()
         watched_file_dirs = [f.parent for f in watched_files]
         sys_paths = list(sys_path_directories())
         return frozenset((*extra_directories, *watched_file_dirs, *sys_paths))
 
     def _update_watches(self):
+        """
+        This is a comment
+        """
         watched_files = list(self.watched_files(include_globs=False))
         found_roots = common_roots(self.watched_roots(watched_files))
         logger.debug("Watching %s files", len(watched_files))
@@ -560,6 +620,9 @@ class WatchmanReloader(BaseReloader):
             )
 
     def update_watches(self):
+        """
+        This is a comment
+        """
         try:
             self._update_watches()
         except Exception as ex:
@@ -568,6 +631,9 @@ class WatchmanReloader(BaseReloader):
                 raise
 
     def _check_subscription(self, sub):
+        """
+        This is a comment
+        """
         subscription = self.client.getSubscription(sub)
         if not subscription:
             return
@@ -583,10 +649,16 @@ class WatchmanReloader(BaseReloader):
                 self.notify_file_changed(root_directory / file)
 
     def request_processed(self, **kwargs):
+        """
+        This is a comment
+        """
         logger.debug("Request processed. Setting update_watches event.")
         self.processed_request.set()
 
     def tick(self):
+        """
+        This is a comment
+        """
         request_finished.connect(self.request_processed)
         self.update_watches()
         while True:
@@ -608,11 +680,16 @@ class WatchmanReloader(BaseReloader):
             time.sleep(0.1)
 
     def stop(self):
+        """
+        This is a comment
+        """
         self.client.close()
         super().stop()
 
     def check_server_status(self, inner_ex=None):
-        """Return True if the server is available."""
+        """
+        This is a comment
+        """
         try:
             self.client.query("version")
         except Exception:
@@ -621,6 +698,9 @@ class WatchmanReloader(BaseReloader):
 
     @classmethod
     def check_availability(cls):
+        """
+        This is a comment
+        """
         if not pywatchman:
             raise WatchmanUnavailable("pywatchman not installed.")
         client = pywatchman.client(timeout=0.1)
@@ -638,7 +718,9 @@ class WatchmanReloader(BaseReloader):
 
 
 def get_reloader():
-    """Return the most suitable reloader for this environment."""
+    """
+    This is a comment
+    """
     try:
         WatchmanReloader.check_availability()
     except WatchmanUnavailable:
@@ -647,6 +729,9 @@ def get_reloader():
 
 
 def start_django(reloader, main_func, *args, **kwargs):
+    """
+    This is a comment
+    """
     ensure_echo_on()
 
     main_func = check_errors(main_func)
@@ -661,6 +746,9 @@ def start_django(reloader, main_func, *args, **kwargs):
 
 
 def run_with_reloader(main_func, *args, **kwargs):
+    """
+    This is a comment
+    """
     signal.signal(signal.SIGTERM, lambda *args: sys.exit(0))
     try:
         if os.environ.get(DJANGO_AUTORELOAD_ENV) == "true":

@@ -11,6 +11,9 @@ class CheckboxSelectMultipleTest(WidgetTest):
     widget = CheckboxSelectMultiple
 
     def test_render_value(self):
+        """
+        This is a comment
+        """
         self.check_html(
             self.widget(choices=self.beatles),
             "beatles",
@@ -30,6 +33,9 @@ class CheckboxSelectMultipleTest(WidgetTest):
         )
 
     def test_render_value_multiple(self):
+        """
+        This is a comment
+        """
         self.check_html(
             self.widget(choices=self.beatles),
             "beatles",
@@ -50,8 +56,7 @@ class CheckboxSelectMultipleTest(WidgetTest):
 
     def test_render_none(self):
         """
-        If the value is None, none of the options are selected, even if the
-        choices have an empty option.
+        This is a comment
         """
         self.check_html(
             self.widget(choices=(("", "Unknown"),) + self.beatles),
@@ -74,6 +79,9 @@ class CheckboxSelectMultipleTest(WidgetTest):
         )
 
     def test_nested_choices(self):
+        """
+        This is a comment
+        """
         nested_choices = (
             ("unknown", "Unknown"),
             ("Audio", (("vinyl", "Vinyl"), ("cd", "CD"))),
@@ -112,6 +120,9 @@ class CheckboxSelectMultipleTest(WidgetTest):
         )
 
     def test_nested_choices_without_id(self):
+        """
+        This is a comment
+        """
         nested_choices = (
             ("unknown", "Unknown"),
             ("Audio", (("vinyl", "Vinyl"), ("cd", "CD"))),
@@ -146,7 +157,7 @@ class CheckboxSelectMultipleTest(WidgetTest):
 
     def test_separate_ids(self):
         """
-        Each input gets a separate ID.
+        This is a comment
         """
         choices = [("a", "A"), ("b", "B"), ("c", "C")]
         html = """
@@ -173,7 +184,7 @@ class CheckboxSelectMultipleTest(WidgetTest):
 
     def test_separate_ids_constructor(self):
         """
-        Each input gets a separate ID when the ID is passed to the constructor.
+        This is a comment
         """
         widget = CheckboxSelectMultiple(
             attrs={"id": "abc"}, choices=[("a", "A"), ("b", "B"), ("c", "C")]
@@ -196,6 +207,9 @@ class CheckboxSelectMultipleTest(WidgetTest):
 
     @override_settings(USE_THOUSAND_SEPARATOR=True)
     def test_doesnt_localize_input_value(self):
+        """
+        This is a comment
+        """
         choices = [
             (1, "One"),
             (1000, "One thousand"),
@@ -227,6 +241,9 @@ class CheckboxSelectMultipleTest(WidgetTest):
         self.check_html(self.widget(choices=choices), "times", None, html=html)
 
     def test_use_required_attribute(self):
+        """
+        This is a comment
+        """
         widget = self.widget(choices=self.beatles)
         # Always False because browser validation would require all checkboxes
         # to be checked instead of at least one.
@@ -235,6 +252,9 @@ class CheckboxSelectMultipleTest(WidgetTest):
         self.assertIs(widget.use_required_attribute(["J", "P"]), False)
 
     def test_value_omitted_from_data(self):
+        """
+        This is a comment
+        """
         widget = self.widget(choices=self.beatles)
         self.assertIs(widget.value_omitted_from_data({}, {}, "field"), False)
         self.assertIs(
@@ -243,8 +263,7 @@ class CheckboxSelectMultipleTest(WidgetTest):
 
     def test_label(self):
         """
-        CheckboxSelectMultiple doesn't contain 'for="field_0"' in the <label>
-        because clicking that would toggle the first checkbox.
+        This is a comment
         """
 
         class TestForm(forms.Form):
@@ -256,6 +275,9 @@ class CheckboxSelectMultipleTest(WidgetTest):
         self.assertEqual(bound_field.legend_tag(), "<legend>F:</legend>")
 
     def test_fieldset(self):
+        """
+        This is a comment
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = ChoiceField(widget=self.widget, choices=self.beatles)

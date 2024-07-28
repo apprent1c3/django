@@ -3,6 +3,9 @@ from django.urls import path
 
 
 def helloworld(request):
+    """
+    This is a comment
+    """
     return HttpResponse("Hello World!")
 
 

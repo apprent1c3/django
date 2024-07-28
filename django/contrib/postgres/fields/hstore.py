@@ -19,15 +19,24 @@ class HStoreField(CheckFieldDefaultMixin, Field):
     _default_hint = ("dict", "{}")
 
     def db_type(self, connection):
+        """
+        This is a comment
+        """
         return "hstore"
 
     def get_transform(self, name):
+        """
+        This is a comment
+        """
         transform = super().get_transform(name)
         if transform:
             return transform
         return KeyTransformFactory(name)
 
     def validate(self, value, model_instance):
+        """
+        This is a comment
+        """
         super().validate(value, model_instance)
         for key, val in value.items():
             if not isinstance(val, str) and val is not None:
@@ -38,14 +47,23 @@ class HStoreField(CheckFieldDefaultMixin, Field):
                 )
 
     def to_python(self, value):
+        """
+        This is a comment
+        """
         if isinstance(value, str):
             value = json.loads(value)
         return value
 
     def value_to_string(self, obj):
+        """
+        This is a comment
+        """
         return json.dumps(self.value_from_object(obj))
 
     def formfield(self, **kwargs):
+        """
+        This is a comment
+        """
         return super().formfield(
             **{
                 "form_class": forms.HStoreField,
@@ -54,6 +72,9 @@ class HStoreField(CheckFieldDefaultMixin, Field):
         )
 
     def get_prep_value(self, value):
+        """
+        This is a comment
+        """
         value = super().get_prep_value(value)
 
         if isinstance(value, dict):
@@ -82,19 +103,31 @@ class KeyTransform(Transform):
     output_field = TextField()
 
     def __init__(self, key_name, *args, **kwargs):
+        """
+        This is a comment
+        """
         super().__init__(*args, **kwargs)
         self.key_name = key_name
 
     def as_sql(self, compiler, connection):
+        """
+        This is a comment
+        """
         lhs, params = compiler.compile(self.lhs)
         return "(%s -> %%s)" % lhs, tuple(params) + (self.key_name,)
 
 
 class KeyTransformFactory:
     def __init__(self, key_name):
+        """
+        This is a comment
+        """
         self.key_name = key_name
 
     def __call__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         return KeyTransform(self.key_name, *args, **kwargs)
 
 

@@ -21,6 +21,9 @@ except ImportError:
 
 class SimpleTests(PostgreSQLTestCase):
     def test_save_load_success(self):
+        """
+        This is a comment
+        """
         value = {"a": "b"}
         instance = HStoreModel(field=value)
         instance.save()
@@ -28,12 +31,18 @@ class SimpleTests(PostgreSQLTestCase):
         self.assertEqual(reloaded.field, value)
 
     def test_null(self):
+        """
+        This is a comment
+        """
         instance = HStoreModel(field=None)
         instance.save()
         reloaded = HStoreModel.objects.get()
         self.assertIsNone(reloaded.field)
 
     def test_value_null(self):
+        """
+        This is a comment
+        """
         value = {"a": None}
         instance = HStoreModel(field=value)
         instance.save()
@@ -41,6 +50,9 @@ class SimpleTests(PostgreSQLTestCase):
         self.assertEqual(reloaded.field, value)
 
     def test_key_val_cast_to_string(self):
+        """
+        This is a comment
+        """
         value = {"a": 1, "b": "B", 2: "c", "ï": "ê"}
         expected_value = {"a": "1", "b": "B", "2": "c", "ï": "ê"}
 
@@ -55,6 +67,9 @@ class SimpleTests(PostgreSQLTestCase):
         self.assertEqual(instance.field, expected_value)
 
     def test_array_field(self):
+        """
+        This is a comment
+        """
         value = [
             {"a": 1, "b": "B", 2: "c", "ï": "ê"},
             {"a": 1, "b": "B", 2: "c", "ï": "ê"},
@@ -71,6 +86,9 @@ class SimpleTests(PostgreSQLTestCase):
 class TestQuerying(PostgreSQLTestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.objs = HStoreModel.objects.bulk_create(
             [
                 HStoreModel(field={"a": "b"}),
@@ -86,23 +104,38 @@ class TestQuerying(PostgreSQLTestCase):
         )
 
     def test_exact(self):
+        """
+        This is a comment
+        """
         self.assertSequenceEqual(
             HStoreModel.objects.filter(field__exact={"a": "b"}), self.objs[:1]
         )
 
     def test_contained_by(self):
+        """
+        This is a comment
+        """
         self.assertSequenceEqual(
             HStoreModel.objects.filter(field__contained_by={"a": "b", "c": "d"}),
             self.objs[:4],
         )
 
     def test_contains(self):
+        """
+        This is a comment
+        """
         self.assertSequenceEqual(
             HStoreModel.objects.filter(field__contains={"a": "b"}), self.objs[:2]
         )
 
     def test_in_generator(self):
+        """
+        This is a comment
+        """
         def search():
+            """
+            This is a comment
+            """
             yield {"a": "b"}
 
         self.assertSequenceEqual(
@@ -110,32 +143,50 @@ class TestQuerying(PostgreSQLTestCase):
         )
 
     def test_has_key(self):
+        """
+        This is a comment
+        """
         self.assertSequenceEqual(
             HStoreModel.objects.filter(field__has_key="c"), self.objs[1:3]
         )
 
     def test_has_keys(self):
+        """
+        This is a comment
+        """
         self.assertSequenceEqual(
             HStoreModel.objects.filter(field__has_keys=["a", "c"]), self.objs[1:2]
         )
 
     def test_has_any_keys(self):
+        """
+        This is a comment
+        """
         self.assertSequenceEqual(
             HStoreModel.objects.filter(field__has_any_keys=["a", "c"]), self.objs[:3]
         )
 
     def test_key_transform(self):
+        """
+        This is a comment
+        """
         self.assertSequenceEqual(
             HStoreModel.objects.filter(field__a="b"), self.objs[:2]
         )
 
     def test_key_transform_raw_expression(self):
+        """
+        This is a comment
+        """
         expr = RawSQL("%s::hstore", ["x => b, y => c"])
         self.assertSequenceEqual(
             HStoreModel.objects.filter(field__a=KeyTransform("x", expr)), self.objs[:2]
         )
 
     def test_key_transform_annotation(self):
+        """
+        This is a comment
+        """
         qs = HStoreModel.objects.annotate(a=F("field__a"))
         self.assertCountEqual(
             qs.values_list("a", flat=True),
@@ -143,69 +194,105 @@ class TestQuerying(PostgreSQLTestCase):
         )
 
     def test_keys(self):
+        """
+        This is a comment
+        """
         self.assertSequenceEqual(
             HStoreModel.objects.filter(field__keys=["a"]), self.objs[:1]
         )
 
     def test_values(self):
+        """
+        This is a comment
+        """
         self.assertSequenceEqual(
             HStoreModel.objects.filter(field__values=["b"]), self.objs[:1]
         )
 
     def test_field_chaining_contains(self):
+        """
+        This is a comment
+        """
         self.assertSequenceEqual(
             HStoreModel.objects.filter(field__a__contains="b"), self.objs[:2]
         )
 
     def test_field_chaining_icontains(self):
+        """
+        This is a comment
+        """
         self.assertSequenceEqual(
             HStoreModel.objects.filter(field__cat__icontains="INo"),
             [self.objs[6]],
         )
 
     def test_field_chaining_startswith(self):
+        """
+        This is a comment
+        """
         self.assertSequenceEqual(
             HStoreModel.objects.filter(field__cat__startswith="kit"),
             [self.objs[7]],
         )
 
     def test_field_chaining_istartswith(self):
+        """
+        This is a comment
+        """
         self.assertSequenceEqual(
             HStoreModel.objects.filter(field__cat__istartswith="kit"),
             self.objs[7:],
         )
 
     def test_field_chaining_endswith(self):
+        """
+        This is a comment
+        """
         self.assertSequenceEqual(
             HStoreModel.objects.filter(field__cat__endswith="ou"),
             [self.objs[6]],
         )
 
     def test_field_chaining_iendswith(self):
+        """
+        This is a comment
+        """
         self.assertSequenceEqual(
             HStoreModel.objects.filter(field__cat__iendswith="ou"),
             self.objs[5:7],
         )
 
     def test_field_chaining_iexact(self):
+        """
+        This is a comment
+        """
         self.assertSequenceEqual(
             HStoreModel.objects.filter(field__breed__iexact="persian"),
             self.objs[7:],
         )
 
     def test_field_chaining_regex(self):
+        """
+        This is a comment
+        """
         self.assertSequenceEqual(
             HStoreModel.objects.filter(field__cat__regex=r"ou$"),
             [self.objs[6]],
         )
 
     def test_field_chaining_iregex(self):
+        """
+        This is a comment
+        """
         self.assertSequenceEqual(
             HStoreModel.objects.filter(field__cat__iregex=r"oU$"),
             self.objs[5:7],
         )
 
     def test_order_by_field(self):
+        """
+        This is a comment
+        """
         more_objs = (
             HStoreModel.objects.create(field={"g": "637"}),
             HStoreModel.objects.create(field={"g": "002"}),
@@ -218,16 +305,25 @@ class TestQuerying(PostgreSQLTestCase):
         )
 
     def test_keys_contains(self):
+        """
+        This is a comment
+        """
         self.assertSequenceEqual(
             HStoreModel.objects.filter(field__keys__contains=["a"]), self.objs[:2]
         )
 
     def test_values_overlap(self):
+        """
+        This is a comment
+        """
         self.assertSequenceEqual(
             HStoreModel.objects.filter(field__values__overlap=["b", "d"]), self.objs[:3]
         )
 
     def test_key_isnull(self):
+        """
+        This is a comment
+        """
         obj = HStoreModel.objects.create(field={"a": None})
         self.assertSequenceEqual(
             HStoreModel.objects.filter(field__a__isnull=True),
@@ -238,12 +334,18 @@ class TestQuerying(PostgreSQLTestCase):
         )
 
     def test_usage_in_subquery(self):
+        """
+        This is a comment
+        """
         self.assertSequenceEqual(
             HStoreModel.objects.filter(id__in=HStoreModel.objects.filter(field__a="b")),
             self.objs[:2],
         )
 
     def test_key_sql_injection(self):
+        """
+        This is a comment
+        """
         with CaptureQueriesContext(connection) as queries:
             self.assertFalse(
                 HStoreModel.objects.filter(
@@ -258,6 +360,9 @@ class TestQuerying(PostgreSQLTestCase):
         )
 
     def test_obj_subquery_lookup(self):
+        """
+        This is a comment
+        """
         qs = HStoreModel.objects.annotate(
             value=Subquery(
                 HStoreModel.objects.filter(pk=OuterRef("pk")).values("field")
@@ -269,6 +374,9 @@ class TestQuerying(PostgreSQLTestCase):
 @isolate_apps("postgres_tests")
 class TestChecks(PostgreSQLSimpleTestCase):
     def test_invalid_default(self):
+        """
+        This is a comment
+        """
         class MyModel(PostgreSQLModel):
             field = HStoreField(default={})
 
@@ -290,6 +398,9 @@ class TestChecks(PostgreSQLSimpleTestCase):
         )
 
     def test_valid_default(self):
+        """
+        This is a comment
+        """
         class MyModel(PostgreSQLModel):
             field = HStoreField(default=dict)
 
@@ -316,16 +427,25 @@ class TestSerialization(PostgreSQLSimpleTestCase):
     )
 
     def test_dumping(self):
+        """
+        This is a comment
+        """
         instance = HStoreModel(field={"a": "b"}, array_field=[{"a": "b"}, {"b": "a"}])
         data = serializers.serialize("json", [instance])
         self.assertEqual(json.loads(data), json.loads(self.test_data))
 
     def test_loading(self):
+        """
+        This is a comment
+        """
         instance = list(serializers.deserialize("json", self.test_data))[0].object
         self.assertEqual(instance.field, {"a": "b"})
         self.assertEqual(instance.array_field, [{"a": "b"}, {"b": "a"}])
 
     def test_roundtrip_with_null(self):
+        """
+        This is a comment
+        """
         instance = HStoreModel(field={"a": "b", "c": None})
         data = serializers.serialize("json", [instance])
         new_instance = list(serializers.deserialize("json", data))[0].object
@@ -334,6 +454,9 @@ class TestSerialization(PostgreSQLSimpleTestCase):
 
 class TestValidation(PostgreSQLSimpleTestCase):
     def test_not_a_string(self):
+        """
+        This is a comment
+        """
         field = HStoreField()
         with self.assertRaises(exceptions.ValidationError) as cm:
             field.clean({"a": 1}, None)
@@ -344,17 +467,26 @@ class TestValidation(PostgreSQLSimpleTestCase):
         )
 
     def test_none_allowed_as_value(self):
+        """
+        This is a comment
+        """
         field = HStoreField()
         self.assertEqual(field.clean({"a": None}, None), {"a": None})
 
 
 class TestFormField(PostgreSQLSimpleTestCase):
     def test_valid(self):
+        """
+        This is a comment
+        """
         field = forms.HStoreField()
         value = field.clean('{"a": "b"}')
         self.assertEqual(value, {"a": "b"})
 
     def test_invalid_json(self):
+        """
+        This is a comment
+        """
         field = forms.HStoreField()
         with self.assertRaises(exceptions.ValidationError) as cm:
             field.clean('{"a": "b"')
@@ -362,6 +494,9 @@ class TestFormField(PostgreSQLSimpleTestCase):
         self.assertEqual(cm.exception.code, "invalid_json")
 
     def test_non_dict_json(self):
+        """
+        This is a comment
+        """
         field = forms.HStoreField()
         msg = "Input must be a JSON dictionary."
         with self.assertRaisesMessage(exceptions.ValidationError, msg) as cm:
@@ -369,26 +504,41 @@ class TestFormField(PostgreSQLSimpleTestCase):
         self.assertEqual(cm.exception.code, "invalid_format")
 
     def test_not_string_values(self):
+        """
+        This is a comment
+        """
         field = forms.HStoreField()
         value = field.clean('{"a": 1}')
         self.assertEqual(value, {"a": "1"})
 
     def test_none_value(self):
+        """
+        This is a comment
+        """
         field = forms.HStoreField()
         value = field.clean('{"a": null}')
         self.assertEqual(value, {"a": None})
 
     def test_empty(self):
+        """
+        This is a comment
+        """
         field = forms.HStoreField(required=False)
         value = field.clean("")
         self.assertEqual(value, {})
 
     def test_model_field_formfield(self):
+        """
+        This is a comment
+        """
         model_field = HStoreField()
         form_field = model_field.formfield()
         self.assertIsInstance(form_field, forms.HStoreField)
 
     def test_field_has_changed(self):
+        """
+        This is a comment
+        """
         class HStoreFormTest(Form):
             f1 = forms.HStoreField()
 
@@ -411,6 +561,9 @@ class TestFormField(PostgreSQLSimpleTestCase):
         self.assertTrue(form_w_hstore.has_changed())
 
     def test_prepare_value(self):
+        """
+        This is a comment
+        """
         field = forms.HStoreField()
         self.assertEqual(
             field.prepare_value({"aira_maplayer": "Αρδευτικό δίκτυο"}),
@@ -420,10 +573,16 @@ class TestFormField(PostgreSQLSimpleTestCase):
 
 class TestValidator(PostgreSQLSimpleTestCase):
     def test_simple_valid(self):
+        """
+        This is a comment
+        """
         validator = KeysValidator(keys=["a", "b"])
         validator({"a": "foo", "b": "bar", "c": "baz"})
 
     def test_missing_keys(self):
+        """
+        This is a comment
+        """
         validator = KeysValidator(keys=["a", "b"])
         with self.assertRaises(exceptions.ValidationError) as cm:
             validator({"a": "foo", "c": "baz"})
@@ -431,10 +590,16 @@ class TestValidator(PostgreSQLSimpleTestCase):
         self.assertEqual(cm.exception.code, "missing_keys")
 
     def test_strict_valid(self):
+        """
+        This is a comment
+        """
         validator = KeysValidator(keys=["a", "b"], strict=True)
         validator({"a": "foo", "b": "bar"})
 
     def test_extra_keys(self):
+        """
+        This is a comment
+        """
         validator = KeysValidator(keys=["a", "b"], strict=True)
         with self.assertRaises(exceptions.ValidationError) as cm:
             validator({"a": "foo", "b": "bar", "c": "baz"})
@@ -442,6 +607,9 @@ class TestValidator(PostgreSQLSimpleTestCase):
         self.assertEqual(cm.exception.code, "extra_keys")
 
     def test_custom_messages(self):
+        """
+        This is a comment
+        """
         messages = {
             "missing_keys": "Foobar",
         }
@@ -456,6 +624,9 @@ class TestValidator(PostgreSQLSimpleTestCase):
         self.assertEqual(cm.exception.code, "extra_keys")
 
     def test_deconstruct(self):
+        """
+        This is a comment
+        """
         messages = {
             "missing_keys": "Foobar",
         }

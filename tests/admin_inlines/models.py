@@ -15,6 +15,9 @@ class Parent(models.Model):
     name = models.CharField(max_length=50)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -22,6 +25,9 @@ class Teacher(models.Model):
     name = models.CharField(max_length=50)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -34,6 +40,9 @@ class Child(models.Model):
     parent = GenericForeignKey()
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "I am %s, a child of %s" % (self.name, self.parent)
 
 
@@ -41,6 +50,9 @@ class Book(models.Model):
     name = models.CharField(max_length=50)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -56,6 +68,9 @@ class NonAutoPKBook(models.Model):
     title = models.CharField(max_length=50)
 
     def save(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         while not self.rand_pk:
             test_pk = random.randint(1, 99999)
             if not NonAutoPKBook.objects.filter(rand_pk=test_pk).exists():
@@ -83,6 +98,9 @@ class Inner(models.Model):
     readonly = models.CharField("Inner readonly label", max_length=1)
 
     def get_absolute_url(self):
+        """
+        This is a comment
+        """
         return "/inner/"
 
 
@@ -229,6 +247,9 @@ class Question(models.Model):
     poll = models.ForeignKey(Poll, models.CASCADE)
 
     def clean(self):
+        """
+        This is a comment
+        """
         raise ValidationError("Always invalid model.")
 
 
@@ -291,6 +312,9 @@ class ChildModel1(models.Model):
     parent = models.ForeignKey(ParentModelWithCustomPk, models.CASCADE)
 
     def get_absolute_url(self):
+        """
+        This is a comment
+        """
         return "/child_model1/"
 
 
@@ -300,6 +324,9 @@ class ChildModel2(models.Model):
     parent = models.ForeignKey(ParentModelWithCustomPk, models.CASCADE)
 
     def get_absolute_url(self):
+        """
+        This is a comment
+        """
         return "/child_model2/"
 
 
@@ -342,6 +369,9 @@ class Course(models.Model):
     name = models.CharField(max_length=128)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 

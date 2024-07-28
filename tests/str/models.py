@@ -16,4 +16,7 @@ class InternationalArticle(models.Model):
     pub_date = models.DateTimeField()
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.headline

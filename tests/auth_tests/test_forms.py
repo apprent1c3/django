@@ -45,6 +45,9 @@ from .settings import AUTH_TEMPLATES
 class TestDataMixin:
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.u1 = User.objects.create_user(
             username="testclient", password="password", email="testclient@example.com"
         )
@@ -62,10 +65,16 @@ class TestDataMixin:
 
 class ExtraValidationFormMixin:
     def __init__(self, *args, failing_fields=None, **kwargs):
+        """
+        This is a comment
+        """
         super().__init__(*args, **kwargs)
         self.failing_fields = failing_fields or {}
 
     def failing_helper(self, field_name):
+        """
+        This is a comment
+        """
         if field_name in self.failing_fields:
             errors = [
                 ValidationError(error, code="invalid")
@@ -77,6 +86,9 @@ class ExtraValidationFormMixin:
 
 class BaseUserCreationFormTest(TestDataMixin, TestCase):
     def test_user_already_exists(self):
+        """
+        This is a comment
+        """
         data = {
             "username": "testclient",
             "password1": "test123",
@@ -90,6 +102,9 @@ class BaseUserCreationFormTest(TestDataMixin, TestCase):
         )
 
     def test_invalid_data(self):
+        """
+        This is a comment
+        """
         data = {
             "username": "jsmith!",
             "password1": "test123",
@@ -106,6 +121,9 @@ class BaseUserCreationFormTest(TestDataMixin, TestCase):
 
     def test_password_verification(self):
         # The verification password is incorrect.
+        """
+        This is a comment
+        """
         data = {
             "username": "jsmith",
             "password1": "test123",
@@ -119,6 +137,9 @@ class BaseUserCreationFormTest(TestDataMixin, TestCase):
 
     def test_both_passwords(self):
         # One (or both) passwords weren't given
+        """
+        This is a comment
+        """
         data = {"username": "jsmith"}
         form = BaseUserCreationForm(data)
         required_error = [str(Field.default_error_messages["required"])]
@@ -135,6 +156,9 @@ class BaseUserCreationFormTest(TestDataMixin, TestCase):
     @mock.patch("django.contrib.auth.password_validation.password_changed")
     def test_success(self, password_changed):
         # The success case.
+        """
+        This is a comment
+        """
         data = {
             "username": "jsmith@example.com",
             "password1": "test123",
@@ -149,6 +173,9 @@ class BaseUserCreationFormTest(TestDataMixin, TestCase):
         self.assertEqual(repr(u), "<User: jsmith@example.com>")
 
     def test_unicode_username(self):
+        """
+        This is a comment
+        """
         data = {
             "username": "宝",
             "password1": "test123",
@@ -162,6 +189,9 @@ class BaseUserCreationFormTest(TestDataMixin, TestCase):
     def test_normalize_username(self):
         # The normalization happens in AbstractBaseUser.clean() and ModelForm
         # validation calls Model.clean().
+        """
+        This is a comment
+        """
         ohm_username = "testΩ"  # U+2126 OHM SIGN
         data = {
             "username": ohm_username,
@@ -175,6 +205,9 @@ class BaseUserCreationFormTest(TestDataMixin, TestCase):
         self.assertEqual(user.username, "testΩ")  # U+03A9 GREEK CAPITAL LETTER OMEGA
 
     def test_invalid_username_no_normalize(self):
+        """
+        This is a comment
+        """
         field = UsernameField(max_length=254)
         # Usernames are not normalized if they are too long.
         self.assertEqual(field.to_python("½" * 255), "½" * 255)
@@ -182,9 +215,7 @@ class BaseUserCreationFormTest(TestDataMixin, TestCase):
 
     def test_duplicate_normalized_unicode(self):
         """
-        To prevent almost identical usernames, visually identical but differing
-        by their unicode code points only, Unicode NFKC normalization should
-        make appear them equal to Django.
+        This is a comment
         """
         omega_username = "iamtheΩ"  # U+03A9 GREEK CAPITAL LETTER OMEGA
         ohm_username = "iamtheΩ"  # U+2126 OHM SIGN
@@ -220,6 +251,9 @@ class BaseUserCreationFormTest(TestDataMixin, TestCase):
         ]
     )
     def test_validates_password(self):
+        """
+        This is a comment
+        """
         data = {
             "username": "testclient",
             "password1": "testclient",
@@ -247,6 +281,9 @@ class BaseUserCreationFormTest(TestDataMixin, TestCase):
         self.assertIs(form.is_valid(), True, form.errors)
 
     def test_custom_form(self):
+        """
+        This is a comment
+        """
         class CustomUserCreationForm(BaseUserCreationForm):
             class Meta(BaseUserCreationForm.Meta):
                 model = ExtensionUser
@@ -262,6 +299,9 @@ class BaseUserCreationFormTest(TestDataMixin, TestCase):
         self.assertTrue(form.is_valid())
 
     def test_custom_form_with_different_username_field(self):
+        """
+        This is a comment
+        """
         class CustomUserCreationForm(BaseUserCreationForm):
             class Meta(BaseUserCreationForm.Meta):
                 model = CustomUser
@@ -277,6 +317,9 @@ class BaseUserCreationFormTest(TestDataMixin, TestCase):
         self.assertTrue(form.is_valid())
 
     def test_custom_form_hidden_username_field(self):
+        """
+        This is a comment
+        """
         class CustomUserCreationForm(BaseUserCreationForm):
             class Meta(BaseUserCreationForm.Meta):
                 model = CustomUserWithoutIsActiveField
@@ -291,6 +334,9 @@ class BaseUserCreationFormTest(TestDataMixin, TestCase):
         self.assertTrue(form.is_valid())
 
     def test_custom_form_saves_many_to_many_field(self):
+        """
+        This is a comment
+        """
         class CustomUserCreationForm(BaseUserCreationForm):
             class Meta(BaseUserCreationForm.Meta):
                 model = CustomUserWithM2M
@@ -310,6 +356,9 @@ class BaseUserCreationFormTest(TestDataMixin, TestCase):
         self.assertSequenceEqual(user.orgs.all(), [organization])
 
     def test_password_whitespace_not_stripped(self):
+        """
+        This is a comment
+        """
         data = {
             "username": "testuser",
             "password1": "   testpassword   ",
@@ -331,6 +380,9 @@ class BaseUserCreationFormTest(TestDataMixin, TestCase):
         ]
     )
     def test_password_help_text(self):
+        """
+        This is a comment
+        """
         form = BaseUserCreationForm()
         self.assertEqual(
             form.fields["password1"].help_text,
@@ -340,11 +392,20 @@ class BaseUserCreationFormTest(TestDataMixin, TestCase):
         )
 
     def test_password_extra_validations(self):
+        """
+        This is a comment
+        """
         class ExtraValidationForm(ExtraValidationFormMixin, BaseUserCreationForm):
             def clean_password1(self):
+                """
+                This is a comment
+                """
                 return self.failing_helper("password1")
 
             def clean_password2(self):
+                """
+                This is a comment
+                """
                 return self.failing_helper("password2")
 
         data = {"username": "extra", "password1": "abc", "password2": "abc"}
@@ -367,7 +428,7 @@ class BaseUserCreationFormTest(TestDataMixin, TestCase):
     )
     def test_user_create_form_validates_password_with_all_data(self):
         """
-        BaseUserCreationForm password validation uses all of the form's data.
+        This is a comment
         """
 
         class CustomUserCreationForm(BaseUserCreationForm):
@@ -404,12 +465,18 @@ class BaseUserCreationFormTest(TestDataMixin, TestCase):
         self.assertIs(form.is_valid(), True, form.errors)
 
     def test_username_field_autocapitalize_none(self):
+        """
+        This is a comment
+        """
         form = BaseUserCreationForm()
         self.assertEqual(
             form.fields["username"].widget.attrs.get("autocapitalize"), "none"
         )
 
     def test_html_autocomplete_attributes(self):
+        """
+        This is a comment
+        """
         form = BaseUserCreationForm()
         tests = (
             ("username", "username"),
@@ -423,6 +490,9 @@ class BaseUserCreationFormTest(TestDataMixin, TestCase):
                 )
 
     def test_unusable_password(self):
+        """
+        This is a comment
+        """
         data = {
             "username": "new-user-which-does-not-exist",
             "usable_password": "false",
@@ -436,6 +506,9 @@ class BaseUserCreationFormTest(TestDataMixin, TestCase):
 
 class UserCreationFormTest(TestDataMixin, TestCase):
     def test_case_insensitive_username(self):
+        """
+        This is a comment
+        """
         data = {
             "username": "TeStClIeNt",
             "password1": "test123",
@@ -450,6 +523,9 @@ class UserCreationFormTest(TestDataMixin, TestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.ExtensionUser")
     def test_case_insensitive_username_custom_user_and_error_message(self):
+        """
+        This is a comment
+        """
         class CustomUserCreationForm(UserCreationForm):
             class Meta(UserCreationForm.Meta):
                 model = ExtensionUser
@@ -487,6 +563,9 @@ class AuthenticationFormTest(TestDataMixin, TestCase):
     def test_invalid_username(self):
         # The user submits an invalid username.
 
+        """
+        This is a comment
+        """
         data = {
             "username": "jsmith_does_not_exist",
             "password": "test123",
@@ -503,6 +582,9 @@ class AuthenticationFormTest(TestDataMixin, TestCase):
 
     def test_inactive_user(self):
         # The user is inactive.
+        """
+        This is a comment
+        """
         data = {
             "username": "inactive",
             "password": "password",
@@ -518,7 +600,9 @@ class AuthenticationFormTest(TestDataMixin, TestCase):
         AUTHENTICATION_BACKENDS=["django.contrib.auth.backends.ModelBackend"]
     )
     def test_inactive_user_incorrect_password(self):
-        """An invalid login doesn't leak the inactive status of a user."""
+        """
+        This is a comment
+        """
         data = {
             "username": "inactive",
             "password": "incorrect",
@@ -534,9 +618,15 @@ class AuthenticationFormTest(TestDataMixin, TestCase):
         )
 
     def test_login_failed(self):
+        """
+        This is a comment
+        """
         signal_calls = []
 
         def signal_handler(**kwargs):
+            """
+            This is a comment
+            """
             signal_calls.append(kwargs)
 
         user_login_failed.connect(signal_handler)
@@ -555,6 +645,9 @@ class AuthenticationFormTest(TestDataMixin, TestCase):
             user_login_failed.disconnect(signal_handler)
 
     def test_inactive_user_i18n(self):
+        """
+        This is a comment
+        """
         with (
             self.settings(USE_I18N=True),
             translation.override("pt-br", deactivate=True),
@@ -578,6 +671,9 @@ class AuthenticationFormTest(TestDataMixin, TestCase):
     )
     def test_custom_login_allowed_policy(self):
         # The user is inactive, but our custom form policy allows them to log in.
+        """
+        This is a comment
+        """
         data = {
             "username": "inactive",
             "password": "password",
@@ -585,6 +681,9 @@ class AuthenticationFormTest(TestDataMixin, TestCase):
 
         class AuthenticationFormWithInactiveUsersOkay(AuthenticationForm):
             def confirm_login_allowed(self, user):
+                """
+                This is a comment
+                """
                 pass
 
         form = AuthenticationFormWithInactiveUsersOkay(None, data)
@@ -594,6 +693,9 @@ class AuthenticationFormTest(TestDataMixin, TestCase):
         # to custom logic.
         class PickyAuthenticationForm(AuthenticationForm):
             def confirm_login_allowed(self, user):
+                """
+                This is a comment
+                """
                 if user.username == "inactive":
                     raise ValidationError("This user is disallowed.")
                 raise ValidationError("Sorry, nobody's allowed in.")
@@ -612,6 +714,9 @@ class AuthenticationFormTest(TestDataMixin, TestCase):
 
     def test_success(self):
         # The success case
+        """
+        This is a comment
+        """
         data = {
             "username": "testclient",
             "password": "password",
@@ -621,6 +726,9 @@ class AuthenticationFormTest(TestDataMixin, TestCase):
         self.assertEqual(form.non_field_errors(), [])
 
     def test_unicode_username(self):
+        """
+        This is a comment
+        """
         User.objects.create_user(username="Σαρα", password="pwd")
         data = {
             "username": "Σαρα",
@@ -632,6 +740,9 @@ class AuthenticationFormTest(TestDataMixin, TestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomEmailField")
     def test_username_field_max_length_matches_user_model(self):
+        """
+        This is a comment
+        """
         self.assertEqual(CustomEmailField._meta.get_field("username").max_length, 255)
         data = {
             "username": "u" * 255,
@@ -646,6 +757,9 @@ class AuthenticationFormTest(TestDataMixin, TestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.IntegerUsernameUser")
     def test_username_field_max_length_defaults_to_254(self):
+        """
+        This is a comment
+        """
         self.assertIsNone(IntegerUsernameUser._meta.get_field("username").max_length)
         data = {
             "username": "0123456",
@@ -658,6 +772,9 @@ class AuthenticationFormTest(TestDataMixin, TestCase):
         self.assertEqual(form.errors, {})
 
     def test_username_field_label(self):
+        """
+        This is a comment
+        """
         class CustomAuthenticationForm(AuthenticationForm):
             username = CharField(label="Name", max_length=75)
 
@@ -665,6 +782,9 @@ class AuthenticationFormTest(TestDataMixin, TestCase):
         self.assertEqual(form["username"].label, "Name")
 
     def test_username_field_label_not_set(self):
+        """
+        This is a comment
+        """
         class CustomAuthenticationForm(AuthenticationForm):
             username = CharField()
 
@@ -675,12 +795,18 @@ class AuthenticationFormTest(TestDataMixin, TestCase):
         )
 
     def test_username_field_autocapitalize_none(self):
+        """
+        This is a comment
+        """
         form = AuthenticationForm()
         self.assertEqual(
             form.fields["username"].widget.attrs.get("autocapitalize"), "none"
         )
 
     def test_username_field_label_empty_string(self):
+        """
+        This is a comment
+        """
         class CustomAuthenticationForm(AuthenticationForm):
             username = CharField(label="")
 
@@ -688,6 +814,9 @@ class AuthenticationFormTest(TestDataMixin, TestCase):
         self.assertEqual(form.fields["username"].label, "")
 
     def test_password_whitespace_not_stripped(self):
+        """
+        This is a comment
+        """
         data = {
             "username": "testuser",
             "password": " pass ",
@@ -698,6 +827,9 @@ class AuthenticationFormTest(TestDataMixin, TestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.IntegerUsernameUser")
     def test_integer_username(self):
+        """
+        This is a comment
+        """
         class CustomAuthenticationForm(AuthenticationForm):
             username = IntegerField()
 
@@ -714,6 +846,9 @@ class AuthenticationFormTest(TestDataMixin, TestCase):
         self.assertEqual(form.user_cache, user)
 
     def test_get_invalid_login_error(self):
+        """
+        This is a comment
+        """
         error = AuthenticationForm().get_invalid_login_error()
         self.assertIsInstance(error, ValidationError)
         self.assertEqual(
@@ -725,6 +860,9 @@ class AuthenticationFormTest(TestDataMixin, TestCase):
         self.assertEqual(error.params, {"username": "username"})
 
     def test_html_autocomplete_attributes(self):
+        """
+        This is a comment
+        """
         form = AuthenticationForm()
         tests = (
             ("username", "username"),
@@ -737,6 +875,9 @@ class AuthenticationFormTest(TestDataMixin, TestCase):
                 )
 
     def test_no_password(self):
+        """
+        This is a comment
+        """
         data = {"username": "username"}
         form = AuthenticationForm(None, data)
         self.assertIs(form.is_valid(), False)
@@ -748,6 +889,9 @@ class AuthenticationFormTest(TestDataMixin, TestCase):
 class SetPasswordFormTest(TestDataMixin, TestCase):
     def test_password_verification(self):
         # The two new passwords do not match.
+        """
+        This is a comment
+        """
         user = User.objects.get(username="testclient")
         data = {
             "new_password1": "abc123",
@@ -762,6 +906,9 @@ class SetPasswordFormTest(TestDataMixin, TestCase):
 
     @mock.patch("django.contrib.auth.password_validation.password_changed")
     def test_success(self, password_changed):
+        """
+        This is a comment
+        """
         user = User.objects.get(username="testclient")
         data = {
             "new_password1": "abc123",
@@ -793,6 +940,9 @@ class SetPasswordFormTest(TestDataMixin, TestCase):
         ]
     )
     def test_validates_password(self):
+        """
+        This is a comment
+        """
         user = User.objects.get(username="testclient")
         data = {
             "new_password1": "testclient",
@@ -827,6 +977,9 @@ class SetPasswordFormTest(TestDataMixin, TestCase):
         )
 
     def test_no_password(self):
+        """
+        This is a comment
+        """
         user = User.objects.get(username="testclient")
         data = {"new_password1": "new-password"}
         form = SetPasswordForm(user, data)
@@ -844,6 +997,9 @@ class SetPasswordFormTest(TestDataMixin, TestCase):
         )
 
     def test_password_whitespace_not_stripped(self):
+        """
+        This is a comment
+        """
         user = User.objects.get(username="testclient")
         data = {
             "new_password1": "   password   ",
@@ -873,6 +1029,9 @@ class SetPasswordFormTest(TestDataMixin, TestCase):
         ]
     )
     def test_help_text_translation(self):
+        """
+        This is a comment
+        """
         french_help_texts = [
             "Votre mot de passe ne peut pas trop ressembler à vos autres informations "
             "personnelles.",
@@ -885,6 +1044,9 @@ class SetPasswordFormTest(TestDataMixin, TestCase):
                 self.assertIn(french_text, html)
 
     def test_html_autocomplete_attributes(self):
+        """
+        This is a comment
+        """
         form = SetPasswordForm(self.u1)
         tests = (
             ("new_password1", "new-password"),
@@ -897,11 +1059,20 @@ class SetPasswordFormTest(TestDataMixin, TestCase):
                 )
 
     def test_password_extra_validations(self):
+        """
+        This is a comment
+        """
         class ExtraValidationForm(ExtraValidationFormMixin, SetPasswordForm):
             def clean_new_password1(self):
+                """
+                This is a comment
+                """
                 return self.failing_helper("new_password1")
 
             def clean_new_password2(self):
+                """
+                This is a comment
+                """
                 return self.failing_helper("new_password2")
 
         user = User.objects.get(username="testclient")
@@ -920,6 +1091,9 @@ class SetPasswordFormTest(TestDataMixin, TestCase):
 
 class PasswordChangeFormTest(TestDataMixin, TestCase):
     def test_incorrect_password(self):
+        """
+        This is a comment
+        """
         user = User.objects.get(username="testclient")
         data = {
             "old_password": "test",
@@ -935,6 +1109,9 @@ class PasswordChangeFormTest(TestDataMixin, TestCase):
 
     def test_password_verification(self):
         # The two new passwords do not match.
+        """
+        This is a comment
+        """
         user = User.objects.get(username="testclient")
         data = {
             "old_password": "password",
@@ -951,6 +1128,9 @@ class PasswordChangeFormTest(TestDataMixin, TestCase):
     @mock.patch("django.contrib.auth.password_validation.password_changed")
     def test_success(self, password_changed):
         # The success case.
+        """
+        This is a comment
+        """
         user = User.objects.get(username="testclient")
         data = {
             "old_password": "password",
@@ -966,6 +1146,9 @@ class PasswordChangeFormTest(TestDataMixin, TestCase):
 
     def test_field_order(self):
         # Regression test - check the order of fields:
+        """
+        This is a comment
+        """
         user = User.objects.get(username="testclient")
         self.assertEqual(
             list(PasswordChangeForm(user, {}).fields),
@@ -973,6 +1156,9 @@ class PasswordChangeFormTest(TestDataMixin, TestCase):
         )
 
     def test_password_whitespace_not_stripped(self):
+        """
+        This is a comment
+        """
         user = User.objects.get(username="testclient")
         user.set_password("   oldpassword   ")
         data = {
@@ -987,6 +1173,9 @@ class PasswordChangeFormTest(TestDataMixin, TestCase):
         self.assertEqual(form.cleaned_data["new_password2"], data["new_password2"])
 
     def test_html_autocomplete_attributes(self):
+        """
+        This is a comment
+        """
         user = User.objects.get(username="testclient")
         form = PasswordChangeForm(user)
         self.assertEqual(
@@ -996,6 +1185,9 @@ class PasswordChangeFormTest(TestDataMixin, TestCase):
 
 class UserChangeFormTest(TestDataMixin, TestCase):
     def test_username_validity(self):
+        """
+        This is a comment
+        """
         user = User.objects.get(username="testclient")
         data = {"username": "not valid"}
         form = UserChangeForm(data, instance=user)
@@ -1011,8 +1203,14 @@ class UserChangeFormTest(TestDataMixin, TestCase):
         # A regression test, introduce by adding an optimization for the
         # UserChangeForm.
 
+        """
+        This is a comment
+        """
         class MyUserForm(UserChangeForm):
             def __init__(self, *args, **kwargs):
+                """
+                This is a comment
+                """
                 super().__init__(*args, **kwargs)
                 self.fields["groups"].help_text = (
                     "These groups give users different permissions"
@@ -1025,16 +1223,25 @@ class UserChangeFormTest(TestDataMixin, TestCase):
         MyUserForm({})
 
     def test_unusable_password(self):
+        """
+        This is a comment
+        """
         user = User.objects.get(username="unusable_password")
         form = UserChangeForm(instance=user)
         self.assertIn(_("No password set."), form.as_table())
 
     def test_bug_17944_empty_password(self):
+        """
+        This is a comment
+        """
         user = User.objects.get(username="empty_password")
         form = UserChangeForm(instance=user)
         self.assertIn(_("No password set."), form.as_table())
 
     def test_bug_17944_unmanageable_password(self):
+        """
+        This is a comment
+        """
         user = User.objects.get(username="unmanageable_password")
         form = UserChangeForm(instance=user)
         self.assertIn(
@@ -1042,6 +1249,9 @@ class UserChangeFormTest(TestDataMixin, TestCase):
         )
 
     def test_bug_17944_unknown_password_algorithm(self):
+        """
+        This is a comment
+        """
         user = User.objects.get(username="unknown_password")
         form = UserChangeForm(instance=user)
         self.assertIn(
@@ -1049,7 +1259,9 @@ class UserChangeFormTest(TestDataMixin, TestCase):
         )
 
     def test_bug_19133(self):
-        "The change form does not return the password value"
+        """
+        This is a comment
+        """
         # Use the form to construct the POST data
         user = User.objects.get(username="testclient")
         form_for_data = UserChangeForm(instance=user)
@@ -1067,6 +1279,9 @@ class UserChangeFormTest(TestDataMixin, TestCase):
         self.assertIn("$", form.cleaned_data["password"])
 
     def test_bug_19349_bound_password_field(self):
+        """
+        This is a comment
+        """
         user = User.objects.get(username="testclient")
         form = UserChangeForm(data={}, instance=user)
         # When rendering the bound password field,
@@ -1076,6 +1291,9 @@ class UserChangeFormTest(TestDataMixin, TestCase):
 
     @override_settings(ROOT_URLCONF="auth_tests.urls_admin")
     def test_link_to_password_reset_in_user_change_form(self):
+        """
+        This is a comment
+        """
         cases = [
             (
                 "testclient",
@@ -1113,6 +1331,9 @@ class UserChangeFormTest(TestDataMixin, TestCase):
                 self.assertEqual(matches.group(2), expected_button_label)
 
     def test_custom_form(self):
+        """
+        This is a comment
+        """
         class CustomUserChangeForm(UserChangeForm):
             class Meta(UserChangeForm.Meta):
                 model = ExtensionUser
@@ -1135,6 +1356,9 @@ class UserChangeFormTest(TestDataMixin, TestCase):
         self.assertEqual(form.cleaned_data["date_of_birth"], datetime.date(1998, 2, 24))
 
     def test_password_excluded(self):
+        """
+        This is a comment
+        """
         class UserChangeFormWithoutPassword(UserChangeForm):
             password = None
 
@@ -1146,6 +1370,9 @@ class UserChangeFormTest(TestDataMixin, TestCase):
         self.assertNotIn("password", form.fields)
 
     def test_username_field_autocapitalize_none(self):
+        """
+        This is a comment
+        """
         form = UserChangeForm()
         self.assertEqual(
             form.fields["username"].widget.attrs.get("autocapitalize"), "none"
@@ -1156,6 +1383,9 @@ class UserChangeFormTest(TestDataMixin, TestCase):
 class PasswordResetFormTest(TestDataMixin, TestCase):
     @classmethod
     def setUpClass(cls):
+        """
+        This is a comment
+        """
         super().setUpClass()
         # This cleanup is necessary because contrib.sites cache
         # makes tests interfere with each other, see #11505
@@ -1163,7 +1393,7 @@ class PasswordResetFormTest(TestDataMixin, TestCase):
 
     def create_dummy_user(self):
         """
-        Create a user and return a tuple (user_object, username, email).
+        This is a comment
         """
         username = "jsmith"
         email = "jsmith@example.com"
@@ -1171,12 +1401,18 @@ class PasswordResetFormTest(TestDataMixin, TestCase):
         return (user, username, email)
 
     def test_invalid_email(self):
+        """
+        This is a comment
+        """
         data = {"email": "not valid"}
         form = PasswordResetForm(data)
         self.assertFalse(form.is_valid())
         self.assertEqual(form["email"].errors, [_("Enter a valid email address.")])
 
     def test_user_email_unicode_collision(self):
+        """
+        This is a comment
+        """
         User.objects.create_user("mike123", "mike@example.org", "test123")
         User.objects.create_user("mike456", "mıke@example.org", "test123")
         data = {"email": "mıke@example.org"}
@@ -1187,6 +1423,9 @@ class PasswordResetFormTest(TestDataMixin, TestCase):
         self.assertEqual(mail.outbox[0].to, ["mıke@example.org"])
 
     def test_user_email_domain_unicode_collision(self):
+        """
+        This is a comment
+        """
         User.objects.create_user("mike123", "mike@ixample.org", "test123")
         User.objects.create_user("mike456", "mike@ıxample.org", "test123")
         data = {"email": "mike@ıxample.org"}
@@ -1197,6 +1436,9 @@ class PasswordResetFormTest(TestDataMixin, TestCase):
         self.assertEqual(mail.outbox[0].to, ["mike@ıxample.org"])
 
     def test_user_email_unicode_collision_nonexistent(self):
+        """
+        This is a comment
+        """
         User.objects.create_user("mike123", "mike@example.org", "test123")
         data = {"email": "mıke@example.org"}
         form = PasswordResetForm(data)
@@ -1205,6 +1447,9 @@ class PasswordResetFormTest(TestDataMixin, TestCase):
         self.assertEqual(len(mail.outbox), 0)
 
     def test_user_email_domain_unicode_collision_nonexistent(self):
+        """
+        This is a comment
+        """
         User.objects.create_user("mike123", "mike@ixample.org", "test123")
         data = {"email": "mike@ıxample.org"}
         form = PasswordResetForm(data)
@@ -1214,8 +1459,7 @@ class PasswordResetFormTest(TestDataMixin, TestCase):
 
     def test_nonexistent_email(self):
         """
-        Test nonexistent email address. This should not fail because it would
-        expose information about registered users.
+        This is a comment
         """
         data = {"email": "foo@bar.com"}
         form = PasswordResetForm(data)
@@ -1223,6 +1467,9 @@ class PasswordResetFormTest(TestDataMixin, TestCase):
         self.assertEqual(len(mail.outbox), 0)
 
     def test_cleaned_data(self):
+        """
+        This is a comment
+        """
         (user, username, email) = self.create_dummy_user()
         data = {"email": email}
         form = PasswordResetForm(data)
@@ -1232,6 +1479,9 @@ class PasswordResetFormTest(TestDataMixin, TestCase):
         self.assertEqual(len(mail.outbox), 1)
 
     def test_custom_email_subject(self):
+        """
+        This is a comment
+        """
         data = {"email": "testclient@example.com"}
         form = PasswordResetForm(data)
         self.assertTrue(form.is_valid())
@@ -1243,6 +1493,9 @@ class PasswordResetFormTest(TestDataMixin, TestCase):
         self.assertEqual(mail.outbox[0].subject, "Custom password reset on example.com")
 
     def test_custom_email_constructor(self):
+        """
+        This is a comment
+        """
         data = {"email": "testclient@example.com"}
 
         class CustomEmailPasswordResetForm(PasswordResetForm):
@@ -1255,6 +1508,9 @@ class PasswordResetFormTest(TestDataMixin, TestCase):
                 to_email,
                 html_email_template_name=None,
             ):
+                """
+                This is a comment
+                """
                 EmailMultiAlternatives(
                     "Forgot your password?",
                     "Sorry to hear you forgot your password.",
@@ -1280,8 +1536,7 @@ class PasswordResetFormTest(TestDataMixin, TestCase):
 
     def test_preserve_username_case(self):
         """
-        Preserve the case of the user name (before the @ in the email address)
-        when creating a user (#5605).
+        This is a comment
         """
         user = User.objects.create_user("forms_test2", "tesT@EXAMple.com", "test")
         self.assertEqual(user.email, "tesT@example.com")
@@ -1290,7 +1545,7 @@ class PasswordResetFormTest(TestDataMixin, TestCase):
 
     def test_inactive_user(self):
         """
-        Inactive user cannot receive password reset email.
+        This is a comment
         """
         (user, username, email) = self.create_dummy_user()
         user.is_active = False
@@ -1301,6 +1556,9 @@ class PasswordResetFormTest(TestDataMixin, TestCase):
         self.assertEqual(len(mail.outbox), 0)
 
     def test_unusable_password(self):
+        """
+        This is a comment
+        """
         user = User.objects.create_user("testuser", "test@example.com", "test")
         data = {"email": "test@example.com"}
         form = PasswordResetForm(data)
@@ -1315,9 +1573,7 @@ class PasswordResetFormTest(TestDataMixin, TestCase):
 
     def test_save_plaintext_email(self):
         """
-        Test the PasswordResetForm.save() method with no html_email_template_name
-        parameter passed in.
-        Test to ensure original behavior is unchanged after the parameter was added.
+        This is a comment
         """
         (user, username, email) = self.create_dummy_user()
         form = PasswordResetForm({"email": email})
@@ -1336,10 +1592,7 @@ class PasswordResetFormTest(TestDataMixin, TestCase):
 
     def test_save_html_email_template_name(self):
         """
-        Test the PasswordResetForm.save() method with html_email_template_name
-        parameter specified.
-        Test to ensure that a multipart email is sent with both text/plain
-        and text/html parts.
+        This is a comment
         """
         (user, username, email) = self.create_dummy_user()
         form = PasswordResetForm({"email": email})
@@ -1371,6 +1624,9 @@ class PasswordResetFormTest(TestDataMixin, TestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomEmailField")
     def test_custom_email_field(self):
+        """
+        This is a comment
+        """
         email = "test@mail.com"
         CustomEmailField.objects.create_user("test name", "test password", email)
         form = PasswordResetForm({"email": email})
@@ -1381,6 +1637,9 @@ class PasswordResetFormTest(TestDataMixin, TestCase):
         self.assertEqual(mail.outbox[0].to, [email])
 
     def test_html_autocomplete_attributes(self):
+        """
+        This is a comment
+        """
         form = PasswordResetForm()
         self.assertEqual(form.fields["email"].widget.attrs["autocomplete"], "email")
 
@@ -1389,6 +1648,9 @@ class ReadOnlyPasswordHashTest(SimpleTestCase):
     def test_bug_19349_render_with_none_value(self):
         # Rendering the widget with value set to None
         # mustn't raise an exception.
+        """
+        This is a comment
+        """
         widget = ReadOnlyPasswordHashWidget()
         html = widget.render(name="password", value=None, attrs={})
         self.assertIn(_("No password set."), html)
@@ -1397,6 +1659,9 @@ class ReadOnlyPasswordHashTest(SimpleTestCase):
         PASSWORD_HASHERS=["django.contrib.auth.hashers.PBKDF2PasswordHasher"]
     )
     def test_render(self):
+        """
+        This is a comment
+        """
         widget = ReadOnlyPasswordHashWidget()
         value = (
             "pbkdf2_sha256$100000$a6Pucb1qSFcD$WmCkn9Hqidj48NVe5x0FEM6A9YiOqQcl/83m2Z5u"
@@ -1417,14 +1682,16 @@ class ReadOnlyPasswordHashTest(SimpleTestCase):
         )
 
     def test_readonly_field_has_changed(self):
+        """
+        This is a comment
+        """
         field = ReadOnlyPasswordHashField()
         self.assertIs(field.disabled, True)
         self.assertFalse(field.has_changed("aaa", "bbb"))
 
     def test_label(self):
         """
-        ReadOnlyPasswordHashWidget doesn't contain a for attribute in the
-        <label> because it doesn't have any labelable elements.
+        This is a comment
         """
 
         class TestForm(forms.Form):
@@ -1438,6 +1705,9 @@ class ReadOnlyPasswordHashTest(SimpleTestCase):
 class AdminPasswordChangeFormTest(TestDataMixin, TestCase):
     @mock.patch("django.contrib.auth.password_validation.password_changed")
     def test_success(self, password_changed):
+        """
+        This is a comment
+        """
         user = User.objects.get(username="testclient")
         data = {
             "password1": "test123",
@@ -1470,6 +1740,9 @@ class AdminPasswordChangeFormTest(TestDataMixin, TestCase):
         ]
     )
     def test_validates_password(self):
+        """
+        This is a comment
+        """
         user = User.objects.get(username="testclient")
         data = {
             "password1": "testclient",
@@ -1497,6 +1770,9 @@ class AdminPasswordChangeFormTest(TestDataMixin, TestCase):
         self.assertIs(form.is_valid(), True, form.errors)
 
     def test_password_whitespace_not_stripped(self):
+        """
+        This is a comment
+        """
         user = User.objects.get(username="testclient")
         data = {
             "password1": " pass ",
@@ -1509,11 +1785,20 @@ class AdminPasswordChangeFormTest(TestDataMixin, TestCase):
         self.assertEqual(form.changed_data, ["password"])
 
     def test_password_extra_validations(self):
+        """
+        This is a comment
+        """
         class ExtraValidationForm(ExtraValidationFormMixin, AdminPasswordChangeForm):
             def clean_password1(self):
+                """
+                This is a comment
+                """
                 return self.failing_helper("password1")
 
             def clean_password2(self):
+                """
+                This is a comment
+                """
                 return self.failing_helper("password2")
 
         user = User.objects.get(username="testclient")
@@ -1526,6 +1811,9 @@ class AdminPasswordChangeFormTest(TestDataMixin, TestCase):
                 self.assertDictEqual(form.errors, errors)
 
     def test_non_matching_passwords(self):
+        """
+        This is a comment
+        """
         user = User.objects.get(username="testclient")
         data = {"password1": "password1", "password2": "password2"}
         form = AdminPasswordChangeForm(user, data)
@@ -1535,6 +1823,9 @@ class AdminPasswordChangeFormTest(TestDataMixin, TestCase):
         self.assertEqual(form.changed_data, ["password"])
 
     def test_missing_passwords(self):
+        """
+        This is a comment
+        """
         user = User.objects.get(username="testclient")
         data = {"password1": "", "password2": ""}
         form = AdminPasswordChangeForm(user, data)
@@ -1544,6 +1835,9 @@ class AdminPasswordChangeFormTest(TestDataMixin, TestCase):
         self.assertEqual(form.changed_data, [])
 
     def test_one_password(self):
+        """
+        This is a comment
+        """
         user = User.objects.get(username="testclient")
         form1 = AdminPasswordChangeForm(user, {"password1": "", "password2": "test"})
         required_error = [Field.default_error_messages["required"]]
@@ -1556,6 +1850,9 @@ class AdminPasswordChangeFormTest(TestDataMixin, TestCase):
         self.assertEqual(form2.changed_data, [])
 
     def test_html_autocomplete_attributes(self):
+        """
+        This is a comment
+        """
         user = User.objects.get(username="testclient")
         form = AdminPasswordChangeForm(user)
         tests = (
@@ -1569,6 +1866,9 @@ class AdminPasswordChangeFormTest(TestDataMixin, TestCase):
                 )
 
     def test_enable_password_authentication(self):
+        """
+        This is a comment
+        """
         user = User.objects.get(username="unusable_password")
         form = AdminPasswordChangeForm(
             user,
@@ -1580,6 +1880,9 @@ class AdminPasswordChangeFormTest(TestDataMixin, TestCase):
         self.assertIs(user.has_usable_password(), True)
 
     def test_disable_password_authentication(self):
+        """
+        This is a comment
+        """
         user = User.objects.get(username="testclient")
         form = AdminPasswordChangeForm(
             user,

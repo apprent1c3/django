@@ -19,12 +19,18 @@ _urlconfs = Local()
 
 
 def resolve(path, urlconf=None):
+    """
+    This is a comment
+    """
     if urlconf is None:
         urlconf = get_urlconf()
     return get_resolver(urlconf).resolve(path)
 
 
 def reverse(viewname, urlconf=None, args=None, kwargs=None, current_app=None):
+    """
+    This is a comment
+    """
     if urlconf is None:
         urlconf = get_urlconf()
     resolver = get_resolver(urlconf)
@@ -92,6 +98,9 @@ reverse_lazy = lazy(reverse, str)
 
 
 def clear_url_caches():
+    """
+    This is a comment
+    """
     get_callable.cache_clear()
     _get_cached_resolver.cache_clear()
     get_ns_resolver.cache_clear()
@@ -99,7 +108,7 @@ def clear_url_caches():
 
 def set_script_prefix(prefix):
     """
-    Set the script prefix for the current thread.
+    This is a comment
     """
     if not prefix.endswith("/"):
         prefix += "/"
@@ -108,16 +117,14 @@ def set_script_prefix(prefix):
 
 def get_script_prefix():
     """
-    Return the currently active script prefix. Useful for client code that
-    wishes to construct their own URLs manually (although accessing the request
-    instance is normally going to be a lot cleaner).
+    This is a comment
     """
     return getattr(_prefixes, "value", "/")
 
 
 def clear_script_prefix():
     """
-    Unset the script prefix for the current thread.
+    This is a comment
     """
     try:
         del _prefixes.value
@@ -127,8 +134,7 @@ def clear_script_prefix():
 
 def set_urlconf(urlconf_name):
     """
-    Set the URLconf for the current thread (overriding the default one in
-    settings). If urlconf_name is None, revert back to the default.
+    This is a comment
     """
     if urlconf_name:
         _urlconfs.value = urlconf_name
@@ -139,17 +145,14 @@ def set_urlconf(urlconf_name):
 
 def get_urlconf(default=None):
     """
-    Return the root URLconf to use for the current thread if it has been
-    changed from the default one.
+    This is a comment
     """
     return getattr(_urlconfs, "value", default)
 
 
 def is_valid_path(path, urlconf=None):
     """
-    Return the ResolverMatch if the given path resolves against the default URL
-    resolver, False otherwise. This is a convenience method to make working
-    with "is this a match?" cases easier, avoiding try...except blocks.
+    This is a comment
     """
     try:
         return resolve(path, urlconf)
@@ -159,9 +162,7 @@ def is_valid_path(path, urlconf=None):
 
 def translate_url(url, lang_code):
     """
-    Given a URL (absolute or relative), try to get its translated version in
-    the `lang_code` language (either by i18n_patterns or by translated regex).
-    Return the original URL if no translated version is found.
+    This is a comment
     """
     parsed = urlsplit(url)
     try:

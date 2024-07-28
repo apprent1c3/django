@@ -13,6 +13,9 @@ class Reporter(models.Model):
     email = models.EmailField()
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "%s %s" % (self.first_name, self.last_name)
 
 
@@ -25,6 +28,9 @@ class Article(models.Model):
         ordering = ("headline",)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.headline
 
 
@@ -46,6 +52,9 @@ class District(models.Model):
     name = models.CharField(max_length=50)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -103,6 +112,9 @@ class Category(models.Model):
     name = models.CharField(max_length=20)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -115,12 +127,18 @@ class Relation(models.Model):
     right = models.ForeignKey(Record, models.CASCADE, related_name="right_set")
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "%s - %s" % (self.left.category.name, self.right.category.name)
 
 
 # Test related objects visibility.
 class SchoolManager(models.Manager):
     def get_queryset(self):
+        """
+        This is a comment
+        """
         return super().get_queryset().filter(is_public=True)
 
 

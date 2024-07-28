@@ -7,6 +7,9 @@ from ..models import Author
 
 class SubstrTests(TestCase):
     def test_basic(self):
+        """
+        This is a comment
+        """
         Author.objects.create(name="John Smith", alias="smithj")
         Author.objects.create(name="Rhonda")
         authors = Author.objects.annotate(name_part=Substr("name", 5, 3))
@@ -26,6 +29,9 @@ class SubstrTests(TestCase):
         )
 
     def test_start(self):
+        """
+        This is a comment
+        """
         Author.objects.create(name="John Smith", alias="smithj")
         a = Author.objects.annotate(
             name_part_1=Substr("name", 1),
@@ -35,10 +41,16 @@ class SubstrTests(TestCase):
         self.assertEqual(a.name_part_1[1:], a.name_part_2)
 
     def test_pos_gt_zero(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(ValueError, "'pos' must be greater than 0"):
             Author.objects.annotate(raises=Substr("name", 0))
 
     def test_expressions(self):
+        """
+        This is a comment
+        """
         Author.objects.create(name="John Smith", alias="smithj")
         Author.objects.create(name="Rhonda")
         substr = Substr(Upper("name"), StrIndex("name", V("h")), 5)

@@ -19,11 +19,17 @@ class ForceEscapeTests(SimpleTestCase):
         }
     )
     def test_force_escape01(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("force-escape01", {"a": "x&y"})
         self.assertEqual(output, "x&amp;y")
 
     @setup({"force-escape02": "{{ a|force_escape }}"})
     def test_force_escape02(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("force-escape02", {"a": "x&y"})
         self.assertEqual(output, "x&amp;y")
 
@@ -36,11 +42,17 @@ class ForceEscapeTests(SimpleTestCase):
         }
     )
     def test_force_escape03(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("force-escape03", {"a": "x&y"})
         self.assertEqual(output, "x&amp;amp;y")
 
     @setup({"force-escape04": "{{ a|force_escape|force_escape }}"})
     def test_force_escape04(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("force-escape04", {"a": "x&y"})
         self.assertEqual(output, "x&amp;amp;y")
 
@@ -54,11 +66,17 @@ class ForceEscapeTests(SimpleTestCase):
         }
     )
     def test_force_escape05(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("force-escape05", {"a": "x&y"})
         self.assertEqual(output, "x&amp;y")
 
     @setup({"force-escape06": "{{ a|force_escape|escape }}"})
     def test_force_escape06(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("force-escape06", {"a": "x&y"})
         self.assertEqual(output, "x&amp;y")
 
@@ -70,22 +88,34 @@ class ForceEscapeTests(SimpleTestCase):
         }
     )
     def test_force_escape07(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("force-escape07", {"a": "x&y"})
         self.assertEqual(output, "x&amp;amp;y")
 
     @setup({"force-escape08": "{{ a|escape|force_escape }}"})
     def test_force_escape08(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("force-escape08", {"a": "x&y"})
         self.assertEqual(output, "x&amp;amp;y")
 
 
 class FunctionTests(SimpleTestCase):
     def test_escape(self):
+        """
+        This is a comment
+        """
         escaped = force_escape("<some html & special characters > here")
         self.assertEqual(escaped, "&lt;some html &amp; special characters &gt; here")
         self.assertIsInstance(escaped, SafeData)
 
     def test_unicode(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             force_escape("<some html & special characters > here ĐÅ€£"),
             "&lt;some html &amp; special characters &gt; here \u0110\xc5\u20ac\xa3",

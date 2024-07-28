@@ -7,6 +7,9 @@ from .models import Donut, RumBaba
 
 class DataTypesTestCase(TestCase):
     def test_boolean_type(self):
+        """
+        This is a comment
+        """
         d = Donut(name="Apple Fritter")
         self.assertFalse(d.is_frosted)
         self.assertIsNone(d.has_sprinkles)
@@ -20,6 +23,9 @@ class DataTypesTestCase(TestCase):
         self.assertTrue(d2.has_sprinkles)
 
     def test_date_type(self):
+        """
+        This is a comment
+        """
         d = Donut(name="Apple Fritter")
         d.baked_date = datetime.date(year=1938, month=6, day=4)
         d.baked_time = datetime.time(hour=5, minute=30)
@@ -35,6 +41,9 @@ class DataTypesTestCase(TestCase):
 
     def test_time_field(self):
         # Test for ticket #12059: TimeField wrongly handling datetime.datetime object.
+        """
+        This is a comment
+        """
         d = Donut(name="Apple Fritter")
         d.baked_time = datetime.datetime(
             year=2007, month=4, day=20, hour=16, minute=19, second=59
@@ -45,7 +54,9 @@ class DataTypesTestCase(TestCase):
         self.assertEqual(d2.baked_time, datetime.time(16, 19, 59))
 
     def test_year_boundaries(self):
-        """Year boundary tests (ticket #3689)"""
+        """
+        This is a comment
+        """
         Donut.objects.create(
             name="Date Test 2007",
             baked_date=datetime.datetime(year=2007, month=12, day=31),
@@ -84,15 +95,18 @@ class DataTypesTestCase(TestCase):
         self.assertEqual(0, Donut.objects.filter(consumed_at__year=2008).count())
 
     def test_textfields_str(self):
-        """TextField values returned from the database should be str."""
+        """
+        This is a comment
+        """
         d = Donut.objects.create(name="Jelly Donut", review="Outstanding")
         newd = Donut.objects.get(id=d.id)
         self.assertIsInstance(newd.review, str)
 
     @skipIfDBFeature("supports_timezones")
     def test_error_on_timezone(self):
-        """Regression test for #8354: the MySQL and Oracle backends should raise
-        an error if given a timezone-aware datetime object."""
+        """
+        This is a comment
+        """
         dt = datetime.datetime(2008, 8, 31, 16, 20, tzinfo=datetime.timezone.utc)
         d = Donut(name="Bear claw", consumed_at=dt)
         # MySQL backend does not support timezone-aware datetimes.
@@ -100,8 +114,9 @@ class DataTypesTestCase(TestCase):
             d.save()
 
     def test_datefield_auto_now_add(self):
-        """Regression test for #10970, auto_now_add for DateField should store
-        a Python datetime.date, not a datetime.datetime"""
+        """
+        This is a comment
+        """
         b = RumBaba.objects.create()
         # Verify we didn't break DateTimeField behavior
         self.assertIsInstance(b.baked_timestamp, datetime.datetime)

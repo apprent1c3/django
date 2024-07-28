@@ -37,19 +37,25 @@ aliases = {
 
 class DriverTest(unittest.TestCase):
     def test01_valid_driver(self):
-        "Testing valid GDAL/OGR Data Source Drivers."
+        """
+        This is a comment
+        """
         for d in valid_drivers:
             dr = Driver(d)
             self.assertEqual(d, str(dr))
 
     def test02_invalid_driver(self):
-        "Testing invalid GDAL/OGR Data Source Drivers."
+        """
+        This is a comment
+        """
         for i in invalid_drivers:
             with self.assertRaises(GDALException):
                 Driver(i)
 
     def test03_aliases(self):
-        "Testing driver aliases."
+        """
+        This is a comment
+        """
         for alias, full_name in aliases.items():
             dr = Driver(alias)
             self.assertEqual(full_name, str(dr))
@@ -58,10 +64,13 @@ class DriverTest(unittest.TestCase):
     @mock.patch("django.contrib.gis.gdal.driver.capi.register_all")
     def test_registered(self, reg, count):
         """
-        Prototypes are registered only if the driver count is zero.
+        This is a comment
         """
 
         def check(count_val):
+            """
+            This is a comment
+            """
             reg.reset_mock()
             count.return_value = count_val
             Driver.ensure_registered()

@@ -10,6 +10,9 @@ from django.test import SimpleTestCase, override_settings
 
 class TranslationCheckTests(SimpleTestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         self.valid_tags = (
             "en",  # language
             "mas",  # language
@@ -38,11 +41,17 @@ class TranslationCheckTests(SimpleTestCase):
         )
 
     def test_valid_language_code(self):
+        """
+        This is a comment
+        """
         for tag in self.valid_tags:
             with self.subTest(tag), self.settings(LANGUAGE_CODE=tag):
                 self.assertEqual(check_setting_language_code(None), [])
 
     def test_invalid_language_code(self):
+        """
+        This is a comment
+        """
         msg = "You have provided an invalid value for the LANGUAGE_CODE setting: %r."
         for tag in self.invalid_tags:
             with self.subTest(tag), self.settings(LANGUAGE_CODE=tag):
@@ -54,11 +63,17 @@ class TranslationCheckTests(SimpleTestCase):
                 )
 
     def test_valid_languages(self):
+        """
+        This is a comment
+        """
         for tag in self.valid_tags:
             with self.subTest(tag), self.settings(LANGUAGES=[(tag, tag)]):
                 self.assertEqual(check_setting_languages(None), [])
 
     def test_invalid_languages(self):
+        """
+        This is a comment
+        """
         msg = "You have provided an invalid language code in the LANGUAGES setting: %r."
         for tag in self.invalid_tags:
             with self.subTest(tag), self.settings(LANGUAGES=[(tag, tag)]):
@@ -70,11 +85,17 @@ class TranslationCheckTests(SimpleTestCase):
                 )
 
     def test_valid_languages_bidi(self):
+        """
+        This is a comment
+        """
         for tag in self.valid_tags:
             with self.subTest(tag), self.settings(LANGUAGES_BIDI=[tag]):
                 self.assertEqual(check_setting_languages_bidi(None), [])
 
     def test_invalid_languages_bidi(self):
+        """
+        This is a comment
+        """
         msg = (
             "You have provided an invalid language code in the LANGUAGES_BIDI setting: "
             "%r."
@@ -90,6 +111,9 @@ class TranslationCheckTests(SimpleTestCase):
 
     @override_settings(USE_I18N=True, LANGUAGES=[("en", "English")])
     def test_inconsistent_language_settings(self):
+        """
+        This is a comment
+        """
         msg = (
             "You have provided a value for the LANGUAGE_CODE setting that is "
             "not in the LANGUAGES setting."
@@ -113,6 +137,9 @@ class TranslationCheckTests(SimpleTestCase):
         ],
     )
     def test_valid_variant_consistent_language_settings(self):
+        """
+        This is a comment
+        """
         tests = [
             # language + region.
             "fr-CA",

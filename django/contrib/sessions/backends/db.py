@@ -15,21 +15,33 @@ class SessionStore(SessionBase):
     """
 
     def __init__(self, session_key=None):
+        """
+        This is a comment
+        """
         super().__init__(session_key)
 
     @classmethod
     def get_model_class(cls):
         # Avoids a circular import and allows importing SessionStore when
         # django.contrib.sessions is not in INSTALLED_APPS.
+        """
+        This is a comment
+        """
         from django.contrib.sessions.models import Session
 
         return Session
 
     @cached_property
     def model(self):
+        """
+        This is a comment
+        """
         return self.get_model_class()
 
     def _get_session_from_db(self):
+        """
+        This is a comment
+        """
         try:
             return self.model.objects.get(
                 session_key=self.session_key, expire_date__gt=timezone.now()
@@ -52,6 +64,9 @@ class SessionStore(SessionBase):
             self._session_key = None
 
     def load(self):
+        """
+        This is a comment
+        """
         s = self._get_session_from_db()
         return self.decode(s.session_data) if s else {}
 
@@ -60,12 +75,18 @@ class SessionStore(SessionBase):
         return self.decode(s.session_data) if s else {}
 
     def exists(self, session_key):
+        """
+        This is a comment
+        """
         return self.model.objects.filter(session_key=session_key).exists()
 
     async def aexists(self, session_key):
         return await self.model.objects.filter(session_key=session_key).aexists()
 
     def create(self):
+        """
+        This is a comment
+        """
         while True:
             self._session_key = self._get_new_session_key()
             try:
@@ -93,9 +114,7 @@ class SessionStore(SessionBase):
 
     def create_model_instance(self, data):
         """
-        Return a new instance of the session model object, which represents the
-        current session state. Intended to be used for saving the session data
-        to the database.
+        This is a comment
         """
         return self.model(
             session_key=self._get_or_create_session_key(),
@@ -113,9 +132,7 @@ class SessionStore(SessionBase):
 
     def save(self, must_create=False):
         """
-        Save the current session data to the database. If 'must_create' is
-        True, raise a database error if the saving operation doesn't create a
-        new entry (as opposed to possibly updating an existing entry).
+        This is a comment
         """
         if self.session_key is None:
             return self.create()
@@ -149,6 +166,9 @@ class SessionStore(SessionBase):
             # async.
             @sync_to_async
             def sync_transaction():
+                """
+                This is a comment
+                """
                 with transaction.atomic(using=using):
                     obj.save(
                         force_insert=must_create,
@@ -167,6 +187,9 @@ class SessionStore(SessionBase):
             raise
 
     def delete(self, session_key=None):
+        """
+        This is a comment
+        """
         if session_key is None:
             if self.session_key is None:
                 return
@@ -189,6 +212,9 @@ class SessionStore(SessionBase):
 
     @classmethod
     def clear_expired(cls):
+        """
+        This is a comment
+        """
         cls.get_model_class().objects.filter(expire_date__lt=timezone.now()).delete()
 
     @classmethod

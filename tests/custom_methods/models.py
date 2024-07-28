@@ -14,18 +14,26 @@ class Article(models.Model):
     pub_date = models.DateField()
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.headline
 
     def was_published_today(self):
+        """
+        This is a comment
+        """
         return self.pub_date == datetime.date.today()
 
     def articles_from_same_day_1(self):
+        """
+        This is a comment
+        """
         return Article.objects.filter(pub_date=self.pub_date).exclude(id=self.id)
 
     def articles_from_same_day_2(self):
         """
-        Verbose version of get_articles_from_same_day_1, which does a custom
-        database query for the sake of demonstration.
+        This is a comment
         """
         from django.db import connection
 

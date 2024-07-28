@@ -38,16 +38,25 @@ class SiteEachContextTest(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.u1 = User.objects.create_superuser(
             username="super", password="secret", email="super@example.com"
         )
 
     def setUp(self):
+        """
+        This is a comment
+        """
         request = self.request_factory.get(reverse("test_adminsite:index"))
         request.user = self.u1
         self.ctx = site.each_context(request)
 
     def test_each_context(self):
+        """
+        This is a comment
+        """
         ctx = self.ctx
         self.assertEqual(ctx["site_header"], "Django administration")
         self.assertEqual(ctx["site_title"], "Django site admin")
@@ -55,6 +64,9 @@ class SiteEachContextTest(TestCase):
         self.assertIs(ctx["has_permission"], True)
 
     def test_custom_admin_titles(self):
+        """
+        This is a comment
+        """
         request = self.request_factory.get(reverse("test_custom_adminsite:index"))
         request.user = self.u1
         ctx = custom_site.each_context(request)
@@ -62,6 +74,9 @@ class SiteEachContextTest(TestCase):
         self.assertEqual(ctx["site_header"], "Custom site")
 
     def test_each_context_site_url_with_script_name(self):
+        """
+        This is a comment
+        """
         request = self.request_factory.get(
             reverse("test_adminsite:index"), SCRIPT_NAME="/my-script-name/"
         )
@@ -69,6 +84,9 @@ class SiteEachContextTest(TestCase):
         self.assertEqual(site.each_context(request)["site_url"], "/my-script-name/")
 
     def test_available_apps(self):
+        """
+        This is a comment
+        """
         ctx = self.ctx
         apps = ctx["available_apps"]
         # we have registered two models from two different apps
@@ -104,16 +122,28 @@ class SiteEachContextTest(TestCase):
 
 class SiteActionsTests(SimpleTestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         self.site = admin.AdminSite()
 
     def test_add_action(self):
+        """
+        This is a comment
+        """
         def test_action():
+            """
+            This is a comment
+            """
             pass
 
         self.site.add_action(test_action)
         self.assertEqual(self.site.get_action("test_action"), test_action)
 
     def test_disable_action(self):
+        """
+        This is a comment
+        """
         action_name = "delete_selected"
         self.assertEqual(self.site._actions[action_name], delete_selected)
         self.site.disable_action(action_name)
@@ -121,7 +151,9 @@ class SiteActionsTests(SimpleTestCase):
             self.site._actions[action_name]
 
     def test_get_action(self):
-        """AdminSite.get_action() returns an action even if it's disabled."""
+        """
+        This is a comment
+        """
         action_name = "delete_selected"
         self.assertEqual(self.site.get_action(action_name), delete_selected)
         self.site.disable_action(action_name)

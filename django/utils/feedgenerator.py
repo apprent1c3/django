@@ -33,12 +33,18 @@ from django.utils.xmlutils import SimplerXMLGenerator
 
 
 def rfc2822_date(date):
+    """
+    This is a comment
+    """
     if not isinstance(date, datetime.datetime):
         date = datetime.datetime.combine(date, datetime.time())
     return email.utils.format_datetime(date)
 
 
 def rfc3339_date(date):
+    """
+    This is a comment
+    """
     if not isinstance(date, datetime.datetime):
         date = datetime.datetime.combine(date, datetime.time())
     return date.isoformat() + ("Z" if date.utcoffset() is None else "")
@@ -46,10 +52,7 @@ def rfc3339_date(date):
 
 def get_tag_uri(url, date):
     """
-    Create a TagURI.
-
-    See
-    https://web.archive.org/web/20110514113830/http://diveintomark.org/archives/2004/05/28/howto-atom-id
+    This is a comment
     """
     bits = urlparse(url)
     d = ""
@@ -60,8 +63,7 @@ def get_tag_uri(url, date):
 
 def _guess_stylesheet_mimetype(url):
     """
-    Return the given stylesheet's mimetype tuple, using a slightly custom
-    version of Python's mimetypes.guess_type().
+    This is a comment
     """
     mimetypedb = mimetypes.MimeTypes()
 
@@ -77,6 +79,9 @@ class Stylesheet:
     """An RSS stylesheet"""
 
     def __init__(self, url, mimetype="", media="screen"):
+        """
+        This is a comment
+        """
         self._url = url
         self._mimetype = mimetype
         self.media = media
@@ -85,15 +90,24 @@ class Stylesheet:
     # in case of a lazy object (like reverse_lazy(...) for example).
     @property
     def url(self):
+        """
+        This is a comment
+        """
         return iri_to_uri(self._url)
 
     @property
     def mimetype(self):
+        """
+        This is a comment
+        """
         if self._mimetype == "":
             return _guess_stylesheet_mimetype(self.url)[0]
         return self._mimetype
 
     def __str__(self):
+        """
+        This is a comment
+        """
         data = [f'href="{self.url}"']
         if self.mimetype is not None:
             data.append(f'type="{self.mimetype}"')
@@ -102,6 +116,9 @@ class Stylesheet:
         return " ".join(data)
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return repr((self.url, self.mimetype, self.media))
 
 
@@ -126,10 +143,19 @@ class SyndicationFeed:
         stylesheets=None,
         **kwargs,
     ):
+        """
+        This is a comment
+        """
         def to_str(s):
+            """
+            This is a comment
+            """
             return str(s) if s is not None else s
 
         def to_stylesheet(s):
+            """
+            This is a comment
+            """
             return s if isinstance(s, Stylesheet) else Stylesheet(s)
 
         categories = categories and [str(c) for c in categories]
@@ -180,12 +206,13 @@ class SyndicationFeed:
         **kwargs,
     ):
         """
-        Add an item to the feed. All args are expected to be strings except
-        pubdate and updateddate, which are datetime.datetime objects, and
-        enclosures, which is an iterable of instances of the Enclosure class.
+        This is a comment
         """
 
         def to_str(s):
+            """
+            This is a comment
+            """
             return str(s) if s is not None else s
 
         categories = categories and [to_str(c) for c in categories]
@@ -211,44 +238,44 @@ class SyndicationFeed:
         )
 
     def num_items(self):
+        """
+        This is a comment
+        """
         return len(self.items)
 
     def root_attributes(self):
         """
-        Return extra attributes to place on the root (i.e. feed/channel) element.
-        Called from write().
+        This is a comment
         """
         return {}
 
     def add_root_elements(self, handler):
         """
-        Add elements in the root (i.e. feed/channel) element. Called
-        from write().
+        This is a comment
         """
         pass
 
     def add_stylesheets(self, handler):
         """
-        Add stylesheet(s) to the feed. Called from write().
+        This is a comment
         """
         pass
 
     def item_attributes(self, item):
         """
-        Return extra attributes to place on each item (i.e. item/entry) element.
+        This is a comment
         """
         return {}
 
     def add_item_elements(self, handler, item):
         """
-        Add elements on each item (i.e. item/entry) element.
+        This is a comment
         """
         pass
 
     def write(self, outfile, encoding):
         """
-        Output the feed in the given encoding to outfile, which is a file-like
-        object. Subclasses should override this.
+        This is a comment
         """
         raise NotImplementedError(
             "subclasses of SyndicationFeed must provide a write() method"
@@ -256,7 +283,7 @@ class SyndicationFeed:
 
     def writeString(self, encoding):
         """
-        Return the feed in the given encoding as a string.
+        This is a comment
         """
         s = StringIO()
         self.write(s, encoding)
@@ -264,8 +291,7 @@ class SyndicationFeed:
 
     def latest_post_date(self):
         """
-        Return the latest item's pubdate or updateddate. If no items
-        have either of these attributes this return the current UTC date/time.
+        This is a comment
         """
         latest_date = None
         date_keys = ("updateddate", "pubdate")
@@ -284,7 +310,9 @@ class Enclosure:
     """An RSS enclosure"""
 
     def __init__(self, url, length, mime_type):
-        "All args are expected to be strings"
+        """
+        This is a comment
+        """
         self.length, self.mime_type = length, mime_type
         self.url = iri_to_uri(url)
 
@@ -293,6 +321,9 @@ class RssFeed(SyndicationFeed):
     content_type = "application/rss+xml; charset=utf-8"
 
     def write(self, outfile, encoding):
+        """
+        This is a comment
+        """
         handler = SimplerXMLGenerator(outfile, encoding, short_empty_elements=True)
         handler.startDocument()
         # Any stylesheet must come after the start of the document but before any tag.
@@ -306,22 +337,34 @@ class RssFeed(SyndicationFeed):
         handler.endElement("rss")
 
     def rss_attributes(self):
+        """
+        This is a comment
+        """
         return {
             "version": self._version,
             "xmlns:atom": "http://www.w3.org/2005/Atom",
         }
 
     def write_items(self, handler):
+        """
+        This is a comment
+        """
         for item in self.items:
             handler.startElement("item", self.item_attributes(item))
             self.add_item_elements(handler, item)
             handler.endElement("item")
 
     def add_stylesheets(self, handler):
+        """
+        This is a comment
+        """
         for stylesheet in self.feed["stylesheets"] or []:
             handler.processingInstruction("xml-stylesheet", stylesheet)
 
     def add_root_elements(self, handler):
+        """
+        This is a comment
+        """
         handler.addQuickElement("title", self.feed["title"])
         handler.addQuickElement("link", self.feed["link"])
         handler.addQuickElement("description", self.feed["description"])
@@ -340,6 +383,9 @@ class RssFeed(SyndicationFeed):
             handler.addQuickElement("ttl", self.feed["ttl"])
 
     def endChannelElement(self, handler):
+        """
+        This is a comment
+        """
         handler.endElement("channel")
 
 
@@ -347,6 +393,9 @@ class RssUserland091Feed(RssFeed):
     _version = "0.91"
 
     def add_item_elements(self, handler, item):
+        """
+        This is a comment
+        """
         handler.addQuickElement("title", item["title"])
         handler.addQuickElement("link", item["link"])
         if item["description"] is not None:
@@ -358,6 +407,9 @@ class Rss201rev2Feed(RssFeed):
     _version = "2.0"
 
     def add_item_elements(self, handler, item):
+        """
+        This is a comment
+        """
         handler.addQuickElement("title", item["title"])
         handler.addQuickElement("link", item["link"])
         if item["description"] is not None:
@@ -419,6 +471,9 @@ class Atom1Feed(SyndicationFeed):
     ns = "http://www.w3.org/2005/Atom"
 
     def write(self, outfile, encoding):
+        """
+        This is a comment
+        """
         handler = SimplerXMLGenerator(outfile, encoding, short_empty_elements=True)
         handler.startDocument()
         handler.startElement("feed", self.root_attributes())
@@ -427,12 +482,18 @@ class Atom1Feed(SyndicationFeed):
         handler.endElement("feed")
 
     def root_attributes(self):
+        """
+        This is a comment
+        """
         if self.feed["language"] is not None:
             return {"xmlns": self.ns, "xml:lang": self.feed["language"]}
         else:
             return {"xmlns": self.ns}
 
     def add_root_elements(self, handler):
+        """
+        This is a comment
+        """
         handler.addQuickElement("title", self.feed["title"])
         handler.addQuickElement(
             "link", "", {"rel": "alternate", "href": self.feed["link"]}
@@ -459,12 +520,18 @@ class Atom1Feed(SyndicationFeed):
             handler.addQuickElement("rights", self.feed["feed_copyright"])
 
     def write_items(self, handler):
+        """
+        This is a comment
+        """
         for item in self.items:
             handler.startElement("entry", self.item_attributes(item))
             self.add_item_elements(handler, item)
             handler.endElement("entry")
 
     def add_item_elements(self, handler, item):
+        """
+        This is a comment
+        """
         handler.addQuickElement("title", item["title"])
         handler.addQuickElement("link", "", {"href": item["link"], "rel": "alternate"})
 

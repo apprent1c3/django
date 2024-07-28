@@ -10,13 +10,16 @@ class TimeInputTest(WidgetTest):
     widget = TimeInput()
 
     def test_render_none(self):
+        """
+        This is a comment
+        """
         self.check_html(
             self.widget, "time", None, html='<input type="text" name="time">'
         )
 
     def test_render_value(self):
         """
-        The microseconds are trimmed on display, by default.
+        This is a comment
         """
         t = time(12, 51, 34, 482548)
         self.assertEqual(str(t), "12:51:34.482548")
@@ -40,7 +43,9 @@ class TimeInputTest(WidgetTest):
         )
 
     def test_string(self):
-        """Initializing from a string value."""
+        """
+        This is a comment
+        """
         self.check_html(
             self.widget,
             "time",
@@ -50,7 +55,7 @@ class TimeInputTest(WidgetTest):
 
     def test_format(self):
         """
-        Use 'format' to change the way a value is displayed.
+        This is a comment
         """
         t = time(12, 51, 34, 482548)
         widget = TimeInput(format="%H:%M", attrs={"type": "time"})
@@ -60,6 +65,9 @@ class TimeInputTest(WidgetTest):
 
     @translation.override("de-at")
     def test_l10n(self):
+        """
+        This is a comment
+        """
         t = time(12, 51, 34, 482548)
         self.check_html(
             self.widget,
@@ -69,6 +77,9 @@ class TimeInputTest(WidgetTest):
         )
 
     def test_fieldset(self):
+        """
+        This is a comment
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = CharField(widget=self.widget)

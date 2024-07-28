@@ -26,15 +26,24 @@ class DeconstructibleObject:
     """
 
     def __init__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         self.args = args
         self.kwargs = kwargs
 
     def deconstruct(self):
+        """
+        This is a comment
+        """
         return (self.__module__ + "." + self.__class__.__name__, self.args, self.kwargs)
 
 
 class BaseAutodetectorTests(TestCase):
     def repr_changes(self, changes, include_dependencies=False):
+        """
+        This is a comment
+        """
         output = ""
         for app_label, migrations_ in sorted(changes.items()):
             output += "  %s:\n" % app_label
@@ -52,6 +61,9 @@ class BaseAutodetectorTests(TestCase):
         return output
 
     def assertNumberMigrations(self, changes, app_label, number):
+        """
+        This is a comment
+        """
         if len(changes.get(app_label, [])) != number:
             self.fail(
                 "Incorrect number of migrations (%s) for %s (expected %s)\n%s"
@@ -64,6 +76,9 @@ class BaseAutodetectorTests(TestCase):
             )
 
     def assertMigrationDependencies(self, changes, app_label, position, dependencies):
+        """
+        This is a comment
+        """
         if not changes.get(app_label):
             self.fail(
                 "No migrations found for %s\n%s"
@@ -87,6 +102,9 @@ class BaseAutodetectorTests(TestCase):
             )
 
     def assertOperationTypes(self, changes, app_label, position, types):
+        """
+        This is a comment
+        """
         if not changes.get(app_label):
             self.fail(
                 "No migrations found for %s\n%s"
@@ -115,6 +133,9 @@ class BaseAutodetectorTests(TestCase):
     def assertOperationAttributes(
         self, changes, app_label, position, operation_position, **attrs
     ):
+        """
+        This is a comment
+        """
         if not changes.get(app_label):
             self.fail(
                 "No migrations found for %s\n%s"
@@ -155,6 +176,9 @@ class BaseAutodetectorTests(TestCase):
     def assertOperationFieldAttributes(
         self, changes, app_label, position, operation_position, **attrs
     ):
+        """
+        This is a comment
+        """
         if not changes.get(app_label):
             self.fail(
                 "No migrations found for %s\n%s"
@@ -204,13 +228,18 @@ class BaseAutodetectorTests(TestCase):
                 )
 
     def make_project_state(self, model_states):
-        "Shortcut to make ProjectStates from lists of predefined models"
+        """
+        This is a comment
+        """
         project_state = ProjectState()
         for model_state in model_states:
             project_state.add_model(model_state.clone())
         return project_state
 
     def get_changes(self, before_states, after_states, questioner=None):
+        """
+        This is a comment
+        """
         if not isinstance(before_states, ProjectState):
             before_states = self.make_project_state(before_states)
         if not isinstance(after_states, ProjectState):
@@ -1146,7 +1175,9 @@ class AutodetectorTests(BaseAutodetectorTests):
     )
 
     def test_arrange_for_graph(self):
-        """Tests auto-naming of migrations for graph matching."""
+        """
+        This is a comment
+        """
         # Make a fake graph
         graph = MigrationGraph()
         graph.add_node(("testapp", "0001_initial"), None)
@@ -1188,6 +1219,9 @@ class AutodetectorTests(BaseAutodetectorTests):
 
     def test_arrange_for_graph_with_multiple_initial(self):
         # Make a fake graph.
+        """
+        This is a comment
+        """
         graph = MigrationGraph()
         # Use project state to make a new migration change set.
         before = self.make_project_state([])
@@ -1214,7 +1248,7 @@ class AutodetectorTests(BaseAutodetectorTests):
 
     def test_trim_apps(self):
         """
-        Trim does not remove dependencies but does remove unwanted apps.
+        This is a comment
         """
         # Use project state to make a new migration change set
         before = self.make_project_state([])
@@ -1236,7 +1270,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         self.assertNotIn("thirdapp", changes)
 
     def test_custom_migration_name(self):
-        """Tests custom naming of migrations for graph matching."""
+        """
+        This is a comment
+        """
         # Make a fake graph
         graph = MigrationGraph()
         graph.add_node(("testapp", "0001_initial"), None)
@@ -1271,7 +1307,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_new_model(self):
-        """Tests autodetection of new models."""
+        """
+        This is a comment
+        """
         changes = self.get_changes([], [self.other_pony_food])
         # Right number/type of migrations?
         self.assertNumberMigrations(changes, "otherapp", 1)
@@ -1283,7 +1321,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_old_model(self):
-        """Tests deletion of old models."""
+        """
+        This is a comment
+        """
         changes = self.get_changes([self.author_empty], [])
         # Right number/type of migrations?
         self.assertNumberMigrations(changes, "testapp", 1)
@@ -1291,7 +1331,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         self.assertOperationAttributes(changes, "testapp", 0, 0, name="Author")
 
     def test_add_field(self):
-        """Tests autodetection of new fields."""
+        """
+        This is a comment
+        """
         changes = self.get_changes([self.author_empty], [self.author_name])
         # Right number/type of migrations?
         self.assertNumberMigrations(changes, "testapp", 1)
@@ -1303,6 +1345,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         side_effect=AssertionError("Should not have prompted for not null addition"),
     )
     def test_add_not_null_field_with_db_default(self, mocked_ask_method):
+        """
+        This is a comment
+        """
         changes = self.get_changes([self.author_empty], [self.author_name_db_default])
         self.assertNumberMigrations(changes, "testapp", 1)
         self.assertOperationTypes(changes, "testapp", 0, ["AddField"])
@@ -1320,6 +1365,9 @@ class AutodetectorTests(BaseAutodetectorTests):
     def test_add_date_fields_with_auto_now_not_asking_for_default(
         self, mocked_ask_method
     ):
+        """
+        This is a comment
+        """
         changes = self.get_changes(
             [self.author_empty], [self.author_dates_of_birth_auto_now]
         )
@@ -1339,6 +1387,9 @@ class AutodetectorTests(BaseAutodetectorTests):
     def test_add_date_fields_with_auto_now_add_not_asking_for_null_addition(
         self, mocked_ask_method
     ):
+        """
+        This is a comment
+        """
         changes = self.get_changes(
             [self.author_empty], [self.author_dates_of_birth_auto_now_add]
         )
@@ -1357,6 +1408,9 @@ class AutodetectorTests(BaseAutodetectorTests):
     def test_add_date_fields_with_auto_now_add_asking_for_default(
         self, mocked_ask_method
     ):
+        """
+        This is a comment
+        """
         changes = self.get_changes(
             [self.author_empty], [self.author_dates_of_birth_auto_now_add]
         )
@@ -1371,6 +1425,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         self.assertEqual(mocked_ask_method.call_count, 3)
 
     def test_add_field_before_generated_field(self):
+        """
+        This is a comment
+        """
         initial_state = ModelState(
             "testapp",
             "Author",
@@ -1402,6 +1459,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_add_fk_before_generated_field(self):
+        """
+        This is a comment
+        """
         initial_state = ModelState(
             "testapp",
             "Author",
@@ -1447,7 +1507,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_remove_field(self):
-        """Tests autodetection of removed fields."""
+        """
+        This is a comment
+        """
         changes = self.get_changes([self.author_name], [self.author_empty])
         # Right number/type of migrations?
         self.assertNumberMigrations(changes, "testapp", 1)
@@ -1455,7 +1517,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         self.assertOperationAttributes(changes, "testapp", 0, 0, name="name")
 
     def test_alter_field(self):
-        """Tests autodetection of new fields."""
+        """
+        This is a comment
+        """
         changes = self.get_changes([self.author_name], [self.author_name_longer])
         # Right number/type of migrations?
         self.assertNumberMigrations(changes, "testapp", 1)
@@ -1465,10 +1529,19 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_supports_functools_partial(self):
+        """
+        This is a comment
+        """
         def _content_file_name(instance, filename, key, **kwargs):
+            """
+            This is a comment
+            """
             return "{}/{}".format(instance, filename)
 
         def content_file_name(key, **kwargs):
+            """
+            This is a comment
+            """
             return functools.partial(_content_file_name, key, **kwargs)
 
         # An unchanged partial reference.
@@ -1565,7 +1638,7 @@ class AutodetectorTests(BaseAutodetectorTests):
     )
     def test_alter_field_to_not_null_with_default(self, mocked_ask_method):
         """
-        #23609 - Tests autodetection of nullable to non-nullable alterations.
+        This is a comment
         """
         changes = self.get_changes([self.author_name_null], [self.author_name_default])
         # Right number/type of migrations?
@@ -1583,6 +1656,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         side_effect=AssertionError("Should not have prompted for not null alteration"),
     )
     def test_alter_field_to_not_null_with_db_default(self, mocked_ask_method):
+        """
+        This is a comment
+        """
         changes = self.get_changes(
             [self.author_name_null], [self.author_name_db_default]
         )
@@ -1601,7 +1677,7 @@ class AutodetectorTests(BaseAutodetectorTests):
     )
     def test_alter_field_to_not_null_without_default(self, mocked_ask_method):
         """
-        #23609 - Tests autodetection of nullable to non-nullable alterations.
+        This is a comment
         """
         changes = self.get_changes([self.author_name_null], [self.author_name])
         self.assertEqual(mocked_ask_method.call_count, 1)
@@ -1621,7 +1697,7 @@ class AutodetectorTests(BaseAutodetectorTests):
     )
     def test_alter_field_to_not_null_oneoff_default(self, mocked_ask_method):
         """
-        #23609 - Tests autodetection of nullable to non-nullable alterations.
+        This is a comment
         """
         changes = self.get_changes([self.author_name_null], [self.author_name])
         self.assertEqual(mocked_ask_method.call_count, 1)
@@ -1636,7 +1712,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_rename_field(self):
-        """Tests autodetection of renamed fields."""
+        """
+        This is a comment
+        """
         changes = self.get_changes(
             [self.author_name],
             [self.author_name_renamed],
@@ -1650,6 +1728,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_rename_field_foreign_key_to_field(self):
+        """
+        This is a comment
+        """
         before = [
             ModelState(
                 "app",
@@ -1705,6 +1786,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_foreign_object_from_to_fields_list(self):
+        """
+        This is a comment
+        """
         author_state = ModelState(
             "app",
             "Author",
@@ -1736,6 +1820,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         self.assertEqual(changes, {})
 
     def test_rename_foreign_object_fields(self):
+        """
+        This is a comment
+        """
         fields = ("first", "second")
         renamed_fields = ("first_renamed", "second_renamed")
         before = [
@@ -1880,6 +1967,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_rename_referenced_primary_key(self):
+        """
+        This is a comment
+        """
         before = [
             ModelState(
                 "app",
@@ -1923,8 +2013,7 @@ class AutodetectorTests(BaseAutodetectorTests):
 
     def test_rename_field_preserved_db_column(self):
         """
-        RenameField is used if a field is renamed and db_column equal to the
-        old field's column is added.
+        This is a comment
         """
         before = [
             ModelState(
@@ -1979,6 +2068,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_rename_related_field_preserved_db_column(self):
+        """
+        This is a comment
+        """
         before = [
             ModelState(
                 "app",
@@ -2051,6 +2143,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_rename_field_with_renamed_model(self):
+        """
+        This is a comment
+        """
         changes = self.get_changes(
             [self.author_name],
             [
@@ -2085,7 +2180,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_rename_model(self):
-        """Tests autodetection of renamed models."""
+        """
+        This is a comment
+        """
         changes = self.get_changes(
             [self.author_with_book, self.book],
             [self.author_renamed_with_book, self.book_with_author_renamed],
@@ -2103,8 +2200,7 @@ class AutodetectorTests(BaseAutodetectorTests):
 
     def test_rename_model_case(self):
         """
-        Model name is case-insensitive. Changing case doesn't lead to any
-        autodetected operations.
+        This is a comment
         """
         author_renamed = ModelState(
             "testapp",
@@ -2122,6 +2218,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         self.assertNumberMigrations(changes, "otherapp", 0)
 
     def test_renamed_referenced_m2m_model_case(self):
+        """
+        This is a comment
+        """
         publisher_renamed = ModelState(
             "testapp",
             "publisher",
@@ -2140,8 +2239,7 @@ class AutodetectorTests(BaseAutodetectorTests):
 
     def test_rename_m2m_through_model(self):
         """
-        Tests autodetection of renamed models that are used in M2M relations as
-        through models.
+        This is a comment
         """
         changes = self.get_changes(
             [self.author_with_m2m_through, self.publisher, self.contract],
@@ -2161,8 +2259,7 @@ class AutodetectorTests(BaseAutodetectorTests):
 
     def test_rename_model_with_renamed_rel_field(self):
         """
-        Tests autodetection of renamed models while simultaneously renaming one
-        of the fields that relate to the renamed model.
+        This is a comment
         """
         changes = self.get_changes(
             [self.author_with_book, self.book],
@@ -2185,8 +2282,7 @@ class AutodetectorTests(BaseAutodetectorTests):
 
     def test_rename_model_with_fks_in_different_position(self):
         """
-        #24537 - The order of fields in a model does not influence
-        the RenameModel detection.
+        This is a comment
         """
         before = [
             ModelState(
@@ -2235,10 +2331,7 @@ class AutodetectorTests(BaseAutodetectorTests):
 
     def test_rename_model_reverse_relation_dependencies(self):
         """
-        The migration to rename a model pointed to by a foreign key in another
-        app must run after the other app's migration that adds the foreign key
-        with model's original name. Therefore, the renaming migration has a
-        dependency on that other migration.
+        This is a comment
         """
         before = [
             ModelState(
@@ -2290,7 +2383,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_fk_dependency(self):
-        """Having a ForeignKey automatically adds a dependency."""
+        """
+        This is a comment
+        """
         # Note that testapp (author) has no dependencies,
         # otherapp (book) depends on testapp (author),
         # thirdapp (edition) depends on otherapp (book)
@@ -2316,7 +2411,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_proxy_fk_dependency(self):
-        """FK dependencies still work on proxy models."""
+        """
+        This is a comment
+        """
         # Note that testapp (author) has no dependencies,
         # otherapp (book) depends on testapp (authorproxy)
         changes = self.get_changes(
@@ -2344,8 +2441,7 @@ class AutodetectorTests(BaseAutodetectorTests):
 
     def test_same_app_no_fk_dependency(self):
         """
-        A migration with a FK between two models of the same app
-        does not have a dependency to itself.
+        This is a comment
         """
         changes = self.get_changes([], [self.author_with_publisher, self.publisher])
         # Right number/type of migrations?
@@ -2357,8 +2453,7 @@ class AutodetectorTests(BaseAutodetectorTests):
 
     def test_circular_fk_dependency(self):
         """
-        Having a circular ForeignKey dependency automatically
-        resolves the situation into 2 migrations on one side and 1 on the other.
+        This is a comment
         """
         changes = self.get_changes(
             [], [self.author_with_book, self.book, self.publisher_with_book]
@@ -2385,8 +2480,7 @@ class AutodetectorTests(BaseAutodetectorTests):
 
     def test_same_app_circular_fk_dependency(self):
         """
-        A migration with a FK between two models of the same app does
-        not have a dependency to itself.
+        This is a comment
         """
         changes = self.get_changes(
             [], [self.author_with_publisher, self.publisher_with_author]
@@ -2403,9 +2497,7 @@ class AutodetectorTests(BaseAutodetectorTests):
 
     def test_same_app_circular_fk_dependency_with_unique_together_and_indexes(self):
         """
-        #22275 - A migration with circular FK dependency does not try
-        to create unique together constraint and indexes before creating all
-        required fields first.
+        This is a comment
         """
         changes = self.get_changes([], [self.knight, self.rabbit])
         # Right number/type of migrations?
@@ -2420,7 +2512,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         self.assertMigrationDependencies(changes, "eggs", 0, [])
 
     def test_alter_db_table_add(self):
-        """Tests detection for adding db_table in model's options."""
+        """
+        This is a comment
+        """
         changes = self.get_changes(
             [self.author_empty], [self.author_with_db_table_options]
         )
@@ -2432,7 +2526,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_alter_db_table_change(self):
-        """Tests detection for changing db_table in model's options'."""
+        """
+        This is a comment
+        """
         changes = self.get_changes(
             [self.author_with_db_table_options], [self.author_with_new_db_table_options]
         )
@@ -2444,7 +2540,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_alter_db_table_remove(self):
-        """Tests detection for removing db_table in model's options."""
+        """
+        This is a comment
+        """
         changes = self.get_changes(
             [self.author_with_db_table_options], [self.author_empty]
         )
@@ -2457,7 +2555,7 @@ class AutodetectorTests(BaseAutodetectorTests):
 
     def test_alter_db_table_no_changes(self):
         """
-        Alter_db_table doesn't generate a migration if no changes have been made.
+        This is a comment
         """
         changes = self.get_changes(
             [self.author_with_db_table_options], [self.author_with_db_table_options]
@@ -2467,8 +2565,7 @@ class AutodetectorTests(BaseAutodetectorTests):
 
     def test_keep_db_table_with_model_change(self):
         """
-        Tests when model changes but db_table stays as-is, autodetector must not
-        create more than one operation.
+        This is a comment
         """
         changes = self.get_changes(
             [self.author_with_db_table_options],
@@ -2484,8 +2581,7 @@ class AutodetectorTests(BaseAutodetectorTests):
 
     def test_alter_db_table_with_model_change(self):
         """
-        Tests when model and db_table changes, autodetector must create two
-        operations.
+        This is a comment
         """
         changes = self.get_changes(
             [self.author_with_db_table_options],
@@ -2505,6 +2601,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_alter_db_table_comment_add(self):
+        """
+        This is a comment
+        """
         changes = self.get_changes(
             [self.author_empty], [self.author_with_db_table_comment]
         )
@@ -2515,6 +2614,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_alter_db_table_comment_change(self):
+        """
+        This is a comment
+        """
         author_with_new_db_table_comment = ModelState(
             "testapp",
             "Author",
@@ -2539,6 +2641,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_alter_db_table_comment_remove(self):
+        """
+        This is a comment
+        """
         changes = self.get_changes(
             [self.author_with_db_table_comment],
             [self.author_empty],
@@ -2550,6 +2655,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_alter_db_table_comment_no_changes(self):
+        """
+        This is a comment
+        """
         changes = self.get_changes(
             [self.author_with_db_table_comment],
             [self.author_with_db_table_comment],
@@ -2557,6 +2665,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         self.assertNumberMigrations(changes, "testapp", 0)
 
     def test_identical_regex_doesnt_alter(self):
+        """
+        This is a comment
+        """
         from_state = ModelState(
             "testapp",
             "model",
@@ -2587,6 +2698,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         self.assertNumberMigrations(changes, "testapp", 0)
 
     def test_different_regex_does_alter(self):
+        """
+        This is a comment
+        """
         from_state = ModelState(
             "testapp",
             "model",
@@ -2617,6 +2731,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         self.assertOperationTypes(changes, "testapp", 0, ["AlterField"])
 
     def test_alter_regex_string_to_compiled_regex(self):
+        """
+        This is a comment
+        """
         regex_string = "^[a-z]+$"
         from_state = ModelState(
             "testapp",
@@ -2648,7 +2765,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         self.assertOperationTypes(changes, "testapp", 0, ["AlterField"])
 
     def test_empty_unique_together(self):
-        """Empty unique_together shouldn't generate a migration."""
+        """
+        This is a comment
+        """
         # Explicitly testing for not specified, since this is the case after
         # a CreateModel operation w/o any definition on the original model
         model_state_not_specified = ModelState(
@@ -2676,6 +2795,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
         def test(from_state, to_state, msg):
+            """
+            This is a comment
+            """
             changes = self.get_changes([from_state], [to_state])
             if changes:
                 ops = ", ".join(
@@ -2711,7 +2833,9 @@ class AutodetectorTests(BaseAutodetectorTests):
             test(*t)
 
     def test_create_model_with_indexes(self):
-        """Test creation of new model with indexes already defined."""
+        """
+        This is a comment
+        """
         added_index = models.Index(
             fields=["name"], name="create_model_with_indexes_idx"
         )
@@ -2745,7 +2869,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_add_indexes(self):
-        """Test change detection of new indexes."""
+        """
+        This is a comment
+        """
         changes = self.get_changes(
             [self.author_empty, self.book], [self.author_empty, self.book_indexes]
         )
@@ -2759,7 +2885,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_remove_indexes(self):
-        """Test change detection of removed indexes."""
+        """
+        This is a comment
+        """
         changes = self.get_changes(
             [self.author_empty, self.book_indexes], [self.author_empty, self.book]
         )
@@ -2771,6 +2899,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_rename_indexes(self):
+        """
+        This is a comment
+        """
         book_renamed_indexes = ModelState(
             "otherapp",
             "Book",
@@ -2804,7 +2935,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_order_fields_indexes(self):
-        """Test change detection of reordering of fields in indexes."""
+        """
+        This is a comment
+        """
         changes = self.get_changes(
             [self.author_empty, self.book_indexes],
             [self.author_empty, self.book_unordered_indexes],
@@ -2822,7 +2955,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_create_model_with_check_constraint(self):
-        """Test creation of new model with constraints already defined."""
+        """
+        This is a comment
+        """
         author = ModelState(
             "otherapp",
             "Author",
@@ -2860,7 +2995,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_add_constraints(self):
-        """Test change detection of new constraints."""
+        """
+        This is a comment
+        """
         changes = self.get_changes(
             [self.author_name], [self.author_name_check_constraint]
         )
@@ -2874,6 +3011,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_add_constraints_with_new_model(self):
+        """
+        This is a comment
+        """
         book_with_unique_title_and_pony = ModelState(
             "otherapp",
             "Book",
@@ -2905,6 +3045,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_add_constraints_with_dict_keys(self):
+        """
+        This is a comment
+        """
         book_types = {"F": "Fantasy", "M": "Mystery"}
         book_with_type = ModelState(
             "testapp",
@@ -2942,6 +3085,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         self.assertEqual(len(changes), 0)
 
     def test_add_index_with_new_model(self):
+        """
+        This is a comment
+        """
         book_with_index_title_and_pony = ModelState(
             "otherapp",
             "Book",
@@ -2970,7 +3116,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_remove_constraints(self):
-        """Test change detection of removed constraints."""
+        """
+        This is a comment
+        """
         changes = self.get_changes(
             [self.author_name_check_constraint], [self.author_name]
         )
@@ -2982,7 +3130,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_add_unique_together(self):
-        """Tests unique_together detection."""
+        """
+        This is a comment
+        """
         changes = self.get_changes(
             [self.author_empty, self.book],
             [self.author_empty, self.book_unique_together],
@@ -3000,7 +3150,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_remove_unique_together(self):
-        """Tests unique_together detection."""
+        """
+        This is a comment
+        """
         changes = self.get_changes(
             [self.author_empty, self.book_unique_together],
             [self.author_empty, self.book],
@@ -3013,7 +3165,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_unique_together_remove_fk(self):
-        """Tests unique_together and field removal detection & ordering"""
+        """
+        This is a comment
+        """
         changes = self.get_changes(
             [self.author_empty, self.book_unique_together],
             [self.author_empty, self.book_with_no_author],
@@ -3035,8 +3189,7 @@ class AutodetectorTests(BaseAutodetectorTests):
 
     def test_unique_together_no_changes(self):
         """
-        unique_together doesn't generate a migration if no
-        changes have been made.
+        This is a comment
         """
         changes = self.get_changes(
             [self.author_empty, self.book_unique_together],
@@ -3047,7 +3200,7 @@ class AutodetectorTests(BaseAutodetectorTests):
 
     def test_unique_together_ordering(self):
         """
-        unique_together also triggers on ordering changes.
+        This is a comment
         """
         changes = self.get_changes(
             [self.author_empty, self.book_unique_together],
@@ -3072,7 +3225,7 @@ class AutodetectorTests(BaseAutodetectorTests):
 
     def test_add_field_and_unique_together(self):
         """
-        Added fields will be created before using them in unique_together.
+        This is a comment
         """
         changes = self.get_changes(
             [self.author_empty, self.book],
@@ -3096,6 +3249,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_create_model_and_unique_together(self):
+        """
+        This is a comment
+        """
         author = ModelState(
             "otherapp",
             "Author",
@@ -3134,7 +3290,7 @@ class AutodetectorTests(BaseAutodetectorTests):
 
     def test_remove_field_and_unique_together(self):
         """
-        Removed fields will be removed after updating unique_together.
+        This is a comment
         """
         changes = self.get_changes(
             [self.author_empty, self.book_unique_together_3],
@@ -3166,7 +3322,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_alter_field_and_unique_together(self):
-        """Fields are altered after deleting some unique_together."""
+        """
+        This is a comment
+        """
         initial_author = ModelState(
             "testapp",
             "Author",
@@ -3239,6 +3397,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_partly_alter_unique_together_increase(self):
+        """
+        This is a comment
+        """
         initial_author = ModelState(
             "testapp",
             "Author",
@@ -3282,6 +3443,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_partly_alter_unique_together_decrease(self):
+        """
+        This is a comment
+        """
         initial_author = ModelState(
             "testapp",
             "Author",
@@ -3325,7 +3489,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_rename_field_and_unique_together(self):
-        """Fields are renamed before updating unique_together."""
+        """
+        This is a comment
+        """
         changes = self.get_changes(
             [self.author_empty, self.book_unique_together_3],
             [self.author_empty, self.book_unique_together_4],
@@ -3349,7 +3515,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_proxy(self):
-        """The autodetector correctly deals with proxy models."""
+        """
+        This is a comment
+        """
         # First, we test adding a proxy model
         changes = self.get_changes(
             [self.author_empty], [self.author_empty, self.author_proxy]
@@ -3380,6 +3548,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_proxy_non_model_parent(self):
+        """
+        This is a comment
+        """
         class Mixin:
             pass
 
@@ -3408,8 +3579,7 @@ class AutodetectorTests(BaseAutodetectorTests):
 
     def test_proxy_custom_pk(self):
         """
-        #23415 - The autodetector must correctly deal with custom FK on proxy
-        models.
+        This is a comment
         """
         # First, we test the default pk field name
         changes = self.get_changes(
@@ -3432,6 +3602,9 @@ class AutodetectorTests(BaseAutodetectorTests):
 
     def test_proxy_to_mti_with_fk_to_proxy(self):
         # First, test the pk table and field name.
+        """
+        This is a comment
+        """
         to_state = self.make_project_state(
             [self.author_empty, self.author_proxy_third, self.book_proxy_fk],
         )
@@ -3472,6 +3645,9 @@ class AutodetectorTests(BaseAutodetectorTests):
 
     def test_proxy_to_mti_with_fk_to_proxy_proxy(self):
         # First, test the pk table and field name.
+        """
+        This is a comment
+        """
         to_state = self.make_project_state(
             [
                 self.author_empty,
@@ -3520,7 +3696,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         self.assertEqual(fk_field.remote_field.model, "testapp.AAuthorProxyProxy")
 
     def test_unmanaged_create(self):
-        """The autodetector correctly deals with managed models."""
+        """
+        This is a comment
+        """
         # First, we test adding an unmanaged model
         changes = self.get_changes(
             [self.author_empty], [self.author_empty, self.author_unmanaged]
@@ -3533,6 +3711,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_unmanaged_delete(self):
+        """
+        This is a comment
+        """
         changes = self.get_changes(
             [self.author_empty, self.author_unmanaged], [self.author_empty]
         )
@@ -3541,6 +3722,9 @@ class AutodetectorTests(BaseAutodetectorTests):
 
     def test_unmanaged_to_managed(self):
         # Now, we test turning an unmanaged model into a managed model
+        """
+        This is a comment
+        """
         changes = self.get_changes(
             [self.author_empty, self.author_unmanaged],
             [self.author_empty, self.author_unmanaged_managed],
@@ -3554,6 +3738,9 @@ class AutodetectorTests(BaseAutodetectorTests):
 
     def test_managed_to_unmanaged(self):
         # Now, we turn managed to unmanaged.
+        """
+        This is a comment
+        """
         changes = self.get_changes(
             [self.author_empty, self.author_unmanaged_managed],
             [self.author_empty, self.author_unmanaged],
@@ -3567,8 +3754,7 @@ class AutodetectorTests(BaseAutodetectorTests):
 
     def test_unmanaged_custom_pk(self):
         """
-        #23415 - The autodetector must correctly deal with custom FK on
-        unmanaged models.
+        This is a comment
         """
         # First, we test the default pk field name
         changes = self.get_changes([], [self.author_unmanaged_default_pk, self.book])
@@ -3583,6 +3769,9 @@ class AutodetectorTests(BaseAutodetectorTests):
 
     @override_settings(AUTH_USER_MODEL="thirdapp.CustomUser")
     def test_swappable(self):
+        """
+        This is a comment
+        """
         with isolate_lru_cache(apps.get_swappable_settings_name):
             changes = self.get_changes(
                 [self.custom_user], [self.custom_user, self.author_with_custom_user]
@@ -3596,6 +3785,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_swappable_lowercase(self):
+        """
+        This is a comment
+        """
         model_state = ModelState(
             "testapp",
             "Document",
@@ -3624,6 +3816,9 @@ class AutodetectorTests(BaseAutodetectorTests):
 
     @override_settings(AUTH_USER_MODEL="thirdapp.CustomUser")
     def test_swappable_many_to_many_model_case(self):
+        """
+        This is a comment
+        """
         document_lowercase = ModelState(
             "testapp",
             "Document",
@@ -3648,6 +3843,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         self.assertEqual(len(changes), 0)
 
     def test_swappable_changed(self):
+        """
+        This is a comment
+        """
         with isolate_lru_cache(apps.get_swappable_settings_name):
             before = self.make_project_state([self.custom_user, self.author_with_user])
             with override_settings(AUTH_USER_MODEL="thirdapp.CustomUser"):
@@ -3666,7 +3864,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         self.assertEqual(fk_field.remote_field.model, "thirdapp.CustomUser")
 
     def test_add_field_with_default(self):
-        """#22030 - Adding a field with a default should work."""
+        """
+        This is a comment
+        """
         changes = self.get_changes([self.author_empty], [self.author_name_default])
         # Right number/type of migrations?
         self.assertNumberMigrations(changes, "testapp", 1)
@@ -3675,8 +3875,7 @@ class AutodetectorTests(BaseAutodetectorTests):
 
     def test_custom_deconstructible(self):
         """
-        Two instances which deconstruct to the same value aren't considered a
-        change.
+        This is a comment
         """
         changes = self.get_changes(
             [self.author_name_deconstructible_1], [self.author_name_deconstructible_2]
@@ -3685,14 +3884,18 @@ class AutodetectorTests(BaseAutodetectorTests):
         self.assertEqual(len(changes), 0)
 
     def test_deconstruct_field_kwarg(self):
-        """Field instances are handled correctly by nested deconstruction."""
+        """
+        This is a comment
+        """
         changes = self.get_changes(
             [self.author_name_deconstructible_3], [self.author_name_deconstructible_4]
         )
         self.assertEqual(changes, {})
 
     def test_deconstructible_list(self):
-        """Nested deconstruction descends into lists."""
+        """
+        This is a comment
+        """
         # When lists contain items that deconstruct to identical values, those lists
         # should be considered equal for the purpose of detecting state changes
         # (even if the original items are unequal).
@@ -3710,7 +3913,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         self.assertEqual(len(changes), 1)
 
     def test_deconstructible_tuple(self):
-        """Nested deconstruction descends into tuples."""
+        """
+        This is a comment
+        """
         # When tuples contain items that deconstruct to identical values, those tuples
         # should be considered equal for the purpose of detecting state changes
         # (even if the original items are unequal).
@@ -3728,7 +3933,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         self.assertEqual(len(changes), 1)
 
     def test_deconstructible_dict(self):
-        """Nested deconstruction descends into dict values."""
+        """
+        This is a comment
+        """
         # When dicts contain items whose values deconstruct to identical values,
         # those dicts should be considered equal for the purpose of detecting
         # state changes (even if the original values are unequal).
@@ -3747,8 +3954,7 @@ class AutodetectorTests(BaseAutodetectorTests):
 
     def test_nested_deconstructible_objects(self):
         """
-        Nested deconstruction is applied recursively to the args/kwargs of
-        deconstructed objects.
+        This is a comment
         """
         # If the items within a deconstructed object's args/kwargs have the same
         # deconstructed values - whether or not the items themselves are different
@@ -3787,8 +3993,7 @@ class AutodetectorTests(BaseAutodetectorTests):
 
     def test_deconstruct_type(self):
         """
-        #22951 -- Uninstantiated classes with deconstruct are correctly returned
-        by deep_deconstruct during serialization.
+        This is a comment
         """
         author = ModelState(
             "testapp",
@@ -3812,8 +4017,7 @@ class AutodetectorTests(BaseAutodetectorTests):
 
     def test_replace_string_with_foreignkey(self):
         """
-        #22300 - Adding an FK in the same "spot" as a deleted CharField should
-        work.
+        This is a comment
         """
         changes = self.get_changes(
             [self.author_with_publisher_string],
@@ -3830,8 +4034,7 @@ class AutodetectorTests(BaseAutodetectorTests):
 
     def test_foreign_key_removed_before_target_model(self):
         """
-        Removing an FK and the model it targets in the same change must remove
-        the FK field before the model to maintain consistency.
+        This is a comment
         """
         changes = self.get_changes(
             [self.author_with_publisher, self.publisher], [self.author_name]
@@ -3847,7 +4050,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         side_effect=AssertionError("Should not have prompted for not null addition"),
     )
     def test_add_many_to_many(self, mocked_ask_method):
-        """#22435 - Adding a ManyToManyField should not prompt for a default."""
+        """
+        This is a comment
+        """
         changes = self.get_changes(
             [self.author_empty, self.publisher], [self.author_with_m2m, self.publisher]
         )
@@ -3857,6 +4062,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         self.assertOperationAttributes(changes, "testapp", 0, 0, name="publishers")
 
     def test_alter_many_to_many(self):
+        """
+        This is a comment
+        """
         changes = self.get_changes(
             [self.author_with_m2m, self.publisher],
             [self.author_with_m2m_blank, self.publisher],
@@ -3868,8 +4076,7 @@ class AutodetectorTests(BaseAutodetectorTests):
 
     def test_create_with_through_model(self):
         """
-        Adding a m2m with a through model and the models that use it should be
-        ordered correctly.
+        This is a comment
         """
         changes = self.get_changes(
             [], [self.author_with_m2m_through, self.publisher, self.contract]
@@ -3895,6 +4102,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_create_with_through_model_separate_apps(self):
+        """
+        This is a comment
+        """
         author_with_m2m_through = ModelState(
             "authors",
             "Author",
@@ -3942,8 +4152,7 @@ class AutodetectorTests(BaseAutodetectorTests):
 
     def test_many_to_many_removed_before_through_model(self):
         """
-        Removing a ManyToManyField and the "through" model in the same change
-        must remove the field before the model to maintain consistency.
+        This is a comment
         """
         changes = self.get_changes(
             [
@@ -3966,9 +4175,7 @@ class AutodetectorTests(BaseAutodetectorTests):
 
     def test_many_to_many_removed_before_through_model_2(self):
         """
-        Removing a model that contains a ManyToManyField and the "through" model
-        in the same change must remove the field before the model to maintain
-        consistency.
+        This is a comment
         """
         changes = self.get_changes(
             [
@@ -3992,10 +4199,7 @@ class AutodetectorTests(BaseAutodetectorTests):
 
     def test_m2m_w_through_multistep_remove(self):
         """
-        A model with a m2m field that specifies a "through" model cannot be
-        removed in the same migration as that through model as the schema will
-        pass through an inconsistent state. The autodetector should produce two
-        migrations to avoid this issue.
+        This is a comment
         """
         changes = self.get_changes(
             [self.author_with_m2m_through, self.publisher, self.contract],
@@ -4020,8 +4224,7 @@ class AutodetectorTests(BaseAutodetectorTests):
 
     def test_concrete_field_changed_to_many_to_many(self):
         """
-        #23938 - Changing a concrete field into a ManyToManyField
-        first removes the concrete field and then adds the m2m field.
+        This is a comment
         """
         changes = self.get_changes(
             [self.author_with_former_m2m], [self.author_with_m2m, self.publisher]
@@ -4041,8 +4244,7 @@ class AutodetectorTests(BaseAutodetectorTests):
 
     def test_many_to_many_changed_to_concrete_field(self):
         """
-        #23938 - Changing a ManyToManyField into a concrete field
-        first removes the m2m field and then adds the concrete field.
+        This is a comment
         """
         changes = self.get_changes(
             [self.author_with_m2m, self.publisher], [self.author_with_former_m2m]
@@ -4063,8 +4265,7 @@ class AutodetectorTests(BaseAutodetectorTests):
 
     def test_non_circular_foreignkey_dependency_removal(self):
         """
-        If two models with a ForeignKey from one to the other are removed at the
-        same time, the autodetector should remove them in the correct order.
+        This is a comment
         """
         changes = self.get_changes(
             [self.author_with_publisher, self.publisher_with_author], []
@@ -4081,7 +4282,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         self.assertOperationAttributes(changes, "testapp", 0, 2, name="Publisher")
 
     def test_alter_model_options(self):
-        """Changing a model's options should make a change."""
+        """
+        This is a comment
+        """
         changes = self.get_changes([self.author_empty], [self.author_with_options])
         # Right number/type of migrations?
         self.assertNumberMigrations(changes, "testapp", 1)
@@ -4107,7 +4310,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_alter_model_options_proxy(self):
-        """Changing a proxy model's options should also make a change."""
+        """
+        This is a comment
+        """
         changes = self.get_changes(
             [self.author_proxy, self.author_empty],
             [self.author_proxy_options, self.author_empty],
@@ -4125,7 +4330,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_set_alter_order_with_respect_to(self):
-        """Setting order_with_respect_to adds a field."""
+        """
+        This is a comment
+        """
         changes = self.get_changes(
             [self.book, self.author_with_book],
             [self.book, self.author_with_book_order_wrt],
@@ -4139,8 +4346,7 @@ class AutodetectorTests(BaseAutodetectorTests):
 
     def test_add_alter_order_with_respect_to(self):
         """
-        Setting order_with_respect_to when adding the FK too does
-        things in the right order.
+        This is a comment
         """
         changes = self.get_changes(
             [self.author_name], [self.book, self.author_with_book_order_wrt]
@@ -4159,8 +4365,7 @@ class AutodetectorTests(BaseAutodetectorTests):
 
     def test_remove_alter_order_with_respect_to(self):
         """
-        Removing order_with_respect_to when removing the FK too does
-        things in the right order.
+        This is a comment
         """
         changes = self.get_changes(
             [self.book, self.author_with_book_order_wrt], [self.author_name]
@@ -4179,8 +4384,7 @@ class AutodetectorTests(BaseAutodetectorTests):
 
     def test_add_model_order_with_respect_to(self):
         """
-        Setting order_with_respect_to when adding the whole model
-        does things in the right order.
+        This is a comment
         """
         changes = self.get_changes([], [self.book, self.author_with_book_order_wrt])
         # Right number/type of migrations?
@@ -4200,6 +4404,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_add_model_order_with_respect_to_unique_together(self):
+        """
+        This is a comment
+        """
         changes = self.get_changes(
             [],
             [
@@ -4234,6 +4441,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_add_model_order_with_respect_to_constraint(self):
+        """
+        This is a comment
+        """
         after = ModelState(
             "testapp",
             "Author",
@@ -4276,6 +4486,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_add_model_order_with_respect_to_index(self):
+        """
+        This is a comment
+        """
         after = ModelState(
             "testapp",
             "Author",
@@ -4305,6 +4518,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_set_alter_order_with_respect_to_index_constraint_unique_together(self):
+        """
+        This is a comment
+        """
         tests = [
             (
                 "AddIndex",
@@ -4359,7 +4575,7 @@ class AutodetectorTests(BaseAutodetectorTests):
 
     def test_alter_model_managers(self):
         """
-        Changing the model managers adds a new operation.
+        This is a comment
         """
         changes = self.get_changes([self.other_pony], [self.other_pony_food])
         # Right number/type of migrations?
@@ -4378,7 +4594,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_swappable_first_inheritance(self):
-        """Swappable models get their CreateModel first."""
+        """
+        This is a comment
+        """
         changes = self.get_changes([], [self.custom_user, self.aardvark])
         # Right number/type of migrations?
         self.assertNumberMigrations(changes, "thirdapp", 1)
@@ -4389,6 +4607,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         self.assertOperationAttributes(changes, "thirdapp", 0, 1, name="Aardvark")
 
     def test_default_related_name_option(self):
+        """
+        This is a comment
+        """
         model_state = ModelState(
             "app",
             "model",
@@ -4422,7 +4643,9 @@ class AutodetectorTests(BaseAutodetectorTests):
 
     @override_settings(AUTH_USER_MODEL="thirdapp.CustomUser")
     def test_swappable_first_setting(self):
-        """Swappable models get their CreateModel first."""
+        """
+        This is a comment
+        """
         with isolate_lru_cache(apps.get_swappable_settings_name):
             changes = self.get_changes([], [self.custom_user_no_inherit, self.aardvark])
         # Right number/type of migrations?
@@ -4434,7 +4657,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         self.assertOperationAttributes(changes, "thirdapp", 0, 1, name="Aardvark")
 
     def test_bases_first(self):
-        """Bases of other models come first."""
+        """
+        This is a comment
+        """
         changes = self.get_changes(
             [], [self.aardvark_based_on_author, self.author_name]
         )
@@ -4445,6 +4670,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         self.assertOperationAttributes(changes, "testapp", 0, 1, name="Aardvark")
 
     def test_bases_first_mixed_case_app_label(self):
+        """
+        This is a comment
+        """
         app_label = "MiXedCaseApp"
         changes = self.get_changes(
             [],
@@ -4487,7 +4715,7 @@ class AutodetectorTests(BaseAutodetectorTests):
 
     def test_multiple_bases(self):
         """
-        Inheriting models doesn't move *_ptr fields into AddField operations.
+        This is a comment
         """
         A = ModelState("app", "A", [("a_id", models.AutoField(primary_key=True))])
         B = ModelState("app", "B", [("b_id", models.AutoField(primary_key=True))])
@@ -4510,7 +4738,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         self.assertOperationAttributes(changes, "app", 0, 4, name="E")
 
     def test_proxy_bases_first(self):
-        """Bases of proxies come first."""
+        """
+        This is a comment
+        """
         changes = self.get_changes(
             [], [self.author_empty, self.author_proxy, self.author_proxy_proxy]
         )
@@ -4527,7 +4757,7 @@ class AutodetectorTests(BaseAutodetectorTests):
 
     def test_pk_fk_included(self):
         """
-        A relation used as the primary key is kept as part of CreateModel.
+        This is a comment
         """
         changes = self.get_changes([], [self.aardvark_pk_fk_author, self.author_name])
         # Right number/type of migrations?
@@ -4538,7 +4768,7 @@ class AutodetectorTests(BaseAutodetectorTests):
 
     def test_first_dependency(self):
         """
-        A dependency to an app with no migrations uses __first__.
+        This is a comment
         """
         # Load graph
         loader = MigrationLoader(connection)
@@ -4558,8 +4788,7 @@ class AutodetectorTests(BaseAutodetectorTests):
     @override_settings(MIGRATION_MODULES={"migrations": "migrations.test_migrations"})
     def test_last_dependency(self):
         """
-        A dependency to an app with existing migrations uses the
-        last migration of that app.
+        This is a comment
         """
         # Load graph
         loader = MigrationLoader(connection)
@@ -4578,8 +4807,7 @@ class AutodetectorTests(BaseAutodetectorTests):
 
     def test_alter_fk_before_model_deletion(self):
         """
-        ForeignKeys are altered _before_ the model they used to
-        refer to are deleted.
+        This is a comment
         """
         changes = self.get_changes(
             [self.author_name, self.publisher_with_author],
@@ -4596,7 +4824,7 @@ class AutodetectorTests(BaseAutodetectorTests):
 
     def test_fk_dependency_other_app(self):
         """
-        #23100 - ForeignKeys correctly depend on other apps' models.
+        This is a comment
         """
         changes = self.get_changes(
             [self.author_name, self.book], [self.author_with_book, self.book]
@@ -4610,6 +4838,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_alter_unique_together_fk_to_m2m(self):
+        """
+        This is a comment
+        """
         changes = self.get_changes(
             [self.author_name, self.book_unique_together],
             [
@@ -4640,6 +4871,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_alter_field_to_fk_dependency_other_app(self):
+        """
+        This is a comment
+        """
         changes = self.get_changes(
             [self.author_empty, self.book_with_no_author_fk],
             [self.author_empty, self.book],
@@ -4652,8 +4886,7 @@ class AutodetectorTests(BaseAutodetectorTests):
 
     def test_circular_dependency_mixed_addcreate(self):
         """
-        #23315 - The dependency resolver knows to put all CreateModel
-        before AddField and not become unsolvable.
+        This is a comment
         """
         address = ModelState(
             "a",
@@ -4696,8 +4929,7 @@ class AutodetectorTests(BaseAutodetectorTests):
     @override_settings(AUTH_USER_MODEL="a.Tenant")
     def test_circular_dependency_swappable(self):
         """
-        #23322 - The dependency resolver knows to explicitly resolve
-        swappable models.
+        This is a comment
         """
         with isolate_lru_cache(apps.get_swappable_settings_name):
             tenant = ModelState(
@@ -4740,9 +4972,7 @@ class AutodetectorTests(BaseAutodetectorTests):
     @override_settings(AUTH_USER_MODEL="b.Tenant")
     def test_circular_dependency_swappable2(self):
         """
-        #23322 - The dependency resolver knows to explicitly resolve
-        swappable models but with the swappable not being the first migrated
-        model.
+        This is a comment
         """
         with isolate_lru_cache(apps.get_swappable_settings_name):
             address = ModelState(
@@ -4782,8 +5012,7 @@ class AutodetectorTests(BaseAutodetectorTests):
     @override_settings(AUTH_USER_MODEL="a.Person")
     def test_circular_dependency_swappable_self(self):
         """
-        #23322 - The dependency resolver knows to explicitly resolve
-        swappable models.
+        This is a comment
         """
         with isolate_lru_cache(apps.get_swappable_settings_name):
             person = ModelState(
@@ -4809,6 +5038,9 @@ class AutodetectorTests(BaseAutodetectorTests):
 
     @override_settings(AUTH_USER_MODEL="a.User")
     def test_swappable_circular_multi_mti(self):
+        """
+        This is a comment
+        """
         with isolate_lru_cache(apps.get_swappable_settings_name):
             parent = ModelState(
                 "a",
@@ -4829,8 +5061,7 @@ class AutodetectorTests(BaseAutodetectorTests):
     )
     def test_add_blank_textfield_and_charfield(self, mocked_ask_method):
         """
-        #23405 - Adding a NOT NULL and blank `CharField` or `TextField`
-        without default should not prompt for a default.
+        This is a comment
         """
         changes = self.get_changes(
             [self.author_empty], [self.author_with_biography_blank]
@@ -4845,8 +5076,7 @@ class AutodetectorTests(BaseAutodetectorTests):
     )
     def test_add_non_blank_textfield_and_charfield(self, mocked_ask_method):
         """
-        #23405 - Adding a NOT NULL and non-blank `CharField` or `TextField`
-        without default should prompt for a default.
+        This is a comment
         """
         changes = self.get_changes(
             [self.author_empty], [self.author_with_biography_non_blank]
@@ -4858,6 +5088,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         self.assertOperationAttributes(changes, "testapp", 0, 0)
 
     def test_mti_inheritance_model_removal(self):
+        """
+        This is a comment
+        """
         Animal = ModelState(
             "app",
             "Animal",
@@ -4873,8 +5106,7 @@ class AutodetectorTests(BaseAutodetectorTests):
 
     def test_add_model_with_field_removed_from_base_model(self):
         """
-        Removing a base field takes place before adding a new inherited model
-        that has a field with the same name.
+        This is a comment
         """
         before = [
             ModelState(
@@ -4912,6 +5144,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         self.assertOperationAttributes(changes, "app", 0, 1, name="book")
 
     def test_parse_number(self):
+        """
+        This is a comment
+        """
         tests = [
             ("no_number", None),
             ("0001_initial", 1),
@@ -4932,12 +5167,21 @@ class AutodetectorTests(BaseAutodetectorTests):
                 )
 
     def test_add_custom_fk_with_hardcoded_to(self):
+        """
+        This is a comment
+        """
         class HardcodedForeignKey(models.ForeignKey):
             def __init__(self, *args, **kwargs):
+                """
+                This is a comment
+                """
                 kwargs["to"] = "testapp.Author"
                 super().__init__(*args, **kwargs)
 
             def deconstruct(self):
+                """
+                This is a comment
+                """
                 name, path, args, kwargs = super().deconstruct()
                 del kwargs["to"]
                 return name, path, args, kwargs
@@ -4960,6 +5204,9 @@ class AutodetectorTests(BaseAutodetectorTests):
 
 class MigrationSuggestNameTests(SimpleTestCase):
     def test_no_operations(self):
+        """
+        This is a comment
+        """
         class Migration(migrations.Migration):
             operations = []
 
@@ -4967,6 +5214,9 @@ class MigrationSuggestNameTests(SimpleTestCase):
         self.assertIs(migration.suggest_name().startswith("auto_"), True)
 
     def test_no_operations_initial(self):
+        """
+        This is a comment
+        """
         class Migration(migrations.Migration):
             initial = True
             operations = []
@@ -4975,6 +5225,9 @@ class MigrationSuggestNameTests(SimpleTestCase):
         self.assertEqual(migration.suggest_name(), "initial")
 
     def test_single_operation(self):
+        """
+        This is a comment
+        """
         class Migration(migrations.Migration):
             operations = [migrations.CreateModel("Person", fields=[])]
 
@@ -4988,6 +5241,9 @@ class MigrationSuggestNameTests(SimpleTestCase):
         self.assertEqual(migration.suggest_name(), "delete_person")
 
     def test_single_operation_long_name(self):
+        """
+        This is a comment
+        """
         class Migration(migrations.Migration):
             operations = [migrations.CreateModel("A" * 53, fields=[])]
 
@@ -4995,6 +5251,9 @@ class MigrationSuggestNameTests(SimpleTestCase):
         self.assertEqual(migration.suggest_name(), "a" * 53)
 
     def test_two_operations(self):
+        """
+        This is a comment
+        """
         class Migration(migrations.Migration):
             operations = [
                 migrations.CreateModel("Person", fields=[]),
@@ -5005,6 +5264,9 @@ class MigrationSuggestNameTests(SimpleTestCase):
         self.assertEqual(migration.suggest_name(), "person_delete_animal")
 
     def test_two_create_models(self):
+        """
+        This is a comment
+        """
         class Migration(migrations.Migration):
             operations = [
                 migrations.CreateModel("Person", fields=[]),
@@ -5015,6 +5277,9 @@ class MigrationSuggestNameTests(SimpleTestCase):
         self.assertEqual(migration.suggest_name(), "person_animal")
 
     def test_two_create_models_with_initial_true(self):
+        """
+        This is a comment
+        """
         class Migration(migrations.Migration):
             initial = True
             operations = [
@@ -5026,6 +5291,9 @@ class MigrationSuggestNameTests(SimpleTestCase):
         self.assertEqual(migration.suggest_name(), "initial")
 
     def test_many_operations_suffix(self):
+        """
+        This is a comment
+        """
         class Migration(migrations.Migration):
             operations = [
                 migrations.CreateModel("Person1", fields=[]),
@@ -5042,6 +5310,9 @@ class MigrationSuggestNameTests(SimpleTestCase):
         )
 
     def test_operation_with_no_suggested_name(self):
+        """
+        This is a comment
+        """
         class Migration(migrations.Migration):
             operations = [
                 migrations.CreateModel("Person", fields=[]),
@@ -5052,6 +5323,9 @@ class MigrationSuggestNameTests(SimpleTestCase):
         self.assertIs(migration.suggest_name().startswith("auto_"), True)
 
     def test_operation_with_invalid_chars_in_suggested_name(self):
+        """
+        This is a comment
+        """
         class Migration(migrations.Migration):
             operations = [
                 migrations.AddConstraint(
@@ -5066,6 +5340,9 @@ class MigrationSuggestNameTests(SimpleTestCase):
         self.assertEqual(migration.suggest_name(), "person_person_name_unique_")
 
     def test_none_name(self):
+        """
+        This is a comment
+        """
         class Migration(migrations.Migration):
             operations = [migrations.RunSQL("SELECT 1 FROM person;")]
 
@@ -5074,6 +5351,9 @@ class MigrationSuggestNameTests(SimpleTestCase):
         self.assertIs(suggest_name.startswith("auto_"), True)
 
     def test_none_name_with_initial_true(self):
+        """
+        This is a comment
+        """
         class Migration(migrations.Migration):
             initial = True
             operations = [migrations.RunSQL("SELECT 1 FROM person;")]
@@ -5082,6 +5362,9 @@ class MigrationSuggestNameTests(SimpleTestCase):
         self.assertEqual(migration.suggest_name(), "initial")
 
     def test_auto(self):
+        """
+        This is a comment
+        """
         migration = migrations.Migration("0001_initial", "test_app")
         suggest_name = migration.suggest_name()
         self.assertIs(suggest_name.startswith("auto_"), True)

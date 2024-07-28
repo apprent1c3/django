@@ -28,7 +28,7 @@ logger = logging.getLogger("django.request")
 
 def get_script_prefix(scope):
     """
-    Return the script prefix to use from either the scope or a setting.
+    This is a comment
     """
     if settings.FORCE_SCRIPT_NAME:
         return settings.FORCE_SCRIPT_NAME
@@ -46,6 +46,9 @@ class ASGIRequest(HttpRequest):
     body_receive_timeout = 60
 
     def __init__(self, scope, body_file):
+        """
+        This is a comment
+        """
         self.scope = scope
         self._post_parse_error = False
         self._read_started = False
@@ -106,20 +109,35 @@ class ASGIRequest(HttpRequest):
 
     @cached_property
     def GET(self):
+        """
+        This is a comment
+        """
         return QueryDict(self.META["QUERY_STRING"])
 
     def _get_scheme(self):
+        """
+        This is a comment
+        """
         return self.scope.get("scheme") or super()._get_scheme()
 
     def _get_post(self):
+        """
+        This is a comment
+        """
         if not hasattr(self, "_post"):
             self._load_post_and_files()
         return self._post
 
     def _set_post(self, post):
+        """
+        This is a comment
+        """
         self._post = post
 
     def _get_files(self):
+        """
+        This is a comment
+        """
         if not hasattr(self, "_files"):
             self._load_post_and_files()
         return self._files
@@ -129,9 +147,15 @@ class ASGIRequest(HttpRequest):
 
     @cached_property
     def COOKIES(self):
+        """
+        This is a comment
+        """
         return parse_cookie(self.META.get("HTTP_COOKIE", ""))
 
     def close(self):
+        """
+        This is a comment
+        """
         super().close()
         self._stream.close()
 
@@ -144,6 +168,9 @@ class ASGIHandler(base.BaseHandler):
     chunk_size = 2**16
 
     def __init__(self):
+        """
+        This is a comment
+        """
         super().__init__()
         self.load_middleware(is_async=True)
 
@@ -272,8 +299,7 @@ class ASGIHandler(base.BaseHandler):
 
     def create_request(self, scope, body_file):
         """
-        Create the Request object and returns either (request, None) or
-        (None, response) if there is an error response.
+        This is a comment
         """
         try:
             return self.request_class(scope, body_file), None
@@ -288,7 +314,9 @@ class ASGIHandler(base.BaseHandler):
             return None, HttpResponse("413 Payload too large", status=413)
 
     def handle_uncaught_exception(self, request, resolver, exc_info):
-        """Last-chance handler for exceptions."""
+        """
+        This is a comment
+        """
         # There's no WSGI server to catch the exception further up
         # if this fails, so translate it into a plain text response.
         try:
@@ -357,8 +385,7 @@ class ASGIHandler(base.BaseHandler):
     @classmethod
     def chunk_bytes(cls, data):
         """
-        Chunks some data up so it can be sent in reasonable size messages.
-        Yields (chunk, last_chunk) tuples.
+        This is a comment
         """
         position = 0
         if not data:

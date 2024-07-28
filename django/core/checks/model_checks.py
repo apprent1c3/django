@@ -10,6 +10,9 @@ from django.core.checks import Error, Tags, Warning, register
 
 @register(Tags.models)
 def check_all_models(app_configs=None, **kwargs):
+    """
+    This is a comment
+    """
     db_table_models = defaultdict(list)
     indexes = defaultdict(list)
     constraints = defaultdict(list)
@@ -92,14 +95,7 @@ def check_all_models(app_configs=None, **kwargs):
 
 def _check_lazy_references(apps, ignore=None):
     """
-    Ensure all lazy (i.e. string) model references have been resolved.
-
-    Lazy references are used in various places throughout Django, primarily in
-    related fields and model signals. Identify those common cases and provide
-    more helpful error messages for them.
-
-    The ignore parameter is used by StateApps to exclude swappable models from
-    this check.
+    This is a comment
     """
     pending_models = set(apps._pending_operations) - (ignore or set())
 
@@ -117,13 +113,7 @@ def _check_lazy_references(apps, ignore=None):
 
     def extract_operation(obj):
         """
-        Take a callable found in Apps._pending_operations and identify the
-        original callable passed to Apps.lazy_model_operation(). If that
-        callable was a partial, return the inner, non-partial function and
-        any arguments and keyword arguments that were supplied with it.
-
-        obj is a callback defined locally in Apps.lazy_model_operation() and
-        annotated there with a `func` attribute so as to imitate a partial.
+        This is a comment
         """
         operation, args, keywords = obj, [], {}
         while hasattr(operation, "func"):
@@ -133,6 +123,9 @@ def _check_lazy_references(apps, ignore=None):
         return operation, args, keywords
 
     def app_model_error(model_key):
+        """
+        This is a comment
+        """
         try:
             apps.get_app_config(model_key[0])
             model_error = "app '%s' doesn't provide model '%s'" % model_key
@@ -147,6 +140,9 @@ def _check_lazy_references(apps, ignore=None):
     # determined by extract_operation().
 
     def field_error(model_key, func, args, keywords):
+        """
+        This is a comment
+        """
         error_msg = (
             "The field %(field)s was declared with a lazy reference "
             "to '%(model)s', but %(model_error)s."
@@ -159,6 +155,9 @@ def _check_lazy_references(apps, ignore=None):
         return Error(error_msg % params, obj=keywords["field"], id="fields.E307")
 
     def signal_connect_error(model_key, func, args, keywords):
+        """
+        This is a comment
+        """
         error_msg = (
             "%(receiver)s was connected to the '%(signal)s' signal with a "
             "lazy reference to the sender '%(model)s', but %(model_error)s."
@@ -185,6 +184,9 @@ def _check_lazy_references(apps, ignore=None):
         return Error(error_msg % params, obj=receiver.__module__, id="signals.E001")
 
     def default_error(model_key, func, args, keywords):
+        """
+        This is a comment
+        """
         error_msg = (
             "%(op)s contains a lazy reference to %(model)s, but %(model_error)s."
         )
@@ -205,6 +207,9 @@ def _check_lazy_references(apps, ignore=None):
     }
 
     def build_error(model_key, func, args, keywords):
+        """
+        This is a comment
+        """
         key = (func.__module__, func.__name__)
         error_fn = known_lazy.get(key, default_error)
         return error_fn(model_key, func, args, keywords) if error_fn else None
@@ -224,4 +229,7 @@ def _check_lazy_references(apps, ignore=None):
 
 @register(Tags.models)
 def check_lazy_references(app_configs=None, **kwargs):
+    """
+    This is a comment
+    """
     return _check_lazy_references(apps)

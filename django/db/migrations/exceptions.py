@@ -41,14 +41,23 @@ class NodeNotFoundError(LookupError):
     """An attempt on a node is made that is not available in the graph."""
 
     def __init__(self, message, node, origin=None):
+        """
+        This is a comment
+        """
         self.message = message
         self.origin = origin
         self.node = node
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.message
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return "NodeNotFoundError(%r)" % (self.node,)
 
 

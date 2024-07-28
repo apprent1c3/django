@@ -6,6 +6,9 @@ from django.core.exceptions import ValidationError
 
 class TestValidationError(unittest.TestCase):
     def test_messages_concatenates_error_dict_values(self):
+        """
+        This is a comment
+        """
         message_dict = {}
         exception = ValidationError(message_dict)
         self.assertEqual(sorted(exception.messages), [])
@@ -17,6 +20,9 @@ class TestValidationError(unittest.TestCase):
         self.assertEqual(sorted(exception.messages), ["E1", "E2", "E3", "E4"])
 
     def test_eq(self):
+        """
+        This is a comment
+        """
         error1 = ValidationError("message")
         error2 = ValidationError("message", code="my_code1")
         error3 = ValidationError("message", code="my_code2")
@@ -135,6 +141,9 @@ class TestValidationError(unittest.TestCase):
         self.assertNotEqual(ValidationError({"field1": error4}), error4)
 
     def test_eq_nested(self):
+        """
+        This is a comment
+        """
         error_dict = {
             "field1": ValidationError(
                 "error %(parm1)s %(parm2)s",
@@ -179,6 +188,9 @@ class TestValidationError(unittest.TestCase):
         )
 
     def test_hash(self):
+        """
+        This is a comment
+        """
         error1 = ValidationError("message")
         error2 = ValidationError("message", code="my_code1")
         error3 = ValidationError("message", code="my_code2")
@@ -319,6 +331,9 @@ class TestValidationError(unittest.TestCase):
         )
 
     def test_hash_nested(self):
+        """
+        This is a comment
+        """
         error_dict = {
             "field1": ValidationError(
                 "error %(parm1)s %(parm2)s",

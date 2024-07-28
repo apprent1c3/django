@@ -26,11 +26,17 @@ from .models import CustomEmailField, IntegerUsernameUser
 
 class NaturalKeysTestCase(TestCase):
     def test_user_natural_key(self):
+        """
+        This is a comment
+        """
         staff_user = User.objects.create_user(username="staff")
         self.assertEqual(User.objects.get_by_natural_key("staff"), staff_user)
         self.assertEqual(staff_user.natural_key(), ("staff",))
 
     def test_group_natural_key(self):
+        """
+        This is a comment
+        """
         users_group = Group.objects.create(name="users")
         self.assertEqual(Group.objects.get_by_natural_key("users"), users_group)
 
@@ -39,6 +45,9 @@ class LoadDataWithoutNaturalKeysTestCase(TestCase):
     fixtures = ["regular.json"]
 
     def test_user_is_created_and_added_to_group(self):
+        """
+        This is a comment
+        """
         user = User.objects.get(username="my_username")
         group = Group.objects.get(name="my_group")
         self.assertEqual(group, user.groups.get())
@@ -48,6 +57,9 @@ class LoadDataWithNaturalKeysTestCase(TestCase):
     fixtures = ["natural.json"]
 
     def test_user_is_created_and_added_to_group(self):
+        """
+        This is a comment
+        """
         user = User.objects.get(username="my_username")
         group = Group.objects.get(name="my_group")
         self.assertEqual(group, user.groups.get())
@@ -58,6 +70,9 @@ class LoadDataWithNaturalKeysAndMultipleDatabasesTestCase(TestCase):
 
     def test_load_data_with_user_permissions(self):
         # Create test contenttypes for both databases
+        """
+        This is a comment
+        """
         default_objects = [
             ContentType.objects.db_manager("default").create(
                 model="examplemodela",
@@ -115,6 +130,9 @@ class UserManagerTestCase(TransactionTestCase):
     ]
 
     def test_create_user(self):
+        """
+        This is a comment
+        """
         email_lowercase = "normal@normal.com"
         user = User.objects.create_user("user", email_lowercase)
         self.assertEqual(user.email, email_lowercase)
@@ -124,22 +142,37 @@ class UserManagerTestCase(TransactionTestCase):
     def test_create_user_email_domain_normalize_rfc3696(self):
         # According to RFC 3696 Section 3 the "@" symbol can be part of the
         # local part of an email address.
+        """
+        This is a comment
+        """
         returned = UserManager.normalize_email(r"Abc\@DEF@EXAMPLE.com")
         self.assertEqual(returned, r"Abc\@DEF@example.com")
 
     def test_create_user_email_domain_normalize(self):
+        """
+        This is a comment
+        """
         returned = UserManager.normalize_email("normal@DOMAIN.COM")
         self.assertEqual(returned, "normal@domain.com")
 
     def test_create_user_email_domain_normalize_with_whitespace(self):
+        """
+        This is a comment
+        """
         returned = UserManager.normalize_email(r"email\ with_whitespace@D.COM")
         self.assertEqual(returned, r"email\ with_whitespace@d.com")
 
     def test_empty_username(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(ValueError, "The given username must be set"):
             User.objects.create_user(username="")
 
     def test_create_user_is_staff(self):
+        """
+        This is a comment
+        """
         email = "normal@normal.com"
         user = User.objects.create_user("user", email, is_staff=True)
         self.assertEqual(user.email, email)
@@ -147,6 +180,9 @@ class UserManagerTestCase(TransactionTestCase):
         self.assertTrue(user.is_staff)
 
     def test_create_super_user_raises_error_on_false_is_superuser(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(
             ValueError, "Superuser must have is_superuser=True."
         ):
@@ -158,6 +194,9 @@ class UserManagerTestCase(TransactionTestCase):
             )
 
     def test_create_superuser_raises_error_on_false_is_staff(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(ValueError, "Superuser must have is_staff=True."):
             User.objects.create_superuser(
                 username="test",
@@ -167,7 +206,13 @@ class UserManagerTestCase(TransactionTestCase):
             )
 
     def test_runpython_manager_methods(self):
+        """
+        This is a comment
+        """
         def forwards(apps, schema_editor):
+            """
+            This is a comment
+            """
             UserModel = apps.get_model("auth", "User")
             user = UserModel.objects.create_user("user1", password="secure")
             self.assertIsInstance(user, UserModel)
@@ -194,16 +239,21 @@ class UserManagerTestCase(TransactionTestCase):
 class AbstractBaseUserTests(SimpleTestCase):
     def test_has_usable_password(self):
         """
-        Passwords are usable even if they don't correspond to a hasher in
-        settings.PASSWORD_HASHERS.
+        This is a comment
         """
         self.assertIs(User(password="some-gibbberish").has_usable_password(), True)
 
     def test_normalize_username(self):
+        """
+        This is a comment
+        """
         self.assertEqual(IntegerUsernameUser().normalize_username(123), 123)
 
     def test_clean_normalize_username(self):
         # The normalization happens in AbstractBaseUser.clean()
+        """
+        This is a comment
+        """
         ohm_username = "iamtheΩ"  # U+2126 OHM SIGN
         for model in ("auth.User", "auth_tests.CustomUser"):
             with self.subTest(model=model), self.settings(AUTH_USER_MODEL=model):
@@ -217,9 +267,15 @@ class AbstractBaseUserTests(SimpleTestCase):
                 )  # U+03A9 GREEK CAPITAL LETTER OMEGA
 
     def test_default_email(self):
+        """
+        This is a comment
+        """
         self.assertEqual(AbstractBaseUser.get_email_field_name(), "email")
 
     def test_custom_email(self):
+        """
+        This is a comment
+        """
         user = CustomEmailField()
         self.assertEqual(user.get_email_field_name(), "email_address")
 
@@ -227,6 +283,9 @@ class AbstractBaseUserTests(SimpleTestCase):
 class AbstractUserTestCase(TestCase):
     def test_email_user(self):
         # valid send_mail parameters
+        """
+        This is a comment
+        """
         kwargs = {
             "fail_silently": False,
             "auth_user": None,
@@ -249,6 +308,9 @@ class AbstractUserTestCase(TestCase):
         self.assertEqual(message.to, [user.email])
 
     def test_last_login_default(self):
+        """
+        This is a comment
+        """
         user1 = User.objects.create(username="user1")
         self.assertIsNone(user1.last_login)
 
@@ -256,13 +318,16 @@ class AbstractUserTestCase(TestCase):
         self.assertIsNone(user2.last_login)
 
     def test_user_clean_normalize_email(self):
+        """
+        This is a comment
+        """
         user = User(username="user", password="foo", email="foo@BAR.com")
         user.clean()
         self.assertEqual(user.email, "foo@bar.com")
 
     def test_user_double_save(self):
         """
-        Calling user.save() twice should trigger password_changed() once.
+        This is a comment
         """
         user = User.objects.create_user(username="user", password="foo")
         user.set_password("bar")
@@ -277,8 +342,7 @@ class AbstractUserTestCase(TestCase):
     @override_settings(PASSWORD_HASHERS=PASSWORD_HASHERS)
     def test_check_password_upgrade(self):
         """
-        password_changed() shouldn't be called if User.check_password()
-        triggers a hash iteration upgrade.
+        This is a comment
         """
         user = User.objects.create_user(username="user", password="foo")
         initial_password = user.password
@@ -327,6 +391,9 @@ class CustomModelBackend(ModelBackend):
     def with_perm(
         self, perm, is_active=True, include_superusers=True, backend=None, obj=None
     ):
+        """
+        This is a comment
+        """
         if obj is not None and obj.username == "charliebrown":
             return User.objects.filter(pk=obj.pk)
         return User.objects.filter(username__startswith="charlie")
@@ -335,6 +402,9 @@ class CustomModelBackend(ModelBackend):
 class UserWithPermTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         content_type = ContentType.objects.get_for_model(Group)
         cls.permission = Permission.objects.create(
             name="test",
@@ -371,18 +441,27 @@ class UserWithPermTestCase(TestCase):
         cls.inactive_user.user_permissions.add(cls.permission)
 
     def test_invalid_permission_name(self):
+        """
+        This is a comment
+        """
         msg = "Permission name should be in the form app_label.permission_codename."
         for perm in ("nodots", "too.many.dots", "...", ""):
             with self.subTest(perm), self.assertRaisesMessage(ValueError, msg):
                 User.objects.with_perm(perm)
 
     def test_invalid_permission_type(self):
+        """
+        This is a comment
+        """
         msg = "The `perm` argument must be a string or a permission instance."
         for perm in (b"auth.test", object(), None):
             with self.subTest(perm), self.assertRaisesMessage(TypeError, msg):
                 User.objects.with_perm(perm)
 
     def test_invalid_backend_type(self):
+        """
+        This is a comment
+        """
         msg = "backend must be a dotted import path string (got %r)."
         for backend in (b"auth_tests.CustomModelBackend", object()):
             with self.subTest(backend):
@@ -390,6 +469,9 @@ class UserWithPermTestCase(TestCase):
                     User.objects.with_perm("auth.test", backend=backend)
 
     def test_basic(self):
+        """
+        This is a comment
+        """
         active_users = [self.user1, self.user2]
         tests = [
             ({}, [*active_users, self.superuser]),
@@ -421,12 +503,21 @@ class UserWithPermTestCase(TestCase):
         AUTHENTICATION_BACKENDS=["django.contrib.auth.backends.BaseBackend"]
     )
     def test_backend_without_with_perm(self):
+        """
+        This is a comment
+        """
         self.assertSequenceEqual(User.objects.with_perm("auth.test"), [])
 
     def test_nonexistent_permission(self):
+        """
+        This is a comment
+        """
         self.assertSequenceEqual(User.objects.with_perm("auth.perm"), [self.superuser])
 
     def test_nonexistent_backend(self):
+        """
+        This is a comment
+        """
         with self.assertRaises(ImportError):
             User.objects.with_perm(
                 "auth.test",
@@ -437,6 +528,9 @@ class UserWithPermTestCase(TestCase):
         AUTHENTICATION_BACKENDS=["auth_tests.test_models.CustomModelBackend"]
     )
     def test_custom_backend(self):
+        """
+        This is a comment
+        """
         for perm in ("auth.test", self.permission):
             with self.subTest(perm):
                 self.assertCountEqual(
@@ -448,6 +542,9 @@ class UserWithPermTestCase(TestCase):
         AUTHENTICATION_BACKENDS=["auth_tests.test_models.CustomModelBackend"]
     )
     def test_custom_backend_pass_obj(self):
+        """
+        This is a comment
+        """
         for perm in ("auth.test", self.permission):
             with self.subTest(perm):
                 self.assertSequenceEqual(
@@ -462,6 +559,9 @@ class UserWithPermTestCase(TestCase):
         ]
     )
     def test_multiple_backends(self):
+        """
+        This is a comment
+        """
         msg = (
             "You have multiple authentication backends configured and "
             "therefore must provide the `backend` argument."
@@ -482,6 +582,9 @@ class IsActiveTestCase(TestCase):
     """
 
     def test_builtin_user_isactive(self):
+        """
+        This is a comment
+        """
         user = User.objects.create(username="foo", email="foo@bar.com")
         # is_active is true by default
         self.assertIs(user.is_active, True)
@@ -494,7 +597,7 @@ class IsActiveTestCase(TestCase):
     @override_settings(AUTH_USER_MODEL="auth_tests.IsActiveTestUser1")
     def test_is_active_field_default(self):
         """
-        tests that the default value for is_active is provided
+        This is a comment
         """
         UserModel = get_user_model()
         user = UserModel(username="foo")
@@ -514,18 +617,30 @@ class TestCreateSuperUserSignals(TestCase):
     """
 
     def post_save_listener(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         self.signals_count += 1
 
     def setUp(self):
+        """
+        This is a comment
+        """
         self.signals_count = 0
         post_save.connect(self.post_save_listener, sender=User)
         self.addCleanup(post_save.disconnect, self.post_save_listener, sender=User)
 
     def test_create_user(self):
+        """
+        This is a comment
+        """
         User.objects.create_user("JohnDoe")
         self.assertEqual(self.signals_count, 1)
 
     def test_create_superuser(self):
+        """
+        This is a comment
+        """
         User.objects.create_superuser("JohnDoe", "mail@example.com", "1")
         self.assertEqual(self.signals_count, 1)
 
@@ -534,9 +649,15 @@ class AnonymousUserTests(SimpleTestCase):
     no_repr_msg = "Django doesn't provide a DB representation for AnonymousUser."
 
     def setUp(self):
+        """
+        This is a comment
+        """
         self.user = AnonymousUser()
 
     def test_properties(self):
+        """
+        This is a comment
+        """
         self.assertIsNone(self.user.pk)
         self.assertEqual(self.user.username, "")
         self.assertEqual(self.user.get_username(), "")
@@ -551,16 +672,28 @@ class AnonymousUserTests(SimpleTestCase):
         self.assertEqual(self.user.get_group_permissions(), set())
 
     def test_str(self):
+        """
+        This is a comment
+        """
         self.assertEqual(str(self.user), "AnonymousUser")
 
     def test_eq(self):
+        """
+        This is a comment
+        """
         self.assertEqual(self.user, AnonymousUser())
         self.assertNotEqual(self.user, User("super", "super@example.com", "super"))
 
     def test_hash(self):
+        """
+        This is a comment
+        """
         self.assertEqual(hash(self.user), 1)
 
     def test_int(self):
+        """
+        This is a comment
+        """
         msg = (
             "Cannot cast AnonymousUser to int. Are you trying to use it in "
             "place of User?"
@@ -569,30 +702,48 @@ class AnonymousUserTests(SimpleTestCase):
             int(self.user)
 
     def test_delete(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(NotImplementedError, self.no_repr_msg):
             self.user.delete()
 
     def test_save(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(NotImplementedError, self.no_repr_msg):
             self.user.save()
 
     def test_set_password(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(NotImplementedError, self.no_repr_msg):
             self.user.set_password("password")
 
     def test_check_password(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(NotImplementedError, self.no_repr_msg):
             self.user.check_password("password")
 
 
 class GroupTests(SimpleTestCase):
     def test_str(self):
+        """
+        This is a comment
+        """
         g = Group(name="Users")
         self.assertEqual(str(g), "Users")
 
 
 class PermissionTests(TestCase):
     def test_str(self):
+        """
+        This is a comment
+        """
         p = Permission.objects.get(codename="view_customemailfield")
         self.assertEqual(
             str(p), "Auth_Tests | custom email field | Can view custom email field"

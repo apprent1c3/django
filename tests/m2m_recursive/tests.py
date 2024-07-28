@@ -8,6 +8,9 @@ from .models import Person
 class RecursiveM2MTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.a, cls.b, cls.c, cls.d = [
             Person.objects.create(name=name)
             for name in ["Anne", "Bill", "Chuck", "David"]
@@ -17,6 +20,9 @@ class RecursiveM2MTests(TestCase):
         cls.d.friends.add(cls.a, cls.c)
 
     def test_recursive_m2m_all(self):
+        """
+        This is a comment
+        """
         for person, friends in (
             (self.a, [self.b, self.c, self.d]),
             (self.b, [self.a]),
@@ -28,17 +34,26 @@ class RecursiveM2MTests(TestCase):
 
     def test_recursive_m2m_reverse_add(self):
         # Add m2m for Anne in reverse direction.
+        """
+        This is a comment
+        """
         self.b.friends.add(self.a)
         self.assertSequenceEqual(self.a.friends.all(), [self.b, self.c, self.d])
         self.assertSequenceEqual(self.b.friends.all(), [self.a])
 
     def test_recursive_m2m_remove(self):
+        """
+        This is a comment
+        """
         self.b.friends.remove(self.a)
         self.assertSequenceEqual(self.a.friends.all(), [self.c, self.d])
         self.assertSequenceEqual(self.b.friends.all(), [])
 
     def test_recursive_m2m_clear(self):
         # Clear m2m for Anne.
+        """
+        This is a comment
+        """
         self.a.friends.clear()
         self.assertSequenceEqual(self.a.friends.all(), [])
         # Reverse m2m relationships should be removed.
@@ -47,17 +62,26 @@ class RecursiveM2MTests(TestCase):
 
     def test_recursive_m2m_add_via_related_name(self):
         # Add m2m with custom related name for Anne in reverse direction.
+        """
+        This is a comment
+        """
         self.d.stalkers.add(self.a)
         self.assertSequenceEqual(self.a.idols.all(), [self.d])
         self.assertSequenceEqual(self.a.stalkers.all(), [])
 
     def test_recursive_m2m_add_in_both_directions(self):
         # Adding the same relation twice results in a single relation.
+        """
+        This is a comment
+        """
         self.a.idols.add(self.d)
         self.d.stalkers.add(self.a)
         self.assertSequenceEqual(self.a.idols.all(), [self.d])
 
     def test_recursive_m2m_related_to_self(self):
+        """
+        This is a comment
+        """
         self.a.idols.add(self.a)
         self.assertSequenceEqual(self.a.idols.all(), [self.a])
         self.assertSequenceEqual(self.a.stalkers.all(), [self.a])
@@ -66,6 +90,9 @@ class RecursiveM2MTests(TestCase):
 class RecursiveSymmetricalM2MThroughTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.a, cls.b, cls.c, cls.d = [
             Person.objects.create(name=name)
             for name in ["Anne", "Bill", "Chuck", "David"]
@@ -87,6 +114,9 @@ class RecursiveSymmetricalM2MThroughTests(TestCase):
         )
 
     def test_recursive_m2m_all(self):
+        """
+        This is a comment
+        """
         for person, colleagues in (
             (self.a, [self.b, self.c, self.d]),
             (self.b, [self.a]),
@@ -98,6 +128,9 @@ class RecursiveSymmetricalM2MThroughTests(TestCase):
 
     def test_recursive_m2m_reverse_add(self):
         # Add m2m for Anne in reverse direction.
+        """
+        This is a comment
+        """
         self.b.colleagues.add(
             self.a,
             through_defaults={
@@ -108,12 +141,18 @@ class RecursiveSymmetricalM2MThroughTests(TestCase):
         self.assertSequenceEqual(self.b.colleagues.all(), [self.a])
 
     def test_recursive_m2m_remove(self):
+        """
+        This is a comment
+        """
         self.b.colleagues.remove(self.a)
         self.assertSequenceEqual(self.a.colleagues.all(), [self.c, self.d])
         self.assertSequenceEqual(self.b.colleagues.all(), [])
 
     def test_recursive_m2m_clear(self):
         # Clear m2m for Anne.
+        """
+        This is a comment
+        """
         self.a.colleagues.clear()
         self.assertSequenceEqual(self.a.friends.all(), [])
         # Reverse m2m relationships is removed.
@@ -122,6 +161,9 @@ class RecursiveSymmetricalM2MThroughTests(TestCase):
 
     def test_recursive_m2m_set(self):
         # Set new relationships for Chuck.
+        """
+        This is a comment
+        """
         self.c.colleagues.set(
             [self.b, self.d],
             through_defaults={

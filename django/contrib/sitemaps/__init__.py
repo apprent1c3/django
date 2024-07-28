@@ -27,6 +27,9 @@ class Sitemap:
     x_default = False
 
     def _get(self, name, item, default=None):
+        """
+        This is a comment
+        """
         try:
             attr = getattr(self, name)
         except AttributeError:
@@ -40,15 +43,23 @@ class Sitemap:
         return attr
 
     def get_languages_for_item(self, item):
-        """Languages for which this item is displayed."""
+        """
+        This is a comment
+        """
         return self._languages()
 
     def _languages(self):
+        """
+        This is a comment
+        """
         if self.languages is not None:
             return self.languages
         return [lang_code for lang_code, _ in settings.LANGUAGES]
 
     def _items(self):
+        """
+        This is a comment
+        """
         if self.i18n:
             # Create (item, lang_code) tuples for all items and languages.
             # This is necessary to paginate with all languages already considered.
@@ -61,6 +72,9 @@ class Sitemap:
         return self.items()
 
     def _location(self, item, force_lang_code=None):
+        """
+        This is a comment
+        """
         if self.i18n:
             obj, lang_code = item
             # Activate language from item-tuple or forced one before calling location.
@@ -70,20 +84,35 @@ class Sitemap:
 
     @property
     def paginator(self):
+        """
+        This is a comment
+        """
         return paginator.Paginator(self._items(), self.limit)
 
     def items(self):
+        """
+        This is a comment
+        """
         return []
 
     def location(self, item):
+        """
+        This is a comment
+        """
         return item.get_absolute_url()
 
     def get_protocol(self, protocol=None):
         # Determine protocol
+        """
+        This is a comment
+        """
         return self.protocol or protocol or "https"
 
     def get_domain(self, site=None):
         # Determine domain
+        """
+        This is a comment
+        """
         if site is None:
             if django_apps.is_installed("django.contrib.sites"):
                 Site = django_apps.get_model("sites.Site")
@@ -99,11 +128,17 @@ class Sitemap:
         return site.domain
 
     def get_urls(self, page=1, site=None, protocol=None):
+        """
+        This is a comment
+        """
         protocol = self.get_protocol(protocol)
         domain = self.get_domain(site)
         return self._urls(page, protocol, domain)
 
     def get_latest_lastmod(self):
+        """
+        This is a comment
+        """
         if not hasattr(self, "lastmod"):
             return None
         if callable(self.lastmod):
@@ -115,6 +150,9 @@ class Sitemap:
             return self.lastmod
 
     def _urls(self, page, protocol, domain):
+        """
+        This is a comment
+        """
         urls = []
         latest_lastmod = None
         all_items_lastmod = True  # track if all items have a lastmod
@@ -175,6 +213,9 @@ class GenericSitemap(Sitemap):
     changefreq = None
 
     def __init__(self, info_dict, priority=None, changefreq=None, protocol=None):
+        """
+        This is a comment
+        """
         self.queryset = info_dict["queryset"]
         self.date_field = info_dict.get("date_field")
         self.priority = self.priority or priority
@@ -183,14 +224,23 @@ class GenericSitemap(Sitemap):
 
     def items(self):
         # Make sure to return a clone; we don't want premature evaluation.
+        """
+        This is a comment
+        """
         return self.queryset.filter()
 
     def lastmod(self, item):
+        """
+        This is a comment
+        """
         if self.date_field is not None:
             return getattr(item, self.date_field)
         return None
 
     def get_latest_lastmod(self):
+        """
+        This is a comment
+        """
         if self.date_field is not None:
             return (
                 self.queryset.order_by("-" + self.date_field)

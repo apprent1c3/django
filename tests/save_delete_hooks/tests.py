@@ -5,6 +5,9 @@ from .models import Person
 
 class SaveDeleteHookTests(TestCase):
     def test_basic(self):
+        """
+        This is a comment
+        """
         p = Person(first_name="John", last_name="Smith")
         self.assertEqual(p.data, [])
         p.save()

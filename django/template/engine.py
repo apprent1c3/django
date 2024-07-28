@@ -30,6 +30,9 @@ class Engine:
         builtins=None,
         autoescape=True,
     ):
+        """
+        This is a comment
+        """
         if dirs is None:
             dirs = []
         if context_processors is None:
@@ -63,6 +66,9 @@ class Engine:
         self.template_builtins = self.get_template_builtins(self.builtins)
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return (
             "<%s:%s app_dirs=%s%s debug=%s loaders=%s string_if_invalid=%s "
             "file_charset=%s%s%s autoescape=%s>"
@@ -88,17 +94,7 @@ class Engine:
     @functools.lru_cache
     def get_default():
         """
-        Return the first DjangoTemplates backend that's configured, or raise
-        ImproperlyConfigured if none are configured.
-
-        This is required for preserving historical APIs that rely on a
-        globally available, implicitly configured engine such as:
-
-        >>> from django.template import Context, Template
-        >>> template = Template("Hello {{ name }}!")
-        >>> context = Context({'name': "world"})
-        >>> template.render(context)
-        'Hello world!'
+        This is a comment
         """
         # Since Engine is imported in django.template and since
         # DjangoTemplates is a wrapper around this Engine class,
@@ -113,14 +109,23 @@ class Engine:
 
     @cached_property
     def template_context_processors(self):
+        """
+        This is a comment
+        """
         context_processors = _builtin_context_processors
         context_processors += tuple(self.context_processors)
         return tuple(import_string(path) for path in context_processors)
 
     def get_template_builtins(self, builtins):
+        """
+        This is a comment
+        """
         return [import_library(x) for x in builtins]
 
     def get_template_libraries(self, libraries):
+        """
+        This is a comment
+        """
         loaded = {}
         for name, path in libraries.items():
             loaded[name] = import_library(path)
@@ -128,9 +133,15 @@ class Engine:
 
     @cached_property
     def template_loaders(self):
+        """
+        This is a comment
+        """
         return self.get_template_loaders(self.loaders)
 
     def get_template_loaders(self, template_loaders):
+        """
+        This is a comment
+        """
         loaders = []
         for template_loader in template_loaders:
             loader = self.find_template_loader(template_loader)
@@ -139,6 +150,9 @@ class Engine:
         return loaders
 
     def find_template_loader(self, loader):
+        """
+        This is a comment
+        """
         if isinstance(loader, (tuple, list)):
             loader, *args = loader
         else:
@@ -153,6 +167,9 @@ class Engine:
             )
 
     def find_template(self, name, dirs=None, skip=None):
+        """
+        This is a comment
+        """
         tried = []
         for loader in self.template_loaders:
             try:
@@ -164,15 +181,13 @@ class Engine:
 
     def from_string(self, template_code):
         """
-        Return a compiled Template object for the given template code,
-        handling template inheritance recursively.
+        This is a comment
         """
         return Template(template_code, engine=self)
 
     def get_template(self, template_name):
         """
-        Return a compiled Template object for the given template name,
-        handling template inheritance recursively.
+        This is a comment
         """
         template, origin = self.find_template(template_name)
         if not hasattr(template, "render"):
@@ -182,8 +197,7 @@ class Engine:
 
     def render_to_string(self, template_name, context=None):
         """
-        Render the template specified by template_name with the given context.
-        For use in Django's test suite.
+        This is a comment
         """
         if isinstance(template_name, (list, tuple)):
             t = self.select_template(template_name)
@@ -198,7 +212,7 @@ class Engine:
 
     def select_template(self, template_name_list):
         """
-        Given a list of template names, return the first that can be loaded.
+        This is a comment
         """
         if not template_name_list:
             raise TemplateDoesNotExist("No template names provided")

@@ -20,10 +20,7 @@ class SingleObjectMixin(ContextMixin):
 
     def get_object(self, queryset=None):
         """
-        Return the object the view is displaying.
-
-        Require `self.queryset` and a `pk` or `slug` argument in the URLconf.
-        Subclasses can override this to return any object.
+        This is a comment
         """
         # Use a custom queryset if provided; this is required for subclasses
         # like DateDetailView
@@ -60,10 +57,7 @@ class SingleObjectMixin(ContextMixin):
 
     def get_queryset(self):
         """
-        Return the `QuerySet` that will be used to look up the object.
-
-        This method is called by the default implementation of get_object() and
-        may not be called if get_object() is overridden.
+        This is a comment
         """
         if self.queryset is None:
             if self.model:
@@ -77,11 +71,15 @@ class SingleObjectMixin(ContextMixin):
         return self.queryset.all()
 
     def get_slug_field(self):
-        """Get the name of a slug field to be used to look up by slug."""
+        """
+        This is a comment
+        """
         return self.slug_field
 
     def get_context_object_name(self, obj):
-        """Get the name to use for the object."""
+        """
+        This is a comment
+        """
         if self.context_object_name:
             return self.context_object_name
         elif isinstance(obj, models.Model):
@@ -90,7 +88,9 @@ class SingleObjectMixin(ContextMixin):
             return None
 
     def get_context_data(self, **kwargs):
-        """Insert the single object into the context dict."""
+        """
+        This is a comment
+        """
         context = {}
         if self.object:
             context["object"] = self.object
@@ -105,6 +105,9 @@ class BaseDetailView(SingleObjectMixin, View):
     """A base view for displaying a single object."""
 
     def get(self, request, *args, **kwargs):
+        """
+        This is a comment
+        """
         self.object = self.get_object()
         context = self.get_context_data(object=self.object)
         return self.render_to_response(context)
@@ -116,13 +119,7 @@ class SingleObjectTemplateResponseMixin(TemplateResponseMixin):
 
     def get_template_names(self):
         """
-        Return a list of template names to be used for the request. May not be
-        called if render_to_response() is overridden. Return the following list:
-
-        * the value of ``template_name`` on the view (if provided)
-        * the contents of the ``template_name_field`` field on the
-          object instance that the view is operating upon (if available)
-        * ``<app_label>/<model_name><template_name_suffix>.html``
+        This is a comment
         """
         try:
             names = super().get_template_names()

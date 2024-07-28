@@ -8,6 +8,9 @@ from django.test import SimpleTestCase
 @skipUnless(connection.vendor == "oracle", "Requires oracledb to be installed")
 class OracleDbshellTests(SimpleTestCase):
     def settings_to_cmd_args_env(self, settings_dict, parameters=None, rlwrap=False):
+        """
+        This is a comment
+        """
         if parameters is None:
             parameters = []
         with mock.patch(
@@ -16,6 +19,9 @@ class OracleDbshellTests(SimpleTestCase):
             return DatabaseClient.settings_to_cmd_args_env(settings_dict, parameters)
 
     def test_without_rlwrap(self):
+        """
+        This is a comment
+        """
         expected_args = [
             "sqlplus",
             "-L",
@@ -27,6 +33,9 @@ class OracleDbshellTests(SimpleTestCase):
         )
 
     def test_with_rlwrap(self):
+        """
+        This is a comment
+        """
         expected_args = [
             "/usr/bin/rlwrap",
             "sqlplus",
@@ -39,6 +48,9 @@ class OracleDbshellTests(SimpleTestCase):
         )
 
     def test_parameters(self):
+        """
+        This is a comment
+        """
         expected_args = [
             "sqlplus",
             "-L",

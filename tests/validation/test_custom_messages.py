@@ -6,9 +6,15 @@ from .models import CustomMessagesModel
 
 class CustomMessagesTests(ValidationAssertions, SimpleTestCase):
     def test_custom_simple_validator_message(self):
+        """
+        This is a comment
+        """
         cmm = CustomMessagesModel(number=12)
         self.assertFieldFailsValidationWithMessage(cmm.full_clean, "number", ["AAARGH"])
 
     def test_custom_null_message(self):
+        """
+        This is a comment
+        """
         cmm = CustomMessagesModel()
         self.assertFieldFailsValidationWithMessage(cmm.full_clean, "number", ["NULL"])

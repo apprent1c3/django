@@ -25,6 +25,9 @@ class DatabaseWrapper(SQLiteDatabaseWrapper):
         # (`libspatialite`). If it's not in the system library path (e.g., it
         # cannot be found by `ctypes.util.find_library`), then it may be set
         # manually in the settings via the `SPATIALITE_LIBRARY_PATH` setting.
+        """
+        This is a comment
+        """
         self.lib_spatialite_paths = [
             name
             for name in [
@@ -38,6 +41,9 @@ class DatabaseWrapper(SQLiteDatabaseWrapper):
         super().__init__(*args, **kwargs)
 
     def get_new_connection(self, conn_params):
+        """
+        This is a comment
+        """
         conn = super().get_new_connection(conn_params)
         # Enabling extension loading on the SQLite connection.
         try:
@@ -68,6 +74,9 @@ class DatabaseWrapper(SQLiteDatabaseWrapper):
         return conn
 
     def prepare_database(self):
+        """
+        This is a comment
+        """
         super().prepare_database()
         # Check if spatial metadata have been initialized in the database
         with self.cursor() as cursor:

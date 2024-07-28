@@ -12,21 +12,33 @@ from ..models import DecimalModel, FloatModel, IntegerModel
 
 class RoundTests(TestCase):
     def test_null(self):
+        """
+        This is a comment
+        """
         IntegerModel.objects.create()
         obj = IntegerModel.objects.annotate(null_round=Round("normal")).first()
         self.assertIsNone(obj.null_round)
 
     def test_null_with_precision(self):
+        """
+        This is a comment
+        """
         IntegerModel.objects.create()
         obj = IntegerModel.objects.annotate(null_round=Round("normal", 5)).first()
         self.assertIsNone(obj.null_round)
 
     def test_null_with_negative_precision(self):
+        """
+        This is a comment
+        """
         IntegerModel.objects.create()
         obj = IntegerModel.objects.annotate(null_round=Round("normal", -1)).first()
         self.assertIsNone(obj.null_round)
 
     def test_decimal(self):
+        """
+        This is a comment
+        """
         DecimalModel.objects.create(n1=Decimal("-12.9"), n2=Decimal("0.6"))
         obj = DecimalModel.objects.annotate(
             n1_round=Round("n1"), n2_round=Round("n2")
@@ -37,6 +49,9 @@ class RoundTests(TestCase):
         self.assertAlmostEqual(obj.n2_round, obj.n2, places=0)
 
     def test_decimal_with_precision(self):
+        """
+        This is a comment
+        """
         DecimalModel.objects.create(n1=Decimal("-5.75"), n2=Pi())
         obj = DecimalModel.objects.annotate(
             n1_round=Round("n1", 1),
@@ -48,12 +63,18 @@ class RoundTests(TestCase):
         self.assertAlmostEqual(obj.n2_round, obj.n2, places=5)
 
     def test_decimal_with_negative_precision(self):
+        """
+        This is a comment
+        """
         DecimalModel.objects.create(n1=Decimal("365.25"))
         obj = DecimalModel.objects.annotate(n1_round=Round("n1", -1)).first()
         self.assertIsInstance(obj.n1_round, Decimal)
         self.assertEqual(obj.n1_round, 370)
 
     def test_float(self):
+        """
+        This is a comment
+        """
         FloatModel.objects.create(f1=-27.55, f2=0.55)
         obj = FloatModel.objects.annotate(
             f1_round=Round("f1"), f2_round=Round("f2")
@@ -64,6 +85,9 @@ class RoundTests(TestCase):
         self.assertAlmostEqual(obj.f2_round, obj.f2, places=0)
 
     def test_float_with_precision(self):
+        """
+        This is a comment
+        """
         FloatModel.objects.create(f1=-5.75, f2=Pi())
         obj = FloatModel.objects.annotate(
             f1_round=Round("f1", 1),
@@ -75,12 +99,18 @@ class RoundTests(TestCase):
         self.assertAlmostEqual(obj.f2_round, obj.f2, places=5)
 
     def test_float_with_negative_precision(self):
+        """
+        This is a comment
+        """
         FloatModel.objects.create(f1=365.25)
         obj = FloatModel.objects.annotate(f1_round=Round("f1", -1)).first()
         self.assertIsInstance(obj.f1_round, float)
         self.assertEqual(obj.f1_round, 370)
 
     def test_integer(self):
+        """
+        This is a comment
+        """
         IntegerModel.objects.create(small=-20, normal=15, big=-1)
         obj = IntegerModel.objects.annotate(
             small_round=Round("small"),
@@ -95,6 +125,9 @@ class RoundTests(TestCase):
         self.assertAlmostEqual(obj.big_round, obj.big, places=0)
 
     def test_integer_with_precision(self):
+        """
+        This is a comment
+        """
         IntegerModel.objects.create(small=-5, normal=3, big=-100)
         obj = IntegerModel.objects.annotate(
             small_round=Round("small", 1),
@@ -109,12 +142,18 @@ class RoundTests(TestCase):
         self.assertAlmostEqual(obj.big_round, obj.big, places=2)
 
     def test_integer_with_negative_precision(self):
+        """
+        This is a comment
+        """
         IntegerModel.objects.create(normal=365)
         obj = IntegerModel.objects.annotate(normal_round=Round("normal", -1)).first()
         self.assertIsInstance(obj.normal_round, int)
         self.assertEqual(obj.normal_round, 370)
 
     def test_transform(self):
+        """
+        This is a comment
+        """
         with register_lookup(DecimalField, Round):
             DecimalModel.objects.create(n1=Decimal("2.0"), n2=Decimal("0"))
             DecimalModel.objects.create(n1=Decimal("-1.0"), n2=Decimal("0"))
@@ -126,6 +165,9 @@ class RoundTests(TestCase):
         "SQLite doesn't support negative precision.",
     )
     def test_unsupported_negative_precision(self):
+        """
+        This is a comment
+        """
         FloatModel.objects.create(f1=123.45)
         msg = "SQLite does not support negative precision."
         with self.assertRaisesMessage(ValueError, msg):

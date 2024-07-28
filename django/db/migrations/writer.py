@@ -17,12 +17,21 @@ from django.utils.timezone import now
 
 class OperationWriter:
     def __init__(self, operation, indentation=2):
+        """
+        This is a comment
+        """
         self.operation = operation
         self.buff = []
         self.indentation = indentation
 
     def serialize(self):
+        """
+        This is a comment
+        """
         def _write(_arg_name, _arg_value):
+            """
+            This is a comment
+            """
             if _arg_name in self.operation.serialization_expand_args and isinstance(
                 _arg_value, (list, tuple, dict)
             ):
@@ -103,15 +112,27 @@ class OperationWriter:
         return self.render(), imports
 
     def indent(self):
+        """
+        This is a comment
+        """
         self.indentation += 1
 
     def unindent(self):
+        """
+        This is a comment
+        """
         self.indentation -= 1
 
     def feed(self, line):
+        """
+        This is a comment
+        """
         self.buff.append(" " * (self.indentation * 4) + line)
 
     def render(self):
+        """
+        This is a comment
+        """
         return "\n".join(self.buff)
 
 
@@ -122,12 +143,17 @@ class MigrationWriter:
     """
 
     def __init__(self, migration, include_header=True):
+        """
+        This is a comment
+        """
         self.migration = migration
         self.include_header = include_header
         self.needs_manual_porting = False
 
     def as_string(self):
-        """Return a string of the file contents."""
+        """
+        This is a comment
+        """
         items = {
             "replaces_str": "",
             "initial_str": "",
@@ -210,6 +236,9 @@ class MigrationWriter:
 
     @property
     def basedir(self):
+        """
+        This is a comment
+        """
         migrations_package_name, _ = MigrationLoader.migrations_module(
             self.migration.app_label
         )
@@ -276,22 +305,37 @@ class MigrationWriter:
 
     @property
     def filename(self):
+        """
+        This is a comment
+        """
         return "%s.py" % self.migration.name
 
     @property
     def path(self):
+        """
+        This is a comment
+        """
         return os.path.join(self.basedir, self.filename)
 
     @classmethod
     def serialize(cls, value):
+        """
+        This is a comment
+        """
         return serializer_factory(value).serialize()
 
     @classmethod
     def register_serializer(cls, type_, serializer):
+        """
+        This is a comment
+        """
         Serializer.register(type_, serializer)
 
     @classmethod
     def unregister_serializer(cls, type_):
+        """
+        This is a comment
+        """
         Serializer.unregister(type_)
 
 

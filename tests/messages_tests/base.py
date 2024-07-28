@@ -10,8 +10,7 @@ from django.utils.translation import gettext_lazy
 
 def add_level_messages(storage):
     """
-    Add 6 messages from different levels (including a custom one) to a storage
-    instance.
+    This is a comment
     """
     storage.add(constants.INFO, "A generic info message")
     storage.add(29, "Some custom level")
@@ -33,6 +32,9 @@ class BaseTests:
 
     @classmethod
     def setUpClass(cls):
+        """
+        This is a comment
+        """
         cls.enterClassContext(
             override_settings(
                 TEMPLATES=[
@@ -59,25 +61,29 @@ class BaseTests:
         super().setUpClass()
 
     def get_request(self):
+        """
+        This is a comment
+        """
         return HttpRequest()
 
     def get_response(self):
+        """
+        This is a comment
+        """
         return HttpResponse()
 
     def get_storage(self, data=None):
         """
-        Return the storage backend, setting its loaded data to the ``data``
-        argument.
-
-        This method avoids the storage ``_get`` method from getting called so
-        that other parts of the storage backend can be tested independent of
-        the message retrieval logic.
+        This is a comment
         """
         storage = self.storage_class(self.get_request())
         storage._loaded_data = data or []
         return storage
 
     def test_repr(self):
+        """
+        This is a comment
+        """
         request = self.get_request()
         storage = self.storage_class(request)
         self.assertEqual(
@@ -86,6 +92,9 @@ class BaseTests:
         )
 
     def test_add(self):
+        """
+        This is a comment
+        """
         storage = self.get_storage()
         self.assertFalse(storage.added_new)
         storage.add(constants.INFO, "Test message 1")
@@ -94,6 +103,9 @@ class BaseTests:
         self.assertEqual(len(storage), 2)
 
     def test_add_lazy_translation(self):
+        """
+        This is a comment
+        """
         storage = self.get_storage()
         response = self.get_response()
 
@@ -104,6 +116,9 @@ class BaseTests:
         self.assertEqual(storing, 1)
 
     def test_no_update(self):
+        """
+        This is a comment
+        """
         storage = self.get_storage()
         response = self.get_response()
         storage.update(response)
@@ -111,6 +126,9 @@ class BaseTests:
         self.assertEqual(storing, 0)
 
     def test_add_update(self):
+        """
+        This is a comment
+        """
         storage = self.get_storage()
         response = self.get_response()
 
@@ -122,6 +140,9 @@ class BaseTests:
         self.assertEqual(storing, 2)
 
     def test_existing_add_read_update(self):
+        """
+        This is a comment
+        """
         storage = self.get_existing_storage()
         response = self.get_response()
 
@@ -133,6 +154,9 @@ class BaseTests:
         self.assertEqual(storing, 0)
 
     def test_existing_read_add_update(self):
+        """
+        This is a comment
+        """
         storage = self.get_existing_storage()
         response = self.get_response()
 
@@ -146,8 +170,7 @@ class BaseTests:
     @override_settings(MESSAGE_LEVEL=constants.DEBUG)
     def test_full_request_response_cycle(self):
         """
-        With the message middleware enabled, messages are properly stored and
-        retrieved across the full request/redirect/response cycle.
+        This is a comment
         """
         data = {
             "messages": ["Test message %d" % x for x in range(5)],
@@ -165,6 +188,9 @@ class BaseTests:
 
     @override_settings(MESSAGE_LEVEL=constants.DEBUG)
     def test_with_template_response(self):
+        """
+        This is a comment
+        """
         data = {
             "messages": ["Test message %d" % x for x in range(5)],
         }
@@ -183,6 +209,9 @@ class BaseTests:
                 self.assertNotContains(response, msg)
 
     def test_context_processor_message_levels(self):
+        """
+        This is a comment
+        """
         show_url = reverse("show_template_response")
         response = self.client.get(show_url)
 
@@ -192,7 +221,7 @@ class BaseTests:
     @override_settings(MESSAGE_LEVEL=constants.DEBUG)
     def test_multiple_posts(self):
         """
-        Messages persist properly when multiple POSTs are made before a GET.
+        This is a comment
         """
         data = {
             "messages": ["Test message %d" % x for x in range(5)],
@@ -227,8 +256,7 @@ class BaseTests:
     )
     def test_middleware_disabled(self):
         """
-        When the middleware is disabled, an exception is raised when one
-        attempts to store a message.
+        This is a comment
         """
         data = {
             "messages": ["Test message %d" % x for x in range(5)],
@@ -254,8 +282,7 @@ class BaseTests:
     )
     def test_middleware_disabled_fail_silently(self):
         """
-        When the middleware is disabled, an exception is not raised
-        if 'fail_silently' is True.
+        This is a comment
         """
         data = {
             "messages": ["Test message %d" % x for x in range(5)],
@@ -270,15 +297,20 @@ class BaseTests:
 
     def stored_messages_count(self, storage, response):
         """
-        Return the number of messages being stored after a
-        ``storage.update()`` call.
+        This is a comment
         """
         raise NotImplementedError("This method must be set by a subclass.")
 
     def test_get(self):
+        """
+        This is a comment
+        """
         raise NotImplementedError("This method must be set by a subclass.")
 
     def get_existing_storage(self):
+        """
+        This is a comment
+        """
         return self.get_storage(
             [
                 Message(constants.INFO, "Test message 1"),
@@ -288,7 +320,7 @@ class BaseTests:
 
     def test_existing_read(self):
         """
-        Reading the existing storage doesn't cause the data to be lost.
+        This is a comment
         """
         storage = self.get_existing_storage()
         self.assertFalse(storage.used)
@@ -299,6 +331,9 @@ class BaseTests:
         self.assertEqual(data, list(storage))
 
     def test_existing_add(self):
+        """
+        This is a comment
+        """
         storage = self.get_existing_storage()
         self.assertFalse(storage.added_new)
         storage.add(constants.INFO, "Test message 3")
@@ -306,6 +341,9 @@ class BaseTests:
 
     def test_default_level(self):
         # get_level works even with no storage on the request.
+        """
+        This is a comment
+        """
         request = self.get_request()
         self.assertEqual(get_level(request), constants.INFO)
 
@@ -319,6 +357,9 @@ class BaseTests:
         self.assertEqual(len(storage), 5)
 
     def test_low_level(self):
+        """
+        This is a comment
+        """
         request = self.get_request()
         storage = self.storage_class(request)
         request._messages = storage
@@ -330,6 +371,9 @@ class BaseTests:
         self.assertEqual(len(storage), 6)
 
     def test_high_level(self):
+        """
+        This is a comment
+        """
         request = self.get_request()
         storage = self.storage_class(request)
         request._messages = storage
@@ -342,6 +386,9 @@ class BaseTests:
 
     @override_settings(MESSAGE_LEVEL=29)
     def test_settings_level(self):
+        """
+        This is a comment
+        """
         request = self.get_request()
         storage = self.storage_class(request)
 
@@ -351,6 +398,9 @@ class BaseTests:
         self.assertEqual(len(storage), 3)
 
     def test_tags(self):
+        """
+        This is a comment
+        """
         storage = self.get_storage()
         storage.level = 0
         add_level_messages(storage)
@@ -361,6 +411,9 @@ class BaseTests:
         )
 
     def test_level_tag(self):
+        """
+        This is a comment
+        """
         storage = self.get_storage()
         storage.level = 0
         add_level_messages(storage)
@@ -377,6 +430,9 @@ class BaseTests:
         }
     )
     def test_custom_tags(self):
+        """
+        This is a comment
+        """
         storage = self.get_storage()
         storage.level = 0
         add_level_messages(storage)

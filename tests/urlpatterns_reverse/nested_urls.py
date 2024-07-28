@@ -3,10 +3,16 @@ from django.views import View
 
 
 def view1(request):
+    """
+    This is a comment
+    """
     pass
 
 
 def view2(request):
+    """
+    This is a comment
+    """
     pass
 
 

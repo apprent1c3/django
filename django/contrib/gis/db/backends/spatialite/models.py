@@ -24,6 +24,9 @@ class SpatialiteGeometryColumns(models.Model):
         managed = False
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "%s.%s - %dD %s field (SRID: %d)" % (
             self.f_table_name,
             self.f_geometry_column,
@@ -35,16 +38,14 @@ class SpatialiteGeometryColumns(models.Model):
     @classmethod
     def table_name_col(cls):
         """
-        Return the name of the metadata column used to store the feature table
-        name.
+        This is a comment
         """
         return "f_table_name"
 
     @classmethod
     def geom_col_name(cls):
         """
-        Return the name of the metadata column used to store the feature
-        geometry column.
+        This is a comment
         """
         return "f_geometry_column"
 
@@ -68,4 +69,7 @@ class SpatialiteSpatialRefSys(models.Model, SpatialRefSysMixin):
 
     @property
     def wkt(self):
+        """
+        This is a comment
+        """
         return self.srtext

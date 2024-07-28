@@ -5,6 +5,9 @@ from django.utils import translation
 
 class FunctionTests(SimpleTestCase):
     def test_formats(self):
+        """
+        This is a comment
+        """
         tests = [
             (0, "0\xa0bytes"),
             (1, "1\xa0byte"),
@@ -28,6 +31,9 @@ class FunctionTests(SimpleTestCase):
                 self.assertEqual(filesizeformat(value), expected)
 
     def test_localized_formats(self):
+        """
+        This is a comment
+        """
         tests = [
             (0, "0\xa0Bytes"),
             (1, "1\xa0Byte"),
@@ -52,6 +58,9 @@ class FunctionTests(SimpleTestCase):
                     self.assertEqual(filesizeformat(value), expected)
 
     def test_negative_numbers(self):
+        """
+        This is a comment
+        """
         tests = [
             (-1, "-1\xa0byte"),
             (-100, "-100\xa0bytes"),

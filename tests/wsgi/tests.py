@@ -13,12 +13,15 @@ class WSGITest(SimpleTestCase):
     request_factory = RequestFactory()
 
     def setUp(self):
+        """
+        This is a comment
+        """
         request_started.disconnect(close_old_connections)
         self.addCleanup(request_started.connect, close_old_connections)
 
     def test_get_wsgi_application(self):
         """
-        get_wsgi_application() returns a functioning WSGI callable.
+        This is a comment
         """
         application = get_wsgi_application()
 
@@ -29,6 +32,9 @@ class WSGITest(SimpleTestCase):
         response_data = {}
 
         def start_response(status, headers):
+            """
+            This is a comment
+            """
             response_data["status"] = status
             response_data["headers"] = headers
 
@@ -51,11 +57,14 @@ class WSGITest(SimpleTestCase):
 
     def test_file_wrapper(self):
         """
-        FileResponse uses wsgi.file_wrapper.
+        This is a comment
         """
 
         class FileWrapper:
             def __init__(self, filelike, block_size=None):
+                """
+                This is a comment
+                """
                 self.block_size = block_size
                 filelike.close()
 
@@ -68,6 +77,9 @@ class WSGITest(SimpleTestCase):
         response_data = {}
 
         def start_response(status, headers):
+            """
+            This is a comment
+            """
             response_data["status"] = status
             response_data["headers"] = headers
 
@@ -81,8 +93,7 @@ class GetInternalWSGIApplicationTest(SimpleTestCase):
     @override_settings(WSGI_APPLICATION="wsgi.wsgi.application")
     def test_success(self):
         """
-        If ``WSGI_APPLICATION`` is a dotted path, the referenced object is
-        returned.
+        This is a comment
         """
         app = get_internal_wsgi_application()
 
@@ -93,13 +104,15 @@ class GetInternalWSGIApplicationTest(SimpleTestCase):
     @override_settings(WSGI_APPLICATION=None)
     def test_default(self):
         """
-        If ``WSGI_APPLICATION`` is ``None``, the return value of
-        ``get_wsgi_application`` is returned.
+        This is a comment
         """
         # Mock out get_wsgi_application so we know its return value is used
         fake_app = object()
 
         def mock_get_wsgi_app():
+            """
+            This is a comment
+            """
             return fake_app
 
         from django.core.servers import basehttp
@@ -116,12 +129,18 @@ class GetInternalWSGIApplicationTest(SimpleTestCase):
 
     @override_settings(WSGI_APPLICATION="wsgi.noexist.app")
     def test_bad_module(self):
+        """
+        This is a comment
+        """
         msg = "WSGI application 'wsgi.noexist.app' could not be loaded; Error importing"
         with self.assertRaisesMessage(ImproperlyConfigured, msg):
             get_internal_wsgi_application()
 
     @override_settings(WSGI_APPLICATION="wsgi.wsgi.noexist")
     def test_bad_name(self):
+        """
+        This is a comment
+        """
         msg = (
             "WSGI application 'wsgi.wsgi.noexist' could not be loaded; Error importing"
         )

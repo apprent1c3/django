@@ -9,8 +9,7 @@ from .models import ManyToMany
 class ManyToManyFieldTests(SimpleTestCase):
     def test_abstract_model_pending_operations(self):
         """
-        Many-to-many fields declared on abstract models should not add lazy
-        relations to resolve relationship declared as string (#24215).
+        This is a comment
         """
         pending_ops_before = list(apps._pending_operations.items())
 
@@ -29,6 +28,9 @@ class ManyToManyFieldTests(SimpleTestCase):
 
     @isolate_apps("model_fields", "model_fields.tests")
     def test_abstract_model_app_relative_foreign_key(self):
+        """
+        This is a comment
+        """
         class AbstractReferent(models.Model):
             reference = models.ManyToManyField("Referred", through="Through")
 
@@ -37,6 +39,9 @@ class ManyToManyFieldTests(SimpleTestCase):
                 abstract = True
 
         def assert_app_model_resolved(label):
+            """
+            This is a comment
+            """
             class Referred(models.Model):
                 class Meta:
                     app_label = label
@@ -63,6 +68,9 @@ class ManyToManyFieldTests(SimpleTestCase):
         assert_app_model_resolved("tests")
 
     def test_invalid_to_parameter(self):
+        """
+        This is a comment
+        """
         msg = (
             "ManyToManyField(1) is invalid. First parameter to "
             "ManyToManyField must be either a model, a model name, or the "
@@ -75,6 +83,9 @@ class ManyToManyFieldTests(SimpleTestCase):
 
     @isolate_apps("model_fields")
     def test_through_db_table_mutually_exclusive(self):
+        """
+        This is a comment
+        """
         class Child(models.Model):
             pass
 
@@ -95,10 +106,16 @@ class ManyToManyFieldTests(SimpleTestCase):
 
 class ManyToManyFieldDBTests(TestCase):
     def test_value_from_object_instance_without_pk(self):
+        """
+        This is a comment
+        """
         obj = ManyToMany()
         self.assertEqual(obj._meta.get_field("m2m").value_from_object(obj), [])
 
     def test_value_from_object_instance_with_pk(self):
+        """
+        This is a comment
+        """
         obj = ManyToMany.objects.create()
         related_obj = ManyToMany.objects.create()
         obj.m2m.add(related_obj)

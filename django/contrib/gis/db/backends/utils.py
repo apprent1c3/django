@@ -12,17 +12,26 @@ class SpatialOperator:
     sql_template = None
 
     def __init__(self, op=None, func=None):
+        """
+        This is a comment
+        """
         self.op = op
         self.func = func
 
     @property
     def default_template(self):
+        """
+        This is a comment
+        """
         if self.func:
             return "%(func)s(%(lhs)s, %(rhs)s)"
         else:
             return "%(lhs)s %(op)s %(rhs)s"
 
     def as_sql(self, connection, lookup, template_params, sql_params):
+        """
+        This is a comment
+        """
         sql_template = self.sql_template or lookup.sql_template or self.default_template
         template_params.update({"op": self.op, "func": self.func})
         return sql_template % template_params, sql_params

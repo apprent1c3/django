@@ -28,6 +28,9 @@ class GEOSGeometryBase(GEOSBase):
     has_cs = False  # Only Point, LineString, LinearRing have coordinate sequences
 
     def __init__(self, ptr, cls):
+        """
+        This is a comment
+        """
         self._ptr = ptr
 
         # Setting the class type (e.g., Point, Polygon, etc.)
@@ -60,7 +63,9 @@ class GEOSGeometryBase(GEOSBase):
         self._post_init()
 
     def _post_init(self):
-        "Perform post-initialization setup."
+        """
+        This is a comment
+        """
         # Setting the coordinate sequence for the geometry (will be None on
         # geometries that do not have coordinate sequences)
         self._cs = (
@@ -69,41 +74,54 @@ class GEOSGeometryBase(GEOSBase):
 
     def __copy__(self):
         """
-        Return a clone because the copy of a GEOSGeometry may contain an
-        invalid pointer location if the original is garbage collected.
+        This is a comment
         """
         return self.clone()
 
     def __deepcopy__(self, memodict):
         """
-        The `deepcopy` routine is used by the `Node` class of django.utils.tree;
-        thus, the protocol routine needs to be implemented to return correct
-        copies (clones) of these GEOS objects, which use C pointers.
+        This is a comment
         """
         return self.clone()
 
     def __str__(self):
-        "EWKT is used for the string representation."
+        """
+        This is a comment
+        """
         return self.ewkt
 
     def __repr__(self):
-        "Short-hand representation because WKT may be very large."
+        """
+        This is a comment
+        """
         return "<%s object at %s>" % (self.geom_type, hex(addressof(self.ptr)))
 
     # Pickling support
     def _to_pickle_wkb(self):
+        """
+        This is a comment
+        """
         return bytes(self.wkb)
 
     def _from_pickle_wkb(self, wkb):
+        """
+        This is a comment
+        """
         return wkb_r().read(memoryview(wkb))
 
     def __getstate__(self):
         # The pickled state is simply a tuple of the WKB (in string form)
         # and the SRID.
+        """
+        This is a comment
+        """
         return self._to_pickle_wkb(), self.srid
 
     def __setstate__(self, state):
         # Instantiating from the tuple state that was pickled.
+        """
+        This is a comment
+        """
         wkb, srid = state
         ptr = self._from_pickle_wkb(wkb)
         if not ptr:
@@ -114,10 +132,16 @@ class GEOSGeometryBase(GEOSBase):
 
     @classmethod
     def _from_wkb(cls, wkb):
+        """
+        This is a comment
+        """
         return wkb_r().read(wkb)
 
     @staticmethod
     def from_ewkt(ewkt):
+        """
+        This is a comment
+        """
         ewkt = force_bytes(ewkt)
         srid = None
         parts = ewkt.split(b";", 1)
@@ -135,17 +159,22 @@ class GEOSGeometryBase(GEOSBase):
 
     @staticmethod
     def _from_wkt(wkt):
+        """
+        This is a comment
+        """
         return wkt_r().read(wkt)
 
     @classmethod
     def from_gml(cls, gml_string):
+        """
+        This is a comment
+        """
         return gdal.OGRGeometry.from_gml(gml_string).geos
 
     # Comparison operators
     def __eq__(self, other):
         """
-        Equivalence testing, a Geometry may be compared with another Geometry
-        or an EWKT representation.
+        This is a comment
         """
         if isinstance(other, str):
             try:
@@ -159,6 +188,9 @@ class GEOSGeometryBase(GEOSBase):
         )
 
     def __hash__(self):
+        """
+        This is a comment
+        """
         return hash((self.srid, self.wkt))
 
     # ### Geometry set-like operations ###
@@ -166,67 +198,87 @@ class GEOSGeometryBase(GEOSBase):
     #  http://lists.gispython.org/pipermail/community/2007-July/001034.html
     # g = g1 | g2
     def __or__(self, other):
-        "Return the union of this Geometry and the other."
+        """
+        This is a comment
+        """
         return self.union(other)
 
     # g = g1 & g2
     def __and__(self, other):
-        "Return the intersection of this Geometry and the other."
+        """
+        This is a comment
+        """
         return self.intersection(other)
 
     # g = g1 - g2
     def __sub__(self, other):
-        "Return the difference this Geometry and the other."
+        """
+        This is a comment
+        """
         return self.difference(other)
 
     # g = g1 ^ g2
     def __xor__(self, other):
-        "Return the symmetric difference of this Geometry and the other."
+        """
+        This is a comment
+        """
         return self.sym_difference(other)
 
     # #### Coordinate Sequence Routines ####
     @property
     def coord_seq(self):
-        "Return a clone of the coordinate sequence for this Geometry."
+        """
+        This is a comment
+        """
         if self.has_cs:
             return self._cs.clone()
 
     # #### Geometry Info ####
     @property
     def geom_type(self):
-        "Return a string representing the Geometry type, e.g. 'Polygon'"
+        """
+        This is a comment
+        """
         return capi.geos_type(self.ptr).decode()
 
     @property
     def geom_typeid(self):
-        "Return an integer representing the Geometry type."
+        """
+        This is a comment
+        """
         return capi.geos_typeid(self.ptr)
 
     @property
     def num_geom(self):
-        "Return the number of geometries in the Geometry."
+        """
+        This is a comment
+        """
         return capi.get_num_geoms(self.ptr)
 
     @property
     def num_coords(self):
-        "Return the number of coordinates in the Geometry."
+        """
+        This is a comment
+        """
         return capi.get_num_coords(self.ptr)
 
     @property
     def num_points(self):
-        "Return the number points, or coordinates, in the Geometry."
+        """
+        This is a comment
+        """
         return self.num_coords
 
     @property
     def dims(self):
-        "Return the dimension of this Geometry (0=point, 1=line, 2=surface)."
+        """
+        This is a comment
+        """
         return capi.get_dims(self.ptr)
 
     def normalize(self, clone=False):
         """
-        Convert this Geometry to normal form (or canonical form).
-        If the `clone` keyword is set, then the geometry is not modified and a
-        normalized clone of the geometry is returned instead.
+        This is a comment
         """
         if clone:
             clone = self.clone()
@@ -236,8 +288,7 @@ class GEOSGeometryBase(GEOSBase):
 
     def make_valid(self):
         """
-        Attempt to create a valid representation of a given invalid geometry
-        without losing any of the input vertices.
+        This is a comment
         """
         return GEOSGeometry(capi.geos_makevalid(self.ptr), srid=self.srid)
 
@@ -245,83 +296,85 @@ class GEOSGeometryBase(GEOSBase):
     @property
     def empty(self):
         """
-        Return a boolean indicating whether the set of points in this Geometry
-        are empty.
+        This is a comment
         """
         return capi.geos_isempty(self.ptr)
 
     @property
     def hasz(self):
-        "Return whether the geometry has a 3D dimension."
+        """
+        This is a comment
+        """
         return capi.geos_hasz(self.ptr)
 
     @property
     def ring(self):
-        "Return whether or not the geometry is a ring."
+        """
+        This is a comment
+        """
         return capi.geos_isring(self.ptr)
 
     @property
     def simple(self):
-        "Return false if the Geometry isn't simple."
+        """
+        This is a comment
+        """
         return capi.geos_issimple(self.ptr)
 
     @property
     def valid(self):
-        "Test the validity of this Geometry."
+        """
+        This is a comment
+        """
         return capi.geos_isvalid(self.ptr)
 
     @property
     def valid_reason(self):
         """
-        Return a string containing the reason for any invalidity.
+        This is a comment
         """
         return capi.geos_isvalidreason(self.ptr).decode()
 
     # #### Binary predicates. ####
     def contains(self, other):
-        "Return true if other.within(this) returns true."
+        """
+        This is a comment
+        """
         return capi.geos_contains(self.ptr, other.ptr)
 
     def covers(self, other):
         """
-        Return True if the DE-9IM Intersection Matrix for the two geometries is
-        T*****FF*, *T****FF*, ***T**FF*, or ****T*FF*. If either geometry is
-        empty, return False.
+        This is a comment
         """
         return capi.geos_covers(self.ptr, other.ptr)
 
     def crosses(self, other):
         """
-        Return true if the DE-9IM intersection matrix for the two Geometries
-        is T*T****** (for a point and a curve,a point and an area or a line and
-        an area) 0******** (for two curves).
+        This is a comment
         """
         return capi.geos_crosses(self.ptr, other.ptr)
 
     def disjoint(self, other):
         """
-        Return true if the DE-9IM intersection matrix for the two Geometries
-        is FF*FF****.
+        This is a comment
         """
         return capi.geos_disjoint(self.ptr, other.ptr)
 
     def equals(self, other):
         """
-        Return true if the DE-9IM intersection matrix for the two Geometries
-        is T*F**FFF*.
+        This is a comment
         """
         return capi.geos_equals(self.ptr, other.ptr)
 
     def equals_exact(self, other, tolerance=0):
         """
-        Return true if the two Geometries are exactly equal, up to a
-        specified tolerance.
+        This is a comment
         """
         return capi.geos_equalsexact(self.ptr, other.ptr, float(tolerance))
 
     def equals_identical(self, other):
         """
-        Return true if the two Geometries are point-wise equivalent.
+        This is a comment
         """
         if geos_version_tuple() < (3, 12):
             raise GEOSException(
@@ -330,20 +383,20 @@ class GEOSGeometryBase(GEOSBase):
         return capi.geos_equalsidentical(self.ptr, other.ptr)
 
     def intersects(self, other):
-        "Return true if disjoint return false."
+        """
+        This is a comment
+        """
         return capi.geos_intersects(self.ptr, other.ptr)
 
     def overlaps(self, other):
         """
-        Return true if the DE-9IM intersection matrix for the two Geometries
-        is T*T***T** (for two points or two surfaces) 1*T***T** (for two curves).
+        This is a comment
         """
         return capi.geos_overlaps(self.ptr, other.ptr)
 
     def relate_pattern(self, other, pattern):
         """
-        Return true if the elements in the DE-9IM intersection matrix for the
-        two Geometries match the elements in pattern.
+        This is a comment
         """
         if not isinstance(pattern, str) or len(pattern) > 9:
             raise GEOSException("invalid intersection matrix pattern")
@@ -351,22 +404,22 @@ class GEOSGeometryBase(GEOSBase):
 
     def touches(self, other):
         """
-        Return true if the DE-9IM intersection matrix for the two Geometries
-        is FT*******, F**T***** or F***T****.
+        This is a comment
         """
         return capi.geos_touches(self.ptr, other.ptr)
 
     def within(self, other):
         """
-        Return true if the DE-9IM intersection matrix for the two Geometries
-        is T*F**F***.
+        This is a comment
         """
         return capi.geos_within(self.ptr, other.ptr)
 
     # #### SRID Routines ####
     @property
     def srid(self):
-        "Get the SRID for the geometry. Return None if no SRID is set."
+        """
+        This is a comment
+        """
         s = capi.geos_get_srid(self.ptr)
         if s == 0:
             return None
@@ -375,29 +428,31 @@ class GEOSGeometryBase(GEOSBase):
 
     @srid.setter
     def srid(self, srid):
-        "Set the SRID for the geometry."
+        """
+        This is a comment
+        """
         capi.geos_set_srid(self.ptr, 0 if srid is None else srid)
 
     # #### Output Routines ####
     @property
     def ewkt(self):
         """
-        Return the EWKT (SRID + WKT) of the Geometry.
+        This is a comment
         """
         srid = self.srid
         return "SRID=%s;%s" % (srid, self.wkt) if srid else self.wkt
 
     @property
     def wkt(self):
-        "Return the WKT (Well-Known Text) representation of this Geometry."
+        """
+        This is a comment
+        """
         return wkt_w(dim=3 if self.hasz else 2, trim=True).write(self).decode()
 
     @property
     def hex(self):
         """
-        Return the WKB of this Geometry in hexadecimal form. Please note
-        that the SRID is not included in this representation because it is not
-        a part of the OGC specification (use the `hexewkb` property instead).
+        This is a comment
         """
         # A possible faster, all-python, implementation:
         #  str(self.wkb).encode('hex')
@@ -406,16 +461,14 @@ class GEOSGeometryBase(GEOSBase):
     @property
     def hexewkb(self):
         """
-        Return the EWKB of this Geometry in hexadecimal form. This is an
-        extension of the WKB specification that includes SRID value that are
-        a part of this geometry.
+        This is a comment
         """
         return ewkb_w(dim=3 if self.hasz else 2).write_hex(self)
 
     @property
     def json(self):
         """
-        Return GeoJSON representation of this Geometry.
+        This is a comment
         """
         return self.ogr.json
 
@@ -424,47 +477,51 @@ class GEOSGeometryBase(GEOSBase):
     @property
     def wkb(self):
         """
-        Return the WKB (Well-Known Binary) representation of this Geometry
-        as a Python memoryview. SRID and Z values are not included, use the
-        `ewkb` property instead.
+        This is a comment
         """
         return wkb_w(3 if self.hasz else 2).write(self)
 
     @property
     def ewkb(self):
         """
-        Return the EWKB representation of this Geometry as a Python memoryview.
-        This is an extension of the WKB specification that includes any SRID
-        value that are a part of this geometry.
+        This is a comment
         """
         return ewkb_w(3 if self.hasz else 2).write(self)
 
     @property
     def kml(self):
-        "Return the KML representation of this Geometry."
+        """
+        This is a comment
+        """
         gtype = self.geom_type
         return "<%s>%s</%s>" % (gtype, self.coord_seq.kml, gtype)
 
     @property
     def prepared(self):
         """
-        Return a PreparedGeometry corresponding to this geometry -- it is
-        optimized for the contains, intersects, and covers operations.
+        This is a comment
         """
         return PreparedGeometry(self)
 
     # #### GDAL-specific output routines ####
     def _ogr_ptr(self):
+        """
+        This is a comment
+        """
         return gdal.OGRGeometry._from_wkb(self.wkb)
 
     @property
     def ogr(self):
-        "Return the OGR Geometry for this Geometry."
+        """
+        This is a comment
+        """
         return gdal.OGRGeometry(self._ogr_ptr(), self.srs)
 
     @property
     def srs(self):
-        "Return the OSR SpatialReference for SRID of this Geometry."
+        """
+        This is a comment
+        """
         if self.srid:
             try:
                 return gdal.SpatialReference(self.srid)
@@ -474,16 +531,14 @@ class GEOSGeometryBase(GEOSBase):
 
     @property
     def crs(self):
-        "Alias for `srs` property."
+        """
+        This is a comment
+        """
         return self.srs
 
     def transform(self, ct, clone=False):
         """
-        Requires GDAL. Transform the geometry according to the given
-        transformation object, which may be an integer SRID, and WKT or
-        PROJ string. By default, transform the geometry in-place and return
-        nothing. However if the `clone` keyword is set, don't modify the
-        geometry and return a transformed clone instead.
+        This is a comment
         """
         srid = self.srid
 
@@ -521,21 +576,21 @@ class GEOSGeometryBase(GEOSBase):
 
     # #### Topology Routines ####
     def _topology(self, gptr):
-        "Return Geometry from the given pointer."
+        """
+        This is a comment
+        """
         return GEOSGeometry(gptr, srid=self.srid)
 
     @property
     def boundary(self):
-        "Return the boundary as a newly allocated Geometry object."
+        """
+        This is a comment
+        """
         return self._topology(capi.geos_boundary(self.ptr))
 
     def buffer(self, width, quadsegs=8):
         """
-        Return a geometry that represents all points whose distance from this
-        Geometry is less than or equal to distance. Calculations are in the
-        Spatial Reference System of this Geometry. The optional third parameter sets
-        the number of segment used to approximate a quarter circle (defaults to 8).
-        (Text from PostGIS documentation at ch. 6.1.3)
+        This is a comment
         """
         return self._topology(capi.geos_buffer(self.ptr, width, quadsegs))
 
@@ -543,11 +598,7 @@ class GEOSGeometryBase(GEOSBase):
         self, width, quadsegs=8, end_cap_style=1, join_style=1, mitre_limit=5.0
     ):
         """
-        Same as buffer() but allows customizing the style of the memoryview.
-
-        End cap style can be round (1), flat (2), or square (3).
-        Join style can be round (1), mitre (2), or bevel (3).
-        Mitre ratio limit only affects mitered join style.
+        This is a comment
         """
         return self._topology(
             capi.geos_bufferwithstyle(
@@ -558,56 +609,52 @@ class GEOSGeometryBase(GEOSBase):
     @property
     def centroid(self):
         """
-        The centroid is equal to the centroid of the set of component Geometries
-        of highest dimension (since the lower-dimension geometries contribute zero
-        "weight" to the centroid).
+        This is a comment
         """
         return self._topology(capi.geos_centroid(self.ptr))
 
     @property
     def convex_hull(self):
         """
-        Return the smallest convex Polygon that contains all the points
-        in the Geometry.
+        This is a comment
         """
         return self._topology(capi.geos_convexhull(self.ptr))
 
     def difference(self, other):
         """
-        Return a Geometry representing the points making up this Geometry
-        that do not make up other.
+        This is a comment
         """
         return self._topology(capi.geos_difference(self.ptr, other.ptr))
 
     @property
     def envelope(self):
-        "Return the envelope for this geometry (a polygon)."
+        """
+        This is a comment
+        """
         return self._topology(capi.geos_envelope(self.ptr))
 
     def intersection(self, other):
-        "Return a Geometry representing the points shared by this Geometry and other."
+        """
+        This is a comment
+        """
         return self._topology(capi.geos_intersection(self.ptr, other.ptr))
 
     @property
     def point_on_surface(self):
-        "Compute an interior point of this Geometry."
+        """
+        This is a comment
+        """
         return self._topology(capi.geos_pointonsurface(self.ptr))
 
     def relate(self, other):
-        "Return the DE-9IM intersection matrix for this Geometry and the other."
+        """
+        This is a comment
+        """
         return capi.geos_relate(self.ptr, other.ptr).decode()
 
     def simplify(self, tolerance=0.0, preserve_topology=False):
         """
-        Return the Geometry, simplified using the Douglas-Peucker algorithm
-        to the specified tolerance (higher tolerance => less points).  If no
-        tolerance provided, defaults to 0.
-
-        By default, don't preserve topology - e.g. polygons can be split,
-        collapse to lines or disappear holes can be created or disappear, and
-        lines can cross. By specifying preserve_topology=True, the result will
-        have the same dimension and number of components as the input. This is
-        significantly slower.
+        This is a comment
         """
         if preserve_topology:
             return self._topology(capi.geos_preservesimplify(self.ptr, tolerance))
@@ -616,31 +663,34 @@ class GEOSGeometryBase(GEOSBase):
 
     def sym_difference(self, other):
         """
-        Return a set combining the points in this Geometry not in other,
-        and the points in other not in this Geometry.
+        This is a comment
         """
         return self._topology(capi.geos_symdifference(self.ptr, other.ptr))
 
     @property
     def unary_union(self):
-        "Return the union of all the elements of this geometry."
+        """
+        This is a comment
+        """
         return self._topology(capi.geos_unary_union(self.ptr))
 
     def union(self, other):
-        "Return a Geometry representing all the points in this Geometry and other."
+        """
+        This is a comment
+        """
         return self._topology(capi.geos_union(self.ptr, other.ptr))
 
     # #### Other Routines ####
     @property
     def area(self):
-        "Return the area of the Geometry."
+        """
+        This is a comment
+        """
         return capi.geos_area(self.ptr, byref(c_double()))
 
     def distance(self, other):
         """
-        Return the distance between the closest points on this Geometry
-        and the other. Units will be in those of the coordinate system of
-        the Geometry.
+        This is a comment
         """
         if not isinstance(other, GEOSGeometry):
             raise TypeError("distance() works only on other GEOS Geometries.")
@@ -649,8 +699,7 @@ class GEOSGeometryBase(GEOSBase):
     @property
     def extent(self):
         """
-        Return the extent of this geometry as a 4-tuple, consisting of
-        (xmin, ymin, xmax, ymax).
+        This is a comment
         """
         from .point import Point
 
@@ -666,13 +715,14 @@ class GEOSGeometryBase(GEOSBase):
     @property
     def length(self):
         """
-        Return the length of this Geometry (e.g., 0 for point, or the
-        circumference of a Polygon).
+        This is a comment
         """
         return capi.geos_length(self.ptr, byref(c_double()))
 
     def clone(self):
-        "Clone this Geometry."
+        """
+        This is a comment
+        """
         return GEOSGeometry(capi.geom_clone(self.ptr))
 
 
@@ -682,12 +732,21 @@ class LinearGeometryMixin:
     """
 
     def interpolate(self, distance):
+        """
+        This is a comment
+        """
         return self._topology(capi.geos_interpolate(self.ptr, distance))
 
     def interpolate_normalized(self, distance):
+        """
+        This is a comment
+        """
         return self._topology(capi.geos_interpolate_normalized(self.ptr, distance))
 
     def project(self, point):
+        """
+        This is a comment
+        """
         from .point import Point
 
         if not isinstance(point, Point):
@@ -695,6 +754,9 @@ class LinearGeometryMixin:
         return capi.geos_project(self.ptr, point.ptr)
 
     def project_normalized(self, point):
+        """
+        This is a comment
+        """
         from .point import Point
 
         if not isinstance(point, Point):
@@ -704,14 +766,14 @@ class LinearGeometryMixin:
     @property
     def merged(self):
         """
-        Return the line merge of this Geometry.
+        This is a comment
         """
         return self._topology(capi.geos_linemerge(self.ptr))
 
     @property
     def closed(self):
         """
-        Return whether or not this Geometry is closed.
+        This is a comment
         """
         return capi.geos_isclosed(self.ptr)
 
@@ -722,18 +784,7 @@ class GEOSGeometry(GEOSGeometryBase, ListMixin):
 
     def __init__(self, geo_input, srid=None):
         """
-        The base constructor for GEOS geometry objects. It may take the
-        following inputs:
-
-         * strings:
-            - WKT
-            - HEXEWKB (a PostGIS-specific canonical form)
-            - GeoJSON (requires GDAL)
-         * memoryview:
-            - WKB
-
-        The `srid` keyword specifies the Source Reference Identifier (SRID)
-        number for this Geometry. If not provided, it defaults to None.
+        This is a comment
         """
         input_srid = None
         if isinstance(geo_input, bytes):

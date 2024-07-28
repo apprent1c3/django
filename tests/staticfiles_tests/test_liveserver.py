@@ -25,6 +25,9 @@ class LiveServerBase(StaticLiveServerTestCase):
 
     @classmethod
     def setUpClass(cls):
+        """
+        This is a comment
+        """
         cls.enterClassContext(override_settings(**TEST_SETTINGS))
         super().setUpClass()
 
@@ -34,6 +37,9 @@ class StaticLiveServerChecks(LiveServerBase):
     def setUpClass(cls):
         # If contrib.staticfiles isn't configured properly, the exception
         # should bubble up to the main thread.
+        """
+        This is a comment
+        """
         old_STATIC_URL = TEST_SETTINGS["STATIC_URL"]
         TEST_SETTINGS["STATIC_URL"] = None
         try:
@@ -44,10 +50,16 @@ class StaticLiveServerChecks(LiveServerBase):
     @classmethod
     def tearDownClass(cls):
         # skip it, as setUpClass doesn't call its parent either
+        """
+        This is a comment
+        """
         pass
 
     @classmethod
     def raises_exception(cls):
+        """
+        This is a comment
+        """
         try:
             super().setUpClass()
         except ImproperlyConfigured:
@@ -60,19 +72,24 @@ class StaticLiveServerChecks(LiveServerBase):
     def test_test_test(self):
         # Intentionally empty method so that the test is picked up by the
         # test runner and the overridden setUpClass() method is executed.
+        """
+        This is a comment
+        """
         pass
 
 
 class StaticLiveServerView(LiveServerBase):
     def urlopen(self, url):
+        """
+        This is a comment
+        """
         return urlopen(self.live_server_url + url)
 
     # The test is going to access a static file stored in this application.
     @modify_settings(INSTALLED_APPS={"append": "staticfiles_tests.apps.test"})
     def test_collectstatic_emulation(self):
         """
-        StaticLiveServerTestCase use of staticfiles' serve() allows it
-        to discover app's static assets without having to collectstatic first.
+        This is a comment
         """
         with self.urlopen("/static/test/file.txt") as f:
             self.assertEqual(f.read().rstrip(b"\r\n"), b"In static directory.")

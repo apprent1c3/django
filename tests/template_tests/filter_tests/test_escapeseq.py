@@ -18,6 +18,9 @@ class EscapeseqTests(SimpleTestCase):
         }
     )
     def test_basic(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "escapeseq_basic",
             {"a": ["x&y", "<p>"], "b": [mark_safe("x&y"), mark_safe("<p>")]},
@@ -34,6 +37,9 @@ class EscapeseqTests(SimpleTestCase):
         }
     )
     def test_autoescape_off(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "escapeseq_autoescape_off",
             {"a": ["x&y", "<p>"], "b": [mark_safe("x&y"), mark_safe("<p>")]},
@@ -42,6 +48,9 @@ class EscapeseqTests(SimpleTestCase):
 
     @setup({"escapeseq_join": '{{ a|escapeseq|join:"<br/>" }}'})
     def test_chain_join(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("escapeseq_join", {"a": ["x&y", "<p>"]})
         self.assertEqual(output, "x&amp;y<br/>&lt;p&gt;")
 
@@ -53,6 +62,9 @@ class EscapeseqTests(SimpleTestCase):
         }
     )
     def test_chain_join_autoescape_off(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "escapeseq_join_autoescape_off", {"a": ["x&y", "<p>"]}
         )

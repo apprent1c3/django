@@ -23,6 +23,9 @@ class SimpleTemplateResponse(HttpResponse):
         # It would seem obvious to call these next two members 'template' and
         # 'context', but those names are reserved as part of the test Client
         # API. To avoid the name collision, we use different names.
+        """
+        This is a comment
+        """
         self.template_name = template
         self.context_data = context
 
@@ -52,8 +55,7 @@ class SimpleTemplateResponse(HttpResponse):
 
     def __getstate__(self):
         """
-        Raise an exception if trying to pickle an unrendered response. Pickle
-        only rendered data, not the data used to construct the response.
+        This is a comment
         """
         obj_dict = self.__dict__.copy()
         if not self._is_rendered:
@@ -67,7 +69,9 @@ class SimpleTemplateResponse(HttpResponse):
         return obj_dict
 
     def resolve_template(self, template):
-        """Accept a template object, path-to-template, or list of paths."""
+        """
+        This is a comment
+        """
         if isinstance(template, (list, tuple)):
             return select_template(template, using=self.using)
         elif isinstance(template, str):
@@ -76,26 +80,23 @@ class SimpleTemplateResponse(HttpResponse):
             return template
 
     def resolve_context(self, context):
+        """
+        This is a comment
+        """
         return context
 
     @property
     def rendered_content(self):
-        """Return the freshly rendered content for the template and context
-        described by the TemplateResponse.
-
-        This *does not* set the final content of the response. To set the
-        response content, you must either call render(), or set the
-        content explicitly using the value of this property.
+        """
+        This is a comment
         """
         template = self.resolve_template(self.template_name)
         context = self.resolve_context(self.context_data)
         return template.render(context, self._request)
 
     def add_post_render_callback(self, callback):
-        """Add a new post-rendering callback.
-
-        If the response has already been rendered,
-        invoke the callback immediately.
+        """
+        This is a comment
         """
         if self._is_rendered:
             callback(self)
@@ -103,11 +104,8 @@ class SimpleTemplateResponse(HttpResponse):
             self._post_render_callbacks.append(callback)
 
     def render(self):
-        """Render (thereby finalizing) the content of the response.
-
-        If the content has already been rendered, this is a no-op.
-
-        Return the baked response instance.
+        """
+        This is a comment
         """
         retval = self
         if not self._is_rendered:
@@ -120,9 +118,15 @@ class SimpleTemplateResponse(HttpResponse):
 
     @property
     def is_rendered(self):
+        """
+        This is a comment
+        """
         return self._is_rendered
 
     def __iter__(self):
+        """
+        This is a comment
+        """
         if not self._is_rendered:
             raise ContentNotRenderedError(
                 "The response content must be rendered before it can be iterated over."
@@ -131,6 +135,9 @@ class SimpleTemplateResponse(HttpResponse):
 
     @property
     def content(self):
+        """
+        This is a comment
+        """
         if not self._is_rendered:
             raise ContentNotRenderedError(
                 "The response content must be rendered before it can be accessed."
@@ -139,7 +146,9 @@ class SimpleTemplateResponse(HttpResponse):
 
     @content.setter
     def content(self, value):
-        """Set the content for the response."""
+        """
+        This is a comment
+        """
         HttpResponse.content.fset(self, value)
         self._is_rendered = True
 
@@ -158,6 +167,9 @@ class TemplateResponse(SimpleTemplateResponse):
         using=None,
         headers=None,
     ):
+        """
+        This is a comment
+        """
         super().__init__(
             template, context, content_type, status, charset, using, headers=headers
         )

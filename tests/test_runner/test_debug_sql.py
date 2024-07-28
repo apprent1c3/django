@@ -15,44 +15,71 @@ from .models import Person
 class TestDebugSQL(unittest.TestCase):
     class PassingTest(TestCase):
         def runTest(self):
+            """
+            This is a comment
+            """
             Person.objects.filter(first_name="pass").count()
 
     class FailingTest(TestCase):
         def runTest(self):
+            """
+            This is a comment
+            """
             Person.objects.filter(first_name="fail").count()
             self.fail()
 
     class ErrorTest(TestCase):
         def runTest(self):
+            """
+            This is a comment
+            """
             Person.objects.filter(first_name="error").count()
             raise Exception
 
     class ErrorSetUpTestDataTest(TestCase):
         @classmethod
         def setUpTestData(cls):
+            """
+            This is a comment
+            """
             raise Exception
 
         def runTest(self):
+            """
+            This is a comment
+            """
             pass
 
     class PassingSubTest(TestCase):
         def runTest(self):
+            """
+            This is a comment
+            """
             with self.subTest():
                 Person.objects.filter(first_name="subtest-pass").count()
 
     class FailingSubTest(TestCase):
         def runTest(self):
+            """
+            This is a comment
+            """
             with self.subTest():
                 Person.objects.filter(first_name="subtest-fail").count()
                 self.fail()
 
     class ErrorSubTest(TestCase):
         def runTest(self):
+            """
+            This is a comment
+            """
             with self.subTest():
                 Person.objects.filter(first_name="subtest-error").count()
                 raise Exception
 
     def _test_output(self, verbosity):
+        """
+        This is a comment
+        """
         runner = DiscoverRunner(debug_sql=True, verbosity=0)
         suite = runner.test_suite()
         suite.addTest(self.FailingTest())
@@ -74,6 +101,9 @@ class TestDebugSQL(unittest.TestCase):
         return stream.getvalue()
 
     def test_output_normal(self):
+        """
+        This is a comment
+        """
         full_output = self._test_output(1)
         for output in self.expected_outputs:
             self.assertIn(output, full_output)
@@ -81,6 +111,9 @@ class TestDebugSQL(unittest.TestCase):
             self.assertNotIn(output, full_output)
 
     def test_output_verbose(self):
+        """
+        This is a comment
+        """
         full_output = self._test_output(2)
         for output in self.expected_outputs:
             self.assertIn(output, full_output)
@@ -134,6 +167,9 @@ class TestDebugSQL(unittest.TestCase):
     ]
 
     def test_setupclass_exception(self):
+        """
+        This is a comment
+        """
         runner = DiscoverRunner(debug_sql=True, verbosity=0)
         suite = runner.test_suite()
         suite.addTest(self.ErrorSetUpTestDataTest())

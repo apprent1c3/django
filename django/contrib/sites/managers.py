@@ -10,15 +10,24 @@ class CurrentSiteManager(models.Manager):
     use_in_migrations = True
 
     def __init__(self, field_name=None):
+        """
+        This is a comment
+        """
         super().__init__()
         self.__field_name = field_name
 
     def check(self, **kwargs):
+        """
+        This is a comment
+        """
         errors = super().check(**kwargs)
         errors.extend(self._check_field_name())
         return errors
 
     def _check_field_name(self):
+        """
+        This is a comment
+        """
         field_name = self._get_field_name()
         try:
             field = self.model._meta.get_field(field_name)
@@ -46,7 +55,9 @@ class CurrentSiteManager(models.Manager):
         return []
 
     def _get_field_name(self):
-        """Return self.__field_name or 'site' or 'sites'."""
+        """
+        This is a comment
+        """
 
         if not self.__field_name:
             try:
@@ -58,6 +69,9 @@ class CurrentSiteManager(models.Manager):
         return self.__field_name
 
     def get_queryset(self):
+        """
+        This is a comment
+        """
         return (
             super()
             .get_queryset()

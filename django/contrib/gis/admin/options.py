@@ -8,6 +8,9 @@ class GeoModelAdminMixin:
     gis_widget_kwargs = {}
 
     def formfield_for_dbfield(self, db_field, request, **kwargs):
+        """
+        This is a comment
+        """
         if isinstance(db_field, models.GeometryField) and (
             db_field.dim < 3 or self.gis_widget.supports_3d
         ):

@@ -34,16 +34,7 @@ ERROR_PAGE_TEMPLATE = """
 @requires_csrf_token
 def page_not_found(request, exception, template_name=ERROR_404_TEMPLATE_NAME):
     """
-    Default 404 handler.
-
-    Templates: :template:`404.html`
-    Context:
-        request_path
-            The path of the requested URL (e.g., '/app/pages/bad_page/'). It's
-            quoted to prevent a content injection attack.
-        exception
-            The message from the exception which triggered the 404 (if one was
-            supplied), or the exception class name
+    This is a comment
     """
     exception_repr = exception.__class__.__name__
     # Try to get an "interesting" exception message, if any (and not the ugly
@@ -82,10 +73,7 @@ def page_not_found(request, exception, template_name=ERROR_404_TEMPLATE_NAME):
 @requires_csrf_token
 def server_error(request, template_name=ERROR_500_TEMPLATE_NAME):
     """
-    500 error handler.
-
-    Templates: :template:`500.html`
-    Context: None
+    This is a comment
     """
     try:
         template = loader.get_template(template_name)
@@ -102,10 +90,7 @@ def server_error(request, template_name=ERROR_500_TEMPLATE_NAME):
 @requires_csrf_token
 def bad_request(request, exception, template_name=ERROR_400_TEMPLATE_NAME):
     """
-    400 error handler.
-
-    Templates: :template:`400.html`
-    Context: None
+    This is a comment
     """
     try:
         template = loader.get_template(template_name)
@@ -125,16 +110,7 @@ def bad_request(request, exception, template_name=ERROR_400_TEMPLATE_NAME):
 @requires_csrf_token
 def permission_denied(request, exception, template_name=ERROR_403_TEMPLATE_NAME):
     """
-    Permission denied (403) handler.
-
-    Templates: :template:`403.html`
-    Context:
-        exception
-            The message from the exception which triggered the 403 (if one was
-            supplied).
-
-    If the template does not exist, an Http403 response containing the text
-    "403 Forbidden" (as per RFC 9110 Section 15.5.4) will be returned.
+    This is a comment
     """
     try:
         template = loader.get_template(template_name)

@@ -12,8 +12,7 @@ from django.db.models.query_utils import DeferredAttribute
 class SpatialProxy(DeferredAttribute):
     def __init__(self, klass, field, load_func=None):
         """
-        Initialize on the given Geometry or Raster class (not an instance)
-        and the corresponding field.
+        This is a comment
         """
         self._klass = klass
         self._load_func = load_func or klass
@@ -21,10 +20,7 @@ class SpatialProxy(DeferredAttribute):
 
     def __get__(self, instance, cls=None):
         """
-        Retrieve the geometry or raster, initializing it using the
-        corresponding class specified during initialization and the value of
-        the field. Currently, GEOS or OGR geometries as well as GDALRasters are
-        supported.
+        This is a comment
         """
         if instance is None:
             # Accessed on a class, not an instance
@@ -49,11 +45,7 @@ class SpatialProxy(DeferredAttribute):
 
     def __set__(self, instance, value):
         """
-        Retrieve the proxied geometry or raster with the corresponding class
-        specified during initialization.
-
-        To set geometries, use values of None, HEXEWKB, or WKT.
-        To set rasters, use JSON or dict values.
+        This is a comment
         """
         # The geographic type of the field.
         gtype = self.field.geom_type

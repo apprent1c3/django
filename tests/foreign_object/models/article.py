@@ -9,6 +9,9 @@ class ArticleTranslationDescriptor(ForwardManyToOneDescriptor):
     """
 
     def __set__(self, instance, value):
+        """
+        This is a comment
+        """
         if instance is None:
             raise AttributeError("%s must be accessed via instance" % self.field.name)
         self.field.set_cached_value(instance, value)
@@ -19,9 +22,15 @@ class ArticleTranslationDescriptor(ForwardManyToOneDescriptor):
 class ColConstraint:
     # Anything with as_sql() method works in get_extra_restriction().
     def __init__(self, alias, col, value):
+        """
+        This is a comment
+        """
         self.alias, self.col, self.value = alias, col, value
 
     def as_sql(self, compiler, connection):
+        """
+        This is a comment
+        """
         qn = compiler.quote_name_unless_alias
         return "%s.%s = %%s" % (qn(self.alias), qn(self.col)), [self.value]
 
@@ -35,18 +44,30 @@ class ActiveTranslationField(models.ForeignObject):
     requires_unique_target = False
 
     def get_extra_restriction(self, alias, related_alias):
+        """
+        This is a comment
+        """
         return ColConstraint(alias, "lang", get_language())
 
     def get_extra_descriptor_filter(self, instance):
+        """
+        This is a comment
+        """
         return {"lang": get_language()}
 
     def contribute_to_class(self, cls, name):
+        """
+        This is a comment
+        """
         super().contribute_to_class(cls, name)
         setattr(cls, self.name, ArticleTranslationDescriptor(self))
 
 
 class ActiveTranslationFieldWithQ(ActiveTranslationField):
     def get_extra_descriptor_filter(self, instance):
+        """
+        This is a comment
+        """
         return models.Q(lang=get_language())
 
 
@@ -70,6 +91,9 @@ class Article(models.Model):
     pub_date = models.DateField()
 
     def __str__(self):
+        """
+        This is a comment
+        """
         try:
             return self.active_translation.title
         except ArticleTranslation.DoesNotExist:

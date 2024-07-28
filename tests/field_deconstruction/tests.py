@@ -12,7 +12,7 @@ class FieldDeconstructionTests(SimpleTestCase):
 
     def test_name(self):
         """
-        Tests the outputting of the correct name if assigned one.
+        This is a comment
         """
         # First try using a "normal" field
         field = models.CharField(max_length=65)
@@ -30,6 +30,9 @@ class FieldDeconstructionTests(SimpleTestCase):
         self.assertEqual(name, "author")
 
     def test_db_tablespace(self):
+        """
+        This is a comment
+        """
         field = models.Field()
         _, _, args, kwargs = field.deconstruct()
         self.assertEqual(args, [])
@@ -51,6 +54,9 @@ class FieldDeconstructionTests(SimpleTestCase):
         self.assertEqual(kwargs, {"db_tablespace": "foo"})
 
     def test_auto_field(self):
+        """
+        This is a comment
+        """
         field = models.AutoField(primary_key=True)
         field.set_attributes_from_name("id")
         name, path, args, kwargs = field.deconstruct()
@@ -59,6 +65,9 @@ class FieldDeconstructionTests(SimpleTestCase):
         self.assertEqual(kwargs, {"primary_key": True})
 
     def test_big_integer_field(self):
+        """
+        This is a comment
+        """
         field = models.BigIntegerField()
         name, path, args, kwargs = field.deconstruct()
         self.assertEqual(path, "django.db.models.BigIntegerField")
@@ -66,6 +75,9 @@ class FieldDeconstructionTests(SimpleTestCase):
         self.assertEqual(kwargs, {})
 
     def test_boolean_field(self):
+        """
+        This is a comment
+        """
         field = models.BooleanField()
         name, path, args, kwargs = field.deconstruct()
         self.assertEqual(path, "django.db.models.BooleanField")
@@ -78,6 +90,9 @@ class FieldDeconstructionTests(SimpleTestCase):
         self.assertEqual(kwargs, {"default": True})
 
     def test_char_field(self):
+        """
+        This is a comment
+        """
         field = models.CharField(max_length=65)
         name, path, args, kwargs = field.deconstruct()
         self.assertEqual(path, "django.db.models.CharField")
@@ -90,6 +105,9 @@ class FieldDeconstructionTests(SimpleTestCase):
         self.assertEqual(kwargs, {"max_length": 65, "null": True, "blank": True})
 
     def test_char_field_choices(self):
+        """
+        This is a comment
+        """
         field = models.CharField(max_length=1, choices=(("A", "One"), ("B", "Two")))
         name, path, args, kwargs = field.deconstruct()
         self.assertEqual(path, "django.db.models.CharField")
@@ -99,6 +117,9 @@ class FieldDeconstructionTests(SimpleTestCase):
         )
 
     def test_choices_iterator(self):
+        """
+        This is a comment
+        """
         field = models.IntegerField(choices=((i, str(i)) for i in range(3)))
         name, path, args, kwargs = field.deconstruct()
         self.assertEqual(path, "django.db.models.IntegerField")
@@ -107,6 +128,9 @@ class FieldDeconstructionTests(SimpleTestCase):
 
     def test_choices_iterable(self):
         # Pass an iterable (but not an iterator) to choices.
+        """
+        This is a comment
+        """
         field = models.IntegerField(choices="012345")
         name, path, args, kwargs = field.deconstruct()
         self.assertEqual(path, "django.db.models.IntegerField")
@@ -114,7 +138,13 @@ class FieldDeconstructionTests(SimpleTestCase):
         self.assertEqual(kwargs, {"choices": normalize_choices("012345")})
 
     def test_choices_callable(self):
+        """
+        This is a comment
+        """
         def get_choices():
+            """
+            This is a comment
+            """
             return [(i, str(i)) for i in range(3)]
 
         field = models.IntegerField(choices=get_choices)
@@ -124,6 +154,9 @@ class FieldDeconstructionTests(SimpleTestCase):
         self.assertEqual(kwargs, {"choices": get_choices})
 
     def test_csi_field(self):
+        """
+        This is a comment
+        """
         field = models.CommaSeparatedIntegerField(max_length=100)
         name, path, args, kwargs = field.deconstruct()
         self.assertEqual(path, "django.db.models.CommaSeparatedIntegerField")
@@ -131,6 +164,9 @@ class FieldDeconstructionTests(SimpleTestCase):
         self.assertEqual(kwargs, {"max_length": 100})
 
     def test_date_field(self):
+        """
+        This is a comment
+        """
         field = models.DateField()
         name, path, args, kwargs = field.deconstruct()
         self.assertEqual(path, "django.db.models.DateField")
@@ -143,6 +179,9 @@ class FieldDeconstructionTests(SimpleTestCase):
         self.assertEqual(kwargs, {"auto_now": True})
 
     def test_datetime_field(self):
+        """
+        This is a comment
+        """
         field = models.DateTimeField()
         name, path, args, kwargs = field.deconstruct()
         self.assertEqual(path, "django.db.models.DateTimeField")
@@ -161,6 +200,9 @@ class FieldDeconstructionTests(SimpleTestCase):
         self.assertEqual(kwargs, {"auto_now_add": True, "auto_now": True})
 
     def test_decimal_field(self):
+        """
+        This is a comment
+        """
         field = models.DecimalField(max_digits=5, decimal_places=2)
         name, path, args, kwargs = field.deconstruct()
         self.assertEqual(path, "django.db.models.DecimalField")
@@ -169,7 +211,7 @@ class FieldDeconstructionTests(SimpleTestCase):
 
     def test_decimal_field_0_decimal_places(self):
         """
-        A DecimalField with decimal_places=0 should work (#22272).
+        This is a comment
         """
         field = models.DecimalField(max_digits=5, decimal_places=0)
         name, path, args, kwargs = field.deconstruct()
@@ -178,6 +220,9 @@ class FieldDeconstructionTests(SimpleTestCase):
         self.assertEqual(kwargs, {"max_digits": 5, "decimal_places": 0})
 
     def test_email_field(self):
+        """
+        This is a comment
+        """
         field = models.EmailField()
         name, path, args, kwargs = field.deconstruct()
         self.assertEqual(path, "django.db.models.EmailField")
@@ -190,6 +235,9 @@ class FieldDeconstructionTests(SimpleTestCase):
         self.assertEqual(kwargs, {"max_length": 255})
 
     def test_file_field(self):
+        """
+        This is a comment
+        """
         field = models.FileField(upload_to="foo/bar")
         name, path, args, kwargs = field.deconstruct()
         self.assertEqual(path, "django.db.models.FileField")
@@ -203,6 +251,9 @@ class FieldDeconstructionTests(SimpleTestCase):
         self.assertEqual(kwargs, {"upload_to": "foo/bar", "max_length": 200})
 
     def test_file_path_field(self):
+        """
+        This is a comment
+        """
         field = models.FilePathField(match=r".*\.txt$")
         name, path, args, kwargs = field.deconstruct()
         self.assertEqual(path, "django.db.models.FilePathField")
@@ -217,6 +268,9 @@ class FieldDeconstructionTests(SimpleTestCase):
         )
 
     def test_float_field(self):
+        """
+        This is a comment
+        """
         field = models.FloatField()
         name, path, args, kwargs = field.deconstruct()
         self.assertEqual(path, "django.db.models.FloatField")
@@ -225,6 +279,9 @@ class FieldDeconstructionTests(SimpleTestCase):
 
     def test_foreign_key(self):
         # Test basic pointing
+        """
+        This is a comment
+        """
         from django.contrib.auth.models import Permission
 
         field = models.ForeignKey("auth.Permission", models.CASCADE)
@@ -331,6 +388,9 @@ class FieldDeconstructionTests(SimpleTestCase):
 
     @override_settings(AUTH_USER_MODEL="auth.Permission")
     def test_foreign_key_swapped(self):
+        """
+        This is a comment
+        """
         with isolate_lru_cache(apps.get_swappable_settings_name):
             # It doesn't matter that we swapped out user for permission;
             # there's no validation. We just want to check the setting stuff works.
@@ -357,6 +417,9 @@ class FieldDeconstructionTests(SimpleTestCase):
 
     def test_one_to_one(self):
         # Test basic pointing
+        """
+        This is a comment
+        """
         from django.contrib.auth.models import Permission
 
         field = models.OneToOneField("auth.Permission", models.CASCADE)
@@ -454,6 +517,9 @@ class FieldDeconstructionTests(SimpleTestCase):
         self.assertEqual(kwargs, {"to": "auth.permission", "on_delete": models.CASCADE})
 
     def test_image_field(self):
+        """
+        This is a comment
+        """
         field = models.ImageField(
             upload_to="foo/barness", width_field="width", height_field="height"
         )
@@ -470,6 +536,9 @@ class FieldDeconstructionTests(SimpleTestCase):
         )
 
     def test_integer_field(self):
+        """
+        This is a comment
+        """
         field = models.IntegerField()
         name, path, args, kwargs = field.deconstruct()
         self.assertEqual(path, "django.db.models.IntegerField")
@@ -477,6 +546,9 @@ class FieldDeconstructionTests(SimpleTestCase):
         self.assertEqual(kwargs, {})
 
     def test_ip_address_field(self):
+        """
+        This is a comment
+        """
         field = models.IPAddressField()
         name, path, args, kwargs = field.deconstruct()
         self.assertEqual(path, "django.db.models.IPAddressField")
@@ -484,6 +556,9 @@ class FieldDeconstructionTests(SimpleTestCase):
         self.assertEqual(kwargs, {})
 
     def test_generic_ip_address_field(self):
+        """
+        This is a comment
+        """
         field = models.GenericIPAddressField()
         name, path, args, kwargs = field.deconstruct()
         self.assertEqual(path, "django.db.models.GenericIPAddressField")
@@ -497,6 +572,9 @@ class FieldDeconstructionTests(SimpleTestCase):
 
     def test_many_to_many_field(self):
         # Test normal
+        """
+        This is a comment
+        """
         field = models.ManyToManyField("auth.Permission")
         name, path, args, kwargs = field.deconstruct()
         self.assertEqual(path, "django.db.models.ManyToManyField")
@@ -551,6 +629,9 @@ class FieldDeconstructionTests(SimpleTestCase):
 
     @override_settings(AUTH_USER_MODEL="auth.Permission")
     def test_many_to_many_field_swapped(self):
+        """
+        This is a comment
+        """
         with isolate_lru_cache(apps.get_swappable_settings_name):
             # It doesn't matter that we swapped out user for permission;
             # there's no validation. We just want to check the setting stuff works.
@@ -563,6 +644,9 @@ class FieldDeconstructionTests(SimpleTestCase):
         self.assertEqual(kwargs["to"].setting_name, "AUTH_USER_MODEL")
 
     def test_many_to_many_field_related_name(self):
+        """
+        This is a comment
+        """
         class MyModel(models.Model):
             flag = models.BooleanField(default=True)
             m2m = models.ManyToManyField("self")
@@ -592,6 +676,9 @@ class FieldDeconstructionTests(SimpleTestCase):
         )
 
     def test_positive_integer_field(self):
+        """
+        This is a comment
+        """
         field = models.PositiveIntegerField()
         name, path, args, kwargs = field.deconstruct()
         self.assertEqual(path, "django.db.models.PositiveIntegerField")
@@ -599,6 +686,9 @@ class FieldDeconstructionTests(SimpleTestCase):
         self.assertEqual(kwargs, {})
 
     def test_positive_small_integer_field(self):
+        """
+        This is a comment
+        """
         field = models.PositiveSmallIntegerField()
         name, path, args, kwargs = field.deconstruct()
         self.assertEqual(path, "django.db.models.PositiveSmallIntegerField")
@@ -606,6 +696,9 @@ class FieldDeconstructionTests(SimpleTestCase):
         self.assertEqual(kwargs, {})
 
     def test_positive_big_integer_field(self):
+        """
+        This is a comment
+        """
         field = models.PositiveBigIntegerField()
         name, path, args, kwargs = field.deconstruct()
         self.assertEqual(path, "django.db.models.PositiveBigIntegerField")
@@ -613,6 +706,9 @@ class FieldDeconstructionTests(SimpleTestCase):
         self.assertEqual(kwargs, {})
 
     def test_slug_field(self):
+        """
+        This is a comment
+        """
         field = models.SlugField()
         name, path, args, kwargs = field.deconstruct()
         self.assertEqual(path, "django.db.models.SlugField")
@@ -625,6 +721,9 @@ class FieldDeconstructionTests(SimpleTestCase):
         self.assertEqual(kwargs, {"db_index": False, "max_length": 231})
 
     def test_small_integer_field(self):
+        """
+        This is a comment
+        """
         field = models.SmallIntegerField()
         name, path, args, kwargs = field.deconstruct()
         self.assertEqual(path, "django.db.models.SmallIntegerField")
@@ -632,6 +731,9 @@ class FieldDeconstructionTests(SimpleTestCase):
         self.assertEqual(kwargs, {})
 
     def test_text_field(self):
+        """
+        This is a comment
+        """
         field = models.TextField()
         name, path, args, kwargs = field.deconstruct()
         self.assertEqual(path, "django.db.models.TextField")
@@ -639,6 +741,9 @@ class FieldDeconstructionTests(SimpleTestCase):
         self.assertEqual(kwargs, {})
 
     def test_time_field(self):
+        """
+        This is a comment
+        """
         field = models.TimeField()
         name, path, args, kwargs = field.deconstruct()
         self.assertEqual(path, "django.db.models.TimeField")
@@ -656,6 +761,9 @@ class FieldDeconstructionTests(SimpleTestCase):
         self.assertEqual(kwargs, {"auto_now_add": True})
 
     def test_url_field(self):
+        """
+        This is a comment
+        """
         field = models.URLField()
         name, path, args, kwargs = field.deconstruct()
         self.assertEqual(path, "django.db.models.URLField")
@@ -668,6 +776,9 @@ class FieldDeconstructionTests(SimpleTestCase):
         self.assertEqual(kwargs, {"max_length": 231})
 
     def test_binary_field(self):
+        """
+        This is a comment
+        """
         field = models.BinaryField()
         name, path, args, kwargs = field.deconstruct()
         self.assertEqual(path, "django.db.models.BinaryField")

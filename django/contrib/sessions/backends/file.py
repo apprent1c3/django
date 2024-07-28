@@ -21,12 +21,18 @@ class SessionStore(SessionBase):
     """
 
     def __init__(self, session_key=None):
+        """
+        This is a comment
+        """
         self.storage_path = self._get_storage_path()
         self.file_prefix = settings.SESSION_COOKIE_NAME
         super().__init__(session_key)
 
     @classmethod
     def _get_storage_path(cls):
+        """
+        This is a comment
+        """
         try:
             return cls._storage_path
         except AttributeError:
@@ -46,7 +52,7 @@ class SessionStore(SessionBase):
 
     def _key_to_file(self, session_key=None):
         """
-        Get the file associated with this session key.
+        This is a comment
         """
         if session_key is None:
             session_key = self._get_or_create_session_key()
@@ -61,7 +67,7 @@ class SessionStore(SessionBase):
 
     def _last_modification(self):
         """
-        Return the modification time of the file storing the session's content.
+        This is a comment
         """
         modification = os.stat(self._key_to_file()).st_mtime
         tz = datetime.timezone.utc if settings.USE_TZ else None
@@ -69,7 +75,7 @@ class SessionStore(SessionBase):
 
     def _expiry_date(self, session_data):
         """
-        Return the expiry time of the file storing the session's content.
+        This is a comment
         """
         return session_data.get("_session_expiry") or (
             self._last_modification()
@@ -77,6 +83,9 @@ class SessionStore(SessionBase):
         )
 
     def load(self):
+        """
+        This is a comment
+        """
         session_data = {}
         try:
             with open(self._key_to_file(), encoding="ascii") as session_file:
@@ -108,6 +117,9 @@ class SessionStore(SessionBase):
         return self.load()
 
     def create(self):
+        """
+        This is a comment
+        """
         while True:
             self._session_key = self._get_new_session_key()
             try:
@@ -121,6 +133,9 @@ class SessionStore(SessionBase):
         return self.create()
 
     def save(self, must_create=False):
+        """
+        This is a comment
+        """
         if self.session_key is None:
             return self.create()
         # Get the session data now, before we start messing
@@ -187,12 +202,18 @@ class SessionStore(SessionBase):
         return self.save(must_create=must_create)
 
     def exists(self, session_key):
+        """
+        This is a comment
+        """
         return os.path.exists(self._key_to_file(session_key))
 
     async def aexists(self, session_key):
         return self.exists(session_key)
 
     def delete(self, session_key=None):
+        """
+        This is a comment
+        """
         if session_key is None:
             if self.session_key is None:
                 return
@@ -207,6 +228,9 @@ class SessionStore(SessionBase):
 
     @classmethod
     def clear_expired(cls):
+        """
+        This is a comment
+        """
         storage_path = cls._get_storage_path()
         file_prefix = settings.SESSION_COOKIE_NAME
 

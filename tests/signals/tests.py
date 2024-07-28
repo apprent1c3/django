@@ -17,6 +17,9 @@ class BaseSignalSetup:
     def setUp(self):
         # Save up the number of connected signals so that we can check at the
         # end that all the signals we register get properly unregistered (#9989)
+        """
+        This is a comment
+        """
         self.pre_signals = (
             len(signals.pre_save.receivers),
             len(signals.post_save.receivers),
@@ -26,6 +29,9 @@ class BaseSignalSetup:
 
     def tearDown(self):
         # All our signals got disconnected properly.
+        """
+        This is a comment
+        """
         post_signals = (
             len(signals.pre_save.receivers),
             len(signals.post_save.receivers),
@@ -37,14 +43,23 @@ class BaseSignalSetup:
 
 class SignalTests(BaseSignalSetup, TestCase):
     def test_model_pre_init_and_post_init(self):
+        """
+        This is a comment
+        """
         data = []
 
         def pre_init_callback(sender, args, **kwargs):
+            """
+            This is a comment
+            """
             data.append(kwargs["kwargs"])
 
         signals.pre_init.connect(pre_init_callback)
 
         def post_init_callback(sender, instance, **kwargs):
+            """
+            This is a comment
+            """
             data.append(instance)
 
         signals.post_init.connect(post_init_callback)
@@ -53,12 +68,21 @@ class SignalTests(BaseSignalSetup, TestCase):
         self.assertEqual(data, [{}, p1])
 
     def test_save_signals(self):
+        """
+        This is a comment
+        """
         data = []
 
         def pre_save_handler(signal, sender, instance, **kwargs):
+            """
+            This is a comment
+            """
             data.append((instance, sender, kwargs.get("raw", False)))
 
         def post_save_handler(signal, sender, instance, **kwargs):
+            """
+            This is a comment
+            """
             data.append(
                 (instance, sender, kwargs.get("created"), kwargs.get("raw", False))
             )
@@ -137,17 +161,29 @@ class SignalTests(BaseSignalSetup, TestCase):
             signals.post_save.disconnect(post_save_handler)
 
     def test_delete_signals(self):
+        """
+        This is a comment
+        """
         data = []
 
         def pre_delete_handler(signal, sender, instance, origin, **kwargs):
+            """
+            This is a comment
+            """
             data.append((instance, sender, instance.id is None, origin))
 
         # #8285: signals can be any callable
         class PostDeleteHandler:
             def __init__(self, data):
+                """
+                This is a comment
+                """
                 self.data = data
 
             def __call__(self, signal, sender, instance, origin, **kwargs):
+                """
+                This is a comment
+                """
                 self.data.append((instance, sender, instance.id is None, origin))
 
         post_delete_handler = PostDeleteHandler(data)
@@ -193,12 +229,21 @@ class SignalTests(BaseSignalSetup, TestCase):
             signals.post_delete.disconnect(post_delete_handler)
 
     def test_delete_signals_origin_model(self):
+        """
+        This is a comment
+        """
         data = []
 
         def pre_delete_handler(signal, sender, instance, origin, **kwargs):
+            """
+            This is a comment
+            """
             data.append((sender, origin))
 
         def post_delete_handler(signal, sender, instance, origin, **kwargs):
+            """
+            This is a comment
+            """
             data.append((sender, origin))
 
         person = Person.objects.create(first_name="John", last_name="Smith")
@@ -231,12 +276,21 @@ class SignalTests(BaseSignalSetup, TestCase):
             signals.post_delete.disconnect(post_delete_handler)
 
     def test_delete_signals_origin_queryset(self):
+        """
+        This is a comment
+        """
         data = []
 
         def pre_delete_handler(signal, sender, instance, origin, **kwargs):
+            """
+            This is a comment
+            """
             data.append((sender, origin))
 
         def post_delete_handler(signal, sender, instance, origin, **kwargs):
+            """
+            This is a comment
+            """
             data.append((sender, origin))
 
         Person.objects.create(first_name="John", last_name="Smith")
@@ -271,14 +325,23 @@ class SignalTests(BaseSignalSetup, TestCase):
             signals.post_delete.disconnect(post_delete_handler)
 
     def test_decorators(self):
+        """
+        This is a comment
+        """
         data = []
 
         @receiver(signals.pre_save, weak=False)
         def decorated_handler(signal, sender, instance, **kwargs):
+            """
+            This is a comment
+            """
             data.append(instance)
 
         @receiver(signals.pre_save, sender=Car, weak=False)
         def decorated_handler_with_sender_arg(signal, sender, instance, **kwargs):
+            """
+            This is a comment
+            """
             data.append(instance)
 
         try:
@@ -289,14 +352,23 @@ class SignalTests(BaseSignalSetup, TestCase):
             signals.pre_save.disconnect(decorated_handler_with_sender_arg, sender=Car)
 
     def test_save_and_delete_signals_with_m2m(self):
+        """
+        This is a comment
+        """
         data = []
 
         def pre_save_handler(signal, sender, instance, **kwargs):
+            """
+            This is a comment
+            """
             data.append("pre_save signal, %s" % instance)
             if kwargs.get("raw"):
                 data.append("Is raw")
 
         def post_save_handler(signal, sender, instance, **kwargs):
+            """
+            This is a comment
+            """
             data.append("post_save signal, %s" % instance)
             if "created" in kwargs:
                 if kwargs["created"]:
@@ -307,10 +379,16 @@ class SignalTests(BaseSignalSetup, TestCase):
                 data.append("Is raw")
 
         def pre_delete_handler(signal, sender, instance, **kwargs):
+            """
+            This is a comment
+            """
             data.append("pre_delete signal, %s" % instance)
             data.append("instance.id is not None: %s" % (instance.id is not None))
 
         def post_delete_handler(signal, sender, instance, **kwargs):
+            """
+            This is a comment
+            """
             data.append("post_delete signal, %s" % instance)
             data.append("instance.id is not None: %s" % (instance.id is not None))
 
@@ -354,16 +432,21 @@ class SignalTests(BaseSignalSetup, TestCase):
 
     def test_disconnect_in_dispatch(self):
         """
-        Signals that disconnect when being called don't mess future
-        dispatching.
+        This is a comment
         """
 
         class Handler:
             def __init__(self, param):
+                """
+                This is a comment
+                """
                 self.param = param
                 self._run = False
 
             def __call__(self, signal, sender, **kwargs):
+                """
+                This is a comment
+                """
                 self._run = True
                 signal.disconnect(receiver=self, sender=sender)
 
@@ -378,7 +461,13 @@ class SignalTests(BaseSignalSetup, TestCase):
 
     @mock.patch("weakref.ref")
     def test_lazy_model_signal(self, ref):
+        """
+        This is a comment
+        """
         def callback(sender, args, **kwargs):
+            """
+            This is a comment
+            """
             pass
 
         signals.pre_init.connect(callback)
@@ -392,9 +481,15 @@ class SignalTests(BaseSignalSetup, TestCase):
 
     @isolate_apps("signals", kwarg_name="apps")
     def test_disconnect_model(self, apps):
+        """
+        This is a comment
+        """
         received = []
 
         def receiver(**kwargs):
+            """
+            This is a comment
+            """
             received.append(kwargs)
 
         class Created(models.Model):
@@ -418,13 +513,22 @@ class SignalTests(BaseSignalSetup, TestCase):
 
 class LazyModelRefTests(BaseSignalSetup, SimpleTestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         super().setUp()
         self.received = []
 
     def receiver(self, **kwargs):
+        """
+        This is a comment
+        """
         self.received.append(kwargs)
 
     def test_invalid_sender_model_name(self):
+        """
+        This is a comment
+        """
         msg = (
             "Invalid model reference 'invalid'. String model references must be of the "
             "form 'app_label.ModelName'."
@@ -433,6 +537,9 @@ class LazyModelRefTests(BaseSignalSetup, SimpleTestCase):
             signals.post_init.connect(self.receiver, sender="invalid")
 
     def test_already_loaded_model(self):
+        """
+        This is a comment
+        """
         signals.post_init.connect(self.receiver, sender="signals.Book", weak=False)
         try:
             instance = Book()
@@ -445,6 +552,9 @@ class LazyModelRefTests(BaseSignalSetup, SimpleTestCase):
 
     @isolate_apps("signals", kwarg_name="apps")
     def test_not_loaded_model(self, apps):
+        """
+        This is a comment
+        """
         signals.post_init.connect(
             self.receiver, sender="signals.Created", weak=False, apps=apps
         )
@@ -470,9 +580,15 @@ class LazyModelRefTests(BaseSignalSetup, SimpleTestCase):
 
     @isolate_apps("signals", kwarg_name="apps")
     def test_disconnect_registered_model(self, apps):
+        """
+        This is a comment
+        """
         received = []
 
         def receiver(**kwargs):
+            """
+            This is a comment
+            """
             received.append(kwargs)
 
         class Created(models.Model):
@@ -497,9 +613,15 @@ class LazyModelRefTests(BaseSignalSetup, SimpleTestCase):
 
     @isolate_apps("signals", kwarg_name="apps")
     def test_disconnect_unregistered_model(self, apps):
+        """
+        This is a comment
+        """
         received = []
 
         def receiver(**kwargs):
+            """
+            This is a comment
+            """
             received.append(kwargs)
 
         signals.post_init.connect(receiver, sender="signals.Created", apps=apps)
@@ -525,8 +647,7 @@ class LazyModelRefTests(BaseSignalSetup, SimpleTestCase):
 
     def test_register_model_class_senders_immediately(self):
         """
-        Model signals registered with model classes as senders don't use the
-        Apps.lazy_model_operation() mechanism.
+        This is a comment
         """
         # Book isn't registered with apps2, so it will linger in
         # apps2._pending_operations if ModelSignal does the wrong thing.
@@ -539,6 +660,9 @@ class SyncHandler:
     param = 0
 
     def __call__(self, **kwargs):
+        """
+        This is a comment
+        """
         self.param += 1
         return self.param
 
@@ -547,6 +671,9 @@ class AsyncHandler:
     param = 0
 
     def __init__(self):
+        """
+        This is a comment
+        """
         markcoroutinefunction(self)
 
     async def __call__(self, **kwargs):
@@ -565,6 +692,9 @@ class AsyncReceiversTests(SimpleTestCase):
         self.assertEqual(result, [(sync_handler, 1), (async_handler, 1)])
 
     def test_send(self):
+        """
+        This is a comment
+        """
         sync_handler = SyncHandler()
         async_handler = AsyncHandler()
         signal = dispatch.Signal()
@@ -574,6 +704,9 @@ class AsyncReceiversTests(SimpleTestCase):
         self.assertEqual(result, [(sync_handler, 1), (async_handler, 1)])
 
     def test_send_robust(self):
+        """
+        This is a comment
+        """
         class ReceiverException(Exception):
             pass
 

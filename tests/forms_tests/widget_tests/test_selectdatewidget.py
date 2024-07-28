@@ -28,6 +28,9 @@ class SelectDateWidgetTest(WidgetTest):
     )
 
     def test_render_empty(self):
+        """
+        This is a comment
+        """
         self.check_html(
             self.widget,
             "mydate",
@@ -104,7 +107,7 @@ class SelectDateWidgetTest(WidgetTest):
 
     def test_render_none(self):
         """
-        Rendering the None or '' values should yield the same output.
+        This is a comment
         """
         self.assertHTMLEqual(
             self.widget.render("mydate", None),
@@ -112,6 +115,9 @@ class SelectDateWidgetTest(WidgetTest):
         )
 
     def test_render_string(self):
+        """
+        This is a comment
+        """
         self.check_html(
             self.widget,
             "mydate",
@@ -187,6 +193,9 @@ class SelectDateWidgetTest(WidgetTest):
         )
 
     def test_render_datetime(self):
+        """
+        This is a comment
+        """
         self.assertHTMLEqual(
             self.widget.render("mydate", date(2010, 4, 15)),
             self.widget.render("mydate", "2010-04-15"),
@@ -194,7 +203,7 @@ class SelectDateWidgetTest(WidgetTest):
 
     def test_render_invalid_date(self):
         """
-        Invalid dates should still render the failed date.
+        This is a comment
         """
         self.check_html(
             self.widget,
@@ -271,6 +280,9 @@ class SelectDateWidgetTest(WidgetTest):
         )
 
     def test_custom_months(self):
+        """
+        This is a comment
+        """
         widget = SelectDateWidget(months=MONTHS_AP, years=("2013",))
         self.check_html(
             widget,
@@ -338,6 +350,9 @@ class SelectDateWidgetTest(WidgetTest):
         )
 
     def test_selectdate_required(self):
+        """
+        This is a comment
+        """
         class GetNotRequiredDate(Form):
             mydate = DateField(widget=SelectDateWidget, required=False)
 
@@ -348,6 +363,9 @@ class SelectDateWidgetTest(WidgetTest):
         self.assertTrue(GetRequiredDate().fields["mydate"].widget.is_required)
 
     def test_selectdate_empty_label(self):
+        """
+        This is a comment
+        """
         w = SelectDateWidget(years=("2014",), empty_label="empty_label")
 
         # Rendering the default state with empty_label set as string.
@@ -430,6 +448,9 @@ class SelectDateWidgetTest(WidgetTest):
 
     @translation.override("nl")
     def test_l10n(self):
+        """
+        This is a comment
+        """
         w = SelectDateWidget(
             years=(
                 "2007",
@@ -545,6 +566,9 @@ class SelectDateWidgetTest(WidgetTest):
 
     @override_settings(DATE_INPUT_FORMATS=["%d.%m.%Y"])
     def test_custom_input_format(self):
+        """
+        This is a comment
+        """
         w = SelectDateWidget(years=("0001", "1899", "2009", "2010"))
         with translation.override(None):
             for values, expected_value in (
@@ -567,6 +591,9 @@ class SelectDateWidgetTest(WidgetTest):
                     self.assertEqual(w.format_value(expected_value), expected_dict)
 
     def test_format_value(self):
+        """
+        This is a comment
+        """
         valid_formats = [
             "2000-1-1",
             "2000-10-15",
@@ -603,6 +630,9 @@ class SelectDateWidgetTest(WidgetTest):
                 )
 
     def test_value_from_datadict(self):
+        """
+        This is a comment
+        """
         tests = [
             (("2000", "12", "1"), "2000-12-01"),
             (("", "12", "1"), "0-12-1"),
@@ -629,6 +659,9 @@ class SelectDateWidgetTest(WidgetTest):
                 )
 
     def test_value_omitted_from_data(self):
+        """
+        This is a comment
+        """
         self.assertIs(self.widget.value_omitted_from_data({}, {}, "field"), True)
         self.assertIs(
             self.widget.value_omitted_from_data({"field_month": "12"}, {}, "field"),
@@ -646,6 +679,9 @@ class SelectDateWidgetTest(WidgetTest):
 
     @override_settings(USE_THOUSAND_SEPARATOR=True)
     def test_years_rendered_without_separator(self):
+        """
+        This is a comment
+        """
         widget = SelectDateWidget(years=(2007,))
         self.check_html(
             widget,
@@ -711,6 +747,9 @@ class SelectDateWidgetTest(WidgetTest):
         )
 
     def test_fieldset(self):
+        """
+        This is a comment
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = DateField(widget=self.widget)

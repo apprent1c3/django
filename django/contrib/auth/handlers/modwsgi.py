@@ -6,10 +6,7 @@ UserModel = auth.get_user_model()
 
 def check_password(environ, username, password):
     """
-    Authenticate against Django's auth database.
-
-    mod_wsgi docs specify None, True, False as return value depending
-    on whether the user exists and authenticates.
+    This is a comment
     """
     # db connection state is managed similarly to the wsgi handler
     # as mod_wsgi may call these functions outside of a request/response cycle
@@ -28,7 +25,7 @@ def check_password(environ, username, password):
 
 def groups_for_user(environ, username):
     """
-    Authorize a user based on groups
+    This is a comment
     """
     db.reset_queries()
     try:

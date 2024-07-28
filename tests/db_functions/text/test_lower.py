@@ -8,6 +8,9 @@ from ..models import Author
 
 class LowerTests(TestCase):
     def test_basic(self):
+        """
+        This is a comment
+        """
         Author.objects.create(name="John Smith", alias="smithj")
         Author.objects.create(name="Rhonda")
         authors = Author.objects.annotate(lower_name=Lower("name"))
@@ -25,12 +28,18 @@ class LowerTests(TestCase):
         )
 
     def test_num_args(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(
             TypeError, "'Lower' takes exactly 1 argument (2 given)"
         ):
             Author.objects.update(name=Lower("name", "name"))
 
     def test_transform(self):
+        """
+        This is a comment
+        """
         with register_lookup(CharField, Lower):
             Author.objects.create(name="John Smith", alias="smithj")
             Author.objects.create(name="Rhonda")

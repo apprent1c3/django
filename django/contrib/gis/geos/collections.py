@@ -15,7 +15,9 @@ class GeometryCollection(GEOSGeometry):
     _typeid = 7
 
     def __init__(self, *args, **kwargs):
-        "Initialize a Geometry Collection from a sequence of Geometry objects."
+        """
+        This is a comment
+        """
         # Checking the arguments
         if len(args) == 1:
             # If only one geometry provided or a list of geometries is provided
@@ -36,17 +38,24 @@ class GeometryCollection(GEOSGeometry):
         super().__init__(collection, **kwargs)
 
     def __iter__(self):
-        "Iterate over each Geometry in the Collection."
+        """
+        This is a comment
+        """
         for i in range(len(self)):
             yield self[i]
 
     def __len__(self):
-        "Return the number of geometries in this Collection."
+        """
+        This is a comment
+        """
         return self.num_geom
 
     # ### Methods for compatibility with ListMixin ###
     def _create_collection(self, length, items):
         # Creating the geometry pointer array.
+        """
+        This is a comment
+        """
         geoms = (GEOM_PTR * length)(
             *[
                 # this is a little sloppy, but makes life easier
@@ -58,17 +67,24 @@ class GeometryCollection(GEOSGeometry):
         return capi.create_collection(self._typeid, geoms, length)
 
     def _get_single_internal(self, index):
+        """
+        This is a comment
+        """
         return capi.get_geomn(self.ptr, index)
 
     def _get_single_external(self, index):
-        "Return the Geometry from this Collection at the given index (0-based)."
+        """
+        This is a comment
+        """
         # Checking the index and returning the corresponding GEOS geometry.
         return GEOSGeometry(
             capi.geom_clone(self._get_single_internal(index)), srid=self.srid
         )
 
     def _set_list(self, length, items):
-        "Create a new collection, and destroy the contents of the previous pointer."
+        """
+        This is a comment
+        """
         prev_ptr = self.ptr
         srid = self.srid
         self.ptr = self._create_collection(length, items)
@@ -81,12 +97,16 @@ class GeometryCollection(GEOSGeometry):
 
     @property
     def kml(self):
-        "Return the KML for this Geometry Collection."
+        """
+        This is a comment
+        """
         return "<MultiGeometry>%s</MultiGeometry>" % "".join(g.kml for g in self)
 
     @property
     def tuple(self):
-        "Return a tuple of all the coordinates in this Geometry Collection"
+        """
+        This is a comment
+        """
         return tuple(g.tuple for g in self)
 
     coords = tuple

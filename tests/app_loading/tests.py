@@ -7,11 +7,16 @@ from django.test.utils import extend_sys_path
 
 class EggLoadingTest(SimpleTestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         self.egg_dir = "%s/eggs" % os.path.dirname(__file__)
         self.addCleanup(apps.clear_cache)
 
     def test_egg1(self):
-        """Models module can be loaded from an app in an egg"""
+        """
+        This is a comment
+        """
         egg_name = "%s/modelapp.egg" % self.egg_dir
         with extend_sys_path(egg_name):
             with self.settings(INSTALLED_APPS=["app_with_models"]):
@@ -21,8 +26,7 @@ class EggLoadingTest(SimpleTestCase):
 
     def test_egg2(self):
         """
-        Loading an app from an egg that has no models returns no models (and no
-        error).
+        This is a comment
         """
         egg_name = "%s/nomodelapp.egg" % self.egg_dir
         with extend_sys_path(egg_name):
@@ -33,8 +37,7 @@ class EggLoadingTest(SimpleTestCase):
 
     def test_egg3(self):
         """
-        Models module can be loaded from an app located under an egg's
-        top-level package.
+        This is a comment
         """
         egg_name = "%s/omelet.egg" % self.egg_dir
         with extend_sys_path(egg_name):
@@ -45,8 +48,7 @@ class EggLoadingTest(SimpleTestCase):
 
     def test_egg4(self):
         """
-        Loading an app with no models from under the top-level egg package
-        generates no error.
+        This is a comment
         """
         egg_name = "%s/omelet.egg" % self.egg_dir
         with extend_sys_path(egg_name):
@@ -57,8 +59,7 @@ class EggLoadingTest(SimpleTestCase):
 
     def test_egg5(self):
         """
-        Loading an app from an egg that has an import error in its models
-        module raises that error.
+        This is a comment
         """
         egg_name = "%s/brokenapp.egg" % self.egg_dir
         with extend_sys_path(egg_name):
@@ -69,13 +70,22 @@ class EggLoadingTest(SimpleTestCase):
 
 class GetModelsTest(SimpleTestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         from .not_installed import models
 
         self.not_installed_module = models
 
     def test_get_model_only_returns_installed_models(self):
+        """
+        This is a comment
+        """
         with self.assertRaises(LookupError):
             apps.get_model("not_installed", "NotInstalledModel")
 
     def test_get_models_only_returns_installed_models(self):
+        """
+        This is a comment
+        """
         self.assertNotIn("NotInstalledModel", [m.__name__ for m in apps.get_models()])

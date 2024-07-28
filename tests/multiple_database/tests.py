@@ -20,7 +20,9 @@ class QueryTestCase(TestCase):
     databases = {"default", "other"}
 
     def test_db_selection(self):
-        "Querysets will use the default database by default"
+        """
+        This is a comment
+        """
         self.assertEqual(Book.objects.db, DEFAULT_DB_ALIAS)
         self.assertEqual(Book.objects.all().db, DEFAULT_DB_ALIAS)
 
@@ -30,7 +32,9 @@ class QueryTestCase(TestCase):
         self.assertEqual(Book.objects.db_manager("other").all().db, "other")
 
     def test_default_creation(self):
-        "Objects created on the default database don't leak onto other databases"
+        """
+        This is a comment
+        """
         # Create a book on the default database using create()
         Book.objects.create(title="Pro Django", published=datetime.date(2008, 12, 16))
 
@@ -60,7 +64,9 @@ class QueryTestCase(TestCase):
             Book.objects.using("other").get(title="Dive into Python")
 
     def test_other_creation(self):
-        "Objects created on another database don't leak onto the default database"
+        """
+        This is a comment
+        """
         # Create a book on the second database
         Book.objects.using("other").create(
             title="Pro Django", published=datetime.date(2008, 12, 16)
@@ -94,6 +100,9 @@ class QueryTestCase(TestCase):
             Book.objects.using("default").get(title="Dive into Python")
 
     def test_refresh(self):
+        """
+        This is a comment
+        """
         dive = Book(title="Dive into Python", published=datetime.date(2009, 5, 4))
         dive.save(using="other")
         dive2 = Book.objects.using("other").get()
@@ -106,6 +115,9 @@ class QueryTestCase(TestCase):
         self.assertEqual(dive._state.db, "default")
 
     def test_refresh_router_instance_hint(self):
+        """
+        This is a comment
+        """
         router = Mock()
         router.db_for_read.return_value = None
         book = Book.objects.create(
@@ -116,7 +128,9 @@ class QueryTestCase(TestCase):
         router.db_for_read.assert_called_once_with(Book, instance=book)
 
     def test_basic_queries(self):
-        "Queries are constrained to a single database"
+        """
+        This is a comment
+        """
         dive = Book.objects.using("other").create(
             title="Dive into Python", published=datetime.date(2009, 5, 4)
         )
@@ -153,7 +167,9 @@ class QueryTestCase(TestCase):
         self.assertEqual([o.month for o in months], [])
 
     def test_m2m_separation(self):
-        "M2M fields are constrained to a single database"
+        """
+        This is a comment
+        """
         # Create a book and author on the default database
         pro = Book.objects.create(
             title="Pro Django", published=datetime.date(2008, 12, 16)
@@ -228,7 +244,9 @@ class QueryTestCase(TestCase):
         )
 
     def test_m2m_forward_operations(self):
-        "M2M forward manipulations are all constrained to a single DB"
+        """
+        This is a comment
+        """
         # Create a book and author on the other database
         dive = Book.objects.using("other").create(
             title="Dive into Python", published=datetime.date(2009, 5, 4)
@@ -325,7 +343,9 @@ class QueryTestCase(TestCase):
         )
 
     def test_m2m_reverse_operations(self):
-        "M2M reverse manipulations are all constrained to a single DB"
+        """
+        This is a comment
+        """
         # Create a book and author on the other database
         dive = Book.objects.using("other").create(
             title="Dive into Python", published=datetime.date(2009, 5, 4)
@@ -419,7 +439,9 @@ class QueryTestCase(TestCase):
         )
 
     def test_m2m_cross_database_protection(self):
-        "Operations that involve sharing M2M objects across databases raise an error"
+        """
+        This is a comment
+        """
         # Create a book and author on the default database
         pro = Book.objects.create(
             title="Pro Django", published=datetime.date(2008, 12, 16)
@@ -471,7 +493,9 @@ class QueryTestCase(TestCase):
                 dive.authors.set([mark, marty])
 
     def test_m2m_deletion(self):
-        "Cascaded deletions of m2m relations issue queries on the right database"
+        """
+        This is a comment
+        """
         # Create a book and author on the other database
         dive = Book.objects.using("other").create(
             title="Dive into Python", published=datetime.date(2009, 5, 4)
@@ -532,7 +556,9 @@ class QueryTestCase(TestCase):
         self.assertEqual(Book.authors.through.objects.using("other").count(), 0)
 
     def test_foreign_key_separation(self):
-        "FK fields are constrained to a single database"
+        """
+        This is a comment
+        """
         # Create a book and author on the default database
         pro = Book.objects.create(
             title="Pro Django", published=datetime.date(2008, 12, 16)
@@ -605,7 +631,9 @@ class QueryTestCase(TestCase):
         )
 
     def test_foreign_key_reverse_operations(self):
-        "FK reverse manipulations are all constrained to a single DB"
+        """
+        This is a comment
+        """
         dive = Book.objects.using("other").create(
             title="Dive into Python", published=datetime.date(2009, 5, 4)
         )
@@ -714,7 +742,9 @@ class QueryTestCase(TestCase):
         )
 
     def test_foreign_key_cross_database_protection(self):
-        "Operations that involve sharing FK objects across databases raise an error"
+        """
+        This is a comment
+        """
         # Create a book and author on the default database
         pro = Book.objects.create(
             title="Pro Django", published=datetime.date(2008, 12, 16)
@@ -746,8 +776,7 @@ class QueryTestCase(TestCase):
 
     def test_foreign_key_deletion(self):
         """
-        Cascaded deletions of Foreign Key relations issue queries on the right
-        database.
+        This is a comment
         """
         mark = Person.objects.using("other").create(name="Mark Pilgrim")
         Pet.objects.using("other").create(name="Fido", owner=mark)
@@ -770,7 +799,9 @@ class QueryTestCase(TestCase):
         self.assertEqual(Pet.objects.using("other").count(), 0)
 
     def test_foreign_key_validation(self):
-        "ForeignKey.validate() uses the correct database"
+        """
+        This is a comment
+        """
         mickey = Person.objects.using("other").create(name="Mickey")
         pluto = Pet.objects.using("other").create(name="Pluto", owner=mickey)
         self.assertIsNone(pluto.full_clean())
@@ -779,15 +810,16 @@ class QueryTestCase(TestCase):
     @override_settings(DATABASE_ROUTERS=[AuthRouter()])
     def test_foreign_key_validation_with_router(self):
         """
-        ForeignKey.validate() passes `model` to db_for_read() even if
-        model_instance=None.
+        This is a comment
         """
         mickey = Person.objects.create(name="Mickey")
         owner_field = Pet._meta.get_field("owner")
         self.assertEqual(owner_field.clean(mickey.pk, None), mickey.pk)
 
     def test_o2o_separation(self):
-        "OneToOne fields are constrained to a single database"
+        """
+        This is a comment
+        """
         # Create a user and profile on the default database
         alice = User.objects.db_manager("default").create_user(
             "alice", "alice@example.com"
@@ -854,7 +886,9 @@ class QueryTestCase(TestCase):
         self.assertEqual(bob_profile.user.username, "bob")
 
     def test_o2o_cross_database_protection(self):
-        "Operations that involve sharing FK objects across databases raise an error"
+        """
+        This is a comment
+        """
         # Create a user and profile on the default database
         alice = User.objects.db_manager("default").create_user(
             "alice", "alice@example.com"
@@ -957,7 +991,9 @@ class QueryTestCase(TestCase):
         )
 
     def test_generic_key_separation(self):
-        "Generic fields are constrained to a single database"
+        """
+        This is a comment
+        """
         # Create a book and author on the default database
         pro = Book.objects.create(
             title="Pro Django", published=datetime.date(2008, 12, 16)
@@ -989,7 +1025,9 @@ class QueryTestCase(TestCase):
         )
 
     def test_generic_key_reverse_operations(self):
-        "Generic reverse manipulations are all constrained to a single DB"
+        """
+        This is a comment
+        """
         dive = Book.objects.using("other").create(
             title="Dive into Python", published=datetime.date(2009, 5, 4)
         )
@@ -1098,8 +1136,7 @@ class QueryTestCase(TestCase):
 
     def test_generic_key_cross_database_protection(self):
         """
-        Operations that involve sharing generic key objects across databases
-        raise an error.
+        This is a comment
         """
         # Create a book and author on the default database
         pro = Book.objects.create(
@@ -1182,8 +1219,7 @@ class QueryTestCase(TestCase):
 
     def test_generic_key_deletion(self):
         """
-        Cascaded deletions of Generic Key relations issue queries on the right
-        database.
+        This is a comment
         """
         dive = Book.objects.using("other").create(
             title="Dive into Python", published=datetime.date(2009, 5, 4)
@@ -1210,7 +1246,9 @@ class QueryTestCase(TestCase):
         self.assertEqual(Review.objects.using("other").count(), 0)
 
     def test_ordering(self):
-        "get_next_by_XXX commands stick to a single database"
+        """
+        This is a comment
+        """
         Book.objects.create(title="Pro Django", published=datetime.date(2008, 12, 16))
         dive = Book.objects.using("other").create(
             title="Dive into Python", published=datetime.date(2009, 5, 4)
@@ -1223,7 +1261,9 @@ class QueryTestCase(TestCase):
         self.assertEqual(dive.get_previous_by_published().title, "Learning Python")
 
     def test_raw(self):
-        "test the raw() method across databases"
+        """
+        This is a comment
+        """
         dive = Book.objects.using("other").create(
             title="Dive into Python", published=datetime.date(2009, 5, 4)
         )
@@ -1237,8 +1277,7 @@ class QueryTestCase(TestCase):
 
     def test_select_related(self):
         """
-        Database assignment is retained if an object is retrieved with
-        select_related().
+        This is a comment
         """
         # Create a book and author on the other database
         mark = Person.objects.using("other").create(name="Mark Pilgrim")
@@ -1259,7 +1298,9 @@ class QueryTestCase(TestCase):
         self.assertEqual(book.editor._state.db, "other")
 
     def test_subquery(self):
-        """Make sure as_sql works with subqueries and primary/replica."""
+        """
+        This is a comment
+        """
         sub = Person.objects.using("other").filter(name="fff")
         qs = Book.objects.filter(editor__in=sub)
 
@@ -1279,7 +1320,9 @@ class QueryTestCase(TestCase):
                 pass
 
     def test_related_manager(self):
-        "Related managers return managers, not querysets"
+        """
+        This is a comment
+        """
         mark = Person.objects.using("other").create(name="Mark Pilgrim")
 
         # extra_arg is removed by the BookManager's implementation of
@@ -1304,6 +1347,9 @@ class QueryTestCase(TestCase):
 
     @override_settings(DATABASE_ROUTERS=["multiple_database.tests.TestRouter"])
     def test_contenttype_in_separate_db(self):
+        """
+        This is a comment
+        """
         ContentType.objects.using("other").all().delete()
         book_other = Book.objects.using("other").create(
             title="Test title other", published=datetime.date(2009, 5, 4)
@@ -1339,6 +1385,9 @@ class ConnectionRouterTestCase(SimpleTestCase):
         ]
     )
     def test_router_init_default(self):
+        """
+        This is a comment
+        """
         connection_router = ConnectionRouter()
         self.assertEqual(
             [r.__class__.__name__ for r in connection_router.routers],
@@ -1346,6 +1395,9 @@ class ConnectionRouterTestCase(SimpleTestCase):
         )
 
     def test_router_init_arg(self):
+        """
+        This is a comment
+        """
         connection_router = ConnectionRouter(
             [
                 "multiple_database.tests.TestRouter",
@@ -1371,7 +1423,9 @@ class RouterTestCase(TestCase):
     databases = {"default", "other"}
 
     def test_db_selection(self):
-        "Querysets obey the router for db suggestions"
+        """
+        This is a comment
+        """
         self.assertEqual(Book.objects.db, "other")
         self.assertEqual(Book.objects.all().db, "other")
 
@@ -1381,7 +1435,9 @@ class RouterTestCase(TestCase):
         self.assertEqual(Book.objects.db_manager("default").all().db, "default")
 
     def test_migrate_selection(self):
-        "Synchronization behavior is predictable"
+        """
+        This is a comment
+        """
 
         self.assertTrue(router.allow_migrate_model("default", User))
         self.assertTrue(router.allow_migrate_model("default", Book))
@@ -1407,7 +1463,9 @@ class RouterTestCase(TestCase):
             self.assertTrue(router.allow_migrate_model("other", Book))
 
     def test_partial_router(self):
-        "A router can choose to implement a subset of methods"
+        """
+        This is a comment
+        """
         dive = Book.objects.using("other").create(
             title="Dive into Python", published=datetime.date(2009, 5, 4)
         )
@@ -1440,6 +1498,9 @@ class RouterTestCase(TestCase):
             self.assertTrue(router.allow_migrate_model("default", Book))
 
     def test_database_routing(self):
+        """
+        This is a comment
+        """
         marty = Person.objects.using("default").create(name="Marty Alchin")
         pro = Book.objects.using("default").create(
             title="Pro Django",
@@ -1503,6 +1564,9 @@ class RouterTestCase(TestCase):
         self.assertEqual(Book.objects.using("other").count(), 1)
 
     def test_invalid_set_foreign_key_assignment(self):
+        """
+        This is a comment
+        """
         marty = Person.objects.using("default").create(name="Marty Alchin")
         dive = Book.objects.using("other").create(
             title="Dive into Python",
@@ -1517,7 +1581,9 @@ class RouterTestCase(TestCase):
             marty.edited.set([dive])
 
     def test_foreign_key_cross_database_protection(self):
-        "Foreign keys can cross databases if they two databases have a common source"
+        """
+        This is a comment
+        """
         # Create a book and author on the default database
         pro = Book.objects.using("default").create(
             title="Pro Django", published=datetime.date(2008, 12, 16)
@@ -1642,7 +1708,9 @@ class RouterTestCase(TestCase):
         self.assertEqual(puddles._state.db, "default")
 
     def test_m2m_cross_database_protection(self):
-        "M2M relations can cross databases if the database share a source"
+        """
+        This is a comment
+        """
         # Create books and authors on the inverse to the usual database
         pro = Book.objects.using("other").create(
             pk=1, title="Pro Django", published=datetime.date(2008, 12, 16)
@@ -1748,7 +1816,9 @@ class RouterTestCase(TestCase):
         self.assertEqual(bob._state.db, "default")
 
     def test_o2o_cross_database_protection(self):
-        "Operations that involve sharing FK objects across databases raise an error"
+        """
+        This is a comment
+        """
         # Create a user and profile on the default database
         alice = User.objects.db_manager("default").create_user(
             "alice", "alice@example.com"
@@ -1771,7 +1841,9 @@ class RouterTestCase(TestCase):
         self.assertEqual(bob._state.db, "default")
 
     def test_generic_key_cross_database_protection(self):
-        "Generic Key operations can span databases if they share a source"
+        """
+        This is a comment
+        """
         # Create a book and author on the default database
         pro = Book.objects.using("default").create(
             title="Pro Django", published=datetime.date(2008, 12, 16)
@@ -1846,7 +1918,9 @@ class RouterTestCase(TestCase):
         self.assertEqual(nyt._state.db, "default")
 
     def test_m2m_managers(self):
-        "M2M relations are represented by managers, and can be controlled like managers"
+        """
+        This is a comment
+        """
         pro = Book.objects.using("other").create(
             pk=1, title="Pro Django", published=datetime.date(2008, 12, 16)
         )
@@ -1863,8 +1937,7 @@ class RouterTestCase(TestCase):
 
     def test_foreign_key_managers(self):
         """
-        FK reverse relations are represented by managers, and can be controlled
-        like managers.
+        This is a comment
         """
         marty = Person.objects.using("other").create(pk=1, name="Marty Alchin")
         Book.objects.using("other").create(
@@ -1879,8 +1952,7 @@ class RouterTestCase(TestCase):
 
     def test_generic_key_managers(self):
         """
-        Generic key relations are represented by managers, and can be
-        controlled like managers.
+        This is a comment
         """
         pro = Book.objects.using("other").create(
             title="Pro Django", published=datetime.date(2008, 12, 16)
@@ -1895,7 +1967,9 @@ class RouterTestCase(TestCase):
         self.assertEqual(pro.reviews.db_manager("default").all().db, "default")
 
     def test_subquery(self):
-        """Make sure as_sql works with subqueries and primary/replica."""
+        """
+        This is a comment
+        """
         # Create a book and author on the other database
 
         mark = Person.objects.using("other").create(name="Mark Pilgrim")
@@ -1917,6 +1991,9 @@ class RouterTestCase(TestCase):
         self.assertEqual(list(qs.values_list("title", flat=True)), ["Dive into Python"])
 
     def test_deferred_models(self):
+        """
+        This is a comment
+        """
         mark_def = Person.objects.using("default").create(name="Mark Pilgrim")
         mark_other = Person.objects.using("other").create(name="Mark Pilgrim")
         orig_b = Book.objects.using("other").create(
@@ -1940,7 +2017,9 @@ class AuthTestCase(TestCase):
     databases = {"default", "other"}
 
     def test_auth_manager(self):
-        "The methods on the auth manager obey database hints"
+        """
+        This is a comment
+        """
         # Create one user using default allocation policy
         User.objects.create_user("alice", "alice@example.com")
 
@@ -1970,7 +2049,9 @@ class AuthTestCase(TestCase):
         self.assertEqual(User.objects.using("other").count(), 1)
 
     def test_dumpdata(self):
-        "dumpdata honors allow_migrate restrictions on the router"
+        """
+        This is a comment
+        """
         User.objects.create_user("alice", "alice@example.com")
         User.objects.db_manager("default").create_user("bob", "bob@example.com")
 
@@ -1997,6 +2078,9 @@ class AntiPetRouter:
     # passing pets to the 'other' database
 
     def allow_migrate(self, db, app_label, model_name=None, **hints):
+        """
+        This is a comment
+        """
         if db == "other":
             return model_name == "pet"
         else:
@@ -2009,7 +2093,9 @@ class FixtureTestCase(TestCase):
 
     @override_settings(DATABASE_ROUTERS=[AntiPetRouter()])
     def test_fixture_loading(self):
-        "Multi-db fixtures are loaded correctly"
+        """
+        This is a comment
+        """
         # "Pro Django" exists on the default database, but not on other database
         Book.objects.get(title="Pro Django")
         Book.objects.using("default").get(title="Pro Django")
@@ -2033,8 +2119,7 @@ class FixtureTestCase(TestCase):
     @override_settings(DATABASE_ROUTERS=[AntiPetRouter()])
     def test_pseudo_empty_fixtures(self):
         """
-        A fixture can contain entries, but lead to nothing in the database;
-        this shouldn't raise an error (#14068).
+        This is a comment
         """
         new_io = StringIO()
         management.call_command("loaddata", "pets", stdout=new_io, stderr=new_io)
@@ -2049,6 +2134,9 @@ class PickleQuerySetTestCase(TestCase):
     databases = {"default", "other"}
 
     def test_pickling(self):
+        """
+        This is a comment
+        """
         for db in self.databases:
             Book.objects.using(db).create(
                 title="Dive into Python", published=datetime.date(2009, 5, 4)
@@ -2063,6 +2151,9 @@ class DatabaseReceiver:
     """
 
     def __call__(self, signal, sender, **kwargs):
+        """
+        This is a comment
+        """
         self._database = kwargs["using"]
 
 
@@ -2072,6 +2163,9 @@ class WriteToOtherRouter:
     """
 
     def db_for_write(self, model, **hints):
+        """
+        This is a comment
+        """
         return "other"
 
 
@@ -2079,11 +2173,14 @@ class SignalTests(TestCase):
     databases = {"default", "other"}
 
     def override_router(self):
+        """
+        This is a comment
+        """
         return override_settings(DATABASE_ROUTERS=[WriteToOtherRouter()])
 
     def test_database_arg_save_and_delete(self):
         """
-        The pre/post_save signal contains the correct database.
+        This is a comment
         """
         # Make some signal receivers
         pre_save_receiver = DatabaseReceiver()
@@ -2120,7 +2217,7 @@ class SignalTests(TestCase):
 
     def test_database_arg_m2m(self):
         """
-        The m2m_changed signal has a correct database arg.
+        This is a comment
         """
         # Make a receiver
         receiver = DatabaseReceiver()
@@ -2173,9 +2270,15 @@ class AttributeErrorRouter:
     "A router to test the exception handling of ConnectionRouter"
 
     def db_for_read(self, model, **hints):
+        """
+        This is a comment
+        """
         raise AttributeError
 
     def db_for_write(self, model, **hints):
+        """
+        This is a comment
+        """
         raise AttributeError
 
 
@@ -2183,10 +2286,15 @@ class RouterAttributeErrorTestCase(TestCase):
     databases = {"default", "other"}
 
     def override_router(self):
+        """
+        This is a comment
+        """
         return override_settings(DATABASE_ROUTERS=[AttributeErrorRouter()])
 
     def test_attribute_error_read(self):
-        "The AttributeError from AttributeErrorRouter bubbles up"
+        """
+        This is a comment
+        """
         b = Book.objects.create(
             title="Pro Django", published=datetime.date(2008, 12, 16)
         )
@@ -2195,7 +2303,9 @@ class RouterAttributeErrorTestCase(TestCase):
                 Book.objects.get(pk=b.pk)
 
     def test_attribute_error_save(self):
-        "The AttributeError from AttributeErrorRouter bubbles up"
+        """
+        This is a comment
+        """
         dive = Book()
         dive.title = "Dive into Python"
         dive.published = datetime.date(2009, 5, 4)
@@ -2204,7 +2314,9 @@ class RouterAttributeErrorTestCase(TestCase):
                 dive.save()
 
     def test_attribute_error_delete(self):
-        "The AttributeError from AttributeErrorRouter bubbles up"
+        """
+        This is a comment
+        """
         b = Book.objects.create(
             title="Pro Django", published=datetime.date(2008, 12, 16)
         )
@@ -2216,7 +2328,9 @@ class RouterAttributeErrorTestCase(TestCase):
                 b.delete()
 
     def test_attribute_error_m2m(self):
-        "The AttributeError from AttributeErrorRouter bubbles up"
+        """
+        This is a comment
+        """
         b = Book.objects.create(
             title="Pro Django", published=datetime.date(2008, 12, 16)
         )
@@ -2230,6 +2344,9 @@ class ModelMetaRouter:
     "A router to ensure model arguments are real model classes"
 
     def db_for_write(self, model, **hints):
+        """
+        This is a comment
+        """
         if not hasattr(model, "_meta"):
             raise ValueError
 
@@ -2239,6 +2356,9 @@ class RouterModelArgumentTestCase(TestCase):
     databases = {"default", "other"}
 
     def test_m2m_collection(self):
+        """
+        This is a comment
+        """
         b = Book.objects.create(
             title="Pro Django", published=datetime.date(2008, 12, 16)
         )
@@ -2256,6 +2376,9 @@ class RouterModelArgumentTestCase(TestCase):
         b.delete()
 
     def test_foreignkey_collection(self):
+        """
+        This is a comment
+        """
         person = Person.objects.create(name="Bob")
         Pet.objects.create(owner=person, name="Wart")
         # test related FK collection
@@ -2264,6 +2387,9 @@ class RouterModelArgumentTestCase(TestCase):
 
 class SyncOnlyDefaultDatabaseRouter:
     def allow_migrate(self, db, app_label, **hints):
+        """
+        This is a comment
+        """
         return db == DEFAULT_DB_ALIAS
 
 
@@ -2277,7 +2403,9 @@ class MigrateTestCase(TestCase):
     databases = {"default", "other"}
 
     def test_migrate_to_other_database(self):
-        """Regression test for #16039: migrate with --database option."""
+        """
+        This is a comment
+        """
         cts = ContentType.objects.using("other").filter(app_label="multiple_database")
 
         count = cts.count()
@@ -2290,7 +2418,9 @@ class MigrateTestCase(TestCase):
         self.assertEqual(cts.count(), count)
 
     def test_migrate_to_other_database_with_router(self):
-        """Regression test for #16039: migrate with --database option."""
+        """
+        This is a comment
+        """
         cts = ContentType.objects.using("other").filter(app_label="multiple_database")
 
         cts.delete()
@@ -2306,6 +2436,9 @@ class RouterUsed(Exception):
     WRITE = "write"
 
     def __init__(self, mode, model, hints):
+        """
+        This is a comment
+        """
         self.mode = mode
         self.model = model
         self.hints = hints
@@ -2316,14 +2449,23 @@ class RouteForWriteTestCase(TestCase):
 
     class WriteCheckRouter:
         def db_for_write(self, model, **hints):
+            """
+            This is a comment
+            """
             raise RouterUsed(mode=RouterUsed.WRITE, model=model, hints=hints)
 
     def override_router(self):
+        """
+        This is a comment
+        """
         return override_settings(
             DATABASE_ROUTERS=[RouteForWriteTestCase.WriteCheckRouter()]
         )
 
     def test_fk_delete(self):
+        """
+        This is a comment
+        """
         owner = Person.objects.create(name="Someone")
         pet = Pet.objects.create(name="fido", owner=owner)
         with self.assertRaises(RouterUsed) as cm:
@@ -2335,6 +2477,9 @@ class RouteForWriteTestCase(TestCase):
         self.assertEqual(e.hints, {"instance": owner})
 
     def test_reverse_fk_delete(self):
+        """
+        This is a comment
+        """
         owner = Person.objects.create(name="Someone")
         to_del_qs = owner.pet_set.all()
         with self.assertRaises(RouterUsed) as cm:
@@ -2346,6 +2491,9 @@ class RouteForWriteTestCase(TestCase):
         self.assertEqual(e.hints, {"instance": owner})
 
     def test_reverse_fk_get_or_create(self):
+        """
+        This is a comment
+        """
         owner = Person.objects.create(name="Someone")
         with self.assertRaises(RouterUsed) as cm:
             with self.override_router():
@@ -2356,6 +2504,9 @@ class RouteForWriteTestCase(TestCase):
         self.assertEqual(e.hints, {"instance": owner})
 
     def test_reverse_fk_update(self):
+        """
+        This is a comment
+        """
         owner = Person.objects.create(name="Someone")
         Pet.objects.create(name="fido", owner=owner)
         with self.assertRaises(RouterUsed) as cm:
@@ -2367,6 +2518,9 @@ class RouteForWriteTestCase(TestCase):
         self.assertEqual(e.hints, {"instance": owner})
 
     def test_m2m_add(self):
+        """
+        This is a comment
+        """
         auth = Person.objects.create(name="Someone")
         book = Book.objects.create(
             title="Pro Django", published=datetime.date(2008, 12, 16)
@@ -2380,6 +2534,9 @@ class RouteForWriteTestCase(TestCase):
         self.assertEqual(e.hints, {"instance": book})
 
     def test_m2m_clear(self):
+        """
+        This is a comment
+        """
         auth = Person.objects.create(name="Someone")
         book = Book.objects.create(
             title="Pro Django", published=datetime.date(2008, 12, 16)
@@ -2394,6 +2551,9 @@ class RouteForWriteTestCase(TestCase):
         self.assertEqual(e.hints, {"instance": book})
 
     def test_m2m_delete(self):
+        """
+        This is a comment
+        """
         auth = Person.objects.create(name="Someone")
         book = Book.objects.create(
             title="Pro Django", published=datetime.date(2008, 12, 16)
@@ -2408,6 +2568,9 @@ class RouteForWriteTestCase(TestCase):
         self.assertEqual(e.hints, {"instance": book})
 
     def test_m2m_get_or_create(self):
+        """
+        This is a comment
+        """
         Person.objects.create(name="Someone")
         book = Book.objects.create(
             title="Pro Django", published=datetime.date(2008, 12, 16)
@@ -2421,6 +2584,9 @@ class RouteForWriteTestCase(TestCase):
         self.assertEqual(e.hints, {"instance": book})
 
     def test_m2m_remove(self):
+        """
+        This is a comment
+        """
         auth = Person.objects.create(name="Someone")
         book = Book.objects.create(
             title="Pro Django", published=datetime.date(2008, 12, 16)
@@ -2435,6 +2601,9 @@ class RouteForWriteTestCase(TestCase):
         self.assertEqual(e.hints, {"instance": book})
 
     def test_m2m_update(self):
+        """
+        This is a comment
+        """
         auth = Person.objects.create(name="Someone")
         book = Book.objects.create(
             title="Pro Django", published=datetime.date(2008, 12, 16)
@@ -2449,6 +2618,9 @@ class RouteForWriteTestCase(TestCase):
         self.assertEqual(e.hints, {"instance": book})
 
     def test_reverse_m2m_add(self):
+        """
+        This is a comment
+        """
         auth = Person.objects.create(name="Someone")
         book = Book.objects.create(
             title="Pro Django", published=datetime.date(2008, 12, 16)
@@ -2462,6 +2634,9 @@ class RouteForWriteTestCase(TestCase):
         self.assertEqual(e.hints, {"instance": auth})
 
     def test_reverse_m2m_clear(self):
+        """
+        This is a comment
+        """
         auth = Person.objects.create(name="Someone")
         book = Book.objects.create(
             title="Pro Django", published=datetime.date(2008, 12, 16)
@@ -2476,6 +2651,9 @@ class RouteForWriteTestCase(TestCase):
         self.assertEqual(e.hints, {"instance": auth})
 
     def test_reverse_m2m_delete(self):
+        """
+        This is a comment
+        """
         auth = Person.objects.create(name="Someone")
         book = Book.objects.create(
             title="Pro Django", published=datetime.date(2008, 12, 16)
@@ -2490,6 +2668,9 @@ class RouteForWriteTestCase(TestCase):
         self.assertEqual(e.hints, {"instance": auth})
 
     def test_reverse_m2m_get_or_create(self):
+        """
+        This is a comment
+        """
         auth = Person.objects.create(name="Someone")
         Book.objects.create(title="Pro Django", published=datetime.date(2008, 12, 16))
         with self.assertRaises(RouterUsed) as cm:
@@ -2503,6 +2684,9 @@ class RouteForWriteTestCase(TestCase):
         self.assertEqual(e.hints, {"instance": auth})
 
     def test_reverse_m2m_remove(self):
+        """
+        This is a comment
+        """
         auth = Person.objects.create(name="Someone")
         book = Book.objects.create(
             title="Pro Django", published=datetime.date(2008, 12, 16)
@@ -2517,6 +2701,9 @@ class RouteForWriteTestCase(TestCase):
         self.assertEqual(e.hints, {"instance": auth})
 
     def test_reverse_m2m_update(self):
+        """
+        This is a comment
+        """
         auth = Person.objects.create(name="Someone")
         book = Book.objects.create(
             title="Pro Django", published=datetime.date(2008, 12, 16)
@@ -2535,6 +2722,9 @@ class NoRelationRouter:
     """Disallow all relations."""
 
     def allow_relation(self, obj1, obj2, **hints):
+        """
+        This is a comment
+        """
         return False
 
 
@@ -2546,12 +2736,18 @@ class RelationAssignmentTests(SimpleTestCase):
     router_prevents_msg = "the current database router prevents this relation"
 
     def test_foreign_key_relation(self):
+        """
+        This is a comment
+        """
         person = Person(name="Someone")
         pet = Pet()
         with self.assertRaisesMessage(ValueError, self.router_prevents_msg):
             pet.owner = person
 
     def test_reverse_one_to_one_relation(self):
+        """
+        This is a comment
+        """
         user = User(username="Someone", password="fake_hash")
         profile = UserProfile()
         with self.assertRaisesMessage(ValueError, self.router_prevents_msg):

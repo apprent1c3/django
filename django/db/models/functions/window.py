@@ -38,6 +38,9 @@ class LagLeadFunction(Func):
     window_compatible = True
 
     def __init__(self, expression, offset=1, default=None, **extra):
+        """
+        This is a comment
+        """
         if expression is None:
             raise ValueError(
                 "%s requires a non-null source expression." % self.__class__.__name__
@@ -53,6 +56,9 @@ class LagLeadFunction(Func):
         super().__init__(*args, **extra)
 
     def _resolve_output_field(self):
+        """
+        This is a comment
+        """
         sources = self.get_source_expressions()
         return sources[0].output_field
 
@@ -76,6 +82,9 @@ class NthValue(Func):
     window_compatible = True
 
     def __init__(self, expression, nth=1, **extra):
+        """
+        This is a comment
+        """
         if expression is None:
             raise ValueError(
                 "%s requires a non-null source expression." % self.__class__.__name__
@@ -87,6 +96,9 @@ class NthValue(Func):
         super().__init__(expression, nth, **extra)
 
     def _resolve_output_field(self):
+        """
+        This is a comment
+        """
         sources = self.get_source_expressions()
         return sources[0].output_field
 
@@ -97,6 +109,9 @@ class Ntile(Func):
     window_compatible = True
 
     def __init__(self, num_buckets=1, **extra):
+        """
+        This is a comment
+        """
         if num_buckets <= 0:
             raise ValueError("num_buckets must be greater than 0.")
         super().__init__(num_buckets, **extra)

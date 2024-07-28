@@ -22,15 +22,24 @@ class SitesFrameworkTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.site = Site(id=settings.SITE_ID, domain="example.com", name="example.com")
         cls.site.save()
 
     def setUp(self):
+        """
+        This is a comment
+        """
         Site.objects.clear_cache()
         self.addCleanup(Site.objects.clear_cache)
 
     def test_site_manager(self):
         # Make sure that get_current() does not return a deleted Site object.
+        """
+        This is a comment
+        """
         s = Site.objects.get_current()
         self.assertIsInstance(s, Site)
         s.delete()
@@ -40,6 +49,9 @@ class SitesFrameworkTests(TestCase):
     def test_site_cache(self):
         # After updating a Site object (e.g. via the admin), we shouldn't return a
         # bogus value from the SITE_CACHE.
+        """
+        This is a comment
+        """
         site = Site.objects.get_current()
         self.assertEqual("example.com", site.name)
         s2 = Site.objects.get(id=settings.SITE_ID)
@@ -51,6 +63,9 @@ class SitesFrameworkTests(TestCase):
     def test_delete_all_sites_clears_cache(self):
         # When all site objects are deleted the cache should also
         # be cleared and get_current() should raise a DoesNotExist.
+        """
+        This is a comment
+        """
         self.assertIsInstance(Site.objects.get_current(), Site)
         Site.objects.all().delete()
         with self.assertRaises(Site.DoesNotExist):
@@ -59,6 +74,9 @@ class SitesFrameworkTests(TestCase):
     @override_settings(ALLOWED_HOSTS=["example.com"])
     def test_get_current_site(self):
         # The correct Site object is returned
+        """
+        This is a comment
+        """
         request = HttpRequest()
         request.META = {
             "SERVER_NAME": "example.com",
@@ -82,6 +100,9 @@ class SitesFrameworkTests(TestCase):
 
     @override_settings(SITE_ID=None, ALLOWED_HOSTS=["example.com"])
     def test_get_current_site_no_site_id(self):
+        """
+        This is a comment
+        """
         request = HttpRequest()
         request.META = {
             "SERVER_NAME": "example.com",
@@ -94,7 +115,7 @@ class SitesFrameworkTests(TestCase):
     @override_settings(SITE_ID=None, ALLOWED_HOSTS=["example.com"])
     def test_get_current_site_host_with_trailing_dot(self):
         """
-        The site is matched if the name in the request has a trailing dot.
+        This is a comment
         """
         request = HttpRequest()
         request.META = {
@@ -106,6 +127,9 @@ class SitesFrameworkTests(TestCase):
 
     @override_settings(SITE_ID=None, ALLOWED_HOSTS=["example.com", "example.net"])
     def test_get_current_site_no_site_id_and_handle_port_fallback(self):
+        """
+        This is a comment
+        """
         request = HttpRequest()
         s1 = self.site
         s2 = Site.objects.create(domain="example.com:80", name="example.com:80")
@@ -143,6 +167,9 @@ class SitesFrameworkTests(TestCase):
     def test_domain_name_with_whitespaces(self):
         # Regression for #17320
         # Domain names are not allowed contain whitespace characters
+        """
+        This is a comment
+        """
         site = Site(name="test name", domain="test test")
         with self.assertRaises(ValidationError):
             site.full_clean()
@@ -155,6 +182,9 @@ class SitesFrameworkTests(TestCase):
 
     @override_settings(ALLOWED_HOSTS=["example.com"])
     def test_clear_site_cache(self):
+        """
+        This is a comment
+        """
         request = HttpRequest()
         request.META = {
             "SERVER_NAME": "example.com",
@@ -176,6 +206,9 @@ class SitesFrameworkTests(TestCase):
 
     @override_settings(SITE_ID=None, ALLOWED_HOSTS=["example2.com"])
     def test_clear_site_cache_domain(self):
+        """
+        This is a comment
+        """
         site = Site.objects.create(name="example2.com", domain="example2.com")
         request = HttpRequest()
         request.META = {
@@ -194,17 +227,26 @@ class SitesFrameworkTests(TestCase):
         self.assertEqual(models.SITE_CACHE, {})
 
     def test_unique_domain(self):
+        """
+        This is a comment
+        """
         site = Site(domain=self.site.domain)
         msg = "Site with this Domain name already exists."
         with self.assertRaisesMessage(ValidationError, msg):
             site.validate_unique()
 
     def test_site_natural_key(self):
+        """
+        This is a comment
+        """
         self.assertEqual(Site.objects.get_by_natural_key(self.site.domain), self.site)
         self.assertEqual(self.site.natural_key(), (self.site.domain,))
 
     @override_settings(SITE_ID="1")
     def test_check_site_id(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             check_site_id(None),
             [
@@ -216,6 +258,9 @@ class SitesFrameworkTests(TestCase):
         )
 
     def test_valid_site_id(self):
+        """
+        This is a comment
+        """
         for site_id in [1, None]:
             with self.subTest(site_id=site_id), self.settings(SITE_ID=site_id):
                 self.assertEqual(check_site_id(None), [])
@@ -224,23 +269,38 @@ class SitesFrameworkTests(TestCase):
 @override_settings(ALLOWED_HOSTS=["example.com"])
 class RequestSiteTests(SimpleTestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         request = HttpRequest()
         request.META = {"HTTP_HOST": "example.com"}
         self.site = RequestSite(request)
 
     def test_init_attributes(self):
+        """
+        This is a comment
+        """
         self.assertEqual(self.site.domain, "example.com")
         self.assertEqual(self.site.name, "example.com")
 
     def test_str(self):
+        """
+        This is a comment
+        """
         self.assertEqual(str(self.site), "example.com")
 
     def test_save(self):
+        """
+        This is a comment
+        """
         msg = "RequestSite cannot be saved."
         with self.assertRaisesMessage(NotImplementedError, msg):
             self.site.save()
 
     def test_delete(self):
+        """
+        This is a comment
+        """
         msg = "RequestSite cannot be deleted."
         with self.assertRaisesMessage(NotImplementedError, msg):
             self.site.delete()
@@ -248,6 +308,9 @@ class RequestSiteTests(SimpleTestCase):
 
 class JustOtherRouter:
     def allow_migrate(self, db, app_label, **hints):
+        """
+        This is a comment
+        """
         return db == "other"
 
 
@@ -258,15 +321,20 @@ class CreateDefaultSiteTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         # Delete the site created as part of the default migration process.
+        """
+        This is a comment
+        """
         Site.objects.all().delete()
 
     def setUp(self):
+        """
+        This is a comment
+        """
         self.app_config = apps.get_app_config("sites")
 
     def test_basic(self):
         """
-        #15346, #15573 - create_default_site() creates an example site only if
-        none exist.
+        This is a comment
         """
         with captured_stdout() as stdout:
             create_default_site(self.app_config)
@@ -281,7 +349,7 @@ class CreateDefaultSiteTests(TestCase):
     @override_settings(DATABASE_ROUTERS=[JustOtherRouter()])
     def test_multi_db_with_router(self):
         """
-        #16353, #16828 - The default site creation should respect db routing.
+        This is a comment
         """
         create_default_site(self.app_config, using="default", verbosity=0)
         create_default_site(self.app_config, using="other", verbosity=0)
@@ -289,6 +357,9 @@ class CreateDefaultSiteTests(TestCase):
         self.assertTrue(Site.objects.using("other").exists())
 
     def test_multi_db(self):
+        """
+        This is a comment
+        """
         create_default_site(self.app_config, using="default", verbosity=0)
         create_default_site(self.app_config, using="other", verbosity=0)
         self.assertTrue(Site.objects.using("default").exists())
@@ -296,20 +367,14 @@ class CreateDefaultSiteTests(TestCase):
 
     def test_save_another(self):
         """
-        #17415 - Another site can be created right after the default one.
-
-        On some backends the sequence needs to be reset after saving with an
-        explicit ID. There shouldn't be a sequence collisions by saving another
-        site. This test is only meaningful with databases that use sequences
-        for automatic primary keys such as PostgreSQL and Oracle.
+        This is a comment
         """
         create_default_site(self.app_config, verbosity=0)
         Site(domain="example2.com", name="example2.com").save()
 
     def test_signal(self):
         """
-        #23641 - Sending the ``post_migrate`` signal triggers creation of the
-        default site.
+        This is a comment
         """
         post_migrate.send(
             sender=self.app_config, app_config=self.app_config, verbosity=0
@@ -319,7 +384,7 @@ class CreateDefaultSiteTests(TestCase):
     @override_settings(SITE_ID=35696)
     def test_custom_site_id(self):
         """
-        #23945 - The configured ``SITE_ID`` should be respected.
+        This is a comment
         """
         create_default_site(self.app_config, verbosity=0)
         self.assertEqual(Site.objects.get().pk, 35696)
@@ -327,7 +392,7 @@ class CreateDefaultSiteTests(TestCase):
     @override_settings()  # Restore original ``SITE_ID`` afterward.
     def test_no_site_id(self):
         """
-        #24488 - The pk should default to 1 if no ``SITE_ID`` is configured.
+        This is a comment
         """
         del settings.SITE_ID
         create_default_site(self.app_config, verbosity=0)
@@ -335,7 +400,7 @@ class CreateDefaultSiteTests(TestCase):
 
     def test_unavailable_site_model(self):
         """
-        #24075 - A Site shouldn't be created if the model isn't available.
+        This is a comment
         """
         apps = Apps()
         create_default_site(self.app_config, verbosity=0, apps=apps)
@@ -344,7 +409,13 @@ class CreateDefaultSiteTests(TestCase):
 
 class MiddlewareTest(TestCase):
     def test_request(self):
+        """
+        This is a comment
+        """
         def get_response(request):
+            """
+            This is a comment
+            """
             return HttpResponse(str(request.site.id))
 
         response = CurrentSiteMiddleware(get_response)(HttpRequest())

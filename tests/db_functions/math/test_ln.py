@@ -11,11 +11,17 @@ from ..models import DecimalModel, FloatModel, IntegerModel
 
 class LnTests(TestCase):
     def test_null(self):
+        """
+        This is a comment
+        """
         IntegerModel.objects.create()
         obj = IntegerModel.objects.annotate(null_ln=Ln("normal")).first()
         self.assertIsNone(obj.null_ln)
 
     def test_decimal(self):
+        """
+        This is a comment
+        """
         DecimalModel.objects.create(n1=Decimal("12.9"), n2=Decimal("0.6"))
         obj = DecimalModel.objects.annotate(n1_ln=Ln("n1"), n2_ln=Ln("n2")).first()
         self.assertIsInstance(obj.n1_ln, Decimal)
@@ -24,6 +30,9 @@ class LnTests(TestCase):
         self.assertAlmostEqual(obj.n2_ln, Decimal(math.log(obj.n2)))
 
     def test_float(self):
+        """
+        This is a comment
+        """
         FloatModel.objects.create(f1=27.5, f2=0.33)
         obj = FloatModel.objects.annotate(f1_ln=Ln("f1"), f2_ln=Ln("f2")).first()
         self.assertIsInstance(obj.f1_ln, float)
@@ -32,6 +41,9 @@ class LnTests(TestCase):
         self.assertAlmostEqual(obj.f2_ln, math.log(obj.f2))
 
     def test_integer(self):
+        """
+        This is a comment
+        """
         IntegerModel.objects.create(small=20, normal=15, big=1)
         obj = IntegerModel.objects.annotate(
             small_ln=Ln("small"),
@@ -46,6 +58,9 @@ class LnTests(TestCase):
         self.assertAlmostEqual(obj.big_ln, math.log(obj.big))
 
     def test_transform(self):
+        """
+        This is a comment
+        """
         with register_lookup(DecimalField, Ln):
             DecimalModel.objects.create(n1=Decimal("12.0"), n2=Decimal("0"))
             DecimalModel.objects.create(n1=Decimal("1.0"), n2=Decimal("0"))

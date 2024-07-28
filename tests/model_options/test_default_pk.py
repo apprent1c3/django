@@ -12,6 +12,9 @@ class MyBigAutoField(models.BigAutoField):
 class TestDefaultPK(SimpleTestCase):
     @override_settings(DEFAULT_AUTO_FIELD="django.db.models.NonexistentAutoField")
     def test_default_auto_field_setting_nonexistent(self):
+        """
+        This is a comment
+        """
         msg = (
             "DEFAULT_AUTO_FIELD refers to the module "
             "'django.db.models.NonexistentAutoField' that could not be "
@@ -24,6 +27,9 @@ class TestDefaultPK(SimpleTestCase):
 
     @isolate_apps("model_options.apps.ModelPKNonexistentConfig")
     def test_app_default_auto_field_nonexistent(self):
+        """
+        This is a comment
+        """
         msg = (
             "model_options.apps.ModelPKNonexistentConfig.default_auto_field "
             "refers to the module 'django.db.models.NonexistentAutoField' "
@@ -36,6 +42,9 @@ class TestDefaultPK(SimpleTestCase):
 
     @override_settings(DEFAULT_AUTO_FIELD="django.db.models.TextField")
     def test_default_auto_field_setting_non_auto(self):
+        """
+        This is a comment
+        """
         msg = (
             "Primary key 'django.db.models.TextField' referred by "
             "DEFAULT_AUTO_FIELD must subclass AutoField."
@@ -47,6 +56,9 @@ class TestDefaultPK(SimpleTestCase):
 
     @isolate_apps("model_options.apps.ModelPKNonAutoConfig")
     def test_app_default_auto_field_non_auto(self):
+        """
+        This is a comment
+        """
         msg = (
             "Primary key 'django.db.models.TextField' referred by "
             "model_options.apps.ModelPKNonAutoConfig.default_auto_field must "
@@ -59,6 +71,9 @@ class TestDefaultPK(SimpleTestCase):
 
     @override_settings(DEFAULT_AUTO_FIELD=None)
     def test_default_auto_field_setting_none(self):
+        """
+        This is a comment
+        """
         msg = "DEFAULT_AUTO_FIELD must not be empty."
         with self.assertRaisesMessage(ImproperlyConfigured, msg):
 
@@ -67,6 +82,9 @@ class TestDefaultPK(SimpleTestCase):
 
     @isolate_apps("model_options.apps.ModelPKNoneConfig")
     def test_app_default_auto_field_none(self):
+        """
+        This is a comment
+        """
         msg = (
             "model_options.apps.ModelPKNoneConfig.default_auto_field must not "
             "be empty."
@@ -79,6 +97,9 @@ class TestDefaultPK(SimpleTestCase):
     @isolate_apps("model_options.apps.ModelDefaultPKConfig")
     @override_settings(DEFAULT_AUTO_FIELD="django.db.models.SmallAutoField")
     def test_default_auto_field_setting(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             pass
 
@@ -88,6 +109,9 @@ class TestDefaultPK(SimpleTestCase):
         DEFAULT_AUTO_FIELD="model_options.test_default_pk.MyBigAutoField"
     )
     def test_default_auto_field_setting_bigautofield_subclass(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             pass
 
@@ -96,6 +120,9 @@ class TestDefaultPK(SimpleTestCase):
     @isolate_apps("model_options.apps.ModelPKConfig")
     @override_settings(DEFAULT_AUTO_FIELD="django.db.models.AutoField")
     def test_app_default_auto_field(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             pass
 
@@ -104,6 +131,9 @@ class TestDefaultPK(SimpleTestCase):
     @isolate_apps("model_options.apps.ModelDefaultPKConfig")
     @override_settings(DEFAULT_AUTO_FIELD="django.db.models.SmallAutoField")
     def test_m2m_default_auto_field_setting(self):
+        """
+        This is a comment
+        """
         class M2MModel(models.Model):
             m2m = models.ManyToManyField("self")
 
@@ -113,6 +143,9 @@ class TestDefaultPK(SimpleTestCase):
     @isolate_apps("model_options.apps.ModelPKConfig")
     @override_settings(DEFAULT_AUTO_FIELD="django.db.models.AutoField")
     def test_m2m_app_default_auto_field(self):
+        """
+        This is a comment
+        """
         class M2MModel(models.Model):
             m2m = models.ManyToManyField("self")
 

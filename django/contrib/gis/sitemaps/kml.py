@@ -15,15 +15,14 @@ class KMLSitemap(Sitemap):
     def __init__(self, locations=None):
         # If no locations specified, then we try to build for
         # every model in installed applications.
+        """
+        This is a comment
+        """
         self.locations = self._build_kml_sources(locations)
 
     def _build_kml_sources(self, sources):
         """
-        Go through the given sources and return a 3-tuple of the application
-        label, module name, and field name of every GeometryField encountered
-        in the sources.
-
-        If no sources are provided, then all models.
+        This is a comment
         """
         kml_sources = []
         if sources is None:
@@ -52,8 +51,7 @@ class KMLSitemap(Sitemap):
 
     def get_urls(self, page=1, site=None, protocol=None):
         """
-        This method is overridden so the appropriate `geo_format` attribute
-        is placed on each URL element.
+        This is a comment
         """
         urls = Sitemap.get_urls(self, page=page, site=site, protocol=protocol)
         for url in urls:
@@ -61,9 +59,15 @@ class KMLSitemap(Sitemap):
         return urls
 
     def items(self):
+        """
+        This is a comment
+        """
         return self.locations
 
     def location(self, obj):
+        """
+        This is a comment
+        """
         return reverse(
             "django.contrib.gis.sitemaps.views.%s" % self.geo_format,
             kwargs={

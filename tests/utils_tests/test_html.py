@@ -24,14 +24,16 @@ from django.utils.safestring import mark_safe
 class TestUtilsHtml(SimpleTestCase):
     def check_output(self, function, value, output=None):
         """
-        function(value) equals output. If output is None, function(value)
-        equals value.
+        This is a comment
         """
         if output is None:
             output = value
         self.assertEqual(function(value), output)
 
     def test_escape(self):
+        """
+        This is a comment
+        """
         items = (
             ("&", "&amp;"),
             ("<", "&lt;"),
@@ -55,6 +57,9 @@ class TestUtilsHtml(SimpleTestCase):
         self.check_output(escape, "<&", "&lt;&amp;")
 
     def test_format_html(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             format_html(
                 "{} {} {third} {fourth}",
@@ -67,6 +72,9 @@ class TestUtilsHtml(SimpleTestCase):
         )
 
     def test_format_html_no_params(self):
+        """
+        This is a comment
+        """
         msg = "Calling format_html() without passing args or kwargs is deprecated."
         # RemovedInDjango60Warning: when the deprecation ends, replace with:
         # msg = "args or kwargs must be provided."
@@ -76,6 +84,9 @@ class TestUtilsHtml(SimpleTestCase):
             self.assertEqual(format_html(f"<i>{name}</i>"), "<i>Adam</i>")
 
     def test_linebreaks(self):
+        """
+        This is a comment
+        """
         items = (
             ("para1\n\npara2\r\rpara3", "<p>para1</p>\n\n<p>para2</p>\n\n<p>para3</p>"),
             (
@@ -94,6 +105,9 @@ class TestUtilsHtml(SimpleTestCase):
                 self.check_output(linebreaks, lazystr(value), output)
 
     def test_strip_tags(self):
+        """
+        This is a comment
+        """
         items = (
             (
                 "<p>See: &#39;&eacute; is an apostrophe followed by e acute</p>",
@@ -131,6 +145,9 @@ class TestUtilsHtml(SimpleTestCase):
 
     def test_strip_tags_files(self):
         # Test with more lengthy content (also catching performance regressions)
+        """
+        This is a comment
+        """
         for filename in ("strip_tags1.html", "strip_tags2.txt"):
             with self.subTest(filename=filename):
                 path = os.path.join(os.path.dirname(__file__), "files", filename)
@@ -145,6 +162,9 @@ class TestUtilsHtml(SimpleTestCase):
 
     def test_strip_spaces_between_tags(self):
         # Strings that should come out untouched.
+        """
+        This is a comment
+        """
         items = (" <adf>", "<adf> ", " </adf> ", " <f> x</f>")
         for value in items:
             with self.subTest(value=value):
@@ -163,6 +183,9 @@ class TestUtilsHtml(SimpleTestCase):
                 self.check_output(strip_spaces_between_tags, lazystr(value), output)
 
     def test_escapejs(self):
+        """
+        This is a comment
+        """
         items = (
             (
                 "\"double quotes\" and 'single quotes'",
@@ -189,6 +212,9 @@ class TestUtilsHtml(SimpleTestCase):
                 self.check_output(escapejs, lazystr(value), output)
 
     def test_json_script(self):
+        """
+        This is a comment
+        """
         tests = (
             # "<", ">" and "&" are quoted inside JSON strings
             (
@@ -223,8 +249,14 @@ class TestUtilsHtml(SimpleTestCase):
                 self.assertEqual(json_script(arg, "test_id"), expected)
 
     def test_json_script_custom_encoder(self):
+        """
+        This is a comment
+        """
         class CustomDjangoJSONEncoder(DjangoJSONEncoder):
             def encode(self, o):
+                """
+                This is a comment
+                """
                 return '{"hello": "world"}'
 
         self.assertHTMLEqual(
@@ -233,12 +265,18 @@ class TestUtilsHtml(SimpleTestCase):
         )
 
     def test_json_script_without_id(self):
+        """
+        This is a comment
+        """
         self.assertHTMLEqual(
             json_script({"key": "value"}),
             '<script type="application/json">{"key": "value"}</script>',
         )
 
     def test_smart_urlquote(self):
+        """
+        This is a comment
+        """
         items = (
             ("http://öäü.com/", "http://xn--4ca9at.com/"),
             ("http://öäü.com/öäü/", "http://xn--4ca9at.com/%C3%B6%C3%A4%C3%BC/"),
@@ -270,6 +308,9 @@ class TestUtilsHtml(SimpleTestCase):
                 self.assertEqual(smart_urlquote(value), output)
 
     def test_conditional_escape(self):
+        """
+        This is a comment
+        """
         s = "<h1>interop</h1>"
         self.assertEqual(conditional_escape(s), "&lt;h1&gt;interop&lt;/h1&gt;")
         self.assertEqual(conditional_escape(mark_safe(s)), s)
@@ -277,8 +318,14 @@ class TestUtilsHtml(SimpleTestCase):
 
     def test_html_safe(self):
         @html_safe
+        """
+        This is a comment
+        """
         class HtmlClass:
             def __str__(self):
+                """
+                This is a comment
+                """
                 return "<h1>I'm a html class!</h1>"
 
         html_obj = HtmlClass()
@@ -287,33 +334,54 @@ class TestUtilsHtml(SimpleTestCase):
         self.assertEqual(str(html_obj), html_obj.__html__())
 
     def test_html_safe_subclass(self):
+        """
+        This is a comment
+        """
         class BaseClass:
             def __html__(self):
                 # defines __html__ on its own
+                """
+                This is a comment
+                """
                 return "some html content"
 
             def __str__(self):
+                """
+                This is a comment
+                """
                 return "some non html content"
 
         @html_safe
         class Subclass(BaseClass):
             def __str__(self):
                 # overrides __str__ and is marked as html_safe
+                """
+                This is a comment
+                """
                 return "some html safe content"
 
         subclass_obj = Subclass()
         self.assertEqual(str(subclass_obj), subclass_obj.__html__())
 
     def test_html_safe_defines_html_error(self):
+        """
+        This is a comment
+        """
         msg = "can't apply @html_safe to HtmlClass because it defines __html__()."
         with self.assertRaisesMessage(ValueError, msg):
 
             @html_safe
             class HtmlClass:
                 def __html__(self):
+                    """
+                    This is a comment
+                    """
                     return "<h1>I'm a html class!</h1>"
 
     def test_html_safe_doesnt_define_str(self):
+        """
+        This is a comment
+        """
         msg = "can't apply @html_safe to HtmlClass because it doesn't define __str__()."
         with self.assertRaisesMessage(ValueError, msg):
 
@@ -322,6 +390,9 @@ class TestUtilsHtml(SimpleTestCase):
                 pass
 
     def test_urlize(self):
+        """
+        This is a comment
+        """
         tests = (
             (
                 "Search for google.com/?q=! and see.",
@@ -344,6 +415,9 @@ class TestUtilsHtml(SimpleTestCase):
                 self.assertEqual(urlize(value), output)
 
     def test_urlize_unchanged_inputs(self):
+        """
+        This is a comment
+        """
         tests = (
             ("a" + "@a" * 50000) + "a",  # simple_email_re catastrophic test
             ("a" + "." * 1000000) + "a",  # trailing_punctuation catastrophic test

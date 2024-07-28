@@ -20,6 +20,9 @@ class Author(models.Model):
         ordering = ["id"]
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -82,6 +85,9 @@ class Reader(models.Model):
         ordering = ["id"]
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -107,12 +113,18 @@ class ModelIterableSubclass(ModelIterable):
 
 class TeacherQuerySet(models.QuerySet):
     def __init__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         super().__init__(*args, **kwargs)
         self._iterable_class = ModelIterableSubclass
 
 
 class TeacherManager(models.Manager):
     def get_queryset(self):
+        """
+        This is a comment
+        """
         return super().get_queryset().prefetch_related("qualifications")
 
 
@@ -127,6 +139,9 @@ class Teacher(models.Model):
         ordering = ["id"]
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "%s (%s)" % (
             self.name,
             ", ".join(q.name for q in self.qualifications.all()),
@@ -245,14 +260,23 @@ class Person(models.Model):
     @property
     def primary_house(self):
         # Assume business logic forces every person to have at least one house.
+        """
+        This is a comment
+        """
         return sorted(self.houses.all(), key=lambda house: -house.rooms.count())[0]
 
     @property
     def all_houses(self):
+        """
+        This is a comment
+        """
         return list(self.houses.all())
 
     @cached_property
     def cached_all_houses(self):
+        """
+        This is a comment
+        """
         return self.all_houses
 
     class Meta:

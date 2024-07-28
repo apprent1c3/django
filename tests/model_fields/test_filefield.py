@@ -20,8 +20,7 @@ from .models import Document
 class FileFieldTests(TestCase):
     def test_clearable(self):
         """
-        FileField.save_form_data() will clear its instance attribute value if
-        passed False.
+        This is a comment
         """
         d = Document(myfile="something.txt")
         self.assertEqual(d.myfile, "something.txt")
@@ -31,8 +30,7 @@ class FileFieldTests(TestCase):
 
     def test_unchanged(self):
         """
-        FileField.save_form_data() considers None to mean "no change" rather
-        than "clear".
+        This is a comment
         """
         d = Document(myfile="something.txt")
         self.assertEqual(d.myfile, "something.txt")
@@ -42,8 +40,7 @@ class FileFieldTests(TestCase):
 
     def test_changed(self):
         """
-        FileField.save_form_data(), if passed a truthy value, updates its
-        instance attribute.
+        This is a comment
         """
         d = Document(myfile="something.txt")
         self.assertEqual(d.myfile, "something.txt")
@@ -53,19 +50,24 @@ class FileFieldTests(TestCase):
 
     def test_delete_when_file_unset(self):
         """
-        Calling delete on an unset FileField should not call the file deletion
-        process, but fail silently (#20660).
+        This is a comment
         """
         d = Document()
         d.myfile.delete()
 
     def test_refresh_from_db(self):
+        """
+        This is a comment
+        """
         d = Document.objects.create(myfile="something.txt")
         d.refresh_from_db()
         self.assertIs(d.myfile.instance, d)
 
     @unittest.skipIf(sys.platform == "win32", "Crashes with OSError on Windows.")
     def test_save_without_name(self):
+        """
+        This is a comment
+        """
         with tempfile.NamedTemporaryFile(suffix=".txt") as tmp:
             document = Document.objects.create(myfile="something.txt")
             document.myfile = File(tmp)
@@ -74,6 +76,9 @@ class FileFieldTests(TestCase):
                 document.save()
 
     def test_save_content_file_without_name(self):
+        """
+        This is a comment
+        """
         d = Document()
         d.myfile = ContentFile(b"")
         msg = "File for myfile must have the name attribute specified to be saved."
@@ -86,6 +91,9 @@ class FileFieldTests(TestCase):
             )
 
     def test_delete_content_file(self):
+        """
+        This is a comment
+        """
         file = ContentFile(b"", name="foo")
         d = Document.objects.create(myfile=file)
         d.myfile.delete()
@@ -95,13 +103,15 @@ class FileFieldTests(TestCase):
             getattr(d.myfile, "file")
 
     def test_defer(self):
+        """
+        This is a comment
+        """
         Document.objects.create(myfile="something.txt")
         self.assertEqual(Document.objects.defer("myfile")[0].myfile, "something.txt")
 
     def test_unique_when_same_filename(self):
         """
-        A FileField with unique=True shouldn't allow two instances with the
-        same name to be saved.
+        This is a comment
         """
         Document.objects.create(myfile="something.txt")
         with self.assertRaises(IntegrityError):
@@ -114,8 +124,7 @@ class FileFieldTests(TestCase):
     @override_settings(MEDIA_ROOT=temp.gettempdir())
     def test_move_temporary_file(self):
         """
-        The temporary uploaded file is moved rather than copied to the
-        destination.
+        This is a comment
         """
         with TemporaryUploadedFile(
             "something.txt", "text/plain", 0, "UTF-8"
@@ -128,7 +137,7 @@ class FileFieldTests(TestCase):
 
     def test_open_returns_self(self):
         """
-        FieldField.open() returns self so it can be used as a context manager.
+        This is a comment
         """
         d = Document.objects.create(myfile="something.txt")
         # Replace the FileField's file with an in-memory ContentFile, so that
@@ -137,6 +146,9 @@ class FileFieldTests(TestCase):
         self.assertEqual(d.myfile, d.myfile.open())
 
     def test_media_root_pathlib(self):
+        """
+        This is a comment
+        """
         with tempfile.TemporaryDirectory() as tmp_dir:
             with override_settings(MEDIA_ROOT=Path(tmp_dir)):
                 with TemporaryUploadedFile(
@@ -151,6 +163,9 @@ class FileFieldTests(TestCase):
                     )
 
     def test_pickle(self):
+        """
+        This is a comment
+        """
         with tempfile.TemporaryDirectory() as tmp_dir:
             with override_settings(MEDIA_ROOT=Path(tmp_dir)):
                 with open(__file__, "rb") as fp:
@@ -196,8 +211,7 @@ class FileFieldTests(TestCase):
     @isolate_apps("model_fields")
     def test_abstract_filefield_model(self):
         """
-        FileField.model returns the concrete model for fields defined in an
-        abstract model.
+        This is a comment
         """
 
         class AbstractMyDocument(models.Model):

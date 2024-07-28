@@ -13,6 +13,9 @@ class OrderWrt(fields.IntegerField):
     """
 
     def __init__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         kwargs["name"] = "_order"
         kwargs["editable"] = False
         super().__init__(*args, **kwargs)

@@ -60,6 +60,9 @@ _cur_dir = os.path.dirname(os.path.abspath(__file__))
 
 class TestFixtures(TestCase):
     def animal_pre_save_check(self, signal, sender, instance, **kwargs):
+        """
+        This is a comment
+        """
         self.pre_save_checks.append(
             (
                 "Count = %s (%s)" % (instance.count, type(instance.count)),
@@ -69,7 +72,7 @@ class TestFixtures(TestCase):
 
     def test_duplicate_pk(self):
         """
-        This is a regression test for ticket #3790.
+        This is a comment
         """
         # Load a fixture that uses PK=1
         management.call_command(
@@ -92,9 +95,7 @@ class TestFixtures(TestCase):
 
     def test_loaddata_not_found_fields_not_ignore(self):
         """
-        Test for ticket #9279 -- Error is raised for entries in
-        the serialized data for fields that have been removed
-        from the database when not ignored.
+        This is a comment
         """
         with self.assertRaises(DeserializationError):
             management.call_command(
@@ -105,9 +106,7 @@ class TestFixtures(TestCase):
 
     def test_loaddata_not_found_fields_ignore(self):
         """
-        Test for ticket #9279 -- Ignores entries in
-        the serialized data for fields that have been removed
-        from the database.
+        This is a comment
         """
         management.call_command(
             "loaddata",
@@ -119,8 +118,7 @@ class TestFixtures(TestCase):
 
     def test_loaddata_not_found_fields_ignore_xml(self):
         """
-        Test for ticket #19998 -- Ignore entries in the XML serialized data
-        for fields that have been removed from the model definition.
+        This is a comment
         """
         management.call_command(
             "loaddata",
@@ -133,8 +131,7 @@ class TestFixtures(TestCase):
     @skipIfDBFeature("interprets_empty_strings_as_nulls")
     def test_pretty_print_xml(self):
         """
-        Regression test for ticket #4558 -- pretty printing of XML fixtures
-        doesn't affect parsing of None values.
+        This is a comment
         """
         # Load a pretty-printed XML fixture with Nulls.
         management.call_command(
@@ -148,8 +145,7 @@ class TestFixtures(TestCase):
     @skipUnlessDBFeature("interprets_empty_strings_as_nulls")
     def test_pretty_print_xml_empty_strings(self):
         """
-        Regression test for ticket #4558 -- pretty printing of XML fixtures
-        doesn't affect parsing of None values.
+        This is a comment
         """
         # Load a pretty-printed XML fixture with Nulls.
         management.call_command(
@@ -162,12 +158,7 @@ class TestFixtures(TestCase):
 
     def test_absolute_path(self):
         """
-        Regression test for ticket #6436 --
-        os.path.join will throw away the initial parts of a path if it
-        encounters an absolute path.
-        This means that if a fixture is specified as an absolute path,
-        we need to make sure we don't discover the absolute path in every
-        fixture directory.
+        This is a comment
         """
         load_absolute_path = os.path.join(
             os.path.dirname(__file__), "fixtures", "absolute.json"
@@ -180,6 +171,9 @@ class TestFixtures(TestCase):
         self.assertEqual(Absolute.objects.count(), 1)
 
     def test_relative_path(self, path=["fixtures", "absolute.json"]):
+        """
+        This is a comment
+        """
         relative_path = os.path.join(*path)
         cwd = os.getcwd()
         try:
@@ -195,9 +189,15 @@ class TestFixtures(TestCase):
 
     @override_settings(FIXTURE_DIRS=[os.path.join(_cur_dir, "fixtures_1")])
     def test_relative_path_in_fixture_dirs(self):
+        """
+        This is a comment
+        """
         self.test_relative_path(path=["inner", "absolute.json"])
 
     def test_path_containing_dots(self):
+        """
+        This is a comment
+        """
         management.call_command(
             "loaddata",
             "path.containing.dots.json",
@@ -207,8 +207,7 @@ class TestFixtures(TestCase):
 
     def test_unknown_format(self):
         """
-        Test for ticket #4371 -- Loading data of an unknown format should fail
-        Validate that error conditions are caught correctly
+        This is a comment
         """
         msg = (
             "Problem installing fixture 'bad_fix.ture1': unkn is not a known "
@@ -224,7 +223,7 @@ class TestFixtures(TestCase):
     @override_settings(SERIALIZATION_MODULES={"unkn": "unexistent.path"})
     def test_unimportable_serializer(self):
         """
-        Failing serializer import raises the proper error
+        This is a comment
         """
         with self.assertRaisesMessage(ImportError, "No module named 'unexistent'"):
             management.call_command(
@@ -235,9 +234,7 @@ class TestFixtures(TestCase):
 
     def test_invalid_data(self):
         """
-        Test for ticket #4371 -- Loading a fixture file with invalid data
-        using explicit filename.
-        Test for ticket #18213 -- warning conditions are caught correctly
+        This is a comment
         """
         msg = "No fixture data found for 'bad_fixture2'. (File format may be invalid.)"
         with self.assertWarnsMessage(RuntimeWarning, msg):
@@ -249,9 +246,7 @@ class TestFixtures(TestCase):
 
     def test_invalid_data_no_ext(self):
         """
-        Test for ticket #4371 -- Loading a fixture file with invalid data
-        without file extension.
-        Test for ticket #18213 -- warning conditions are caught correctly
+        This is a comment
         """
         msg = "No fixture data found for 'bad_fixture2'. (File format may be invalid.)"
         with self.assertWarnsMessage(RuntimeWarning, msg):
@@ -263,8 +258,7 @@ class TestFixtures(TestCase):
 
     def test_empty(self):
         """
-        Test for ticket #18213 -- Loading a fixture file with no data output a warning.
-        Previously empty fixture raises an error exception, see ticket #4371.
+        This is a comment
         """
         msg = "No fixture data found for 'empty'. (File format may be invalid.)"
         with self.assertWarnsMessage(RuntimeWarning, msg):
@@ -276,8 +270,7 @@ class TestFixtures(TestCase):
 
     def test_error_message(self):
         """
-        Regression for #9011 - error message is correct.
-        Change from error to warning for ticket #18213.
+        This is a comment
         """
         msg = "No fixture data found for 'bad_fixture2'. (File format may be invalid.)"
         with self.assertWarnsMessage(RuntimeWarning, msg):
@@ -290,9 +283,7 @@ class TestFixtures(TestCase):
 
     def test_pg_sequence_resetting_checks(self):
         """
-        Test for ticket #7565 -- PostgreSQL sequence resetting checks shouldn't
-        ascend to parent models when inheritance is used
-        (since they are treated individually).
+        This is a comment
         """
         management.call_command(
             "loaddata",
@@ -304,11 +295,7 @@ class TestFixtures(TestCase):
 
     def test_close_connection_after_loaddata(self):
         """
-        Test for ticket #7572 -- MySQL has a problem if the same connection is
-        used to create tables, load data, and then query over that data.
-        To compensate, we close the connection after running loaddata.
-        This ensures that a new connection is opened when test queries are
-        issued.
+        This is a comment
         """
         management.call_command(
             "loaddata",
@@ -328,8 +315,7 @@ class TestFixtures(TestCase):
 
     def test_field_value_coerce(self):
         """
-        Test for tickets #8298, #9942 - Field values should be coerced into the
-        correct type by the deserializer, not as part of the database write.
+        This is a comment
         """
         self.pre_save_checks = []
         signals.pre_save.connect(self.animal_pre_save_check)
@@ -348,9 +334,7 @@ class TestFixtures(TestCase):
 
     def test_dumpdata_uses_default_manager(self):
         """
-        Regression for #11286
-        Dumpdata honors the default manager. Dump the current contents of
-        the database as a JSON fixture
+        This is a comment
         """
         management.call_command(
             "loaddata",
@@ -428,7 +412,7 @@ class TestFixtures(TestCase):
 
     def test_proxy_model_included(self):
         """
-        Regression for #11428 - Proxy models aren't included when you dumpdata
+        This is a comment
         """
         out = StringIO()
         # Create an instance of the concrete class
@@ -449,7 +433,7 @@ class TestFixtures(TestCase):
     @skipUnlessDBFeature("supports_forward_references")
     def test_loaddata_works_when_fixture_has_forward_refs(self):
         """
-        Forward references cause fixtures not to load in MySQL (InnoDB).
+        This is a comment
         """
         management.call_command(
             "loaddata",
@@ -461,7 +445,7 @@ class TestFixtures(TestCase):
 
     def test_loaddata_raises_error_when_fixture_has_invalid_foreign_key(self):
         """
-        Data with nonexistent child key references raises error.
+        This is a comment
         """
         with self.assertRaisesMessage(IntegrityError, "Problem installing fixture"):
             management.call_command(
@@ -479,8 +463,7 @@ class TestFixtures(TestCase):
     )
     def test_loaddata_forward_refs_split_fixtures(self):
         """
-        Regression for #17530 - should be able to cope with forward references
-        when the fixtures are not in the same files or directories.
+        This is a comment
         """
         management.call_command(
             "loaddata",
@@ -493,8 +476,7 @@ class TestFixtures(TestCase):
 
     def test_loaddata_no_fixture_specified(self):
         """
-        Error is quickly reported when no fixtures is provided in the command
-        line.
+        This is a comment
         """
         msg = (
             "No database fixture specified. Please provide the path of at least one "
@@ -508,8 +490,7 @@ class TestFixtures(TestCase):
 
     def test_ticket_20820(self):
         """
-        Regression for ticket #20820 -- loaddata on a model that inherits
-        from a model with a M2M shouldn't blow up.
+        This is a comment
         """
         management.call_command(
             "loaddata",
@@ -519,9 +500,7 @@ class TestFixtures(TestCase):
 
     def test_ticket_22421(self):
         """
-        Regression for ticket #22421 -- loaddata on a model that inherits from
-        a grand-parent model with a M2M but via an abstract parent shouldn't
-        blow up.
+        This is a comment
         """
         management.call_command(
             "loaddata",
@@ -531,7 +510,7 @@ class TestFixtures(TestCase):
 
     def test_loaddata_with_m2m_to_self(self):
         """
-        Regression test for ticket #17946.
+        This is a comment
         """
         management.call_command(
             "loaddata",
@@ -547,8 +526,7 @@ class TestFixtures(TestCase):
     )
     def test_fixture_dirs_with_duplicates(self):
         """
-        settings.FIXTURE_DIRS cannot contain duplicates in order to avoid
-        repeated fixture loading.
+        This is a comment
         """
         with self.assertRaisesMessage(
             ImproperlyConfigured, "settings.FIXTURE_DIRS contains duplicates."
@@ -558,8 +536,7 @@ class TestFixtures(TestCase):
     @override_settings(FIXTURE_DIRS=[os.path.join(_cur_dir, "fixtures")])
     def test_fixture_dirs_with_default_fixture_path(self):
         """
-        settings.FIXTURE_DIRS cannot contain a default fixtures directory
-        for application (app/fixtures) in order to avoid repeated fixture loading.
+        This is a comment
         """
         msg = (
             "'%s' is a default fixture directory for the '%s' app "
@@ -572,8 +549,7 @@ class TestFixtures(TestCase):
     @override_settings(FIXTURE_DIRS=[Path(_cur_dir) / "fixtures"])
     def test_fixture_dirs_with_default_fixture_path_as_pathlib(self):
         """
-        settings.FIXTURE_DIRS cannot contain a default fixtures directory
-        for application (app/fixtures) in order to avoid repeated fixture loading.
+        This is a comment
         """
         msg = (
             "'%s' is a default fixture directory for the '%s' app "
@@ -590,6 +566,9 @@ class TestFixtures(TestCase):
         ]
     )
     def test_loaddata_with_valid_fixture_dirs(self):
+        """
+        This is a comment
+        """
         management.call_command(
             "loaddata",
             "absolute.json",
@@ -598,6 +577,9 @@ class TestFixtures(TestCase):
 
     @override_settings(FIXTURE_DIRS=[Path(_cur_dir) / "fixtures_1"])
     def test_fixtures_dir_pathlib(self):
+        """
+        This is a comment
+        """
         management.call_command("loaddata", "inner/absolute.json", verbosity=0)
         self.assertQuerySetEqual(Absolute.objects.all(), [1], transform=lambda o: o.pk)
 
@@ -605,8 +587,7 @@ class TestFixtures(TestCase):
 class NaturalKeyFixtureTests(TestCase):
     def test_nk_deserialize(self):
         """
-        Test for ticket #13030 - Python based parser version
-        natural keys deserialize with fk to inheriting model
+        This is a comment
         """
         management.call_command(
             "loaddata",
@@ -624,8 +605,7 @@ class NaturalKeyFixtureTests(TestCase):
 
     def test_nk_deserialize_xml(self):
         """
-        Test for ticket #13030 - XML version
-        natural keys deserialize with fk to inheriting model
+        This is a comment
         """
         management.call_command(
             "loaddata",
@@ -647,7 +627,7 @@ class NaturalKeyFixtureTests(TestCase):
 
     def test_nk_on_serialize(self):
         """
-        Natural key requirements are taken into account when serializing models.
+        This is a comment
         """
         management.call_command(
             "loaddata",
@@ -683,8 +663,7 @@ class NaturalKeyFixtureTests(TestCase):
 
     def test_dependency_sorting(self):
         """
-        It doesn't matter what order you mention the models,  Store *must* be
-        serialized before then Person, and both must be serialized before Book.
+        This is a comment
         """
         sorted_deps = serializers.sort_dependencies(
             [("fixtures_regress", [Book, Person, Store])]
@@ -692,42 +671,63 @@ class NaturalKeyFixtureTests(TestCase):
         self.assertEqual(sorted_deps, [Store, Person, Book])
 
     def test_dependency_sorting_2(self):
+        """
+        This is a comment
+        """
         sorted_deps = serializers.sort_dependencies(
             [("fixtures_regress", [Book, Store, Person])]
         )
         self.assertEqual(sorted_deps, [Store, Person, Book])
 
     def test_dependency_sorting_3(self):
+        """
+        This is a comment
+        """
         sorted_deps = serializers.sort_dependencies(
             [("fixtures_regress", [Store, Book, Person])]
         )
         self.assertEqual(sorted_deps, [Store, Person, Book])
 
     def test_dependency_sorting_4(self):
+        """
+        This is a comment
+        """
         sorted_deps = serializers.sort_dependencies(
             [("fixtures_regress", [Store, Person, Book])]
         )
         self.assertEqual(sorted_deps, [Store, Person, Book])
 
     def test_dependency_sorting_5(self):
+        """
+        This is a comment
+        """
         sorted_deps = serializers.sort_dependencies(
             [("fixtures_regress", [Person, Book, Store])]
         )
         self.assertEqual(sorted_deps, [Store, Person, Book])
 
     def test_dependency_sorting_6(self):
+        """
+        This is a comment
+        """
         sorted_deps = serializers.sort_dependencies(
             [("fixtures_regress", [Person, Store, Book])]
         )
         self.assertEqual(sorted_deps, [Store, Person, Book])
 
     def test_dependency_sorting_dangling(self):
+        """
+        This is a comment
+        """
         sorted_deps = serializers.sort_dependencies(
             [("fixtures_regress", [Person, Circle1, Store, Book])]
         )
         self.assertEqual(sorted_deps, [Circle1, Store, Person, Book])
 
     def test_dependency_sorting_tight_circular(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(
             RuntimeError,
             "Can't resolve dependencies for fixtures_regress.Circle1, "
@@ -738,6 +738,9 @@ class NaturalKeyFixtureTests(TestCase):
             )
 
     def test_dependency_sorting_tight_circular_2(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(
             RuntimeError,
             "Can't resolve dependencies for fixtures_regress.Circle1, "
@@ -748,6 +751,9 @@ class NaturalKeyFixtureTests(TestCase):
             )
 
     def test_dependency_self_referential(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(
             RuntimeError,
             "Can't resolve dependencies for fixtures_regress.Circle3 in "
@@ -756,6 +762,9 @@ class NaturalKeyFixtureTests(TestCase):
             serializers.sort_dependencies([("fixtures_regress", [Book, Circle3])])
 
     def test_dependency_sorting_long(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(
             RuntimeError,
             "Can't resolve dependencies for fixtures_regress.Circle1, "
@@ -767,6 +776,9 @@ class NaturalKeyFixtureTests(TestCase):
             )
 
     def test_dependency_sorting_normal(self):
+        """
+        This is a comment
+        """
         sorted_deps = serializers.sort_dependencies(
             [("fixtures_regress", [Person, ExternalDependency, Book])]
         )
@@ -774,7 +786,7 @@ class NaturalKeyFixtureTests(TestCase):
 
     def test_normal_pk(self):
         """
-        Normal primary keys work on a model with natural key capabilities.
+        This is a comment
         """
         management.call_command(
             "loaddata",
@@ -811,8 +823,7 @@ class NaturalKeyFixtureOnOtherDatabaseTests(TestCase):
 
     def test_natural_key_dependencies(self):
         """
-        Natural keys with foreign keys in dependencies works in a multiple
-        database setup.
+        This is a comment
         """
         management.call_command(
             "loaddata",
@@ -830,11 +841,7 @@ class M2MNaturalKeyFixtureTests(TestCase):
 
     def test_dependency_sorting_m2m_simple(self):
         """
-        M2M relations without explicit through models SHOULD count as dependencies
-
-        Regression test for bugs that could be caused by flawed fixes to
-        #14226, namely if M2M checks are removed from sort_dependencies
-        altogether.
+        This is a comment
         """
         sorted_deps = serializers.sort_dependencies(
             [("fixtures_regress", [M2MSimpleA, M2MSimpleB])]
@@ -843,8 +850,7 @@ class M2MNaturalKeyFixtureTests(TestCase):
 
     def test_dependency_sorting_m2m_simple_circular(self):
         """
-        Resolving circular M2M relations without explicit through models should
-        fail loudly
+        This is a comment
         """
         with self.assertRaisesMessage(
             RuntimeError,
@@ -857,8 +863,7 @@ class M2MNaturalKeyFixtureTests(TestCase):
 
     def test_dependency_sorting_m2m_complex(self):
         """
-        M2M relations with explicit through models should NOT count as
-        dependencies.  The through model itself will have dependencies, though.
+        This is a comment
         """
         sorted_deps = serializers.sort_dependencies(
             [("fixtures_regress", [M2MComplexA, M2MComplexB, M2MThroughAB])]
@@ -869,7 +874,7 @@ class M2MNaturalKeyFixtureTests(TestCase):
 
     def test_dependency_sorting_m2m_complex_circular_1(self):
         """
-        Circular M2M relations with explicit through models should be serializable
+        This is a comment
         """
         A, B, C, AtoB, BtoC, CtoA = (
             M2MComplexCircular1A,
@@ -890,8 +895,7 @@ class M2MNaturalKeyFixtureTests(TestCase):
 
     def test_dependency_sorting_m2m_complex_circular_2(self):
         """
-        Circular M2M relations with explicit through models should be serializable
-        This test tests the circularity with explicit natural_key.dependencies
+        This is a comment
         """
         sorted_deps = serializers.sort_dependencies(
             [
@@ -906,7 +910,7 @@ class M2MNaturalKeyFixtureTests(TestCase):
 
     def test_dump_and_load_m2m_simple(self):
         """
-        Test serializing and deserializing back models with simple M2M relations
+        This is a comment
         """
         a = M2MSimpleA.objects.create(data="a")
         b1 = M2MSimpleB.objects.create(data="b1")
@@ -939,7 +943,9 @@ class TestTicket11101(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_transactions")
     def test_ticket_11101(self):
-        """Fixtures can be rolled back (ticket #11101)."""
+        """
+        This is a comment
+        """
         with transaction.atomic():
             management.call_command(
                 "loaddata",
@@ -966,5 +972,8 @@ class TestLoadFixtureFromOtherAppDirectory(TestCase):
     fixtures = [relative_prefix + "/fixtures/absolute.json"]
 
     def test_fixtures_loaded(self):
+        """
+        This is a comment
+        """
         count = Absolute.objects.count()
         self.assertGreater(count, 0, "Fixtures not loaded properly.")

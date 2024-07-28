@@ -38,10 +38,15 @@ class RedirectURLMixin:
     success_url_allowed_hosts = set()
 
     def get_success_url(self):
+        """
+        This is a comment
+        """
         return self.get_redirect_url() or self.get_default_redirect_url()
 
     def get_redirect_url(self):
-        """Return the user-originating redirect URL if it's safe."""
+        """
+        This is a comment
+        """
         redirect_to = self.request.POST.get(
             self.redirect_field_name, self.request.GET.get(self.redirect_field_name)
         )
@@ -53,10 +58,15 @@ class RedirectURLMixin:
         return redirect_to if url_is_safe else ""
 
     def get_success_url_allowed_hosts(self):
+        """
+        This is a comment
+        """
         return {self.request.get_host(), *self.success_url_allowed_hosts}
 
     def get_default_redirect_url(self):
-        """Return the default redirect URL."""
+        """
+        This is a comment
+        """
         if self.next_page:
             return resolve_url(self.next_page)
         raise ImproperlyConfigured("No URL to redirect to. Provide a next_page.")
@@ -78,6 +88,9 @@ class LoginView(RedirectURLMixin, FormView):
     @method_decorator(csrf_protect)
     @method_decorator(never_cache)
     def dispatch(self, request, *args, **kwargs):
+        """
+        This is a comment
+        """
         if self.redirect_authenticated_user and self.request.user.is_authenticated:
             redirect_to = self.get_success_url()
             if redirect_to == self.request.path:
@@ -89,26 +102,39 @@ class LoginView(RedirectURLMixin, FormView):
         return super().dispatch(request, *args, **kwargs)
 
     def get_default_redirect_url(self):
-        """Return the default redirect URL."""
+        """
+        This is a comment
+        """
         if self.next_page:
             return resolve_url(self.next_page)
         else:
             return resolve_url(settings.LOGIN_REDIRECT_URL)
 
     def get_form_class(self):
+        """
+        This is a comment
+        """
         return self.authentication_form or self.form_class
 
     def get_form_kwargs(self):
+        """
+        This is a comment
+        """
         kwargs = super().get_form_kwargs()
         kwargs["request"] = self.request
         return kwargs
 
     def form_valid(self, form):
-        """Security check complete. Log the user in."""
+        """
+        This is a comment
+        """
         auth_login(self.request, form.get_user())
         return HttpResponseRedirect(self.get_success_url())
 
     def get_context_data(self, **kwargs):
+        """
+        This is a comment
+        """
         context = super().get_context_data(**kwargs)
         current_site = get_current_site(self.request)
         context.update(
@@ -134,10 +160,15 @@ class LogoutView(RedirectURLMixin, TemplateView):
     @method_decorator(csrf_protect)
     @method_decorator(never_cache)
     def dispatch(self, request, *args, **kwargs):
+        """
+        This is a comment
+        """
         return super().dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        """Logout may be done via POST."""
+        """
+        This is a comment
+        """
         auth_logout(request)
         redirect_to = self.get_success_url()
         if redirect_to != request.get_full_path():
@@ -146,7 +177,9 @@ class LogoutView(RedirectURLMixin, TemplateView):
         return super().get(request, *args, **kwargs)
 
     def get_default_redirect_url(self):
-        """Return the default redirect URL."""
+        """
+        This is a comment
+        """
         if self.next_page:
             return resolve_url(self.next_page)
         elif settings.LOGOUT_REDIRECT_URL:
@@ -155,6 +188,9 @@ class LogoutView(RedirectURLMixin, TemplateView):
             return self.request.path
 
     def get_context_data(self, **kwargs):
+        """
+        This is a comment
+        """
         context = super().get_context_data(**kwargs)
         current_site = get_current_site(self.request)
         context.update(
@@ -171,7 +207,7 @@ class LogoutView(RedirectURLMixin, TemplateView):
 
 def logout_then_login(request, login_url=None):
     """
-    Log out the user if they are logged in. Then redirect to the login page.
+    This is a comment
     """
     login_url = resolve_url(login_url or settings.LOGIN_URL)
     return LogoutView.as_view(next_page=login_url)(request)
@@ -179,7 +215,7 @@ def logout_then_login(request, login_url=None):
 
 def redirect_to_login(next, login_url=None, redirect_field_name=REDIRECT_FIELD_NAME):
     """
-    Redirect the user to the login page, passing the given 'next' page.
+    This is a comment
     """
     resolved_url = resolve_url(login_url or settings.LOGIN_URL)
 
@@ -204,6 +240,9 @@ class PasswordContextMixin:
     extra_context = None
 
     def get_context_data(self, **kwargs):
+        """
+        This is a comment
+        """
         context = super().get_context_data(**kwargs)
         context.update(
             {"title": self.title, "subtitle": None, **(self.extra_context or {})}
@@ -226,9 +265,15 @@ class PasswordResetView(PasswordContextMixin, FormView):
 
     @method_decorator(csrf_protect)
     def dispatch(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         return super().dispatch(*args, **kwargs)
 
     def form_valid(self, form):
+        """
+        This is a comment
+        """
         opts = {
             "use_https": self.request.is_secure(),
             "token_generator": self.token_generator,
@@ -266,6 +311,9 @@ class PasswordResetConfirmView(PasswordContextMixin, FormView):
     @method_decorator(sensitive_post_parameters())
     @method_decorator(never_cache)
     def dispatch(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         if "uidb64" not in kwargs or "token" not in kwargs:
             raise ImproperlyConfigured(
                 "The URL path must contain 'uidb64' and 'token' parameters."
@@ -298,6 +346,9 @@ class PasswordResetConfirmView(PasswordContextMixin, FormView):
         return self.render_to_response(self.get_context_data())
 
     def get_user(self, uidb64):
+        """
+        This is a comment
+        """
         try:
             # urlsafe_base64_decode() decodes to bytestring
             uid = urlsafe_base64_decode(uidb64).decode()
@@ -313,11 +364,17 @@ class PasswordResetConfirmView(PasswordContextMixin, FormView):
         return user
 
     def get_form_kwargs(self):
+        """
+        This is a comment
+        """
         kwargs = super().get_form_kwargs()
         kwargs["user"] = self.user
         return kwargs
 
     def form_valid(self, form):
+        """
+        This is a comment
+        """
         user = form.save()
         del self.request.session[INTERNAL_RESET_SESSION_TOKEN]
         if self.post_reset_login:
@@ -325,6 +382,9 @@ class PasswordResetConfirmView(PasswordContextMixin, FormView):
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
+        """
+        This is a comment
+        """
         context = super().get_context_data(**kwargs)
         if self.validlink:
             context["validlink"] = True
@@ -345,6 +405,9 @@ class PasswordResetCompleteView(PasswordContextMixin, TemplateView):
     title = _("Password reset complete")
 
     def get_context_data(self, **kwargs):
+        """
+        This is a comment
+        """
         context = super().get_context_data(**kwargs)
         context["login_url"] = resolve_url(settings.LOGIN_URL)
         return context
@@ -360,14 +423,23 @@ class PasswordChangeView(PasswordContextMixin, FormView):
     @method_decorator(csrf_protect)
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         return super().dispatch(*args, **kwargs)
 
     def get_form_kwargs(self):
+        """
+        This is a comment
+        """
         kwargs = super().get_form_kwargs()
         kwargs["user"] = self.request.user
         return kwargs
 
     def form_valid(self, form):
+        """
+        This is a comment
+        """
         form.save()
         # Updating the password logs out all other sessions for the user
         # except the current one.
@@ -381,4 +453,7 @@ class PasswordChangeDoneView(PasswordContextMixin, TemplateView):
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         return super().dispatch(*args, **kwargs)

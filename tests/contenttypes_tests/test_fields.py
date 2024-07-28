@@ -13,18 +13,27 @@ from .models import Answer, Post, Question
 @isolate_apps("contenttypes_tests")
 class GenericForeignKeyTests(TestCase):
     def test_str(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             field = GenericForeignKey()
 
         self.assertEqual(str(Model.field), "contenttypes_tests.Model.field")
 
     def test_get_content_type_no_arguments(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(
             Exception, "Impossible arguments to GFK.get_content_type!"
         ):
             Answer.question.get_content_type()
 
     def test_get_object_cache_respects_deleted_objects(self):
+        """
+        This is a comment
+        """
         question = Question.objects.create(text="Who?")
         post = Post.objects.create(title="Answer", parent=question)
 
@@ -38,6 +47,9 @@ class GenericForeignKeyTests(TestCase):
             self.assertIsNone(post.parent)
 
     def test_clear_cached_generic_relation(self):
+        """
+        This is a comment
+        """
         question = Question.objects.create(text="What is your name?")
         answer = Answer.objects.create(text="Answer", question=question)
         old_entity = answer.question
@@ -46,6 +58,9 @@ class GenericForeignKeyTests(TestCase):
         self.assertIsNot(old_entity, new_entity)
 
     def test_clear_cached_generic_relation_explicit_fields(self):
+        """
+        This is a comment
+        """
         question = Question.objects.create(text="question")
         answer = Answer.objects.create(text="answer", question=question)
         old_question_obj = answer.question
@@ -60,6 +75,9 @@ class GenericForeignKeyTests(TestCase):
 
 class GenericRelationTests(TestCase):
     def test_value_to_string(self):
+        """
+        This is a comment
+        """
         question = Question.objects.create(text="test")
         answer1 = Answer.objects.create(question=question)
         answer2 = Answer.objects.create(question=question)
@@ -70,10 +88,16 @@ class GenericRelationTests(TestCase):
 class DeferredGenericRelationTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.question = Question.objects.create(text="question")
         cls.answer = Answer.objects.create(text="answer", question=cls.question)
 
     def test_defer_not_clear_cached_private_relations(self):
+        """
+        This is a comment
+        """
         obj = Answer.objects.defer("text").get(pk=self.answer.pk)
         with self.assertNumQueries(1):
             obj.question
@@ -82,6 +106,9 @@ class DeferredGenericRelationTests(TestCase):
             obj.question
 
     def test_only_not_clear_cached_private_relations(self):
+        """
+        This is a comment
+        """
         obj = Answer.objects.only("content_type", "object_id").get(pk=self.answer.pk)
         with self.assertNumQueries(1):
             obj.question
@@ -92,6 +119,9 @@ class DeferredGenericRelationTests(TestCase):
 
 class GetPrefetchQuerySetDeprecation(TestCase):
     def test_generic_relation_warning(self):
+        """
+        This is a comment
+        """
         Question.objects.create(text="test")
         questions = Question.objects.all()
         msg = (
@@ -102,6 +132,9 @@ class GetPrefetchQuerySetDeprecation(TestCase):
             questions[0].answer_set.get_prefetch_queryset(questions)
 
     def test_generic_foreign_key_warning(self):
+        """
+        This is a comment
+        """
         answers = Answer.objects.all()
         msg = (
             "get_prefetch_queryset() is deprecated. Use get_prefetch_querysets() "
@@ -113,6 +146,9 @@ class GetPrefetchQuerySetDeprecation(TestCase):
 
 class GetPrefetchQuerySetsTests(TestCase):
     def test_duplicate_querysets(self):
+        """
+        This is a comment
+        """
         question = Question.objects.create(text="What is your name?")
         answer = Answer.objects.create(text="Joe", question=question)
         answer = Answer.objects.get(pk=answer.pk)
@@ -130,6 +166,9 @@ class GetPrefetchQuerySetsTests(TestCase):
             )
 
     def test_generic_relation_invalid_length(self):
+        """
+        This is a comment
+        """
         Question.objects.create(text="test")
         questions = Question.objects.all()
         msg = (

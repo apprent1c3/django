@@ -12,6 +12,9 @@ class TimeuntilTests(TimezoneTestCase):
     # Default compare with datetime.now()
     @setup({"timeuntil01": "{{ a|timeuntil }}"})
     def test_timeuntil01(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "timeuntil01", {"a": datetime.now() + timedelta(minutes=2, seconds=10)}
         )
@@ -19,6 +22,9 @@ class TimeuntilTests(TimezoneTestCase):
 
     @setup({"timeuntil02": "{{ a|timeuntil }}"})
     def test_timeuntil02(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "timeuntil02", {"a": (datetime.now() + timedelta(days=1, seconds=10))}
         )
@@ -26,6 +32,9 @@ class TimeuntilTests(TimezoneTestCase):
 
     @setup({"timeuntil03": "{{ a|timeuntil }}"})
     def test_timeuntil03(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "timeuntil03",
             {"a": (datetime.now() + timedelta(hours=8, minutes=10, seconds=10))},
@@ -35,6 +44,9 @@ class TimeuntilTests(TimezoneTestCase):
     # Compare to a given parameter
     @setup({"timeuntil04": "{{ a|timeuntil:b }}"})
     def test_timeuntil04(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "timeuntil04",
             {"a": self.now - timedelta(days=1), "b": self.now - timedelta(days=2)},
@@ -43,6 +55,9 @@ class TimeuntilTests(TimezoneTestCase):
 
     @setup({"timeuntil05": "{{ a|timeuntil:b }}"})
     def test_timeuntil05(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "timeuntil05",
             {
@@ -55,6 +70,9 @@ class TimeuntilTests(TimezoneTestCase):
     # Regression for #7443
     @setup({"timeuntil06": "{{ earlier|timeuntil }}"})
     def test_timeuntil06(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "timeuntil06", {"earlier": self.now - timedelta(days=7)}
         )
@@ -62,6 +80,9 @@ class TimeuntilTests(TimezoneTestCase):
 
     @setup({"timeuntil07": "{{ earlier|timeuntil:now }}"})
     def test_timeuntil07(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "timeuntil07", {"now": self.now, "earlier": self.now - timedelta(days=7)}
         )
@@ -69,6 +90,9 @@ class TimeuntilTests(TimezoneTestCase):
 
     @setup({"timeuntil08": "{{ later|timeuntil }}"})
     def test_timeuntil08(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "timeuntil08", {"later": self.now + timedelta(days=7, hours=1)}
         )
@@ -76,6 +100,9 @@ class TimeuntilTests(TimezoneTestCase):
 
     @setup({"timeuntil09": "{{ later|timeuntil:now }}"})
     def test_timeuntil09(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "timeuntil09", {"now": self.now, "later": self.now + timedelta(days=7)}
         )
@@ -85,17 +112,26 @@ class TimeuntilTests(TimezoneTestCase):
     @requires_tz_support
     @setup({"timeuntil10": "{{ a|timeuntil }}"})
     def test_timeuntil10(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("timeuntil10", {"a": self.now_tz})
         self.assertEqual(output, "0\xa0minutes")
 
     @requires_tz_support
     @setup({"timeuntil11": "{{ a|timeuntil }}"})
     def test_timeuntil11(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("timeuntil11", {"a": self.now_tz_i})
         self.assertEqual(output, "0\xa0minutes")
 
     @setup({"timeuntil12": "{{ a|timeuntil:b }}"})
     def test_timeuntil12(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "timeuntil12", {"a": self.now_tz_i, "b": self.now_tz}
         )
@@ -104,6 +140,9 @@ class TimeuntilTests(TimezoneTestCase):
     # Regression for #9065 (two date objects).
     @setup({"timeuntil13": "{{ a|timeuntil:b }}"})
     def test_timeuntil13(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "timeuntil13", {"a": self.today, "b": self.today}
         )
@@ -111,6 +150,9 @@ class TimeuntilTests(TimezoneTestCase):
 
     @setup({"timeuntil14": "{{ a|timeuntil:b }}"})
     def test_timeuntil14(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "timeuntil14", {"a": self.today, "b": self.today - timedelta(hours=24)}
         )
@@ -118,6 +160,9 @@ class TimeuntilTests(TimezoneTestCase):
 
     @setup({"timeuntil15": "{{ a|timeuntil:b }}"})
     def test_naive_aware_type_error(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "timeuntil15", {"a": self.now, "b": self.now_tz_i}
         )
@@ -125,6 +170,9 @@ class TimeuntilTests(TimezoneTestCase):
 
     @setup({"timeuntil16": "{{ a|timeuntil:b }}"})
     def test_aware_naive_type_error(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "timeuntil16", {"a": self.now_tz_i, "b": self.now}
         )
@@ -133,12 +181,21 @@ class TimeuntilTests(TimezoneTestCase):
 
 class FunctionTests(SimpleTestCase):
     def test_until_now(self):
+        """
+        This is a comment
+        """
         self.assertEqual(timeuntil_filter(datetime.now() + timedelta(1, 1)), "1\xa0day")
 
     def test_no_args(self):
+        """
+        This is a comment
+        """
         self.assertEqual(timeuntil_filter(None), "")
 
     def test_explicit_date(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             timeuntil_filter(datetime(2005, 12, 30), datetime(2005, 12, 29)), "1\xa0day"
         )

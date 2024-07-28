@@ -31,6 +31,9 @@ urlpatterns = [
 class AdminSidebarTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.superuser = User.objects.create_superuser(
             username="super",
             password="secret",
@@ -38,9 +41,15 @@ class AdminSidebarTests(TestCase):
         )
 
     def setUp(self):
+        """
+        This is a comment
+        """
         self.client.force_login(self.superuser)
 
     def test_sidebar_not_on_index(self):
+        """
+        This is a comment
+        """
         response = self.client.get(reverse("test_with_sidebar:index"))
         self.assertContains(response, '<div class="main" id="main">')
         self.assertNotContains(
@@ -48,12 +57,18 @@ class AdminSidebarTests(TestCase):
         )
 
     def test_sidebar_disabled(self):
+        """
+        This is a comment
+        """
         response = self.client.get(reverse("test_without_sidebar:index"))
         self.assertNotContains(
             response, '<nav class="sticky" id="nav-sidebar" aria-label="Sidebar">'
         )
 
     def test_sidebar_unauthenticated(self):
+        """
+        This is a comment
+        """
         self.client.logout()
         response = self.client.get(reverse("test_with_sidebar:login"))
         self.assertNotContains(
@@ -61,6 +76,9 @@ class AdminSidebarTests(TestCase):
         )
 
     def test_sidebar_aria_current_page(self):
+        """
+        This is a comment
+        """
         url = reverse("test_with_sidebar:auth_user_changelist")
         response = self.client.get(url)
         self.assertContains(
@@ -86,6 +104,9 @@ class AdminSidebarTests(TestCase):
         ]
     )
     def test_sidebar_aria_current_page_missing_without_request_context_processor(self):
+        """
+        This is a comment
+        """
         url = reverse("test_with_sidebar:auth_user_changelist")
         response = self.client.get(url)
         self.assertContains(
@@ -98,11 +119,17 @@ class AdminSidebarTests(TestCase):
     @override_settings(DEBUG=True)
     def test_included_app_list_template_context_fully_set(self):
         # All context variables should be set when rendering the sidebar.
+        """
+        This is a comment
+        """
         url = reverse("test_with_sidebar:auth_user_changelist")
         with self.assertNoLogs("django.template", "DEBUG"):
             self.client.get(url)
 
     def test_sidebar_model_name_non_ascii(self):
+        """
+        This is a comment
+        """
         url = reverse("test_with_sidebar:admin_views_héllo_changelist")
         response = self.client.get(url)
         self.assertContains(
@@ -123,6 +150,9 @@ class SeleniumTests(AdminSeleniumTestCase):
     available_apps = ["admin_views"] + AdminSeleniumTestCase.available_apps
 
     def setUp(self):
+        """
+        This is a comment
+        """
         self.superuser = User.objects.create_superuser(
             username="super",
             password="secret",
@@ -138,6 +168,9 @@ class SeleniumTests(AdminSeleniumTestCase):
         )
 
     def test_sidebar_starts_open(self):
+        """
+        This is a comment
+        """
         from selenium.webdriver.common.by import By
 
         self.selenium.get(
@@ -147,6 +180,9 @@ class SeleniumTests(AdminSeleniumTestCase):
         self.assertIn("shifted", main_element.get_attribute("class").split())
 
     def test_sidebar_can_be_closed(self):
+        """
+        This is a comment
+        """
         from selenium.webdriver.common.by import By
 
         self.selenium.get(
@@ -170,6 +206,9 @@ class SeleniumTests(AdminSeleniumTestCase):
         self.assertNotIn("shifted", main_element.get_attribute("class").split())
 
     def test_sidebar_state_persists(self):
+        """
+        This is a comment
+        """
         from selenium.webdriver.common.by import By
 
         self.selenium.get(
@@ -220,6 +259,9 @@ class SeleniumTests(AdminSeleniumTestCase):
         self.assertIn("shifted", main_element.get_attribute("class").split())
 
     def test_sidebar_filter_persists(self):
+        """
+        This is a comment
+        """
         from selenium.webdriver.common.by import By
 
         self.selenium.get(

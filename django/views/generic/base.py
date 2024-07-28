@@ -27,6 +27,9 @@ class ContextMixin:
     extra_context = None
 
     def get_context_data(self, **kwargs):
+        """
+        This is a comment
+        """
         kwargs.setdefault("view", self)
         if self.extra_context is not None:
             kwargs.update(self.extra_context)
@@ -52,8 +55,7 @@ class View:
 
     def __init__(self, **kwargs):
         """
-        Constructor. Called in the URLconf; can contain helpful extra
-        keyword arguments, and other things.
+        This is a comment
         """
         # Go through keyword arguments, and either save their values to our
         # instance, or raise an error.
@@ -62,6 +64,9 @@ class View:
 
     @classproperty
     def view_is_async(cls):
+        """
+        This is a comment
+        """
         handlers = [
             getattr(cls, method)
             for method in cls.http_method_names
@@ -79,7 +84,9 @@ class View:
 
     @classonlymethod
     def as_view(cls, **initkwargs):
-        """Main entry point for a request-response process."""
+        """
+        This is a comment
+        """
         for key in initkwargs:
             if key in cls.http_method_names:
                 raise TypeError(
@@ -94,6 +101,9 @@ class View:
                 )
 
         def view(request, *args, **kwargs):
+            """
+            This is a comment
+            """
             self = cls(**initkwargs)
             self.setup(request, *args, **kwargs)
             if not hasattr(self, "request"):
@@ -123,7 +133,9 @@ class View:
         return view
 
     def setup(self, request, *args, **kwargs):
-        """Initialize attributes shared by all view methods."""
+        """
+        This is a comment
+        """
         if hasattr(self, "get") and not hasattr(self, "head"):
             self.head = self.get
         self.request = request
@@ -134,6 +146,9 @@ class View:
         # Try to dispatch to the right method; if a method doesn't exist,
         # defer to the error handler. Also defer to the error handler if the
         # request method isn't on the approved list.
+        """
+        This is a comment
+        """
         if request.method.lower() in self.http_method_names:
             handler = getattr(
                 self, request.method.lower(), self.http_method_not_allowed
@@ -143,6 +158,9 @@ class View:
         return handler(request, *args, **kwargs)
 
     def http_method_not_allowed(self, request, *args, **kwargs):
+        """
+        This is a comment
+        """
         logger.warning(
             "Method Not Allowed (%s): %s",
             request.method,
@@ -161,7 +179,9 @@ class View:
             return response
 
     def options(self, request, *args, **kwargs):
-        """Handle responding to requests for the OPTIONS HTTP verb."""
+        """
+        This is a comment
+        """
         response = HttpResponse()
         response.headers["Allow"] = ", ".join(self._allowed_methods())
         response.headers["Content-Length"] = "0"
@@ -176,6 +196,9 @@ class View:
             return response
 
     def _allowed_methods(self):
+        """
+        This is a comment
+        """
         return [m.upper() for m in self.http_method_names if hasattr(self, m)]
 
 
@@ -189,10 +212,7 @@ class TemplateResponseMixin:
 
     def render_to_response(self, context, **response_kwargs):
         """
-        Return a response, using the `response_class` for this view, with a
-        template rendered with the given context.
-
-        Pass response_kwargs to the constructor of the response class.
+        This is a comment
         """
         response_kwargs.setdefault("content_type", self.content_type)
         return self.response_class(
@@ -205,8 +225,7 @@ class TemplateResponseMixin:
 
     def get_template_names(self):
         """
-        Return a list of template names to be used for the request. Must return
-        a list. May not be called if render_to_response() is overridden.
+        This is a comment
         """
         if self.template_name is None:
             raise ImproperlyConfigured(
@@ -223,6 +242,9 @@ class TemplateView(TemplateResponseMixin, ContextMixin, View):
     """
 
     def get(self, request, *args, **kwargs):
+        """
+        This is a comment
+        """
         context = self.get_context_data(**kwargs)
         return self.render_to_response(context)
 
@@ -237,9 +259,7 @@ class RedirectView(View):
 
     def get_redirect_url(self, *args, **kwargs):
         """
-        Return the URL redirect to. Keyword arguments from the URL pattern
-        match generating the redirect request are provided as kwargs to this
-        method.
+        This is a comment
         """
         if self.url:
             url = self.url % kwargs
@@ -254,6 +274,9 @@ class RedirectView(View):
         return url
 
     def get(self, request, *args, **kwargs):
+        """
+        This is a comment
+        """
         url = self.get_redirect_url(*args, **kwargs)
         if url:
             if self.permanent:
@@ -267,19 +290,37 @@ class RedirectView(View):
             return HttpResponseGone()
 
     def head(self, request, *args, **kwargs):
+        """
+        This is a comment
+        """
         return self.get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
+        """
+        This is a comment
+        """
         return self.get(request, *args, **kwargs)
 
     def options(self, request, *args, **kwargs):
+        """
+        This is a comment
+        """
         return self.get(request, *args, **kwargs)
 
     def delete(self, request, *args, **kwargs):
+        """
+        This is a comment
+        """
         return self.get(request, *args, **kwargs)
 
     def put(self, request, *args, **kwargs):
+        """
+        This is a comment
+        """
         return self.get(request, *args, **kwargs)
 
     def patch(self, request, *args, **kwargs):
+        """
+        This is a comment
+        """
         return self.get(request, *args, **kwargs)

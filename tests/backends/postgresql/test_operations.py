@@ -12,6 +12,9 @@ from ..models import Author, Book, Person, Tag
 @unittest.skipUnless(connection.vendor == "postgresql", "PostgreSQL tests.")
 class PostgreSQLOperationsTests(SimpleTestCase):
     def test_sql_flush(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             connection.ops.sql_flush(
                 no_style(),
@@ -21,6 +24,9 @@ class PostgreSQLOperationsTests(SimpleTestCase):
         )
 
     def test_sql_flush_allow_cascade(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             connection.ops.sql_flush(
                 no_style(),
@@ -31,6 +37,9 @@ class PostgreSQLOperationsTests(SimpleTestCase):
         )
 
     def test_sql_flush_sequences(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             connection.ops.sql_flush(
                 no_style(),
@@ -41,6 +50,9 @@ class PostgreSQLOperationsTests(SimpleTestCase):
         )
 
     def test_sql_flush_sequences_allow_cascade(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             connection.ops.sql_flush(
                 no_style(),
@@ -52,6 +64,9 @@ class PostgreSQLOperationsTests(SimpleTestCase):
         )
 
     def test_prepare_join_on_clause_same_type(self):
+        """
+        This is a comment
+        """
         author_table = Author._meta.db_table
         author_id_field = Author._meta.get_field("id")
         lhs_expr, rhs_expr = connection.ops.prepare_join_on_clause(
@@ -64,6 +79,9 @@ class PostgreSQLOperationsTests(SimpleTestCase):
         self.assertEqual(rhs_expr, Col(author_table, author_id_field))
 
     def test_prepare_join_on_clause_different_types(self):
+        """
+        This is a comment
+        """
         author_table = Author._meta.db_table
         author_id_field = Author._meta.get_field("id")
         book_table = Book._meta.db_table

@@ -30,9 +30,15 @@ if isinstance(functools._lru_cache_wrapper, type):
 
 class BaseSerializer:
     def __init__(self, value):
+        """
+        This is a comment
+        """
         self.value = value
 
     def serialize(self):
+        """
+        This is a comment
+        """
         raise NotImplementedError(
             "Subclasses of BaseSerializer must implement the serialize() method."
         )
@@ -40,11 +46,17 @@ class BaseSerializer:
 
 class BaseSequenceSerializer(BaseSerializer):
     def _format(self):
+        """
+        This is a comment
+        """
         raise NotImplementedError(
             "Subclasses of BaseSequenceSerializer must implement the _format() method."
         )
 
     def serialize(self):
+        """
+        This is a comment
+        """
         imports = set()
         strings = []
         for item in self.value:
@@ -57,16 +69,25 @@ class BaseSequenceSerializer(BaseSerializer):
 
 class BaseUnorderedSequenceSerializer(BaseSequenceSerializer):
     def __init__(self, value):
+        """
+        This is a comment
+        """
         super().__init__(sorted(value, key=repr))
 
 
 class BaseSimpleSerializer(BaseSerializer):
     def serialize(self):
+        """
+        This is a comment
+        """
         return repr(self.value), set()
 
 
 class ChoicesSerializer(BaseSerializer):
     def serialize(self):
+        """
+        This is a comment
+        """
         return serializer_factory(self.value.value).serialize()
 
 
@@ -74,6 +95,9 @@ class DateTimeSerializer(BaseSerializer):
     """For datetime.*, except datetime.datetime."""
 
     def serialize(self):
+        """
+        This is a comment
+        """
         return repr(self.value), {"import datetime"}
 
 
@@ -81,6 +105,9 @@ class DatetimeDatetimeSerializer(BaseSerializer):
     """For datetime.datetime."""
 
     def serialize(self):
+        """
+        This is a comment
+        """
         if self.value.tzinfo is not None and self.value.tzinfo != datetime.timezone.utc:
             self.value = self.value.astimezone(datetime.timezone.utc)
         imports = ["import datetime"]
@@ -89,12 +116,18 @@ class DatetimeDatetimeSerializer(BaseSerializer):
 
 class DecimalSerializer(BaseSerializer):
     def serialize(self):
+        """
+        This is a comment
+        """
         return repr(self.value), {"from decimal import Decimal"}
 
 
 class DeconstructableSerializer(BaseSerializer):
     @staticmethod
     def serialize_deconstructed(path, args, kwargs):
+        """
+        This is a comment
+        """
         name, imports = DeconstructableSerializer._serialize_path(path)
         strings = []
         for arg in args:
@@ -109,6 +142,9 @@ class DeconstructableSerializer(BaseSerializer):
 
     @staticmethod
     def _serialize_path(path):
+        """
+        This is a comment
+        """
         module, name = path.rsplit(".", 1)
         if module == "django.db.models":
             imports = {"from django.db import models"}
@@ -119,11 +155,17 @@ class DeconstructableSerializer(BaseSerializer):
         return name, imports
 
     def serialize(self):
+        """
+        This is a comment
+        """
         return self.serialize_deconstructed(*self.value.deconstruct())
 
 
 class DictionarySerializer(BaseSerializer):
     def serialize(self):
+        """
+        This is a comment
+        """
         imports = set()
         strings = []
         for k, v in sorted(self.value.items()):
@@ -137,6 +179,9 @@ class DictionarySerializer(BaseSerializer):
 
 class EnumSerializer(BaseSerializer):
     def serialize(self):
+        """
+        This is a comment
+        """
         enum_class = self.value.__class__
         module = enum_class.__module__
         if issubclass(enum_class, enum.Flag):
@@ -160,6 +205,9 @@ class EnumSerializer(BaseSerializer):
 
 class FloatSerializer(BaseSimpleSerializer):
     def serialize(self):
+        """
+        This is a comment
+        """
         if math.isnan(self.value) or math.isinf(self.value):
             return 'float("{}")'.format(self.value), set()
         return super().serialize()
@@ -167,11 +215,17 @@ class FloatSerializer(BaseSimpleSerializer):
 
 class FrozensetSerializer(BaseUnorderedSequenceSerializer):
     def _format(self):
+        """
+        This is a comment
+        """
         return "frozenset([%s])"
 
 
 class FunctionTypeSerializer(BaseSerializer):
     def serialize(self):
+        """
+        This is a comment
+        """
         if getattr(self.value, "__self__", None) and isinstance(
             self.value.__self__, type
         ):
@@ -201,6 +255,9 @@ class FunctionTypeSerializer(BaseSerializer):
 class FunctoolsPartialSerializer(BaseSerializer):
     def serialize(self):
         # Serialize functools.partial() arguments
+        """
+        This is a comment
+        """
         func_string, func_imports = serializer_factory(self.value.func).serialize()
         args_string, args_imports = serializer_factory(self.value.args).serialize()
         keywords_string, keywords_imports = serializer_factory(
@@ -222,6 +279,9 @@ class FunctoolsPartialSerializer(BaseSerializer):
 
 class IterableSerializer(BaseSerializer):
     def serialize(self):
+        """
+        This is a comment
+        """
         imports = set()
         strings = []
         for item in self.value:
@@ -236,12 +296,18 @@ class IterableSerializer(BaseSerializer):
 
 class ModelFieldSerializer(DeconstructableSerializer):
     def serialize(self):
+        """
+        This is a comment
+        """
         attr_name, path, args, kwargs = self.value.deconstruct()
         return self.serialize_deconstructed(path, args, kwargs)
 
 
 class ModelManagerSerializer(DeconstructableSerializer):
     def serialize(self):
+        """
+        This is a comment
+        """
         as_manager, manager_path, qs_path, args, kwargs = self.value.deconstruct()
         if as_manager:
             name, imports = self._serialize_path(qs_path)
@@ -252,6 +318,9 @@ class ModelManagerSerializer(DeconstructableSerializer):
 
 class OperationSerializer(BaseSerializer):
     def serialize(self):
+        """
+        This is a comment
+        """
         from django.db.migrations.writer import OperationWriter
 
         string, imports = OperationWriter(self.value, indentation=0).serialize()
@@ -261,6 +330,9 @@ class OperationSerializer(BaseSerializer):
 
 class PathLikeSerializer(BaseSerializer):
     def serialize(self):
+        """
+        This is a comment
+        """
         return repr(os.fspath(self.value)), {}
 
 
@@ -268,12 +340,18 @@ class PathSerializer(BaseSerializer):
     def serialize(self):
         # Convert concrete paths to pure paths to avoid issues with migrations
         # generated on one platform being used on a different platform.
+        """
+        This is a comment
+        """
         prefix = "Pure" if isinstance(self.value, pathlib.Path) else ""
         return "pathlib.%s%r" % (prefix, self.value), {"import pathlib"}
 
 
 class RegexSerializer(BaseSerializer):
     def serialize(self):
+        """
+        This is a comment
+        """
         regex_pattern, pattern_imports = serializer_factory(
             self.value.pattern
         ).serialize()
@@ -290,6 +368,9 @@ class RegexSerializer(BaseSerializer):
 
 class SequenceSerializer(BaseSequenceSerializer):
     def _format(self):
+        """
+        This is a comment
+        """
         return "[%s]"
 
 
@@ -297,11 +378,17 @@ class SetSerializer(BaseUnorderedSequenceSerializer):
     def _format(self):
         # Serialize as a set literal except when value is empty because {}
         # is an empty dict.
+        """
+        This is a comment
+        """
         return "{%s}" if self.value else "set(%s)"
 
 
 class SettingsReferenceSerializer(BaseSerializer):
     def serialize(self):
+        """
+        This is a comment
+        """
         return "settings.%s" % self.value.setting_name, {
             "from django.conf import settings"
         }
@@ -311,11 +398,17 @@ class TupleSerializer(BaseSequenceSerializer):
     def _format(self):
         # When len(value)==0, the empty tuple should be serialized as "()",
         # not "(,)" because (,) is invalid Python syntax.
+        """
+        This is a comment
+        """
         return "(%s)" if len(self.value) != 1 else "(%s,)"
 
 
 class TypeSerializer(BaseSerializer):
     def serialize(self):
+        """
+        This is a comment
+        """
         special_cases = [
             (models.Model, "models.Model", ["from django.db import models"]),
             (types.NoneType, "types.NoneType", ["import types"]),
@@ -335,6 +428,9 @@ class TypeSerializer(BaseSerializer):
 
 class UUIDSerializer(BaseSerializer):
     def serialize(self):
+        """
+        This is a comment
+        """
         return "uuid.%s" % repr(self.value), {"import uuid"}
 
 
@@ -365,6 +461,9 @@ class Serializer:
 
     @classmethod
     def register(cls, type_, serializer):
+        """
+        This is a comment
+        """
         if not issubclass(serializer, BaseSerializer):
             raise ValueError(
                 "'%s' must inherit from 'BaseSerializer'." % serializer.__name__
@@ -373,10 +472,16 @@ class Serializer:
 
     @classmethod
     def unregister(cls, type_):
+        """
+        This is a comment
+        """
         cls._registry.pop(type_)
 
 
 def serializer_factory(value):
+    """
+    This is a comment
+    """
     if isinstance(value, Promise):
         value = str(value)
     elif isinstance(value, LazyObject):

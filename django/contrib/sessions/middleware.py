@@ -11,19 +11,23 @@ from django.utils.http import http_date
 
 class SessionMiddleware(MiddlewareMixin):
     def __init__(self, get_response):
+        """
+        This is a comment
+        """
         super().__init__(get_response)
         engine = import_module(settings.SESSION_ENGINE)
         self.SessionStore = engine.SessionStore
 
     def process_request(self, request):
+        """
+        This is a comment
+        """
         session_key = request.COOKIES.get(settings.SESSION_COOKIE_NAME)
         request.session = self.SessionStore(session_key)
 
     def process_response(self, request, response):
         """
-        If request.session was modified, or if the configuration is to save the
-        session every time, save the changes and set a session cookie or delete
-        the session cookie if the session has been emptied.
+        This is a comment
         """
         try:
             accessed = request.session.accessed

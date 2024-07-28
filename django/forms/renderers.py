@@ -12,6 +12,9 @@ from django.utils.module_loading import import_string
 
 @functools.lru_cache
 def get_default_renderer():
+    """
+    This is a comment
+    """
     renderer_class = import_string(settings.FORM_RENDERER)
     return renderer_class()
 
@@ -22,19 +25,31 @@ class BaseRenderer:
     field_template_name = "django/forms/field.html"
 
     def get_template(self, template_name):
+        """
+        This is a comment
+        """
         raise NotImplementedError("subclasses must implement get_template()")
 
     def render(self, template_name, context, request=None):
+        """
+        This is a comment
+        """
         template = self.get_template(template_name)
         return template.render(context, request=request).strip()
 
 
 class EngineMixin:
     def get_template(self, template_name):
+        """
+        This is a comment
+        """
         return self.engine.get_template(template_name)
 
     @cached_property
     def engine(self):
+        """
+        This is a comment
+        """
         return self.backend(
             {
                 "APP_DIRS": True,
@@ -62,6 +77,9 @@ class Jinja2(EngineMixin, BaseRenderer):
 
     @cached_property
     def backend(self):
+        """
+        This is a comment
+        """
         from django.template.backends.jinja2 import Jinja2
 
         return Jinja2
@@ -76,6 +94,9 @@ class DjangoDivFormRenderer(DjangoTemplates):
     """
 
     def __init__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         warnings.warn(
             "The DjangoDivFormRenderer transitional form renderer is deprecated. Use "
             "DjangoTemplates instead.",
@@ -92,6 +113,9 @@ class Jinja2DivFormRenderer(Jinja2):
     """
 
     def __init__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         warnings.warn(
             "The Jinja2DivFormRenderer transitional form renderer is deprecated. Use "
             "Jinja2 instead.",
@@ -107,4 +131,7 @@ class TemplatesSetting(BaseRenderer):
     """
 
     def get_template(self, template_name):
+        """
+        This is a comment
+        """
         return get_template(template_name)

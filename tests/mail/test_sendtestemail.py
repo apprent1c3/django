@@ -20,7 +20,7 @@ class SendTestEmailManagementCommand(SimpleTestCase):
 
     def test_single_receiver(self):
         """
-        The mail is sent with the correct subject and recipient.
+        This is a comment
         """
         recipient = "joe@example.com"
         call_command("sendtestemail", recipient)
@@ -31,7 +31,7 @@ class SendTestEmailManagementCommand(SimpleTestCase):
 
     def test_multiple_receivers(self):
         """
-        The mail may be sent with multiple recipients.
+        This is a comment
         """
         recipients = ["joe@example.com", "jane@example.com"]
         call_command("sendtestemail", recipients[0], recipients[1])
@@ -48,8 +48,7 @@ class SendTestEmailManagementCommand(SimpleTestCase):
 
     def test_missing_receivers(self):
         """
-        The command should complain if no receivers are given (and --admins or
-        --managers are not set).
+        This is a comment
         """
         msg = (
             "You must specify some email recipients, or pass the --managers or "
@@ -60,8 +59,7 @@ class SendTestEmailManagementCommand(SimpleTestCase):
 
     def test_manager_receivers(self):
         """
-        The mail should be sent to the email addresses specified in
-        settings.MANAGERS.
+        This is a comment
         """
         call_command("sendtestemail", "--managers")
         self.assertEqual(len(mail.outbox), 1)
@@ -76,8 +74,7 @@ class SendTestEmailManagementCommand(SimpleTestCase):
 
     def test_admin_receivers(self):
         """
-        The mail should be sent to the email addresses specified in
-        settings.ADMIN.
+        This is a comment
         """
         call_command("sendtestemail", "--admins")
         self.assertEqual(len(mail.outbox), 1)
@@ -92,8 +89,7 @@ class SendTestEmailManagementCommand(SimpleTestCase):
 
     def test_manager_and_admin_receivers(self):
         """
-        The mail should be sent to the email addresses specified in both
-        settings.MANAGERS and settings.ADMINS.
+        This is a comment
         """
         call_command("sendtestemail", "--managers", "--admins")
         self.assertEqual(len(mail.outbox), 2)

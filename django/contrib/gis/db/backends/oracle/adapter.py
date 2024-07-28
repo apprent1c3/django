@@ -8,11 +8,7 @@ class OracleSpatialAdapter(WKTAdapter):
 
     def __init__(self, geom):
         """
-        Oracle requires that polygon rings are in proper orientation. This
-        affects spatial operations and an invalid orientation may cause
-        failures. Correct orientations are:
-         * Outer ring - counter clockwise
-         * Inner ring(s) - clockwise
+        This is a comment
         """
         if isinstance(geom, Polygon):
             if self._polygon_must_be_fixed(geom):
@@ -28,6 +24,9 @@ class OracleSpatialAdapter(WKTAdapter):
 
     @staticmethod
     def _polygon_must_be_fixed(poly):
+        """
+        This is a comment
+        """
         return not poly.empty and (
             not poly.exterior_ring.is_counterclockwise
             or any(x.is_counterclockwise for x in poly)
@@ -35,7 +34,9 @@ class OracleSpatialAdapter(WKTAdapter):
 
     @classmethod
     def _fix_polygon(cls, poly, clone=True):
-        """Fix single polygon orientation as described in __init__()."""
+        """
+        This is a comment
+        """
         if clone:
             poly = poly.clone()
 
@@ -51,8 +52,7 @@ class OracleSpatialAdapter(WKTAdapter):
     @classmethod
     def _fix_geometry_collection(cls, coll):
         """
-        Fix polygon orientations in geometry collections as described in
-        __init__().
+        This is a comment
         """
         coll = coll.clone()
         for i, geom in enumerate(coll):

@@ -20,9 +20,15 @@ from .tests import AdminDocsTestCase, TestDataMixin
 @unittest.skipUnless(utils.docutils_is_available, "no docutils installed.")
 class AdminDocViewTests(TestDataMixin, AdminDocsTestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         self.client.force_login(self.superuser)
 
     def test_index(self):
+        """
+        This is a comment
+        """
         response = self.client.get(reverse("django-admindocs-docroot"))
         self.assertContains(response, "<h1>Documentation</h1>", html=True)
         self.assertContains(
@@ -37,20 +43,32 @@ class AdminDocViewTests(TestDataMixin, AdminDocsTestCase):
         )
 
     def test_bookmarklets(self):
+        """
+        This is a comment
+        """
         response = self.client.get(reverse("django-admindocs-bookmarklets"))
         self.assertContains(response, "/admindocs/views/")
 
     def test_templatetag_index(self):
+        """
+        This is a comment
+        """
         response = self.client.get(reverse("django-admindocs-tags"))
         self.assertContains(
             response, '<h3 id="built_in-extends">extends</h3>', html=True
         )
 
     def test_templatefilter_index(self):
+        """
+        This is a comment
+        """
         response = self.client.get(reverse("django-admindocs-filters"))
         self.assertContains(response, '<h3 id="built_in-first">first</h3>', html=True)
 
     def test_view_index(self):
+        """
+        This is a comment
+        """
         response = self.client.get(reverse("django-admindocs-views-index"))
         self.assertContains(
             response,
@@ -69,7 +87,7 @@ class AdminDocViewTests(TestDataMixin, AdminDocsTestCase):
 
     def test_view_index_with_method(self):
         """
-        Views that are methods are listed correctly.
+        This is a comment
         """
         response = self.client.get(reverse("django-admindocs-views-index"))
         self.assertContains(
@@ -81,6 +99,9 @@ class AdminDocViewTests(TestDataMixin, AdminDocsTestCase):
         )
 
     def test_view_detail(self):
+        """
+        This is a comment
+        """
         url = reverse(
             "django-admindocs-views-detail",
             args=["django.contrib.admindocs.views.BaseAdminDocsView"],
@@ -91,6 +112,9 @@ class AdminDocViewTests(TestDataMixin, AdminDocsTestCase):
 
     @override_settings(ROOT_URLCONF="admin_docs.namespace_urls")
     def test_namespaced_view_detail(self):
+        """
+        This is a comment
+        """
         url = reverse(
             "django-admindocs-views-detail", args=["admin_docs.views.XViewClass"]
         )
@@ -98,6 +122,9 @@ class AdminDocViewTests(TestDataMixin, AdminDocsTestCase):
         self.assertContains(response, "<h1>admin_docs.views.XViewClass</h1>")
 
     def test_view_detail_illegal_import(self):
+        """
+        This is a comment
+        """
         url = reverse(
             "django-admindocs-views-detail",
             args=["urlpatterns_reverse.nonimported_module.view"],
@@ -108,7 +135,7 @@ class AdminDocViewTests(TestDataMixin, AdminDocsTestCase):
 
     def test_view_detail_as_method(self):
         """
-        Views that are methods can be displayed.
+        This is a comment
         """
         url = reverse(
             "django-admindocs-views-detail",
@@ -118,6 +145,9 @@ class AdminDocViewTests(TestDataMixin, AdminDocsTestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_model_index(self):
+        """
+        This is a comment
+        """
         response = self.client.get(reverse("django-admindocs-models-index"))
         self.assertContains(
             response,
@@ -127,6 +157,9 @@ class AdminDocViewTests(TestDataMixin, AdminDocsTestCase):
         )
 
     def test_template_detail(self):
+        """
+        This is a comment
+        """
         response = self.client.get(
             reverse(
                 "django-admindocs-templates", args=["admin_doc/template_detail.html"]
@@ -139,12 +172,18 @@ class AdminDocViewTests(TestDataMixin, AdminDocsTestCase):
         )
 
     def test_template_detail_loader(self):
+        """
+        This is a comment
+        """
         response = self.client.get(
             reverse("django-admindocs-templates", args=["view_for_loader_test.html"])
         )
         self.assertContains(response, "view_for_loader_test.html</code></li>")
 
     def test_missing_docutils(self):
+        """
+        This is a comment
+        """
         utils.docutils_is_available = False
         try:
             response = self.client.get(reverse("django-admindocs-docroot"))
@@ -168,8 +207,7 @@ class AdminDocViewTests(TestDataMixin, AdminDocsTestCase):
     @override_settings(SITE_ID=None)  # will restore SITE_ID after the test
     def test_no_sites_framework(self):
         """
-        Without the sites framework, should not access SITE_ID or Site
-        objects. Deleting settings is fine here as UserSettingsHolder is used.
+        This is a comment
         """
         Site.objects.all().delete()
         del settings.SITE_ID
@@ -178,11 +216,13 @@ class AdminDocViewTests(TestDataMixin, AdminDocsTestCase):
 
     def test_callable_urlconf(self):
         """
-        Index view should correctly resolve view patterns when ROOT_URLCONF is
-        not a string.
+        This is a comment
         """
 
         def urlpatterns():
+            """
+            This is a comment
+            """
             return (
                 path("admin/doc/", include("django.contrib.admindocs.urls")),
                 path("admin/", admin.site.urls),
@@ -196,9 +236,15 @@ class AdminDocViewTests(TestDataMixin, AdminDocsTestCase):
 @unittest.skipUnless(utils.docutils_is_available, "no docutils installed.")
 class AdminDocViewDefaultEngineOnly(TestDataMixin, AdminDocsTestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         self.client.force_login(self.superuser)
 
     def test_template_detail_path_traversal(self):
+        """
+        This is a comment
+        """
         cases = ["/etc/passwd", "../passwd"]
         for fpath in cases:
             with self.subTest(path=fpath):
@@ -227,12 +273,18 @@ class AdminDocViewWithMultipleEngines(AdminDocViewTests):
     def test_templatefilter_index(self):
         # Overridden because non-trivial TEMPLATES settings aren't supported
         # but the page shouldn't crash (#24125).
+        """
+        This is a comment
+        """
         response = self.client.get(reverse("django-admindocs-filters"))
         self.assertContains(response, "<title>Template filters</title>", html=True)
 
     def test_templatetag_index(self):
         # Overridden because non-trivial TEMPLATES settings aren't supported
         # but the page shouldn't crash (#24125).
+        """
+        This is a comment
+        """
         response = self.client.get(reverse("django-admindocs-tags"))
         self.assertContains(response, "<title>Template tags</title>", html=True)
 
@@ -240,6 +292,9 @@ class AdminDocViewWithMultipleEngines(AdminDocViewTests):
 @unittest.skipUnless(utils.docutils_is_available, "no docutils installed.")
 class TestModelDetailView(TestDataMixin, AdminDocsTestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         self.client.force_login(self.superuser)
         with captured_stderr() as self.docutils_stderr:
             self.response = self.client.get(
@@ -247,6 +302,9 @@ class TestModelDetailView(TestDataMixin, AdminDocsTestCase):
             )
 
     def test_table_headers(self):
+        """
+        This is a comment
+        """
         tests = [
             ("Method", 1),
             ("Arguments", 1),
@@ -262,9 +320,7 @@ class TestModelDetailView(TestDataMixin, AdminDocsTestCase):
 
     def test_method_excludes(self):
         """
-        Methods that begin with strings defined in
-        ``django.contrib.admindocs.views.MODEL_METHODS_EXCLUDE``
-        shouldn't be displayed in the admin docs.
+        This is a comment
         """
         self.assertContains(self.response, "<td>get_full_name</td>")
         self.assertNotContains(self.response, "<td>_get_full_name</td>")
@@ -275,7 +331,7 @@ class TestModelDetailView(TestDataMixin, AdminDocsTestCase):
 
     def test_methods_with_arguments(self):
         """
-        Methods that take arguments should also displayed.
+        This is a comment
         """
         self.assertContains(self.response, "<h3>Methods with arguments</h3>")
         self.assertContains(self.response, "<td>rename_company</td>")
@@ -286,21 +342,20 @@ class TestModelDetailView(TestDataMixin, AdminDocsTestCase):
 
     def test_methods_with_arguments_display_arguments(self):
         """
-        Methods with arguments should have their arguments displayed.
+        This is a comment
         """
         self.assertContains(self.response, "<td>new_name</td>")
         self.assertContains(self.response, "<td>keyword_only_arg</td>")
 
     def test_methods_with_arguments_display_arguments_default_value(self):
         """
-        Methods with keyword arguments should have their arguments displayed.
+        This is a comment
         """
         self.assertContains(self.response, "<td>suffix=&#x27;ltd&#x27;</td>")
 
     def test_methods_with_multiple_arguments_display_arguments(self):
         """
-        Methods with multiple arguments should have all their arguments
-        displayed, but omitting 'self'.
+        This is a comment
         """
         self.assertContains(
             self.response, "<td>baz, rox, *some_args, **some_kwargs</td>"
@@ -308,14 +363,21 @@ class TestModelDetailView(TestDataMixin, AdminDocsTestCase):
         self.assertContains(self.response, "<td>position_only_arg, arg, kwarg</td>")
 
     def test_instance_of_property_methods_are_displayed(self):
-        """Model properties are displayed as fields."""
+        """
+        This is a comment
+        """
         self.assertContains(self.response, "<td>a_property</td>")
 
     def test_instance_of_cached_property_methods_are_displayed(self):
-        """Model cached properties are displayed as fields."""
+        """
+        This is a comment
+        """
         self.assertContains(self.response, "<td>a_cached_property</td>")
 
     def test_method_data_types(self):
+        """
+        This is a comment
+        """
         company = Company.objects.create(name="Django")
         person = Person.objects.create(
             first_name="Human", last_name="User", company=company
@@ -327,7 +389,7 @@ class TestModelDetailView(TestDataMixin, AdminDocsTestCase):
 
     def test_descriptions_render_correctly(self):
         """
-        The ``description`` field should render correctly for each field type.
+        This is a comment
         """
         # help text in fields
         self.assertContains(
@@ -380,6 +442,9 @@ class TestModelDetailView(TestDataMixin, AdminDocsTestCase):
         self.assertIn('"include" directive disabled', out)
 
     def test_model_with_many_to_one(self):
+        """
+        This is a comment
+        """
         link = '<a class="reference external" href="/admindocs/models/%s/">%s</a>'
         response = self.client.get(
             reverse("django-admindocs-models-detail", args=["admin_docs", "company"])
@@ -397,8 +462,7 @@ class TestModelDetailView(TestDataMixin, AdminDocsTestCase):
 
     def test_model_with_no_backward_relations_render_only_relevant_fields(self):
         """
-        A model with ``related_name`` of `+` shouldn't show backward
-        relationship links.
+        This is a comment
         """
         response = self.client.get(
             reverse("django-admindocs-models-detail", args=["admin_docs", "family"])
@@ -407,6 +471,9 @@ class TestModelDetailView(TestDataMixin, AdminDocsTestCase):
         self.assertEqual(len(fields), 2)
 
     def test_model_docstring_renders_correctly(self):
+        """
+        This is a comment
+        """
         summary = (
             '<h2 class="subhead"><p>Stores information about a person, related to '
             '<a class="reference external" href="/admindocs/models/myapp.company/">'
@@ -430,9 +497,15 @@ class TestModelDetailView(TestDataMixin, AdminDocsTestCase):
         self.assertContains(self.response, model_body, html=True)
 
     def test_model_detail_title(self):
+        """
+        This is a comment
+        """
         self.assertContains(self.response, "<h1>admin_docs.Person</h1>", html=True)
 
     def test_app_not_found(self):
+        """
+        This is a comment
+        """
         response = self.client.get(
             reverse("django-admindocs-models-detail", args=["doesnotexist", "Person"])
         )
@@ -440,6 +513,9 @@ class TestModelDetailView(TestDataMixin, AdminDocsTestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_model_not_found(self):
+        """
+        This is a comment
+        """
         response = self.client.get(
             reverse(
                 "django-admindocs-models-detail", args=["admin_docs", "doesnotexist"]
@@ -462,16 +538,25 @@ class DescriptionLackingField(models.Field):
 
 class TestFieldType(unittest.TestCase):
     def test_field_name(self):
+        """
+        This is a comment
+        """
         with self.assertRaises(AttributeError):
             views.get_readable_field_data_type("NotAField")
 
     def test_builtin_fields(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             views.get_readable_field_data_type(fields.BooleanField()),
             "Boolean (Either True or False)",
         )
 
     def test_char_fields(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             views.get_readable_field_data_type(fields.CharField(max_length=255)),
             "String (up to 255)",
@@ -482,6 +567,9 @@ class TestFieldType(unittest.TestCase):
         )
 
     def test_custom_fields(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             views.get_readable_field_data_type(CustomField()), "A custom field type"
         )
@@ -493,6 +581,9 @@ class TestFieldType(unittest.TestCase):
 
 class AdminDocViewFunctionsTests(SimpleTestCase):
     def test_simplify_regex(self):
+        """
+        This is a comment
+        """
         tests = (
             # Named and unnamed groups.
             (r"^(?P<a>\w+)/b/(?P<c>\w+)/$", "/<a>/b/<c>/"),

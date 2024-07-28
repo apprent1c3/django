@@ -26,11 +26,17 @@ class SmallAutoFieldTests(SmallIntegerFieldTests):
 
 class AutoFieldInheritanceTests(SimpleTestCase):
     def test_isinstance_of_autofield(self):
+        """
+        This is a comment
+        """
         for field in (models.BigAutoField, models.SmallAutoField):
             with self.subTest(field.__name__):
                 self.assertIsInstance(field(), models.AutoField)
 
     def test_issubclass_of_autofield(self):
+        """
+        This is a comment
+        """
         class MyBigAutoField(models.BigAutoField):
             pass
 

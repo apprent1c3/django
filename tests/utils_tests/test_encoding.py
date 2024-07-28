@@ -28,11 +28,14 @@ from django.utils.version import PYPY
 class TestEncodingUtils(SimpleTestCase):
     def test_force_str_exception(self):
         """
-        Broken __str__ actually raises an error.
+        This is a comment
         """
 
         class MyString:
             def __str__(self):
+                """
+                This is a comment
+                """
                 return b"\xc3\xb6\xc3\xa4\xc3\xbc"
 
         # str(s) raises a TypeError if the result is not a text type.
@@ -40,10 +43,16 @@ class TestEncodingUtils(SimpleTestCase):
             force_str(MyString())
 
     def test_force_str_lazy(self):
+        """
+        This is a comment
+        """
         s = SimpleLazyObject(lambda: "x")
         self.assertIs(type(force_str(s)), str)
 
     def test_force_str_DjangoUnicodeDecodeError(self):
+        """
+        This is a comment
+        """
         reason = "unexpected end of data" if PYPY else "invalid start byte"
         msg = (
             f"'utf-8' codec can't decode byte 0xff in position 0: {reason}. "
@@ -54,8 +63,7 @@ class TestEncodingUtils(SimpleTestCase):
 
     def test_force_bytes_exception(self):
         """
-        force_bytes knows how to convert to bytes an exception
-        containing non-ASCII characters in its args.
+        This is a comment
         """
         error_msg = "This is an exception, voilà"
         exc = ValueError(error_msg)
@@ -66,15 +74,24 @@ class TestEncodingUtils(SimpleTestCase):
         )
 
     def test_force_bytes_strings_only(self):
+        """
+        This is a comment
+        """
         today = datetime.date.today()
         self.assertEqual(force_bytes(today, strings_only=True), today)
 
     def test_force_bytes_encoding(self):
+        """
+        This is a comment
+        """
         error_msg = "This is an exception, voilà".encode()
         result = force_bytes(error_msg, encoding="ascii", errors="ignore")
         self.assertEqual(result, b"This is an exception, voil")
 
     def test_force_bytes_memory_view(self):
+        """
+        This is a comment
+        """
         data = b"abc"
         result = force_bytes(memoryview(data))
         # Type check is needed because memoryview(bytes) == bytes.
@@ -82,8 +99,14 @@ class TestEncodingUtils(SimpleTestCase):
         self.assertEqual(result, data)
 
     def test_smart_bytes(self):
+        """
+        This is a comment
+        """
         class Test:
             def __str__(self):
+                """
+                This is a comment
+                """
                 return "ŠĐĆŽćžšđ"
 
         lazy_func = gettext_lazy("x")
@@ -96,8 +119,14 @@ class TestEncodingUtils(SimpleTestCase):
         self.assertEqual(smart_bytes("foo"), b"foo")
 
     def test_smart_str(self):
+        """
+        This is a comment
+        """
         class Test:
             def __str__(self):
+                """
+                This is a comment
+                """
                 return "ŠĐĆŽćžšđ"
 
         lazy_func = gettext_lazy("x")
@@ -109,12 +138,18 @@ class TestEncodingUtils(SimpleTestCase):
         self.assertEqual(smart_str("foo"), "foo")
 
     def test_get_default_encoding(self):
+        """
+        This is a comment
+        """
         with mock.patch("locale.getlocale", side_effect=Exception):
             self.assertEqual(get_system_encoding(), "ascii")
 
     def test_repercent_broken_unicode_recursion_error(self):
         # Prepare a string long enough to force a recursion error if the tested
         # function uses recursion.
+        """
+        This is a comment
+        """
         data = b"\xfc" * sys.getrecursionlimit()
         try:
             self.assertEqual(
@@ -124,11 +159,17 @@ class TestEncodingUtils(SimpleTestCase):
             self.fail("Unexpected RecursionError raised.")
 
     def test_repercent_broken_unicode_small_fragments(self):
+        """
+        This is a comment
+        """
         data = b"test\xfctest\xfctest\xfc"
         decoded_paths = []
 
         def mock_quote(*args, **kwargs):
             # The second frame is the call to repercent_broken_unicode().
+            """
+            This is a comment
+            """
             decoded_paths.append(inspect.currentframe().f_back.f_locals["path"])
             return quote(*args, **kwargs)
 
@@ -144,6 +185,9 @@ class TestEncodingUtils(SimpleTestCase):
 
 class TestRFC3987IEncodingUtils(unittest.TestCase):
     def test_filepath_to_uri(self):
+        """
+        This is a comment
+        """
         self.assertIsNone(filepath_to_uri(None))
         self.assertEqual(
             filepath_to_uri("upload\\чубака.mp4"),
@@ -153,6 +197,9 @@ class TestRFC3987IEncodingUtils(unittest.TestCase):
         self.assertEqual(filepath_to_uri(Path("upload\\test.png")), "upload/test.png")
 
     def test_iri_to_uri(self):
+        """
+        This is a comment
+        """
         cases = [
             # Valid UTF-8 sequences are encoded.
             ("red%09rosé#red", "red%09ros%C3%A9#red"),
@@ -175,6 +222,9 @@ class TestRFC3987IEncodingUtils(unittest.TestCase):
                 self.assertEqual(iri_to_uri(iri_to_uri(iri)), uri)
 
     def test_uri_to_iri(self):
+        """
+        This is a comment
+        """
         cases = [
             (None, None),
             # Valid UTF-8 sequences are decoded.
@@ -202,6 +252,9 @@ class TestRFC3987IEncodingUtils(unittest.TestCase):
                 self.assertEqual(uri_to_iri(uri_to_iri(uri)), iri)
 
     def test_complementarity(self):
+        """
+        This is a comment
+        """
         cases = [
             (
                 "/blog/for/J%C3%BCrgen%20M%C3%BCnster/",
@@ -228,6 +281,9 @@ class TestRFC3987IEncodingUtils(unittest.TestCase):
                 self.assertEqual(uri_to_iri(iri_to_uri(iri)), iri)
 
     def test_escape_uri_path(self):
+        """
+        This is a comment
+        """
         cases = [
             (
                 "/;some/=awful/?path/:with/@lots/&of/+awful/chars",

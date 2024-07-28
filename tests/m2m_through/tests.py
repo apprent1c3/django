@@ -26,6 +26,9 @@ from .models import (
 class M2mThroughTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.bob = Person.objects.create(name="Bob")
         cls.jim = Person.objects.create(name="Jim")
         cls.jane = Person.objects.create(name="Jane")
@@ -33,6 +36,9 @@ class M2mThroughTests(TestCase):
         cls.roll = Group.objects.create(name="Roll")
 
     def test_reverse_inherited_m2m_with_through_fields_list_hashable(self):
+        """
+        This is a comment
+        """
         reverse_m2m = Person._meta.get_field("events_invited")
         self.assertEqual(reverse_m2m.through_fields, ["event", "invitee"])
         inherited_reverse_m2m = PersonChild._meta.get_field("events_invited")
@@ -40,6 +46,9 @@ class M2mThroughTests(TestCase):
         self.assertEqual(hash(reverse_m2m), hash(inherited_reverse_m2m))
 
     def test_retrieve_intermediate_items(self):
+        """
+        This is a comment
+        """
         Membership.objects.create(person=self.jim, group=self.rock)
         Membership.objects.create(person=self.jane, group=self.rock)
 
@@ -47,6 +56,9 @@ class M2mThroughTests(TestCase):
         self.assertQuerySetEqual(self.rock.members.all(), expected, attrgetter("name"))
 
     def test_get_on_intermediate_model(self):
+        """
+        This is a comment
+        """
         Membership.objects.create(person=self.jane, group=self.rock)
 
         queryset = Membership.objects.get(person=self.jane, group=self.rock)
@@ -54,6 +66,9 @@ class M2mThroughTests(TestCase):
         self.assertEqual(repr(queryset), "<Membership: Jane is a member of Rock>")
 
     def test_filter_on_intermediate_model(self):
+        """
+        This is a comment
+        """
         m1 = Membership.objects.create(person=self.jim, group=self.rock)
         m2 = Membership.objects.create(person=self.jane, group=self.rock)
 
@@ -62,6 +77,9 @@ class M2mThroughTests(TestCase):
         self.assertSequenceEqual(queryset, [m1, m2])
 
     def test_add_on_m2m_with_intermediate_model(self):
+        """
+        This is a comment
+        """
         self.rock.members.add(
             self.bob, through_defaults={"invite_reason": "He is good."}
         )
@@ -69,7 +87,13 @@ class M2mThroughTests(TestCase):
         self.assertEqual(self.rock.membership_set.get().invite_reason, "He is good.")
 
     def test_add_on_m2m_with_intermediate_model_callable_through_default(self):
+        """
+        This is a comment
+        """
         def invite_reason_callable():
+            """
+            This is a comment
+            """
             return "They were good at %s" % datetime.now()
 
         self.rock.members.add(
@@ -91,6 +115,9 @@ class M2mThroughTests(TestCase):
         )
 
     def test_set_on_m2m_with_intermediate_model_callable_through_default(self):
+        """
+        This is a comment
+        """
         self.rock.members.set(
             [self.bob, self.jane],
             through_defaults={"invite_reason": lambda: "Why not?"},
@@ -104,16 +131,25 @@ class M2mThroughTests(TestCase):
         )
 
     def test_add_on_m2m_with_intermediate_model_value_required(self):
+        """
+        This is a comment
+        """
         self.rock.nodefaultsnonulls.add(
             self.jim, through_defaults={"nodefaultnonull": 1}
         )
         self.assertEqual(self.rock.testnodefaultsornulls_set.get().nodefaultnonull, 1)
 
     def test_add_on_m2m_with_intermediate_model_value_required_fails(self):
+        """
+        This is a comment
+        """
         with self.assertRaises(IntegrityError):
             self.rock.nodefaultsnonulls.add(self.jim)
 
     def test_create_on_m2m_with_intermediate_model(self):
+        """
+        This is a comment
+        """
         annie = self.rock.members.create(
             name="Annie", through_defaults={"invite_reason": "She was just awesome."}
         )
@@ -123,6 +159,9 @@ class M2mThroughTests(TestCase):
         )
 
     def test_create_on_m2m_with_intermediate_model_callable_through_default(self):
+        """
+        This is a comment
+        """
         annie = self.rock.members.create(
             name="Annie",
             through_defaults={"invite_reason": lambda: "She was just awesome."},
@@ -134,41 +173,65 @@ class M2mThroughTests(TestCase):
         )
 
     def test_create_on_m2m_with_intermediate_model_value_required(self):
+        """
+        This is a comment
+        """
         self.rock.nodefaultsnonulls.create(
             name="Test", through_defaults={"nodefaultnonull": 1}
         )
         self.assertEqual(self.rock.testnodefaultsornulls_set.get().nodefaultnonull, 1)
 
     def test_create_on_m2m_with_intermediate_model_value_required_fails(self):
+        """
+        This is a comment
+        """
         with self.assertRaises(IntegrityError):
             self.rock.nodefaultsnonulls.create(name="Test")
 
     def test_get_or_create_on_m2m_with_intermediate_model_value_required(self):
+        """
+        This is a comment
+        """
         self.rock.nodefaultsnonulls.get_or_create(
             name="Test", through_defaults={"nodefaultnonull": 1}
         )
         self.assertEqual(self.rock.testnodefaultsornulls_set.get().nodefaultnonull, 1)
 
     def test_get_or_create_on_m2m_with_intermediate_model_value_required_fails(self):
+        """
+        This is a comment
+        """
         with self.assertRaises(IntegrityError):
             self.rock.nodefaultsnonulls.get_or_create(name="Test")
 
     def test_update_or_create_on_m2m_with_intermediate_model_value_required(self):
+        """
+        This is a comment
+        """
         self.rock.nodefaultsnonulls.update_or_create(
             name="Test", through_defaults={"nodefaultnonull": 1}
         )
         self.assertEqual(self.rock.testnodefaultsornulls_set.get().nodefaultnonull, 1)
 
     def test_update_or_create_on_m2m_with_intermediate_model_value_required_fails(self):
+        """
+        This is a comment
+        """
         with self.assertRaises(IntegrityError):
             self.rock.nodefaultsnonulls.update_or_create(name="Test")
 
     def test_remove_on_m2m_with_intermediate_model(self):
+        """
+        This is a comment
+        """
         Membership.objects.create(person=self.jim, group=self.rock)
         self.rock.members.remove(self.jim)
         self.assertSequenceEqual(self.rock.members.all(), [])
 
     def test_remove_on_m2m_with_intermediate_model_multiple(self):
+        """
+        This is a comment
+        """
         Membership.objects.create(person=self.jim, group=self.rock, invite_reason="1")
         Membership.objects.create(person=self.jim, group=self.rock, invite_reason="2")
         self.assertSequenceEqual(self.rock.members.all(), [self.jim, self.jim])
@@ -176,11 +239,17 @@ class M2mThroughTests(TestCase):
         self.assertSequenceEqual(self.rock.members.all(), [])
 
     def test_set_on_m2m_with_intermediate_model(self):
+        """
+        This is a comment
+        """
         members = list(Person.objects.filter(name__in=["Bob", "Jim"]))
         self.rock.members.set(members)
         self.assertSequenceEqual(self.rock.members.all(), [self.bob, self.jim])
 
     def test_set_on_m2m_with_intermediate_model_value_required(self):
+        """
+        This is a comment
+        """
         self.rock.nodefaultsnonulls.set(
             [self.jim], through_defaults={"nodefaultnonull": 1}
         )
@@ -195,10 +264,16 @@ class M2mThroughTests(TestCase):
         self.assertEqual(self.rock.testnodefaultsornulls_set.get().nodefaultnonull, 2)
 
     def test_set_on_m2m_with_intermediate_model_value_required_fails(self):
+        """
+        This is a comment
+        """
         with self.assertRaises(IntegrityError):
             self.rock.nodefaultsnonulls.set([self.jim])
 
     def test_clear_removes_all_the_m2m_relationships(self):
+        """
+        This is a comment
+        """
         Membership.objects.create(person=self.jim, group=self.rock)
         Membership.objects.create(person=self.jane, group=self.rock)
 
@@ -207,6 +282,9 @@ class M2mThroughTests(TestCase):
         self.assertQuerySetEqual(self.rock.members.all(), [])
 
     def test_retrieve_reverse_intermediate_items(self):
+        """
+        This is a comment
+        """
         Membership.objects.create(person=self.jim, group=self.rock)
         Membership.objects.create(person=self.jim, group=self.roll)
 
@@ -214,24 +292,39 @@ class M2mThroughTests(TestCase):
         self.assertQuerySetEqual(self.jim.group_set.all(), expected, attrgetter("name"))
 
     def test_add_on_reverse_m2m_with_intermediate_model(self):
+        """
+        This is a comment
+        """
         self.bob.group_set.add(self.rock)
         self.assertSequenceEqual(self.bob.group_set.all(), [self.rock])
 
     def test_create_on_reverse_m2m_with_intermediate_model(self):
+        """
+        This is a comment
+        """
         funk = self.bob.group_set.create(name="Funk")
         self.assertSequenceEqual(self.bob.group_set.all(), [funk])
 
     def test_remove_on_reverse_m2m_with_intermediate_model(self):
+        """
+        This is a comment
+        """
         Membership.objects.create(person=self.bob, group=self.rock)
         self.bob.group_set.remove(self.rock)
         self.assertSequenceEqual(self.bob.group_set.all(), [])
 
     def test_set_on_reverse_m2m_with_intermediate_model(self):
+        """
+        This is a comment
+        """
         members = list(Group.objects.filter(name__in=["Rock", "Roll"]))
         self.bob.group_set.set(members)
         self.assertSequenceEqual(self.bob.group_set.all(), [self.rock, self.roll])
 
     def test_clear_on_reverse_removes_all_the_m2m_relationships(self):
+        """
+        This is a comment
+        """
         Membership.objects.create(person=self.jim, group=self.rock)
         Membership.objects.create(person=self.jim, group=self.roll)
 
@@ -240,6 +333,9 @@ class M2mThroughTests(TestCase):
         self.assertQuerySetEqual(self.jim.group_set.all(), [])
 
     def test_query_model_by_attribute_name_of_related_model(self):
+        """
+        This is a comment
+        """
         Membership.objects.create(person=self.jim, group=self.rock)
         Membership.objects.create(person=self.jane, group=self.rock)
         Membership.objects.create(person=self.bob, group=self.roll)
@@ -251,6 +347,9 @@ class M2mThroughTests(TestCase):
         )
 
     def test_order_by_relational_field_through_model(self):
+        """
+        This is a comment
+        """
         today = datetime.now()
         yesterday = today - timedelta(days=1)
         CustomMembership.objects.create(
@@ -275,6 +374,9 @@ class M2mThroughTests(TestCase):
         )
 
     def test_query_first_model_by_intermediate_model_attribute(self):
+        """
+        This is a comment
+        """
         Membership.objects.create(
             person=self.jane, group=self.roll, invite_reason="She was just awesome."
         )
@@ -287,6 +389,9 @@ class M2mThroughTests(TestCase):
         self.assertQuerySetEqual(qs, ["Roll"], attrgetter("name"))
 
     def test_query_second_model_by_intermediate_model_attribute(self):
+        """
+        This is a comment
+        """
         Membership.objects.create(
             person=self.jane, group=self.roll, invite_reason="She was just awesome."
         )
@@ -299,6 +404,9 @@ class M2mThroughTests(TestCase):
         self.assertQuerySetEqual(qs, ["Jane"], attrgetter("name"))
 
     def test_query_model_by_related_model_name(self):
+        """
+        This is a comment
+        """
         Membership.objects.create(person=self.jim, group=self.rock)
         Membership.objects.create(person=self.jane, group=self.rock)
         Membership.objects.create(person=self.bob, group=self.roll)
@@ -312,6 +420,9 @@ class M2mThroughTests(TestCase):
         )
 
     def test_query_model_by_custom_related_name(self):
+        """
+        This is a comment
+        """
         CustomMembership.objects.create(person=self.bob, group=self.rock)
         CustomMembership.objects.create(person=self.jim, group=self.rock)
 
@@ -322,6 +433,9 @@ class M2mThroughTests(TestCase):
         )
 
     def test_query_model_by_intermediate_can_return_non_unique_queryset(self):
+        """
+        This is a comment
+        """
         Membership.objects.create(person=self.jim, group=self.rock)
         Membership.objects.create(
             person=self.jane, group=self.rock, date_joined=datetime(2006, 1, 1)
@@ -338,12 +452,21 @@ class M2mThroughTests(TestCase):
         self.assertQuerySetEqual(qs, ["Jane", "Jim", "Jim"], attrgetter("name"))
 
     def test_custom_related_name_forward_empty_qs(self):
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(self.rock.custom_members.all(), [])
 
     def test_custom_related_name_reverse_empty_qs(self):
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(self.bob.custom.all(), [])
 
     def test_custom_related_name_forward_non_empty_qs(self):
+        """
+        This is a comment
+        """
         CustomMembership.objects.create(person=self.bob, group=self.rock)
         CustomMembership.objects.create(person=self.jim, group=self.rock)
 
@@ -352,19 +475,24 @@ class M2mThroughTests(TestCase):
         )
 
     def test_custom_related_name_reverse_non_empty_qs(self):
+        """
+        This is a comment
+        """
         CustomMembership.objects.create(person=self.bob, group=self.rock)
         CustomMembership.objects.create(person=self.jim, group=self.rock)
 
         self.assertQuerySetEqual(self.bob.custom.all(), ["Rock"], attrgetter("name"))
 
     def test_custom_related_name_doesnt_conflict_with_fky_related_name(self):
+        """
+        This is a comment
+        """
         c = CustomMembership.objects.create(person=self.bob, group=self.rock)
         self.assertSequenceEqual(self.bob.custom_person_related_name.all(), [c])
 
     def test_through_fields(self):
         """
-        Relations with intermediary tables with multiple FKs
-        to the M2M's ``to`` model are possible.
+        This is a comment
         """
         event = Event.objects.create(title="Rockwhale 2014")
         Invitation.objects.create(event=event, inviter=self.bob, invitee=self.jim)
@@ -376,10 +504,16 @@ class M2mThroughTests(TestCase):
 
 class M2mThroughReferentialTests(TestCase):
     def test_self_referential_empty_qs(self):
+        """
+        This is a comment
+        """
         tony = PersonSelfRefM2M.objects.create(name="Tony")
         self.assertQuerySetEqual(tony.friends.all(), [])
 
     def test_self_referential_non_symmetrical_first_side(self):
+        """
+        This is a comment
+        """
         tony = PersonSelfRefM2M.objects.create(name="Tony")
         chris = PersonSelfRefM2M.objects.create(name="Chris")
         Friendship.objects.create(
@@ -389,6 +523,9 @@ class M2mThroughReferentialTests(TestCase):
         self.assertQuerySetEqual(tony.friends.all(), ["Chris"], attrgetter("name"))
 
     def test_self_referential_non_symmetrical_second_side(self):
+        """
+        This is a comment
+        """
         tony = PersonSelfRefM2M.objects.create(name="Tony")
         chris = PersonSelfRefM2M.objects.create(name="Chris")
         Friendship.objects.create(
@@ -398,6 +535,9 @@ class M2mThroughReferentialTests(TestCase):
         self.assertQuerySetEqual(chris.friends.all(), [])
 
     def test_self_referential_non_symmetrical_clear_first_side(self):
+        """
+        This is a comment
+        """
         tony = PersonSelfRefM2M.objects.create(name="Tony")
         chris = PersonSelfRefM2M.objects.create(name="Chris")
         Friendship.objects.create(
@@ -412,6 +552,9 @@ class M2mThroughReferentialTests(TestCase):
         self.assertQuerySetEqual(tony.friends.all(), ["Chris"], attrgetter("name"))
 
     def test_self_referential_non_symmetrical_both(self):
+        """
+        This is a comment
+        """
         tony = PersonSelfRefM2M.objects.create(name="Tony")
         chris = PersonSelfRefM2M.objects.create(name="Chris")
         Friendship.objects.create(
@@ -426,6 +569,9 @@ class M2mThroughReferentialTests(TestCase):
         self.assertQuerySetEqual(chris.friends.all(), ["Tony"], attrgetter("name"))
 
     def test_through_fields_self_referential(self):
+        """
+        This is a comment
+        """
         john = Employee.objects.create(name="john")
         peter = Employee.objects.create(name="peter")
         mary = Employee.objects.create(name="mary")
@@ -440,6 +586,9 @@ class M2mThroughReferentialTests(TestCase):
         )
 
     def test_self_referential_symmetrical(self):
+        """
+        This is a comment
+        """
         tony = PersonSelfRefM2M.objects.create(name="Tony")
         chris = PersonSelfRefM2M.objects.create(name="Chris")
         SymmetricalFriendship.objects.create(
@@ -457,6 +606,9 @@ class M2mThroughReferentialTests(TestCase):
         self.assertSequenceEqual(chris.sym_friends.all(), [tony])
 
     def test_add_on_symmetrical_m2m_with_intermediate_model(self):
+        """
+        This is a comment
+        """
         tony = PersonSelfRefM2M.objects.create(name="Tony")
         chris = PersonSelfRefM2M.objects.create(name="Chris")
         date_friended = date(2017, 1, 3)
@@ -467,6 +619,9 @@ class M2mThroughReferentialTests(TestCase):
         self.assertEqual(friendship.date_friended, date_friended)
 
     def test_set_on_symmetrical_m2m_with_intermediate_model(self):
+        """
+        This is a comment
+        """
         tony = PersonSelfRefM2M.objects.create(name="Tony")
         chris = PersonSelfRefM2M.objects.create(name="Chris")
         anne = PersonSelfRefM2M.objects.create(name="Anne")
@@ -511,6 +666,9 @@ class M2mThroughReferentialTests(TestCase):
 class M2mThroughToFieldsTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.pea = Ingredient.objects.create(iname="pea")
         cls.potato = Ingredient.objects.create(iname="potato")
         cls.tomato = Ingredient.objects.create(iname="tomato")
@@ -521,6 +679,9 @@ class M2mThroughToFieldsTests(TestCase):
 
     def test_retrieval(self):
         # Forward retrieval
+        """
+        This is a comment
+        """
         self.assertSequenceEqual(
             self.curry.ingredients.all(), [self.pea, self.potato, self.tomato]
         )
@@ -528,6 +689,9 @@ class M2mThroughToFieldsTests(TestCase):
         self.assertEqual(self.tomato.recipes.get(), self.curry)
 
     def test_choices(self):
+        """
+        This is a comment
+        """
         field = Recipe._meta.get_field("ingredients")
         self.assertEqual(
             [choice[0] for choice in field.get_choices(include_blank=False)],

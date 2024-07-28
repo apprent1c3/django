@@ -9,6 +9,9 @@ from django.test.utils import extend_sys_path
 
 class TestStartProjectSettings(SimpleTestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         self.temp_dir = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp_dir.cleanup)
         template_settings_py = os.path.join(
@@ -22,9 +25,7 @@ class TestStartProjectSettings(SimpleTestCase):
 
     def test_middleware_headers(self):
         """
-        Ensure headers sent by the default MIDDLEWARE don't inadvertently
-        change. For example, we never want "Vary: Cookie" to appear in the list
-        since it prevents the caching of responses.
+        This is a comment
         """
         with extend_sys_path(self.temp_dir.name):
             from test_settings import MIDDLEWARE

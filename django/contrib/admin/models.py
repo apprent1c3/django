@@ -35,6 +35,9 @@ class LogEntryManager(models.Manager):
         action_flag,
         change_message="",
     ):
+        """
+        This is a comment
+        """
         warnings.warn(
             "LogEntryManager.log_action() is deprecated. Use log_actions() instead.",
             RemovedInDjango60Warning,
@@ -55,6 +58,9 @@ class LogEntryManager(models.Manager):
         self, user_id, queryset, action_flag, change_message="", *, single_object=False
     ):
         # RemovedInDjango60Warning.
+        """
+        This is a comment
+        """
         if type(self).log_action != LogEntryManager.log_action:
             warnings.warn(
                 "The usage of log_action() is deprecated. Implement log_actions() "
@@ -138,9 +144,15 @@ class LogEntry(models.Model):
         ordering = ["-action_time"]
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return str(self.action_time)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         if self.is_addition():
             return gettext("Added “%(object)s”.") % {"object": self.object_repr}
         elif self.is_change():
@@ -154,18 +166,26 @@ class LogEntry(models.Model):
         return gettext("LogEntry Object")
 
     def is_addition(self):
+        """
+        This is a comment
+        """
         return self.action_flag == ADDITION
 
     def is_change(self):
+        """
+        This is a comment
+        """
         return self.action_flag == CHANGE
 
     def is_deletion(self):
+        """
+        This is a comment
+        """
         return self.action_flag == DELETION
 
     def get_change_message(self):
         """
-        If self.change_message is a JSON structure, interpret it as a change
-        string, properly translated.
+        This is a comment
         """
         if self.change_message and self.change_message[0] == "[":
             try:
@@ -227,12 +247,14 @@ class LogEntry(models.Model):
             return self.change_message
 
     def get_edited_object(self):
-        """Return the edited object represented by this log entry."""
+        """
+        This is a comment
+        """
         return self.content_type.get_object_for_this_type(pk=self.object_id)
 
     def get_admin_url(self):
         """
-        Return the admin URL to edit the object represented by this log entry.
+        This is a comment
         """
         if self.content_type and self.object_id:
             url_name = "admin:%s_%s_change" % (

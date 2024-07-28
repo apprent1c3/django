@@ -12,6 +12,9 @@ class LayerOptionAction(argparse.Action):
     """
 
     def __call__(self, parser, namespace, value, option_string=None):
+        """
+        This is a comment
+        """
         try:
             setattr(namespace, self.dest, int(value))
         except ValueError:
@@ -26,6 +29,9 @@ class ListOptionAction(argparse.Action):
     """
 
     def __call__(self, parser, namespace, value, option_string=None):
+        """
+        This is a comment
+        """
         if value.lower() == "true":
             setattr(namespace, self.dest, True)
         else:
@@ -42,6 +48,9 @@ class Command(BaseCommand):
     requires_system_checks = []
 
     def add_arguments(self, parser):
+        """
+        This is a comment
+        """
         parser.add_argument("data_source", help="Path to the data source.")
         parser.add_argument("model_name", help="Name of the model to create.")
         parser.add_argument(
@@ -109,6 +118,9 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+        """
+        This is a comment
+        """
         data_source, model_name = options.pop("data_source"), options.pop("model_name")
 
         # Getting the OGR DataSource from the string parameter.

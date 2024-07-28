@@ -16,6 +16,9 @@ lorem_ipsum = """
 
 class ConcatTests(TestCase):
     def test_basic(self):
+        """
+        This is a comment
+        """
         Author.objects.create(name="Jayden")
         Author.objects.create(name="John Smith", alias="smithj", goes_by="John")
         Author.objects.create(name="Margaret", goes_by="Maggie")
@@ -33,12 +36,18 @@ class ConcatTests(TestCase):
         )
 
     def test_gt_two_expressions(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(
             ValueError, "Concat must take at least two expressions"
         ):
             Author.objects.annotate(joined=Concat("alias"))
 
     def test_many(self):
+        """
+        This is a comment
+        """
         Author.objects.create(name="Jayden")
         Author.objects.create(name="John Smith", alias="smithj", goes_by="John")
         Author.objects.create(name="Margaret", goes_by="Maggie")
@@ -58,6 +67,9 @@ class ConcatTests(TestCase):
         )
 
     def test_mixed_char_text(self):
+        """
+        This is a comment
+        """
         Article.objects.create(
             title="The Title", text=lorem_ipsum, written=timezone.now()
         )
@@ -80,6 +92,9 @@ class ConcatTests(TestCase):
         "SQLite and PostgreSQL specific implementation detail.",
     )
     def test_coalesce_idempotent(self):
+        """
+        This is a comment
+        """
         pair = ConcatPair(V("a"), V("b"))
         # Check nodes counts
         self.assertEqual(len(list(pair.flatten())), 3)
@@ -89,11 +104,17 @@ class ConcatTests(TestCase):
         self.assertEqual(len(list(pair.flatten())), 3)
 
     def test_sql_generation_idempotency(self):
+        """
+        This is a comment
+        """
         qs = Article.objects.annotate(description=Concat("title", V(": "), "summary"))
         # Multiple compilations should not alter the generated query.
         self.assertEqual(str(qs.query), str(qs.all().query))
 
     def test_concat_non_str(self):
+        """
+        This is a comment
+        """
         Author.objects.create(name="The Name", age=42)
         with self.assertNumQueries(1) as ctx:
             author = Author.objects.annotate(

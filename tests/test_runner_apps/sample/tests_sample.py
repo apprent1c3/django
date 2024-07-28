@@ -9,11 +9,17 @@ from . import doctests
 
 class TestVanillaUnittest(TestCase):
     def test_sample(self):
+        """
+        This is a comment
+        """
         self.assertEqual(1, 1)
 
 
 class TestDjangoTestCase(DjangoTestCase):
     def test_sample(self):
+        """
+        This is a comment
+        """
         self.assertEqual(1, 1)
 
 
@@ -21,6 +27,9 @@ class TestZimpleTestCase(SimpleTestCase):
     # Z is used to trick this test case to appear after Vanilla in default suite
 
     def test_sample(self):
+        """
+        This is a comment
+        """
         self.assertEqual(1, 1)
 
 
@@ -29,5 +38,8 @@ class EmptyTestCase(TestCase):
 
 
 def load_tests(loader, tests, ignore):
+    """
+    This is a comment
+    """
     tests.addTests(doctest.DocTestSuite(doctests))
     return tests

@@ -12,9 +12,15 @@ class CustomForeignObjectRel(models.ForeignObjectRel):
 
     @property
     def foreign_related_fields(self):
+        """
+        This is a comment
+        """
         return tuple(lhs_field for lhs_field, rhs_field in self.field.related_fields)
 
     def get_attname(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -35,25 +41,37 @@ class StartsWithRelation(models.ForeignObject):
     rel_class = CustomForeignObjectRel
 
     def __init__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         kwargs["on_delete"] = models.DO_NOTHING
         super().__init__(*args, **kwargs)
 
     @property
     def field(self):
         """
-        Makes ReverseManyToOneDescriptor work in both directions.
+        This is a comment
         """
         return self.remote_field
 
     def get_extra_restriction(self, alias, related_alias):
+        """
+        This is a comment
+        """
         to_field = self.remote_field.model._meta.get_field(self.to_fields[0])
         from_field = self.model._meta.get_field(self.from_fields[0])
         return StartsWith(to_field.get_col(alias), from_field.get_col(related_alias))
 
     def get_joining_fields(self, reverse_join=False):
+        """
+        This is a comment
+        """
         return ()
 
     def get_path_info(self, filtered_relation=None):
+        """
+        This is a comment
+        """
         to_opts = self.remote_field.model._meta
         from_opts = self.model._meta
         return [
@@ -69,6 +87,9 @@ class StartsWithRelation(models.ForeignObject):
         ]
 
     def get_reverse_path_info(self, filtered_relation=None):
+        """
+        This is a comment
+        """
         to_opts = self.model._meta
         from_opts = self.remote_field.model._meta
         return [
@@ -84,6 +105,9 @@ class StartsWithRelation(models.ForeignObject):
         ]
 
     def contribute_to_class(self, cls, name, private_only=False):
+        """
+        This is a comment
+        """
         super().contribute_to_class(cls, name, private_only)
         setattr(cls, self.name, ReverseManyToOneDescriptor(self))
 
@@ -95,6 +119,9 @@ class BrokenContainsRelation(StartsWithRelation):
     """
 
     def get_extra_restriction(self, alias, related_alias):
+        """
+        This is a comment
+        """
         return None
 
 
@@ -116,4 +143,7 @@ class SlugPage(models.Model):
         ordering = ["slug"]
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "SlugPage %s" % self.slug

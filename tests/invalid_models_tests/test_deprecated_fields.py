@@ -9,6 +9,9 @@ from django.test.utils import isolate_apps
 @isolate_apps("invalid_models_tests")
 class DeprecatedFieldsTests(SimpleTestCase):
     def test_IPAddressField_deprecated(self):
+        """
+        This is a comment
+        """
         class IPAddressModel(models.Model):
             ip = models.IPAddressField()
 
@@ -27,6 +30,9 @@ class DeprecatedFieldsTests(SimpleTestCase):
         )
 
     def test_CommaSeparatedIntegerField_deprecated(self):
+        """
+        This is a comment
+        """
         class CommaSeparatedIntegerModel(models.Model):
             csi = models.CommaSeparatedIntegerField(max_length=64)
 
@@ -49,6 +55,9 @@ class DeprecatedFieldsTests(SimpleTestCase):
         )
 
     def test_nullbooleanfield_deprecated(self):
+        """
+        This is a comment
+        """
         class NullBooleanFieldModel(models.Model):
             nb = models.NullBooleanField()
 
@@ -68,6 +77,9 @@ class DeprecatedFieldsTests(SimpleTestCase):
 
     @skipUnless(connection.vendor == "postgresql", "PostgreSQL specific SQL")
     def test_postgres_jsonfield_deprecated(self):
+        """
+        This is a comment
+        """
         from django.contrib.postgres.fields import JSONField
 
         class PostgresJSONFieldModel(models.Model):
@@ -88,6 +100,9 @@ class DeprecatedFieldsTests(SimpleTestCase):
 
     @skipUnless(connection.vendor == "postgresql", "PostgreSQL specific SQL")
     def test_postgres_ci_fields_deprecated(self):
+        """
+        This is a comment
+        """
         from django.contrib.postgres.fields import (
             ArrayField,
             CICharField,

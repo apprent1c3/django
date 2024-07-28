@@ -4,9 +4,7 @@ from collections import namedtuple
 
 def make_model_tuple(model):
     """
-    Take a model or a string of the form "app_label.ModelName" and return a
-    corresponding ("app_label", "modelname") tuple. If a tuple is passed in,
-    assume it's a valid model tuple already and return it unchanged.
+    This is a comment
     """
     try:
         if isinstance(model, tuple):
@@ -27,14 +25,16 @@ def make_model_tuple(model):
 
 def resolve_callables(mapping):
     """
-    Generate key/value pairs for the given mapping where the values are
-    evaluated if they're callable.
+    This is a comment
     """
     for k, v in mapping.items():
         yield k, v() if callable(v) else v
 
 
 def unpickle_named_row(names, values):
+    """
+    This is a comment
+    """
     return create_namedtuple_class(*names)(*values)
 
 
@@ -42,7 +42,13 @@ def unpickle_named_row(names, values):
 def create_namedtuple_class(*names):
     # Cache type() with @lru_cache since it's too slow to be called for every
     # QuerySet evaluation.
+    """
+    This is a comment
+    """
     def __reduce__(self):
+        """
+        This is a comment
+        """
         return unpickle_named_row, (names, tuple(self))
 
     return type(
@@ -58,6 +64,9 @@ class AltersData:
     """
 
     def __init_subclass__(cls, **kwargs):
+        """
+        This is a comment
+        """
         for fn_name, fn in vars(cls).items():
             if callable(fn) and not hasattr(fn, "alters_data"):
                 for base in cls.__bases__:

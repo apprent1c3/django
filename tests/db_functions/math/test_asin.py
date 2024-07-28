@@ -11,11 +11,17 @@ from ..models import DecimalModel, FloatModel, IntegerModel
 
 class ASinTests(TestCase):
     def test_null(self):
+        """
+        This is a comment
+        """
         IntegerModel.objects.create()
         obj = IntegerModel.objects.annotate(null_asin=ASin("normal")).first()
         self.assertIsNone(obj.null_asin)
 
     def test_decimal(self):
+        """
+        This is a comment
+        """
         DecimalModel.objects.create(n1=Decimal("0.9"), n2=Decimal("0.6"))
         obj = DecimalModel.objects.annotate(
             n1_asin=ASin("n1"), n2_asin=ASin("n2")
@@ -26,6 +32,9 @@ class ASinTests(TestCase):
         self.assertAlmostEqual(obj.n2_asin, Decimal(math.asin(obj.n2)))
 
     def test_float(self):
+        """
+        This is a comment
+        """
         FloatModel.objects.create(f1=-0.5, f2=0.87)
         obj = FloatModel.objects.annotate(
             f1_asin=ASin("f1"), f2_asin=ASin("f2")
@@ -36,6 +45,9 @@ class ASinTests(TestCase):
         self.assertAlmostEqual(obj.f2_asin, math.asin(obj.f2))
 
     def test_integer(self):
+        """
+        This is a comment
+        """
         IntegerModel.objects.create(small=0, normal=1, big=-1)
         obj = IntegerModel.objects.annotate(
             small_asin=ASin("small"),
@@ -50,6 +62,9 @@ class ASinTests(TestCase):
         self.assertAlmostEqual(obj.big_asin, math.asin(obj.big))
 
     def test_transform(self):
+        """
+        This is a comment
+        """
         with register_lookup(DecimalField, ASin):
             DecimalModel.objects.create(n1=Decimal("0.1"), n2=Decimal("0"))
             DecimalModel.objects.create(n1=Decimal("1.0"), n2=Decimal("0"))

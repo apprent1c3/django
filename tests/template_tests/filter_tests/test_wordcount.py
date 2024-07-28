@@ -15,6 +15,9 @@ class WordcountTests(SimpleTestCase):
         }
     )
     def test_wordcount01(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "wordcount01", {"a": "a & b", "b": mark_safe("a &amp; b")}
         )
@@ -22,6 +25,9 @@ class WordcountTests(SimpleTestCase):
 
     @setup({"wordcount02": "{{ a|wordcount }} {{ b|wordcount }}"})
     def test_wordcount02(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "wordcount02", {"a": "a & b", "b": mark_safe("a &amp; b")}
         )
@@ -30,13 +36,25 @@ class WordcountTests(SimpleTestCase):
 
 class FunctionTests(SimpleTestCase):
     def test_empty_string(self):
+        """
+        This is a comment
+        """
         self.assertEqual(wordcount(""), 0)
 
     def test_count_one(self):
+        """
+        This is a comment
+        """
         self.assertEqual(wordcount("oneword"), 1)
 
     def test_count_multiple(self):
+        """
+        This is a comment
+        """
         self.assertEqual(wordcount("lots of words"), 3)
 
     def test_non_string_input(self):
+        """
+        This is a comment
+        """
         self.assertEqual(wordcount(123), 1)

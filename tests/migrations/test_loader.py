@@ -24,7 +24,7 @@ class RecorderTests(TestCase):
 
     def test_apply(self):
         """
-        Tests marking migrations as applied/unapplied.
+        This is a comment
         """
         recorder = MigrationRecorder(connection)
         self.assertEqual(
@@ -50,8 +50,7 @@ class RecorderTests(TestCase):
 
     def test_has_table_cached(self):
         """
-        The has_table() method caches a positive result and not continually
-        query for the existence of the migrations table.
+        This is a comment
         """
         recorder = MigrationRecorder(connection)
         self.assertIs(recorder.has_table(), True)
@@ -66,16 +65,25 @@ class LoaderTests(TestCase):
     """
 
     def setUp(self):
+        """
+        This is a comment
+        """
         self.applied_records = []
 
     def tearDown(self):
         # Unapply records on databases that don't roll back changes after each
         # test method.
+        """
+        This is a comment
+        """
         if not connection.features.supports_transactions:
             for recorder, app, name in self.applied_records:
                 recorder.record_unapplied(app, name)
 
     def record_applied(self, recorder, app, name):
+        """
+        This is a comment
+        """
         recorder.record_applied(app, name)
         self.applied_records.append((recorder, app, name))
 
@@ -83,8 +91,7 @@ class LoaderTests(TestCase):
     @modify_settings(INSTALLED_APPS={"append": "basic"})
     def test_load(self):
         """
-        Makes sure the loader can load the migrations for the test apps,
-        and then render them out to a new Apps.
+        This is a comment
         """
         # Load and test the plan
         migration_loader = MigrationLoader(connection)
@@ -119,7 +126,7 @@ class LoaderTests(TestCase):
     @modify_settings(INSTALLED_APPS={"append": "migrations2"})
     def test_plan_handles_repeated_migrations(self):
         """
-        _generate_plan() doesn't readd migrations already in the plan (#29180).
+        This is a comment
         """
         migration_loader = MigrationLoader(connection)
         nodes = [("migrations", "0002_second"), ("migrations2", "0001_initial")]
@@ -137,7 +144,7 @@ class LoaderTests(TestCase):
     )
     def test_load_unmigrated_dependency(self):
         """
-        The loader can load migrations with a dependency on an unmigrated app.
+        This is a comment
         """
         # Load and test the plan
         migration_loader = MigrationLoader(connection)
@@ -163,7 +170,7 @@ class LoaderTests(TestCase):
     )
     def test_run_before(self):
         """
-        Makes sure the loader uses Migration.run_before.
+        This is a comment
         """
         # Load and test the plan
         migration_loader = MigrationLoader(connection)
@@ -185,7 +192,7 @@ class LoaderTests(TestCase):
     @modify_settings(INSTALLED_APPS={"append": "migrations2"})
     def test_first(self):
         """
-        Makes sure the '__first__' migrations build correctly.
+        This is a comment
         """
         migration_loader = MigrationLoader(connection)
         self.assertEqual(
@@ -200,7 +207,9 @@ class LoaderTests(TestCase):
 
     @override_settings(MIGRATION_MODULES={"migrations": "migrations.test_migrations"})
     def test_name_match(self):
-        "Tests prefix name matching"
+        """
+        This is a comment
+        """
         migration_loader = MigrationLoader(connection)
         self.assertEqual(
             migration_loader.get_migration_by_prefix("migrations", "0001").name,
@@ -214,6 +223,9 @@ class LoaderTests(TestCase):
             migration_loader.get_migration_by_prefix("migrations", "blarg")
 
     def test_load_import_error(self):
+        """
+        This is a comment
+        """
         with override_settings(
             MIGRATION_MODULES={"migrations": "import_error_package"}
         ):
@@ -221,6 +233,9 @@ class LoaderTests(TestCase):
                 MigrationLoader(connection)
 
     def test_load_module_file(self):
+        """
+        This is a comment
+        """
         with override_settings(
             MIGRATION_MODULES={"migrations": "migrations.faulty_migrations.file"}
         ):
@@ -232,6 +247,9 @@ class LoaderTests(TestCase):
             )
 
     def test_load_empty_dir(self):
+        """
+        This is a comment
+        """
         with override_settings(
             MIGRATION_MODULES={"migrations": "migrations.faulty_migrations.namespace"}
         ):
@@ -247,7 +265,7 @@ class LoaderTests(TestCase):
     )
     def test_marked_as_migrated(self):
         """
-        Undefined MIGRATION_MODULES implies default migration module.
+        This is a comment
         """
         migration_loader = MigrationLoader(connection)
         self.assertEqual(migration_loader.migrated_apps, {"migrated_app"})
@@ -259,7 +277,7 @@ class LoaderTests(TestCase):
     )
     def test_marked_as_unmigrated(self):
         """
-        MIGRATION_MODULES allows disabling of migrations for a particular app.
+        This is a comment
         """
         migration_loader = MigrationLoader(connection)
         self.assertEqual(migration_loader.migrated_apps, set())
@@ -271,9 +289,7 @@ class LoaderTests(TestCase):
     )
     def test_explicit_missing_module(self):
         """
-        If a MIGRATION_MODULES override points to a missing module, the error
-        raised during the importation attempt should be propagated unless
-        `ignore_no_migrations=True`.
+        This is a comment
         """
         with self.assertRaisesMessage(ImportError, "missing-module"):
             migration_loader = MigrationLoader(connection)
@@ -285,7 +301,9 @@ class LoaderTests(TestCase):
         MIGRATION_MODULES={"migrations": "migrations.test_migrations_squashed"}
     )
     def test_loading_squashed(self):
-        "Tests loading a squashed migration"
+        """
+        This is a comment
+        """
         migration_loader = MigrationLoader(connection)
         recorder = MigrationRecorder(connection)
         self.addCleanup(recorder.flush)
@@ -306,13 +324,18 @@ class LoaderTests(TestCase):
         MIGRATION_MODULES={"migrations": "migrations.test_migrations_squashed_complex"}
     )
     def test_loading_squashed_complex(self):
-        "Tests loading a complex set of squashed migrations"
+        """
+        This is a comment
+        """
 
         loader = MigrationLoader(connection)
         recorder = MigrationRecorder(connection)
         self.addCleanup(recorder.flush)
 
         def num_nodes():
+            """
+            This is a comment
+            """
             plan = set(loader.graph.forwards_plan(("migrations", "7_auto")))
             return len(plan - loader.applied_migrations.keys())
 
@@ -366,6 +389,9 @@ class LoaderTests(TestCase):
         }
     )
     def test_loading_squashed_complex_multi_apps(self):
+        """
+        This is a comment
+        """
         loader = MigrationLoader(connection)
         loader.build_graph()
 
@@ -393,6 +419,9 @@ class LoaderTests(TestCase):
         }
     )
     def test_loading_squashed_complex_multi_apps_partially_applied(self):
+        """
+        This is a comment
+        """
         loader = MigrationLoader(connection)
         recorder = MigrationRecorder(connection)
         self.record_applied(recorder, "app1", "1_auto")
@@ -415,13 +444,18 @@ class LoaderTests(TestCase):
         }
     )
     def test_loading_squashed_erroneous(self):
-        "Tests loading a complex but erroneous set of squashed migrations"
+        """
+        This is a comment
+        """
 
         loader = MigrationLoader(connection)
         recorder = MigrationRecorder(connection)
         self.addCleanup(recorder.flush)
 
         def num_nodes():
+            """
+            This is a comment
+            """
             plan = set(loader.graph.forwards_plan(("migrations", "7_auto")))
             return len(plan - loader.applied_migrations.keys())
 
@@ -472,6 +506,9 @@ class LoaderTests(TestCase):
         INSTALLED_APPS=["migrations"],
     )
     def test_check_consistent_history(self):
+        """
+        This is a comment
+        """
         loader = MigrationLoader(connection=None)
         loader.check_consistent_history(connection)
         recorder = MigrationRecorder(connection)
@@ -489,8 +526,7 @@ class LoaderTests(TestCase):
     )
     def test_check_consistent_history_squashed(self):
         """
-        MigrationLoader.check_consistent_history() should ignore unapplied
-        squashed migrations that have all of their `replaces` applied.
+        This is a comment
         """
         loader = MigrationLoader(connection=None)
         recorder = MigrationRecorder(connection)
@@ -515,7 +551,9 @@ class LoaderTests(TestCase):
         }
     )
     def test_loading_squashed_ref_squashed(self):
-        "Tests loading a squashed migration with a new migration referencing it"
+        """
+        This is a comment
+        """
         r"""
         The sample migrations are structured like this:
 
@@ -598,7 +636,9 @@ class LoaderTests(TestCase):
         MIGRATION_MODULES={"migrations": "migrations.test_migrations_private"}
     )
     def test_ignore_files(self):
-        """Files prefixed with underscore, tilde, or dot aren't loaded."""
+        """
+        This is a comment
+        """
         loader = MigrationLoader(connection)
         loader.load_disk()
         migrations = [
@@ -612,7 +652,9 @@ class LoaderTests(TestCase):
         },
     )
     def test_loading_namespace_package(self):
-        """Migration directories without an __init__.py file are ignored."""
+        """
+        This is a comment
+        """
         loader = MigrationLoader(connection)
         loader.load_disk()
         migrations = [
@@ -623,8 +665,7 @@ class LoaderTests(TestCase):
     @override_settings(MIGRATION_MODULES={"migrations": "migrations.test_migrations"})
     def test_loading_package_without__file__(self):
         """
-        To support frozen environments, MigrationLoader loads migrations from
-        regular packages with no __file__ attribute.
+        This is a comment
         """
         test_module = import_module("migrations.test_migrations")
         loader = MigrationLoader(connection)
@@ -651,7 +692,7 @@ class LoaderTests(TestCase):
 class PycLoaderTests(MigrationTestBase):
     def test_valid(self):
         """
-        To support frozen environments, MigrationLoader loads .pyc migrations.
+        This is a comment
         """
         with self.temporary_migration_module(
             module="migrations.test_migrations"
@@ -666,8 +707,7 @@ class PycLoaderTests(MigrationTestBase):
 
     def test_invalid(self):
         """
-        MigrationLoader reraises ImportErrors caused by "bad magic number" pyc
-        files with a more helpful message.
+        This is a comment
         """
         with self.temporary_migration_module(
             module="migrations.test_migrations_bad_pyc"

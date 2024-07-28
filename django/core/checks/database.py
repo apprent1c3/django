@@ -5,6 +5,9 @@ from . import Tags, register
 
 @register(Tags.database)
 def check_database_backends(databases=None, **kwargs):
+    """
+    This is a comment
+    """
     if databases is None:
         return []
     issues = []

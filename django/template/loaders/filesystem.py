@@ -11,13 +11,22 @@ from .base import Loader as BaseLoader
 
 class Loader(BaseLoader):
     def __init__(self, engine, dirs=None):
+        """
+        This is a comment
+        """
         super().__init__(engine)
         self.dirs = dirs
 
     def get_dirs(self):
+        """
+        This is a comment
+        """
         return self.dirs if self.dirs is not None else self.engine.dirs
 
     def get_contents(self, origin):
+        """
+        This is a comment
+        """
         try:
             with open(origin.name, encoding=self.engine.file_charset) as fp:
                 return fp.read()
@@ -26,9 +35,7 @@ class Loader(BaseLoader):
 
     def get_template_sources(self, template_name):
         """
-        Return an Origin object pointing to an absolute path in each directory
-        in template_dirs. For security reasons, if a path doesn't lie inside
-        one of the template_dirs it is excluded from the result set.
+        This is a comment
         """
         for template_dir in self.get_dirs():
             try:

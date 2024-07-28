@@ -11,6 +11,9 @@ from .models import Car, Part, Person, SportsCar
 class ManyToManySignalsTest(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.vw = Car.objects.create(name="VW")
         cls.bmw = Car.objects.create(name="BMW")
         cls.toyota = Car.objects.create(name="Toyota")
@@ -27,9 +30,15 @@ class ManyToManySignalsTest(TestCase):
         cls.daisy = Person.objects.create(name="Daisy")
 
     def setUp(self):
+        """
+        This is a comment
+        """
         self.m2m_changed_messages = []
 
     def m2m_changed_signal_receiver(self, signal, sender, **kwargs):
+        """
+        This is a comment
+        """
         message = {
             "instance": kwargs["instance"],
             "action": kwargs["action"],
@@ -44,6 +53,9 @@ class ManyToManySignalsTest(TestCase):
 
     def tearDown(self):
         # disconnect all signal handlers
+        """
+        This is a comment
+        """
         models.signals.m2m_changed.disconnect(
             self.m2m_changed_signal_receiver, Car.default_parts.through
         )
@@ -58,7 +70,9 @@ class ManyToManySignalsTest(TestCase):
         )
 
     def _initialize_signal_car(self, add_default_parts_before_set_signal=False):
-        """Install a listener on the two m2m relations."""
+        """
+        This is a comment
+        """
         models.signals.m2m_changed.connect(
             self.m2m_changed_signal_receiver, Car.optional_parts.through
         )
@@ -71,16 +85,14 @@ class ManyToManySignalsTest(TestCase):
 
     def test_pk_set_on_repeated_add_remove(self):
         """
-        m2m_changed is always fired, even for repeated calls to the same
-        method, but the behavior of pk_sets differs by action.
-
-        - For signals related to `add()`, only PKs that will actually be
-          inserted are sent.
-        - For `remove()` all PKs are sent, even if they will not affect the DB.
+        This is a comment
         """
         pk_sets_sent = []
 
         def handler(signal, sender, **kwargs):
+            """
+            This is a comment
+            """
             if kwargs["action"] in ["pre_add", "pre_remove"]:
                 pk_sets_sent.append(kwargs["pk_set"])
 
@@ -103,6 +115,9 @@ class ManyToManySignalsTest(TestCase):
         models.signals.m2m_changed.disconnect(handler, Car.default_parts.through)
 
     def test_m2m_relations_add_remove_clear(self):
+        """
+        This is a comment
+        """
         expected_messages = []
 
         self._initialize_signal_car(add_default_parts_before_set_signal=True)
@@ -151,6 +166,9 @@ class ManyToManySignalsTest(TestCase):
         self.assertEqual(self.m2m_changed_messages, expected_messages)
 
     def test_m2m_relations_signals_remove_relation(self):
+        """
+        This is a comment
+        """
         self._initialize_signal_car()
         # remove the engine from the self.vw and the airbag (which is not set
         # but is returned)
@@ -176,6 +194,9 @@ class ManyToManySignalsTest(TestCase):
         )
 
     def test_m2m_relations_signals_give_the_self_vw_some_optional_parts(self):
+        """
+        This is a comment
+        """
         expected_messages = []
 
         self._initialize_signal_car()
@@ -225,6 +246,9 @@ class ManyToManySignalsTest(TestCase):
         self.assertEqual(self.m2m_changed_messages, expected_messages)
 
     def test_m2m_relations_signals_reverse_relation_with_custom_related_name(self):
+        """
+        This is a comment
+        """
         self._initialize_signal_car()
         # remove airbag from the self.vw (reverse relation with custom
         # related_name)
@@ -250,6 +274,9 @@ class ManyToManySignalsTest(TestCase):
         )
 
     def test_m2m_relations_signals_clear_all_parts_of_the_self_vw(self):
+        """
+        This is a comment
+        """
         self._initialize_signal_car()
         # clear all parts of the self.vw
         self.vw.default_parts.clear()
@@ -272,6 +299,9 @@ class ManyToManySignalsTest(TestCase):
         )
 
     def test_m2m_relations_signals_all_the_doors_off_of_cars(self):
+        """
+        This is a comment
+        """
         self._initialize_signal_car()
         # take all the doors off of cars
         self.doors.car_set.clear()
@@ -294,6 +324,9 @@ class ManyToManySignalsTest(TestCase):
         )
 
     def test_m2m_relations_signals_reverse_relation(self):
+        """
+        This is a comment
+        """
         self._initialize_signal_car()
         # take all the airbags off of cars (clear reverse relation with custom
         # related_name)
@@ -317,6 +350,9 @@ class ManyToManySignalsTest(TestCase):
         )
 
     def test_m2m_relations_signals_alternative_ways(self):
+        """
+        This is a comment
+        """
         expected_messages = []
 
         self._initialize_signal_car()
@@ -385,6 +421,9 @@ class ManyToManySignalsTest(TestCase):
         self.assertEqual(self.m2m_changed_messages, expected_messages)
 
     def test_m2m_relations_signals_clearing_removing(self):
+        """
+        This is a comment
+        """
         expected_messages = []
 
         self._initialize_signal_car(add_default_parts_before_set_signal=True)
@@ -450,6 +489,9 @@ class ManyToManySignalsTest(TestCase):
         self.assertEqual(self.m2m_changed_messages, expected_messages)
 
     def test_m2m_relations_signals_when_inheritance(self):
+        """
+        This is a comment
+        """
         expected_messages = []
 
         self._initialize_signal_car(add_default_parts_before_set_signal=True)
@@ -501,6 +543,9 @@ class ManyToManySignalsTest(TestCase):
 
     def _initialize_signal_person(self):
         # Install a listener on the two m2m relations.
+        """
+        This is a comment
+        """
         models.signals.m2m_changed.connect(
             self.m2m_changed_signal_receiver, Person.fans.through
         )
@@ -509,6 +554,9 @@ class ManyToManySignalsTest(TestCase):
         )
 
     def test_m2m_relations_with_self_add_friends(self):
+        """
+        This is a comment
+        """
         self._initialize_signal_person()
         self.alice.friends.set([self.bob, self.chuck])
         self.assertEqual(
@@ -532,6 +580,9 @@ class ManyToManySignalsTest(TestCase):
         )
 
     def test_m2m_relations_with_self_add_fan(self):
+        """
+        This is a comment
+        """
         self._initialize_signal_person()
         self.alice.fans.set([self.daisy])
         self.assertEqual(
@@ -555,6 +606,9 @@ class ManyToManySignalsTest(TestCase):
         )
 
     def test_m2m_relations_with_self_add_idols(self):
+        """
+        This is a comment
+        """
         self._initialize_signal_person()
         self.chuck.idols.set([self.alice, self.bob])
         self.assertEqual(

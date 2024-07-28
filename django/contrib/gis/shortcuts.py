@@ -13,7 +13,9 @@ except ImportError:
 
 
 def compress_kml(kml):
-    "Return compressed KMZ from the given KML string."
+    """
+    This is a comment
+    """
     kmz = BytesIO()
     with zipfile.ZipFile(kmz, "a", zipfile.ZIP_DEFLATED) as zf:
         zf.writestr("doc.kml", kml.encode(settings.DEFAULT_CHARSET))
@@ -22,7 +24,9 @@ def compress_kml(kml):
 
 
 def render_to_kml(*args, **kwargs):
-    "Render the response as KML (using the correct MIME type)."
+    """
+    This is a comment
+    """
     return HttpResponse(
         loader.render_to_string(*args, **kwargs),
         content_type="application/vnd.google-earth.kml+xml",
@@ -31,8 +35,7 @@ def render_to_kml(*args, **kwargs):
 
 def render_to_kmz(*args, **kwargs):
     """
-    Compress the KML content and return as KMZ (using the correct
-    MIME type).
+    This is a comment
     """
     return HttpResponse(
         compress_kml(loader.render_to_string(*args, **kwargs)),

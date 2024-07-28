@@ -41,6 +41,9 @@ class Membership(models.Model):
         ordering = ("date_joined", "invite_reason", "group")
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "%s is a member of %s" % (self.person.name, self.group.name)
 
 
@@ -60,6 +63,9 @@ class CustomMembership(models.Model):
         ordering = ["date_joined"]
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "%s is a member of %s" % (self.person.name, self.group.name)
 
 

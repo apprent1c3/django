@@ -10,6 +10,9 @@ class Person(models.Model):
     last_name = models.CharField(max_length=20)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "%s %s" % (self.first_name, self.last_name)
 
 
@@ -22,6 +25,9 @@ class Author(models.Model):
     name = models.CharField(max_length=20)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -30,6 +36,9 @@ class Book(models.Model):
     authors = models.ManyToManyField(Author)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 

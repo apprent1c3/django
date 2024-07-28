@@ -8,6 +8,9 @@ from django.test.utils import freeze_time
 
 class SignedCookieTest(SimpleTestCase):
     def test_can_set_and_read_signed_cookies(self):
+        """
+        This is a comment
+        """
         response = HttpResponse()
         response.set_signed_cookie("c", "hello")
         self.assertIn("c", response.cookies)
@@ -18,6 +21,9 @@ class SignedCookieTest(SimpleTestCase):
         self.assertEqual(value, "hello")
 
     def test_can_use_salt(self):
+        """
+        This is a comment
+        """
         response = HttpResponse()
         response.set_signed_cookie("a", "hello", salt="one")
         request = HttpRequest()
@@ -28,6 +34,9 @@ class SignedCookieTest(SimpleTestCase):
             request.get_signed_cookie("a", salt="two")
 
     def test_detects_tampering(self):
+        """
+        This is a comment
+        """
         response = HttpResponse()
         response.set_signed_cookie("c", "hello")
         request = HttpRequest()
@@ -36,6 +45,9 @@ class SignedCookieTest(SimpleTestCase):
             request.get_signed_cookie("c")
 
     def test_default_argument_suppresses_exceptions(self):
+        """
+        This is a comment
+        """
         response = HttpResponse()
         response.set_signed_cookie("c", "hello")
         request = HttpRequest()
@@ -43,6 +55,9 @@ class SignedCookieTest(SimpleTestCase):
         self.assertIsNone(request.get_signed_cookie("c", default=None))
 
     def test_max_age_argument(self):
+        """
+        This is a comment
+        """
         value = "hello"
         with freeze_time(123456789):
             response = HttpResponse()
@@ -63,6 +78,9 @@ class SignedCookieTest(SimpleTestCase):
                 request.get_signed_cookie("c", max_age=timedelta(seconds=10))
 
     def test_set_signed_cookie_max_age_argument(self):
+        """
+        This is a comment
+        """
         response = HttpResponse()
         response.set_signed_cookie("c", "value", max_age=100)
         self.assertEqual(response.cookies["c"]["max-age"], 100)
@@ -71,6 +89,9 @@ class SignedCookieTest(SimpleTestCase):
 
     @override_settings(SECRET_KEY=b"\xe7")
     def test_signed_cookies_with_binary_key(self):
+        """
+        This is a comment
+        """
         response = HttpResponse()
         response.set_signed_cookie("c", "hello")
 

@@ -8,6 +8,9 @@ class Site(models.Model):
     domain = models.CharField(max_length=100)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.domain
 
 
@@ -26,13 +29,22 @@ class Article(models.Model):
     created = models.DateTimeField(null=True)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.title
 
     def test_from_model(self):
+        """
+        This is a comment
+        """
         return "nothing"
 
     @admin.display(description="not What you Expect")
     def test_from_model_with_override(self):
+        """
+        This is a comment
+        """
         return "nothing"
 
 
@@ -46,6 +58,9 @@ class Count(models.Model):
     parent = models.ForeignKey("self", models.CASCADE, null=True)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return str(self.num)
 
 
@@ -101,6 +116,9 @@ class InheritedLogEntryManager(LogEntryManager):
         action_flag,
         change_message="",
     ):
+        """
+        This is a comment
+        """
         return LogEntry.objects.create(
             user_id=user_id,
             content_type_id=content_type_id,

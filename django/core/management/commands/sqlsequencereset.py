@@ -10,6 +10,9 @@ class Command(AppCommand):
     output_transaction = True
 
     def add_arguments(self, parser):
+        """
+        This is a comment
+        """
         super().add_arguments(parser)
         parser.add_argument(
             "--database",
@@ -22,6 +25,9 @@ class Command(AppCommand):
         )
 
     def handle_app_config(self, app_config, **options):
+        """
+        This is a comment
+        """
         if app_config.models_module is None:
             return
         connection = connections[options["database"]]

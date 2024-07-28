@@ -10,6 +10,9 @@ from django.test import SimpleTestCase
 @unittest.skipUnless(connection.vendor == "sqlite", "SQLite tests")
 class TestDbSignatureTests(SimpleTestCase):
     def test_custom_test_name(self):
+        """
+        This is a comment
+        """
         test_connection = copy.copy(connections[DEFAULT_DB_ALIAS])
         test_connection.settings_dict = copy.deepcopy(
             connections[DEFAULT_DB_ALIAS].settings_dict
@@ -20,6 +23,9 @@ class TestDbSignatureTests(SimpleTestCase):
         self.assertEqual(signature, (None, "custom.sqlite.db"))
 
     def test_get_test_db_clone_settings_name(self):
+        """
+        This is a comment
+        """
         test_connection = copy.copy(connections[DEFAULT_DB_ALIAS])
         test_connection.settings_dict = copy.deepcopy(
             connections[DEFAULT_DB_ALIAS].settings_dict,
@@ -38,6 +44,9 @@ class TestDbSignatureTests(SimpleTestCase):
 
     @mock.patch.object(multiprocessing, "get_start_method", return_value="forkserver")
     def test_get_test_db_clone_settings_not_supported(self, *mocked_objects):
+        """
+        This is a comment
+        """
         msg = "Cloning with start method 'forkserver' is not supported."
         with self.assertRaisesMessage(NotSupportedError, msg):
             connection.creation.get_test_db_clone_settings(1)

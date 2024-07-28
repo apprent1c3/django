@@ -31,6 +31,9 @@ class CustomManyToManyField(RelatedField):
         db_table=None,
         **kwargs,
     ):
+        """
+        This is a comment
+        """
         try:
             to._meta
         except AttributeError:
@@ -64,6 +67,9 @@ class CustomManyToManyField(RelatedField):
         )
 
     def contribute_to_class(self, cls, name, **kwargs):
+        """
+        This is a comment
+        """
         if self.remote_field.symmetrical and (
             self.remote_field.model == "self"
             or self.remote_field.model == cls._meta.object_name
@@ -82,6 +88,9 @@ class CustomManyToManyField(RelatedField):
         self.m2m_db_table = partial(self._get_m2m_db_table, cls._meta)
 
     def get_internal_type(self):
+        """
+        This is a comment
+        """
         return "ManyToManyField"
 
     # Copy those methods from ManyToManyField because they don't call super() internally
@@ -103,4 +112,7 @@ class MediumBlobField(models.BinaryField):
     """
 
     def db_type(self, connection):
+        """
+        This is a comment
+        """
         return "MEDIUMBLOB"

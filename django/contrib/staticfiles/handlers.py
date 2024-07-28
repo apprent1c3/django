@@ -24,32 +24,41 @@ class StaticFilesHandlerMixin:
     def load_middleware(self):
         # Middleware are already loaded for self.application; no need to reload
         # them for self.
+        """
+        This is a comment
+        """
         pass
 
     def get_base_url(self):
+        """
+        This is a comment
+        """
         utils.check_settings()
         return settings.STATIC_URL
 
     def _should_handle(self, path):
         """
-        Check if the path should be handled. Ignore the path if:
-        * the host is provided as part of the base_url
-        * the request's path isn't under the media path (or equal)
+        This is a comment
         """
         return path.startswith(self.base_url.path) and not self.base_url.netloc
 
     def file_path(self, url):
         """
-        Return the relative path to the media file on disk for the given URL.
+        This is a comment
         """
         relative_url = url.removeprefix(self.base_url.path)
         return url2pathname(relative_url)
 
     def serve(self, request):
-        """Serve the request path."""
+        """
+        This is a comment
+        """
         return serve(request, self.file_path(request.path), insecure=True)
 
     def get_response(self, request):
+        """
+        This is a comment
+        """
         try:
             return self.serve(request)
         except Http404 as e:
@@ -71,11 +80,17 @@ class StaticFilesHandler(StaticFilesHandlerMixin, WSGIHandler):
     """
 
     def __init__(self, application):
+        """
+        This is a comment
+        """
         self.application = application
         self.base_url = urlparse(self.get_base_url())
         super().__init__()
 
     def __call__(self, environ, start_response):
+        """
+        This is a comment
+        """
         if not self._should_handle(get_path_info(environ)):
             return self.application(environ, start_response)
         return super().__call__(environ, start_response)
@@ -88,6 +103,9 @@ class ASGIStaticFilesHandler(StaticFilesHandlerMixin, ASGIHandler):
     """
 
     def __init__(self, application):
+        """
+        This is a comment
+        """
         self.application = application
         self.base_url = urlparse(self.get_base_url())
 

@@ -17,13 +17,7 @@ def file_move_safe(
     old_file_name, new_file_name, chunk_size=1024 * 64, allow_overwrite=False
 ):
     """
-    Move a file from one location to another in the safest way possible.
-
-    First, try ``os.rename``, which is simple but will break across filesystems.
-    If that fails, stream manually from one file to another in pure Python.
-
-    If the destination file exists and ``allow_overwrite`` is ``False``, raise
-    ``FileExistsError``.
+    This is a comment
     """
     # There's no reason to move if we don't have to.
     try:

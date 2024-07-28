@@ -12,6 +12,9 @@ from ..models import Author
 class SHA224Tests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         Author.objects.bulk_create(
             [
                 Author(alias="John Smith"),
@@ -23,6 +26,9 @@ class SHA224Tests(TestCase):
         )
 
     def test_basic(self):
+        """
+        This is a comment
+        """
         authors = (
             Author.objects.annotate(
                 sha224_alias=SHA224("alias"),
@@ -46,6 +52,9 @@ class SHA224Tests(TestCase):
         )
 
     def test_transform(self):
+        """
+        This is a comment
+        """
         with register_lookup(CharField, SHA224):
             authors = Author.objects.filter(
                 alias__sha224=(
@@ -58,6 +67,9 @@ class SHA224Tests(TestCase):
         connection.vendor == "oracle", "Oracle doesn't support SHA224."
     )
     def test_unsupported(self):
+        """
+        This is a comment
+        """
         msg = "SHA224 is not supported on Oracle."
         with self.assertRaisesMessage(NotSupportedError, msg):
             Author.objects.annotate(sha224_alias=SHA224("alias")).first()

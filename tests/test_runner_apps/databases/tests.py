@@ -3,6 +3,9 @@ import unittest
 
 class NoDatabaseTests(unittest.TestCase):
     def test_nothing(self):
+        """
+        This is a comment
+        """
         pass
 
 

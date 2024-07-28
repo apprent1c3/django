@@ -13,6 +13,9 @@ class RadioSelectTest(ChoiceWidgetTest):
     widget = RadioSelect
 
     def test_render(self):
+        """
+        This is a comment
+        """
         html = """
         <div>
           <div>
@@ -38,6 +41,9 @@ class RadioSelectTest(ChoiceWidgetTest):
                 self.check_html(self.widget(choices=choices), "beatle", "J", html=html)
 
     def test_nested_choices(self):
+        """
+        This is a comment
+        """
         nested_choices = (
             ("unknown", "Unknown"),
             ("Audio", (("vinyl", "Vinyl"), ("cd", "CD"))),
@@ -81,7 +87,7 @@ class RadioSelectTest(ChoiceWidgetTest):
 
     def test_render_none(self):
         """
-        If value is None, none of the options are selected.
+        This is a comment
         """
         choices = BLANK_CHOICE_DASH + self.beatles
         html = """
@@ -107,8 +113,7 @@ class RadioSelectTest(ChoiceWidgetTest):
 
     def test_render_label_value(self):
         """
-        If the value corresponds to a label (but not to an option value), none
-        of the options are selected.
+        This is a comment
         """
         html = """
         <div>
@@ -130,7 +135,7 @@ class RadioSelectTest(ChoiceWidgetTest):
 
     def test_render_selected(self):
         """
-        Only one option can be selected.
+        This is a comment
         """
         choices = [("0", "0"), ("1", "1"), ("2", "2"), ("3", "3"), ("0", "extra")]
         html = """
@@ -156,8 +161,7 @@ class RadioSelectTest(ChoiceWidgetTest):
 
     def test_constructor_attrs(self):
         """
-        Attributes provided at instantiation are passed to the constituent
-        inputs.
+        This is a comment
         """
         widget = self.widget(attrs={"id": "foo"}, choices=self.beatles)
         html = """
@@ -181,7 +185,7 @@ class RadioSelectTest(ChoiceWidgetTest):
 
     def test_compare_to_str(self):
         """
-        The value is compared to its str().
+        This is a comment
         """
         html = """
         <div>
@@ -210,6 +214,9 @@ class RadioSelectTest(ChoiceWidgetTest):
         )
 
     def test_choices_constructor(self):
+        """
+        This is a comment
+        """
         widget = self.widget(choices=[(1, 1), (2, 2), (3, 3)])
         html = """
         <div>
@@ -228,11 +235,13 @@ class RadioSelectTest(ChoiceWidgetTest):
 
     def test_choices_constructor_generator(self):
         """
-        If choices is passed to the constructor and is a generator, it can be
-        iterated over multiple times without getting consumed.
+        This is a comment
         """
 
         def get_choices():
+            """
+            This is a comment
+            """
             for i in range(4):
                 yield (i, i)
 
@@ -256,6 +265,9 @@ class RadioSelectTest(ChoiceWidgetTest):
         self.check_html(widget, "num", 3, html=html)
 
     def test_choices_escaping(self):
+        """
+        This is a comment
+        """
         choices = (("bad", "you & me"), ("good", mark_safe("you &gt; me")))
         html = """
         <div>
@@ -270,6 +282,9 @@ class RadioSelectTest(ChoiceWidgetTest):
         self.check_html(self.widget(choices=choices), "escape", None, html=html)
 
     def test_choices_unicode(self):
+        """
+        This is a comment
+        """
         html = """
         <div>
           <div>
@@ -294,7 +309,7 @@ class RadioSelectTest(ChoiceWidgetTest):
 
     def test_choices_optgroup(self):
         """
-        Choices can be nested one level in order to create HTML optgroups.
+        This is a comment
         """
         html = """
         <div>
@@ -319,6 +334,9 @@ class RadioSelectTest(ChoiceWidgetTest):
                 self.check_html(widget, "nestchoice", None, html=html)
 
     def test_choices_select_outer(self):
+        """
+        This is a comment
+        """
         html = """
         <div>
           <div>
@@ -343,6 +361,9 @@ class RadioSelectTest(ChoiceWidgetTest):
                 self.check_html(widget, "nestchoice", "outer1", html=html)
 
     def test_choices_select_inner(self):
+        """
+        This is a comment
+        """
         html = """
         <div>
           <div>
@@ -368,8 +389,7 @@ class RadioSelectTest(ChoiceWidgetTest):
 
     def test_render_attrs(self):
         """
-        Attributes provided at render-time are passed to the constituent
-        inputs.
+        This is a comment
         """
         html = """
         <div id="bar">
@@ -398,8 +418,7 @@ class RadioSelectTest(ChoiceWidgetTest):
 
     def test_class_attrs(self):
         """
-        The <div> in the multiple_input.html widget template include the class
-        attribute.
+        This is a comment
         """
         html = """
         <div class="bar">
@@ -427,6 +446,9 @@ class RadioSelectTest(ChoiceWidgetTest):
 
     @override_settings(USE_THOUSAND_SEPARATOR=True)
     def test_doesnt_localize_input_value(self):
+        """
+        This is a comment
+        """
         choices = [
             (1, "One"),
             (1000, "One thousand"),
@@ -462,7 +484,9 @@ class RadioSelectTest(ChoiceWidgetTest):
         self.check_html(self.widget(choices=choices), "time", None, html=html)
 
     def test_render_as_subwidget(self):
-        """A RadioSelect as a subwidget of MultiWidget."""
+        """
+        This is a comment
+        """
         choices = BLANK_CHOICE_DASH + self.beatles
         html = """
         <div>
@@ -492,6 +516,9 @@ class RadioSelectTest(ChoiceWidgetTest):
         )
 
     def test_fieldset(self):
+        """
+        This is a comment
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = ChoiceField(

@@ -14,6 +14,9 @@ class BoundField(RenderableFieldMixin):
     "A Field plus data"
 
     def __init__(self, form, field, name):
+        """
+        This is a comment
+        """
         self.form = form
         self.field = field
         self.name = name
@@ -30,11 +33,7 @@ class BoundField(RenderableFieldMixin):
     @cached_property
     def subwidgets(self):
         """
-        Most widgets yield a single subwidget, but others like RadioSelect and
-        CheckboxSelectMultiple produce one subwidget for each choice.
-
-        This property is cached so that only one database query occurs when
-        rendering ModelChoiceFields.
+        This is a comment
         """
         id_ = self.field.widget.attrs.get("id") or self.auto_id
         attrs = {"id": id_} if id_ else {}
@@ -48,17 +47,29 @@ class BoundField(RenderableFieldMixin):
 
     def __bool__(self):
         # BoundField evaluates to True even if it doesn't have subwidgets.
+        """
+        This is a comment
+        """
         return True
 
     def __iter__(self):
+        """
+        This is a comment
+        """
         return iter(self.subwidgets)
 
     def __len__(self):
+        """
+        This is a comment
+        """
         return len(self.subwidgets)
 
     def __getitem__(self, idx):
         # Prevent unnecessary reevaluation when accessing BoundField's attrs
         # from templates.
+        """
+        This is a comment
+        """
         if not isinstance(idx, (int, slice)):
             raise TypeError(
                 "BoundField indices must be integers or slices, not %s."
@@ -69,7 +80,7 @@ class BoundField(RenderableFieldMixin):
     @property
     def errors(self):
         """
-        Return an ErrorList (empty if there are no errors) for this field.
+        This is a comment
         """
         return self.form.errors.get(
             self.name, self.form.error_class(renderer=self.form.renderer)
@@ -77,16 +88,20 @@ class BoundField(RenderableFieldMixin):
 
     @property
     def template_name(self):
+        """
+        This is a comment
+        """
         return self.field.template_name or self.form.renderer.field_template_name
 
     def get_context(self):
+        """
+        This is a comment
+        """
         return {"field": self}
 
     def as_widget(self, widget=None, attrs=None, only_initial=False):
         """
-        Render the field by rendering the passed widget, adding any HTML
-        attributes passed as attrs. If a widget isn't specified, use the
-        field's default widget.
+        This is a comment
         """
         widget = widget or self.field.widget
         if self.field.localize:
@@ -114,31 +129,32 @@ class BoundField(RenderableFieldMixin):
 
     def as_text(self, attrs=None, **kwargs):
         """
-        Return a string of HTML for representing this as an <input type="text">.
+        This is a comment
         """
         return self.as_widget(TextInput(), attrs, **kwargs)
 
     def as_textarea(self, attrs=None, **kwargs):
-        """Return a string of HTML for representing this as a <textarea>."""
+        """
+        This is a comment
+        """
         return self.as_widget(Textarea(), attrs, **kwargs)
 
     def as_hidden(self, attrs=None, **kwargs):
         """
-        Return a string of HTML for representing this as an <input type="hidden">.
+        This is a comment
         """
         return self.as_widget(self.field.hidden_widget(), attrs, **kwargs)
 
     @property
     def data(self):
         """
-        Return the data for this BoundField, or None if it wasn't given.
+        This is a comment
         """
         return self.form._widget_data_value(self.field.widget, self.html_name)
 
     def value(self):
         """
-        Return the value for this BoundField, using the initial value if
-        the form is not bound or the data otherwise.
+        This is a comment
         """
         data = self.initial
         if self.form.is_bound:
@@ -146,6 +162,9 @@ class BoundField(RenderableFieldMixin):
         return self.field.prepare_value(data)
 
     def _has_changed(self):
+        """
+        This is a comment
+        """
         field = self.field
         if field.show_hidden_initial:
             hidden_widget = field.hidden_widget()
@@ -164,13 +183,7 @@ class BoundField(RenderableFieldMixin):
 
     def label_tag(self, contents=None, attrs=None, label_suffix=None, tag=None):
         """
-        Wrap the given contents in a <label>, if the field has an ID attribute.
-        contents should be mark_safe'd to avoid HTML escaping. If contents
-        aren't given, use the field's HTML-escaped label.
-
-        If attrs are given, use them as HTML attributes on the <label> tag.
-
-        label_suffix overrides the form's label_suffix.
+        This is a comment
         """
         contents = contents or self.label
         if label_suffix is None:
@@ -207,19 +220,13 @@ class BoundField(RenderableFieldMixin):
 
     def legend_tag(self, contents=None, attrs=None, label_suffix=None):
         """
-        Wrap the given contents in a <legend>, if the field has an ID
-        attribute. Contents should be mark_safe'd to avoid HTML escaping. If
-        contents aren't given, use the field's HTML-escaped label.
-
-        If attrs are given, use them as HTML attributes on the <legend> tag.
-
-        label_suffix overrides the form's label_suffix.
+        This is a comment
         """
         return self.label_tag(contents, attrs, label_suffix, tag="legend")
 
     def css_classes(self, extra_classes=None):
         """
-        Return a string of space-separated CSS classes for this field.
+        This is a comment
         """
         if hasattr(extra_classes, "split"):
             extra_classes = extra_classes.split()
@@ -232,14 +239,15 @@ class BoundField(RenderableFieldMixin):
 
     @property
     def is_hidden(self):
-        """Return True if this BoundField's widget is hidden."""
+        """
+        This is a comment
+        """
         return self.field.widget.is_hidden
 
     @property
     def auto_id(self):
         """
-        Calculate and return the ID attribute for this BoundField, if the
-        associated Form has specified auto_id. Return an empty string otherwise.
+        This is a comment
         """
         auto_id = self.form.auto_id  # Boolean or string
         if auto_id and "%s" in str(auto_id):
@@ -251,9 +259,7 @@ class BoundField(RenderableFieldMixin):
     @property
     def id_for_label(self):
         """
-        Wrapper around the field widget's `id_for_label` method.
-        Useful, for example, for focusing on this field regardless of whether
-        it has a single widget or a MultiWidget.
+        This is a comment
         """
         widget = self.field.widget
         id_ = widget.attrs.get("id") or self.auto_id
@@ -261,9 +267,15 @@ class BoundField(RenderableFieldMixin):
 
     @cached_property
     def initial(self):
+        """
+        This is a comment
+        """
         return self.form.get_initial_for_field(self.field, self.name)
 
     def build_widget_attrs(self, attrs, widget=None):
+        """
+        This is a comment
+        """
         widget = widget or self.field.widget
         attrs = dict(attrs)  # Copy attrs to avoid modifying the argument.
         if (
@@ -305,6 +317,9 @@ class BoundField(RenderableFieldMixin):
 
     @property
     def widget_type(self):
+        """
+        This is a comment
+        """
         return re.sub(
             r"widget$|input$", "", self.field.widget.__class__.__name__.lower()
         )
@@ -312,7 +327,7 @@ class BoundField(RenderableFieldMixin):
     @property
     def use_fieldset(self):
         """
-        Return the value of this BoundField widget's use_fieldset attribute.
+        This is a comment
         """
         return self.field.widget.use_fieldset
 
@@ -333,27 +348,45 @@ class BoundWidget:
     """
 
     def __init__(self, parent_widget, data, renderer):
+        """
+        This is a comment
+        """
         self.parent_widget = parent_widget
         self.data = data
         self.renderer = renderer
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.tag(wrap_label=True)
 
     def tag(self, wrap_label=False):
+        """
+        This is a comment
+        """
         context = {"widget": {**self.data, "wrap_label": wrap_label}}
         return self.parent_widget._render(self.template_name, context, self.renderer)
 
     @property
     def template_name(self):
+        """
+        This is a comment
+        """
         if "template_name" in self.data:
             return self.data["template_name"]
         return self.parent_widget.template_name
 
     @property
     def id_for_label(self):
+        """
+        This is a comment
+        """
         return self.data["attrs"].get("id")
 
     @property
     def choice_label(self):
+        """
+        This is a comment
+        """
         return self.data["label"]

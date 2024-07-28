@@ -16,6 +16,9 @@ class Primary(models.Model):
     related = models.ForeignKey(Secondary, models.CASCADE)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -46,6 +49,9 @@ class RefreshPrimaryProxy(Primary):
 
     def refresh_from_db(self, using=None, fields=None, **kwargs):
         # Reloads all deferred fields if any of the fields is deferred.
+        """
+        This is a comment
+        """
         if fields is not None:
             fields = set(fields)
             deferred_fields = self.get_deferred_fields()

@@ -13,26 +13,41 @@ from django.utils.termcolors import (
 
 class TermColorTests(unittest.TestCase):
     def test_empty_string(self):
+        """
+        This is a comment
+        """
         self.assertEqual(parse_color_setting(""), PALETTES[DEFAULT_PALETTE])
 
     def test_simple_palette(self):
+        """
+        This is a comment
+        """
         self.assertEqual(parse_color_setting("light"), PALETTES[LIGHT_PALETTE])
         self.assertEqual(parse_color_setting("dark"), PALETTES[DARK_PALETTE])
         self.assertIsNone(parse_color_setting("nocolor"))
 
     def test_fg(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             parse_color_setting("error=green"),
             dict(PALETTES[NOCOLOR_PALETTE], ERROR={"fg": "green"}),
         )
 
     def test_fg_bg(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             parse_color_setting("error=green/blue"),
             dict(PALETTES[NOCOLOR_PALETTE], ERROR={"fg": "green", "bg": "blue"}),
         )
 
     def test_fg_opts(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             parse_color_setting("error=green,blink"),
             dict(PALETTES[NOCOLOR_PALETTE], ERROR={"fg": "green", "opts": ("blink",)}),
@@ -46,6 +61,9 @@ class TermColorTests(unittest.TestCase):
         )
 
     def test_fg_bg_opts(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             parse_color_setting("error=green/blue,blink"),
             dict(
@@ -62,23 +80,35 @@ class TermColorTests(unittest.TestCase):
         )
 
     def test_override_palette(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             parse_color_setting("light;error=green"),
             dict(PALETTES[LIGHT_PALETTE], ERROR={"fg": "green"}),
         )
 
     def test_override_nocolor(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             parse_color_setting("nocolor;error=green"),
             dict(PALETTES[NOCOLOR_PALETTE], ERROR={"fg": "green"}),
         )
 
     def test_reverse_override(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             parse_color_setting("error=green;light"), PALETTES[LIGHT_PALETTE]
         )
 
     def test_multiple_roles(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             parse_color_setting("error=green;sql_field=blue"),
             dict(
@@ -89,6 +119,9 @@ class TermColorTests(unittest.TestCase):
         )
 
     def test_override_with_multiple_roles(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             parse_color_setting("light;error=green;sql_field=blue"),
             dict(
@@ -97,11 +130,17 @@ class TermColorTests(unittest.TestCase):
         )
 
     def test_empty_definition(self):
+        """
+        This is a comment
+        """
         self.assertIsNone(parse_color_setting(";"))
         self.assertEqual(parse_color_setting("light;"), PALETTES[LIGHT_PALETTE])
         self.assertIsNone(parse_color_setting(";;;"))
 
     def test_empty_options(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             parse_color_setting("error=green,"),
             dict(PALETTES[NOCOLOR_PALETTE], ERROR={"fg": "green"}),
@@ -116,9 +155,15 @@ class TermColorTests(unittest.TestCase):
         )
 
     def test_bad_palette(self):
+        """
+        This is a comment
+        """
         self.assertIsNone(parse_color_setting("unknown"))
 
     def test_bad_role(self):
+        """
+        This is a comment
+        """
         self.assertIsNone(parse_color_setting("unknown="))
         self.assertIsNone(parse_color_setting("unknown=green"))
         self.assertEqual(
@@ -127,6 +172,9 @@ class TermColorTests(unittest.TestCase):
         )
 
     def test_bad_color(self):
+        """
+        This is a comment
+        """
         self.assertIsNone(parse_color_setting("error="))
         self.assertEqual(
             parse_color_setting("error=;sql_field=blue"),
@@ -154,6 +202,9 @@ class TermColorTests(unittest.TestCase):
         )
 
     def test_bad_option(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             parse_color_setting("error=green,unknown"),
             dict(PALETTES[NOCOLOR_PALETTE], ERROR={"fg": "green"}),
@@ -164,6 +215,9 @@ class TermColorTests(unittest.TestCase):
         )
 
     def test_role_case(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             parse_color_setting("ERROR=green"),
             dict(PALETTES[NOCOLOR_PALETTE], ERROR={"fg": "green"}),
@@ -174,6 +228,9 @@ class TermColorTests(unittest.TestCase):
         )
 
     def test_color_case(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             parse_color_setting("error=GREEN"),
             dict(PALETTES[NOCOLOR_PALETTE], ERROR={"fg": "green"}),
@@ -192,6 +249,9 @@ class TermColorTests(unittest.TestCase):
         )
 
     def test_opts_case(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             parse_color_setting("error=green,BLINK"),
             dict(PALETTES[NOCOLOR_PALETTE], ERROR={"fg": "green", "opts": ("blink",)}),
@@ -202,6 +262,9 @@ class TermColorTests(unittest.TestCase):
         )
 
     def test_colorize_empty_text(self):
+        """
+        This is a comment
+        """
         self.assertEqual(colorize(text=None), "\x1b[m\x1b[0m")
         self.assertEqual(colorize(text=""), "\x1b[m\x1b[0m")
 
@@ -209,15 +272,24 @@ class TermColorTests(unittest.TestCase):
         self.assertEqual(colorize(text="", opts=("noreset",)), "\x1b[m")
 
     def test_colorize_reset(self):
+        """
+        This is a comment
+        """
         self.assertEqual(colorize(text="", opts=("reset",)), "\x1b[0m")
 
     def test_colorize_fg_bg(self):
+        """
+        This is a comment
+        """
         self.assertEqual(colorize(text="Test", fg="red"), "\x1b[31mTest\x1b[0m")
         self.assertEqual(colorize(text="Test", bg="red"), "\x1b[41mTest\x1b[0m")
         # Ignored kwarg.
         self.assertEqual(colorize(text="Test", other="red"), "\x1b[mTest\x1b[0m")
 
     def test_colorize_opts(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             colorize(text="Test", opts=("bold", "underscore")),
             "\x1b[1;4mTest\x1b[0m",

@@ -8,6 +8,9 @@ from ..models import DecimalModel, FloatModel, IntegerModel
 
 class PowerTests(TestCase):
     def test_null(self):
+        """
+        This is a comment
+        """
         IntegerModel.objects.create(big=100)
         obj = IntegerModel.objects.annotate(
             null_power_small=Power("small", "normal"),
@@ -19,18 +22,27 @@ class PowerTests(TestCase):
         self.assertIsNone(obj.null_power_big)
 
     def test_decimal(self):
+        """
+        This is a comment
+        """
         DecimalModel.objects.create(n1=Decimal("1.0"), n2=Decimal("-0.6"))
         obj = DecimalModel.objects.annotate(n_power=Power("n1", "n2")).first()
         self.assertIsInstance(obj.n_power, Decimal)
         self.assertAlmostEqual(obj.n_power, Decimal(obj.n1**obj.n2))
 
     def test_float(self):
+        """
+        This is a comment
+        """
         FloatModel.objects.create(f1=2.3, f2=1.1)
         obj = FloatModel.objects.annotate(f_power=Power("f1", "f2")).first()
         self.assertIsInstance(obj.f_power, float)
         self.assertAlmostEqual(obj.f_power, obj.f1**obj.f2)
 
     def test_integer(self):
+        """
+        This is a comment
+        """
         IntegerModel.objects.create(small=-1, normal=20, big=3)
         obj = IntegerModel.objects.annotate(
             small_power=Power("small", "normal"),

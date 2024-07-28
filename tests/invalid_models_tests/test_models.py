@@ -14,6 +14,9 @@ class EmptyRouter:
 
 
 def get_max_column_name_length():
+    """
+    This is a comment
+    """
     allowed_len = None
     db_alias = None
 
@@ -31,6 +34,9 @@ def get_max_column_name_length():
 @isolate_apps("invalid_models_tests")
 class UniqueTogetherTests(SimpleTestCase):
     def test_non_iterable(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             class Meta:
                 unique_together = 42
@@ -47,6 +53,9 @@ class UniqueTogetherTests(SimpleTestCase):
         )
 
     def test_list_containing_non_iterable(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             one = models.IntegerField()
             two = models.IntegerField()
@@ -66,6 +75,9 @@ class UniqueTogetherTests(SimpleTestCase):
         )
 
     def test_non_list(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             class Meta:
                 unique_together = "not-a-list"
@@ -82,6 +94,9 @@ class UniqueTogetherTests(SimpleTestCase):
         )
 
     def test_valid_model(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             one = models.IntegerField()
             two = models.IntegerField()
@@ -93,6 +108,9 @@ class UniqueTogetherTests(SimpleTestCase):
         self.assertEqual(Model.check(), [])
 
     def test_pointing_to_missing_field(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             class Meta:
                 unique_together = [["missing_field"]]
@@ -110,6 +128,9 @@ class UniqueTogetherTests(SimpleTestCase):
         )
 
     def test_pointing_to_m2m(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             m2m = models.ManyToManyField("self")
 
@@ -129,6 +150,9 @@ class UniqueTogetherTests(SimpleTestCase):
         )
 
     def test_pointing_to_fk(self):
+        """
+        This is a comment
+        """
         class Foo(models.Model):
             pass
 
@@ -149,6 +173,9 @@ class UniqueTogetherTests(SimpleTestCase):
 @isolate_apps("invalid_models_tests")
 class IndexesTests(TestCase):
     def test_pointing_to_missing_field(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             class Meta:
                 indexes = [models.Index(fields=["missing_field"], name="name")]
@@ -165,6 +192,9 @@ class IndexesTests(TestCase):
         )
 
     def test_pointing_to_m2m_field(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             m2m = models.ManyToManyField("self")
 
@@ -184,6 +214,9 @@ class IndexesTests(TestCase):
         )
 
     def test_pointing_to_non_local_field(self):
+        """
+        This is a comment
+        """
         class Foo(models.Model):
             field1 = models.IntegerField()
 
@@ -207,6 +240,9 @@ class IndexesTests(TestCase):
         )
 
     def test_pointing_to_fk(self):
+        """
+        This is a comment
+        """
         class Foo(models.Model):
             pass
 
@@ -226,6 +262,9 @@ class IndexesTests(TestCase):
         self.assertEqual(Bar.check(), [])
 
     def test_name_constraints(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             class Meta:
                 indexes = [
@@ -247,6 +286,9 @@ class IndexesTests(TestCase):
         )
 
     def test_max_name_length(self):
+        """
+        This is a comment
+        """
         index_name = "x" * 31
 
         class Model(models.Model):
@@ -266,6 +308,9 @@ class IndexesTests(TestCase):
         )
 
     def test_index_with_condition(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             age = models.IntegerField()
 
@@ -298,6 +343,9 @@ class IndexesTests(TestCase):
         self.assertEqual(errors, expected)
 
     def test_index_with_condition_required_db_features(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             age = models.IntegerField()
 
@@ -314,6 +362,9 @@ class IndexesTests(TestCase):
         self.assertEqual(Model.check(databases=self.databases), [])
 
     def test_index_with_include(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             age = models.IntegerField()
 
@@ -346,6 +397,9 @@ class IndexesTests(TestCase):
         self.assertEqual(errors, expected)
 
     def test_index_with_include_required_db_features(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             age = models.IntegerField()
 
@@ -363,6 +417,9 @@ class IndexesTests(TestCase):
 
     @skipUnlessDBFeature("supports_covering_indexes")
     def test_index_include_pointing_to_missing_field(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             class Meta:
                 indexes = [
@@ -382,6 +439,9 @@ class IndexesTests(TestCase):
 
     @skipUnlessDBFeature("supports_covering_indexes")
     def test_index_include_pointing_to_m2m_field(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             m2m = models.ManyToManyField("self")
 
@@ -402,6 +462,9 @@ class IndexesTests(TestCase):
 
     @skipUnlessDBFeature("supports_covering_indexes")
     def test_index_include_pointing_to_non_local_field(self):
+        """
+        This is a comment
+        """
         class Parent(models.Model):
             field1 = models.IntegerField()
 
@@ -428,6 +491,9 @@ class IndexesTests(TestCase):
 
     @skipUnlessDBFeature("supports_covering_indexes")
     def test_index_include_pointing_to_fk(self):
+        """
+        This is a comment
+        """
         class Target(models.Model):
             pass
 
@@ -447,6 +513,9 @@ class IndexesTests(TestCase):
         self.assertEqual(Model.check(databases=self.databases), [])
 
     def test_func_index(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             name = models.CharField(max_length=10)
 
@@ -466,6 +535,9 @@ class IndexesTests(TestCase):
         self.assertEqual(Model.check(databases=self.databases), expected)
 
     def test_func_index_required_db_features(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             name = models.CharField(max_length=10)
 
@@ -476,6 +548,9 @@ class IndexesTests(TestCase):
         self.assertEqual(Model.check(databases=self.databases), [])
 
     def test_func_index_complex_expression_custom_lookup(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             height = models.IntegerField()
             weight = models.IntegerField()
@@ -493,6 +568,9 @@ class IndexesTests(TestCase):
             self.assertEqual(Model.check(), [])
 
     def test_func_index_pointing_to_missing_field(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             class Meta:
                 indexes = [models.Index(Lower("missing_field").desc(), name="name")]
@@ -509,6 +587,9 @@ class IndexesTests(TestCase):
         )
 
     def test_func_index_pointing_to_missing_field_nested(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             class Meta:
                 indexes = [
@@ -527,6 +608,9 @@ class IndexesTests(TestCase):
         )
 
     def test_func_index_pointing_to_m2m_field(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             m2m = models.ManyToManyField("self")
 
@@ -546,6 +630,9 @@ class IndexesTests(TestCase):
         )
 
     def test_func_index_pointing_to_non_local_field(self):
+        """
+        This is a comment
+        """
         class Foo(models.Model):
             field1 = models.CharField(max_length=15)
 
@@ -567,6 +654,9 @@ class IndexesTests(TestCase):
         )
 
     def test_func_index_pointing_to_fk(self):
+        """
+        This is a comment
+        """
         class Foo(models.Model):
             pass
 
@@ -587,6 +677,9 @@ class FieldNamesTests(TestCase):
     databases = {"default", "other"}
 
     def test_ending_with_underscore(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             field_ = models.CharField(max_length=10)
             m2m_ = models.ManyToManyField("self")
@@ -615,8 +708,7 @@ class FieldNamesTests(TestCase):
     )
     def test_M2M_long_column_name(self):
         """
-        #13711 -- Model check for long M2M column names when database has
-        column name length limits.
+        This is a comment
         """
 
         # A model with very long name which will be used to set relations to.
@@ -724,8 +816,7 @@ class FieldNamesTests(TestCase):
     )
     def test_local_field_long_column_name(self):
         """
-        #13711 -- Model check for long column names
-        when database does not support long names.
+        This is a comment
         """
 
         class ModelWithLongField(models.Model):
@@ -761,6 +852,9 @@ class FieldNamesTests(TestCase):
         self.assertEqual(ModelWithLongField.check(databases=None), [])
 
     def test_including_separator(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             some__field = models.IntegerField()
 
@@ -776,6 +870,9 @@ class FieldNamesTests(TestCase):
         )
 
     def test_pk(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             pk = models.IntegerField()
 
@@ -791,6 +888,9 @@ class FieldNamesTests(TestCase):
         )
 
     def test_db_column_clash(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             foo = models.IntegerField()
             bar = models.IntegerField(db_column="foo")
@@ -812,6 +912,9 @@ class FieldNamesTests(TestCase):
 @isolate_apps("invalid_models_tests")
 class ShadowingFieldsTests(SimpleTestCase):
     def test_field_name_clash_with_child_accessor(self):
+        """
+        This is a comment
+        """
         class Parent(models.Model):
             pass
 
@@ -831,6 +934,9 @@ class ShadowingFieldsTests(SimpleTestCase):
         )
 
     def test_field_name_clash_with_m2m_through(self):
+        """
+        This is a comment
+        """
         class Parent(models.Model):
             clash_id = models.IntegerField()
 
@@ -861,6 +967,9 @@ class ShadowingFieldsTests(SimpleTestCase):
         )
 
     def test_multiinheritance_clash(self):
+        """
+        This is a comment
+        """
         class Mother(models.Model):
             clash = models.IntegerField()
 
@@ -893,6 +1002,9 @@ class ShadowingFieldsTests(SimpleTestCase):
         )
 
     def test_inheritance_clash(self):
+        """
+        This is a comment
+        """
         class Parent(models.Model):
             f_id = models.IntegerField()
 
@@ -917,6 +1029,9 @@ class ShadowingFieldsTests(SimpleTestCase):
         )
 
     def test_multigeneration_inheritance(self):
+        """
+        This is a comment
+        """
         class GrandParent(models.Model):
             clash = models.IntegerField()
 
@@ -942,6 +1057,9 @@ class ShadowingFieldsTests(SimpleTestCase):
         )
 
     def test_diamond_mti_common_parent(self):
+        """
+        This is a comment
+        """
         class GrandParent(models.Model):
             pass
 
@@ -967,6 +1085,9 @@ class ShadowingFieldsTests(SimpleTestCase):
         )
 
     def test_id_clash(self):
+        """
+        This is a comment
+        """
         class Target(models.Model):
             pass
 
@@ -990,6 +1111,9 @@ class ShadowingFieldsTests(SimpleTestCase):
 @isolate_apps("invalid_models_tests")
 class OtherModelTests(SimpleTestCase):
     def test_unique_primary_key(self):
+        """
+        This is a comment
+        """
         invalid_id = models.IntegerField(primary_key=False)
 
         class Model(models.Model):
@@ -1008,6 +1132,9 @@ class OtherModelTests(SimpleTestCase):
         )
 
     def test_ordering_non_iterable(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             class Meta:
                 ordering = "missing_field"
@@ -1025,6 +1152,9 @@ class OtherModelTests(SimpleTestCase):
         )
 
     def test_just_ordering_no_errors(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             order = models.PositiveIntegerField()
 
@@ -1034,6 +1164,9 @@ class OtherModelTests(SimpleTestCase):
         self.assertEqual(Model.check(), [])
 
     def test_just_order_with_respect_to_no_errors(self):
+        """
+        This is a comment
+        """
         class Question(models.Model):
             pass
 
@@ -1046,6 +1179,9 @@ class OtherModelTests(SimpleTestCase):
         self.assertEqual(Answer.check(), [])
 
     def test_ordering_with_order_with_respect_to(self):
+        """
+        This is a comment
+        """
         class Question(models.Model):
             pass
 
@@ -1069,6 +1205,9 @@ class OtherModelTests(SimpleTestCase):
         )
 
     def test_non_valid(self):
+        """
+        This is a comment
+        """
         class RelationModel(models.Model):
             pass
 
@@ -1091,6 +1230,9 @@ class OtherModelTests(SimpleTestCase):
         )
 
     def test_ordering_pointing_to_missing_field(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             class Meta:
                 ordering = ("missing_field",)
@@ -1108,6 +1250,9 @@ class OtherModelTests(SimpleTestCase):
         )
 
     def test_ordering_pointing_to_missing_foreignkey_field(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             missing_fk_field = models.IntegerField()
 
@@ -1127,6 +1272,9 @@ class OtherModelTests(SimpleTestCase):
         )
 
     def test_ordering_pointing_to_missing_related_field(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             test = models.IntegerField()
 
@@ -1146,6 +1294,9 @@ class OtherModelTests(SimpleTestCase):
         )
 
     def test_ordering_pointing_to_missing_related_model_field(self):
+        """
+        This is a comment
+        """
         class Parent(models.Model):
             pass
 
@@ -1168,6 +1319,9 @@ class OtherModelTests(SimpleTestCase):
         )
 
     def test_ordering_pointing_to_non_related_field(self):
+        """
+        This is a comment
+        """
         class Child(models.Model):
             parent = models.IntegerField()
 
@@ -1187,6 +1341,9 @@ class OtherModelTests(SimpleTestCase):
         )
 
     def test_ordering_pointing_to_two_related_model_field(self):
+        """
+        This is a comment
+        """
         class Parent2(models.Model):
             pass
 
@@ -1212,6 +1369,9 @@ class OtherModelTests(SimpleTestCase):
         )
 
     def test_ordering_pointing_multiple_times_to_model_fields(self):
+        """
+        This is a comment
+        """
         class Parent(models.Model):
             field1 = models.CharField(max_length=100)
             field2 = models.CharField(max_length=100)
@@ -1235,6 +1395,9 @@ class OtherModelTests(SimpleTestCase):
         )
 
     def test_ordering_allows_registered_lookups(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             test = models.CharField(max_length=100)
 
@@ -1245,6 +1408,9 @@ class OtherModelTests(SimpleTestCase):
             self.assertEqual(Model.check(), [])
 
     def test_ordering_pointing_to_lookup_not_transform(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             test = models.CharField(max_length=100)
 
@@ -1254,6 +1420,9 @@ class OtherModelTests(SimpleTestCase):
         self.assertEqual(Model.check(), [])
 
     def test_ordering_pointing_to_related_model_pk(self):
+        """
+        This is a comment
+        """
         class Parent(models.Model):
             pass
 
@@ -1266,6 +1435,9 @@ class OtherModelTests(SimpleTestCase):
         self.assertEqual(Child.check(), [])
 
     def test_ordering_pointing_to_foreignkey_field(self):
+        """
+        This is a comment
+        """
         class Parent(models.Model):
             pass
 
@@ -1278,6 +1450,9 @@ class OtherModelTests(SimpleTestCase):
         self.assertFalse(Child.check())
 
     def test_name_beginning_with_underscore(self):
+        """
+        This is a comment
+        """
         class _Model(models.Model):
             pass
 
@@ -1294,6 +1469,9 @@ class OtherModelTests(SimpleTestCase):
         )
 
     def test_name_ending_with_underscore(self):
+        """
+        This is a comment
+        """
         class Model_(models.Model):
             pass
 
@@ -1310,6 +1488,9 @@ class OtherModelTests(SimpleTestCase):
         )
 
     def test_name_contains_double_underscores(self):
+        """
+        This is a comment
+        """
         class Test__Model(models.Model):
             pass
 
@@ -1326,6 +1507,9 @@ class OtherModelTests(SimpleTestCase):
         )
 
     def test_property_and_related_field_accessor_clash(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             fk = models.ForeignKey("self", models.CASCADE)
 
@@ -1344,9 +1528,15 @@ class OtherModelTests(SimpleTestCase):
         )
 
     def test_inherited_overriden_property_no_clash(self):
+        """
+        This is a comment
+        """
         class Cheese:
             @property
             def filling_id(self):
+                """
+                This is a comment
+                """
                 pass
 
         class Sandwich(Cheese, models.Model):
@@ -1355,6 +1545,9 @@ class OtherModelTests(SimpleTestCase):
         self.assertEqual(Sandwich.check(), [])
 
     def test_single_primary_key(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             foo = models.IntegerField(primary_key=True)
             bar = models.IntegerField(primary_key=True)
@@ -1373,6 +1566,9 @@ class OtherModelTests(SimpleTestCase):
 
     @override_settings(TEST_SWAPPED_MODEL_BAD_VALUE="not-a-model")
     def test_swappable_missing_app_name(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             class Meta:
                 swappable = "TEST_SWAPPED_MODEL_BAD_VALUE"
@@ -1390,6 +1586,9 @@ class OtherModelTests(SimpleTestCase):
 
     @override_settings(TEST_SWAPPED_MODEL_BAD_MODEL="not_an_app.Target")
     def test_swappable_missing_app(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             class Meta:
                 swappable = "TEST_SWAPPED_MODEL_BAD_MODEL"
@@ -1406,6 +1605,9 @@ class OtherModelTests(SimpleTestCase):
         )
 
     def test_two_m2m_through_same_relationship(self):
+        """
+        This is a comment
+        """
         class Person(models.Model):
             pass
 
@@ -1434,6 +1636,9 @@ class OtherModelTests(SimpleTestCase):
         )
 
     def test_two_m2m_through_same_model_with_different_through_fields(self):
+        """
+        This is a comment
+        """
         class Country(models.Model):
             pass
 
@@ -1458,6 +1663,9 @@ class OtherModelTests(SimpleTestCase):
         self.assertEqual(ShippingMethod.check(), [])
 
     def test_onetoone_with_parent_model(self):
+        """
+        This is a comment
+        """
         class Place(models.Model):
             pass
 
@@ -1469,6 +1677,9 @@ class OtherModelTests(SimpleTestCase):
         self.assertEqual(ParkingLot.check(), [])
 
     def test_onetoone_with_explicit_parent_link_parent_model(self):
+        """
+        This is a comment
+        """
         class Place(models.Model):
             pass
 
@@ -1483,6 +1694,9 @@ class OtherModelTests(SimpleTestCase):
         self.assertEqual(ParkingLot.check(), [])
 
     def test_m2m_table_name_clash(self):
+        """
+        This is a comment
+        """
         class Foo(models.Model):
             bar = models.ManyToManyField("Bar", db_table="myapp_bar")
 
@@ -1509,6 +1723,9 @@ class OtherModelTests(SimpleTestCase):
         DATABASE_ROUTERS=["invalid_models_tests.test_models.EmptyRouter"]
     )
     def test_m2m_table_name_clash_database_routers_installed(self):
+        """
+        This is a comment
+        """
         class Foo(models.Model):
             bar = models.ManyToManyField("Bar", db_table="myapp_bar")
 
@@ -1537,6 +1754,9 @@ class OtherModelTests(SimpleTestCase):
         )
 
     def test_m2m_field_table_name_clash(self):
+        """
+        This is a comment
+        """
         class Foo(models.Model):
             pass
 
@@ -1568,6 +1788,9 @@ class OtherModelTests(SimpleTestCase):
         DATABASE_ROUTERS=["invalid_models_tests.test_models.EmptyRouter"]
     )
     def test_m2m_field_table_name_clash_database_routers_installed(self):
+        """
+        This is a comment
+        """
         class Foo(models.Model):
             pass
 
@@ -1596,6 +1819,9 @@ class OtherModelTests(SimpleTestCase):
         )
 
     def test_m2m_autogenerated_table_name_clash(self):
+        """
+        This is a comment
+        """
         class Foo(models.Model):
             class Meta:
                 db_table = "bar_foos"
@@ -1623,6 +1849,9 @@ class OtherModelTests(SimpleTestCase):
         DATABASE_ROUTERS=["invalid_models_tests.test_models.EmptyRouter"]
     )
     def test_m2m_autogenerated_table_name_clash_database_routers_installed(self):
+        """
+        This is a comment
+        """
         class Foo(models.Model):
             class Meta:
                 db_table = "bar_foos"
@@ -1652,6 +1881,9 @@ class OtherModelTests(SimpleTestCase):
         )
 
     def test_m2m_unmanaged_shadow_models_not_checked(self):
+        """
+        This is a comment
+        """
         class A1(models.Model):
             pass
 
@@ -1682,6 +1914,9 @@ class OtherModelTests(SimpleTestCase):
         self.assertEqual(C2.check(), [])
 
     def test_m2m_to_concrete_and_proxy_allowed(self):
+        """
+        This is a comment
+        """
         class A(models.Model):
             pass
 
@@ -1703,6 +1938,9 @@ class OtherModelTests(SimpleTestCase):
 
     @isolate_apps("django.contrib.auth", kwarg_name="apps")
     def test_lazy_reference_checks(self, apps):
+        """
+        This is a comment
+        """
         class DummyModel(models.Model):
             author = models.ForeignKey("Author", models.CASCADE)
 
@@ -1711,12 +1949,21 @@ class OtherModelTests(SimpleTestCase):
 
         class DummyClass:
             def __call__(self, **kwargs):
+                """
+                This is a comment
+                """
                 pass
 
             def dummy_method(self):
+                """
+                This is a comment
+                """
                 pass
 
         def dummy_function(*args, **kwargs):
+            """
+            This is a comment
+            """
             pass
 
         apps.lazy_model_operation(dummy_function, ("auth", "imaginarymodel"))
@@ -1783,6 +2030,9 @@ class OtherModelTests(SimpleTestCase):
 @isolate_apps("invalid_models_tests")
 class DbTableCommentTests(TestCase):
     def test_db_table_comment(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             class Meta:
                 db_table_comment = "Table comment"
@@ -1803,6 +2053,9 @@ class DbTableCommentTests(TestCase):
         self.assertEqual(errors, expected)
 
     def test_db_table_comment_required_db_features(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             class Meta:
                 db_table_comment = "Table comment"
@@ -1813,6 +2066,9 @@ class DbTableCommentTests(TestCase):
 
 class MultipleAutoFieldsTests(TestCase):
     def test_multiple_autofields(self):
+        """
+        This is a comment
+        """
         msg = (
             "Model invalid_models_tests.MultipleAutoFields can't have more "
             "than one auto-generated field."
@@ -1828,6 +2084,9 @@ class MultipleAutoFieldsTests(TestCase):
 class JSONFieldTests(TestCase):
     @skipUnlessDBFeature("supports_json_field")
     def test_ordering_pointing_to_json_field_value(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             field = models.JSONField()
 
@@ -1837,6 +2096,9 @@ class JSONFieldTests(TestCase):
         self.assertEqual(Model.check(databases=self.databases), [])
 
     def test_check_jsonfield(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             field = models.JSONField()
 
@@ -1849,6 +2111,9 @@ class JSONFieldTests(TestCase):
         self.assertEqual(Model.check(databases=self.databases), expected)
 
     def test_check_jsonfield_required_db_features(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             field = models.JSONField()
 
@@ -1861,6 +2126,9 @@ class JSONFieldTests(TestCase):
 @isolate_apps("invalid_models_tests")
 class ConstraintsTests(TestCase):
     def test_check_constraints(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             age = models.IntegerField()
 
@@ -1887,6 +2155,9 @@ class ConstraintsTests(TestCase):
         self.assertCountEqual(errors, expected)
 
     def test_check_constraints_required_db_features(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             age = models.IntegerField()
 
@@ -1901,6 +2172,9 @@ class ConstraintsTests(TestCase):
         self.assertEqual(Model.check(databases=self.databases), [])
 
     def test_check_constraint_pointing_to_missing_field(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             class Meta:
                 required_db_features = {"supports_table_check_constraints"}
@@ -1929,6 +2203,9 @@ class ConstraintsTests(TestCase):
 
     @skipUnlessDBFeature("supports_table_check_constraints")
     def test_check_constraint_pointing_to_reverse_fk(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             parent = models.ForeignKey("self", models.CASCADE, related_name="parents")
 
@@ -1950,6 +2227,9 @@ class ConstraintsTests(TestCase):
 
     @skipUnlessDBFeature("supports_table_check_constraints")
     def test_check_constraint_pointing_to_reverse_o2o(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             parent = models.OneToOneField("self", models.CASCADE)
 
@@ -1974,6 +2254,9 @@ class ConstraintsTests(TestCase):
 
     @skipUnlessDBFeature("supports_table_check_constraints")
     def test_check_constraint_pointing_to_m2m_field(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             m2m = models.ManyToManyField("self")
 
@@ -1996,6 +2279,9 @@ class ConstraintsTests(TestCase):
 
     @skipUnlessDBFeature("supports_table_check_constraints")
     def test_check_constraint_pointing_to_fk(self):
+        """
+        This is a comment
+        """
         class Target(models.Model):
             pass
 
@@ -2015,6 +2301,9 @@ class ConstraintsTests(TestCase):
 
     @skipUnlessDBFeature("supports_table_check_constraints")
     def test_check_constraint_pointing_to_pk(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             age = models.SmallIntegerField()
 
@@ -2030,6 +2319,9 @@ class ConstraintsTests(TestCase):
 
     @skipUnlessDBFeature("supports_table_check_constraints")
     def test_check_constraint_pointing_to_non_local_field(self):
+        """
+        This is a comment
+        """
         class Parent(models.Model):
             field1 = models.IntegerField()
 
@@ -2056,6 +2348,9 @@ class ConstraintsTests(TestCase):
 
     @skipUnlessDBFeature("supports_table_check_constraints")
     def test_check_constraint_pointing_to_joined_fields(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             name = models.CharField(max_length=10)
             field1 = models.PositiveSmallIntegerField()
@@ -2106,6 +2401,9 @@ class ConstraintsTests(TestCase):
 
     @skipUnlessDBFeature("supports_table_check_constraints")
     def test_check_constraint_pointing_to_joined_fields_complex_check(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             name = models.PositiveSmallIntegerField()
             field1 = models.PositiveSmallIntegerField()
@@ -2148,6 +2446,9 @@ class ConstraintsTests(TestCase):
         self.assertCountEqual(errors, expected_errors)
 
     def test_check_constraint_raw_sql_check(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             class Meta:
                 required_db_features = {"supports_table_check_constraints"}
@@ -2210,6 +2511,9 @@ class ConstraintsTests(TestCase):
         self.assertEqual(Model.check(databases=self.databases), expected_warnings)
 
     def test_unique_constraint_with_condition(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             age = models.IntegerField()
 
@@ -2242,6 +2546,9 @@ class ConstraintsTests(TestCase):
         self.assertEqual(errors, expected)
 
     def test_unique_constraint_with_condition_required_db_features(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             age = models.IntegerField()
 
@@ -2258,6 +2565,9 @@ class ConstraintsTests(TestCase):
         self.assertEqual(Model.check(databases=self.databases), [])
 
     def test_unique_constraint_condition_pointing_to_missing_field(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             age = models.SmallIntegerField()
 
@@ -2288,6 +2598,9 @@ class ConstraintsTests(TestCase):
         )
 
     def test_unique_constraint_condition_pointing_to_joined_fields(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             age = models.SmallIntegerField()
             parent = models.ForeignKey("self", models.CASCADE)
@@ -2318,6 +2631,9 @@ class ConstraintsTests(TestCase):
         )
 
     def test_unique_constraint_pointing_to_reverse_o2o(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             parent = models.OneToOneField("self", models.CASCADE)
 
@@ -2347,6 +2663,9 @@ class ConstraintsTests(TestCase):
         )
 
     def test_deferrable_unique_constraint(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             age = models.IntegerField()
 
@@ -2379,6 +2698,9 @@ class ConstraintsTests(TestCase):
         self.assertEqual(errors, expected)
 
     def test_deferrable_unique_constraint_required_db_features(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             age = models.IntegerField()
 
@@ -2395,6 +2717,9 @@ class ConstraintsTests(TestCase):
         self.assertEqual(Model.check(databases=self.databases), [])
 
     def test_unique_constraint_pointing_to_missing_field(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             class Meta:
                 constraints = [
@@ -2413,6 +2738,9 @@ class ConstraintsTests(TestCase):
         )
 
     def test_unique_constraint_pointing_to_m2m_field(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             m2m = models.ManyToManyField("self")
 
@@ -2432,6 +2760,9 @@ class ConstraintsTests(TestCase):
         )
 
     def test_unique_constraint_pointing_to_non_local_field(self):
+        """
+        This is a comment
+        """
         class Parent(models.Model):
             field1 = models.IntegerField()
 
@@ -2457,6 +2788,9 @@ class ConstraintsTests(TestCase):
         )
 
     def test_unique_constraint_pointing_to_fk(self):
+        """
+        This is a comment
+        """
         class Target(models.Model):
             pass
 
@@ -2472,6 +2806,9 @@ class ConstraintsTests(TestCase):
         self.assertEqual(Model.check(databases=self.databases), [])
 
     def test_unique_constraint_with_include(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             age = models.IntegerField()
 
@@ -2504,6 +2841,9 @@ class ConstraintsTests(TestCase):
         self.assertEqual(errors, expected)
 
     def test_unique_constraint_with_include_required_db_features(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             age = models.IntegerField()
 
@@ -2521,6 +2861,9 @@ class ConstraintsTests(TestCase):
 
     @skipUnlessDBFeature("supports_covering_indexes")
     def test_unique_constraint_include_pointing_to_missing_field(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             class Meta:
                 constraints = [
@@ -2544,6 +2887,9 @@ class ConstraintsTests(TestCase):
 
     @skipUnlessDBFeature("supports_covering_indexes")
     def test_unique_constraint_include_pointing_to_m2m_field(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             m2m = models.ManyToManyField("self")
 
@@ -2570,6 +2916,9 @@ class ConstraintsTests(TestCase):
 
     @skipUnlessDBFeature("supports_covering_indexes")
     def test_unique_constraint_include_pointing_to_non_local_field(self):
+        """
+        This is a comment
+        """
         class Parent(models.Model):
             field1 = models.IntegerField()
 
@@ -2600,6 +2949,9 @@ class ConstraintsTests(TestCase):
 
     @skipUnlessDBFeature("supports_covering_indexes")
     def test_unique_constraint_include_pointing_to_fk(self):
+        """
+        This is a comment
+        """
         class Target(models.Model):
             pass
 
@@ -2619,6 +2971,9 @@ class ConstraintsTests(TestCase):
         self.assertEqual(Model.check(databases=self.databases), [])
 
     def test_func_unique_constraint(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             name = models.CharField(max_length=10)
 
@@ -2641,6 +2996,9 @@ class ConstraintsTests(TestCase):
         self.assertEqual(Model.check(databases=self.databases), expected)
 
     def test_func_unique_constraint_required_db_features(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             name = models.CharField(max_length=10)
 
@@ -2653,6 +3011,9 @@ class ConstraintsTests(TestCase):
         self.assertEqual(Model.check(databases=self.databases), [])
 
     def test_unique_constraint_nulls_distinct(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             name = models.CharField(max_length=10)
 
@@ -2683,6 +3044,9 @@ class ConstraintsTests(TestCase):
         self.assertEqual(Model.check(databases=self.databases), expected)
 
     def test_unique_constraint_nulls_distinct_required_db_features(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             name = models.CharField(max_length=10)
 
@@ -2700,6 +3064,9 @@ class ConstraintsTests(TestCase):
 
     @skipUnlessDBFeature("supports_expression_indexes")
     def test_func_unique_constraint_expression_custom_lookup(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             height = models.IntegerField()
             weight = models.IntegerField()
@@ -2718,6 +3085,9 @@ class ConstraintsTests(TestCase):
 
     @skipUnlessDBFeature("supports_expression_indexes")
     def test_func_unique_constraint_pointing_to_missing_field(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             class Meta:
                 constraints = [
@@ -2737,6 +3107,9 @@ class ConstraintsTests(TestCase):
 
     @skipUnlessDBFeature("supports_expression_indexes")
     def test_func_unique_constraint_pointing_to_missing_field_nested(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             class Meta:
                 constraints = [
@@ -2756,6 +3129,9 @@ class ConstraintsTests(TestCase):
 
     @skipUnlessDBFeature("supports_expression_indexes")
     def test_func_unique_constraint_pointing_to_m2m_field(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             m2m = models.ManyToManyField("self")
 
@@ -2776,6 +3152,9 @@ class ConstraintsTests(TestCase):
 
     @skipUnlessDBFeature("supports_expression_indexes")
     def test_func_unique_constraint_pointing_to_non_local_field(self):
+        """
+        This is a comment
+        """
         class Foo(models.Model):
             field1 = models.CharField(max_length=15)
 
@@ -2798,6 +3177,9 @@ class ConstraintsTests(TestCase):
 
     @skipUnlessDBFeature("supports_expression_indexes")
     def test_func_unique_constraint_pointing_to_fk(self):
+        """
+        This is a comment
+        """
         class Foo(models.Model):
             id = models.CharField(primary_key=True, max_length=255)
 

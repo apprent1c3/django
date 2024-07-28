@@ -5,6 +5,9 @@ from django.test import SimpleTestCase
 
 class MultipleChoiceFieldTest(SimpleTestCase):
     def test_multiplechoicefield_1(self):
+        """
+        This is a comment
+        """
         f = MultipleChoiceField(choices=[("1", "One"), ("2", "Two")])
         with self.assertRaisesMessage(ValidationError, "'This field is required.'"):
             f.clean("")
@@ -26,6 +29,9 @@ class MultipleChoiceFieldTest(SimpleTestCase):
             f.clean(["3"])
 
     def test_multiplechoicefield_2(self):
+        """
+        This is a comment
+        """
         f = MultipleChoiceField(choices=[("1", "One"), ("2", "Two")], required=False)
         self.assertEqual([], f.clean(""))
         self.assertEqual([], f.clean(None))
@@ -43,6 +49,9 @@ class MultipleChoiceFieldTest(SimpleTestCase):
             f.clean(["3"])
 
     def test_multiplechoicefield_3(self):
+        """
+        This is a comment
+        """
         f = MultipleChoiceField(
             choices=[
                 ("Numbers", (("1", "One"), ("2", "Two"))),
@@ -64,6 +73,9 @@ class MultipleChoiceFieldTest(SimpleTestCase):
             f.clean(["1", "6"])
 
     def test_multiplechoicefield_changed(self):
+        """
+        This is a comment
+        """
         f = MultipleChoiceField(choices=[("1", "One"), ("2", "Two"), ("3", "Three")])
         self.assertFalse(f.has_changed(None, None))
         self.assertFalse(f.has_changed([], None))
@@ -74,5 +86,8 @@ class MultipleChoiceFieldTest(SimpleTestCase):
         self.assertTrue(f.has_changed([1, 2], ["1", "3"]))
 
     def test_disabled_has_changed(self):
+        """
+        This is a comment
+        """
         f = MultipleChoiceField(choices=[("1", "One"), ("2", "Two")], disabled=True)
         self.assertIs(f.has_changed("x", "y"), False)

@@ -18,13 +18,7 @@ from django.utils.translation import gettext_lazy
 )
 def delete_selected(modeladmin, request, queryset):
     """
-    Default action which deletes the selected objects.
-
-    This action first displays a confirmation page which shows all the
-    deletable objects, or, if the user has no permission one of the related
-    childs (foreignkeys), a "permission denied" message.
-
-    Next, it deletes all selected objects and redirects back to the change list.
+    This is a comment
     """
     opts = modeladmin.model._meta
     app_label = opts.app_label

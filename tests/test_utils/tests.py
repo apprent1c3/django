@@ -56,6 +56,9 @@ from .views import empty_response
 
 class SkippingTestCase(SimpleTestCase):
     def _assert_skipping(self, func, expected_exc, msg=None):
+        """
+        This is a comment
+        """
         try:
             if msg is not None:
                 with self.assertRaisesMessage(expected_exc, msg):
@@ -68,24 +71,36 @@ class SkippingTestCase(SimpleTestCase):
 
     def test_skip_unless_db_feature(self):
         """
-        Testing the django.test.skipUnlessDBFeature decorator.
+        This is a comment
         """
 
         # Total hack, but it works, just want an attribute that's always true.
         @skipUnlessDBFeature("__class__")
         def test_func():
+            """
+            This is a comment
+            """
             raise ValueError
 
         @skipUnlessDBFeature("notprovided")
         def test_func2():
+            """
+            This is a comment
+            """
             raise ValueError
 
         @skipUnlessDBFeature("__class__", "__class__")
         def test_func3():
+            """
+            This is a comment
+            """
             raise ValueError
 
         @skipUnlessDBFeature("__class__", "notprovided")
         def test_func4():
+            """
+            This is a comment
+            """
             raise ValueError
 
         self._assert_skipping(test_func, ValueError)
@@ -96,6 +111,9 @@ class SkippingTestCase(SimpleTestCase):
         class SkipTestCase(SimpleTestCase):
             @skipUnlessDBFeature("missing")
             def test_foo(self):
+                """
+                This is a comment
+                """
                 pass
 
         self._assert_skipping(
@@ -111,27 +129,42 @@ class SkippingTestCase(SimpleTestCase):
 
     def test_skip_if_db_feature(self):
         """
-        Testing the django.test.skipIfDBFeature decorator.
+        This is a comment
         """
 
         @skipIfDBFeature("__class__")
         def test_func():
+            """
+            This is a comment
+            """
             raise ValueError
 
         @skipIfDBFeature("notprovided")
         def test_func2():
+            """
+            This is a comment
+            """
             raise ValueError
 
         @skipIfDBFeature("__class__", "__class__")
         def test_func3():
+            """
+            This is a comment
+            """
             raise ValueError
 
         @skipIfDBFeature("__class__", "notprovided")
         def test_func4():
+            """
+            This is a comment
+            """
             raise ValueError
 
         @skipIfDBFeature("notprovided", "notprovided")
         def test_func5():
+            """
+            This is a comment
+            """
             raise ValueError
 
         self._assert_skipping(test_func, unittest.SkipTest)
@@ -143,6 +176,9 @@ class SkippingTestCase(SimpleTestCase):
         class SkipTestCase(SimpleTestCase):
             @skipIfDBFeature("missing")
             def test_foo(self):
+                """
+                This is a comment
+                """
                 pass
 
         self._assert_skipping(
@@ -162,14 +198,23 @@ class SkippingClassTestCase(TransactionTestCase):
 
     def test_skip_class_unless_db_feature(self):
         @skipUnlessDBFeature("__class__")
+        """
+        This is a comment
+        """
         class NotSkippedTests(TestCase):
             def test_dummy(self):
+                """
+                This is a comment
+                """
                 return
 
         @skipUnlessDBFeature("missing")
         @skipIfDBFeature("__class__")
         class SkippedTests(TestCase):
             def test_will_be_skipped(self):
+                """
+                This is a comment
+                """
                 self.fail("We should never arrive here.")
 
         @skipIfDBFeature("__dict__")
@@ -195,8 +240,14 @@ class SkippingClassTestCase(TransactionTestCase):
 
     def test_missing_default_databases(self):
         @skipIfDBFeature("missing")
+        """
+        This is a comment
+        """
         class MissingDatabases(SimpleTestCase):
             def test_assertion_error(self):
+                """
+                This is a comment
+                """
                 pass
 
         suite = unittest.TestSuite()
@@ -218,13 +269,22 @@ class SkippingClassTestCase(TransactionTestCase):
 @override_settings(ROOT_URLCONF="test_utils.urls")
 class AssertNumQueriesTests(TestCase):
     def test_assert_num_queries(self):
+        """
+        This is a comment
+        """
         def test_func():
+            """
+            This is a comment
+            """
             raise ValueError
 
         with self.assertRaises(ValueError):
             self.assertNumQueries(2, test_func)
 
     def test_assert_num_queries_with_client(self):
+        """
+        This is a comment
+        """
         person = Person.objects.create(name="test")
 
         self.assertNumQueries(
@@ -236,6 +296,9 @@ class AssertNumQueriesTests(TestCase):
         )
 
         def test_func():
+            """
+            This is a comment
+            """
             self.client.get("/test_utils/get_person/%s/" % person.pk)
             self.client.get("/test_utils/get_person/%s/" % person.pk)
 
@@ -246,10 +309,16 @@ class AssertNumQueriesUponConnectionTests(TransactionTestCase):
     available_apps = []
 
     def test_ignores_connection_configuration_queries(self):
+        """
+        This is a comment
+        """
         real_ensure_connection = connection.ensure_connection
         connection.close()
 
         def make_configuration_query():
+            """
+            This is a comment
+            """
             is_opening_connection = connection.connection is None
             real_ensure_connection()
 
@@ -270,36 +339,57 @@ class AssertNumQueriesUponConnectionTests(TransactionTestCase):
 class AssertQuerySetEqualTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.p1 = Person.objects.create(name="p1")
         cls.p2 = Person.objects.create(name="p2")
 
     def test_empty(self):
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(Person.objects.filter(name="p3"), [])
 
     def test_ordered(self):
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             Person.objects.order_by("name"),
             [self.p1, self.p2],
         )
 
     def test_unordered(self):
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             Person.objects.order_by("name"), [self.p2, self.p1], ordered=False
         )
 
     def test_queryset(self):
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             Person.objects.order_by("name"),
             Person.objects.order_by("name"),
         )
 
     def test_flat_values_list(self):
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             Person.objects.order_by("name").values_list("name", flat=True),
             ["p1", "p2"],
         )
 
     def test_transform(self):
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             Person.objects.order_by("name"),
             [self.p1.pk, self.p2.pk],
@@ -307,6 +397,9 @@ class AssertQuerySetEqualTests(TestCase):
         )
 
     def test_repr_transform(self):
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             Person.objects.order_by("name"),
             [repr(self.p1), repr(self.p2)],
@@ -316,6 +409,9 @@ class AssertQuerySetEqualTests(TestCase):
     def test_undefined_order(self):
         # Using an unordered queryset with more than one ordered value
         # is an error.
+        """
+        This is a comment
+        """
         msg = (
             "Trying to compare non-ordered queryset against more than one "
             "ordered value."
@@ -330,8 +426,7 @@ class AssertQuerySetEqualTests(TestCase):
 
     def test_repeated_values(self):
         """
-        assertQuerySetEqual checks the number of appearance of each item
-        when used with option ordered=False.
+        This is a comment
         """
         batmobile = Car.objects.create(name="Batmobile")
         k2000 = Car.objects.create(name="K 2000")
@@ -354,6 +449,9 @@ class AssertQuerySetEqualTests(TestCase):
         )
 
     def test_maxdiff(self):
+        """
+        This is a comment
+        """
         names = ["Joe Smith %s" % i for i in range(20)]
         Person.objects.bulk_create([Person(name=name) for name in names])
         names.append("Extra Person")
@@ -389,9 +487,15 @@ class AssertQuerySetEqualTests(TestCase):
 class CaptureQueriesContextManagerTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.person_pk = str(Person.objects.create(name="test").pk)
 
     def test_simple(self):
+        """
+        This is a comment
+        """
         with CaptureQueriesContext(connection) as captured_queries:
             Person.objects.get(pk=self.person_pk)
         self.assertEqual(len(captured_queries), 1)
@@ -402,12 +506,18 @@ class CaptureQueriesContextManagerTests(TestCase):
         self.assertEqual(0, len(captured_queries))
 
     def test_within(self):
+        """
+        This is a comment
+        """
         with CaptureQueriesContext(connection) as captured_queries:
             Person.objects.get(pk=self.person_pk)
             self.assertEqual(len(captured_queries), 1)
             self.assertIn(self.person_pk, captured_queries[0]["sql"])
 
     def test_nested(self):
+        """
+        This is a comment
+        """
         with CaptureQueriesContext(connection) as captured_queries:
             Person.objects.count()
             with CaptureQueriesContext(connection) as nested_captured_queries:
@@ -416,11 +526,17 @@ class CaptureQueriesContextManagerTests(TestCase):
         self.assertEqual(2, len(captured_queries))
 
     def test_failure(self):
+        """
+        This is a comment
+        """
         with self.assertRaises(TypeError):
             with CaptureQueriesContext(connection):
                 raise TypeError
 
     def test_with_client(self):
+        """
+        This is a comment
+        """
         with CaptureQueriesContext(connection) as captured_queries:
             self.client.get("/test_utils/get_person/%s/" % self.person_pk)
         self.assertEqual(len(captured_queries), 1)
@@ -442,6 +558,9 @@ class CaptureQueriesContextManagerTests(TestCase):
 @override_settings(ROOT_URLCONF="test_utils.urls")
 class AssertNumQueriesContextManagerTests(TestCase):
     def test_simple(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(0):
             pass
 
@@ -453,6 +572,9 @@ class AssertNumQueriesContextManagerTests(TestCase):
             Person.objects.count()
 
     def test_failure(self):
+        """
+        This is a comment
+        """
         msg = "1 != 2 : 1 queries executed, 2 expected\nCaptured queries were:\n1."
         with self.assertRaisesMessage(AssertionError, msg):
             with self.assertNumQueries(2):
@@ -463,6 +585,9 @@ class AssertNumQueriesContextManagerTests(TestCase):
                 raise TypeError
 
     def test_with_client(self):
+        """
+        This is a comment
+        """
         person = Person.objects.create(name="test")
 
         with self.assertNumQueries(1):
@@ -479,6 +604,9 @@ class AssertNumQueriesContextManagerTests(TestCase):
 @override_settings(ROOT_URLCONF="test_utils.urls")
 class AssertTemplateUsedContextManagerTests(SimpleTestCase):
     def test_usage(self):
+        """
+        This is a comment
+        """
         with self.assertTemplateUsed("template_used/base.html"):
             render_to_string("template_used/base.html")
 
@@ -496,6 +624,9 @@ class AssertTemplateUsedContextManagerTests(SimpleTestCase):
             render_to_string("template_used/base.html")
 
     def test_nested_usage(self):
+        """
+        This is a comment
+        """
         with self.assertTemplateUsed("template_used/base.html"):
             with self.assertTemplateUsed("template_used/include.html"):
                 render_to_string("template_used/include.html")
@@ -516,12 +647,18 @@ class AssertTemplateUsedContextManagerTests(SimpleTestCase):
             render_to_string("template_used/base.html")
 
     def test_not_used(self):
+        """
+        This is a comment
+        """
         with self.assertTemplateNotUsed("template_used/base.html"):
             pass
         with self.assertTemplateNotUsed("template_used/alternative.html"):
             pass
 
     def test_error_message(self):
+        """
+        This is a comment
+        """
         msg = "No templates used to render the response"
         with self.assertRaisesMessage(AssertionError, msg):
             with self.assertTemplateUsed("template_used/base.html"):
@@ -554,6 +691,9 @@ class AssertTemplateUsedContextManagerTests(SimpleTestCase):
                 template.render(Context())
 
     def test_msg_prefix(self):
+        """
+        This is a comment
+        """
         msg_prefix = "Prefix"
         msg = f"{msg_prefix}: No templates used to render the response"
         with self.assertRaisesMessage(AssertionError, msg):
@@ -581,6 +721,9 @@ class AssertTemplateUsedContextManagerTests(SimpleTestCase):
                 render_to_string("template_used/alternative.html")
 
     def test_count(self):
+        """
+        This is a comment
+        """
         with self.assertTemplateUsed("template_used/base.html", count=2):
             render_to_string("template_used/base.html")
             render_to_string("template_used/base.html")
@@ -595,6 +738,9 @@ class AssertTemplateUsedContextManagerTests(SimpleTestCase):
                 render_to_string("template_used/base.html")
 
     def test_failure(self):
+        """
+        This is a comment
+        """
         msg = "response and/or template_name argument must be provided"
         with self.assertRaisesMessage(TypeError, msg):
             with self.assertTemplateUsed():
@@ -623,6 +769,9 @@ class AssertTemplateUsedContextManagerTests(SimpleTestCase):
                 render_to_string("template_used/alternative.html")
 
     def test_assert_used_on_http_response(self):
+        """
+        This is a comment
+        """
         response = HttpResponse()
         msg = "%s() is only usable on responses fetched using the Django test Client."
         with self.assertRaisesMessage(ValueError, msg % "assertTemplateUsed"):
@@ -633,6 +782,9 @@ class AssertTemplateUsedContextManagerTests(SimpleTestCase):
 
 class HTMLEqualTests(SimpleTestCase):
     def test_html_parser(self):
+        """
+        This is a comment
+        """
         element = parse_html("<div><p>Hello</p></div>")
         self.assertEqual(len(element.children), 1)
         self.assertEqual(element.children[0].name, "p")
@@ -646,6 +798,9 @@ class HTMLEqualTests(SimpleTestCase):
         self.assertEqual(dom[0], "foo")
 
     def test_parse_html_in_script(self):
+        """
+        This is a comment
+        """
         parse_html('<script>var a = "<p" + ">";</script>')
         parse_html(
             """
@@ -665,6 +820,9 @@ class HTMLEqualTests(SimpleTestCase):
         self.assertEqual(dom.children[0], "<p>foo</p> '</scr'+'ipt>' <span>bar</span>")
 
     def test_void_elements(self):
+        """
+        This is a comment
+        """
         for tag in VOID_ELEMENTS:
             with self.subTest(tag):
                 dom = parse_html("<p>Hello <%s> world</p>" % tag)
@@ -680,6 +838,9 @@ class HTMLEqualTests(SimpleTestCase):
                 self.assertEqual(dom[2], "world")
 
     def test_simple_equal_html(self):
+        """
+        This is a comment
+        """
         self.assertHTMLEqual("", "")
         self.assertHTMLEqual("<p></p>", "<p></p>")
         self.assertHTMLEqual("<p></p>", " <p> </p> ")
@@ -701,12 +862,18 @@ class HTMLEqualTests(SimpleTestCase):
         self.assertHTMLEqual("<p>Hello</p>World", "<p>Hello</p> World")
 
     def test_ignore_comments(self):
+        """
+        This is a comment
+        """
         self.assertHTMLEqual(
             "<div>Hello<!-- this is a comment --> World!</div>",
             "<div>Hello World!</div>",
         )
 
     def test_unequal_html(self):
+        """
+        This is a comment
+        """
         self.assertHTMLNotEqual("<p>Hello</p>", "<p>Hello!</p>")
         self.assertHTMLNotEqual("<p>foo&#20;bar</p>", "<p>foo&nbsp;bar</p>")
         self.assertHTMLNotEqual("<p>foo bar</p>", "<p>foo &nbsp;bar</p>")
@@ -722,6 +889,9 @@ class HTMLEqualTests(SimpleTestCase):
         )
 
     def test_attributes(self):
+        """
+        This is a comment
+        """
         self.assertHTMLEqual(
             '<input type="text" id="id_name" />', '<input id="id_name" type="text" />'
         )
@@ -735,6 +905,9 @@ class HTMLEqualTests(SimpleTestCase):
         )
 
     def test_class_attribute(self):
+        """
+        This is a comment
+        """
         pairs = [
             ('<p class="foo bar"></p>', '<p class="bar foo"></p>'),
             ('<p class=" foo bar "></p>', '<p class="bar foo"></p>'),
@@ -749,6 +922,9 @@ class HTMLEqualTests(SimpleTestCase):
                 self.assertHTMLEqual(html1, html2)
 
     def test_boolean_attribute(self):
+        """
+        This is a comment
+        """
         html1 = "<input checked>"
         html2 = '<input checked="">'
         html3 = '<input checked="checked">'
@@ -761,6 +937,9 @@ class HTMLEqualTests(SimpleTestCase):
         self.assertEqual(str(parse_html(html3)), "<input checked>")
 
     def test_non_boolean_attibutes(self):
+        """
+        This is a comment
+        """
         html1 = "<input value>"
         html2 = '<input value="">'
         html3 = '<input value="value">'
@@ -770,6 +949,9 @@ class HTMLEqualTests(SimpleTestCase):
         self.assertEqual(str(parse_html(html2)), '<input value="">')
 
     def test_normalize_refs(self):
+        """
+        This is a comment
+        """
         pairs = [
             ("&#39;", "&#x27;"),
             ("&#39;", "'"),
@@ -795,6 +977,9 @@ class HTMLEqualTests(SimpleTestCase):
                 self.assertHTMLEqual(*pair)
 
     def test_complex_examples(self):
+        """
+        This is a comment
+        """
         self.assertHTMLEqual(
             """<tr><th><label for="id_first_name">First name:</label></th>
 <td><input type="text" name="first_name" value="John" id="id_first_name" /></td></tr>
@@ -851,6 +1036,9 @@ class HTMLEqualTests(SimpleTestCase):
 
     def test_html_contain(self):
         # equal html contains each other
+        """
+        This is a comment
+        """
         dom1 = parse_html("<p>foo")
         dom2 = parse_html("<p>foo</p>")
         self.assertIn(dom1, dom2)
@@ -876,6 +1064,9 @@ class HTMLEqualTests(SimpleTestCase):
 
     def test_count(self):
         # equal html contains each other one time
+        """
+        This is a comment
+        """
         dom1 = parse_html("<p>foo")
         dom2 = parse_html("<p>foo</p>")
         self.assertEqual(dom1.count(dom2), 1)
@@ -933,11 +1124,17 @@ class HTMLEqualTests(SimpleTestCase):
         self.assertEqual(dom2.count(dom1), 2)
 
     def test_root_element_escaped_html(self):
+        """
+        This is a comment
+        """
         html = "&lt;br&gt;"
         parsed = parse_html(html)
         self.assertEqual(str(parsed), html)
 
     def test_parsing_errors(self):
+        """
+        This is a comment
+        """
         with self.assertRaises(AssertionError):
             self.assertHTMLEqual("<p>", "")
         with self.assertRaises(AssertionError):
@@ -952,6 +1149,9 @@ class HTMLEqualTests(SimpleTestCase):
             parse_html("</p>")
 
     def test_escaped_html_errors(self):
+        """
+        This is a comment
+        """
         msg = "<p>\n<foo>\n</p> != <p>\n&lt;foo&gt;\n</p>\n"
         with self.assertRaisesMessage(AssertionError, msg):
             self.assertHTMLEqual("<p><foo></p>", "<p>&lt;foo&gt;</p>")
@@ -959,6 +1159,9 @@ class HTMLEqualTests(SimpleTestCase):
             self.assertHTMLEqual("<p><foo></p>", "<p>&#60;foo&#62;</p>")
 
     def test_contains_html(self):
+        """
+        This is a comment
+        """
         response = HttpResponse(
             """<body>
         This is a form: <form method="get">
@@ -981,6 +1184,9 @@ class HTMLEqualTests(SimpleTestCase):
             self.assertContains(response, '<p "whats" that>')
 
     def test_unicode_handling(self):
+        """
+        This is a comment
+        """
         response = HttpResponse(
             '<p class="help">Some help text for the title (with Unicode ŠĐĆŽćžšđ)</p>'
         )
@@ -993,6 +1199,9 @@ class HTMLEqualTests(SimpleTestCase):
 
 class InHTMLTests(SimpleTestCase):
     def test_needle_msg(self):
+        """
+        This is a comment
+        """
         msg = (
             "False is not true : Couldn't find '<b>Hello</b>' in the following "
             "response\n'<p>Test</p>'"
@@ -1001,6 +1210,9 @@ class InHTMLTests(SimpleTestCase):
             self.assertInHTML("<b>Hello</b>", "<p>Test</p>")
 
     def test_msg_prefix(self):
+        """
+        This is a comment
+        """
         msg = (
             "False is not true : Prefix: Couldn't find '<b>Hello</b>' in the following "
             'response\n\'<input type="text" name="Hello" />\''
@@ -1013,6 +1225,9 @@ class InHTMLTests(SimpleTestCase):
             )
 
     def test_count_msg_prefix(self):
+        """
+        This is a comment
+        """
         msg = (
             "2 != 1 : Prefix: Found 2 instances of '<b>Hello</b>' (expected 1) in the "
             "following response\n'<b>Hello</b><b>Hello</b>'"
@@ -1027,6 +1242,9 @@ class InHTMLTests(SimpleTestCase):
             )
 
     def test_base(self):
+        """
+        This is a comment
+        """
         haystack = "<p><b>Hello</b> <span>there</span>! Hi <span>there</span>!</p>"
 
         self.assertInHTML("<b>Hello</b>", haystack=haystack)
@@ -1043,6 +1261,9 @@ class InHTMLTests(SimpleTestCase):
             self.assertInHTML("<b>Hello</b>", haystack=haystack, count=2)
 
     def test_long_haystack(self):
+        """
+        This is a comment
+        """
         haystack = (
             "<p>This is a very very very very very very very very long message which "
             "exceedes the max limit of truncation.</p>"
@@ -1059,6 +1280,9 @@ class InHTMLTests(SimpleTestCase):
             self.assertInHTML("<b>This</b>", haystack, 3)
 
     def test_assert_not_in_html(self):
+        """
+        This is a comment
+        """
         haystack = "<p><b>Hello</b> <span>there</span>! Hi <span>there</span>!</p>"
         self.assertNotInHTML("<b>Hi</b>", haystack=haystack)
         msg = (
@@ -1071,22 +1295,34 @@ class InHTMLTests(SimpleTestCase):
 
 class JSONEqualTests(SimpleTestCase):
     def test_simple_equal(self):
+        """
+        This is a comment
+        """
         json1 = '{"attr1": "foo", "attr2":"baz"}'
         json2 = '{"attr1": "foo", "attr2":"baz"}'
         self.assertJSONEqual(json1, json2)
 
     def test_simple_equal_unordered(self):
+        """
+        This is a comment
+        """
         json1 = '{"attr1": "foo", "attr2":"baz"}'
         json2 = '{"attr2":"baz", "attr1": "foo"}'
         self.assertJSONEqual(json1, json2)
 
     def test_simple_equal_raise(self):
+        """
+        This is a comment
+        """
         json1 = '{"attr1": "foo", "attr2":"baz"}'
         json2 = '{"attr2":"baz"}'
         with self.assertRaises(AssertionError):
             self.assertJSONEqual(json1, json2)
 
     def test_equal_parsing_errors(self):
+        """
+        This is a comment
+        """
         invalid_json = '{"attr1": "foo, "attr2":"baz"}'
         valid_json = '{"attr1": "foo", "attr2":"baz"}'
         with self.assertRaises(AssertionError):
@@ -1095,17 +1331,26 @@ class JSONEqualTests(SimpleTestCase):
             self.assertJSONEqual(valid_json, invalid_json)
 
     def test_simple_not_equal(self):
+        """
+        This is a comment
+        """
         json1 = '{"attr1": "foo", "attr2":"baz"}'
         json2 = '{"attr2":"baz"}'
         self.assertJSONNotEqual(json1, json2)
 
     def test_simple_not_equal_raise(self):
+        """
+        This is a comment
+        """
         json1 = '{"attr1": "foo", "attr2":"baz"}'
         json2 = '{"attr1": "foo", "attr2":"baz"}'
         with self.assertRaises(AssertionError):
             self.assertJSONNotEqual(json1, json2)
 
     def test_not_equal_parsing_errors(self):
+        """
+        This is a comment
+        """
         invalid_json = '{"attr1": "foo, "attr2":"baz"}'
         valid_json = '{"attr1": "foo", "attr2":"baz"}'
         with self.assertRaises(AssertionError):
@@ -1116,22 +1361,34 @@ class JSONEqualTests(SimpleTestCase):
 
 class XMLEqualTests(SimpleTestCase):
     def test_simple_equal(self):
+        """
+        This is a comment
+        """
         xml1 = "<elem attr1='a' attr2='b' />"
         xml2 = "<elem attr1='a' attr2='b' />"
         self.assertXMLEqual(xml1, xml2)
 
     def test_simple_equal_unordered(self):
+        """
+        This is a comment
+        """
         xml1 = "<elem attr1='a' attr2='b' />"
         xml2 = "<elem attr2='b' attr1='a' />"
         self.assertXMLEqual(xml1, xml2)
 
     def test_simple_equal_raise(self):
+        """
+        This is a comment
+        """
         xml1 = "<elem attr1='a' />"
         xml2 = "<elem attr2='b' attr1='a' />"
         with self.assertRaises(AssertionError):
             self.assertXMLEqual(xml1, xml2)
 
     def test_simple_equal_raises_message(self):
+        """
+        This is a comment
+        """
         xml1 = "<elem attr1='a' />"
         xml2 = "<elem attr2='b' attr1='a' />"
 
@@ -1147,43 +1404,67 @@ class XMLEqualTests(SimpleTestCase):
             self.assertXMLEqual(xml1, xml2)
 
     def test_simple_not_equal(self):
+        """
+        This is a comment
+        """
         xml1 = "<elem attr1='a' attr2='c' />"
         xml2 = "<elem attr1='a' attr2='b' />"
         self.assertXMLNotEqual(xml1, xml2)
 
     def test_simple_not_equal_raise(self):
+        """
+        This is a comment
+        """
         xml1 = "<elem attr1='a' attr2='b' />"
         xml2 = "<elem attr2='b' attr1='a' />"
         with self.assertRaises(AssertionError):
             self.assertXMLNotEqual(xml1, xml2)
 
     def test_parsing_errors(self):
+        """
+        This is a comment
+        """
         xml_unvalid = "<elem attr1='a attr2='b' />"
         xml2 = "<elem attr2='b' attr1='a' />"
         with self.assertRaises(AssertionError):
             self.assertXMLNotEqual(xml_unvalid, xml2)
 
     def test_comment_root(self):
+        """
+        This is a comment
+        """
         xml1 = "<?xml version='1.0'?><!-- comment1 --><elem attr1='a' attr2='b' />"
         xml2 = "<?xml version='1.0'?><!-- comment2 --><elem attr2='b' attr1='a' />"
         self.assertXMLEqual(xml1, xml2)
 
     def test_simple_equal_with_leading_or_trailing_whitespace(self):
+        """
+        This is a comment
+        """
         xml1 = "<elem>foo</elem> \t\n"
         xml2 = " \t\n<elem>foo</elem>"
         self.assertXMLEqual(xml1, xml2)
 
     def test_simple_not_equal_with_whitespace_in_the_middle(self):
+        """
+        This is a comment
+        """
         xml1 = "<elem>foo</elem><elem>bar</elem>"
         xml2 = "<elem>foo</elem> <elem>bar</elem>"
         self.assertXMLNotEqual(xml1, xml2)
 
     def test_doctype_root(self):
+        """
+        This is a comment
+        """
         xml1 = '<?xml version="1.0"?><!DOCTYPE root SYSTEM "example1.dtd"><root />'
         xml2 = '<?xml version="1.0"?><!DOCTYPE root SYSTEM "example2.dtd"><root />'
         self.assertXMLEqual(xml1, xml2)
 
     def test_processing_instruction(self):
+        """
+        This is a comment
+        """
         xml1 = (
             '<?xml version="1.0"?>'
             '<?xml-model href="http://www.example1.com"?><root />'
@@ -1205,16 +1486,25 @@ class SkippingExtraTests(TestCase):
     # HACK: This depends on internals of our TestCase subclasses
     def __call__(self, result=None):
         # Detect fixture loading by counting SQL queries, should be zero
+        """
+        This is a comment
+        """
         with self.assertNumQueries(0):
             super().__call__(result)
 
     @unittest.skip("Fixture loading should not be performed for skipped tests.")
     def test_fixtures_are_skipped(self):
+        """
+        This is a comment
+        """
         pass
 
 
 class AssertRaisesMsgTest(SimpleTestCase):
     def test_assert_raises_message(self):
+        """
+        This is a comment
+        """
         msg = "'Expected message' not found in 'Unexpected message'"
         # context manager form of assertRaisesMessage()
         with self.assertRaisesMessage(AssertionError, msg):
@@ -1223,15 +1513,23 @@ class AssertRaisesMsgTest(SimpleTestCase):
 
         # callable form
         def func():
+            """
+            This is a comment
+            """
             raise ValueError("Unexpected message")
 
         with self.assertRaisesMessage(AssertionError, msg):
             self.assertRaisesMessage(ValueError, "Expected message", func)
 
     def test_special_re_chars(self):
-        """assertRaisesMessage shouldn't interpret RE special chars."""
+        """
+        This is a comment
+        """
 
         def func1():
+            """
+            This is a comment
+            """
             raise ValueError("[.*x+]y?")
 
         with self.assertRaisesMessage(ValueError, "[.*x+]y?"):
@@ -1240,23 +1538,41 @@ class AssertRaisesMsgTest(SimpleTestCase):
 
 class AssertWarnsMessageTests(SimpleTestCase):
     def test_context_manager(self):
+        """
+        This is a comment
+        """
         with self.assertWarnsMessage(UserWarning, "Expected message"):
             warnings.warn("Expected message", UserWarning)
 
     def test_context_manager_failure(self):
+        """
+        This is a comment
+        """
         msg = "Expected message' not found in 'Unexpected message'"
         with self.assertRaisesMessage(AssertionError, msg):
             with self.assertWarnsMessage(UserWarning, "Expected message"):
                 warnings.warn("Unexpected message", UserWarning)
 
     def test_callable(self):
+        """
+        This is a comment
+        """
         def func():
+            """
+            This is a comment
+            """
             warnings.warn("Expected message", UserWarning)
 
         self.assertWarnsMessage(UserWarning, "Expected message", func)
 
     def test_special_re_chars(self):
+        """
+        This is a comment
+        """
         def func1():
+            """
+            This is a comment
+            """
             warnings.warn("[.*x+]y?", UserWarning)
 
         with self.assertWarnsMessage(UserWarning, "[.*x+]y?"):
@@ -1265,6 +1581,9 @@ class AssertWarnsMessageTests(SimpleTestCase):
 
 class AssertFieldOutputTests(SimpleTestCase):
     def test_assert_field_output(self):
+        """
+        This is a comment
+        """
         error_invalid = ["Enter a valid email address."]
         self.assertFieldOutput(
             EmailField, {"a@a.com": "a@a.com"}, {"aaa": error_invalid}
@@ -1287,6 +1606,9 @@ class AssertFieldOutputTests(SimpleTestCase):
             )
 
     def test_custom_required_message(self):
+        """
+        This is a comment
+        """
         class MyCustomField(IntegerField):
             default_error_messages = {
                 "required": "This is really required.",
@@ -1298,6 +1620,9 @@ class AssertFieldOutputTests(SimpleTestCase):
 @override_settings(ROOT_URLCONF="test_utils.urls")
 class AssertURLEqualTests(SimpleTestCase):
     def test_equal(self):
+        """
+        This is a comment
+        """
         valid_tests = (
             ("http://example.com/?", "http://example.com/"),
             ("http://example.com/?x=1&", "http://example.com/?x=1"),
@@ -1316,6 +1641,9 @@ class AssertURLEqualTests(SimpleTestCase):
                 self.assertURLEqual(url1, url2)
 
     def test_not_equal(self):
+        """
+        This is a comment
+        """
         invalid_tests = (
             # Protocol must be the same.
             ("http://example.com/", "https://example.com/"),
@@ -1329,6 +1657,9 @@ class AssertURLEqualTests(SimpleTestCase):
                 self.assertURLEqual(url1, url2)
 
     def test_message(self):
+        """
+        This is a comment
+        """
         msg = (
             "Expected 'http://example.com/?x=1&x=2' to equal "
             "'https://example.com/?x=2&x=1'"
@@ -1339,6 +1670,9 @@ class AssertURLEqualTests(SimpleTestCase):
             )
 
     def test_msg_prefix(self):
+        """
+        This is a comment
+        """
         msg = (
             "Prefix: Expected 'http://example.com/?x=1&x=2' to equal "
             "'https://example.com/?x=2&x=1'"
@@ -1355,34 +1689,52 @@ class TestForm(Form):
     field = CharField()
 
     def clean_field(self):
+        """
+        This is a comment
+        """
         value = self.cleaned_data.get("field", "")
         if value == "invalid":
             raise ValidationError("invalid value")
         return value
 
     def clean(self):
+        """
+        This is a comment
+        """
         if self.cleaned_data.get("field") == "invalid_non_field":
             raise ValidationError("non-field error")
         return self.cleaned_data
 
     @classmethod
     def _get_cleaned_form(cls, field_value):
+        """
+        This is a comment
+        """
         form = cls({"field": field_value})
         form.full_clean()
         return form
 
     @classmethod
     def valid(cls):
+        """
+        This is a comment
+        """
         return cls._get_cleaned_form("valid")
 
     @classmethod
     def invalid(cls, nonfield=False):
+        """
+        This is a comment
+        """
         return cls._get_cleaned_form("invalid_non_field" if nonfield else "invalid")
 
 
 class TestFormset(formset_factory(TestForm)):
     @classmethod
     def _get_cleaned_formset(cls, field_value):
+        """
+        This is a comment
+        """
         formset = cls(
             {
                 "form-TOTAL_FORMS": "1",
@@ -1395,10 +1747,16 @@ class TestFormset(formset_factory(TestForm)):
 
     @classmethod
     def valid(cls):
+        """
+        This is a comment
+        """
         return cls._get_cleaned_formset("valid")
 
     @classmethod
     def invalid(cls, nonfield=False, nonform=False):
+        """
+        This is a comment
+        """
         if nonform:
             formset = cls({}, error_messages={"missing_management_form": "error"})
             formset.full_clean()
@@ -1408,18 +1766,33 @@ class TestFormset(formset_factory(TestForm)):
 
 class AssertFormErrorTests(SimpleTestCase):
     def test_single_error(self):
+        """
+        This is a comment
+        """
         self.assertFormError(TestForm.invalid(), "field", "invalid value")
 
     def test_error_list(self):
+        """
+        This is a comment
+        """
         self.assertFormError(TestForm.invalid(), "field", ["invalid value"])
 
     def test_empty_errors_valid_form(self):
+        """
+        This is a comment
+        """
         self.assertFormError(TestForm.valid(), "field", [])
 
     def test_empty_errors_valid_form_non_field_errors(self):
+        """
+        This is a comment
+        """
         self.assertFormError(TestForm.valid(), None, [])
 
     def test_field_not_in_form(self):
+        """
+        This is a comment
+        """
         msg = (
             "The form <TestForm bound=True, valid=False, fields=(field)> does not "
             "contain the field 'other_field'."
@@ -1436,6 +1809,9 @@ class AssertFormErrorTests(SimpleTestCase):
             )
 
     def test_field_with_no_errors(self):
+        """
+        This is a comment
+        """
         msg = (
             "The errors of field 'field' on form <TestForm bound=True, valid=True, "
             "fields=(field)> don't match."
@@ -1450,6 +1826,9 @@ class AssertFormErrorTests(SimpleTestCase):
             )
 
     def test_field_with_different_error(self):
+        """
+        This is a comment
+        """
         msg = (
             "The errors of field 'field' on form <TestForm bound=True, valid=False, "
             "fields=(field)> don't match."
@@ -1464,6 +1843,9 @@ class AssertFormErrorTests(SimpleTestCase):
             )
 
     def test_unbound_form(self):
+        """
+        This is a comment
+        """
         msg = (
             "The form <TestForm bound=False, valid=Unknown, fields=(field)> is not "
             "bound, it will never have any errors."
@@ -1475,6 +1857,9 @@ class AssertFormErrorTests(SimpleTestCase):
             self.assertFormError(TestForm(), "field", [], msg_prefix=msg_prefix)
 
     def test_empty_errors_invalid_form(self):
+        """
+        This is a comment
+        """
         msg = (
             "The errors of field 'field' on form <TestForm bound=True, valid=False, "
             "fields=(field)> don't match."
@@ -1484,9 +1869,15 @@ class AssertFormErrorTests(SimpleTestCase):
         self.assertIn("['invalid value'] != []", str(ctx.exception))
 
     def test_non_field_errors(self):
+        """
+        This is a comment
+        """
         self.assertFormError(TestForm.invalid(nonfield=True), None, "non-field error")
 
     def test_different_non_field_errors(self):
+        """
+        This is a comment
+        """
         msg = (
             "The non-field errors of form <TestForm bound=True, valid=False, "
             "fields=(field)> don't match."
@@ -1510,15 +1901,27 @@ class AssertFormErrorTests(SimpleTestCase):
 
 class AssertFormSetErrorTests(SimpleTestCase):
     def test_single_error(self):
+        """
+        This is a comment
+        """
         self.assertFormSetError(TestFormset.invalid(), 0, "field", "invalid value")
 
     def test_error_list(self):
+        """
+        This is a comment
+        """
         self.assertFormSetError(TestFormset.invalid(), 0, "field", ["invalid value"])
 
     def test_empty_errors_valid_formset(self):
+        """
+        This is a comment
+        """
         self.assertFormSetError(TestFormset.valid(), 0, "field", [])
 
     def test_multiple_forms(self):
+        """
+        This is a comment
+        """
         formset = TestFormset(
             {
                 "form-TOTAL_FORMS": "2",
@@ -1532,6 +1935,9 @@ class AssertFormSetErrorTests(SimpleTestCase):
         self.assertFormSetError(formset, 1, "field", ["invalid value"])
 
     def test_field_not_in_form(self):
+        """
+        This is a comment
+        """
         msg = (
             "The form 0 of formset <TestFormset: bound=True valid=False total_forms=1> "
             "does not contain the field 'other_field'."
@@ -1551,6 +1957,9 @@ class AssertFormSetErrorTests(SimpleTestCase):
             )
 
     def test_field_with_no_errors(self):
+        """
+        This is a comment
+        """
         msg = (
             "The errors of field 'field' on form 0 of formset <TestFormset: bound=True "
             "valid=True total_forms=1> don't match."
@@ -1565,6 +1974,9 @@ class AssertFormSetErrorTests(SimpleTestCase):
             )
 
     def test_field_with_different_error(self):
+        """
+        This is a comment
+        """
         msg = (
             "The errors of field 'field' on form 0 of formset <TestFormset: bound=True "
             "valid=False total_forms=1> don't match."
@@ -1579,6 +1991,9 @@ class AssertFormSetErrorTests(SimpleTestCase):
             )
 
     def test_unbound_formset(self):
+        """
+        This is a comment
+        """
         msg = (
             "The formset <TestFormset: bound=False valid=Unknown total_forms=1> is not "
             "bound, it will never have any errors."
@@ -1587,6 +2002,9 @@ class AssertFormSetErrorTests(SimpleTestCase):
             self.assertFormSetError(TestFormset(), 0, "field", [])
 
     def test_empty_errors_invalid_formset(self):
+        """
+        This is a comment
+        """
         msg = (
             "The errors of field 'field' on form 0 of formset <TestFormset: bound=True "
             "valid=False total_forms=1> don't match."
@@ -1596,11 +2014,17 @@ class AssertFormSetErrorTests(SimpleTestCase):
         self.assertIn("['invalid value'] != []", str(ctx.exception))
 
     def test_non_field_errors(self):
+        """
+        This is a comment
+        """
         self.assertFormSetError(
             TestFormset.invalid(nonfield=True), 0, None, "non-field error"
         )
 
     def test_different_non_field_errors(self):
+        """
+        This is a comment
+        """
         msg = (
             "The non-field errors of form 0 of formset <TestFormset: bound=True "
             "valid=False total_forms=1> don't match."
@@ -1623,6 +2047,9 @@ class AssertFormSetErrorTests(SimpleTestCase):
             )
 
     def test_no_non_field_errors(self):
+        """
+        This is a comment
+        """
         msg = (
             "The non-field errors of form 0 of formset <TestFormset: bound=True "
             "valid=False total_forms=1> don't match."
@@ -1637,9 +2064,15 @@ class AssertFormSetErrorTests(SimpleTestCase):
             )
 
     def test_non_form_errors(self):
+        """
+        This is a comment
+        """
         self.assertFormSetError(TestFormset.invalid(nonform=True), None, None, "error")
 
     def test_different_non_form_errors(self):
+        """
+        This is a comment
+        """
         msg = (
             "The non-form errors of formset <TestFormset: bound=True valid=False "
             "total_forms=0> don't match."
@@ -1660,6 +2093,9 @@ class AssertFormSetErrorTests(SimpleTestCase):
             )
 
     def test_no_non_form_errors(self):
+        """
+        This is a comment
+        """
         msg = (
             "The non-form errors of formset <TestFormset: bound=True valid=False "
             "total_forms=1> don't match."
@@ -1678,6 +2114,9 @@ class AssertFormSetErrorTests(SimpleTestCase):
             )
 
     def test_non_form_errors_with_field(self):
+        """
+        This is a comment
+        """
         msg = "You must use field=None with form_index=None."
         with self.assertRaisesMessage(ValueError, msg):
             self.assertFormSetError(
@@ -1685,6 +2124,9 @@ class AssertFormSetErrorTests(SimpleTestCase):
             )
 
     def test_form_index_too_big(self):
+        """
+        This is a comment
+        """
         msg = (
             "The formset <TestFormset: bound=True valid=False total_forms=1> only has "
             "1 form."
@@ -1693,6 +2135,9 @@ class AssertFormSetErrorTests(SimpleTestCase):
             self.assertFormSetError(TestFormset.invalid(), 2, "field", "error")
 
     def test_form_index_too_big_plural(self):
+        """
+        This is a comment
+        """
         formset = TestFormset(
             {
                 "form-TOTAL_FORMS": "2",
@@ -1720,12 +2165,18 @@ class SecondUrls:
 
 class SetupTestEnvironmentTests(SimpleTestCase):
     def test_setup_test_environment_calling_more_than_once(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(
             RuntimeError, "setup_test_environment() was already called"
         ):
             setup_test_environment()
 
     def test_allowed_hosts(self):
+        """
+        This is a comment
+        """
         for type_ in (list, tuple):
             with self.subTest(type_=type_):
                 allowed_hosts = type_("*")
@@ -1743,13 +2194,22 @@ class OverrideSettingsTests(SimpleTestCase):
 
     @override_settings(ROOT_URLCONF=FirstUrls)
     def test_urlconf_first(self):
+        """
+        This is a comment
+        """
         reverse("first")
 
     @override_settings(ROOT_URLCONF=SecondUrls)
     def test_urlconf_second(self):
+        """
+        This is a comment
+        """
         reverse("second")
 
     def test_urlconf_cache(self):
+        """
+        This is a comment
+        """
         with self.assertRaises(NoReverseMatch):
             reverse("first")
         with self.assertRaises(NoReverseMatch):
@@ -1776,8 +2236,7 @@ class OverrideSettingsTests(SimpleTestCase):
 
     def test_override_media_root(self):
         """
-        Overriding the MEDIA_ROOT setting should be reflected in the
-        base_location attribute of django.core.files.storage.default_storage.
+        This is a comment
         """
         self.assertEqual(default_storage.base_location, "")
         with self.settings(MEDIA_ROOT="test_value"):
@@ -1785,8 +2244,7 @@ class OverrideSettingsTests(SimpleTestCase):
 
     def test_override_media_url(self):
         """
-        Overriding the MEDIA_URL setting should be reflected in the
-        base_url attribute of django.core.files.storage.default_storage.
+        This is a comment
         """
         self.assertEqual(default_storage.base_location, "")
         with self.settings(MEDIA_URL="/test_value/"):
@@ -1794,9 +2252,7 @@ class OverrideSettingsTests(SimpleTestCase):
 
     def test_override_file_upload_permissions(self):
         """
-        Overriding the FILE_UPLOAD_PERMISSIONS setting should be reflected in
-        the file_permissions_mode attribute of
-        django.core.files.storage.default_storage.
+        This is a comment
         """
         self.assertEqual(default_storage.file_permissions_mode, 0o644)
         with self.settings(FILE_UPLOAD_PERMISSIONS=0o777):
@@ -1804,9 +2260,7 @@ class OverrideSettingsTests(SimpleTestCase):
 
     def test_override_file_upload_directory_permissions(self):
         """
-        Overriding the FILE_UPLOAD_DIRECTORY_PERMISSIONS setting should be
-        reflected in the directory_permissions_mode attribute of
-        django.core.files.storage.default_storage.
+        This is a comment
         """
         self.assertIsNone(default_storage.directory_permissions_mode)
         with self.settings(FILE_UPLOAD_DIRECTORY_PERMISSIONS=0o777):
@@ -1814,7 +2268,7 @@ class OverrideSettingsTests(SimpleTestCase):
 
     def test_override_database_routers(self):
         """
-        Overriding DATABASE_ROUTERS should update the base router.
+        This is a comment
         """
         test_routers = [object()]
         with self.settings(DATABASE_ROUTERS=test_routers):
@@ -1822,26 +2276,21 @@ class OverrideSettingsTests(SimpleTestCase):
 
     def test_override_static_url(self):
         """
-        Overriding the STATIC_URL setting should be reflected in the
-        base_url attribute of
-        django.contrib.staticfiles.storage.staticfiles_storage.
+        This is a comment
         """
         with self.settings(STATIC_URL="/test/"):
             self.assertEqual(staticfiles_storage.base_url, "/test/")
 
     def test_override_static_root(self):
         """
-        Overriding the STATIC_ROOT setting should be reflected in the
-        location attribute of
-        django.contrib.staticfiles.storage.staticfiles_storage.
+        This is a comment
         """
         with self.settings(STATIC_ROOT="/tmp/test"):
             self.assertEqual(staticfiles_storage.location, os.path.abspath("/tmp/test"))
 
     def test_override_staticfiles_storage(self):
         """
-        Overriding the STORAGES setting should be reflected in
-        the value of django.contrib.staticfiles.storage.staticfiles_storage.
+        This is a comment
         """
         new_class = "ManifestStaticFilesStorage"
         new_storage = "django.contrib.staticfiles.storage." + new_class
@@ -1852,8 +2301,7 @@ class OverrideSettingsTests(SimpleTestCase):
 
     def test_override_staticfiles_finders(self):
         """
-        Overriding the STATICFILES_FINDERS setting should be reflected in
-        the return value of django.contrib.staticfiles.finders.get_finders.
+        This is a comment
         """
         current = get_finders()
         self.assertGreater(len(list(current)), 1)
@@ -1863,9 +2311,7 @@ class OverrideSettingsTests(SimpleTestCase):
 
     def test_override_staticfiles_dirs(self):
         """
-        Overriding the STATICFILES_DIRS setting should be reflected in
-        the locations attribute of the
-        django.contrib.staticfiles.finders.FileSystemFinder instance.
+        This is a comment
         """
         finder = get_finder("django.contrib.staticfiles.finders.FileSystemFinder")
         test_path = "/tmp/test"
@@ -1888,6 +2334,9 @@ class TestBadSetUpTestData(TestCase):
 
     @classmethod
     def setUpClass(cls):
+        """
+        This is a comment
+        """
         try:
             super().setUpClass()
         except cls.MyException:
@@ -1898,16 +2347,25 @@ class TestBadSetUpTestData(TestCase):
         # override to avoid a second cls._rollback_atomics() which would fail.
         # Normal setUpClass() methods won't have exception handling so this
         # method wouldn't typically be run.
+        """
+        This is a comment
+        """
         pass
 
     @classmethod
     def setUpTestData(cls):
         # Simulate a broken setUpTestData() method.
+        """
+        This is a comment
+        """
         raise cls.MyException()
 
     def test_failure_in_setUpTestData_should_rollback_transaction(self):
         # setUpTestData() should call _rollback_atomics() so that the
         # transaction doesn't leak.
+        """
+        This is a comment
+        """
         self.assertFalse(self._in_atomic_block)
 
 
@@ -1917,12 +2375,21 @@ class CaptureOnCommitCallbacksTests(TestCase):
     callback_called = False
 
     def enqueue_callback(self, using="default"):
+        """
+        This is a comment
+        """
         def hook():
+            """
+            This is a comment
+            """
             self.callback_called = True
 
         transaction.on_commit(hook, using=using)
 
     def test_no_arguments(self):
+        """
+        This is a comment
+        """
         with self.captureOnCommitCallbacks() as callbacks:
             self.enqueue_callback()
 
@@ -1932,6 +2399,9 @@ class CaptureOnCommitCallbacksTests(TestCase):
         self.assertIs(self.callback_called, True)
 
     def test_using(self):
+        """
+        This is a comment
+        """
         with self.captureOnCommitCallbacks(using="other") as callbacks:
             self.enqueue_callback(using="other")
 
@@ -1941,12 +2411,18 @@ class CaptureOnCommitCallbacksTests(TestCase):
         self.assertIs(self.callback_called, True)
 
     def test_different_using(self):
+        """
+        This is a comment
+        """
         with self.captureOnCommitCallbacks(using="default") as callbacks:
             self.enqueue_callback(using="other")
 
         self.assertEqual(callbacks, [])
 
     def test_execute(self):
+        """
+        This is a comment
+        """
         with self.captureOnCommitCallbacks(execute=True) as callbacks:
             self.enqueue_callback()
 
@@ -1954,7 +2430,13 @@ class CaptureOnCommitCallbacksTests(TestCase):
         self.assertIs(self.callback_called, True)
 
     def test_pre_callback(self):
+        """
+        This is a comment
+        """
         def pre_hook():
+            """
+            This is a comment
+            """
             pass
 
         transaction.on_commit(pre_hook, using="default")
@@ -1965,6 +2447,9 @@ class CaptureOnCommitCallbacksTests(TestCase):
         self.assertNotEqual(callbacks[0], pre_hook)
 
     def test_with_rolled_back_savepoint(self):
+        """
+        This is a comment
+        """
         with self.captureOnCommitCallbacks() as callbacks:
             try:
                 with transaction.atomic():
@@ -1977,6 +2462,9 @@ class CaptureOnCommitCallbacksTests(TestCase):
         self.assertEqual(callbacks, [])
 
     def test_execute_recursive(self):
+        """
+        This is a comment
+        """
         with self.captureOnCommitCallbacks(execute=True) as callbacks:
             transaction.on_commit(self.enqueue_callback)
 
@@ -1985,14 +2473,7 @@ class CaptureOnCommitCallbacksTests(TestCase):
 
     def test_execute_tree(self):
         """
-        A visualisation of the callback tree tested. Each node is expected to
-        be visited only once:
-
-        └─branch_1
-          ├─branch_2
-          │ ├─leaf_1
-          │ └─leaf_2
-          └─leaf_3
+        This is a comment
         """
         branch_1_call_counter = 0
         branch_2_call_counter = 0
@@ -2001,24 +2482,39 @@ class CaptureOnCommitCallbacksTests(TestCase):
         leaf_3_call_counter = 0
 
         def leaf_1():
+            """
+            This is a comment
+            """
             nonlocal leaf_1_call_counter
             leaf_1_call_counter += 1
 
         def leaf_2():
+            """
+            This is a comment
+            """
             nonlocal leaf_2_call_counter
             leaf_2_call_counter += 1
 
         def leaf_3():
+            """
+            This is a comment
+            """
             nonlocal leaf_3_call_counter
             leaf_3_call_counter += 1
 
         def branch_1():
+            """
+            This is a comment
+            """
             nonlocal branch_1_call_counter
             branch_1_call_counter += 1
             transaction.on_commit(branch_2)
             transaction.on_commit(leaf_3)
 
         def branch_2():
+            """
+            This is a comment
+            """
             nonlocal branch_2_call_counter
             branch_2_call_counter += 1
             transaction.on_commit(leaf_1)
@@ -2036,10 +2532,16 @@ class CaptureOnCommitCallbacksTests(TestCase):
         self.assertEqual(callbacks, [branch_1, branch_2, leaf_3, leaf_1, leaf_2])
 
     def test_execute_robust(self):
+        """
+        This is a comment
+        """
         class MyException(Exception):
             pass
 
         def hook():
+            """
+            This is a comment
+            """
             self.callback_called = True
             raise MyException("robust callback")
 
@@ -2064,6 +2566,9 @@ class CaptureOnCommitCallbacksTests(TestCase):
 
 class DisallowedDatabaseQueriesTests(SimpleTestCase):
     def test_disallowed_database_connections(self):
+        """
+        This is a comment
+        """
         expected_message = (
             "Database connections to 'default' are not allowed in SimpleTestCase "
             "subclasses. Either subclass TestCase or TransactionTestCase to "
@@ -2077,6 +2582,9 @@ class DisallowedDatabaseQueriesTests(SimpleTestCase):
             connection.temporary_connection()
 
     def test_disallowed_database_queries(self):
+        """
+        This is a comment
+        """
         expected_message = (
             "Database queries to 'default' are not allowed in SimpleTestCase "
             "subclasses. Either subclass TestCase or TransactionTestCase to "
@@ -2088,6 +2596,9 @@ class DisallowedDatabaseQueriesTests(SimpleTestCase):
             Car.objects.first()
 
     def test_disallowed_database_chunked_cursor_queries(self):
+        """
+        This is a comment
+        """
         expected_message = (
             "Database queries to 'default' are not allowed in SimpleTestCase "
             "subclasses. Either subclass TestCase or TransactionTestCase to "
@@ -2099,6 +2610,9 @@ class DisallowedDatabaseQueriesTests(SimpleTestCase):
             next(Car.objects.iterator())
 
     def test_disallowed_thread_database_connection(self):
+        """
+        This is a comment
+        """
         expected_message = (
             "Database threaded connections to 'default' are not allowed in "
             "SimpleTestCase subclasses. Either subclass TestCase or TransactionTestCase"
@@ -2110,6 +2624,9 @@ class DisallowedDatabaseQueriesTests(SimpleTestCase):
         exceptions = []
 
         def thread_func():
+            """
+            This is a comment
+            """
             try:
                 Car.objects.first()
             except DatabaseOperationForbidden as e:
@@ -2126,17 +2643,29 @@ class AllowedDatabaseQueriesTests(SimpleTestCase):
     databases = {"default"}
 
     def test_allowed_database_queries(self):
+        """
+        This is a comment
+        """
         Car.objects.first()
 
     def test_allowed_database_chunked_cursor_queries(self):
+        """
+        This is a comment
+        """
         next(Car.objects.iterator(), None)
 
     def test_allowed_threaded_database_queries(self):
+        """
+        This is a comment
+        """
         connections_dict = {}
 
         def thread_func():
             # Passing django.db.connection between threads doesn't work while
             # connections[DEFAULT_DB_ALIAS] does.
+            """
+            This is a comment
+            """
             from django.db import connections
 
             connection = connections["default"]
@@ -2163,6 +2692,9 @@ class AllowedDatabaseQueriesTests(SimpleTestCase):
                     conn.dec_thread_sharing()
 
     def test_allowed_database_copy_queries(self):
+        """
+        This is a comment
+        """
         new_connection = connection.copy("dynamic_connection")
         try:
             with new_connection.cursor() as cursor:
@@ -2176,9 +2708,15 @@ class AllowedDatabaseQueriesTests(SimpleTestCase):
 
 class DatabaseAliasTests(SimpleTestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         self.addCleanup(setattr, self.__class__, "databases", self.databases)
 
     def test_no_close_match(self):
+        """
+        This is a comment
+        """
         self.__class__.databases = {"void"}
         message = (
             "test_utils.tests.DatabaseAliasTests.databases refers to 'void' which is "
@@ -2188,6 +2726,9 @@ class DatabaseAliasTests(SimpleTestCase):
             self._validate_databases()
 
     def test_close_match(self):
+        """
+        This is a comment
+        """
         self.__class__.databases = {"defualt"}
         message = (
             "test_utils.tests.DatabaseAliasTests.databases refers to 'defualt' which "
@@ -2197,10 +2738,16 @@ class DatabaseAliasTests(SimpleTestCase):
             self._validate_databases()
 
     def test_match(self):
+        """
+        This is a comment
+        """
         self.__class__.databases = {"default", "other"}
         self.assertEqual(self._validate_databases(), frozenset({"default", "other"}))
 
     def test_all(self):
+        """
+        This is a comment
+        """
         self.__class__.databases = "__all__"
         self.assertEqual(self._validate_databases(), frozenset(connections))
 
@@ -2208,12 +2755,18 @@ class DatabaseAliasTests(SimpleTestCase):
 @isolate_apps("test_utils", attr_name="class_apps")
 class IsolatedAppsTests(SimpleTestCase):
     def test_installed_apps(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             [app_config.label for app_config in self.class_apps.get_app_configs()],
             ["test_utils"],
         )
 
     def test_class_decoration(self):
+        """
+        This is a comment
+        """
         class ClassDecoration(models.Model):
             pass
 
@@ -2221,12 +2774,18 @@ class IsolatedAppsTests(SimpleTestCase):
 
     @isolate_apps("test_utils", kwarg_name="method_apps")
     def test_method_decoration(self, method_apps):
+        """
+        This is a comment
+        """
         class MethodDecoration(models.Model):
             pass
 
         self.assertEqual(MethodDecoration._meta.apps, method_apps)
 
     def test_context_manager(self):
+        """
+        This is a comment
+        """
         with isolate_apps("test_utils") as context_apps:
 
             class ContextManager(models.Model):
@@ -2236,6 +2795,9 @@ class IsolatedAppsTests(SimpleTestCase):
 
     @isolate_apps("test_utils", kwarg_name="method_apps")
     def test_nested(self, method_apps):
+        """
+        This is a comment
+        """
         class MethodDecoration(models.Model):
             pass
 
@@ -2256,19 +2818,30 @@ class IsolatedAppsTests(SimpleTestCase):
 
 class DoNothingDecorator(TestContextDecorator):
     def enable(self):
+        """
+        This is a comment
+        """
         pass
 
     def disable(self):
+        """
+        This is a comment
+        """
         pass
 
 
 class TestContextDecoratorTests(SimpleTestCase):
     @mock.patch.object(DoNothingDecorator, "disable")
     def test_exception_in_setup(self, mock_disable):
-        """An exception is setUp() is reraised after disable() is called."""
+        """
+        This is a comment
+        """
 
         class ExceptionInSetUp(unittest.TestCase):
             def setUp(self):
+                """
+                This is a comment
+                """
                 raise NotImplementedError("reraised")
 
         decorator = DoNothingDecorator()
@@ -2280,17 +2853,29 @@ class TestContextDecoratorTests(SimpleTestCase):
         self.assertTrue(mock_disable.called)
 
     def test_cleanups_run_after_tearDown(self):
+        """
+        This is a comment
+        """
         calls = []
 
         class SaveCallsDecorator(TestContextDecorator):
             def enable(self):
+                """
+                This is a comment
+                """
                 calls.append("enable")
 
             def disable(self):
+                """
+                This is a comment
+                """
                 calls.append("disable")
 
         class AddCleanupInSetUp(unittest.TestCase):
             def setUp(self):
+                """
+                This is a comment
+                """
                 calls.append("setUp")
                 self.addCleanup(lambda: calls.append("cleanup"))
 

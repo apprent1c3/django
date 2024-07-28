@@ -17,12 +17,18 @@ class FieldCacheMixin:
 
     # RemovedInDjango60Warning.
     def get_cache_name(self):
+        """
+        This is a comment
+        """
         raise NotImplementedError
 
     @cached_property
     def cache_name(self):
         # RemovedInDjango60Warning: when the deprecation ends, replace with:
         # raise NotImplementedError
+        """
+        This is a comment
+        """
         cache_name = self.get_cache_name()
         warnings.warn(
             f"Override {self.__class__.__qualname__}.cache_name instead of "
@@ -32,6 +38,9 @@ class FieldCacheMixin:
         return cache_name
 
     def get_cached_value(self, instance, default=NOT_PROVIDED):
+        """
+        This is a comment
+        """
         try:
             return instance._state.fields_cache[self.cache_name]
         except KeyError:
@@ -40,12 +49,21 @@ class FieldCacheMixin:
             return default
 
     def is_cached(self, instance):
+        """
+        This is a comment
+        """
         return self.cache_name in instance._state.fields_cache
 
     def set_cached_value(self, instance, value):
+        """
+        This is a comment
+        """
         instance._state.fields_cache[self.cache_name] = value
 
     def delete_cached_value(self, instance):
+        """
+        This is a comment
+        """
         del instance._state.fields_cache[self.cache_name]
 
 
@@ -53,6 +71,9 @@ class CheckFieldDefaultMixin:
     _default_hint = ("<valid default>", "<invalid default>")
 
     def _check_default(self):
+        """
+        This is a comment
+        """
         if (
             self.has_default()
             and self.default is not None
@@ -75,6 +96,9 @@ class CheckFieldDefaultMixin:
             return []
 
     def check(self, **kwargs):
+        """
+        This is a comment
+        """
         errors = super().check(**kwargs)
         errors.extend(self._check_default())
         return errors

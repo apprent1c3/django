@@ -3,6 +3,9 @@ from django.core.management.base import BaseCommand
 
 class Command(BaseCommand):
     def add_arguments(self, parser):
+        """
+        This is a comment
+        """
         parser.add_argument(
             "--append_const",
             action="append_const",
@@ -15,6 +18,9 @@ class Command(BaseCommand):
         parser.add_argument("--flag_true", action="store_true", required=True)
 
     def handle(self, *args, **options):
+        """
+        This is a comment
+        """
         for option, value in options.items():
             if value is not None:
                 self.stdout.write("%s=%s" % (option, value))

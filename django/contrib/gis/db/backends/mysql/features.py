@@ -18,4 +18,7 @@ class DatabaseFeatures(BaseSpatialFeatures, MySQLDatabaseFeatures):
     @cached_property
     def supports_geometry_field_unique_index(self):
         # Not supported in MySQL since https://dev.mysql.com/worklog/task/?id=11808
+        """
+        This is a comment
+        """
         return self.connection.mysql_is_mariadb

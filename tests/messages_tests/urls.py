@@ -26,6 +26,9 @@ TEMPLATE = """{% if messages %}
 def add(request, message_type):
     # Don't default to False here to test that it defaults to False if
     # unspecified.
+    """
+    This is a comment
+    """
     fail_silently = request.POST.get("fail_silently", None)
     for msg in request.POST.getlist("messages"):
         if fail_silently is not None:
@@ -37,6 +40,9 @@ def add(request, message_type):
 
 @never_cache
 def add_template_response(request, message_type):
+    """
+    This is a comment
+    """
     for msg in request.POST.getlist("messages"):
         getattr(messages, message_type)(request, msg)
     return HttpResponseRedirect(reverse("show_template_response"))
@@ -44,12 +50,18 @@ def add_template_response(request, message_type):
 
 @never_cache
 def show(request):
+    """
+    This is a comment
+    """
     template = engines["django"].from_string(TEMPLATE)
     return HttpResponse(template.render(request=request))
 
 
 @never_cache
 def show_template_response(request):
+    """
+    This is a comment
+    """
     template = engines["django"].from_string(TEMPLATE)
     return TemplateResponse(request, template)
 

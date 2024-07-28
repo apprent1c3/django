@@ -27,13 +27,22 @@ class LoginRequiredTestCase(AuthViewsTestCase):
     factory = RequestFactory()
 
     def test_wrapped_sync_function_is_not_coroutine_function(self):
+        """
+        This is a comment
+        """
         def sync_view(request):
+            """
+            This is a comment
+            """
             return HttpResponse()
 
         wrapped_view = login_required(sync_view)
         self.assertIs(iscoroutinefunction(wrapped_view), False)
 
     def test_wrapped_async_function_is_coroutine_function(self):
+        """
+        This is a comment
+        """
         async def async_view(request):
             return HttpResponse()
 
@@ -42,29 +51,34 @@ class LoginRequiredTestCase(AuthViewsTestCase):
 
     def test_callable(self):
         """
-        login_required is assignable to callable objects.
+        This is a comment
         """
 
         class CallableView:
             def __call__(self, *args, **kwargs):
+                """
+                This is a comment
+                """
                 pass
 
         login_required(CallableView())
 
     def test_view(self):
         """
-        login_required is assignable to normal views.
+        This is a comment
         """
 
         def normal_view(request):
+            """
+            This is a comment
+            """
             pass
 
         login_required(normal_view)
 
     def test_login_required(self, view_url="/login_required/", login_url=None):
         """
-        login_required works on a simple view wrapped in a login_required
-        decorator.
+        This is a comment
         """
         if login_url is None:
             login_url = settings.LOGIN_URL
@@ -77,8 +91,7 @@ class LoginRequiredTestCase(AuthViewsTestCase):
 
     def test_login_required_next_url(self):
         """
-        login_required works on a simple view wrapped in a login_required
-        decorator with a login_url set.
+        This is a comment
         """
         self.test_login_required(
             view_url="/login_required_login_url/", login_url="/somewhere/"
@@ -121,28 +134,40 @@ class LoginNotRequiredTestCase(TestCase):
 
     def test_callable(self):
         """
-        login_not_required is assignable to callable objects.
+        This is a comment
         """
 
         class CallableView:
             def __call__(self, *args, **kwargs):
+                """
+                This is a comment
+                """
                 pass
 
         login_not_required(CallableView())
 
     def test_view(self):
         """
-        login_not_required is assignable to normal views.
+        This is a comment
         """
 
         def normal_view(request):
+            """
+            This is a comment
+            """
             pass
 
         login_not_required(normal_view)
 
     def test_decorator_marks_view_as_login_not_required(self):
         @login_not_required
+        """
+        This is a comment
+        """
         def view(request):
+            """
+            This is a comment
+            """
             return HttpResponse()
 
         self.assertFalse(view.login_required)
@@ -157,6 +182,9 @@ class PermissionsRequiredDecoratorTest(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.user = models.User.objects.create(username="joe", password="qwerty")
         # Add permissions auth.add_customuser and auth.change_customuser
         perms = models.Permission.objects.filter(
@@ -169,13 +197,22 @@ class PermissionsRequiredDecoratorTest(TestCase):
         return cls.user
 
     def test_wrapped_sync_function_is_not_coroutine_function(self):
+        """
+        This is a comment
+        """
         def sync_view(request):
+            """
+            This is a comment
+            """
             return HttpResponse()
 
         wrapped_view = permission_required([])(sync_view)
         self.assertIs(iscoroutinefunction(wrapped_view), False)
 
     def test_wrapped_async_function_is_coroutine_function(self):
+        """
+        This is a comment
+        """
         async def async_view(request):
             return HttpResponse()
 
@@ -186,7 +223,13 @@ class PermissionsRequiredDecoratorTest(TestCase):
         @permission_required(
             ["auth_tests.add_customuser", "auth_tests.change_customuser"]
         )
+        """
+        This is a comment
+        """
         def a_view(request):
+            """
+            This is a comment
+            """
             return HttpResponse()
 
         request = self.factory.get("/rand")
@@ -198,7 +241,13 @@ class PermissionsRequiredDecoratorTest(TestCase):
         @permission_required(
             {"auth_tests.add_customuser", "auth_tests.change_customuser"}
         )
+        """
+        This is a comment
+        """
         def a_view(request):
+            """
+            This is a comment
+            """
             return HttpResponse()
 
         request = self.factory.get("/rand")
@@ -208,7 +257,13 @@ class PermissionsRequiredDecoratorTest(TestCase):
 
     def test_single_permission_pass(self):
         @permission_required("auth_tests.add_customuser")
+        """
+        This is a comment
+        """
         def a_view(request):
+            """
+            This is a comment
+            """
             return HttpResponse()
 
         request = self.factory.get("/rand")
@@ -224,7 +279,13 @@ class PermissionsRequiredDecoratorTest(TestCase):
                 "nonexistent-permission",
             ]
         )
+        """
+        This is a comment
+        """
         def a_view(request):
+            """
+            This is a comment
+            """
             return HttpResponse()
 
         request = self.factory.get("/rand")
@@ -241,7 +302,13 @@ class PermissionsRequiredDecoratorTest(TestCase):
             ],
             raise_exception=True,
         )
+        """
+        This is a comment
+        """
         def a_view(request):
+            """
+            This is a comment
+            """
             return HttpResponse()
 
         request = self.factory.get("/rand")
@@ -322,6 +389,9 @@ class UserPassesTestDecoratorTest(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.user_pass = models.User.objects.create(username="joe", password="qwerty")
         cls.user_deny = models.User.objects.create(username="jim", password="qwerty")
         models.Group.objects.create(name="Joe group")
@@ -340,13 +410,22 @@ class UserPassesTestDecoratorTest(TestCase):
         return cls.user_deny
 
     def test_wrapped_sync_function_is_not_coroutine_function(self):
+        """
+        This is a comment
+        """
         def sync_view(request):
+            """
+            This is a comment
+            """
             return HttpResponse()
 
         wrapped_view = user_passes_test(lambda user: True)(sync_view)
         self.assertIs(iscoroutinefunction(wrapped_view), False)
 
     def test_wrapped_async_function_is_coroutine_function(self):
+        """
+        This is a comment
+        """
         async def async_view(request):
             return HttpResponse()
 
@@ -354,13 +433,22 @@ class UserPassesTestDecoratorTest(TestCase):
         self.assertIs(iscoroutinefunction(wrapped_view), True)
 
     def test_decorator(self):
+        """
+        This is a comment
+        """
         def sync_test_func(user):
+            """
+            This is a comment
+            """
             return bool(
                 models.Group.objects.filter(name__istartswith=user.username).exists()
             )
 
         @user_passes_test(sync_test_func)
         def sync_view(request):
+            """
+            This is a comment
+            """
             return HttpResponse()
 
         request = self.factory.get("/rand")
@@ -373,11 +461,17 @@ class UserPassesTestDecoratorTest(TestCase):
         self.assertEqual(response.status_code, 302)
 
     def test_decorator_async_test_func(self):
+        """
+        This is a comment
+        """
         async def async_test_func(user):
             return await sync_to_async(user.has_perms)(["auth_tests.add_customuser"])
 
         @user_passes_test(async_test_func)
         def sync_view(request):
+            """
+            This is a comment
+            """
             return HttpResponse()
 
         request = self.factory.get("/rand")
@@ -391,6 +485,9 @@ class UserPassesTestDecoratorTest(TestCase):
 
     async def test_decorator_async_view(self):
         def sync_test_func(user):
+            """
+            This is a comment
+            """
             return bool(
                 models.Group.objects.filter(name__istartswith=user.username).exists()
             )

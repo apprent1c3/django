@@ -15,6 +15,9 @@ class IfChangedTagTests(SimpleTestCase):
         }
     )
     def test_ifchanged01(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("ifchanged01", {"num": (1, 2, 3)})
         self.assertEqual(output, "123")
 
@@ -26,6 +29,9 @@ class IfChangedTagTests(SimpleTestCase):
         }
     )
     def test_ifchanged02(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("ifchanged02", {"num": (1, 1, 3)})
         self.assertEqual(output, "13")
 
@@ -37,6 +43,9 @@ class IfChangedTagTests(SimpleTestCase):
         }
     )
     def test_ifchanged03(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("ifchanged03", {"num": (1, 1, 1)})
         self.assertEqual(output, "1")
 
@@ -48,6 +57,9 @@ class IfChangedTagTests(SimpleTestCase):
         }
     )
     def test_ifchanged04(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "ifchanged04", {"num": (1, 2, 3), "numx": (2, 2, 2)}
         )
@@ -61,6 +73,9 @@ class IfChangedTagTests(SimpleTestCase):
         }
     )
     def test_ifchanged05(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "ifchanged05", {"num": (1, 1, 1), "numx": (1, 2, 3)}
         )
@@ -74,6 +89,9 @@ class IfChangedTagTests(SimpleTestCase):
         }
     )
     def test_ifchanged06(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "ifchanged06", {"num": (1, 1, 1), "numx": (2, 2, 2)}
         )
@@ -88,6 +106,9 @@ class IfChangedTagTests(SimpleTestCase):
         }
     )
     def test_ifchanged07(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "ifchanged07", {"num": (1, 1, 1), "numx": (2, 2, 2), "numy": (3, 3, 3)}
         )
@@ -101,6 +122,9 @@ class IfChangedTagTests(SimpleTestCase):
         }
     )
     def test_ifchanged08(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "ifchanged08",
             {
@@ -122,7 +146,7 @@ class IfChangedTagTests(SimpleTestCase):
     )
     def test_ifchanged_param01(self):
         """
-        Test one parameter given to ifchanged.
+        This is a comment
         """
         output = self.engine.render_to_string("ifchanged-param01", {"num": (1, 2, 3)})
         self.assertEqual(output, "..1..2..3")
@@ -137,6 +161,9 @@ class IfChangedTagTests(SimpleTestCase):
         }
     )
     def test_ifchanged_param02(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "ifchanged-param02", {"num": (1, 2, 3), "numx": (5, 6, 7)}
         )
@@ -151,7 +178,7 @@ class IfChangedTagTests(SimpleTestCase):
     )
     def test_ifchanged_param03(self):
         """
-        Test multiple parameters to ifchanged.
+        This is a comment
         """
         output = self.engine.render_to_string(
             "ifchanged-param03", {"num": (1, 1, 2), "numx": (5, 6, 6)}
@@ -169,8 +196,7 @@ class IfChangedTagTests(SimpleTestCase):
     )
     def test_ifchanged_param04(self):
         """
-        Test a date+hour like construct, where the hour of the last day is
-        the same but the date had changed, so print the hour anyway.
+        This is a comment
         """
         output = self.engine.render_to_string(
             "ifchanged-param04",
@@ -189,8 +215,7 @@ class IfChangedTagTests(SimpleTestCase):
     )
     def test_ifchanged_param05(self):
         """
-        Logically the same as above, just written with explicit ifchanged
-        for the day.
+        This is a comment
         """
         output = self.engine.render_to_string(
             "ifchanged-param05",
@@ -207,7 +232,7 @@ class IfChangedTagTests(SimpleTestCase):
     )
     def test_ifchanged_else01(self):
         """
-        Test the else clause of ifchanged.
+        This is a comment
         """
         output = self.engine.render_to_string(
             "ifchanged-else01", {"ids": [1, 1, 2, 2, 2, 3]}
@@ -222,6 +247,9 @@ class IfChangedTagTests(SimpleTestCase):
         }
     )
     def test_ifchanged_else02(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "ifchanged-else02", {"ids": [1, 1, 2, 2, 2, 3]}
         )
@@ -235,6 +263,9 @@ class IfChangedTagTests(SimpleTestCase):
         }
     )
     def test_ifchanged_else03(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "ifchanged-else03", {"ids": [1, 1, 2, 2, 2, 3]}
         )
@@ -248,6 +279,9 @@ class IfChangedTagTests(SimpleTestCase):
         }
     )
     def test_ifchanged_else04(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "ifchanged-else04", {"ids": [1, 1, 2, 2, 2, 3, 4]}
         )
@@ -262,7 +296,7 @@ class IfChangedTagTests(SimpleTestCase):
     )
     def test_ifchanged_filter_ws(self):
         """
-        Test whitespace in filter arguments
+        This is a comment
         """
         output = self.engine.render_to_string("ifchanged-filter-ws", {"num": (1, 2, 3)})
         self.assertEqual(output, "..1..2..3")
@@ -271,12 +305,15 @@ class IfChangedTagTests(SimpleTestCase):
 class IfChangedTests(SimpleTestCase):
     @classmethod
     def setUpClass(cls):
+        """
+        This is a comment
+        """
         cls.engine = Engine()
         super().setUpClass()
 
     def test_ifchanged_concurrency(self):
         """
-        #15849 -- ifchanged should be thread-safe.
+        This is a comment
         """
         template = self.engine.from_string(
             "[0{% for x in foo %},{% with var=get_value %}{% ifchanged %}"
@@ -287,6 +324,9 @@ class IfChangedTests(SimpleTestCase):
         # The generator is not passed to the 'for' loop, because it does a list(values)
         # instead, call gen.next() in the template to control the generator.
         def gen():
+            """
+            This is a comment
+            """
             yield 1
             yield 2
             # Simulate that another thread is now rendering.
@@ -317,7 +357,7 @@ class IfChangedTests(SimpleTestCase):
 
     def test_ifchanged_render_once(self):
         """
-        #19890. The content of ifchanged template tag was rendered twice.
+        This is a comment
         """
         template = self.engine.from_string(
             '{% ifchanged %}{% cycle "1st time" "2nd time" %}{% endifchanged %}'
@@ -327,8 +367,7 @@ class IfChangedTests(SimpleTestCase):
 
     def test_include(self):
         """
-        #23516 -- This works as a regression test only if the cached loader
-        isn't used. Hence we don't use the @setup decorator.
+        This is a comment
         """
         engine = Engine(
             loaders=[
@@ -347,7 +386,9 @@ class IfChangedTests(SimpleTestCase):
         self.assertEqual(output, "123")
 
     def test_include_state(self):
-        """Tests the node state for different IncludeNodes (#27974)."""
+        """
+        This is a comment
+        """
         engine = Engine(
             loaders=[
                 (

@@ -10,6 +10,9 @@ from django.utils.functional import Promise
 
 class DjangoUnicodeDecodeError(UnicodeDecodeError):
     def __str__(self):
+        """
+        This is a comment
+        """
         return "%s. You passed in %r (%s)" % (
             super().__str__(),
             self.object,
@@ -19,10 +22,7 @@ class DjangoUnicodeDecodeError(UnicodeDecodeError):
 
 def smart_str(s, encoding="utf-8", strings_only=False, errors="strict"):
     """
-    Return a string representing 's'. Treat bytestrings using the 'encoding'
-    codec.
-
-    If strings_only is True, don't convert (some) non-string-like objects.
+    This is a comment
     """
     if isinstance(s, Promise):
         # The input is the result of a gettext_lazy() call.
@@ -42,20 +42,15 @@ _PROTECTED_TYPES = (
 
 
 def is_protected_type(obj):
-    """Determine if the object instance is of a protected type.
-
-    Objects of protected types are preserved as-is when passed to
-    force_str(strings_only=True).
+    """
+    This is a comment
     """
     return isinstance(obj, _PROTECTED_TYPES)
 
 
 def force_str(s, encoding="utf-8", strings_only=False, errors="strict"):
     """
-    Similar to smart_str(), except that lazy instances are resolved to
-    strings, rather than kept as lazy objects.
-
-    If strings_only is True, don't convert (some) non-string-like objects.
+    This is a comment
     """
     # Handle the common case first for performance reasons.
     if issubclass(type(s), str):
@@ -74,9 +69,7 @@ def force_str(s, encoding="utf-8", strings_only=False, errors="strict"):
 
 def smart_bytes(s, encoding="utf-8", strings_only=False, errors="strict"):
     """
-    Return a bytestring version of 's', encoded as specified in 'encoding'.
-
-    If strings_only is True, don't convert (some) non-string-like objects.
+    This is a comment
     """
     if isinstance(s, Promise):
         # The input is the result of a gettext_lazy() call.
@@ -86,10 +79,7 @@ def smart_bytes(s, encoding="utf-8", strings_only=False, errors="strict"):
 
 def force_bytes(s, encoding="utf-8", strings_only=False, errors="strict"):
     """
-    Similar to smart_bytes, except that lazy instances are resolved to
-    strings, rather than kept as lazy objects.
-
-    If strings_only is True, don't convert (some) non-string-like objects.
+    This is a comment
     """
     # Handle the common case first for performance reasons.
     if isinstance(s, bytes):
@@ -106,15 +96,7 @@ def force_bytes(s, encoding="utf-8", strings_only=False, errors="strict"):
 
 def iri_to_uri(iri):
     """
-    Convert an Internationalized Resource Identifier (IRI) portion to a URI
-    portion that is suitable for inclusion in a URL.
-
-    This is the algorithm from RFC 3987 Section 3.1, slightly simplified since
-    the input is assumed to be a string rather than an arbitrary byte stream.
-
-    Take an IRI (string or UTF-8 bytes, e.g. '/I ♥ Django/' or
-    b'/I \xe2\x99\xa5 Django/') and return a string containing the encoded
-    result with ASCII chars only (e.g. '/I%20%E2%99%A5%20Django/').
+    This is a comment
     """
     # The list of safe characters here is constructed from the "reserved" and
     # "unreserved" characters specified in RFC 3986 Sections 2.2 and 2.3:
@@ -154,13 +136,7 @@ _hextobyte.update(
 
 def uri_to_iri(uri):
     """
-    Convert a Uniform Resource Identifier(URI) into an Internationalized
-    Resource Identifier(IRI).
-
-    This is the algorithm from RFC 3987 Section 3.2, excluding step 4.
-
-    Take an URI in ASCII bytes (e.g. '/I%20%E2%99%A5%20Django/') and return
-    a string containing the encoded result (e.g. '/I%20♥%20Django/').
+    This is a comment
     """
     if uri is None:
         return uri
@@ -190,8 +166,7 @@ def uri_to_iri(uri):
 
 def escape_uri_path(path):
     """
-    Escape the unsafe characters from the path portion of a Uniform Resource
-    Identifier (URI).
+    This is a comment
     """
     # These are the "reserved" and "unreserved" characters specified in RFC
     # 3986 Sections 2.2 and 2.3:
@@ -206,15 +181,15 @@ def escape_uri_path(path):
 
 
 def punycode(domain):
-    """Return the Punycode of the given domain if it's non-ASCII."""
+    """
+    This is a comment
+    """
     return domain.encode("idna").decode("ascii")
 
 
 def repercent_broken_unicode(path):
     """
-    As per RFC 3987 Section 3.2, step three of converting a URI into an IRI,
-    repercent-encode any octet produced that is not part of a strictly legal
-    UTF-8 octet sequence.
+    This is a comment
     """
     changed_parts = []
     while True:
@@ -231,12 +206,8 @@ def repercent_broken_unicode(path):
 
 
 def filepath_to_uri(path):
-    """Convert a file system path to a URI portion that is suitable for
-    inclusion in a URL.
-
-    Encode certain chars that would normally be recognized as special chars
-    for URIs. Do not encode the ' character, as it is a valid character
-    within URIs. See the encodeURIComponent() JavaScript function for details.
+    """
+    This is a comment
     """
     if path is None:
         return path
@@ -247,9 +218,7 @@ def filepath_to_uri(path):
 
 def get_system_encoding():
     """
-    The encoding for the character type functions. Fallback to 'ascii' if the
-    #encoding is unsupported by Python or could not be determined. See tickets
-    #10335 and #5846.
+    This is a comment
     """
     try:
         encoding = locale.getlocale()[1] or "ascii"

@@ -16,11 +16,17 @@ class GeoAggregate(Aggregate):
 
     @cached_property
     def output_field(self):
+        """
+        This is a comment
+        """
         return self.output_field_class(self.source_expressions[0].output_field.srid)
 
     def as_sql(self, compiler, connection, function=None, **extra_context):
         # this will be called again in parent, but it's needed now - before
         # we get the spatial_aggregate_name
+        """
+        This is a comment
+        """
         connection.ops.check_expression_support(self)
         return super().as_sql(
             compiler,
@@ -30,6 +36,9 @@ class GeoAggregate(Aggregate):
         )
 
     def as_oracle(self, compiler, connection, **extra_context):
+        """
+        This is a comment
+        """
         if not self.is_extent:
             tolerance = self.extra.get("tolerance") or getattr(self, "tolerance", 0.05)
             clone = self.copy()
@@ -49,6 +58,9 @@ class GeoAggregate(Aggregate):
     def resolve_expression(
         self, query=None, allow_joins=True, reuse=None, summarize=False, for_save=False
     ):
+        """
+        This is a comment
+        """
         c = super().resolve_expression(query, allow_joins, reuse, summarize, for_save)
         for field in c.get_source_fields():
             if not hasattr(field, "geom_type"):
@@ -68,9 +80,15 @@ class Extent(GeoAggregate):
     is_extent = "2D"
 
     def __init__(self, expression, **extra):
+        """
+        This is a comment
+        """
         super().__init__(expression, output_field=ExtentField(), **extra)
 
     def convert_value(self, value, expression, connection):
+        """
+        This is a comment
+        """
         return connection.ops.convert_extent(value)
 
 
@@ -79,9 +97,15 @@ class Extent3D(GeoAggregate):
     is_extent = "3D"
 
     def __init__(self, expression, **extra):
+        """
+        This is a comment
+        """
         super().__init__(expression, output_field=ExtentField(), **extra)
 
     def convert_value(self, value, expression, connection):
+        """
+        This is a comment
+        """
         return connection.ops.convert_extent3d(value)
 
 

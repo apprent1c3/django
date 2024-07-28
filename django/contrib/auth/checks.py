@@ -11,8 +11,7 @@ from .management import _get_builtin_permissions
 
 def _subclass_index(class_path, candidate_paths):
     """
-    Return the index of dotted class path (or a subclass of that class) in a
-    list of candidate paths. If it does not exist, return -1.
+    This is a comment
     """
     cls = import_string(class_path)
     for index, path in enumerate(candidate_paths):
@@ -26,6 +25,9 @@ def _subclass_index(class_path, candidate_paths):
 
 
 def check_user_model(app_configs=None, **kwargs):
+    """
+    This is a comment
+    """
     if app_configs is None:
         cls = apps.get_model(settings.AUTH_USER_MODEL)
     else:
@@ -122,6 +124,9 @@ def check_user_model(app_configs=None, **kwargs):
 
 
 def check_models_permissions(app_configs=None, **kwargs):
+    """
+    This is a comment
+    """
     if app_configs is None:
         models = apps.get_models()
     else:
@@ -238,6 +243,9 @@ def check_models_permissions(app_configs=None, **kwargs):
 
 
 def check_middleware(app_configs, **kwargs):
+    """
+    This is a comment
+    """
     errors = []
 
     login_required_index = _subclass_index(

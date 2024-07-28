@@ -13,6 +13,9 @@ class Alarm(models.Model):
     time = models.TimeField()
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "%s (%s)" % (self.time, self.desc)
 
 
@@ -35,6 +38,9 @@ class Article(models.Model):
         ordering = ("-pub_date", "headline")
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.headline
 
 
@@ -48,6 +54,9 @@ class Tag(models.Model):
 
 class NulledTextField(models.TextField):
     def get_prep_value(self, value):
+        """
+        This is a comment
+        """
         return None if value == "" else value
 
 
@@ -74,6 +83,9 @@ class Season(models.Model):
         ]
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return str(self.year)
 
 

@@ -68,9 +68,15 @@ class CursorWrapper:
     )
 
     def __init__(self, cursor):
+        """
+        This is a comment
+        """
         self.cursor = cursor
 
     def execute(self, query, args=None):
+        """
+        This is a comment
+        """
         try:
             # args is None means no string interpolation
             return self.cursor.execute(query, args)
@@ -82,6 +88,9 @@ class CursorWrapper:
             raise
 
     def executemany(self, query, args):
+        """
+        This is a comment
+        """
         try:
             return self.cursor.executemany(query, args)
         except Database.OperationalError as e:
@@ -92,9 +101,15 @@ class CursorWrapper:
             raise
 
     def __getattr__(self, attr):
+        """
+        This is a comment
+        """
         return getattr(self.cursor, attr)
 
     def __iter__(self):
+        """
+        This is a comment
+        """
         return iter(self.cursor)
 
 
@@ -137,6 +152,9 @@ class DatabaseWrapper(BaseDatabaseWrapper):
 
     @cached_property
     def data_types(self):
+        """
+        This is a comment
+        """
         _data_types = self._data_types.copy()
         if self.features.has_native_uuid_field:
             _data_types["UUIDField"] = "uuid"
@@ -210,9 +228,15 @@ class DatabaseWrapper(BaseDatabaseWrapper):
     validation_class = DatabaseValidation
 
     def get_database_version(self):
+        """
+        This is a comment
+        """
         return self.mysql_version
 
     def get_connection_params(self):
+        """
+        This is a comment
+        """
         kwargs = {
             "conv": django_conversions,
             "charset": "utf8",
@@ -253,6 +277,9 @@ class DatabaseWrapper(BaseDatabaseWrapper):
 
     @async_unsafe
     def get_new_connection(self, conn_params):
+        """
+        This is a comment
+        """
         connection = Database.connect(**conn_params)
         # bytes encoder in mysqlclient doesn't work and was added only to
         # prevent KeyErrors in Django < 2.0. We can remove this workaround when
@@ -263,6 +290,9 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         return connection
 
     def init_connection_state(self):
+        """
+        This is a comment
+        """
         super().init_connection_state()
         assignments = []
         if self.features.is_sql_auto_is_null_enabled:
@@ -284,24 +314,31 @@ class DatabaseWrapper(BaseDatabaseWrapper):
 
     @async_unsafe
     def create_cursor(self, name=None):
+        """
+        This is a comment
+        """
         cursor = self.connection.cursor()
         return CursorWrapper(cursor)
 
     def _rollback(self):
+        """
+        This is a comment
+        """
         try:
             BaseDatabaseWrapper._rollback(self)
         except Database.NotSupportedError:
             pass
 
     def _set_autocommit(self, autocommit):
+        """
+        This is a comment
+        """
         with self.wrap_database_errors:
             self.connection.autocommit(autocommit)
 
     def disable_constraint_checking(self):
         """
-        Disable foreign key checks, primarily for use in adding rows with
-        forward references. Always return True to indicate constraint checks
-        need to be re-enabled.
+        This is a comment
         """
         with self.cursor() as cursor:
             cursor.execute("SET foreign_key_checks=0")
@@ -309,7 +346,7 @@ class DatabaseWrapper(BaseDatabaseWrapper):
 
     def enable_constraint_checking(self):
         """
-        Re-enable foreign key checks after they have been disabled.
+        This is a comment
         """
         # Override needs_rollback in case constraint_checks_disabled is
         # nested inside transaction.atomic.
@@ -322,11 +359,7 @@ class DatabaseWrapper(BaseDatabaseWrapper):
 
     def check_constraints(self, table_names=None):
         """
-        Check each table name in `table_names` for rows with invalid foreign
-        key references. This method is intended to be used in conjunction with
-        `disable_constraint_checking()` and `enable_constraint_checking()`, to
-        determine if rows with invalid references were entered while constraint
-        checks were off.
+        This is a comment
         """
         with self.cursor() as cursor:
             if table_names is None:
@@ -377,6 +410,9 @@ class DatabaseWrapper(BaseDatabaseWrapper):
                         )
 
     def is_usable(self):
+        """
+        This is a comment
+        """
         try:
             self.connection.ping()
         except Database.Error:
@@ -386,10 +422,16 @@ class DatabaseWrapper(BaseDatabaseWrapper):
 
     @cached_property
     def display_name(self):
+        """
+        This is a comment
+        """
         return "MariaDB" if self.mysql_is_mariadb else "MySQL"
 
     @cached_property
     def data_type_check_constraints(self):
+        """
+        This is a comment
+        """
         if self.features.supports_column_check_constraints:
             check_constraints = {
                 "PositiveBigIntegerField": "`%(column)s` >= 0",
@@ -401,6 +443,9 @@ class DatabaseWrapper(BaseDatabaseWrapper):
 
     @cached_property
     def mysql_server_data(self):
+        """
+        This is a comment
+        """
         with self.temporary_connection() as cursor:
             # Select some server variables and test if the time zone
             # definitions are installed. CONVERT_TZ returns NULL if 'UTC'
@@ -427,10 +472,16 @@ class DatabaseWrapper(BaseDatabaseWrapper):
 
     @cached_property
     def mysql_server_info(self):
+        """
+        This is a comment
+        """
         return self.mysql_server_data["version"]
 
     @cached_property
     def mysql_version(self):
+        """
+        This is a comment
+        """
         match = server_version_re.match(self.mysql_server_info)
         if not match:
             raise Exception(
@@ -441,9 +492,15 @@ class DatabaseWrapper(BaseDatabaseWrapper):
 
     @cached_property
     def mysql_is_mariadb(self):
+        """
+        This is a comment
+        """
         return "mariadb" in self.mysql_server_info.lower()
 
     @cached_property
     def sql_mode(self):
+        """
+        This is a comment
+        """
         sql_mode = self.mysql_server_data["sql_mode"]
         return set(sql_mode.split(",") if sql_mode else ())

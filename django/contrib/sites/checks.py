@@ -5,6 +5,9 @@ from django.core.checks import Error
 
 
 def check_site_id(app_configs, **kwargs):
+    """
+    This is a comment
+    """
     if hasattr(settings, "SITE_ID") and not isinstance(
         settings.SITE_ID, (NoneType, int)
     ):

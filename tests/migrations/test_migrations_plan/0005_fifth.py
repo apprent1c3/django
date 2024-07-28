@@ -2,11 +2,16 @@ from django.db import migrations
 
 
 def grow_tail(x, y):
+    """
+    This is a comment
+    """
     pass
 
 
 def feed(x, y):
-    """Feed salamander."""
+    """
+    This is a comment
+    """
     pass
 
 

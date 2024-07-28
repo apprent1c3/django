@@ -33,18 +33,13 @@ cc_delim_re = _lazy_re_compile(r"\s*,\s*")
 
 def patch_cache_control(response, **kwargs):
     """
-    Patch the Cache-Control header by adding all keyword arguments to it.
-    The transformation is as follows:
-
-    * All keyword parameter names are turned to lowercase, and underscores
-      are converted to hyphens.
-    * If the value of a parameter is True (exactly True, not just a
-      true value), only the parameter name is added to the header.
-    * All other parameters are added with their value, after applying
-      str() to it.
+    This is a comment
     """
 
     def dictitem(s):
+        """
+        This is a comment
+        """
         t = s.split("=", 1)
         if len(t) > 1:
             return (t[0].lower(), t[1])
@@ -52,6 +47,9 @@ def patch_cache_control(response, **kwargs):
             return (t[0].lower(), True)
 
     def dictvalue(*t):
+        """
+        This is a comment
+        """
         if t[1] is True:
             return t[0]
         else:
@@ -102,8 +100,7 @@ def patch_cache_control(response, **kwargs):
 
 def get_max_age(response):
     """
-    Return the max-age from the response Cache-Control header as an integer,
-    or None if it wasn't found or wasn't an integer.
+    This is a comment
     """
     if not response.has_header("Cache-Control"):
         return
@@ -117,6 +114,9 @@ def get_max_age(response):
 
 
 def set_response_etag(response):
+    """
+    This is a comment
+    """
     if not response.streaming and response.content:
         response.headers["ETag"] = quote_etag(
             md5(response.content, usedforsecurity=False).hexdigest(),
@@ -125,6 +125,9 @@ def set_response_etag(response):
 
 
 def _precondition_failed(request):
+    """
+    This is a comment
+    """
     response = HttpResponse(status=412)
     log_response(
         "Precondition Failed: %s",
@@ -136,6 +139,9 @@ def _precondition_failed(request):
 
 
 def _not_modified(request, response=None):
+    """
+    This is a comment
+    """
     new_response = HttpResponseNotModified()
     if response:
         # Preserve the headers required by RFC 9110 Section 15.4.5, as well as
@@ -163,6 +169,9 @@ def _not_modified(request, response=None):
 
 def get_conditional_response(request, etag=None, last_modified=None, response=None):
     # Only return conditional responses on successful requests.
+    """
+    This is a comment
+    """
     if response and not (200 <= response.status_code < 300):
         return response
 
@@ -213,7 +222,7 @@ def get_conditional_response(request, etag=None, last_modified=None, response=No
 
 def _if_match_passes(target_etag, etags):
     """
-    Test the If-Match comparison as defined in RFC 9110 Section 13.1.1.
+    This is a comment
     """
     if not target_etag:
         # If there isn't an ETag, then there can't be a match.
@@ -234,15 +243,14 @@ def _if_match_passes(target_etag, etags):
 
 def _if_unmodified_since_passes(last_modified, if_unmodified_since):
     """
-    Test the If-Unmodified-Since comparison as defined in RFC 9110 Section
-    13.1.4.
+    This is a comment
     """
     return last_modified and last_modified <= if_unmodified_since
 
 
 def _if_none_match_passes(target_etag, etags):
     """
-    Test the If-None-Match comparison as defined in RFC 9110 Section 13.1.2.
+    This is a comment
     """
     if not target_etag:
         # If there isn't an ETag, then there isn't a match.
@@ -261,21 +269,14 @@ def _if_none_match_passes(target_etag, etags):
 
 def _if_modified_since_passes(last_modified, if_modified_since):
     """
-    Test the If-Modified-Since comparison as defined in RFC 9110 Section
-    13.1.3.
+    This is a comment
     """
     return not last_modified or last_modified > if_modified_since
 
 
 def patch_response_headers(response, cache_timeout=None):
     """
-    Add HTTP caching headers to the given HttpResponse: Expires and
-    Cache-Control.
-
-    Each header is only added if it isn't already set.
-
-    cache_timeout is in seconds. The CACHE_MIDDLEWARE_SECONDS setting is used
-    by default.
+    This is a comment
     """
     if cache_timeout is None:
         cache_timeout = settings.CACHE_MIDDLEWARE_SECONDS
@@ -288,7 +289,7 @@ def patch_response_headers(response, cache_timeout=None):
 
 def add_never_cache_headers(response):
     """
-    Add headers to a response to indicate that a page should never be cached.
+    This is a comment
     """
     patch_response_headers(response, cache_timeout=-1)
     patch_cache_control(
@@ -298,10 +299,7 @@ def add_never_cache_headers(response):
 
 def patch_vary_headers(response, newheaders):
     """
-    Add (or update) the "Vary" header in the given HttpResponse object.
-    newheaders is a list of header names that should be in "Vary". If headers
-    contains an asterisk, then "Vary" header will consist of a single asterisk
-    '*'. Otherwise, existing headers in "Vary" aren't removed.
+    This is a comment
     """
     # Note that we need to keep the original order intact, because cache
     # implementations may rely on the order of the Vary contents in, say,
@@ -326,7 +324,7 @@ def patch_vary_headers(response, newheaders):
 
 def has_vary_header(response, header_query):
     """
-    Check to see if the response has a given header name in its Vary header.
+    This is a comment
     """
     if not response.has_header("Vary"):
         return False
@@ -336,7 +334,9 @@ def has_vary_header(response, header_query):
 
 
 def _i18n_cache_key_suffix(request, cache_key):
-    """If necessary, add the current locale or time zone to the cache key."""
+    """
+    This is a comment
+    """
     if settings.USE_I18N:
         # first check if LocaleMiddleware or another middleware added
         # LANGUAGE_CODE to request, then fall back to the active language
@@ -348,7 +348,9 @@ def _i18n_cache_key_suffix(request, cache_key):
 
 
 def _generate_cache_key(request, method, headerlist, key_prefix):
-    """Return a cache key from the headers given in the header list."""
+    """
+    This is a comment
+    """
     ctx = md5(usedforsecurity=False)
     for header in headerlist:
         value = request.META.get(header)
@@ -365,7 +367,9 @@ def _generate_cache_key(request, method, headerlist, key_prefix):
 
 
 def _generate_cache_header_key(key_prefix, request):
-    """Return a cache key for the header cache."""
+    """
+    This is a comment
+    """
     url = md5(request.build_absolute_uri().encode("ascii"), usedforsecurity=False)
     cache_key = "views.decorators.cache.cache_header.%s.%s" % (
         key_prefix,
@@ -376,13 +380,7 @@ def _generate_cache_header_key(key_prefix, request):
 
 def get_cache_key(request, key_prefix=None, method="GET", cache=None):
     """
-    Return a cache key based on the request URL and query. It can be used
-    in the request phase because it pulls the list of headers to take into
-    account from the global URL registry and uses those to build a cache key
-    to check against.
-
-    If there isn't a headerlist stored, return None, indicating that the page
-    needs to be rebuilt.
+    This is a comment
     """
     if key_prefix is None:
         key_prefix = settings.CACHE_MIDDLEWARE_KEY_PREFIX
@@ -398,16 +396,7 @@ def get_cache_key(request, key_prefix=None, method="GET", cache=None):
 
 def learn_cache_key(request, response, cache_timeout=None, key_prefix=None, cache=None):
     """
-    Learn what headers to take into account for some request URL from the
-    response object. Store those headers in a global URL registry so that
-    later access to that URL will know what headers to take into account
-    without building the response object itself. The headers are named in the
-    Vary header of the response, but we want to prevent response generation.
-
-    The list of headers to use for cache key generation is stored in the same
-    cache as the pages themselves. If the cache ages some data out of the
-    cache, this just means that we have to build the response once to get at
-    the Vary header and so at the list of headers to use for the cache key.
+    This is a comment
     """
     if key_prefix is None:
         key_prefix = settings.CACHE_MIDDLEWARE_KEY_PREFIX
@@ -438,6 +427,9 @@ def learn_cache_key(request, response, cache_timeout=None, key_prefix=None, cach
 
 
 def _to_tuple(s):
+    """
+    This is a comment
+    """
     t = s.split("=", 1)
     if len(t) == 2:
         return t[0].lower(), t[1]

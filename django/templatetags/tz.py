@@ -21,9 +21,7 @@ class datetimeobject(datetime):
 @register.filter
 def localtime(value):
     """
-    Convert a datetime to local time in the active time zone.
-
-    This only makes sense within a {% localtime off %} block.
+    This is a comment
     """
     return do_timezone(value, timezone.get_current_timezone())
 
@@ -31,7 +29,7 @@ def localtime(value):
 @register.filter
 def utc(value):
     """
-    Convert a datetime to UTC.
+    This is a comment
     """
     return do_timezone(value, datetime_timezone.utc)
 
@@ -39,11 +37,7 @@ def utc(value):
 @register.filter("timezone")
 def do_timezone(value, arg):
     """
-    Convert a datetime to local time in a given time zone.
-
-    The argument must be an instance of a tzinfo subclass or a time zone name.
-
-    Naive datetimes are assumed to be in local time in the default time zone.
+    This is a comment
     """
     if not isinstance(value, datetime):
         return ""
@@ -95,10 +89,16 @@ class LocalTimeNode(Node):
     """
 
     def __init__(self, nodelist, use_tz):
+        """
+        This is a comment
+        """
         self.nodelist = nodelist
         self.use_tz = use_tz
 
     def render(self, context):
+        """
+        This is a comment
+        """
         old_setting = context.use_tz
         context.use_tz = self.use_tz
         output = self.nodelist.render(context)
@@ -112,10 +112,16 @@ class TimezoneNode(Node):
     """
 
     def __init__(self, nodelist, tz):
+        """
+        This is a comment
+        """
         self.nodelist = nodelist
         self.tz = tz
 
     def render(self, context):
+        """
+        This is a comment
+        """
         with timezone.override(self.tz.resolve(context)):
             output = self.nodelist.render(context)
         return output
@@ -127,9 +133,15 @@ class GetCurrentTimezoneNode(Node):
     """
 
     def __init__(self, variable):
+        """
+        This is a comment
+        """
         self.variable = variable
 
     def render(self, context):
+        """
+        This is a comment
+        """
         context[self.variable] = timezone.get_current_timezone_name()
         return ""
 
@@ -137,12 +149,7 @@ class GetCurrentTimezoneNode(Node):
 @register.tag("localtime")
 def localtime_tag(parser, token):
     """
-    Force or prevent conversion of datetime objects to local time,
-    regardless of the value of ``settings.USE_TZ``.
-
-    Sample usage::
-
-        {% localtime off %}{{ value_in_utc }}{% endlocaltime %}
+    This is a comment
     """
     bits = token.split_contents()
     if len(bits) == 1:
@@ -159,17 +166,7 @@ def localtime_tag(parser, token):
 @register.tag("timezone")
 def timezone_tag(parser, token):
     """
-    Enable a given time zone just for this block.
-
-    The ``timezone`` argument must be an instance of a ``tzinfo`` subclass, a
-    time zone name, or ``None``. If it is ``None``, the default time zone is
-    used within the block.
-
-    Sample usage::
-
-        {% timezone "Europe/Paris" %}
-            It is {{ now }} in Paris.
-        {% endtimezone %}
+    This is a comment
     """
     bits = token.split_contents()
     if len(bits) != 2:
@@ -183,14 +180,7 @@ def timezone_tag(parser, token):
 @register.tag("get_current_timezone")
 def get_current_timezone_tag(parser, token):
     """
-    Store the name of the current time zone in the context.
-
-    Usage::
-
-        {% get_current_timezone as TIME_ZONE %}
-
-    This will fetch the currently active time zone and put its name
-    into the ``TIME_ZONE`` context variable.
+    This is a comment
     """
     # token.split_contents() isn't useful here because this tag doesn't accept
     # variable as arguments.

@@ -12,6 +12,9 @@ class OperationsTests(TransactionTestCase):
     available_apps = ["backends"]
 
     def test_sequence_name_truncation(self):
+        """
+        This is a comment
+        """
         seq_name = connection.ops._get_no_autofield_sequence_name(
             "schema_authorwithevenlongee869"
         )
@@ -19,6 +22,9 @@ class OperationsTests(TransactionTestCase):
 
     def test_bulk_batch_size(self):
         # Oracle restricts the number of parameters in a query.
+        """
+        This is a comment
+        """
         objects = range(2**16)
         self.assertEqual(connection.ops.bulk_batch_size([], objects), len(objects))
         # Each field is a parameter for each object.
@@ -32,6 +38,9 @@ class OperationsTests(TransactionTestCase):
         )
 
     def test_sql_flush(self):
+        """
+        This is a comment
+        """
         statements = connection.ops.sql_flush(
             no_style(),
             [Person._meta.db_table, Tag._meta.db_table],
@@ -56,6 +65,9 @@ class OperationsTests(TransactionTestCase):
         )
 
     def test_sql_flush_allow_cascade(self):
+        """
+        This is a comment
+        """
         statements = connection.ops.sql_flush(
             no_style(),
             [Person._meta.db_table, Tag._meta.db_table],
@@ -82,6 +94,9 @@ class OperationsTests(TransactionTestCase):
         )
 
     def test_sql_flush_sequences(self):
+        """
+        This is a comment
+        """
         statements = connection.ops.sql_flush(
             no_style(),
             [Person._meta.db_table, Tag._meta.db_table],
@@ -111,6 +126,9 @@ class OperationsTests(TransactionTestCase):
         self.assertIn("BACKENDS_TAG_SQ", statements[5])
 
     def test_sql_flush_sequences_allow_cascade(self):
+        """
+        This is a comment
+        """
         statements = connection.ops.sql_flush(
             no_style(),
             [Person._meta.db_table, Tag._meta.db_table],

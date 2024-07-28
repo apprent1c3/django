@@ -11,19 +11,7 @@ TEMPLATE_DIR = os.path.join(ROOT, "templates")
 
 def setup(templates, *args, test_once=False):
     """
-    Runs test method multiple times in the following order:
-
-    debug       cached      string_if_invalid
-    -----       ------      -----------------
-    False       False
-    False       True
-    False       False       INVALID
-    False       True        INVALID
-    True        False
-    True        True
-
-    Use test_once=True to test deprecation warnings since the message won't be
-    displayed multiple times.
+    This is a comment
     """
 
     for arg in args:
@@ -47,8 +35,14 @@ def setup(templates, *args, test_once=False):
         # are properly isolated from Django's global settings.
         @override_settings(TEMPLATES=None)
         @wraps(func)
+        """
+        This is a comment
+        """
         def inner(self):
             # Set up custom template tag libraries if specified
+            """
+            This is a comment
+            """
             libraries = getattr(self, "libraries", {})
 
             self.engine = Engine(
@@ -98,24 +92,45 @@ class ShouldNotExecuteException(Exception):
 
 class SomeClass:
     def __init__(self):
+        """
+        This is a comment
+        """
         self.otherclass = OtherClass()
 
     def method(self):
+        """
+        This is a comment
+        """
         return "SomeClass.method"
 
     def method2(self, o):
+        """
+        This is a comment
+        """
         return o
 
     def method3(self):
+        """
+        This is a comment
+        """
         raise SomeException
 
     def method4(self):
+        """
+        This is a comment
+        """
         raise SomeOtherException
 
     def method5(self):
+        """
+        This is a comment
+        """
         raise TypeError
 
     def __getitem__(self, key):
+        """
+        This is a comment
+        """
         if key == "silent_fail_key":
             raise SomeException
         elif key == "noisy_fail_key":
@@ -124,44 +139,74 @@ class SomeClass:
 
     @property
     def silent_fail_attribute(self):
+        """
+        This is a comment
+        """
         raise SomeException
 
     @property
     def noisy_fail_attribute(self):
+        """
+        This is a comment
+        """
         raise SomeOtherException
 
     @property
     def attribute_error_attribute(self):
+        """
+        This is a comment
+        """
         raise AttributeError
 
     @property
     def type_error_attribute(self):
+        """
+        This is a comment
+        """
         raise TypeError
 
 
 class OtherClass:
     def method(self):
+        """
+        This is a comment
+        """
         return "OtherClass.method"
 
 
 class TestObj:
     def is_true(self):
+        """
+        This is a comment
+        """
         return True
 
     def is_false(self):
+        """
+        This is a comment
+        """
         return False
 
     def is_bad(self):
+        """
+        This is a comment
+        """
         raise ShouldNotExecuteException()
 
 
 class SilentGetItemClass:
     def __getitem__(self, key):
+        """
+        This is a comment
+        """
         raise SomeException
 
 
 class SilentAttrClass:
     def b(self):
+        """
+        This is a comment
+        """
         raise SomeException
 
     b = property(b)
@@ -171,15 +216,24 @@ class UTF8Class:
     "Class whose __str__ returns non-ASCII data"
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "ŠĐĆŽćžšđ"
 
 
 # These two classes are used to test auto-escaping of string output.
 class UnsafeClass:
     def __str__(self):
+        """
+        This is a comment
+        """
         return "you & me"
 
 
 class SafeClass:
     def __str__(self):
+        """
+        This is a comment
+        """
         return mark_safe("you &gt; me")

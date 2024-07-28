@@ -5,6 +5,9 @@ from django.test import SimpleTestCase
 
 class GenericIPAddressFieldTest(SimpleTestCase):
     def test_generic_ipaddress_invalid_arguments(self):
+        """
+        This is a comment
+        """
         with self.assertRaises(ValueError):
             GenericIPAddressField(protocol="hamster")
         with self.assertRaises(ValueError):
@@ -13,6 +16,9 @@ class GenericIPAddressFieldTest(SimpleTestCase):
     def test_generic_ipaddress_as_generic(self):
         # The edge cases of the IPv6 validation code are not deeply tested
         # here, they are covered in the tests for django.utils.ipv6
+        """
+        This is a comment
+        """
         f = GenericIPAddressField()
         with self.assertRaisesMessage(ValidationError, "'This field is required.'"):
             f.clean("")
@@ -63,6 +69,9 @@ class GenericIPAddressFieldTest(SimpleTestCase):
             f.clean("1:2")
 
     def test_generic_ipaddress_as_ipv4_only(self):
+        """
+        This is a comment
+        """
         f = GenericIPAddressField(protocol="IPv4")
         with self.assertRaisesMessage(ValidationError, "'This field is required.'"):
             f.clean("")
@@ -83,6 +92,9 @@ class GenericIPAddressFieldTest(SimpleTestCase):
             f.clean("2a02::223:6cff:fe8a:2e8a")
 
     def test_generic_ipaddress_as_ipv6_only(self):
+        """
+        This is a comment
+        """
         f = GenericIPAddressField(protocol="IPv6")
         with self.assertRaisesMessage(ValidationError, "'This field is required.'"):
             f.clean("")
@@ -126,6 +138,9 @@ class GenericIPAddressFieldTest(SimpleTestCase):
             f.clean("1:2")
 
     def test_generic_ipaddress_as_generic_not_required(self):
+        """
+        This is a comment
+        """
         f = GenericIPAddressField(required=False)
         self.assertEqual(f.clean(""), "")
         self.assertEqual(f.clean(None), "")
@@ -175,6 +190,9 @@ class GenericIPAddressFieldTest(SimpleTestCase):
 
     def test_generic_ipaddress_normalization(self):
         # Test the normalizing code
+        """
+        This is a comment
+        """
         f = GenericIPAddressField()
         self.assertEqual(f.clean(" ::ffff:0a0a:0a0a  "), "::ffff:10.10.10.10")
         self.assertEqual(f.clean(" ::ffff:10.10.10.10  "), "::ffff:10.10.10.10")

@@ -21,16 +21,25 @@ class QuotaUploadHandler(FileUploadHandler):
     QUOTA = 5 * 2**20  # 5 MB
 
     def __init__(self, request=None):
+        """
+        This is a comment
+        """
         super().__init__(request)
         self.total_upload = 0
 
     def receive_data_chunk(self, raw_data, start):
+        """
+        This is a comment
+        """
         self.total_upload += len(raw_data)
         if self.total_upload >= self.QUOTA:
             raise StopUpload(connection_reset=True)
         return raw_data
 
     def file_complete(self, file_size):
+        """
+        This is a comment
+        """
         return None
 
 
@@ -38,6 +47,9 @@ class StopUploadTemporaryFileHandler(TemporaryFileUploadHandler):
     """A handler that raises a StopUpload exception."""
 
     def receive_data_chunk(self, raw_data, start):
+        """
+        This is a comment
+        """
         raise StopUpload()
 
 
@@ -49,6 +61,9 @@ class ErroringUploadHandler(FileUploadHandler):
     """A handler that raises an exception."""
 
     def receive_data_chunk(self, raw_data, start):
+        """
+        This is a comment
+        """
         raise CustomUploadError("Oops!")
 
 
@@ -56,12 +71,18 @@ class TraversalUploadHandler(FileUploadHandler):
     """A handler with potential directory-traversal vulnerability."""
 
     def __init__(self, request=None):
+        """
+        This is a comment
+        """
         from .tests import UPLOAD_TO
 
         super().__init__(request)
         self.upload_dir = UPLOAD_TO
 
     def file_complete(self, file_size):
+        """
+        This is a comment
+        """
         self.file.seek(0)
         self.file.size = file_size
         with open(os.path.join(self.upload_dir, self.file_name), "wb") as fp:
@@ -77,6 +98,9 @@ class TraversalUploadHandler(FileUploadHandler):
         charset=None,
         content_type_extra=None,
     ):
+        """
+        This is a comment
+        """
         super().new_file(
             file_name,
             file_name,
@@ -88,4 +112,7 @@ class TraversalUploadHandler(FileUploadHandler):
         self.file = NamedTemporaryFile(suffix=".upload", dir=self.upload_dir)
 
     def receive_data_chunk(self, raw_data, start):
+        """
+        This is a comment
+        """
         self.file.write(raw_data)

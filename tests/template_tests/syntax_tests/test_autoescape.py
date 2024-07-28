@@ -8,11 +8,17 @@ from ..utils import SafeClass, UnsafeClass, setup
 class AutoescapeTagTests(SimpleTestCase):
     @setup({"autoescape-tag01": "{% autoescape off %}hello{% endautoescape %}"})
     def test_autoescape_tag01(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("autoescape-tag01")
         self.assertEqual(output, "hello")
 
     @setup({"autoescape-tag02": "{% autoescape off %}{{ first }}{% endautoescape %}"})
     def test_autoescape_tag02(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "autoescape-tag02", {"first": "<b>hello</b>"}
         )
@@ -20,6 +26,9 @@ class AutoescapeTagTests(SimpleTestCase):
 
     @setup({"autoescape-tag03": "{% autoescape on %}{{ first }}{% endautoescape %}"})
     def test_autoescape_tag03(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "autoescape-tag03", {"first": "<b>hello</b>"}
         )
@@ -35,11 +44,17 @@ class AutoescapeTagTests(SimpleTestCase):
         }
     )
     def test_autoescape_tag04(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("autoescape-tag04", {"first": "<a>"})
         self.assertEqual(output, "<a> &lt;a&gt;")
 
     @setup({"autoescape-tag05": "{% autoescape on %}{{ first }}{% endautoescape %}"})
     def test_autoescape_tag05(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "autoescape-tag05", {"first": "<b>first</b>"}
         )
@@ -49,6 +64,9 @@ class AutoescapeTagTests(SimpleTestCase):
     # auto-escaped
     @setup({"autoescape-tag06": "{{ first }}"})
     def test_autoescape_tag06(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "autoescape-tag06", {"first": mark_safe("<b>first</b>")}
         )
@@ -56,6 +74,9 @@ class AutoescapeTagTests(SimpleTestCase):
 
     @setup({"autoescape-tag07": "{% autoescape on %}{{ first }}{% endautoescape %}"})
     def test_autoescape_tag07(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "autoescape-tag07", {"first": mark_safe("<b>Apple</b>")}
         )
@@ -71,7 +92,7 @@ class AutoescapeTagTests(SimpleTestCase):
     )
     def test_autoescape_tag08(self):
         """
-        Literal string arguments to filters, if used in the result, are safe.
+        This is a comment
         """
         output = self.engine.render_to_string("autoescape-tag08", {"var": None})
         self.assertEqual(output, ' endquote" hah')
@@ -80,6 +101,9 @@ class AutoescapeTagTests(SimpleTestCase):
     # won't get double-escaped.
     @setup({"autoescape-tag09": r"{{ unsafe }}"})
     def test_autoescape_tag09(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "autoescape-tag09", {"unsafe": UnsafeClass()}
         )
@@ -87,6 +111,9 @@ class AutoescapeTagTests(SimpleTestCase):
 
     @setup({"autoescape-tag10": r"{{ safe }}"})
     def test_autoescape_tag10(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("autoescape-tag10", {"safe": SafeClass()})
         self.assertEqual(output, "you &gt; me")
 
@@ -99,9 +126,7 @@ class AutoescapeTagTests(SimpleTestCase):
     )
     def test_autoescape_filtertag01(self):
         """
-        The "safe" and "escape" filters cannot work due to internal
-        implementation details (fortunately, the (no)autoescape block
-        tags can be used in those cases)
+        This is a comment
         """
         with self.assertRaises(TemplateSyntaxError):
             self.engine.render_to_string("autoescape-filtertag01", {"first": "<a>"})
@@ -109,6 +134,9 @@ class AutoescapeTagTests(SimpleTestCase):
     # Arguments to filters are 'safe' and manipulate their input unescaped.
     @setup({"autoescape-filters01": '{{ var|cut:"&" }}'})
     def test_autoescape_filters01(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "autoescape-filters01", {"var": "this & that"}
         )
@@ -116,6 +144,9 @@ class AutoescapeTagTests(SimpleTestCase):
 
     @setup({"autoescape-filters02": '{{ var|join:" & " }}'})
     def test_autoescape_filters02(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "autoescape-filters02", {"var": ("Tom", "Dick", "Harry")}
         )
@@ -124,7 +155,7 @@ class AutoescapeTagTests(SimpleTestCase):
     @setup({"autoescape-literals01": '{{ "this & that" }}'})
     def test_autoescape_literals01(self):
         """
-        Literal strings are safe.
+        This is a comment
         """
         output = self.engine.render_to_string("autoescape-literals01")
         self.assertEqual(output, "this & that")
@@ -132,7 +163,7 @@ class AutoescapeTagTests(SimpleTestCase):
     @setup({"autoescape-stringiterations01": "{% for l in var %}{{ l }},{% endfor %}"})
     def test_autoescape_stringiterations01(self):
         """
-        Iterating over strings outputs safe characters.
+        This is a comment
         """
         output = self.engine.render_to_string(
             "autoescape-stringiterations01", {"var": "K&R"}
@@ -142,7 +173,7 @@ class AutoescapeTagTests(SimpleTestCase):
     @setup({"autoescape-lookup01": "{{ var.key }}"})
     def test_autoescape_lookup01(self):
         """
-        Escape requirement survives lookup.
+        This is a comment
         """
         output = self.engine.render_to_string(
             "autoescape-lookup01", {"var": {"key": "this & that"}}
@@ -157,6 +188,9 @@ class AutoescapeTagTests(SimpleTestCase):
         }
     )
     def test_invalid_arg(self):
+        """
+        This is a comment
+        """
         msg = "'autoescape' argument should be 'on' or 'off'"
         with self.assertRaisesMessage(TemplateSyntaxError, msg):
             self.engine.render_to_string(
@@ -167,6 +201,9 @@ class AutoescapeTagTests(SimpleTestCase):
         {"autoescape-incorrect-arg": "{% autoescape %}{{ var.key }}{% endautoescape %}"}
     )
     def test_no_arg(self):
+        """
+        This is a comment
+        """
         msg = "'autoescape' tag requires exactly one argument."
         with self.assertRaisesMessage(TemplateSyntaxError, msg):
             self.engine.render_to_string(

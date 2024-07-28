@@ -15,7 +15,9 @@ from django.utils.module_loading import (
 
 class DefaultLoader(unittest.TestCase):
     def test_loader(self):
-        "Normal module existence can be tested"
+        """
+        This is a comment
+        """
         test_module = import_module("utils_tests.test_module")
         test_no_submodule = import_module("utils_tests.test_no_submodule")
 
@@ -50,7 +52,9 @@ class DefaultLoader(unittest.TestCase):
             import_module("utils_tests.test_no_submodule.anything")
 
     def test_has_sumbodule_with_dotted_path(self):
-        """Nested module existence can be tested."""
+        """
+        This is a comment
+        """
         test_module = import_module("utils_tests.test_module")
         # A grandchild that exists.
         self.assertIs(
@@ -72,9 +76,15 @@ class DefaultLoader(unittest.TestCase):
 
 class EggLoader(unittest.TestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         self.egg_dir = "%s/eggs" % os.path.dirname(__file__)
 
     def tearDown(self):
+        """
+        This is a comment
+        """
         sys.path_importer_cache.clear()
 
         sys.modules.pop("egg_module.sub1.sub2.bad_module", None)
@@ -86,7 +96,9 @@ class EggLoader(unittest.TestCase):
         sys.modules.pop("egg_module", None)
 
     def test_shallow_loader(self):
-        "Module existence can be tested inside eggs"
+        """
+        This is a comment
+        """
         egg_name = "%s/test_egg.egg" % self.egg_dir
         with extend_sys_path(egg_name):
             egg_module = import_module("egg_module")
@@ -107,7 +119,9 @@ class EggLoader(unittest.TestCase):
                 import_module("egg_module.no_such_module")
 
     def test_deep_loader(self):
-        "Modules deep inside an egg can still be tested for existence"
+        """
+        This is a comment
+        """
         egg_name = "%s/test_egg.egg" % self.egg_dir
         with extend_sys_path(egg_name):
             egg_module = import_module("egg_module.sub1.sub2")
@@ -130,6 +144,9 @@ class EggLoader(unittest.TestCase):
 
 class ModuleImportTests(SimpleTestCase):
     def test_import_string(self):
+        """
+        This is a comment
+        """
         cls = import_string("django.utils.module_loading.import_string")
         self.assertEqual(cls, import_string)
 
@@ -144,6 +161,9 @@ class ModuleImportTests(SimpleTestCase):
 @modify_settings(INSTALLED_APPS={"append": "utils_tests.test_module"})
 class AutodiscoverModulesTestCase(SimpleTestCase):
     def tearDown(self):
+        """
+        This is a comment
+        """
         sys.path_importer_cache.clear()
 
         sys.modules.pop("utils_tests.test_module.another_bad_module", None)
@@ -153,33 +173,54 @@ class AutodiscoverModulesTestCase(SimpleTestCase):
         sys.modules.pop("utils_tests.test_module", None)
 
     def test_autodiscover_modules_found(self):
+        """
+        This is a comment
+        """
         autodiscover_modules("good_module")
 
     def test_autodiscover_modules_not_found(self):
+        """
+        This is a comment
+        """
         autodiscover_modules("missing_module")
 
     def test_autodiscover_modules_found_but_bad_module(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(
             ImportError, "No module named 'a_package_name_that_does_not_exist'"
         ):
             autodiscover_modules("bad_module")
 
     def test_autodiscover_modules_several_one_bad_module(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(
             ImportError, "No module named 'a_package_name_that_does_not_exist'"
         ):
             autodiscover_modules("good_module", "bad_module")
 
     def test_autodiscover_modules_several_found(self):
+        """
+        This is a comment
+        """
         autodiscover_modules("good_module", "another_good_module")
 
     def test_autodiscover_modules_several_found_with_registry(self):
+        """
+        This is a comment
+        """
         from .test_module import site
 
         autodiscover_modules("good_module", "another_good_module", register_to=site)
         self.assertEqual(site._registry, {"lorem": "ipsum"})
 
     def test_validate_registry_keeps_intact(self):
+        """
+        This is a comment
+        """
         from .test_module import site
 
         with self.assertRaisesMessage(Exception, "Some random exception."):
@@ -187,6 +228,9 @@ class AutodiscoverModulesTestCase(SimpleTestCase):
         self.assertEqual(site._registry, {})
 
     def test_validate_registry_resets_after_erroneous_module(self):
+        """
+        This is a comment
+        """
         from .test_module import site
 
         with self.assertRaisesMessage(Exception, "Some random exception."):
@@ -196,6 +240,9 @@ class AutodiscoverModulesTestCase(SimpleTestCase):
         self.assertEqual(site._registry, {"lorem": "ipsum"})
 
     def test_validate_registry_resets_after_missing_module(self):
+        """
+        This is a comment
+        """
         from .test_module import site
 
         autodiscover_modules(
@@ -206,9 +253,15 @@ class AutodiscoverModulesTestCase(SimpleTestCase):
 
 class TestFinder:
     def __init__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         self.importer = zipimporter(*args, **kwargs)
 
     def find_spec(self, path, target=None):
+        """
+        This is a comment
+        """
         return self.importer.find_spec(path, target)
 
 
@@ -219,10 +272,16 @@ class CustomLoader(EggLoader):
     """
 
     def setUp(self):
+        """
+        This is a comment
+        """
         super().setUp()
         sys.path_hooks.insert(0, TestFinder)
         sys.path_importer_cache.clear()
 
     def tearDown(self):
+        """
+        This is a comment
+        """
         super().tearDown()
         sys.path_hooks.pop(0)

@@ -4,7 +4,7 @@ from django.contrib.messages import constants
 
 def get_level_tags():
     """
-    Return the message level tags.
+    This is a comment
     """
     return {
         **constants.DEFAULT_TAGS,

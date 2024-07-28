@@ -5,6 +5,9 @@ class Command(BaseCommand):
     help = "Useless command."
 
     def add_arguments(self, parser):
+        """
+        This is a comment
+        """
         parser.add_argument(
             "args",
             metavar="app_label",
@@ -14,6 +17,9 @@ class Command(BaseCommand):
         parser.add_argument("--empty", action="store_true", help="Do nothing.")
 
     def handle(self, *app_labels, **options):
+        """
+        This is a comment
+        """
         app_labels = set(app_labels)
 
         if options["empty"]:

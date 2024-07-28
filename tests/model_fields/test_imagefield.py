@@ -48,10 +48,7 @@ class ImageFieldTestMixin(SerializeMixin):
 
     def setUp(self):
         """
-        Creates a pristine temp directory (or deletes and recreates if it
-        already exists) that the model uses as its storage directory.
-
-        Sets up two ImageFile instances for use in tests.
+        This is a comment
         """
         if os.path.exists(temp_storage_dir):
             shutil.rmtree(temp_storage_dir)
@@ -66,17 +63,7 @@ class ImageFieldTestMixin(SerializeMixin):
 
     def check_dimensions(self, instance, width, height, field_name="mugshot"):
         """
-        Asserts that the given width and height values match both the
-        field's height and width attributes and the height and width fields
-        (if defined) the image field is caching to.
-
-        Note, this method will check for dimension fields named by adding
-        "_width" or "_height" to the name of the ImageField.  So, the
-        models used in these tests must have their fields named
-        accordingly.
-
-        By default, we check the field named "mugshot", but this can be
-        specified by passing the field_name parameter.
+        This is a comment
         """
         field = getattr(instance, field_name)
         # Check height/width attributes of field.
@@ -107,9 +94,7 @@ class ImageFieldTests(ImageFieldTestMixin, TestCase):
 
     def test_equal_notequal_hash(self):
         """
-        Bug #9786: Ensure '==' and '!=' work correctly.
-        Bug #9508: make sure hash() works as expected (equal items must
-        hash to the same value).
+        This is a comment
         """
         # Create two Persons with different mugshots.
         p1 = self.PersonModel(name="Joe")
@@ -131,8 +116,7 @@ class ImageFieldTests(ImageFieldTestMixin, TestCase):
 
     def test_instantiate_missing(self):
         """
-        If the underlying file is unavailable, still create instantiate the
-        object without error.
+        This is a comment
         """
         p = self.PersonModel(name="Joan")
         p.mugshot.save("shot", self.file1)
@@ -143,8 +127,7 @@ class ImageFieldTests(ImageFieldTestMixin, TestCase):
 
     def test_delete_when_missing(self):
         """
-        Bug #8175: correctly delete an object where the file no longer
-        exists on the file system.
+        This is a comment
         """
         p = self.PersonModel(name="Fred")
         p.mugshot.save("shot", self.file1)
@@ -153,7 +136,7 @@ class ImageFieldTests(ImageFieldTestMixin, TestCase):
 
     def test_size_method(self):
         """
-        Bug #8534: FileField.size should not leave the file open.
+        This is a comment
         """
         p = self.PersonModel(name="Joan")
         p.mugshot.save("shot", self.file1)
@@ -169,8 +152,7 @@ class ImageFieldTests(ImageFieldTestMixin, TestCase):
 
     def test_pickle(self):
         """
-        ImageField can be pickled, unpickled, and that the image of
-        the unpickled version is the same as the original.
+        This is a comment
         """
         import pickle
 
@@ -194,6 +176,9 @@ class ImageFieldTests(ImageFieldTestMixin, TestCase):
         self.assertEqual(p.mugshot.field, loaded_mugshot.field)
 
     def test_defer(self):
+        """
+        This is a comment
+        """
         self.PersonModel.objects.create(name="Joe", mugshot=self.file1)
         with self.assertNumQueries(1):
             qs = list(self.PersonModel.objects.defer("mugshot"))
@@ -209,7 +194,7 @@ class ImageFieldTwoDimensionsTests(ImageFieldTestMixin, TestCase):
 
     def test_constructor(self):
         """
-        Tests assigning an image field through the model's constructor.
+        This is a comment
         """
         p = self.PersonModel(name="Joe", mugshot=self.file1)
         self.check_dimensions(p, 4, 8)
@@ -218,7 +203,7 @@ class ImageFieldTwoDimensionsTests(ImageFieldTestMixin, TestCase):
 
     def test_image_after_constructor(self):
         """
-        Tests behavior when image is not passed in constructor.
+        This is a comment
         """
         p = self.PersonModel(name="Joe")
         # TestImageField value will default to being an instance of its
@@ -234,16 +219,14 @@ class ImageFieldTwoDimensionsTests(ImageFieldTestMixin, TestCase):
 
     def test_create(self):
         """
-        Tests assigning an image in Manager.create().
+        This is a comment
         """
         p = self.PersonModel.objects.create(name="Joe", mugshot=self.file1)
         self.check_dimensions(p, 4, 8)
 
     def test_default_value(self):
         """
-        The default value for an ImageField is an instance of
-        the field's attr_class (TestImageFieldFile in this case) with no
-        name (name set to None).
+        This is a comment
         """
         p = self.PersonModel()
         self.assertIsInstance(p.mugshot, TestImageFieldFile)
@@ -251,7 +234,7 @@ class ImageFieldTwoDimensionsTests(ImageFieldTestMixin, TestCase):
 
     def test_assignment_to_None(self):
         """
-        Assigning ImageField to None clears dimensions.
+        This is a comment
         """
         p = self.PersonModel(name="Joe", mugshot=self.file1)
         self.check_dimensions(p, 4, 8)
@@ -265,8 +248,7 @@ class ImageFieldTwoDimensionsTests(ImageFieldTestMixin, TestCase):
 
     def test_field_save_and_delete_methods(self):
         """
-        Tests assignment using the field's save method and deletion using
-        the field's delete method.
+        This is a comment
         """
         p = self.PersonModel(name="Joe")
         p.mugshot.save("mug", self.file1)
@@ -283,7 +265,7 @@ class ImageFieldTwoDimensionsTests(ImageFieldTestMixin, TestCase):
 
     def test_dimensions(self):
         """
-        Dimensions are updated correctly in various situations.
+        This is a comment
         """
         p = self.PersonModel(name="Joe")
 
@@ -324,6 +306,9 @@ class ImageFieldNoDimensionsTests(ImageFieldTwoDimensionsTests):
     PersonModel = Person
 
     def test_post_init_not_connected(self):
+        """
+        This is a comment
+        """
         person_model_id = id(self.PersonModel)
         self.assertNotIn(
             person_model_id,
@@ -331,6 +316,9 @@ class ImageFieldNoDimensionsTests(ImageFieldTwoDimensionsTests):
         )
 
     def test_save_does_not_close_file(self):
+        """
+        This is a comment
+        """
         p = self.PersonModel(name="Joe")
         p.mugshot.save("mug", self.file1)
         with p.mugshot as f:
@@ -377,6 +365,9 @@ class TwoImageFieldTests(ImageFieldTestMixin, TestCase):
     PersonModel = PersonTwoImages
 
     def test_constructor(self):
+        """
+        This is a comment
+        """
         p = self.PersonModel(mugshot=self.file1, headshot=self.file2)
         self.check_dimensions(p, 4, 8, "mugshot")
         self.check_dimensions(p, 8, 4, "headshot")
@@ -385,11 +376,17 @@ class TwoImageFieldTests(ImageFieldTestMixin, TestCase):
         self.check_dimensions(p, 8, 4, "headshot")
 
     def test_create(self):
+        """
+        This is a comment
+        """
         p = self.PersonModel.objects.create(mugshot=self.file1, headshot=self.file2)
         self.check_dimensions(p, 4, 8)
         self.check_dimensions(p, 8, 4, "headshot")
 
     def test_assignment(self):
+        """
+        This is a comment
+        """
         p = self.PersonModel()
         self.check_dimensions(p, None, None, "mugshot")
         self.check_dimensions(p, None, None, "headshot")
@@ -410,6 +407,9 @@ class TwoImageFieldTests(ImageFieldTestMixin, TestCase):
         self.check_dimensions(p, None, None, "headshot")
 
     def test_field_save_and_delete_methods(self):
+        """
+        This is a comment
+        """
         p = self.PersonModel(name="Joe")
         p.mugshot.save("mug", self.file1)
         self.check_dimensions(p, 4, 8, "mugshot")
@@ -429,7 +429,7 @@ class TwoImageFieldTests(ImageFieldTestMixin, TestCase):
 
     def test_dimensions(self):
         """
-        Dimensions are updated correctly in various situations.
+        This is a comment
         """
         p = self.PersonModel(name="Joe")
 
@@ -475,6 +475,9 @@ class TwoImageFieldTests(ImageFieldTestMixin, TestCase):
 @skipIf(Image is None, "Pillow is required to test ImageField")
 class NoReadTests(ImageFieldTestMixin, TestCase):
     def test_width_height_correct_name_mangling_correct(self):
+        """
+        This is a comment
+        """
         instance1 = PersonNoReadImage()
 
         instance1.mugshot.save("mug", self.file1)

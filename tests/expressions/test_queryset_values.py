@@ -7,6 +7,9 @@ from .models import Company, Employee
 class ValuesExpressionsTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         Company.objects.create(
             name="Example Inc.",
             num_employees=2300,
@@ -29,12 +32,18 @@ class ValuesExpressionsTests(TestCase):
         )
 
     def test_values_expression(self):
+        """
+        This is a comment
+        """
         self.assertSequenceEqual(
             Company.objects.values(salary=F("ceo__salary")),
             [{"salary": 10}, {"salary": 20}, {"salary": 30}],
         )
 
     def test_values_expression_alias_sql_injection(self):
+        """
+        This is a comment
+        """
         crafted_alias = """injected_name" from "expressions_company"; --"""
         msg = (
             "Column aliases cannot contain whitespace characters, quotation marks, "
@@ -46,6 +55,9 @@ class ValuesExpressionsTests(TestCase):
     def test_values_expression_group_by(self):
         # values() applies annotate() first, so values selected are grouped by
         # id, not firstname.
+        """
+        This is a comment
+        """
         Employee.objects.create(firstname="Joe", lastname="Jones", salary=2)
         joes = Employee.objects.filter(firstname="Joe")
         self.assertSequenceEqual(
@@ -61,6 +73,9 @@ class ValuesExpressionsTests(TestCase):
         )
 
     def test_chained_values_with_expression(self):
+        """
+        This is a comment
+        """
         Employee.objects.create(firstname="Joe", lastname="Jones", salary=2)
         joes = Employee.objects.filter(firstname="Joe").values("firstname")
         self.assertSequenceEqual(
@@ -72,11 +87,17 @@ class ValuesExpressionsTests(TestCase):
         )
 
     def test_values_list_expression(self):
+        """
+        This is a comment
+        """
         companies = Company.objects.values_list("name", F("ceo__salary"))
         self.assertCountEqual(
             companies, [("Example Inc.", 10), ("Foobar Ltd.", 20), ("Test GmbH", 30)]
         )
 
     def test_values_list_expression_flat(self):
+        """
+        This is a comment
+        """
         companies = Company.objects.values_list(F("ceo__salary"), flat=True)
         self.assertCountEqual(companies, (10, 20, 30))

@@ -6,6 +6,9 @@ FILE_RESPONSE_HOLDER = {}
 
 
 def file_response(request):
+    """
+    This is a comment
+    """
     f1 = BytesIO(b"test1")
     f2 = BytesIO(b"test2")
     response = FileResponse(f1)

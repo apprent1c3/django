@@ -17,6 +17,9 @@ class Article(models.Model):
         ordering = ("pub_date", "headline")
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.headline
 
 
@@ -46,6 +49,9 @@ class SelfRef(models.Model):
     def __str__(self):
         # This method intentionally doesn't work for all cases - part
         # of the test for ticket #20278
+        """
+        This is a comment
+        """
         return SelfRef.objects.get(selfref=self).pk
 
 

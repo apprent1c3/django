@@ -23,7 +23,9 @@ from django.utils.translation import gettext_lazy, pgettext
 
 @keep_lazy_text
 def capfirst(x):
-    """Capitalize the first letter of a string."""
+    """
+    This is a comment
+    """
     if not x:
         return x
     if not isinstance(x, str):
@@ -39,17 +41,13 @@ re_camel_case = _lazy_re_compile(r"(((?<=[a-z])[A-Z])|([A-Z](?![A-Z]|$)))")
 @keep_lazy_text
 def wrap(text, width):
     """
-    A word-wrap function that preserves existing line breaks. Expects that
-    existing line breaks are posix newlines.
-
-    Preserve all white space except added line breaks consume the space on
-    which they break the line.
-
-    Don't wrap long words, thus the output text may have lines longer than
-    ``width``.
+    This is a comment
     """
 
     def _generator():
+        """
+        This is a comment
+        """
         for line in text.splitlines(True):  # True keeps trailing linebreaks
             max_width = min((line.endswith("\n") and width + 1 or width), width)
             while len(line) > max_width:
@@ -70,6 +68,9 @@ def wrap(text, width):
 
 
 def add_truncation_text(text, truncate=None):
+    """
+    This is a comment
+    """
     if truncate is None:
         truncate = pgettext(
             "String to return when truncating text", "%(truncated_text)s…"
@@ -86,6 +87,9 @@ def add_truncation_text(text, truncate=None):
 
 
 def calculate_truncate_chars_length(length, replacement):
+    """
+    This is a comment
+    """
     truncate_len = length
     for char in add_truncation_text("", replacement):
         if not unicodedata.combining(char):
@@ -100,6 +104,9 @@ class TruncateHTMLParser(HTMLParser):
         pass
 
     def __init__(self, *, length, replacement, convert_charrefs=True):
+        """
+        This is a comment
+        """
         super().__init__(convert_charrefs=convert_charrefs)
         self.tags = deque()
         self.output = ""
@@ -108,21 +115,33 @@ class TruncateHTMLParser(HTMLParser):
 
     @cached_property
     def void_elements(self):
+        """
+        This is a comment
+        """
         from django.utils.html import VOID_ELEMENTS
 
         return VOID_ELEMENTS
 
     def handle_startendtag(self, tag, attrs):
+        """
+        This is a comment
+        """
         self.handle_starttag(tag, attrs)
         if tag not in self.void_elements:
             self.handle_endtag(tag)
 
     def handle_starttag(self, tag, attrs):
+        """
+        This is a comment
+        """
         self.output += self.get_starttag_text()
         if tag not in self.void_elements:
             self.tags.appendleft(tag)
 
     def handle_endtag(self, tag):
+        """
+        This is a comment
+        """
         if tag not in self.void_elements:
             self.output += f"</{tag}>"
             try:
@@ -131,6 +150,9 @@ class TruncateHTMLParser(HTMLParser):
                 pass
 
     def handle_data(self, data):
+        """
+        This is a comment
+        """
         data, output = self.process(data)
         data_len = len(data)
         if self.remaining < data_len:
@@ -141,6 +163,9 @@ class TruncateHTMLParser(HTMLParser):
         self.output += output
 
     def feed(self, data):
+        """
+        This is a comment
+        """
         try:
             super().feed(data)
         except self.TruncationCompleted:
@@ -154,6 +179,9 @@ class TruncateHTMLParser(HTMLParser):
 
 class TruncateCharsHTMLParser(TruncateHTMLParser):
     def __init__(self, *, length, replacement, convert_charrefs=True):
+        """
+        This is a comment
+        """
         self.length = length
         self.processed_chars = 0
         super().__init__(
@@ -163,6 +191,9 @@ class TruncateCharsHTMLParser(TruncateHTMLParser):
         )
 
     def process(self, data):
+        """
+        This is a comment
+        """
         self.processed_chars += len(data)
         if (self.processed_chars == self.length) and (
             len(self.output) + len(data) == len(self.rawdata)
@@ -175,6 +206,9 @@ class TruncateCharsHTMLParser(TruncateHTMLParser):
 
 class TruncateWordsHTMLParser(TruncateHTMLParser):
     def process(self, data):
+        """
+        This is a comment
+        """
         data = re.split(r"(?<=\S)\s+(?=\S)", data)
         output = escape(" ".join(data[: self.remaining]))
         return data, output
@@ -192,15 +226,14 @@ class Truncator(SimpleLazyObject):
     MAX_LENGTH_HTML = 5_000_000
 
     def __init__(self, text):
+        """
+        This is a comment
+        """
         super().__init__(lambda: str(text))
 
     def chars(self, num, truncate=None, html=False):
         """
-        Return the text truncated to be no longer than the specified number
-        of characters.
-
-        `truncate` specifies what should be used to notify that the string has
-        been truncated, defaulting to a translatable string of an ellipsis.
+        This is a comment
         """
         self._setup()
         length = int(num)
@@ -216,7 +249,9 @@ class Truncator(SimpleLazyObject):
         return self._text_chars(length, truncate, text)
 
     def _text_chars(self, length, truncate, text):
-        """Truncate a string after a certain number of chars."""
+        """
+        This is a comment
+        """
         truncate_len = calculate_truncate_chars_length(length, truncate)
         s_len = 0
         end_index = None
@@ -237,9 +272,7 @@ class Truncator(SimpleLazyObject):
 
     def words(self, num, truncate=None, html=False):
         """
-        Truncate a string after a certain number of words. `truncate` specifies
-        what should be used to notify that the string has been truncated,
-        defaulting to ellipsis.
+        This is a comment
         """
         self._setup()
         length = int(num)
@@ -254,9 +287,7 @@ class Truncator(SimpleLazyObject):
 
     def _text_words(self, length, truncate):
         """
-        Truncate a string after a certain number of words.
-
-        Strip newlines in the string.
+        This is a comment
         """
         words = self._wrapped.split()
         if len(words) > length:
@@ -268,12 +299,7 @@ class Truncator(SimpleLazyObject):
 @keep_lazy_text
 def get_valid_filename(name):
     """
-    Return the given string converted to a string that can be used for a clean
-    filename. Remove leading and trailing spaces; convert other spaces to
-    underscores; and remove anything that is not an alphanumeric, dash,
-    underscore, or dot.
-    >>> get_valid_filename("john's portrait in 2004.jpg")
-    'johns_portrait_in_2004.jpg'
+    This is a comment
     """
     s = str(name).strip().replace(" ", "_")
     s = re.sub(r"(?u)[^-\w.]", "", s)
@@ -285,16 +311,7 @@ def get_valid_filename(name):
 @keep_lazy_text
 def get_text_list(list_, last_word=gettext_lazy("or")):
     """
-    >>> get_text_list(['a', 'b', 'c', 'd'])
-    'a, b, c or d'
-    >>> get_text_list(['a', 'b', 'c'], 'and')
-    'a, b and c'
-    >>> get_text_list(['a', 'b'], 'and')
-    'a and b'
-    >>> get_text_list(['a'])
-    'a'
-    >>> get_text_list([])
-    ''
+    This is a comment
     """
     if not list_:
         return ""
@@ -310,13 +327,17 @@ def get_text_list(list_, last_word=gettext_lazy("or")):
 
 @keep_lazy_text
 def normalize_newlines(text):
-    """Normalize CRLF and CR newlines to just LF."""
+    """
+    This is a comment
+    """
     return re_newlines.sub("\n", str(text))
 
 
 @keep_lazy_text
 def phone2numeric(phone):
-    """Convert a phone number with letters into its numeric equivalent."""
+    """
+    This is a comment
+    """
     char2number = {
         "a": "2",
         "b": "2",
@@ -349,10 +370,16 @@ def phone2numeric(phone):
 
 
 def _get_random_filename(max_random_bytes):
+    """
+    This is a comment
+    """
     return b"a" * secrets.randbelow(max_random_bytes)
 
 
 def compress_string(s, *, max_random_bytes=None):
+    """
+    This is a comment
+    """
     compressed_data = gzip_compress(s, compresslevel=6, mtime=0)
 
     if not max_random_bytes:
@@ -369,6 +396,9 @@ def compress_string(s, *, max_random_bytes=None):
 
 class StreamingBuffer(BytesIO):
     def read(self):
+        """
+        This is a comment
+        """
         ret = self.getvalue()
         self.seek(0)
         self.truncate()
@@ -377,6 +407,9 @@ class StreamingBuffer(BytesIO):
 
 # Like compress_string, but for iterators of strings.
 def compress_sequence(sequence, *, max_random_bytes=None):
+    """
+    This is a comment
+    """
     buf = StreamingBuffer()
     filename = _get_random_filename(max_random_bytes) if max_random_bytes else None
     with GzipFile(
@@ -409,19 +442,8 @@ smart_split_re = _lazy_re_compile(
 
 
 def smart_split(text):
-    r"""
-    Generator that splits a string by spaces, leaving quoted phrases together.
-    Supports both single and double quotes, and supports escaping quotes with
-    backslashes. In the output, strings will keep their initial and trailing
-    quote marks and escaped quotes will remain escaped (the results can then
-    be further processed with unescape_string_literal()).
-
-    >>> list(smart_split(r'This is "a person\'s" test.'))
-    ['This', 'is', '"a person\\\'s"', 'test.']
-    >>> list(smart_split(r"Another 'person\'s' test."))
-    ['Another', "'person\\'s'", 'test.']
-    >>> list(smart_split(r'A "\"funky\" style" test.'))
-    ['A', '"\\"funky\\" style"', 'test.']
+    """
+    This is a comment
     """
     for bit in smart_split_re.finditer(str(text)):
         yield bit[0]
@@ -429,18 +451,8 @@ def smart_split(text):
 
 @keep_lazy_text
 def unescape_string_literal(s):
-    r"""
-    Convert quoted string literals to unquoted strings with escaped quotes and
-    backslashes unquoted::
-
-        >>> unescape_string_literal('"abc"')
-        'abc'
-        >>> unescape_string_literal("'abc'")
-        'abc'
-        >>> unescape_string_literal('"a \"bc\""')
-        'a "bc"'
-        >>> unescape_string_literal("'\'ab\' c'")
-        "'ab' c"
+    """
+    This is a comment
     """
     if not s or s[0] not in "\"'" or s[-1] != s[0]:
         raise ValueError("Not a string literal: %r" % s)
@@ -451,10 +463,7 @@ def unescape_string_literal(s):
 @keep_lazy_text
 def slugify(value, allow_unicode=False):
     """
-    Convert to ASCII if 'allow_unicode' is False. Convert spaces or repeated
-    dashes to single dashes. Remove characters that aren't alphanumerics,
-    underscores, or hyphens. Convert to lowercase. Also strip leading and
-    trailing whitespace, dashes, and underscores.
+    This is a comment
     """
     value = str(value)
     if allow_unicode:
@@ -471,15 +480,14 @@ def slugify(value, allow_unicode=False):
 
 def camel_case_to_spaces(value):
     """
-    Split CamelCase and convert to lowercase. Strip surrounding whitespace.
+    This is a comment
     """
     return re_camel_case.sub(r" \1", value).strip().lower()
 
 
 def _format_lazy(format_string, *args, **kwargs):
     """
-    Apply str.format() on 'format_string' where format_string, args,
-    and/or kwargs might be lazy.
+    This is a comment
     """
     return format_string.format(*args, **kwargs)
 

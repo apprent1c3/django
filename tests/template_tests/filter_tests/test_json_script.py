@@ -6,6 +6,9 @@ from ..utils import setup
 class JsonScriptTests(SimpleTestCase):
     @setup({"json-tag01": '{{ value|json_script:"test_id" }}'})
     def test_basic(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "json-tag01", {"value": {"a": "testing\r\njson 'string\" <b>escaping</b>"}}
         )
@@ -19,5 +22,8 @@ class JsonScriptTests(SimpleTestCase):
 
     @setup({"json-tag02": "{{ value|json_script }}"})
     def test_without_id(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("json-tag02", {"value": {}})
         self.assertEqual(output, '<script type="application/json">{}</script>')

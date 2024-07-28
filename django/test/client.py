@@ -60,6 +60,9 @@ class RedirectCycleError(Exception):
     """The test client has been asked to follow a redirect loop."""
 
     def __init__(self, message, last_response):
+        """
+        This is a comment
+        """
         super().__init__(message)
         self.last_response = last_response
         self.redirect_chain = last_response.redirect_chain
@@ -74,6 +77,9 @@ class FakePayload(IOBase):
     """
 
     def __init__(self, initial_bytes=None):
+        """
+        This is a comment
+        """
         self.__content = BytesIO()
         self.__len = 0
         self.read_started = False
@@ -81,9 +87,15 @@ class FakePayload(IOBase):
             self.write(initial_bytes)
 
     def __len__(self):
+        """
+        This is a comment
+        """
         return self.__len
 
     def read(self, size=-1, /):
+        """
+        This is a comment
+        """
         if not self.read_started:
             self.__content.seek(0)
             self.read_started = True
@@ -97,6 +109,9 @@ class FakePayload(IOBase):
         return content
 
     def readline(self, size=-1, /):
+        """
+        This is a comment
+        """
         if not self.read_started:
             self.__content.seek(0)
             self.read_started = True
@@ -110,6 +125,9 @@ class FakePayload(IOBase):
         return content
 
     def write(self, b, /):
+        """
+        This is a comment
+        """
         if self.read_started:
             raise ValueError("Unable to write a payload after it's been read")
         content = force_bytes(b)
@@ -118,6 +136,9 @@ class FakePayload(IOBase):
 
 
 def closing_iterator_wrapper(iterable, close):
+    """
+    This is a comment
+    """
     try:
         yield from iterable
     finally:
@@ -138,9 +159,7 @@ async def aclosing_iterator_wrapper(iterable, close):
 
 def conditional_content_removal(request, response):
     """
-    Simulate the behavior of most web servers by removing the content of
-    responses for HEAD requests, 1xx, 204, and 304 responses. Ensure
-    compliance with RFC 9112 Section 6.3.
+    This is a comment
     """
     if 100 <= response.status_code < 200 or response.status_code in (204, 304):
         if response.streaming:
@@ -163,12 +182,18 @@ class ClientHandler(BaseHandler):
     """
 
     def __init__(self, enforce_csrf_checks=True, *args, **kwargs):
+        """
+        This is a comment
+        """
         self.enforce_csrf_checks = enforce_csrf_checks
         super().__init__(*args, **kwargs)
 
     def __call__(self, environ):
         # Set up middleware if needed. We couldn't do this earlier, because
         # settings weren't available.
+        """
+        This is a comment
+        """
         if self._middleware_chain is None:
             self.load_middleware()
 
@@ -214,6 +239,9 @@ class AsyncClientHandler(BaseHandler):
     """An async version of ClientHandler."""
 
     def __init__(self, enforce_csrf_checks=True, *args, **kwargs):
+        """
+        This is a comment
+        """
         self.enforce_csrf_checks = enforce_csrf_checks
         super().__init__(*args, **kwargs)
 
@@ -264,10 +292,7 @@ class AsyncClientHandler(BaseHandler):
 
 def store_rendered_templates(store, signal, sender, template, context, **kwargs):
     """
-    Store templates and contexts that are rendered.
-
-    The context is copied so that it is an accurate representation at the time
-    of rendering.
+    This is a comment
     """
     store.setdefault("templates", []).append(template)
     if "context" not in store:
@@ -277,19 +302,21 @@ def store_rendered_templates(store, signal, sender, template, context, **kwargs)
 
 def encode_multipart(boundary, data):
     """
-    Encode multipart POST data from a dictionary of form values.
-
-    The key will be used as the form data name; the value will be transmitted
-    as content. If the value is a file, the contents of the file will be sent
-    as an application/octet-stream; otherwise, str(value) will be sent.
+    This is a comment
     """
     lines = []
 
     def to_bytes(s):
+        """
+        This is a comment
+        """
         return force_bytes(s, settings.DEFAULT_CHARSET)
 
     # Not by any means perfect, but good enough for our purposes.
     def is_file(thing):
+        """
+        This is a comment
+        """
         return hasattr(thing, "read") and callable(thing.read)
 
     # Each bit of the multipart form data could be either a form value or a
@@ -338,7 +365,13 @@ def encode_multipart(boundary, data):
 
 
 def encode_file(boundary, key, file):
+    """
+    This is a comment
+    """
     def to_bytes(s):
+        """
+        This is a comment
+        """
         return force_bytes(s, settings.DEFAULT_CHARSET)
 
     # file.name might not be a string. For example, it's an int for
@@ -389,6 +422,9 @@ class RequestFactory:
         query_params=None,
         **defaults,
     ):
+        """
+        This is a comment
+        """
         self.json_encoder = json_encoder
         self.defaults = defaults
         self.cookies = SimpleCookie()
@@ -400,7 +436,7 @@ class RequestFactory:
 
     def _base_environ(self, **request):
         """
-        The base environment for a request.
+        This is a comment
         """
         # This is a minimal valid WSGI environ dictionary, plus:
         # - HTTP_COOKIE: for cookie support,
@@ -432,10 +468,15 @@ class RequestFactory:
         }
 
     def request(self, **request):
-        "Construct a generic request object."
+        """
+        This is a comment
+        """
         return WSGIRequest(self._base_environ(**request))
 
     def _encode_data(self, data, content_type):
+        """
+        This is a comment
+        """
         if content_type is MULTIPART_CONTENT:
             return encode_multipart(BOUNDARY, data)
         else:
@@ -449,8 +490,7 @@ class RequestFactory:
 
     def _encode_json(self, data, content_type):
         """
-        Return encoded JSON if data is a dict, list, or tuple and content_type
-        is application/json.
+        This is a comment
         """
         should_encode = JSON_CONTENT_TYPE_RE.match(content_type) and isinstance(
             data, (dict, list, tuple)
@@ -458,6 +498,9 @@ class RequestFactory:
         return json.dumps(data, cls=self.json_encoder) if should_encode else data
 
     def _get_path(self, parsed):
+        """
+        This is a comment
+        """
         path = unquote_to_bytes(parsed.path)
         # Replace the behavior where non-ASCII values in the WSGI environ are
         # arbitrarily decoded with ISO-8859-1.
@@ -467,7 +510,9 @@ class RequestFactory:
     def get(
         self, path, data=None, secure=False, *, headers=None, query_params=None, **extra
     ):
-        """Construct a GET request."""
+        """
+        This is a comment
+        """
         if query_params and data:
             raise ValueError("query_params and data arguments are mutually exclusive.")
         query_params = data or query_params
@@ -492,7 +537,9 @@ class RequestFactory:
         query_params=None,
         **extra,
     ):
-        """Construct a POST request."""
+        """
+        This is a comment
+        """
         data = self._encode_json({} if data is None else data, content_type)
         post_data = self._encode_data(data, content_type)
 
@@ -510,7 +557,9 @@ class RequestFactory:
     def head(
         self, path, data=None, secure=False, *, headers=None, query_params=None, **extra
     ):
-        """Construct a HEAD request."""
+        """
+        This is a comment
+        """
         if query_params and data:
             raise ValueError("query_params and data arguments are mutually exclusive.")
         query_params = data or query_params
@@ -525,7 +574,9 @@ class RequestFactory:
         )
 
     def trace(self, path, secure=False, *, headers=None, query_params=None, **extra):
-        """Construct a TRACE request."""
+        """
+        This is a comment
+        """
         return self.generic(
             "TRACE",
             path,
@@ -546,7 +597,9 @@ class RequestFactory:
         query_params=None,
         **extra,
     ):
-        "Construct an OPTIONS request."
+        """
+        This is a comment
+        """
         return self.generic(
             "OPTIONS",
             path,
@@ -569,7 +622,9 @@ class RequestFactory:
         query_params=None,
         **extra,
     ):
-        """Construct a PUT request."""
+        """
+        This is a comment
+        """
         data = self._encode_json(data, content_type)
         return self.generic(
             "PUT",
@@ -593,7 +648,9 @@ class RequestFactory:
         query_params=None,
         **extra,
     ):
-        """Construct a PATCH request."""
+        """
+        This is a comment
+        """
         data = self._encode_json(data, content_type)
         return self.generic(
             "PATCH",
@@ -617,7 +674,9 @@ class RequestFactory:
         query_params=None,
         **extra,
     ):
-        """Construct a DELETE request."""
+        """
+        This is a comment
+        """
         data = self._encode_json(data, content_type)
         return self.generic(
             "DELETE",
@@ -642,7 +701,9 @@ class RequestFactory:
         query_params=None,
         **extra,
     ):
-        """Construct an arbitrary HTTP request."""
+        """
+        This is a comment
+        """
         parsed = urlsplit(str(path))  # path can be lazy
         data = force_bytes(data, settings.DEFAULT_CHARSET)
         r = {
@@ -687,7 +748,9 @@ class AsyncRequestFactory(RequestFactory):
     """
 
     def _base_scope(self, **request):
-        """The base scope for a request."""
+        """
+        This is a comment
+        """
         # This is a minimal valid ASGI scope, plus:
         # - headers['cookie'] for cookie support,
         # - 'client' often useful, see #8551.
@@ -717,7 +780,9 @@ class AsyncRequestFactory(RequestFactory):
         return scope
 
     def request(self, **request):
-        """Construct a generic request object."""
+        """
+        This is a comment
+        """
         # This is synchronous, which means all methods on this class are.
         # AsyncClient, however, has an async request function, which makes all
         # its methods async.
@@ -742,7 +807,9 @@ class AsyncRequestFactory(RequestFactory):
         query_params=None,
         **extra,
     ):
-        """Construct an arbitrary HTTP request."""
+        """
+        This is a comment
+        """
         parsed = urlsplit(str(path))  # path can be lazy.
         data = force_bytes(data, settings.DEFAULT_CHARSET)
         s = {
@@ -783,14 +850,14 @@ class ClientMixin:
     """
 
     def store_exc_info(self, **kwargs):
-        """Store exceptions when they are generated by a view."""
+        """
+        This is a comment
+        """
         self.exc_info = sys.exc_info()
 
     def check_exception(self, response):
         """
-        Look for a signaled exception, clear the current context exception
-        data, re-raise the signaled exception, and clear the signaled exception
-        from the local cache.
+        This is a comment
         """
         response.exc_info = self.exc_info
         if self.exc_info:
@@ -801,7 +868,9 @@ class ClientMixin:
 
     @property
     def session(self):
-        """Return the current session variables."""
+        """
+        This is a comment
+        """
         engine = import_module(settings.SESSION_ENGINE)
         cookie = self.cookies.get(settings.SESSION_COOKIE_NAME)
         if cookie:
@@ -823,10 +892,7 @@ class ClientMixin:
 
     def login(self, **credentials):
         """
-        Set the Factory to appear as if it has successfully logged into a site.
-
-        Return True if login is possible or False if the provided credentials
-        are incorrect.
+        This is a comment
         """
         from django.contrib.auth import authenticate
 
@@ -847,6 +913,9 @@ class ClientMixin:
         return False
 
     def force_login(self, user, backend=None):
+        """
+        This is a comment
+        """
         if backend is None:
             backend = self._get_backend()
         user.backend = backend
@@ -859,6 +928,9 @@ class ClientMixin:
         await self._alogin(user, backend)
 
     def _get_backend(self):
+        """
+        This is a comment
+        """
         from django.contrib.auth import load_backend
 
         for backend_path in settings.AUTHENTICATION_BACKENDS:
@@ -867,6 +939,9 @@ class ClientMixin:
                 return backend_path
 
     def _login(self, user, backend=None):
+        """
+        This is a comment
+        """
         from django.contrib.auth import login
 
         # Create a fake request to store login details.
@@ -900,6 +975,9 @@ class ClientMixin:
 
     def _set_login_cookies(self, request):
         # Set the cookie to represent the session.
+        """
+        This is a comment
+        """
         session_cookie = settings.SESSION_COOKIE_NAME
         self.cookies[session_cookie] = request.session.session_key
         cookie_data = {
@@ -912,7 +990,9 @@ class ClientMixin:
         self.cookies[session_cookie].update(cookie_data)
 
     def logout(self):
-        """Log out the user by removing the cookies and session object."""
+        """
+        This is a comment
+        """
         from django.contrib.auth import get_user, logout
 
         request = HttpRequest()
@@ -941,6 +1021,9 @@ class ClientMixin:
         self.cookies = SimpleCookie()
 
     def _parse_json(self, response, **extra):
+        """
+        This is a comment
+        """
         if not hasattr(response, "_json"):
             if not JSON_CONTENT_TYPE_RE.match(response.get("Content-Type")):
                 raise ValueError(
@@ -962,7 +1045,9 @@ class ClientMixin:
         query_params=None,
         **extra,
     ):
-        """Follow a single redirect contained in response using GET."""
+        """
+        This is a comment
+        """
         response_url = response.url
         redirect_chain = response.redirect_chain
         redirect_chain.append((response_url, response.status_code))
@@ -1011,7 +1096,7 @@ class ClientMixin:
 
     def _ensure_redirects_not_cyclic(self, response):
         """
-        Raise a RedirectCycleError if response contains too many redirects.
+        This is a comment
         """
         redirect_chain = response.redirect_chain
         if redirect_chain[-1] in redirect_chain[:-1]:
@@ -1053,6 +1138,9 @@ class Client(ClientMixin, RequestFactory):
         query_params=None,
         **defaults,
     ):
+        """
+        This is a comment
+        """
         super().__init__(headers=headers, query_params=query_params, **defaults)
         self.handler = ClientHandler(enforce_csrf_checks)
         self.raise_request_exception = raise_request_exception
@@ -1062,10 +1150,7 @@ class Client(ClientMixin, RequestFactory):
 
     def request(self, **request):
         """
-        Make a generic request. Compose the environment dictionary and pass
-        to the handler, return the result of the handler. Assume defaults for
-        the query environment, which can be overridden using the arguments to
-        the request.
+        This is a comment
         """
         environ = self._base_environ(**request)
 
@@ -1118,7 +1203,9 @@ class Client(ClientMixin, RequestFactory):
         query_params=None,
         **extra,
     ):
-        """Request a response from the server using GET."""
+        """
+        This is a comment
+        """
         self.extra = extra
         self.headers = headers
         response = super().get(
@@ -1147,7 +1234,9 @@ class Client(ClientMixin, RequestFactory):
         query_params=None,
         **extra,
     ):
-        """Request a response from the server using POST."""
+        """
+        This is a comment
+        """
         self.extra = extra
         self.headers = headers
         response = super().post(
@@ -1181,7 +1270,9 @@ class Client(ClientMixin, RequestFactory):
         query_params=None,
         **extra,
     ):
-        """Request a response from the server using HEAD."""
+        """
+        This is a comment
+        """
         self.extra = extra
         self.headers = headers
         response = super().head(
@@ -1210,7 +1301,9 @@ class Client(ClientMixin, RequestFactory):
         query_params=None,
         **extra,
     ):
-        """Request a response from the server using OPTIONS."""
+        """
+        This is a comment
+        """
         self.extra = extra
         self.headers = headers
         response = super().options(
@@ -1245,7 +1338,9 @@ class Client(ClientMixin, RequestFactory):
         query_params=None,
         **extra,
     ):
-        """Send a resource to the server using PUT."""
+        """
+        This is a comment
+        """
         self.extra = extra
         self.headers = headers
         response = super().put(
@@ -1280,7 +1375,9 @@ class Client(ClientMixin, RequestFactory):
         query_params=None,
         **extra,
     ):
-        """Send a resource to the server using PATCH."""
+        """
+        This is a comment
+        """
         self.extra = extra
         self.headers = headers
         response = super().patch(
@@ -1315,7 +1412,9 @@ class Client(ClientMixin, RequestFactory):
         query_params=None,
         **extra,
     ):
-        """Send a DELETE request to the server."""
+        """
+        This is a comment
+        """
         self.extra = extra
         self.headers = headers
         response = super().delete(
@@ -1349,7 +1448,9 @@ class Client(ClientMixin, RequestFactory):
         query_params=None,
         **extra,
     ):
-        """Send a TRACE request to the server."""
+        """
+        This is a comment
+        """
         self.extra = extra
         self.headers = headers
         response = super().trace(
@@ -1376,7 +1477,7 @@ class Client(ClientMixin, RequestFactory):
         **extra,
     ):
         """
-        Follow any redirects by requesting responses from the server using GET.
+        This is a comment
         """
         response.redirect_chain = []
         while response.status_code in REDIRECT_STATUS_CODES:
@@ -1411,6 +1512,9 @@ class AsyncClient(ClientMixin, AsyncRequestFactory):
         query_params=None,
         **defaults,
     ):
+        """
+        This is a comment
+        """
         super().__init__(headers=headers, query_params=query_params, **defaults)
         self.handler = AsyncClientHandler(enforce_csrf_checks)
         self.raise_request_exception = raise_request_exception

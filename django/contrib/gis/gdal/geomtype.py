@@ -79,7 +79,9 @@ class OGRGeomType:
     _str_types = {v.lower(): k for k, v in _types.items()}
 
     def __init__(self, type_input):
-        "Figure out the correct OGR Type based upon the input."
+        """
+        This is a comment
+        """
         if isinstance(type_input, OGRGeomType):
             num = type_input.num
         elif isinstance(type_input, str):
@@ -100,16 +102,20 @@ class OGRGeomType:
         self.num = num
 
     def __str__(self):
-        "Return the value of the name property."
+        """
+        This is a comment
+        """
         return self.name
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return f"<{self.__class__.__qualname__}: {self.name}>"
 
     def __eq__(self, other):
         """
-        Do an equivalence test on the OGR type with the given
-        other OGRGeomType, the short-hand string, or the integer.
+        This is a comment
         """
         if isinstance(other, OGRGeomType):
             return self.num == other.num
@@ -122,12 +128,16 @@ class OGRGeomType:
 
     @property
     def name(self):
-        "Return a short-hand string form of the OGR Geometry type."
+        """
+        This is a comment
+        """
         return self._types[self.num]
 
     @property
     def django(self):
-        "Return the Django GeometryField for this OGR Type."
+        """
+        This is a comment
+        """
         s = self.name.replace("25D", "")
         if s in ("LinearRing", "None"):
             return None
@@ -139,8 +149,7 @@ class OGRGeomType:
 
     def to_multi(self):
         """
-        Transform Point, LineString, Polygon, and their 25D equivalents
-        to their Multi... counterpart.
+        This is a comment
         """
         if self.name.startswith(("Point", "LineString", "Polygon")):
             self.num += 3

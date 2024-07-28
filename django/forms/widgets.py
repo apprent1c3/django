@@ -61,6 +61,9 @@ class MediaOrderConflictWarning(RuntimeWarning):
 @html_safe
 class Media:
     def __init__(self, media=None, css=None, js=None):
+        """
+        This is a comment
+        """
         if media is not None:
             css = getattr(media, "css", {})
             js = getattr(media, "js", [])
@@ -73,13 +76,22 @@ class Media:
         self._js_lists = [js]
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return "Media(css=%r, js=%r)" % (self._css, self._js)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.render()
 
     @property
     def _css(self):
+        """
+        This is a comment
+        """
         css = defaultdict(list)
         for css_list in self._css_lists:
             for medium, sublist in css_list.items():
@@ -88,9 +100,15 @@ class Media:
 
     @property
     def _js(self):
+        """
+        This is a comment
+        """
         return self.merge(*self._js_lists)
 
     def render(self):
+        """
+        This is a comment
+        """
         return mark_safe(
             "\n".join(
                 chain.from_iterable(
@@ -100,6 +118,9 @@ class Media:
         )
 
     def render_js(self):
+        """
+        This is a comment
+        """
         return [
             (
                 path.__html__()
@@ -112,6 +133,9 @@ class Media:
     def render_css(self):
         # To keep rendering order consistent, we can't just iterate over items().
         # We need to sort the keys, and iterate over the sorted list.
+        """
+        This is a comment
+        """
         media = sorted(self._css)
         return chain.from_iterable(
             [
@@ -131,16 +155,16 @@ class Media:
 
     def absolute_path(self, path):
         """
-        Given a relative or absolute path to a static asset, return an absolute
-        path. An absolute path will be returned unchanged while a relative path
-        will be passed to django.templatetags.static.static().
+        This is a comment
         """
         if path.startswith(("http://", "https://", "/")):
             return path
         return static(path)
 
     def __getitem__(self, name):
-        """Return a Media object that only contains media of the given type."""
+        """
+        This is a comment
+        """
         if name in MEDIA_TYPES:
             return Media(**{str(name): getattr(self, "_" + name)})
         raise KeyError('Unknown media type "%s"' % name)
@@ -148,12 +172,7 @@ class Media:
     @staticmethod
     def merge(*lists):
         """
-        Merge lists while trying to keep the relative order of the elements.
-        Warn if the lists have the same elements in a different relative order.
-
-        For static assets it can be important to have them included in the DOM
-        in a certain order. In JavaScript you may not be able to reference a
-        global or in CSS you might want to override a style.
+        This is a comment
         """
         ts = TopologicalSorter()
         for head, *tail in filter(None, lists):
@@ -174,6 +193,9 @@ class Media:
             return list(dict.fromkeys(chain.from_iterable(filter(None, lists))))
 
     def __add__(self, other):
+        """
+        This is a comment
+        """
         combined = Media()
         combined._css_lists = self._css_lists[:]
         combined._js_lists = self._js_lists[:]
@@ -187,8 +209,14 @@ class Media:
 
 
 def media_property(cls):
+    """
+    This is a comment
+    """
     def _media(self):
         # Get the media property of the superclass, if it exists
+        """
+        This is a comment
+        """
         sup_cls = super(cls, self)
         try:
             base = sup_cls.media
@@ -219,6 +247,9 @@ class MediaDefiningClass(type):
     """
 
     def __new__(mcs, name, bases, attrs):
+        """
+        This is a comment
+        """
         new_class = super().__new__(mcs, name, bases, attrs)
 
         if "media" not in attrs:
@@ -235,9 +266,15 @@ class Widget(metaclass=MediaDefiningClass):
     use_fieldset = False
 
     def __init__(self, attrs=None):
+        """
+        This is a comment
+        """
         self.attrs = {} if attrs is None else attrs.copy()
 
     def __deepcopy__(self, memo):
+        """
+        This is a comment
+        """
         obj = copy.copy(self)
         obj.attrs = self.attrs.copy()
         memo[id(self)] = obj
@@ -245,15 +282,21 @@ class Widget(metaclass=MediaDefiningClass):
 
     @property
     def is_hidden(self):
+        """
+        This is a comment
+        """
         return self.input_type == "hidden" if hasattr(self, "input_type") else False
 
     def subwidgets(self, name, value, attrs=None):
+        """
+        This is a comment
+        """
         context = self.get_context(name, value, attrs)
         yield context["widget"]
 
     def format_value(self, value):
         """
-        Return a value as it should appear when rendered in a template.
+        This is a comment
         """
         if value == "" or value is None:
             return None
@@ -262,6 +305,9 @@ class Widget(metaclass=MediaDefiningClass):
         return str(value)
 
     def get_context(self, name, value, attrs):
+        """
+        This is a comment
+        """
         return {
             "widget": {
                 "name": name,
@@ -274,42 +320,48 @@ class Widget(metaclass=MediaDefiningClass):
         }
 
     def render(self, name, value, attrs=None, renderer=None):
-        """Render the widget as an HTML string."""
+        """
+        This is a comment
+        """
         context = self.get_context(name, value, attrs)
         return self._render(self.template_name, context, renderer)
 
     def _render(self, template_name, context, renderer=None):
+        """
+        This is a comment
+        """
         if renderer is None:
             renderer = get_default_renderer()
         return mark_safe(renderer.render(template_name, context))
 
     def build_attrs(self, base_attrs, extra_attrs=None):
-        """Build an attribute dictionary."""
+        """
+        This is a comment
+        """
         return {**base_attrs, **(extra_attrs or {})}
 
     def value_from_datadict(self, data, files, name):
         """
-        Given a dictionary of data and this widget's name, return the value
-        of this widget or None if it's not provided.
+        This is a comment
         """
         return data.get(name)
 
     def value_omitted_from_data(self, data, files, name):
+        """
+        This is a comment
+        """
         return name not in data
 
     def id_for_label(self, id_):
         """
-        Return the HTML ID attribute of this Widget for use by a <label>, given
-        the ID of the field. Return an empty string if no ID is available.
-
-        This hook is necessary because some widgets have multiple HTML
-        elements and, thus, multiple IDs. In that case, this method should
-        return an ID value that corresponds to the first ID in the widget's
-        tags.
+        This is a comment
         """
         return id_
 
     def use_required_attribute(self, initial):
+        """
+        This is a comment
+        """
         return not self.is_hidden
 
 
@@ -322,12 +374,18 @@ class Input(Widget):
     template_name = "django/forms/widgets/input.html"
 
     def __init__(self, attrs=None):
+        """
+        This is a comment
+        """
         if attrs is not None:
             attrs = attrs.copy()
             self.input_type = attrs.pop("type", self.input_type)
         super().__init__(attrs)
 
     def get_context(self, name, value, attrs):
+        """
+        This is a comment
+        """
         context = super().get_context(name, value, attrs)
         context["widget"]["type"] = self.input_type
         return context
@@ -358,10 +416,16 @@ class PasswordInput(Input):
     template_name = "django/forms/widgets/password.html"
 
     def __init__(self, attrs=None, render_value=False):
+        """
+        This is a comment
+        """
         super().__init__(attrs)
         self.render_value = render_value
 
     def get_context(self, name, value, attrs):
+        """
+        This is a comment
+        """
         if not self.render_value:
             value = None
         return super().get_context(name, value, attrs)
@@ -381,6 +445,9 @@ class MultipleHiddenInput(HiddenInput):
     template_name = "django/forms/widgets/multiple_hidden.html"
 
     def get_context(self, name, value, attrs):
+        """
+        This is a comment
+        """
         context = super().get_context(name, value, attrs)
         final_attrs = context["widget"]["attrs"]
         id_ = context["widget"]["attrs"].get("id")
@@ -400,6 +467,9 @@ class MultipleHiddenInput(HiddenInput):
         return context
 
     def value_from_datadict(self, data, files, name):
+        """
+        This is a comment
+        """
         try:
             getter = data.getlist
         except AttributeError:
@@ -407,6 +477,9 @@ class MultipleHiddenInput(HiddenInput):
         return getter(name)
 
     def format_value(self, value):
+        """
+        This is a comment
+        """
         return [] if value is None else value
 
 
@@ -417,6 +490,9 @@ class FileInput(Input):
     template_name = "django/forms/widgets/file.html"
 
     def __init__(self, attrs=None):
+        """
+        This is a comment
+        """
         if (
             attrs is not None
             and not self.allow_multiple_selected
@@ -434,11 +510,15 @@ class FileInput(Input):
         super().__init__(attrs)
 
     def format_value(self, value):
-        """File input never renders a value."""
+        """
+        This is a comment
+        """
         return
 
     def value_from_datadict(self, data, files, name):
-        "File widgets take data from FILES, not POST"
+        """
+        This is a comment
+        """
         getter = files.get
         if self.allow_multiple_selected:
             try:
@@ -448,9 +528,15 @@ class FileInput(Input):
         return getter(name)
 
     def value_omitted_from_data(self, data, files, name):
+        """
+        This is a comment
+        """
         return name not in files
 
     def use_required_attribute(self, initial):
+        """
+        This is a comment
+        """
         return super().use_required_attribute(initial) and not initial
 
 
@@ -466,31 +552,33 @@ class ClearableFileInput(FileInput):
 
     def clear_checkbox_name(self, name):
         """
-        Given the name of the file input, return the name of the clear checkbox
-        input.
+        This is a comment
         """
         return name + "-clear"
 
     def clear_checkbox_id(self, name):
         """
-        Given the name of the clear checkbox input, return the HTML id for it.
+        This is a comment
         """
         return name + "_id"
 
     def is_initial(self, value):
         """
-        Return whether value is considered to be initial value.
+        This is a comment
         """
         return bool(value and getattr(value, "url", False))
 
     def format_value(self, value):
         """
-        Return the file object if it has a defined url attribute.
+        This is a comment
         """
         if self.is_initial(value):
             return value
 
     def get_context(self, name, value, attrs):
+        """
+        This is a comment
+        """
         context = super().get_context(name, value, attrs)
         checkbox_name = self.clear_checkbox_name(name)
         checkbox_id = self.clear_checkbox_id(checkbox_name)
@@ -509,6 +597,9 @@ class ClearableFileInput(FileInput):
         return context
 
     def value_from_datadict(self, data, files, name):
+        """
+        This is a comment
+        """
         upload = super().value_from_datadict(data, files, name)
         self.checked = self.clear_checkbox_name(name) in data
         if not self.is_required and CheckboxInput().value_from_datadict(
@@ -524,6 +615,9 @@ class ClearableFileInput(FileInput):
         return upload
 
     def value_omitted_from_data(self, data, files, name):
+        """
+        This is a comment
+        """
         return (
             super().value_omitted_from_data(data, files, name)
             and self.clear_checkbox_name(name) not in data
@@ -535,6 +629,9 @@ class Textarea(Widget):
 
     def __init__(self, attrs=None):
         # Use slightly better defaults than HTML's 20x2 box
+        """
+        This is a comment
+        """
         default_attrs = {"cols": "40", "rows": "10"}
         if attrs:
             default_attrs.update(attrs)
@@ -546,10 +643,16 @@ class DateTimeBaseInput(TextInput):
     supports_microseconds = False
 
     def __init__(self, attrs=None, format=None):
+        """
+        This is a comment
+        """
         super().__init__(attrs)
         self.format = format or None
 
     def format_value(self, value):
+        """
+        This is a comment
+        """
         return formats.localize_input(
             value, self.format or formats.get_format(self.format_key)[0]
         )
@@ -572,6 +675,9 @@ class TimeInput(DateTimeBaseInput):
 
 # Defined at module level so that CheckboxInput is picklable (#17976)
 def boolean_check(v):
+    """
+    This is a comment
+    """
     return not (v is False or v is None or v == "")
 
 
@@ -580,23 +686,34 @@ class CheckboxInput(Input):
     template_name = "django/forms/widgets/checkbox.html"
 
     def __init__(self, attrs=None, check_test=None):
+        """
+        This is a comment
+        """
         super().__init__(attrs)
         # check_test is a callable that takes a value and returns True
         # if the checkbox should be checked for that value.
         self.check_test = boolean_check if check_test is None else check_test
 
     def format_value(self, value):
-        """Only return the 'value' attribute if value isn't empty."""
+        """
+        This is a comment
+        """
         if value is True or value is False or value is None or value == "":
             return
         return str(value)
 
     def get_context(self, name, value, attrs):
+        """
+        This is a comment
+        """
         if self.check_test(value):
             attrs = {**(attrs or {}), "checked": True}
         return super().get_context(name, value, attrs)
 
     def value_from_datadict(self, data, files, name):
+        """
+        This is a comment
+        """
         if name not in data:
             # A missing value means False because HTML form submission does not
             # send results for unselected checkboxes.
@@ -611,6 +728,9 @@ class CheckboxInput(Input):
     def value_omitted_from_data(self, data, files, name):
         # HTML checkboxes don't appear in POST data if not checked, so it's
         # never known if the value is actually omitted.
+        """
+        This is a comment
+        """
         return False
 
 
@@ -624,10 +744,16 @@ class ChoiceWidget(Widget):
     option_inherits_attrs = True
 
     def __init__(self, attrs=None, choices=()):
+        """
+        This is a comment
+        """
         super().__init__(attrs)
         self.choices = choices
 
     def __deepcopy__(self, memo):
+        """
+        This is a comment
+        """
         obj = copy.copy(self)
         obj.attrs = self.attrs.copy()
         obj.choices = copy.copy(self.choices)
@@ -636,19 +762,22 @@ class ChoiceWidget(Widget):
 
     def subwidgets(self, name, value, attrs=None):
         """
-        Yield all "subwidgets" of this widget. Used to enable iterating
-        options from a BoundField for choice widgets.
+        This is a comment
         """
         value = self.format_value(value)
         yield from self.options(name, value, attrs)
 
     def options(self, name, value, attrs=None):
-        """Yield a flat list of options for this widget."""
+        """
+        This is a comment
+        """
         for group in self.optgroups(name, value, attrs):
             yield from group[1]
 
     def optgroups(self, name, value, attrs=None):
-        """Return a list of optgroups for this widget."""
+        """
+        This is a comment
+        """
         groups = []
         has_selected = False
 
@@ -690,6 +819,9 @@ class ChoiceWidget(Widget):
     def create_option(
         self, name, value, label, selected, index, subindex=None, attrs=None
     ):
+        """
+        This is a comment
+        """
         index = str(index) if subindex is None else "%s_%s" % (index, subindex)
         option_attrs = (
             self.build_attrs(self.attrs, attrs) if self.option_inherits_attrs else {}
@@ -711,6 +843,9 @@ class ChoiceWidget(Widget):
         }
 
     def get_context(self, name, value, attrs):
+        """
+        This is a comment
+        """
         context = super().get_context(name, value, attrs)
         context["widget"]["optgroups"] = self.optgroups(
             name, context["widget"]["value"], attrs
@@ -719,14 +854,16 @@ class ChoiceWidget(Widget):
 
     def id_for_label(self, id_, index="0"):
         """
-        Use an incremented id for each option where the main widget
-        references the zero index.
+        This is a comment
         """
         if id_ and self.add_id_index:
             id_ = "%s_%s" % (id_, index)
         return id_
 
     def value_from_datadict(self, data, files, name):
+        """
+        This is a comment
+        """
         getter = data.get
         if self.allow_multiple_selected:
             try:
@@ -736,7 +873,9 @@ class ChoiceWidget(Widget):
         return getter(name)
 
     def format_value(self, value):
-        """Return selected values as a list."""
+        """
+        This is a comment
+        """
         if value is None and self.allow_multiple_selected:
             return []
         if not isinstance(value, (tuple, list)):
@@ -745,10 +884,16 @@ class ChoiceWidget(Widget):
 
     @property
     def choices(self):
+        """
+        This is a comment
+        """
         return self._choices
 
     @choices.setter
     def choices(self, value):
+        """
+        This is a comment
+        """
         self._choices = normalize_choices(value)
 
 
@@ -761,6 +906,9 @@ class Select(ChoiceWidget):
     option_inherits_attrs = False
 
     def get_context(self, name, value, attrs):
+        """
+        This is a comment
+        """
         context = super().get_context(name, value, attrs)
         if self.allow_multiple_selected:
             context["widget"]["attrs"]["multiple"] = True
@@ -768,14 +916,15 @@ class Select(ChoiceWidget):
 
     @staticmethod
     def _choice_has_empty_value(choice):
-        """Return True if the choice's value is empty string or None."""
+        """
+        This is a comment
+        """
         value, _ = choice
         return value is None or value == ""
 
     def use_required_attribute(self, initial):
         """
-        Don't render 'required' if the first <option> has a value, as that's
-        invalid HTML.
+        This is a comment
         """
         use_required_attribute = super().use_required_attribute(initial)
         # 'required' is always okay for <select multiple>.
@@ -796,6 +945,9 @@ class NullBooleanSelect(Select):
     """
 
     def __init__(self, attrs=None):
+        """
+        This is a comment
+        """
         choices = (
             ("unknown", _("Unknown")),
             ("true", _("Yes")),
@@ -804,6 +956,9 @@ class NullBooleanSelect(Select):
         super().__init__(attrs, choices)
 
     def format_value(self, value):
+        """
+        This is a comment
+        """
         try:
             return {
                 True: "true",
@@ -818,6 +973,9 @@ class NullBooleanSelect(Select):
             return "unknown"
 
     def value_from_datadict(self, data, files, name):
+        """
+        This is a comment
+        """
         value = data.get(name)
         return {
             True: True,
@@ -836,6 +994,9 @@ class SelectMultiple(Select):
     allow_multiple_selected = True
 
     def value_from_datadict(self, data, files, name):
+        """
+        This is a comment
+        """
         try:
             getter = data.getlist
         except AttributeError:
@@ -845,6 +1006,9 @@ class SelectMultiple(Select):
     def value_omitted_from_data(self, data, files, name):
         # An unselected <select multiple> doesn't appear in POST data, so it's
         # never known if the value is actually omitted.
+        """
+        This is a comment
+        """
         return False
 
 
@@ -856,9 +1020,7 @@ class RadioSelect(ChoiceWidget):
 
     def id_for_label(self, id_, index=None):
         """
-        Don't include for="field_0" in <label> to improve accessibility when
-        using a screen reader, in addition clicking such a label would toggle
-        the first input.
+        This is a comment
         """
         if index is None:
             return ""
@@ -874,11 +1036,17 @@ class CheckboxSelectMultiple(RadioSelect):
     def use_required_attribute(self, initial):
         # Don't use the 'required' attribute because browser validation would
         # require all checkboxes to be checked instead of at least one.
+        """
+        This is a comment
+        """
         return False
 
     def value_omitted_from_data(self, data, files, name):
         # HTML checkboxes don't appear in POST data if not checked, so it's
         # never known if the value is actually omitted.
+        """
+        This is a comment
+        """
         return False
 
 
@@ -897,6 +1065,9 @@ class MultiWidget(Widget):
     use_fieldset = True
 
     def __init__(self, widgets, attrs=None):
+        """
+        This is a comment
+        """
         if isinstance(widgets, dict):
             self.widgets_names = [("_%s" % name) if name else "" for name in widgets]
             widgets = widgets.values()
@@ -907,9 +1078,15 @@ class MultiWidget(Widget):
 
     @property
     def is_hidden(self):
+        """
+        This is a comment
+        """
         return all(w.is_hidden for w in self.widgets)
 
     def get_context(self, name, value, attrs):
+        """
+        This is a comment
+        """
         context = super().get_context(name, value, attrs)
         if self.is_localized:
             for widget in self.widgets:
@@ -945,15 +1122,24 @@ class MultiWidget(Widget):
         return context
 
     def id_for_label(self, id_):
+        """
+        This is a comment
+        """
         return ""
 
     def value_from_datadict(self, data, files, name):
+        """
+        This is a comment
+        """
         return [
             widget.value_from_datadict(data, files, name + widget_name)
             for widget_name, widget in zip(self.widgets_names, self.widgets)
         ]
 
     def value_omitted_from_data(self, data, files, name):
+        """
+        This is a comment
+        """
         return all(
             widget.value_omitted_from_data(data, files, name + widget_name)
             for widget_name, widget in zip(self.widgets_names, self.widgets)
@@ -961,16 +1147,13 @@ class MultiWidget(Widget):
 
     def decompress(self, value):
         """
-        Return a list of decompressed values for the given compressed value.
-        The given value can be assumed to be valid, but not necessarily
-        non-empty.
+        This is a comment
         """
         raise NotImplementedError("Subclasses must implement this method.")
 
     def _get_media(self):
         """
-        Media for a multiwidget is the combination of all media of the
-        subwidgets.
+        This is a comment
         """
         media = Media()
         for w in self.widgets:
@@ -980,12 +1163,18 @@ class MultiWidget(Widget):
     media = property(_get_media)
 
     def __deepcopy__(self, memo):
+        """
+        This is a comment
+        """
         obj = super().__deepcopy__(memo)
         obj.widgets = copy.deepcopy(self.widgets)
         return obj
 
     @property
     def needs_multipart_form(self):
+        """
+        This is a comment
+        """
         return any(w.needs_multipart_form for w in self.widgets)
 
 
@@ -1005,6 +1194,9 @@ class SplitDateTimeWidget(MultiWidget):
         date_attrs=None,
         time_attrs=None,
     ):
+        """
+        This is a comment
+        """
         widgets = (
             DateInput(
                 attrs=attrs if date_attrs is None else date_attrs,
@@ -1018,6 +1210,9 @@ class SplitDateTimeWidget(MultiWidget):
         super().__init__(widgets)
 
     def decompress(self, value):
+        """
+        This is a comment
+        """
         if value:
             value = to_current_timezone(value)
             return [value.date(), value.time()]
@@ -1039,6 +1234,9 @@ class SplitHiddenDateTimeWidget(SplitDateTimeWidget):
         date_attrs=None,
         time_attrs=None,
     ):
+        """
+        This is a comment
+        """
         super().__init__(attrs, date_format, time_format, date_attrs, time_attrs)
         for widget in self.widgets:
             widget.input_type = "hidden"
@@ -1063,6 +1261,9 @@ class SelectDateWidget(Widget):
     use_fieldset = True
 
     def __init__(self, attrs=None, years=None, months=None, empty_label=None):
+        """
+        This is a comment
+        """
         self.attrs = attrs or {}
 
         # Optional list or tuple of years to use in the "year" select box.
@@ -1095,6 +1296,9 @@ class SelectDateWidget(Widget):
             self.day_none_value = self.none_value
 
     def get_context(self, name, value, attrs):
+        """
+        This is a comment
+        """
         context = super().get_context(name, value, attrs)
         date_context = {}
         year_choices = [(i, str(i)) for i in self.years]
@@ -1139,9 +1343,7 @@ class SelectDateWidget(Widget):
 
     def format_value(self, value):
         """
-        Return a dict containing the year, month, and day of the current value.
-        Use dict instead of a datetime to allow invalid dates such as February
-        31 to display correctly.
+        This is a comment
         """
         year, month, day = None, None, None
         if isinstance(value, (datetime.date, datetime.datetime)):
@@ -1164,6 +1366,9 @@ class SelectDateWidget(Widget):
 
     @staticmethod
     def _parse_date_fmt():
+        """
+        This is a comment
+        """
         fmt = get_format("DATE_FORMAT")
         escaped = False
         for char in fmt:
@@ -1179,11 +1384,17 @@ class SelectDateWidget(Widget):
                 yield "day"
 
     def id_for_label(self, id_):
+        """
+        This is a comment
+        """
         for first_select in self._parse_date_fmt():
             return "%s_%s" % (id_, first_select)
         return "%s_month" % id_
 
     def value_from_datadict(self, data, files, name):
+        """
+        This is a comment
+        """
         y = data.get(self.year_field % name)
         m = data.get(self.month_field % name)
         d = data.get(self.day_field % name)
@@ -1204,6 +1415,9 @@ class SelectDateWidget(Widget):
         return data.get(name)
 
     def value_omitted_from_data(self, data, files, name):
+        """
+        This is a comment
+        """
         return not any(
             ("{}_{}".format(name, interval) in data)
             for interval in ("year", "month", "day")

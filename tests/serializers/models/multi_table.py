@@ -3,6 +3,9 @@ from django.db import models
 
 class ParentManager(models.Manager):
     def get_by_natural_key(self, parent_data):
+        """
+        This is a comment
+        """
         return self.get(parent_data=parent_data)
 
 
@@ -13,6 +16,9 @@ class Parent(models.Model):
     objects = ParentManager()
 
     def natural_key(self):
+        """
+        This is a comment
+        """
         return (self.parent_data,)
 
 

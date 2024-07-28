@@ -11,6 +11,9 @@ class DatabaseSequenceTests(TransactionTestCase):
     available_apps = []
 
     def test_get_sequences(self):
+        """
+        This is a comment
+        """
         with connection.cursor() as cursor:
             seqs = connection.introspection.get_sequences(
                 cursor, Square._meta.db_table, Square._meta.local_fields
@@ -21,6 +24,9 @@ class DatabaseSequenceTests(TransactionTestCase):
             self.assertEqual(seqs[0]["column"], "id")
 
     def test_get_sequences_manually_created_index(self):
+        """
+        This is a comment
+        """
         with connection.cursor() as cursor:
             with connection.schema_editor() as editor:
                 editor._drop_identity(Square._meta.db_table, "id")
@@ -36,6 +42,9 @@ class DatabaseSequenceTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_collation_on_charfield")
     def test_get_table_description_view_default_collation(self):
+        """
+        This is a comment
+        """
         person_table = connection.introspection.identifier_converter(
             Person._meta.db_table
         )
@@ -59,6 +68,9 @@ class DatabaseSequenceTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_collation_on_charfield")
     def test_get_table_description_materialized_view_non_default_collation(self):
+        """
+        This is a comment
+        """
         person_table = connection.introspection.identifier_converter(
             Person._meta.db_table
         )

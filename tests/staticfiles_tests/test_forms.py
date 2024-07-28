@@ -9,6 +9,9 @@ from django.test import SimpleTestCase, override_settings
 
 class StaticTestStorage(storage.StaticFilesStorage):
     def url(self, name):
+        """
+        This is a comment
+        """
         return urljoin("https://example.com/assets/", name)
 
 
@@ -23,6 +26,9 @@ class StaticTestStorage(storage.StaticFilesStorage):
 )
 class StaticFilesFormsMediaTestCase(SimpleTestCase):
     def test_absolute_url(self):
+        """
+        This is a comment
+        """
         m = Media(
             css={"all": ("path/to/css1", "/path/to/css2")},
             js=(

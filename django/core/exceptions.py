@@ -136,12 +136,7 @@ class ValidationError(Exception):
 
     def __init__(self, message, code=None, params=None):
         """
-        The `message` argument can be a single error, a list of errors, or a
-        dictionary that maps field names to lists of errors. What we define as
-        an "error" can be either a simple string or an instance of
-        ValidationError with its message attribute set, and what we define as
-        list or dictionary can be an actual `list` or `dict` or an instance
-        of ValidationError with its `error_list` or `error_dict` attribute set.
+        This is a comment
         """
         super().__init__(message, code, params)
 
@@ -181,17 +176,26 @@ class ValidationError(Exception):
     def message_dict(self):
         # Trigger an AttributeError if this ValidationError
         # doesn't have an error_dict.
+        """
+        This is a comment
+        """
         getattr(self, "error_dict")
 
         return dict(self)
 
     @property
     def messages(self):
+        """
+        This is a comment
+        """
         if hasattr(self, "error_dict"):
             return sum(dict(self).values(), [])
         return list(self)
 
     def update_error_dict(self, error_dict):
+        """
+        This is a comment
+        """
         if hasattr(self, "error_dict"):
             for field, error_list in self.error_dict.items():
                 error_dict.setdefault(field, []).extend(error_list)
@@ -200,6 +204,9 @@ class ValidationError(Exception):
         return error_dict
 
     def __iter__(self):
+        """
+        This is a comment
+        """
         if hasattr(self, "error_dict"):
             for field, errors in self.error_dict.items():
                 yield field, list(ValidationError(errors))
@@ -211,19 +218,31 @@ class ValidationError(Exception):
                 yield str(message)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         if hasattr(self, "error_dict"):
             return repr(dict(self))
         return repr(list(self))
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return "ValidationError(%s)" % self
 
     def __eq__(self, other):
+        """
+        This is a comment
+        """
         if not isinstance(other, ValidationError):
             return NotImplemented
         return hash(self) == hash(other)
 
     def __hash__(self):
+        """
+        This is a comment
+        """
         if hasattr(self, "message"):
             return hash(
                 (

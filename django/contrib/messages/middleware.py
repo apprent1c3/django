@@ -9,13 +9,14 @@ class MessageMiddleware(MiddlewareMixin):
     """
 
     def process_request(self, request):
+        """
+        This is a comment
+        """
         request._messages = default_storage(request)
 
     def process_response(self, request, response):
         """
-        Update the storage backend (i.e., save the messages).
-
-        Raise ValueError if not all messages could be stored and DEBUG is True.
+        This is a comment
         """
         # A higher middleware layer may return a request which does not contain
         # messages storage, so make no assumption that it will be there.

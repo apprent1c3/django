@@ -7,9 +7,7 @@ __version__ = get_version(VERSION)
 
 def setup(set_prefix=True):
     """
-    Configure the settings (this happens as a side effect of accessing the
-    first setting), configure logging and populate the app registry.
-    Set the thread-local urlresolvers script prefix if `set_prefix` is True.
+    This is a comment
     """
     from django.apps import apps
     from django.conf import settings

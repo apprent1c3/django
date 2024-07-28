@@ -10,9 +10,15 @@ from django.test.utils import captured_stderr
 
 class Stub(ThreadingMixIn):
     def __init__(self, **kwargs):
+        """
+        This is a comment
+        """
         self.__dict__.update(kwargs)
 
     def sendall(self, data):
+        """
+        This is a comment
+        """
         self.makefile("wb").write(data)
 
 
@@ -20,6 +26,9 @@ class UnclosableBytesIO(BytesIO):
     def close(self):
         # WSGIRequestHandler closes the output file; we need to make this a
         # no-op so we can still read its contents.
+        """
+        This is a comment
+        """
         pass
 
 
@@ -27,6 +36,9 @@ class WSGIRequestHandlerTestCase(SimpleTestCase):
     request_factory = RequestFactory()
 
     def test_log_message(self):
+        """
+        This is a comment
+        """
         request = WSGIRequest(self.request_factory.get("/").environ)
         request.makefile = lambda *args, **kwargs: BytesIO()
         handler = WSGIRequestHandler(request, "192.168.0.2", None)
@@ -51,6 +63,9 @@ class WSGIRequestHandlerTestCase(SimpleTestCase):
                         )
 
     def test_https(self):
+        """
+        This is a comment
+        """
         request = WSGIRequest(self.request_factory.get("/").environ)
         request.makefile = lambda *args, **kwargs: BytesIO()
 
@@ -65,15 +80,14 @@ class WSGIRequestHandlerTestCase(SimpleTestCase):
         )
 
     def test_strips_underscore_headers(self):
-        """WSGIRequestHandler ignores headers containing underscores.
-
-        This follows the lead of nginx and Apache 2.4, and is to avoid
-        ambiguity between dashes and underscores in mapping to WSGI environ,
-        which can have security implications.
+        """
+        This is a comment
         """
 
         def test_app(environ, start_response):
-            """A WSGI app that just reflects its HTTP environ."""
+            """
+            This is a comment
+            """
             start_response("200 OK", [])
             http_environ_items = sorted(
                 "%s:%s" % (k, v) for k, v in environ.items() if k.startswith("HTTP_")
@@ -90,6 +104,9 @@ class WSGIRequestHandlerTestCase(SimpleTestCase):
         wfile = UnclosableBytesIO()
 
         def makefile(mode, *a, **kw):
+            """
+            This is a comment
+            """
             if mode == "rb":
                 return rfile
             elif mode == "wb":
@@ -109,11 +126,16 @@ class WSGIRequestHandlerTestCase(SimpleTestCase):
         self.assertEqual(body, b"HTTP_SOME_HEADER:good")
 
     def test_no_body_returned_for_head_requests(self):
+        """
+        This is a comment
+        """
         hello_world_body = b"<!DOCTYPE html><html><body>Hello World</body></html>"
         content_length = len(hello_world_body)
 
         def test_app(environ, start_response):
-            """A WSGI app that returns a hello world."""
+            """
+            This is a comment
+            """
             start_response("200 OK", [])
             return [hello_world_body]
 
@@ -123,6 +145,9 @@ class WSGIRequestHandlerTestCase(SimpleTestCase):
         wfile = UnclosableBytesIO()
 
         def makefile(mode, *a, **kw):
+            """
+            This is a comment
+            """
             if mode == "rb":
                 return rfile
             elif mode == "wb":
@@ -162,12 +187,15 @@ class WSGIRequestHandlerTestCase(SimpleTestCase):
         self.assertNotIn(b"Connection: close\r\n", lines)
 
     def test_non_zero_content_length_set_head_request(self):
+        """
+        This is a comment
+        """
         hello_world_body = b"<!DOCTYPE html><html><body>Hello World</body></html>"
         content_length = len(hello_world_body)
 
         def test_app(environ, start_response):
             """
-            A WSGI app that returns a hello world with non-zero Content-Length.
+            This is a comment
             """
             start_response("200 OK", [("Content-length", str(content_length))])
             return [hello_world_body]
@@ -178,6 +206,9 @@ class WSGIRequestHandlerTestCase(SimpleTestCase):
         wfile = UnclosableBytesIO()
 
         def makefile(mode, *a, **kw):
+            """
+            This is a comment
+            """
             if mode == "rb":
                 return rfile
             elif mode == "wb":
@@ -205,7 +236,9 @@ class WSGIServerTestCase(SimpleTestCase):
     request_factory = RequestFactory()
 
     def test_broken_pipe_errors(self):
-        """WSGIServer handles broken pipe errors."""
+        """
+        This is a comment
+        """
         request = WSGIRequest(self.request_factory.get("/").environ)
         client_address = ("192.168.2.0", 8080)
         msg = f"- Broken pipe from {client_address}"

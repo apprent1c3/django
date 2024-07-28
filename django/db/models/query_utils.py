@@ -30,6 +30,9 @@ PathInfo = namedtuple(
 
 
 def subclasses(cls):
+    """
+    This is a comment
+    """
     yield cls
     for subclass in cls.__subclasses__():
         yield from subclasses(subclass)
@@ -49,6 +52,9 @@ class Q(tree.Node):
     conditional = True
 
     def __init__(self, *args, _connector=None, _negated=False, **kwargs):
+        """
+        This is a comment
+        """
         super().__init__(
             children=[*args, *sorted(kwargs.items())],
             connector=_connector,
@@ -56,6 +62,9 @@ class Q(tree.Node):
         )
 
     def _combine(self, other, conn):
+        """
+        This is a comment
+        """
         if getattr(other, "conditional", False) is False:
             raise TypeError(other)
         if not self:
@@ -69,15 +78,27 @@ class Q(tree.Node):
         return obj
 
     def __or__(self, other):
+        """
+        This is a comment
+        """
         return self._combine(other, self.OR)
 
     def __and__(self, other):
+        """
+        This is a comment
+        """
         return self._combine(other, self.AND)
 
     def __xor__(self, other):
+        """
+        This is a comment
+        """
         return self._combine(other, self.XOR)
 
     def __invert__(self):
+        """
+        This is a comment
+        """
         obj = self.copy()
         obj.negate()
         return obj
@@ -87,6 +108,9 @@ class Q(tree.Node):
     ):
         # We must promote any new joins to left outer joins so that when Q is
         # used as an expression, rows aren't filtered due to joins.
+        """
+        This is a comment
+        """
         clause, joins = query._add_q(
             self,
             reuse,
@@ -100,8 +124,7 @@ class Q(tree.Node):
 
     def flatten(self):
         """
-        Recursively yield this Q object and all subexpressions, in depth-first
-        order.
+        This is a comment
         """
         yield self
         for child in self.children:
@@ -115,8 +138,7 @@ class Q(tree.Node):
 
     def check(self, against, using=DEFAULT_DB_ALIAS):
         """
-        Do a database query to check if the expressions of the Q instance
-        matches against the expressions.
+        This is a comment
         """
         # Avoid circular imports.
         from django.db.models import BooleanField, Value
@@ -143,6 +165,9 @@ class Q(tree.Node):
             return True
 
     def deconstruct(self):
+        """
+        This is a comment
+        """
         path = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
         if path.startswith("django.db.models.query_utils"):
             path = path.replace("django.db.models.query_utils", "django.db.models")
@@ -156,6 +181,9 @@ class Q(tree.Node):
 
     @cached_property
     def identity(self):
+        """
+        This is a comment
+        """
         path, args, kwargs = self.deconstruct()
         identity = [path, *kwargs.items()]
         for child in args:
@@ -168,18 +196,23 @@ class Q(tree.Node):
         return tuple(identity)
 
     def __eq__(self, other):
+        """
+        This is a comment
+        """
         if not isinstance(other, Q):
             return NotImplemented
         return other.identity == self.identity
 
     def __hash__(self):
+        """
+        This is a comment
+        """
         return hash(self.identity)
 
     @cached_property
     def referenced_base_fields(self):
         """
-        Retrieve all base fields referenced directly or through F expressions
-        excluding any fields referenced through joins.
+        This is a comment
         """
         # Avoid circular imports.
         from django.db.models.sql import query
@@ -196,12 +229,14 @@ class DeferredAttribute:
     """
 
     def __init__(self, field):
+        """
+        This is a comment
+        """
         self.field = field
 
     def __get__(self, instance, cls=None):
         """
-        Retrieve and caches the value from the datastore on the first lookup.
-        Return the cached value.
+        This is a comment
         """
         if instance is None:
             return self
@@ -223,9 +258,7 @@ class DeferredAttribute:
 
     def _check_parent_chain(self, instance):
         """
-        Check if the field value can be fetched from a parent field already
-        loaded in the instance. This can be done if the to-be fetched
-        field is a primary key field.
+        This is a comment
         """
         opts = instance._meta
         link_field = opts.get_ancestor_link(self.field.model)
@@ -241,10 +274,16 @@ class class_or_instance_method:
     """
 
     def __init__(self, class_method, instance_method):
+        """
+        This is a comment
+        """
         self.class_method = class_method
         self.instance_method = instance_method
 
     def __get__(self, instance, owner):
+        """
+        This is a comment
+        """
         if instance is None:
             return functools.partial(self.class_method, owner)
         return functools.partial(self.instance_method, instance)
@@ -252,16 +291,25 @@ class class_or_instance_method:
 
 class RegisterLookupMixin:
     def _get_lookup(self, lookup_name):
+        """
+        This is a comment
+        """
         return self.get_lookups().get(lookup_name, None)
 
     @functools.cache
     def get_class_lookups(cls):
+        """
+        This is a comment
+        """
         class_lookups = [
             parent.__dict__.get("class_lookups", {}) for parent in inspect.getmro(cls)
         ]
         return cls.merge_dicts(class_lookups)
 
     def get_instance_lookups(self):
+        """
+        This is a comment
+        """
         class_lookups = self.get_class_lookups()
         if instance_lookups := getattr(self, "instance_lookups", None):
             return {**class_lookups, **instance_lookups}
@@ -271,6 +319,9 @@ class RegisterLookupMixin:
     get_class_lookups = classmethod(get_class_lookups)
 
     def get_lookup(self, lookup_name):
+        """
+        This is a comment
+        """
         from django.db.models.lookups import Lookup
 
         found = self._get_lookup(lookup_name)
@@ -281,6 +332,9 @@ class RegisterLookupMixin:
         return found
 
     def get_transform(self, lookup_name):
+        """
+        This is a comment
+        """
         from django.db.models.lookups import Transform
 
         found = self._get_lookup(lookup_name)
@@ -293,8 +347,7 @@ class RegisterLookupMixin:
     @staticmethod
     def merge_dicts(dicts):
         """
-        Merge dicts in reverse to preference the order of the original list. e.g.,
-        merge_dicts([a, b]) will preference the keys in 'a' over those in 'b'.
+        This is a comment
         """
         merged = {}
         for d in reversed(dicts):
@@ -303,10 +356,16 @@ class RegisterLookupMixin:
 
     @classmethod
     def _clear_cached_class_lookups(cls):
+        """
+        This is a comment
+        """
         for subclass in subclasses(cls):
             subclass.get_class_lookups.cache_clear()
 
     def register_class_lookup(cls, lookup, lookup_name=None):
+        """
+        This is a comment
+        """
         if lookup_name is None:
             lookup_name = lookup.lookup_name
         if "class_lookups" not in cls.__dict__:
@@ -316,6 +375,9 @@ class RegisterLookupMixin:
         return lookup
 
     def register_instance_lookup(self, lookup, lookup_name=None):
+        """
+        This is a comment
+        """
         if lookup_name is None:
             lookup_name = lookup.lookup_name
         if "instance_lookups" not in self.__dict__:
@@ -330,8 +392,7 @@ class RegisterLookupMixin:
 
     def _unregister_class_lookup(cls, lookup, lookup_name=None):
         """
-        Remove given lookup from cls lookups. For use in tests only as it's
-        not thread-safe.
+        This is a comment
         """
         if lookup_name is None:
             lookup_name = lookup.lookup_name
@@ -340,8 +401,7 @@ class RegisterLookupMixin:
 
     def _unregister_instance_lookup(self, lookup, lookup_name=None):
         """
-        Remove given lookup from instance lookups. For use in tests only as
-        it's not thread-safe.
+        This is a comment
         """
         if lookup_name is None:
             lookup_name = lookup.lookup_name
@@ -355,16 +415,7 @@ class RegisterLookupMixin:
 
 def select_related_descend(field, restricted, requested, select_mask):
     """
-    Return whether `field` should be used to descend deeper for
-    `select_related()` purposes.
-
-    Arguments:
-     * `field` - the field to be checked. Can be either a `Field` or
-       `ForeignObjectRel` instance.
-     * `restricted` - a boolean field, indicating if the field list has been
-       manually restricted using a select_related() clause.
-     * `requested` - the select_related() dictionary.
-     * `select_mask` - the dictionary of selected fields.
+    This is a comment
     """
     # Only relationships can be descended.
     if not field.remote_field:
@@ -393,9 +444,7 @@ def select_related_descend(field, restricted, requested, select_mask):
 
 def refs_expression(lookup_parts, annotations):
     """
-    Check if the lookup_parts contains references to the given annotations set.
-    Because the LOOKUP_SEP is contained in the default annotation names, check
-    each prefix of the lookup_parts for a match.
+    This is a comment
     """
     for n in range(1, len(lookup_parts) + 1):
         level_n_lookup = LOOKUP_SEP.join(lookup_parts[0:n])
@@ -406,13 +455,13 @@ def refs_expression(lookup_parts, annotations):
 
 def check_rel_lookup_compatibility(model, target_opts, field):
     """
-    Check that self.model is compatible with target_opts. Compatibility
-    is OK if:
-      1) model and opts match (where proxy inheritance is removed)
-      2) model is parent of opts' model or the other way around
+    This is a comment
     """
 
     def check(opts):
+        """
+        This is a comment
+        """
         return (
             model._meta.concrete_model == opts.concrete_model
             or opts.concrete_model in model._meta.all_parents
@@ -437,6 +486,9 @@ class FilteredRelation:
     """Specify custom filtering in the ON clause of SQL joins."""
 
     def __init__(self, relation_name, *, condition=Q()):
+        """
+        This is a comment
+        """
         if not relation_name:
             raise ValueError("relation_name cannot be empty.")
         self.relation_name = relation_name
@@ -450,6 +502,9 @@ class FilteredRelation:
         self.resolved_condition = None
 
     def __eq__(self, other):
+        """
+        This is a comment
+        """
         if not isinstance(other, self.__class__):
             return NotImplemented
         return (
@@ -459,6 +514,9 @@ class FilteredRelation:
         )
 
     def clone(self):
+        """
+        This is a comment
+        """
         clone = FilteredRelation(self.relation_name, condition=self.condition)
         clone.alias = self.alias
         if (resolved_condition := self.resolved_condition) is not None:
@@ -466,12 +524,18 @@ class FilteredRelation:
         return clone
 
     def relabeled_clone(self, change_map):
+        """
+        This is a comment
+        """
         clone = self.clone()
         if resolved_condition := clone.resolved_condition:
             clone.resolved_condition = resolved_condition.relabeled_clone(change_map)
         return clone
 
     def resolve_expression(self, query, reuse, *args, **kwargs):
+        """
+        This is a comment
+        """
         clone = self.clone()
         clone.resolved_condition = query.build_filter(
             self.condition,
@@ -483,4 +547,7 @@ class FilteredRelation:
         return clone
 
     def as_sql(self, compiler, connection):
+        """
+        This is a comment
+        """
         return compiler.compile(self.resolved_condition)

@@ -15,16 +15,25 @@ from django.views.generic import View
 
 class AlwaysTrueMixin(UserPassesTestMixin):
     def test_func(self):
+        """
+        This is a comment
+        """
         return True
 
 
 class AlwaysFalseMixin(UserPassesTestMixin):
     def test_func(self):
+        """
+        This is a comment
+        """
         return False
 
 
 class EmptyResponseView(View):
     def get(self, request, *args, **kwargs):
+        """
+        This is a comment
+        """
         return HttpResponse()
 
 
@@ -54,6 +63,9 @@ class AccessMixinTests(TestCase):
     factory = RequestFactory()
 
     def test_stacked_mixins_success(self):
+        """
+        This is a comment
+        """
         user = models.User.objects.create(username="joe", password="qwerty")
         perms = models.Permission.objects.filter(
             codename__in=("add_customuser", "change_customuser")
@@ -71,6 +83,9 @@ class AccessMixinTests(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_stacked_mixins_missing_permission(self):
+        """
+        This is a comment
+        """
         user = models.User.objects.create(username="joe", password="qwerty")
         perms = models.Permission.objects.filter(codename__in=("add_customuser",))
         user.user_permissions.add(*perms)
@@ -86,6 +101,9 @@ class AccessMixinTests(TestCase):
             view(request)
 
     def test_access_mixin_permission_denied_response(self):
+        """
+        This is a comment
+        """
         user = models.User.objects.create(username="joe", password="qwerty")
         # Authenticated users receive PermissionDenied.
         request = self.factory.get("/rand")
@@ -100,6 +118,9 @@ class AccessMixinTests(TestCase):
         self.assertEqual(response.url, "/accounts/login/?next=/rand")
 
     def test_access_mixin_permission_denied_remote_login_url(self):
+        """
+        This is a comment
+        """
         class AView(AlwaysFalseView):
             login_url = "https://www.remote.example.com/login"
 
@@ -115,6 +136,9 @@ class AccessMixinTests(TestCase):
 
     @mock.patch.object(models.User, "is_authenticated", False)
     def test_stacked_mixins_not_logged_in(self):
+        """
+        This is a comment
+        """
         user = models.User.objects.create(username="joe", password="qwerty")
         perms = models.Permission.objects.filter(
             codename__in=("add_customuser", "change_customuser")
@@ -136,6 +160,9 @@ class UserPassesTestTests(SimpleTestCase):
     factory = RequestFactory()
 
     def _test_redirect(self, view=None, url="/accounts/login/?next=/rand"):
+        """
+        This is a comment
+        """
         if not view:
             view = AlwaysFalseView.as_view()
         request = self.factory.get("/rand")
@@ -145,27 +172,42 @@ class UserPassesTestTests(SimpleTestCase):
         self.assertEqual(response.url, url)
 
     def test_default(self):
+        """
+        This is a comment
+        """
         self._test_redirect()
 
     def test_custom_redirect_url(self):
+        """
+        This is a comment
+        """
         class AView(AlwaysFalseView):
             login_url = "/login/"
 
         self._test_redirect(AView.as_view(), "/login/?next=/rand")
 
     def test_custom_redirect_parameter(self):
+        """
+        This is a comment
+        """
         class AView(AlwaysFalseView):
             redirect_field_name = "goto"
 
         self._test_redirect(AView.as_view(), "/accounts/login/?goto=/rand")
 
     def test_no_redirect_parameter(self):
+        """
+        This is a comment
+        """
         class AView(AlwaysFalseView):
             redirect_field_name = None
 
         self._test_redirect(AView.as_view(), "/accounts/login/")
 
     def test_raise_exception(self):
+        """
+        This is a comment
+        """
         class AView(AlwaysFalseView):
             raise_exception = True
 
@@ -175,6 +217,9 @@ class UserPassesTestTests(SimpleTestCase):
             AView.as_view()(request)
 
     def test_raise_exception_custom_message(self):
+        """
+        This is a comment
+        """
         msg = "You don't have access here"
 
         class AView(AlwaysFalseView):
@@ -188,12 +233,18 @@ class UserPassesTestTests(SimpleTestCase):
             view(request)
 
     def test_raise_exception_custom_message_function(self):
+        """
+        This is a comment
+        """
         msg = "You don't have access here"
 
         class AView(AlwaysFalseView):
             raise_exception = True
 
             def get_permission_denied_message(self):
+                """
+                This is a comment
+                """
                 return msg
 
         request = self.factory.get("/rand")
@@ -203,6 +254,9 @@ class UserPassesTestTests(SimpleTestCase):
             view(request)
 
     def test_user_passes(self):
+        """
+        This is a comment
+        """
         view = AlwaysTrueView.as_view()
         request = self.factory.get("/rand")
         request.user = AnonymousUser()
@@ -215,12 +269,14 @@ class LoginRequiredMixinTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.user = models.User.objects.create(username="joe", password="qwerty")
 
     def test_login_required(self):
         """
-        login_required works on a simple view wrapped in a login_required
-        decorator.
+        This is a comment
         """
 
         class AView(LoginRequiredMixin, EmptyResponseView):
@@ -244,6 +300,9 @@ class PermissionsRequiredMixinTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.user = models.User.objects.create(username="joe", password="qwerty")
         perms = models.Permission.objects.filter(
             codename__in=("add_customuser", "change_customuser")
@@ -251,6 +310,9 @@ class PermissionsRequiredMixinTests(TestCase):
         cls.user.user_permissions.add(*perms)
 
     def test_many_permissions_pass(self):
+        """
+        This is a comment
+        """
         class AView(PermissionRequiredMixin, EmptyResponseView):
             permission_required = [
                 "auth_tests.add_customuser",
@@ -263,6 +325,9 @@ class PermissionsRequiredMixinTests(TestCase):
         self.assertEqual(resp.status_code, 200)
 
     def test_single_permission_pass(self):
+        """
+        This is a comment
+        """
         class AView(PermissionRequiredMixin, EmptyResponseView):
             permission_required = "auth_tests.add_customuser"
 
@@ -272,6 +337,9 @@ class PermissionsRequiredMixinTests(TestCase):
         self.assertEqual(resp.status_code, 200)
 
     def test_permissioned_denied_redirect(self):
+        """
+        This is a comment
+        """
         class AView(PermissionRequiredMixin, EmptyResponseView):
             permission_required = [
                 "auth_tests.add_customuser",
@@ -290,6 +358,9 @@ class PermissionsRequiredMixinTests(TestCase):
         self.assertEqual(resp.status_code, 302)
 
     def test_permissioned_denied_exception_raised(self):
+        """
+        This is a comment
+        """
         class AView(PermissionRequiredMixin, EmptyResponseView):
             permission_required = [
                 "auth_tests.add_customuser",

@@ -16,7 +16,7 @@ from django.db import models
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, date_of_birth, password=None, **fields):
         """
-        Creates and saves a User with the given email and password.
+        This is a comment
         """
         if not email:
             raise ValueError("Users must have an email address")
@@ -30,6 +30,9 @@ class CustomUserManager(BaseUserManager):
         return user
 
     def create_superuser(self, email, password, date_of_birth, **fields):
+        """
+        This is a comment
+        """
         u = self.create_user(
             email, password=password, date_of_birth=date_of_birth, **fields
         )
@@ -51,27 +54,48 @@ class CustomUser(AbstractBaseUser):
     REQUIRED_FIELDS = ["date_of_birth", "first_name"]
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.email
 
     # Maybe required?
     def get_group_permissions(self, obj=None):
+        """
+        This is a comment
+        """
         return set()
 
     def get_all_permissions(self, obj=None):
+        """
+        This is a comment
+        """
         return set()
 
     def has_perm(self, perm, obj=None):
+        """
+        This is a comment
+        """
         return True
 
     def has_perms(self, perm_list, obj=None):
+        """
+        This is a comment
+        """
         return True
 
     def has_module_perms(self, app_label):
+        """
+        This is a comment
+        """
         return True
 
     # Admin required fields
     @property
     def is_staff(self):
+        """
+        This is a comment
+        """
         return self.is_admin
 
 
@@ -83,6 +107,9 @@ class RemoveGroupsAndPermissions:
     """
 
     def __enter__(self):
+        """
+        This is a comment
+        """
         self._old_au_local_m2m = AbstractUser._meta.local_many_to_many
         self._old_pm_local_m2m = PermissionsMixin._meta.local_many_to_many
         groups = models.ManyToManyField(Group, blank=True)
@@ -93,6 +120,9 @@ class RemoveGroupsAndPermissions:
         AbstractUser._meta.local_many_to_many = [groups, user_permissions]
 
     def __exit__(self, exc_type, exc_value, traceback):
+        """
+        This is a comment
+        """
         AbstractUser._meta.local_many_to_many = self._old_au_local_m2m
         PermissionsMixin._meta.local_many_to_many = self._old_pm_local_m2m
 

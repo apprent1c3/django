@@ -7,6 +7,9 @@ from ..utils import setup
 class LastTests(SimpleTestCase):
     @setup({"last01": "{{ a|last }} {{ b|last }}"})
     def test_last01(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "last01", {"a": ["x", "a&b"], "b": ["x", mark_safe("a&b")]}
         )
@@ -16,6 +19,9 @@ class LastTests(SimpleTestCase):
         {"last02": "{% autoescape off %}{{ a|last }} {{ b|last }}{% endautoescape %}"}
     )
     def test_last02(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "last02", {"a": ["x", "a&b"], "b": ["x", mark_safe("a&b")]}
         )
@@ -23,5 +29,8 @@ class LastTests(SimpleTestCase):
 
     @setup({"empty_list": "{% autoescape off %}{{ a|last }}{% endautoescape %}"})
     def test_empty_list(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("empty_list", {"a": []})
         self.assertEqual(output, "")

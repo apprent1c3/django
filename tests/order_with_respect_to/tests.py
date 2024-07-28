@@ -17,6 +17,9 @@ class OrderWithRespectToBaseTests(BaseOrderWithRespectToTests, TestCase):
 class OrderWithRespectToTests(SimpleTestCase):
     @isolate_apps("order_with_respect_to")
     def test_duplicate_order_field(self):
+        """
+        This is a comment
+        """
         class Bar(models.Model):
             class Meta:
                 app_label = "order_with_respect_to"
@@ -39,6 +42,9 @@ class OrderWithRespectToTests(SimpleTestCase):
 
 class TestOrderWithRespectToOneToOnePK(TestCase):
     def test_set_order(self):
+        """
+        This is a comment
+        """
         e = Entity.objects.create()
         d = Dimension.objects.create(entity=e)
         c1 = d.component_set.create()

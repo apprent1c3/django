@@ -7,6 +7,9 @@ by the DJANGO_SETTINGS_MODULE environment variable.
 # This is defined here as a do-nothing function because we can't import
 # django.utils.translation -- that module depends on the settings.
 def gettext_noop(s):
+    """
+    This is a comment
+    """
     return s
 
 

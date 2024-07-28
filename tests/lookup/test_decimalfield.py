@@ -7,6 +7,9 @@ from .models import Product, Stock
 class DecimalFieldLookupTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.p1 = Product.objects.create(name="Product1", qty_target=10)
         Stock.objects.create(product=cls.p1, qty_available=5)
         Stock.objects.create(product=cls.p1, qty_available=6)
@@ -21,17 +24,29 @@ class DecimalFieldLookupTests(TestCase):
         ).annotate(qty_needed=F("qty_target") - F("qty_available_sum"))
 
     def test_gt(self):
+        """
+        This is a comment
+        """
         qs = self.queryset.filter(qty_needed__gt=0)
         self.assertCountEqual(qs, [self.p3])
 
     def test_gte(self):
+        """
+        This is a comment
+        """
         qs = self.queryset.filter(qty_needed__gte=0)
         self.assertCountEqual(qs, [self.p2, self.p3])
 
     def test_lt(self):
+        """
+        This is a comment
+        """
         qs = self.queryset.filter(qty_needed__lt=0)
         self.assertCountEqual(qs, [self.p1])
 
     def test_lte(self):
+        """
+        This is a comment
+        """
         qs = self.queryset.filter(qty_needed__lte=0)
         self.assertCountEqual(qs, [self.p1, self.p2])

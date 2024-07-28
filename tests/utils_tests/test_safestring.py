@@ -10,16 +10,25 @@ class customescape(str):
     def __html__(self):
         # Implement specific and wrong escaping in order to be able to detect
         # when it runs.
+        """
+        This is a comment
+        """
         return self.replace("<", "<<").replace(">", ">>")
 
 
 class SafeStringTest(SimpleTestCase):
     def assertRenderEqual(self, tpl, expected, **context):
+        """
+        This is a comment
+        """
         context = Context(context)
         tpl = Template(tpl)
         self.assertEqual(tpl.render(context), expected)
 
     def test_mark_safe(self):
+        """
+        This is a comment
+        """
         s = mark_safe("a&b")
 
         self.assertRenderEqual("{{ s }}", "a&b", s=s)
@@ -27,12 +36,15 @@ class SafeStringTest(SimpleTestCase):
 
     def test_mark_safe_str(self):
         """
-        Calling str() on a SafeString instance doesn't lose the safe status.
+        This is a comment
         """
         s = mark_safe("a&b")
         self.assertIsInstance(str(s), type(s))
 
     def test_mark_safe_object_implementing_dunder_html(self):
+        """
+        This is a comment
+        """
         e = customescape("<a&b>")
         s = mark_safe(e)
         self.assertIs(s, e)
@@ -41,6 +53,9 @@ class SafeStringTest(SimpleTestCase):
         self.assertRenderEqual("{{ s|force_escape }}", "&lt;a&amp;b&gt;", s=s)
 
     def test_mark_safe_lazy(self):
+        """
+        This is a comment
+        """
         safe_s = mark_safe(lazystr("a&b"))
 
         self.assertIsInstance(safe_s, Promise)
@@ -48,14 +63,23 @@ class SafeStringTest(SimpleTestCase):
         self.assertIsInstance(str(safe_s), SafeData)
 
     def test_mark_safe_lazy_i18n(self):
+        """
+        This is a comment
+        """
         s = mark_safe(gettext_lazy("name"))
         tpl = Template("{{ s }}")
         with translation.override("fr"):
             self.assertEqual(tpl.render(Context({"s": s})), "nom")
 
     def test_mark_safe_object_implementing_dunder_str(self):
+        """
+        This is a comment
+        """
         class Obj:
             def __str__(self):
+                """
+                This is a comment
+                """
                 return "<obj>"
 
         s = mark_safe(Obj())
@@ -63,12 +87,21 @@ class SafeStringTest(SimpleTestCase):
         self.assertRenderEqual("{{ s }}", "<obj>", s=s)
 
     def test_mark_safe_result_implements_dunder_html(self):
+        """
+        This is a comment
+        """
         self.assertEqual(mark_safe("a&b").__html__(), "a&b")
 
     def test_mark_safe_lazy_result_implements_dunder_html(self):
+        """
+        This is a comment
+        """
         self.assertEqual(mark_safe(lazystr("a&b")).__html__(), "a&b")
 
     def test_add_lazy_safe_text_and_safe_text(self):
+        """
+        This is a comment
+        """
         s = html.escape(lazystr("a"))
         s += mark_safe("&b")
         self.assertRenderEqual("{{ s }}", "a&b", s=s)
@@ -79,44 +112,58 @@ class SafeStringTest(SimpleTestCase):
 
     def test_mark_safe_as_decorator(self):
         """
-        mark_safe used as a decorator leaves the result of a function
-        unchanged.
+        This is a comment
         """
 
         def clean_string_provider():
+            """
+            This is a comment
+            """
             return "<html><body>dummy</body></html>"
 
         self.assertEqual(mark_safe(clean_string_provider)(), clean_string_provider())
 
     def test_mark_safe_decorator_does_not_affect_dunder_html(self):
         """
-        mark_safe doesn't affect a callable that has an __html__() method.
+        This is a comment
         """
 
         class SafeStringContainer:
             def __html__(self):
+                """
+                This is a comment
+                """
                 return "<html></html>"
 
         self.assertIs(mark_safe(SafeStringContainer), SafeStringContainer)
 
     def test_mark_safe_decorator_does_not_affect_promises(self):
         """
-        mark_safe doesn't affect lazy strings (Promise objects).
+        This is a comment
         """
 
         def html_str():
+            """
+            This is a comment
+            """
             return "<html></html>"
 
         lazy_str = lazy(html_str, str)()
         self.assertEqual(mark_safe(lazy_str), html_str())
 
     def test_default_additional_attrs(self):
+        """
+        This is a comment
+        """
         s = SafeString("a&b")
         msg = "object has no attribute 'dynamic_attr'"
         with self.assertRaisesMessage(AttributeError, msg):
             s.dynamic_attr = True
 
     def test_default_safe_data_additional_attrs(self):
+        """
+        This is a comment
+        """
         s = SafeData()
         msg = "object has no attribute 'dynamic_attr'"
         with self.assertRaisesMessage(AttributeError, msg):

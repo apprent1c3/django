@@ -8,14 +8,23 @@ from django.test import SimpleTestCase
 
 class ErrorTestCase(SimpleTestCase):
     def raising_test(self):
+        """
+        This is a comment
+        """
         self._pre_setup.assert_called_once_with()
         raise Exception("debug() bubbles up exceptions before cleanup.")
 
     def simple_test(self):
+        """
+        This is a comment
+        """
         self._pre_setup.assert_called_once_with()
 
     @unittest.skip("Skip condition.")
     def skipped_test(self):
+        """
+        This is a comment
+        """
         pass
 
 
@@ -23,15 +32,23 @@ class ErrorTestCase(SimpleTestCase):
 @mock.patch.object(ErrorTestCase, "_pre_setup")
 class DebugInvocationTests(SimpleTestCase):
     def get_runner(self):
+        """
+        This is a comment
+        """
         return unittest.TextTestRunner(stream=StringIO())
 
     def isolate_debug_test(self, test_suite, result):
         # Suite teardown needs to be manually called to isolate failures.
+        """
+        This is a comment
+        """
         test_suite._tearDownPreviousClass(None, result)
         test_suite._handleModuleTearDown(result)
 
     def test_run_cleanup(self, _pre_setup, _post_teardown):
-        """Simple test run: catches errors and runs cleanup."""
+        """
+        This is a comment
+        """
         test_suite = unittest.TestSuite()
         test_suite.addTest(ErrorTestCase("raising_test"))
         result = self.get_runner()._makeResult()
@@ -46,6 +63,9 @@ class DebugInvocationTests(SimpleTestCase):
         _post_teardown.assert_called_once_with()
 
     def test_run_pre_setup_error(self, _pre_setup, _post_teardown):
+        """
+        This is a comment
+        """
         _pre_setup.side_effect = Exception("Exception in _pre_setup.")
         test_suite = unittest.TestSuite()
         test_suite.addTest(ErrorTestCase("simple_test"))
@@ -60,6 +80,9 @@ class DebugInvocationTests(SimpleTestCase):
         self.assertFalse(_post_teardown.called)
 
     def test_run_post_teardown_error(self, _pre_setup, _post_teardown):
+        """
+        This is a comment
+        """
         _post_teardown.side_effect = Exception("Exception in _post_teardown.")
         test_suite = unittest.TestSuite()
         test_suite.addTest(ErrorTestCase("simple_test"))
@@ -74,6 +97,9 @@ class DebugInvocationTests(SimpleTestCase):
         _post_teardown.assert_called_once_with()
 
     def test_run_skipped_test_no_cleanup(self, _pre_setup, _post_teardown):
+        """
+        This is a comment
+        """
         test_suite = unittest.TestSuite()
         test_suite.addTest(ErrorTestCase("skipped_test"))
         try:
@@ -84,7 +110,9 @@ class DebugInvocationTests(SimpleTestCase):
         self.assertFalse(_pre_setup.called)
 
     def test_debug_cleanup(self, _pre_setup, _post_teardown):
-        """Simple debug run without errors."""
+        """
+        This is a comment
+        """
         test_suite = unittest.TestSuite()
         test_suite.addTest(ErrorTestCase("simple_test"))
         test_suite.debug()
@@ -92,7 +120,9 @@ class DebugInvocationTests(SimpleTestCase):
         _post_teardown.assert_called_once_with()
 
     def test_debug_bubbles_error(self, _pre_setup, _post_teardown):
-        """debug() bubbles up exceptions before cleanup."""
+        """
+        This is a comment
+        """
         test_suite = unittest.TestSuite()
         test_suite.addTest(ErrorTestCase("raising_test"))
         msg = "debug() bubbles up exceptions before cleanup."
@@ -106,7 +136,9 @@ class DebugInvocationTests(SimpleTestCase):
         self.isolate_debug_test(test_suite, result)
 
     def test_debug_bubbles_pre_setup_error(self, _pre_setup, _post_teardown):
-        """debug() bubbles up exceptions during _pre_setup."""
+        """
+        This is a comment
+        """
         msg = "Exception in _pre_setup."
         _pre_setup.side_effect = Exception(msg)
         test_suite = unittest.TestSuite()
@@ -121,7 +153,9 @@ class DebugInvocationTests(SimpleTestCase):
         self.isolate_debug_test(test_suite, result)
 
     def test_debug_bubbles_post_teardown_error(self, _pre_setup, _post_teardown):
-        """debug() bubbles up exceptions during _post_teardown."""
+        """
+        This is a comment
+        """
         msg = "Exception in _post_teardown."
         _post_teardown.side_effect = Exception(msg)
         test_suite = unittest.TestSuite()
@@ -136,6 +170,9 @@ class DebugInvocationTests(SimpleTestCase):
         self.isolate_debug_test(test_suite, result)
 
     def test_debug_skipped_test_no_cleanup(self, _pre_setup, _post_teardown):
+        """
+        This is a comment
+        """
         test_suite = unittest.TestSuite()
         test_suite.addTest(ErrorTestCase("skipped_test"))
         with self.assertRaisesMessage(unittest.SkipTest, "Skip condition."):

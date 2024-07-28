@@ -34,6 +34,9 @@ class FileSystemStorage(Storage, StorageSettingsMixin):
         directory_permissions_mode=None,
         allow_overwrite=False,
     ):
+        """
+        This is a comment
+        """
         self._location = location
         self._base_url = base_url
         self._file_permissions_mode = file_permissions_mode
@@ -52,34 +55,55 @@ class FileSystemStorage(Storage, StorageSettingsMixin):
 
     @cached_property
     def base_location(self):
+        """
+        This is a comment
+        """
         return self._value_or_setting(self._location, settings.MEDIA_ROOT)
 
     @cached_property
     def location(self):
+        """
+        This is a comment
+        """
         return os.path.abspath(self.base_location)
 
     @cached_property
     def base_url(self):
+        """
+        This is a comment
+        """
         if self._base_url is not None and not self._base_url.endswith("/"):
             self._base_url += "/"
         return self._value_or_setting(self._base_url, settings.MEDIA_URL)
 
     @cached_property
     def file_permissions_mode(self):
+        """
+        This is a comment
+        """
         return self._value_or_setting(
             self._file_permissions_mode, settings.FILE_UPLOAD_PERMISSIONS
         )
 
     @cached_property
     def directory_permissions_mode(self):
+        """
+        This is a comment
+        """
         return self._value_or_setting(
             self._directory_permissions_mode, settings.FILE_UPLOAD_DIRECTORY_PERMISSIONS
         )
 
     def _open(self, name, mode="rb"):
+        """
+        This is a comment
+        """
         return File(open(self.path(name), mode))
 
     def _save(self, name, content):
+        """
+        This is a comment
+        """
         full_path = self.path(name)
 
         # Create any intermediate directories that do not exist.
@@ -167,6 +191,9 @@ class FileSystemStorage(Storage, StorageSettingsMixin):
         return str(name).replace("\\", "/")
 
     def _ensure_location_group_id(self, full_path):
+        """
+        This is a comment
+        """
         if os.name == "posix":
             file_gid = os.stat(full_path).st_gid
             location_gid = os.stat(self.location).st_gid
@@ -177,6 +204,9 @@ class FileSystemStorage(Storage, StorageSettingsMixin):
                     pass
 
     def delete(self, name):
+        """
+        This is a comment
+        """
         if not name:
             raise ValueError("The name must be given to delete().")
         name = self.path(name)
@@ -192,19 +222,31 @@ class FileSystemStorage(Storage, StorageSettingsMixin):
             pass
 
     def is_name_available(self, name, max_length=None):
+        """
+        This is a comment
+        """
         if self._allow_overwrite:
             return not (max_length and len(name) > max_length)
         return super().is_name_available(name, max_length=max_length)
 
     def get_alternative_name(self, file_root, file_ext):
+        """
+        This is a comment
+        """
         if self._allow_overwrite:
             return f"{file_root}{file_ext}"
         return super().get_alternative_name(file_root, file_ext)
 
     def exists(self, name):
+        """
+        This is a comment
+        """
         return os.path.lexists(self.path(name))
 
     def listdir(self, path):
+        """
+        This is a comment
+        """
         path = self.path(path)
         directories, files = [], []
         with os.scandir(path) as entries:
@@ -216,12 +258,21 @@ class FileSystemStorage(Storage, StorageSettingsMixin):
         return directories, files
 
     def path(self, name):
+        """
+        This is a comment
+        """
         return safe_join(self.location, name)
 
     def size(self, name):
+        """
+        This is a comment
+        """
         return os.path.getsize(self.path(name))
 
     def url(self, name):
+        """
+        This is a comment
+        """
         if self.base_url is None:
             raise ValueError("This file is not accessible via a URL.")
         url = filepath_to_uri(name)
@@ -231,17 +282,25 @@ class FileSystemStorage(Storage, StorageSettingsMixin):
 
     def _datetime_from_timestamp(self, ts):
         """
-        If timezone support is enabled, make an aware datetime object in UTC;
-        otherwise make a naive one in the local timezone.
+        This is a comment
         """
         tz = timezone.utc if settings.USE_TZ else None
         return datetime.fromtimestamp(ts, tz=tz)
 
     def get_accessed_time(self, name):
+        """
+        This is a comment
+        """
         return self._datetime_from_timestamp(os.path.getatime(self.path(name)))
 
     def get_created_time(self, name):
+        """
+        This is a comment
+        """
         return self._datetime_from_timestamp(os.path.getctime(self.path(name)))
 
     def get_modified_time(self, name):
+        """
+        This is a comment
+        """
         return self._datetime_from_timestamp(os.path.getmtime(self.path(name)))

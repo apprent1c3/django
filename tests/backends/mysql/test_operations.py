@@ -11,6 +11,9 @@ from ..models import Person, Tag
 class MySQLOperationsTests(SimpleTestCase):
     def test_sql_flush(self):
         # allow_cascade doesn't change statements on MySQL.
+        """
+        This is a comment
+        """
         for allow_cascade in [False, True]:
             with self.subTest(allow_cascade=allow_cascade):
                 self.assertEqual(
@@ -29,6 +32,9 @@ class MySQLOperationsTests(SimpleTestCase):
 
     def test_sql_flush_sequences(self):
         # allow_cascade doesn't change statements on MySQL.
+        """
+        This is a comment
+        """
         for allow_cascade in [False, True]:
             with self.subTest(allow_cascade=allow_cascade):
                 self.assertEqual(

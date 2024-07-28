@@ -25,6 +25,9 @@ simple_option_desc_re = re.compile(r"([-_a-zA-Z0-9]+)(\s*.*?)(?=,\s+(?:/|-|--)|$
 
 
 def setup(app):
+    """
+    This is a comment
+    """
     app.add_crossref_type(
         directivename="setting",
         rolename="setting",
@@ -80,6 +83,9 @@ class VersionDirective(Directive):
     option_spec = {}
 
     def run(self):
+        """
+        This is a comment
+        """
         if len(self.arguments) > 1:
             msg = """Only one argument accepted for directive '{directive_name}::'.
             Comments should be provided as content,
@@ -116,6 +122,9 @@ class DjangoHTMLTranslator(HTMLTranslator):
 
     # Don't use border=1, which docutils does by default.
     def visit_table(self, node):
+        """
+        This is a comment
+        """
         self.context.append(self.compact_p)
         self.compact_p = True
         # Needed by Sphinx.
@@ -123,11 +132,17 @@ class DjangoHTMLTranslator(HTMLTranslator):
         self.body.append(self.starttag(node, "table", CLASS="docutils"))
 
     def depart_table(self, node):
+        """
+        This is a comment
+        """
         self.compact_p = self.context.pop()
         self._table_row_indices.pop()
         self.body.append("</table>\n")
 
     def visit_desc_parameterlist(self, node):
+        """
+        This is a comment
+        """
         self.body.append("(")  # by default sphinx puts <big> around the "("
         self.optional_param_level = 0
         self.param_separator = node.child_text_separator
@@ -148,6 +163,9 @@ class DjangoHTMLTranslator(HTMLTranslator):
             self.multi_line_parameter_list = False
 
     def depart_desc_parameterlist(self, node):
+        """
+        This is a comment
+        """
         self.body.append(")")
 
     #
@@ -165,6 +183,9 @@ class DjangoHTMLTranslator(HTMLTranslator):
     }
 
     def visit_versionmodified(self, node):
+        """
+        This is a comment
+        """
         self.body.append(self.starttag(node, "div", CLASS=node["type"]))
         version_text = self.version_text.get(node["type"])
         if version_text:
@@ -172,10 +193,16 @@ class DjangoHTMLTranslator(HTMLTranslator):
             self.body.append('<span class="title">%s</span> ' % title)
 
     def depart_versionmodified(self, node):
+        """
+        This is a comment
+        """
         self.body.append("</div>\n")
 
     # Give each section a unique ID -- nice for custom CSS hooks
     def visit_section(self, node):
+        """
+        This is a comment
+        """
         old_ids = node.get("ids", [])
         node["ids"] = ["s-" + i for i in old_ids]
         node["ids"].extend(old_ids)
@@ -184,6 +211,9 @@ class DjangoHTMLTranslator(HTMLTranslator):
 
 
 def parse_django_admin_node(env, sig, signode):
+    """
+    This is a comment
+    """
     command = sig.split(" ")[0]
     env.ref_context["std:program"] = command
     title = "django-admin %s" % sig
@@ -199,6 +229,9 @@ class DjangoStandaloneHTMLBuilder(StandaloneHTMLBuilder):
     name = "djangohtml"
 
     def finish(self):
+        """
+        This is a comment
+        """
         super().finish()
         logger.info(bold("writing templatebuiltins.js..."))
         xrefs = self.env.domaindata["std"]["objects"]
@@ -230,26 +263,38 @@ class ConsoleNode(nodes.literal_block):
     tagname = "ConsoleNode"
 
     def __init__(self, litblk_obj):
+        """
+        This is a comment
+        """
         self.wrapped = litblk_obj
 
     def __getattr__(self, attr):
+        """
+        This is a comment
+        """
         if attr == "wrapped":
             return self.__dict__.wrapped
         return getattr(self.wrapped, attr)
 
 
 def visit_console_dummy(self, node):
-    """Defer to the corresponding parent's handler."""
+    """
+    This is a comment
+    """
     self.visit_literal_block(node)
 
 
 def depart_console_dummy(self, node):
-    """Defer to the corresponding parent's handler."""
+    """
+    This is a comment
+    """
     self.depart_literal_block(node)
 
 
 def visit_console_html(self, node):
-    """Generate HTML for the console directive."""
+    """
+    This is a comment
+    """
     if self.builder.name in ("djangohtml", "json") and node["win_console_text"]:
         # Put a mark on the document object signaling the fact the directive
         # has been used on it.
@@ -280,6 +325,9 @@ checked>
         linenos = node.get("linenos", False)
 
         def warner(msg):
+            """
+            This is a comment
+            """
             self.builder.warn(msg, (self.builder.current_docname, node.line))
 
         highlighted = self.highlighter.highlight_block(
@@ -307,7 +355,13 @@ class ConsoleDirective(CodeBlock):
     WIN_PROMPT = r"...\> "
 
     def run(self):
+        """
+        This is a comment
+        """
         def args_to_win(cmdline):
+            """
+            This is a comment
+            """
             changed = False
             out = []
             for token in cmdline.split():
@@ -330,6 +384,9 @@ class ConsoleDirective(CodeBlock):
             return cmdline
 
         def cmdline_to_win(line):
+            """
+            This is a comment
+            """
             if line.startswith("# "):
                 return "REM " + args_to_win(line[2:])
             if line.startswith("$ # "):
@@ -351,6 +408,9 @@ class ConsoleDirective(CodeBlock):
             return None
 
         def code_block_to_win(content):
+            """
+            This is a comment
+            """
             bchanged = False
             lines = []
             for line in content:
@@ -393,6 +453,9 @@ def html_page_context_hook(app, pagename, templatename, context, doctree):
     # control inclusion of console-tabs.css and activation of the JavaScript.
     # This way it's include only from HTML files rendered from reST files where
     # the ConsoleDirective is used.
+    """
+    This is a comment
+    """
     context["include_console_assets"] = getattr(
         doctree, "_console_directive_used_flag", False
     )
@@ -401,6 +464,9 @@ def html_page_context_hook(app, pagename, templatename, context, doctree):
 def default_role_error(
     name, rawtext, text, lineno, inliner, options=None, content=None
 ):
+    """
+    This is a comment
+    """
     msg = (
         "Default role used (`single backticks`): %s. Did you mean to use two "
         "backticks for ``code``, or miss an underscore for a `link`_ ?" % rawtext

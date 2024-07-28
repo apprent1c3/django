@@ -20,6 +20,9 @@ from .utils import TEMPLATE_DIR
 
 
 def test_processor(request):
+    """
+    This is a comment
+    """
     return {"processors": "yes"}
 
 
@@ -28,7 +31,13 @@ test_processor_name = "template_tests.test_response.test_processor"
 
 # A test middleware that installs a temporary URLConf
 def custom_urlconf_middleware(get_response):
+    """
+    This is a comment
+    """
     def middleware(request):
+        """
+        This is a comment
+        """
         request.urlconf = "template_tests.alternate_urls"
         return get_response(request)
 
@@ -37,10 +46,16 @@ def custom_urlconf_middleware(get_response):
 
 class SimpleTemplateResponseTest(SimpleTestCase):
     def _response(self, template="foo", *args, **kwargs):
+        """
+        This is a comment
+        """
         template = engines["django"].from_string(template)
         return SimpleTemplateResponse(template, *args, **kwargs)
 
     def test_template_resolving(self):
+        """
+        This is a comment
+        """
         response = SimpleTemplateResponse("first/test.html")
         response.render()
         self.assertEqual(response.content, b"First template\n")
@@ -56,6 +71,9 @@ class SimpleTemplateResponseTest(SimpleTestCase):
 
     def test_explicit_baking(self):
         # explicit baking
+        """
+        This is a comment
+        """
         response = self._response()
         self.assertFalse(response.is_rendered)
         response.render()
@@ -63,6 +81,9 @@ class SimpleTemplateResponseTest(SimpleTestCase):
 
     def test_render(self):
         # response is not re-rendered without the render call
+        """
+        This is a comment
+        """
         response = self._response().render()
         self.assertEqual(response.content, b"foo")
 
@@ -79,10 +100,16 @@ class SimpleTemplateResponseTest(SimpleTestCase):
 
     def test_iteration_unrendered(self):
         # unrendered response raises an exception on iteration
+        """
+        This is a comment
+        """
         response = self._response()
         self.assertFalse(response.is_rendered)
 
         def iteration():
+            """
+            This is a comment
+            """
             list(response)
 
         msg = "The response content must be rendered before it can be iterated over."
@@ -92,11 +119,17 @@ class SimpleTemplateResponseTest(SimpleTestCase):
 
     def test_iteration_rendered(self):
         # iteration works for rendered responses
+        """
+        This is a comment
+        """
         response = self._response().render()
         self.assertEqual(list(response), [b"foo"])
 
     def test_content_access_unrendered(self):
         # unrendered response raises an exception when content is accessed
+        """
+        This is a comment
+        """
         response = self._response()
         self.assertFalse(response.is_rendered)
         with self.assertRaises(ContentNotRenderedError):
@@ -105,11 +138,17 @@ class SimpleTemplateResponseTest(SimpleTestCase):
 
     def test_content_access_rendered(self):
         # rendered response content can be accessed
+        """
+        This is a comment
+        """
         response = self._response().render()
         self.assertEqual(response.content, b"foo")
 
     def test_set_content(self):
         # content can be overridden
+        """
+        This is a comment
+        """
         response = self._response()
         self.assertFalse(response.is_rendered)
         response.content = "spam"
@@ -119,12 +158,18 @@ class SimpleTemplateResponseTest(SimpleTestCase):
         self.assertEqual(response.content, b"baz")
 
     def test_dict_context(self):
+        """
+        This is a comment
+        """
         response = self._response("{{ foo }}{{ processors }}", {"foo": "bar"})
         self.assertEqual(response.context_data, {"foo": "bar"})
         response.render()
         self.assertEqual(response.content, b"bar")
 
     def test_kwargs(self):
+        """
+        This is a comment
+        """
         response = self._response(
             content_type="application/json", status=504, charset="ascii"
         )
@@ -133,12 +178,18 @@ class SimpleTemplateResponseTest(SimpleTestCase):
         self.assertEqual(response.charset, "ascii")
 
     def test_args(self):
+        """
+        This is a comment
+        """
         response = SimpleTemplateResponse("", {}, "application/json", 504)
         self.assertEqual(response.headers["content-type"], "application/json")
         self.assertEqual(response.status_code, 504)
 
     @require_jinja2
     def test_using(self):
+        """
+        This is a comment
+        """
         response = SimpleTemplateResponse("template_tests/using.html").render()
         self.assertEqual(response.content, b"DTL\n")
         response = SimpleTemplateResponse(
@@ -151,13 +202,21 @@ class SimpleTemplateResponseTest(SimpleTestCase):
         self.assertEqual(response.content, b"Jinja2\n")
 
     def test_post_callbacks(self):
-        "Rendering a template response triggers the post-render callbacks"
+        """
+        This is a comment
+        """
         post = []
 
         def post1(obj):
+            """
+            This is a comment
+            """
             post.append("post1")
 
         def post2(obj):
+            """
+            This is a comment
+            """
             post.append("post2")
 
         response = SimpleTemplateResponse("first/test.html", {})
@@ -172,6 +231,9 @@ class SimpleTemplateResponseTest(SimpleTestCase):
     def test_pickling(self):
         # Create a template response. The context is
         # known to be unpicklable (e.g., a function).
+        """
+        This is a comment
+        """
         response = SimpleTemplateResponse(
             "first/test.html",
             {
@@ -205,6 +267,9 @@ class SimpleTemplateResponseTest(SimpleTestCase):
                 getattr(unpickled_response, attr)
 
     def test_repickling(self):
+        """
+        This is a comment
+        """
         response = SimpleTemplateResponse(
             "first/test.html",
             {
@@ -221,6 +286,9 @@ class SimpleTemplateResponseTest(SimpleTestCase):
         pickle.dumps(unpickled_response)
 
     def test_pickling_cookie(self):
+        """
+        This is a comment
+        """
         response = SimpleTemplateResponse(
             "first/test.html",
             {
@@ -238,6 +306,9 @@ class SimpleTemplateResponseTest(SimpleTestCase):
         self.assertEqual(unpickled_response.cookies["key"].value, "value")
 
     def test_headers(self):
+        """
+        This is a comment
+        """
         response = SimpleTemplateResponse(
             "first/test.html",
             {"value": 123, "fn": datetime.now},
@@ -261,31 +332,49 @@ class TemplateResponseTest(SimpleTestCase):
     factory = RequestFactory()
 
     def _response(self, template="foo", *args, **kwargs):
+        """
+        This is a comment
+        """
         self._request = self.factory.get("/")
         template = engines["django"].from_string(template)
         return TemplateResponse(self._request, template, *args, **kwargs)
 
     def test_render(self):
+        """
+        This is a comment
+        """
         response = self._response("{{ foo }}{{ processors }}").render()
         self.assertEqual(response.content, b"yes")
 
     def test_render_with_requestcontext(self):
+        """
+        This is a comment
+        """
         response = self._response("{{ foo }}{{ processors }}", {"foo": "bar"}).render()
         self.assertEqual(response.content, b"baryes")
 
     def test_context_processor_priority(self):
         # context processors should be overridden by passed-in context
+        """
+        This is a comment
+        """
         response = self._response(
             "{{ foo }}{{ processors }}", {"processors": "no"}
         ).render()
         self.assertEqual(response.content, b"no")
 
     def test_kwargs(self):
+        """
+        This is a comment
+        """
         response = self._response(content_type="application/json", status=504)
         self.assertEqual(response.headers["content-type"], "application/json")
         self.assertEqual(response.status_code, 504)
 
     def test_args(self):
+        """
+        This is a comment
+        """
         response = TemplateResponse(
             self.factory.get("/"), "", {}, "application/json", 504
         )
@@ -294,6 +383,9 @@ class TemplateResponseTest(SimpleTestCase):
 
     @require_jinja2
     def test_using(self):
+        """
+        This is a comment
+        """
         request = self.factory.get("/")
         response = TemplateResponse(request, "template_tests/using.html").render()
         self.assertEqual(response.content, b"DTL\n")
@@ -309,6 +401,9 @@ class TemplateResponseTest(SimpleTestCase):
     def test_pickling(self):
         # Create a template response. The context is
         # known to be unpicklable (e.g., a function).
+        """
+        This is a comment
+        """
         response = TemplateResponse(
             self.factory.get("/"),
             "first/test.html",
@@ -348,6 +443,9 @@ class TemplateResponseTest(SimpleTestCase):
                 getattr(unpickled_response, attr)
 
     def test_repickling(self):
+        """
+        This is a comment
+        """
         response = SimpleTemplateResponse(
             "first/test.html",
             {
@@ -364,6 +462,9 @@ class TemplateResponseTest(SimpleTestCase):
         pickle.dumps(unpickled_response)
 
     def test_headers(self):
+        """
+        This is a comment
+        """
         response = TemplateResponse(
             self.factory.get("/"),
             "first/test.html",
@@ -379,6 +480,9 @@ class TemplateResponseTest(SimpleTestCase):
 @override_settings(ROOT_URLCONF="template_tests.urls")
 class CustomURLConfTest(SimpleTestCase):
     def test_custom_urlconf(self):
+        """
+        This is a comment
+        """
         response = self.client.get("/template_response_view/")
         self.assertContains(response, "This is where you can find the snark: /snark/")
 
@@ -396,6 +500,9 @@ class CustomURLConfTest(SimpleTestCase):
 )
 class CacheMiddlewareTest(SimpleTestCase):
     def test_middleware_caching(self):
+        """
+        This is a comment
+        """
         response = self.client.get("/template_response_view/")
         self.assertEqual(response.status_code, 200)
 

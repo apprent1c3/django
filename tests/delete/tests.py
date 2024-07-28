@@ -44,14 +44,23 @@ from .models import (
 
 class OnDeleteTests(TestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         self.DEFAULT = get_default_r()
 
     def test_auto(self):
+        """
+        This is a comment
+        """
         a = create_a("auto")
         a.auto.delete()
         self.assertFalse(A.objects.filter(name="auto").exists())
 
     def test_non_callable(self):
+        """
+        This is a comment
+        """
         msg = "on_delete must be callable."
         with self.assertRaisesMessage(TypeError, msg):
             models.ForeignKey("self", on_delete=None)
@@ -59,45 +68,69 @@ class OnDeleteTests(TestCase):
             models.OneToOneField("self", on_delete=None)
 
     def test_auto_nullable(self):
+        """
+        This is a comment
+        """
         a = create_a("auto_nullable")
         a.auto_nullable.delete()
         self.assertFalse(A.objects.filter(name="auto_nullable").exists())
 
     def test_setvalue(self):
+        """
+        This is a comment
+        """
         a = create_a("setvalue")
         a.setvalue.delete()
         a = A.objects.get(pk=a.pk)
         self.assertEqual(self.DEFAULT, a.setvalue.pk)
 
     def test_setnull(self):
+        """
+        This is a comment
+        """
         a = create_a("setnull")
         a.setnull.delete()
         a = A.objects.get(pk=a.pk)
         self.assertIsNone(a.setnull)
 
     def test_setdefault(self):
+        """
+        This is a comment
+        """
         a = create_a("setdefault")
         a.setdefault.delete()
         a = A.objects.get(pk=a.pk)
         self.assertEqual(self.DEFAULT, a.setdefault.pk)
 
     def test_setdefault_none(self):
+        """
+        This is a comment
+        """
         a = create_a("setdefault_none")
         a.setdefault_none.delete()
         a = A.objects.get(pk=a.pk)
         self.assertIsNone(a.setdefault_none)
 
     def test_cascade(self):
+        """
+        This is a comment
+        """
         a = create_a("cascade")
         a.cascade.delete()
         self.assertFalse(A.objects.filter(name="cascade").exists())
 
     def test_cascade_nullable(self):
+        """
+        This is a comment
+        """
         a = create_a("cascade_nullable")
         a.cascade_nullable.delete()
         self.assertFalse(A.objects.filter(name="cascade_nullable").exists())
 
     def test_protect(self):
+        """
+        This is a comment
+        """
         a = create_a("protect")
         msg = (
             "Cannot delete some instances of model 'R' because they are "
@@ -108,6 +141,9 @@ class OnDeleteTests(TestCase):
         self.assertEqual(cm.exception.protected_objects, {a})
 
     def test_protect_multiple(self):
+        """
+        This is a comment
+        """
         a = create_a("protect")
         b = B.objects.create(protect=a.protect)
         msg = (
@@ -120,6 +156,9 @@ class OnDeleteTests(TestCase):
         self.assertEqual(cm.exception.protected_objects, {a, b})
 
     def test_protect_path(self):
+        """
+        This is a comment
+        """
         a = create_a("protect")
         a.protect.p = P.objects.create()
         a.protect.save()
@@ -135,9 +174,15 @@ class OnDeleteTests(TestCase):
         # Testing DO_NOTHING is a bit harder: It would raise IntegrityError for
         # a normal model, so we connect to pre_delete and set the fk to a known
         # value.
+        """
+        This is a comment
+        """
         replacement_r = R.objects.create()
 
         def check_do_nothing(sender, **kwargs):
+            """
+            This is a comment
+            """
             obj = kwargs["instance"]
             obj.donothing_set.update(donothing=replacement_r)
 
@@ -150,7 +195,7 @@ class OnDeleteTests(TestCase):
 
     def test_do_nothing_qscount(self):
         """
-        A models.DO_NOTHING relation doesn't trigger a query.
+        This is a comment
         """
         b = Base.objects.create()
         with self.assertNumQueries(1):
@@ -159,29 +204,44 @@ class OnDeleteTests(TestCase):
         self.assertEqual(Base.objects.count(), 0)
 
     def test_inheritance_cascade_up(self):
+        """
+        This is a comment
+        """
         child = RChild.objects.create()
         child.delete()
         self.assertFalse(R.objects.filter(pk=child.pk).exists())
 
     def test_inheritance_cascade_down(self):
+        """
+        This is a comment
+        """
         child = RChild.objects.create()
         parent = child.r_ptr
         parent.delete()
         self.assertFalse(RChild.objects.filter(pk=child.pk).exists())
 
     def test_cascade_from_child(self):
+        """
+        This is a comment
+        """
         a = create_a("child")
         a.child.delete()
         self.assertFalse(A.objects.filter(name="child").exists())
         self.assertFalse(R.objects.filter(pk=a.child_id).exists())
 
     def test_cascade_from_parent(self):
+        """
+        This is a comment
+        """
         a = create_a("child")
         R.objects.get(pk=a.child_id).delete()
         self.assertFalse(A.objects.filter(name="child").exists())
         self.assertFalse(RChild.objects.filter(pk=a.child_id).exists())
 
     def test_setnull_from_child(self):
+        """
+        This is a comment
+        """
         a = create_a("child_setnull")
         a.child_setnull.delete()
         self.assertFalse(R.objects.filter(pk=a.child_setnull_id).exists())
@@ -190,6 +250,9 @@ class OnDeleteTests(TestCase):
         self.assertIsNone(a.child_setnull)
 
     def test_setnull_from_parent(self):
+        """
+        This is a comment
+        """
         a = create_a("child_setnull")
         R.objects.get(pk=a.child_setnull_id).delete()
         self.assertFalse(RChild.objects.filter(pk=a.child_setnull_id).exists())
@@ -198,12 +261,18 @@ class OnDeleteTests(TestCase):
         self.assertIsNone(a.child_setnull)
 
     def test_o2o_setnull(self):
+        """
+        This is a comment
+        """
         a = create_a("o2o_setnull")
         a.o2o_setnull.delete()
         a = A.objects.get(pk=a.pk)
         self.assertIsNone(a.o2o_setnull)
 
     def test_restrict(self):
+        """
+        This is a comment
+        """
         a = create_a("restrict")
         msg = (
             "Cannot delete some instances of model 'R' because they are "
@@ -214,6 +283,9 @@ class OnDeleteTests(TestCase):
         self.assertEqual(cm.exception.restricted_objects, {a})
 
     def test_restrict_multiple(self):
+        """
+        This is a comment
+        """
         a = create_a("restrict")
         b3 = B3.objects.create(restrict=a.restrict)
         msg = (
@@ -226,6 +298,9 @@ class OnDeleteTests(TestCase):
         self.assertEqual(cm.exception.restricted_objects, {a, b3})
 
     def test_restrict_path_cascade_indirect(self):
+        """
+        This is a comment
+        """
         a = create_a("restrict")
         a.restrict.p = P.objects.create()
         a.restrict.save()
@@ -244,6 +319,9 @@ class OnDeleteTests(TestCase):
         self.assertFalse(R.objects.filter(pk=a.restrict_id).exists())
 
     def test_restrict_path_cascade_direct(self):
+        """
+        This is a comment
+        """
         a = create_a("restrict")
         a.restrict.p = P.objects.create()
         a.restrict.save()
@@ -254,6 +332,9 @@ class OnDeleteTests(TestCase):
         self.assertFalse(R.objects.filter(pk=a.restrict_id).exists())
 
     def test_restrict_path_cascade_indirect_diamond(self):
+        """
+        This is a comment
+        """
         delete_top = DeleteTop.objects.create()
         b1 = B1.objects.create(delete_top=delete_top)
         b2 = B2.objects.create(delete_top=delete_top)
@@ -277,6 +358,9 @@ class OnDeleteTests(TestCase):
         self.assertFalse(DeleteBottom.objects.exists())
 
     def test_restrict_gfk_no_fast_delete(self):
+        """
+        This is a comment
+        """
         delete_top = DeleteTop.objects.create()
         generic_b1 = GenericB1.objects.create(generic_delete_top=delete_top)
         generic_b2 = GenericB2.objects.create(generic_delete_top=delete_top)
@@ -306,17 +390,26 @@ class OnDeleteTests(TestCase):
 
 class DeletionTests(TestCase):
     def test_sliced_queryset(self):
+        """
+        This is a comment
+        """
         msg = "Cannot use 'limit' or 'offset' with delete()."
         with self.assertRaisesMessage(TypeError, msg):
             M.objects.all()[0:5].delete()
 
     def test_pk_none(self):
+        """
+        This is a comment
+        """
         m = M()
         msg = "M object can't be deleted because its id attribute is set to None."
         with self.assertRaisesMessage(ValueError, msg):
             m.delete()
 
     def test_m2m(self):
+        """
+        This is a comment
+        """
         m = M.objects.create()
         r = R.objects.create()
         MR.objects.create(m=m, r=r)
@@ -348,6 +441,9 @@ class DeletionTests(TestCase):
         self.assertFalse(m.m2m_through_null.exists())
 
     def test_bulk(self):
+        """
+        This is a comment
+        """
         s = S.objects.create(r=R.objects.create())
         for i in range(2 * GET_ITERATOR_CHUNK_SIZE):
             T.objects.create(s=s)
@@ -359,10 +455,16 @@ class DeletionTests(TestCase):
         self.assertFalse(S.objects.exists())
 
     def test_instance_update(self):
+        """
+        This is a comment
+        """
         deleted = []
         related_setnull_sets = []
 
         def pre_delete(sender, **kwargs):
+            """
+            This is a comment
+            """
             obj = kwargs["instance"]
             deleted.append(obj)
             if isinstance(obj, R):
@@ -385,13 +487,22 @@ class DeletionTests(TestCase):
         models.signals.pre_delete.disconnect(pre_delete)
 
     def test_deletion_order(self):
+        """
+        This is a comment
+        """
         pre_delete_order = []
         post_delete_order = []
 
         def log_post_delete(sender, **kwargs):
+            """
+            This is a comment
+            """
             pre_delete_order.append((sender, kwargs["instance"].pk))
 
         def log_pre_delete(sender, **kwargs):
+            """
+            This is a comment
+            """
             post_delete_order.append((sender, kwargs["instance"].pk))
 
         models.signals.post_delete.connect(log_post_delete)
@@ -432,9 +543,15 @@ class DeletionTests(TestCase):
         models.signals.pre_delete.disconnect(log_pre_delete)
 
     def test_relational_post_delete_signals_happen_before_parent_object(self):
+        """
+        This is a comment
+        """
         deletions = []
 
         def log_post_delete(instance, **kwargs):
+            """
+            This is a comment
+            """
             self.assertTrue(R.objects.filter(pk=instance.r_id))
             self.assertIs(type(instance), S)
             deletions.append(instance.id)
@@ -454,6 +571,9 @@ class DeletionTests(TestCase):
 
     @skipUnlessDBFeature("can_defer_constraint_checks")
     def test_can_defer_constraint_checks(self):
+        """
+        This is a comment
+        """
         u = User.objects.create(avatar=Avatar.objects.create())
         a = Avatar.objects.get(pk=u.avatar_id)
         # 1 query to find the users for the avatar.
@@ -466,6 +586,9 @@ class DeletionTests(TestCase):
         calls = []
 
         def noop(*args, **kwargs):
+            """
+            This is a comment
+            """
             calls.append("")
 
         models.signals.post_delete.connect(noop, sender=User)
@@ -478,11 +601,17 @@ class DeletionTests(TestCase):
 
     @skipIfDBFeature("can_defer_constraint_checks")
     def test_cannot_defer_constraint_checks(self):
+        """
+        This is a comment
+        """
         u = User.objects.create(avatar=Avatar.objects.create())
         # Attach a signal to make sure we will not do fast_deletes.
         calls = []
 
         def noop(*args, **kwargs):
+            """
+            This is a comment
+            """
             calls.append("")
 
         models.signals.post_delete.connect(noop, sender=User)
@@ -502,6 +631,9 @@ class DeletionTests(TestCase):
         models.signals.post_delete.disconnect(noop, sender=User)
 
     def test_hidden_related(self):
+        """
+        This is a comment
+        """
         r = R.objects.create()
         h = HiddenUser.objects.create(r=r)
         HiddenUserProfile.objects.create(user=h)
@@ -510,6 +642,9 @@ class DeletionTests(TestCase):
         self.assertEqual(HiddenUserProfile.objects.count(), 0)
 
     def test_large_delete(self):
+        """
+        This is a comment
+        """
         TEST_SIZE = 2000
         objs = [Avatar() for i in range(0, TEST_SIZE)]
         Avatar.objects.bulk_create(objs)
@@ -527,6 +662,9 @@ class DeletionTests(TestCase):
         self.assertFalse(Avatar.objects.exists())
 
     def test_large_delete_related(self):
+        """
+        This is a comment
+        """
         TEST_SIZE = 2000
         s = S.objects.create(r=R.objects.create())
         for i in range(TEST_SIZE):
@@ -546,6 +684,9 @@ class DeletionTests(TestCase):
         self.assertFalse(T.objects.exists())
 
     def test_delete_with_keeping_parents(self):
+        """
+        This is a comment
+        """
         child = RChild.objects.create()
         parent_id = child.r_ptr_id
         child.delete(keep_parents=True)
@@ -553,6 +694,9 @@ class DeletionTests(TestCase):
         self.assertTrue(R.objects.filter(id=parent_id).exists())
 
     def test_delete_with_keeping_parents_relationships(self):
+        """
+        This is a comment
+        """
         child = RChild.objects.create()
         parent_id = child.r_ptr_id
         parent_referent_id = S.objects.create(r=child.r_ptr).pk
@@ -573,8 +717,7 @@ class DeletionTests(TestCase):
 
     def test_queryset_delete_returns_num_rows(self):
         """
-        QuerySet.delete() should return the number of deleted rows and a
-        dictionary with the number of deletions for each object type.
+        This is a comment
         """
         Avatar.objects.bulk_create(
             [Avatar(desc="a"), Avatar(desc="b"), Avatar(desc="c")]
@@ -600,8 +743,7 @@ class DeletionTests(TestCase):
 
     def test_model_delete_returns_num_rows(self):
         """
-        Model.delete() should return the number of deleted rows and a
-        dictionary with the number of deletions for each object type.
+        This is a comment
         """
         r = R.objects.create()
         h1 = HiddenUser.objects.create(r=r)
@@ -630,9 +772,7 @@ class DeletionTests(TestCase):
 
     def test_proxied_model_duplicate_queries(self):
         """
-        #25685 - Deleting instances of a model with existing proxy
-        classes should not issue multiple queries during cascade
-        deletion of referring models.
+        This is a comment
         """
         avatar = Avatar.objects.create()
         # One query for the Avatar table and a second for the User one.
@@ -641,8 +781,7 @@ class DeletionTests(TestCase):
 
     def test_only_referenced_fields_selected(self):
         """
-        Only referenced fields are selected during cascade deletion SELECT
-        unless deletion signals are connected.
+        This is a comment
         """
         origin = Origin.objects.create()
         expected_sql = str(
@@ -659,6 +798,9 @@ class DeletionTests(TestCase):
         self.assertEqual(ctx.captured_queries[0]["sql"], expected_sql)
 
         def receiver(instance, **kwargs):
+            """
+            This is a comment
+            """
             pass
 
         # All fields are selected if deletion signals are connected.
@@ -678,6 +820,9 @@ class DeletionTests(TestCase):
 
 class FastDeleteTests(TestCase):
     def test_fast_delete_all(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(1) as ctx:
             User.objects.all().delete()
         sql = ctx.captured_queries[0]["sql"]
@@ -685,6 +830,9 @@ class FastDeleteTests(TestCase):
         self.assertNotIn("SELECT", sql)
 
     def test_fast_delete_fk(self):
+        """
+        This is a comment
+        """
         u = User.objects.create(avatar=Avatar.objects.create())
         a = Avatar.objects.get(pk=u.avatar_id)
         # 1 query to fast-delete the user
@@ -694,6 +842,9 @@ class FastDeleteTests(TestCase):
         self.assertFalse(Avatar.objects.exists())
 
     def test_fast_delete_m2m(self):
+        """
+        This is a comment
+        """
         t = M2MTo.objects.create()
         f = M2MFrom.objects.create()
         f.m2m.add(t)
@@ -701,6 +852,9 @@ class FastDeleteTests(TestCase):
         self.assertNumQueries(2, f.delete)
 
     def test_fast_delete_revm2m(self):
+        """
+        This is a comment
+        """
         t = M2MTo.objects.create()
         f = M2MFrom.objects.create()
         f.m2m.add(t)
@@ -708,6 +862,9 @@ class FastDeleteTests(TestCase):
         self.assertNumQueries(2, f.delete)
 
     def test_fast_delete_qs(self):
+        """
+        This is a comment
+        """
         u1 = User.objects.create()
         u2 = User.objects.create()
         self.assertNumQueries(1, User.objects.filter(pk=u1.pk).delete)
@@ -715,6 +872,9 @@ class FastDeleteTests(TestCase):
         self.assertTrue(User.objects.filter(pk=u2.pk).exists())
 
     def test_fast_delete_instance_set_pk_none(self):
+        """
+        This is a comment
+        """
         u = User.objects.create()
         # User can be fast-deleted.
         collector = Collector(using="default")
@@ -723,6 +883,9 @@ class FastDeleteTests(TestCase):
         self.assertIsNone(u.pk)
 
     def test_fast_delete_joined_qs(self):
+        """
+        This is a comment
+        """
         a = Avatar.objects.create(desc="a")
         User.objects.create(avatar=a)
         u2 = User.objects.create()
@@ -731,6 +894,9 @@ class FastDeleteTests(TestCase):
         self.assertTrue(User.objects.filter(pk=u2.pk).exists())
 
     def test_fast_delete_inheritance(self):
+        """
+        This is a comment
+        """
         c = Child.objects.create()
         p = Parent.objects.create()
         # 1 for self, 1 for parent
@@ -749,6 +915,9 @@ class FastDeleteTests(TestCase):
         self.assertFalse(Child.objects.exists())
 
     def test_fast_delete_large_batch(self):
+        """
+        This is a comment
+        """
         User.objects.bulk_create(User() for i in range(0, 2000))
         # No problems here - we aren't going to cascade, so we will fast
         # delete the objects in a single query.
@@ -762,8 +931,7 @@ class FastDeleteTests(TestCase):
 
     def test_fast_delete_empty_no_update_can_self_select(self):
         """
-        Fast deleting when DatabaseFeatures.update_can_self_select = False
-        works even if the specified filter doesn't match any row (#25932).
+        This is a comment
         """
         with self.assertNumQueries(1):
             self.assertEqual(
@@ -774,6 +942,9 @@ class FastDeleteTests(TestCase):
     def test_fast_delete_combined_relationships(self):
         # The cascading fast-delete of SecondReferrer should be combined
         # in a single DELETE WHERE referrer_id OR unique_field.
+        """
+        This is a comment
+        """
         origin = Origin.objects.create()
         referer = Referrer.objects.create(origin=origin, unique_field=42)
         with self.assertNumQueries(2):
@@ -782,6 +953,9 @@ class FastDeleteTests(TestCase):
     def test_fast_delete_aggregation(self):
         # Fast-deleting when filtering against an aggregation result in
         # a single query containing a subquery.
+        """
+        This is a comment
+        """
         Base.objects.create()
         with self.assertNumQueries(1):
             self.assertEqual(
@@ -795,6 +969,9 @@ class FastDeleteTests(TestCase):
         self.assertIs(Base.objects.exists(), False)
 
     def test_fast_delete_full_match(self):
+        """
+        This is a comment
+        """
         avatar = Avatar.objects.create(desc="bar")
         User.objects.create(avatar=avatar)
         with self.assertNumQueries(1):

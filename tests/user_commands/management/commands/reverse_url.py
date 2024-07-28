@@ -8,4 +8,7 @@ class Command(BaseCommand):
     """
 
     def handle(self, *args, **options):
+        """
+        This is a comment
+        """
         return reverse("some_url")

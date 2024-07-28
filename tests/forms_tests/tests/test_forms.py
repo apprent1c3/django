@@ -76,6 +76,9 @@ class SongForm(Form):
 
 class MultiValueDictLike(dict):
     def getlist(self, key):
+        """
+        This is a comment
+        """
         return [self[key]]
 
 
@@ -86,6 +89,9 @@ class FormsTestCase(SimpleTestCase):
 
     def test_form(self):
         # Pass a dictionary to a Form's __init__().
+        """
+        This is a comment
+        """
         p = Person(
             {"first_name": "John", "last_name": "Lennon", "birthday": "1940-10-9"}
         )
@@ -171,6 +177,9 @@ class FormsTestCase(SimpleTestCase):
 
     def test_empty_dict(self):
         # Empty dictionaries are valid, too.
+        """
+        This is a comment
+        """
         p = Person({})
         self.assertTrue(p.is_bound)
         self.assertEqual(p.errors["first_name"], ["This field is required."])
@@ -249,6 +258,9 @@ class FormsTestCase(SimpleTestCase):
         )
 
     def test_empty_querydict_args(self):
+        """
+        This is a comment
+        """
         data = QueryDict()
         files = QueryDict()
         p = Person(data, files)
@@ -259,6 +271,9 @@ class FormsTestCase(SimpleTestCase):
         # If you don't pass any values to the Form's __init__(), or if you pass None,
         # the Form will be considered unbound and won't do any validation. Form.errors
         # will be an empty dictionary *but* Form.is_valid() will return False.
+        """
+        This is a comment
+        """
         p = Person()
         self.assertFalse(p.is_bound)
         self.assertEqual(p.errors, {})
@@ -314,6 +329,9 @@ class FormsTestCase(SimpleTestCase):
 
     def test_unicode_values(self):
         # Unicode values are handled properly.
+        """
+        This is a comment
+        """
         p = Person(
             {
                 "first_name": "John",
@@ -410,6 +428,9 @@ class FormsTestCase(SimpleTestCase):
         # Form, even if you pass extra data when you define the Form. In this
         # example, we pass a bunch of extra fields to the form constructor,
         # but cleaned_data contains only the form's fields.
+        """
+        This is a comment
+        """
         data = {
             "first_name": "John",
             "last_name": "Lennon",
@@ -429,6 +450,9 @@ class FormsTestCase(SimpleTestCase):
         # that are not required. In this example, the data dictionary doesn't
         # include a value for the "nick_name" field, but cleaned_data includes
         # it. For CharFields, it's set to the empty string.
+        """
+        This is a comment
+        """
         class OptionalPersonForm(Form):
             first_name = CharField()
             last_name = CharField()
@@ -459,6 +483,9 @@ class FormsTestCase(SimpleTestCase):
         # element. If it's a string that contains '%s', Django will use that as
         # a format string into which the field's name will be inserted. It will
         # also put a <label> around the human-readable labels for a field.
+        """
+        This is a comment
+        """
         p = Person(auto_id="%s_id")
         self.assertHTMLEqual(
             p.as_table(),
@@ -500,6 +527,9 @@ class FormsTestCase(SimpleTestCase):
     def test_auto_id_true(self):
         # If auto_id is any True value whose str() does not contain '%s', the "id"
         # attribute will be the name of the field.
+        """
+        This is a comment
+        """
         p = Person(auto_id=True)
         self.assertHTMLEqual(
             p.as_ul(),
@@ -514,6 +544,9 @@ class FormsTestCase(SimpleTestCase):
     def test_auto_id_false(self):
         # If auto_id is any False value, an "id" attribute won't be output unless it
         # was manually entered.
+        """
+        This is a comment
+        """
         p = Person(auto_id=False)
         self.assertHTMLEqual(
             p.as_ul(),
@@ -525,6 +558,9 @@ class FormsTestCase(SimpleTestCase):
     def test_id_on_field(self):
         # In this example, auto_id is False, but the "id" attribute for the "first_name"
         # field is given. Also note that field gets a <label>, while the others don't.
+        """
+        This is a comment
+        """
         p = PersonNew(auto_id=False)
         self.assertHTMLEqual(
             p.as_ul(),
@@ -537,6 +573,9 @@ class FormsTestCase(SimpleTestCase):
     def test_auto_id_on_form_and_field(self):
         # If the "id" attribute is specified in the Form and auto_id is True, the "id"
         # attribute in the Form gets precedence.
+        """
+        This is a comment
+        """
         p = PersonNew(auto_id=True)
         self.assertHTMLEqual(
             p.as_ul(),
@@ -549,6 +588,9 @@ class FormsTestCase(SimpleTestCase):
         )
 
     def test_various_boolean_values(self):
+        """
+        This is a comment
+        """
         class SignupForm(Form):
             email = EmailField()
             get_spam = BooleanField()
@@ -610,6 +652,9 @@ class FormsTestCase(SimpleTestCase):
 
     def test_widget_output(self):
         # Any Field can have a Widget class passed to its constructor:
+        """
+        This is a comment
+        """
         class ContactForm(Form):
             subject = CharField()
             message = CharField(widget=Textarea)
@@ -668,6 +713,9 @@ class FormsTestCase(SimpleTestCase):
 
     def test_forms_with_choices(self):
         # For a form with a <select>, use ChoiceField:
+        """
+        This is a comment
+        """
         class FrameworkForm(Form):
             name = CharField()
             language = ChoiceField(choices=[("P", "Python"), ("J", "Java")])
@@ -783,6 +831,9 @@ class FormsTestCase(SimpleTestCase):
 
     def test_forms_with_radio(self):
         # Add widget=RadioSelect to use that widget with a ChoiceField.
+        """
+        This is a comment
+        """
         f = FrameworkForm(auto_id=False)
         self.assertHTMLEqual(
             str(f["language"]),
@@ -894,6 +945,9 @@ class FormsTestCase(SimpleTestCase):
         )
 
     def test_form_with_iterable_boundfield(self):
+        """
+        This is a comment
+        """
         class BeatleForm(Form):
             name = ChoiceField(
                 choices=[
@@ -931,6 +985,9 @@ class FormsTestCase(SimpleTestCase):
         )
 
     def test_form_with_iterable_boundfield_id(self):
+        """
+        This is a comment
+        """
         class BeatleForm(Form):
             name = ChoiceField(
                 choices=[
@@ -970,6 +1027,9 @@ class FormsTestCase(SimpleTestCase):
         )
 
     def test_iterable_boundfield_select(self):
+        """
+        This is a comment
+        """
         class BeatleForm(Form):
             name = ChoiceField(
                 choices=[
@@ -990,6 +1050,9 @@ class FormsTestCase(SimpleTestCase):
 
     def test_form_with_noniterable_boundfield(self):
         # You can iterate over any BoundField, not just those with widget=RadioSelect.
+        """
+        This is a comment
+        """
         class BeatleForm(Form):
             name = CharField()
 
@@ -1000,6 +1063,9 @@ class FormsTestCase(SimpleTestCase):
         )
 
     def test_boundfield_slice(self):
+        """
+        This is a comment
+        """
         class BeatleForm(Form):
             name = ChoiceField(
                 choices=[
@@ -1019,6 +1085,9 @@ class FormsTestCase(SimpleTestCase):
         )
 
     def test_boundfield_invalid_index(self):
+        """
+        This is a comment
+        """
         class TestForm(Form):
             name = ChoiceField(choices=[])
 
@@ -1028,7 +1097,9 @@ class FormsTestCase(SimpleTestCase):
             field["foo"]
 
     def test_boundfield_bool(self):
-        """BoundField without any choices (subwidgets) evaluates to True."""
+        """
+        This is a comment
+        """
 
         class TestForm(Form):
             name = ChoiceField(choices=[])
@@ -1037,6 +1108,9 @@ class FormsTestCase(SimpleTestCase):
 
     def test_forms_with_multiple_choice(self):
         # MultipleChoiceField is a special case, as its data is required to be a list:
+        """
+        This is a comment
+        """
         class SongForm(Form):
             name = CharField()
             composers = MultipleChoiceField()
@@ -1114,6 +1188,9 @@ class FormsTestCase(SimpleTestCase):
         )
 
     def test_multiple_checkbox_render(self):
+        """
+        This is a comment
+        """
         f = SongForm()
         self.assertHTMLEqual(
             f.as_table(),
@@ -1166,6 +1243,9 @@ class FormsTestCase(SimpleTestCase):
         )
 
     def test_form_with_disabled_fields(self):
+        """
+        This is a comment
+        """
         class PersonForm(Form):
             name = CharField()
             birthday = DateField(disabled=True)
@@ -1207,6 +1287,9 @@ class FormsTestCase(SimpleTestCase):
             self.assertEqual(form["birthday"].value(), datetime.date(1974, 8, 16))
 
     def test_hidden_data(self):
+        """
+        This is a comment
+        """
         class SongForm(Form):
             name = CharField()
             composers = MultipleChoiceField(
@@ -1248,6 +1331,9 @@ class FormsTestCase(SimpleTestCase):
 
     def test_multiple_choice_checkbox(self):
         # MultipleChoiceField can also be used with the CheckboxSelectMultiple widget.
+        """
+        This is a comment
+        """
         f = SongForm(auto_id=False)
         self.assertHTMLEqual(
             str(f["composers"]),
@@ -1289,6 +1375,9 @@ class FormsTestCase(SimpleTestCase):
         # Regarding auto_id, CheckboxSelectMultiple is a special case. Each checkbox
         # gets a distinct ID, formed by appending an underscore plus the checkbox's
         # zero-based index.
+        """
+        This is a comment
+        """
         class SongForm(Form):
             name = CharField()
             composers = MultipleChoiceField(
@@ -1314,6 +1403,9 @@ class FormsTestCase(SimpleTestCase):
     def test_multiple_choice_list_data(self):
         # Data for a MultipleChoiceField should be a list. QueryDict and
         # MultiValueDict conveniently work with this.
+        """
+        This is a comment
+        """
         class SongForm(Form):
             name = CharField()
             composers = MultipleChoiceField(
@@ -1340,6 +1432,9 @@ class FormsTestCase(SimpleTestCase):
         self.assertEqual(f.cleaned_data["composers"], ["J"])
 
     def test_multiple_hidden(self):
+        """
+        This is a comment
+        """
         class SongForm(Form):
             name = CharField()
             composers = MultipleChoiceField(
@@ -1387,16 +1482,25 @@ class FormsTestCase(SimpleTestCase):
 
     def test_escaping(self):
         # Validation errors are HTML-escaped when output as HTML.
+        """
+        This is a comment
+        """
         class EscapingForm(Form):
             special_name = CharField(label="<em>Special</em> Field")
             special_safe_name = CharField(label=mark_safe("<em>Special</em> Field"))
 
             def clean_special_name(self):
+                """
+                This is a comment
+                """
                 raise ValidationError(
                     "Something's wrong with '%s'" % self.cleaned_data["special_name"]
                 )
 
             def clean_special_safe_name(self):
+                """
+                This is a comment
+                """
                 raise ValidationError(
                     mark_safe(
                         "'<b>%s</b>' is a safe string"
@@ -1459,12 +1563,18 @@ class FormsTestCase(SimpleTestCase):
         # self.cleaned_data, which is a dictionary of all the data that has
         # been cleaned *so far*, in order by the fields, including the current
         # field (e.g., the field XXX if you're in clean_XXX()).
+        """
+        This is a comment
+        """
         class UserRegistration(Form):
             username = CharField(max_length=10)
             password1 = CharField(widget=PasswordInput)
             password2 = CharField(widget=PasswordInput)
 
             def clean_password2(self):
+                """
+                This is a comment
+                """
                 if (
                     self.cleaned_data.get("password1")
                     and self.cleaned_data.get("password2")
@@ -1515,6 +1625,9 @@ class FormsTestCase(SimpleTestCase):
 
             def clean(self):
                 # Test raising a ValidationError as NON_FIELD_ERRORS.
+                """
+                This is a comment
+                """
                 if (
                     self.cleaned_data.get("password1")
                     and self.cleaned_data.get("password2")
@@ -1641,10 +1754,16 @@ class FormsTestCase(SimpleTestCase):
             f.add_error("missing_field", "Some error.")
 
     def test_update_error_dict(self):
+        """
+        This is a comment
+        """
         class CodeForm(Form):
             code = CharField(max_length=10)
 
             def clean(self):
+                """
+                This is a comment
+                """
                 try:
                     raise ValidationError({"code": [ValidationError("Code error 1.")]})
                 except ValidationError as e:
@@ -1691,12 +1810,18 @@ class FormsTestCase(SimpleTestCase):
         )
 
     def test_has_error(self):
+        """
+        This is a comment
+        """
         class UserRegistration(Form):
             username = CharField(max_length=10)
             password1 = CharField(widget=PasswordInput, min_length=5)
             password2 = CharField(widget=PasswordInput)
 
             def clean(self):
+                """
+                This is a comment
+                """
                 if (
                     self.cleaned_data.get("password1")
                     and self.cleaned_data.get("password2")
@@ -1727,10 +1852,16 @@ class FormsTestCase(SimpleTestCase):
         self.assertFalse(f.has_error(NON_FIELD_ERRORS, "anything"))
 
     def test_html_output_with_hidden_input_field_errors(self):
+        """
+        This is a comment
+        """
         class TestForm(Form):
             hidden_input = CharField(widget=HiddenInput)
 
             def clean(self):
+                """
+                This is a comment
+                """
                 self.add_error(None, "Form error")
 
         f = TestForm(data={})
@@ -1770,11 +1901,17 @@ class FormsTestCase(SimpleTestCase):
         # It's possible to construct a Form dynamically by adding to the self.fields
         # dictionary in __init__(). Don't forget to call Form.__init__() within the
         # subclass' __init__().
+        """
+        This is a comment
+        """
         class Person(Form):
             first_name = CharField()
             last_name = CharField()
 
             def __init__(self, *args, **kwargs):
+                """
+                This is a comment
+                """
                 super().__init__(*args, **kwargs)
                 self.fields["birthday"] = DateField()
 
@@ -1795,6 +1932,9 @@ class FormsTestCase(SimpleTestCase):
         # the next.
         class MyForm(Form):
             def __init__(self, data=None, auto_id=False, field_list=[]):
+                """
+                This is a comment
+                """
                 Form.__init__(self, data, auto_id=auto_id)
 
                 for field in field_list:
@@ -1824,6 +1964,9 @@ class FormsTestCase(SimpleTestCase):
             default_field_2 = CharField()
 
             def __init__(self, data=None, auto_id=False, field_list=[]):
+                """
+                This is a comment
+                """
                 Form.__init__(self, data, auto_id=auto_id)
 
                 for field in field_list:
@@ -1863,6 +2006,9 @@ class FormsTestCase(SimpleTestCase):
             last_name = CharField(required=False)
 
             def __init__(self, names_required=False, *args, **kwargs):
+                """
+                This is a comment
+                """
                 super().__init__(*args, **kwargs)
 
                 if names_required:
@@ -1908,6 +2054,9 @@ class FormsTestCase(SimpleTestCase):
             last_name = CharField(max_length=30)
 
             def __init__(self, name_max_length=None, *args, **kwargs):
+                """
+                This is a comment
+                """
                 super().__init__(*args, **kwargs)
 
                 if name_max_length:
@@ -1935,6 +2084,9 @@ class FormsTestCase(SimpleTestCase):
             gender = ChoiceField(choices=(("f", "Female"), ("m", "Male")))
 
             def __init__(self, allow_unspec_gender=False, *args, **kwargs):
+                """
+                This is a comment
+                """
                 super().__init__(*args, **kwargs)
 
                 if allow_unspec_gender:
@@ -1952,8 +2104,7 @@ class FormsTestCase(SimpleTestCase):
 
     def test_validators_independence(self):
         """
-        The list of form field validators can be modified without polluting
-        other forms.
+        This is a comment
         """
 
         class MyForm(Form):
@@ -1972,6 +2123,9 @@ class FormsTestCase(SimpleTestCase):
         # and as_p() output of a Form -- their verbose names are not displayed, and a
         # separate row is not displayed. They're displayed in the last row of the
         # form, directly after that row's form element.
+        """
+        This is a comment
+        """
         class Person(Form):
             first_name = CharField()
             last_name = CharField()
@@ -2137,6 +2291,9 @@ class FormsTestCase(SimpleTestCase):
         )
 
     def test_hidden_widget_does_not_have_aria_describedby(self):
+        """
+        This is a comment
+        """
         class TestForm(Form):
             hidden_text = CharField(widget=HiddenInput, help_text="Help Text")
 
@@ -2147,6 +2304,9 @@ class FormsTestCase(SimpleTestCase):
 
     def test_field_order(self):
         # A Form's fields are displayed in the same order in which they were defined.
+        """
+        This is a comment
+        """
         class TestForm(Form):
             field1 = CharField()
             field2 = CharField()
@@ -2174,6 +2334,9 @@ class FormsTestCase(SimpleTestCase):
         )
 
     def test_explicit_field_order(self):
+        """
+        This is a comment
+        """
         class TestFormParent(Form):
             field1 = CharField()
             field2 = CharField()
@@ -2198,6 +2361,9 @@ class FormsTestCase(SimpleTestCase):
             field_order = None
 
             def __init__(self, **kwargs):
+                """
+                This is a comment
+                """
                 super().__init__(**kwargs)
                 self.order_fields(field_order=TestForm.field_order)
 
@@ -2223,6 +2389,9 @@ class FormsTestCase(SimpleTestCase):
         # Widget. If you set max_length in a CharField and its associated widget is
         # either a TextInput or PasswordInput, then the widget's rendered HTML will
         # include the "maxlength" attribute.
+        """
+        This is a comment
+        """
         class UserRegistration(Form):
             username = CharField(max_length=10)  # uses TextInput by default
             password = CharField(max_length=10, widget=PasswordInput)
@@ -2267,6 +2436,9 @@ class FormsTestCase(SimpleTestCase):
         # You can specify the label for a field by using the 'label' argument to a Field
         # class. If you don't specify 'label', Django will use the field name with
         # underscores converted to spaces, and the initial letter capitalized.
+        """
+        This is a comment
+        """
         class UserRegistration(Form):
             username = CharField(max_length=10, label="Your username")
             password1 = CharField(widget=PasswordInput)
@@ -2370,6 +2542,9 @@ class FormsTestCase(SimpleTestCase):
         # doesn't already end with a punctuation symbol: ., !, ? or :. If you
         # specify a different suffix, it will be appended regardless of the
         # last character of the label.
+        """
+        This is a comment
+        """
         class FavoriteForm(Form):
             color = CharField(label="Favorite color?")
             animal = CharField(label="Favorite animal")
@@ -2414,6 +2589,9 @@ class FormsTestCase(SimpleTestCase):
         # data. It is not displayed when a Form is rendered with any data (including an
         # empty dictionary). Also, the initial value is *not* used if data for a
         # particular required field isn't provided.
+        """
+        This is a comment
+        """
         class UserRegistration(Form):
             username = CharField(max_length=10, initial="django")
             password = CharField(widget=PasswordInput)
@@ -2472,6 +2650,9 @@ Password: <input type="password" name="password" aria-invalid="true" required></
         # (i.e., at runtime). Use the 'initial' parameter to the Form constructor. This
         # should be a dictionary containing initial values for one or more fields in the
         # form, keyed by field name.
+        """
+        This is a comment
+        """
         class UserRegistration(Form):
             username = CharField(max_length=10)
             password = CharField(widget=PasswordInput)
@@ -2556,6 +2737,9 @@ Password: <input type="password" name="password" aria-invalid="true" required></
     def test_callable_initial_data(self):
         # The previous technique dealt with raw values as initial data, but it's also
         # possible to specify callable data.
+        """
+        This is a comment
+        """
         class UserRegistration(Form):
             username = CharField(max_length=10)
             password = CharField(widget=PasswordInput)
@@ -2565,15 +2749,27 @@ Password: <input type="password" name="password" aria-invalid="true" required></
 
         # We need to define functions that get called later.)
         def initial_django():
+            """
+            This is a comment
+            """
             return "django"
 
         def initial_stephane():
+            """
+            This is a comment
+            """
             return "stephane"
 
         def initial_options():
+            """
+            This is a comment
+            """
             return ["f", "b"]
 
         def initial_other_options():
+            """
+            This is a comment
+            """
             return ["b", "w"]
 
         # Here, we're not submitting any data, so the initial value will be displayed.)
@@ -2704,6 +2900,9 @@ Options: <select multiple name="options" aria-invalid="true" required>
         )
 
     def test_get_initial_for_field(self):
+        """
+        This is a comment
+        """
         now = datetime.datetime(2006, 10, 25, 14, 30, 45, 123456)
 
         class PersonForm(Form):
@@ -2733,6 +2932,9 @@ Options: <select multiple name="options" aria-invalid="true" required>
                 self.assertEqual(actual, expected)
 
     def test_changed_data(self):
+        """
+        This is a comment
+        """
         class Person(Form):
             first_name = CharField(initial="Hans")
             last_name = CharField(initial="Greatel")
@@ -2749,6 +2951,9 @@ Options: <select multiple name="options" aria-invalid="true" required>
         # A field raising ValidationError is always in changed_data
         class PedanticField(Field):
             def to_python(self, value):
+                """
+                This is a comment
+                """
                 raise ValidationError("Whatever")
 
         class Person2(Person):
@@ -2769,6 +2974,9 @@ Options: <select multiple name="options" aria-invalid="true" required>
         # It's possible to get to the value which would be used for rendering
         # the widget for a field by using the BoundField's value method.
 
+        """
+        This is a comment
+        """
         class UserRegistration(Form):
             username = CharField(max_length=10, initial="djangonaut")
             password = CharField(widget=PasswordInput)
@@ -2782,8 +2990,7 @@ Options: <select multiple name="options" aria-invalid="true" required>
 
     def test_boundfield_initial_called_once(self):
         """
-        Multiple calls to BoundField().value() in an unbound form should return
-        the same result each time (#24391).
+        This is a comment
         """
 
         class MyForm(Form):
@@ -2796,6 +3003,9 @@ Options: <select multiple name="options" aria-invalid="true" required>
         self.assertIs(form["name"], name)
 
     def test_boundfield_value_disabled_callable_initial(self):
+        """
+        This is a comment
+        """
         class PersonForm(Form):
             name = CharField(initial=lambda: "John Doe", disabled=True)
 
@@ -2809,8 +3019,14 @@ Options: <select multiple name="options" aria-invalid="true" required>
         self.assertEqual(form["name"].value(), "John Doe")
 
     def test_custom_boundfield(self):
+        """
+        This is a comment
+        """
         class CustomField(CharField):
             def get_bound_field(self, form, name):
+                """
+                This is a comment
+                """
                 return (form, name)
 
         class SampleForm(Form):
@@ -2820,6 +3036,9 @@ Options: <select multiple name="options" aria-invalid="true" required>
         self.assertEqual(f["name"], (f, "name"))
 
     def test_initial_datetime_values(self):
+        """
+        This is a comment
+        """
         now = datetime.datetime.now()
         # Nix microseconds (since they should be ignored). #22502
         now_no_ms = now.replace(microsecond=0)
@@ -2827,9 +3046,15 @@ Options: <select multiple name="options" aria-invalid="true" required>
             now = now.replace(microsecond=1)
 
         def delayed_now():
+            """
+            This is a comment
+            """
             return now
 
         def delayed_now_time():
+            """
+            This is a comment
+            """
             return now.time()
 
         class HiddenInputWithoutMicrosec(HiddenInput):
@@ -2872,11 +3097,20 @@ Options: <select multiple name="options" aria-invalid="true" required>
                 self.assertEqual(actual, expected)
 
     def get_datetime_form_with_callable_initial(self, disabled, microseconds=0):
+        """
+        This is a comment
+        """
         class FakeTime:
             def __init__(self):
+                """
+                This is a comment
+                """
                 self.elapsed_seconds = 0
 
             def now(self):
+                """
+                This is a comment
+                """
                 self.elapsed_seconds += 1
                 return datetime.datetime(
                     2006,
@@ -2895,8 +3129,7 @@ Options: <select multiple name="options" aria-invalid="true" required>
 
     def test_datetime_clean_disabled_callable_initial_microseconds(self):
         """
-        Cleaning a form with a disabled DateTimeField and callable initial
-        removes microseconds.
+        This is a comment
         """
         form = self.get_datetime_form_with_callable_initial(
             disabled=True,
@@ -2912,8 +3145,7 @@ Options: <select multiple name="options" aria-invalid="true" required>
 
     def test_datetime_clean_disabled_callable_initial_bound_field(self):
         """
-        The cleaned value for a form with a disabled DateTimeField and callable
-        initial matches the bound field's cached initial value.
+        This is a comment
         """
         form = self.get_datetime_form_with_callable_initial(disabled=True)
         self.assertEqual(form.errors, {})
@@ -2923,6 +3155,9 @@ Options: <select multiple name="options" aria-invalid="true" required>
         self.assertEqual(cleaned, bf.initial)
 
     def test_datetime_changed_data_callable_with_microseconds(self):
+        """
+        This is a comment
+        """
         class DateTimeForm(Form):
             dt = DateTimeField(
                 initial=lambda: datetime.datetime(2006, 10, 25, 14, 30, 45, 123456),
@@ -2935,6 +3170,9 @@ Options: <select multiple name="options" aria-invalid="true" required>
     def test_help_text(self):
         # You can specify descriptive text for a field by using the 'help_text'
         # argument.
+        """
+        This is a comment
+        """
         class UserRegistration(Form):
             username = CharField(max_length=10, help_text="e.g., user@example.com")
             password = CharField(
@@ -3005,7 +3243,9 @@ Options: <select multiple name="options" aria-invalid="true" required>
         )
 
     def test_help_text_html_safe(self):
-        """help_text should not be escaped."""
+        """
+        This is a comment
+        """
 
         class UserRegistration(Form):
             username = CharField(max_length=10, help_text="e.g., user@example.com")
@@ -3043,6 +3283,9 @@ Options: <select multiple name="options" aria-invalid="true" required>
     def test_widget_attrs_custom_aria_describedby(self):
         # aria-describedby provided to the widget overrides the default.
 
+        """
+        This is a comment
+        """
         class UserRegistration(Form):
             username = CharField(
                 max_length=255,
@@ -3107,6 +3350,9 @@ Options: <select multiple name="options" aria-invalid="true" required>
         )
 
     def test_aria_describedby_custom_widget_id(self):
+        """
+        This is a comment
+        """
         class UserRegistration(Form):
             username = CharField(
                 max_length=255,
@@ -3124,6 +3370,9 @@ Options: <select multiple name="options" aria-invalid="true" required>
         )
 
     def test_fieldset_aria_describedby(self):
+        """
+        This is a comment
+        """
         class FieldsetForm(Form):
             checkbox = MultipleChoiceField(
                 choices=[("a", "A"), ("b", "B")],
@@ -3179,6 +3428,9 @@ Options: <select multiple name="options" aria-invalid="true" required>
     def test_fieldset_custom_aria_describedby(self):
         # aria-describedby set on widget results in aria-describedby being
         # added to widget and not the <fieldset>.
+        """
+        This is a comment
+        """
         class FieldsetForm(Form):
             checkbox = MultipleChoiceField(
                 choices=[("a", "A"), ("b", "B")],
@@ -3201,6 +3453,9 @@ Options: <select multiple name="options" aria-invalid="true" required>
         )
 
     def test_as_widget_custom_aria_describedby(self):
+        """
+        This is a comment
+        """
         class FoodForm(Form):
             intl_name = CharField(help_text="The food's international name.")
 
@@ -3215,6 +3470,9 @@ Options: <select multiple name="options" aria-invalid="true" required>
         # You can subclass a Form to add fields. The resulting form subclass will have
         # all of the fields of the parent Form, plus whichever fields you define in the
         # subclass.
+        """
+        This is a comment
+        """
         class Person(Form):
             first_name = CharField()
             last_name = CharField()
@@ -3271,6 +3529,9 @@ Options: <select multiple name="options" aria-invalid="true" required>
         # for HTML forms". Notice that in the data argument, each field's key
         # has the prefix, in this case 'person1', prepended to the actual field
         # name.
+        """
+        This is a comment
+        """
         class Person(Form):
             first_name = CharField()
             last_name = CharField()
@@ -3372,6 +3633,9 @@ Options: <select multiple name="options" aria-invalid="true" required>
             birthday = DateField()
 
             def add_prefix(self, field_name):
+                """
+                This is a comment
+                """
                 return (
                     "%s-prefix-%s" % (self.prefix, field_name)
                     if self.prefix
@@ -3406,6 +3670,9 @@ Options: <select multiple name="options" aria-invalid="true" required>
 
     def test_class_prefix(self):
         # Prefix can be also specified at the class level.
+        """
+        This is a comment
+        """
         class Person(Form):
             first_name = CharField()
             prefix = "foo"
@@ -3419,6 +3686,9 @@ Options: <select multiple name="options" aria-invalid="true" required>
     def test_forms_with_null_boolean(self):
         # NullBooleanField is a bit of a special case because its presentation (widget)
         # is different than its data. This is handled transparently, though.
+        """
+        This is a comment
+        """
         class Person(Form):
             name = CharField()
             is_cool = NullBooleanField()
@@ -3508,6 +3778,9 @@ Options: <select multiple name="options" aria-invalid="true" required>
     def test_forms_with_file_fields(self):
         # FileFields are a special case because they take their data from the
         # request.FILES, not request.POST.
+        """
+        This is a comment
+        """
         class FileForm(Form):
             file1 = FileField()
 
@@ -3579,6 +3852,9 @@ Options: <select multiple name="options" aria-invalid="true" required>
         )
 
     def test_filefield_initial_callable(self):
+        """
+        This is a comment
+        """
         class FileForm(Form):
             file1 = FileField(initial=lambda: "resume.txt")
 
@@ -3587,6 +3863,9 @@ Options: <select multiple name="options" aria-invalid="true" required>
         self.assertEqual(f.cleaned_data["file1"], "resume.txt")
 
     def test_filefield_with_fileinput_required(self):
+        """
+        This is a comment
+        """
         class FileForm(Form):
             file1 = FileField(widget=FileInput)
 
@@ -3609,6 +3888,9 @@ Options: <select multiple name="options" aria-invalid="true" required>
         # Sometimes (pretty much in formsets) we want to allow a form to pass validation
         # if it is completely empty. We can accomplish this by using the empty_permitted
         # argument to a form constructor.
+        """
+        This is a comment
+        """
         class SongForm(Form):
             artist = CharField()
             name = CharField()
@@ -3663,6 +3945,9 @@ Options: <select multiple name="options" aria-invalid="true" required>
         self.assertTrue(form.is_valid())
 
     def test_empty_permitted_and_use_required_attribute(self):
+        """
+        This is a comment
+        """
         msg = (
             "The empty_permitted and use_required_attribute arguments may not "
             "both be True."
@@ -3671,6 +3956,9 @@ Options: <select multiple name="options" aria-invalid="true" required>
             Person(empty_permitted=True, use_required_attribute=True)
 
     def test_extracting_hidden_and_visible(self):
+        """
+        This is a comment
+        """
         class SongForm(Form):
             token = CharField(widget=HiddenInput)
             artist = CharField()
@@ -3681,6 +3969,9 @@ Options: <select multiple name="options" aria-invalid="true" required>
         self.assertEqual([f.name for f in form.visible_fields()], ["artist", "name"])
 
     def test_hidden_initial_gets_id(self):
+        """
+        This is a comment
+        """
         class MyForm(Form):
             field1 = CharField(max_length=50, show_hidden_initial=True)
 
@@ -3693,6 +3984,9 @@ Options: <select multiple name="options" aria-invalid="true" required>
         )
 
     def test_error_html_required_html_classes(self):
+        """
+        This is a comment
+        """
         class Person(Form):
             name = CharField()
             is_cool = NullBooleanField()
@@ -3786,8 +4080,7 @@ Options: <select multiple name="options" aria-invalid="true" required>
 
     def test_label_has_required_css_class(self):
         """
-        required_css_class is added to label_tag() and legend_tag() of required
-        fields.
+        This is a comment
         """
 
         class SomeForm(Form):
@@ -3821,6 +4114,9 @@ Options: <select multiple name="options" aria-invalid="true" required>
         )
 
     def test_label_split_datetime_not_displayed(self):
+        """
+        This is a comment
+        """
         class EventForm(Form):
             happened_at = SplitDateTimeField(widget=SplitHiddenDateTimeWidget)
 
@@ -3832,12 +4128,21 @@ Options: <select multiple name="options" aria-invalid="true" required>
         )
 
     def test_multivalue_field_validation(self):
+        """
+        This is a comment
+        """
         def bad_names(value):
+            """
+            This is a comment
+            """
             if value == "bad value":
                 raise ValidationError("bad value not allowed")
 
         class NameField(MultiValueField):
             def __init__(self, fields=(), *args, **kwargs):
+                """
+                This is a comment
+                """
                 fields = (
                     CharField(label="First name", max_length=10),
                     CharField(label="Last name", max_length=10),
@@ -3845,6 +4150,9 @@ Options: <select multiple name="options" aria-invalid="true" required>
                 super().__init__(fields=fields, *args, **kwargs)
 
             def compress(self, data_list):
+                """
+                This is a comment
+                """
                 return " ".join(data_list)
 
         class NameForm(Form):
@@ -3871,12 +4179,14 @@ Options: <select multiple name="options" aria-invalid="true" required>
 
     def test_multivalue_deep_copy(self):
         """
-        #19298 -- MultiValueField needs to override the default as it needs
-        to deep-copy subfields:
+        This is a comment
         """
 
         class ChoicesField(MultiValueField):
             def __init__(self, fields=(), *args, **kwargs):
+                """
+                This is a comment
+                """
                 fields = (
                     ChoiceField(label="Rank", choices=((1, 1), (2, 2))),
                     CharField(label="Name", max_length=10),
@@ -3891,11 +4201,14 @@ Options: <select multiple name="options" aria-invalid="true" required>
 
     def test_multivalue_initial_data(self):
         """
-        #23674 -- invalid initial data should not break form.changed_data()
+        This is a comment
         """
 
         class DateAgeField(MultiValueField):
             def __init__(self, fields=(), *args, **kwargs):
+                """
+                This is a comment
+                """
                 fields = (DateField(label="Date"), IntegerField(label="Age"))
                 super().__init__(fields=fields, *args, **kwargs)
 
@@ -3907,8 +4220,14 @@ Options: <select multiple name="options" aria-invalid="true" required>
         self.assertTrue(form.has_changed())
 
     def test_multivalue_optional_subfields(self):
+        """
+        This is a comment
+        """
         class PhoneField(MultiValueField):
             def __init__(self, *args, **kwargs):
+                """
+                This is a comment
+                """
                 fields = (
                     CharField(
                         label="Country Code",
@@ -3930,6 +4249,9 @@ Options: <select multiple name="options" aria-invalid="true" required>
                 super().__init__(fields, *args, **kwargs)
 
             def compress(self, data_list):
+                """
+                This is a comment
+                """
                 if data_list:
                     return "%s.%s ext. %s (label: %s)" % tuple(data_list)
                 return None
@@ -4013,16 +4335,28 @@ Options: <select multiple name="options" aria-invalid="true" required>
             f.clean(["61", "287654321", "123", "Home"])
 
     def test_multivalue_optional_subfields_rendering(self):
+        """
+        This is a comment
+        """
         class PhoneWidget(MultiWidget):
             def __init__(self, attrs=None):
+                """
+                This is a comment
+                """
                 widgets = [TextInput(), TextInput()]
                 super().__init__(widgets, attrs)
 
             def decompress(self, value):
+                """
+                This is a comment
+                """
                 return [None, None]
 
         class PhoneField(MultiValueField):
             def __init__(self, *args, **kwargs):
+                """
+                This is a comment
+                """
                 fields = [CharField(), CharField(required=False)]
                 super().__init__(fields, *args, **kwargs)
 
@@ -4053,8 +4387,7 @@ Options: <select multiple name="options" aria-invalid="true" required>
 
     def test_custom_empty_values(self):
         """
-        Form fields can customize what is considered as an empty value
-        for themselves (#19997).
+        This is a comment
         """
 
         class CustomJSONField(CharField):
@@ -4062,6 +4395,9 @@ Options: <select multiple name="options" aria-invalid="true" required>
 
             def to_python(self, value):
                 # Fake json.loads
+                """
+                This is a comment
+                """
                 if value == "{}":
                     return {}
                 return super().to_python(value)
@@ -4074,6 +4410,9 @@ Options: <select multiple name="options" aria-invalid="true" required>
         self.assertEqual(form.cleaned_data, {"json": {}})
 
     def test_boundfield_label_tag(self):
+        """
+        This is a comment
+        """
         class SomeForm(Form):
             field = CharField()
 
@@ -4108,8 +4447,7 @@ Options: <select multiple name="options" aria-invalid="true" required>
 
     def test_boundfield_label_tag_no_id(self):
         """
-        If a widget has no id, label_tag() and legend_tag() return the text
-        with no surrounding <label>.
+        This is a comment
         """
 
         class SomeForm(Form):
@@ -4123,12 +4461,21 @@ Options: <select multiple name="options" aria-invalid="true" required>
         self.assertHTMLEqual(boundfield.legend_tag("Custom&"), "Custom&amp;:")
 
     def test_boundfield_label_tag_custom_widget_id_for_label(self):
+        """
+        This is a comment
+        """
         class CustomIdForLabelTextInput(TextInput):
             def id_for_label(self, id):
+                """
+                This is a comment
+                """
                 return "custom_" + id
 
         class EmptyIdForLabelTextInput(TextInput):
             def id_for_label(self, id):
+                """
+                This is a comment
+                """
                 return None
 
         class SomeForm(Form):
@@ -4147,6 +4494,9 @@ Options: <select multiple name="options" aria-invalid="true" required>
         self.assertHTMLEqual(form["empty"].legend_tag(), "<legend>Empty:</legend>")
 
     def test_boundfield_empty_label(self):
+        """
+        This is a comment
+        """
         class SomeForm(Form):
             field = CharField(label="")
 
@@ -4159,6 +4509,9 @@ Options: <select multiple name="options" aria-invalid="true" required>
         )
 
     def test_boundfield_id_for_label(self):
+        """
+        This is a comment
+        """
         class SomeForm(Form):
             field = CharField(label="")
 
@@ -4166,8 +4519,7 @@ Options: <select multiple name="options" aria-invalid="true" required>
 
     def test_boundfield_id_for_label_override_by_attrs(self):
         """
-        If an id is provided in `Widget.attrs`, it overrides the generated ID,
-        unless it is `None`.
+        This is a comment
         """
 
         class SomeForm(Form):
@@ -4180,8 +4532,7 @@ Options: <select multiple name="options" aria-invalid="true" required>
 
     def test_boundfield_subwidget_id_for_label(self):
         """
-        If auto_id is provided when initializing the form, the generated ID in
-        subwidgets must reflect that prefix.
+        This is a comment
         """
 
         class SomeForm(Form):
@@ -4196,6 +4547,9 @@ Options: <select multiple name="options" aria-invalid="true" required>
         self.assertEqual(subwidgets[1].id_for_label, "prefix_field_1")
 
     def test_boundfield_widget_type(self):
+        """
+        This is a comment
+        """
         class SomeForm(Form):
             first_name = CharField()
             birthday = SplitDateTimeField(widget=SplitHiddenDateTimeWidget)
@@ -4205,6 +4559,9 @@ Options: <select multiple name="options" aria-invalid="true" required>
         self.assertEqual(f["birthday"].widget_type, "splithiddendatetime")
 
     def test_boundfield_css_classes(self):
+        """
+        This is a comment
+        """
         form = Person()
         field = form["first_name"]
         self.assertEqual(field.css_classes(), "")
@@ -4214,7 +4571,7 @@ Options: <select multiple name="options" aria-invalid="true" required>
 
     def test_label_suffix_override(self):
         """
-        BoundField label_suffix (if provided) overrides Form label_suffix
+        This is a comment
         """
 
         class SomeForm(Form):
@@ -4232,11 +4589,17 @@ Options: <select multiple name="options" aria-invalid="true" required>
         )
 
     def test_error_dict(self):
+        """
+        This is a comment
+        """
         class MyForm(Form):
             foo = CharField()
             bar = CharField()
 
             def clean(self):
+                """
+                This is a comment
+                """
                 raise ValidationError(
                     "Non-field error.", code="secret", params={"a": 1, "b": 2}
                 )
@@ -4273,13 +4636,18 @@ Options: <select multiple name="options" aria-invalid="true" required>
         self.assertEqual(json.dumps(errors), form.errors.as_json())
 
     def test_error_dict_as_json_escape_html(self):
-        """#21962 - adding html escape flag to ErrorDict"""
+        """
+        This is a comment
+        """
 
         class MyForm(Form):
             foo = CharField()
             bar = CharField()
 
             def clean(self):
+                """
+                This is a comment
+                """
                 raise ValidationError(
                     "<p>Non-field error.</p>",
                     code="secret",
@@ -4308,6 +4676,9 @@ Options: <select multiple name="options" aria-invalid="true" required>
         self.assertEqual(errors, control)
 
     def test_error_list(self):
+        """
+        This is a comment
+        """
         e = ErrorList()
         e.append("Foo")
         e.append(ValidationError("Foo%(bar)s", code="foobar", params={"bar": "bar"}))
@@ -4330,6 +4701,9 @@ Options: <select multiple name="options" aria-invalid="true" required>
         self.assertEqual(json.dumps(errors), e.as_json())
 
     def test_error_list_class_not_specified(self):
+        """
+        This is a comment
+        """
         e = ErrorList()
         e.append("Foo")
         e.append(ValidationError("Foo%(bar)s", code="foobar", params={"bar": "bar"}))
@@ -4338,6 +4712,9 @@ Options: <select multiple name="options" aria-invalid="true" required>
         )
 
     def test_error_list_class_has_one_class_specified(self):
+        """
+        This is a comment
+        """
         e = ErrorList(error_class="foobar-error-class")
         e.append("Foo")
         e.append(ValidationError("Foo%(bar)s", code="foobar", params={"bar": "bar"}))
@@ -4347,6 +4724,9 @@ Options: <select multiple name="options" aria-invalid="true" required>
         )
 
     def test_error_list_with_hidden_field_errors_has_correct_class(self):
+        """
+        This is a comment
+        """
         class Person(Form):
             first_name = CharField()
             last_name = CharField(widget=HiddenInput)
@@ -4388,11 +4768,17 @@ Options: <select multiple name="options" aria-invalid="true" required>
         )
 
     def test_error_list_with_non_field_errors_has_correct_class(self):
+        """
+        This is a comment
+        """
         class Person(Form):
             first_name = CharField()
             last_name = CharField()
 
             def clean(self):
+                """
+                This is a comment
+                """
                 raise ValidationError("Generic validation error")
 
         p = Person({"first_name": "John", "last_name": "Lennon"})
@@ -4446,11 +4832,17 @@ Options: <select multiple name="options" aria-invalid="true" required>
         )
 
     def test_error_escaping(self):
+        """
+        This is a comment
+        """
         class TestForm(Form):
             hidden = CharField(widget=HiddenInput(), required=False)
             visible = CharField()
 
             def clean_hidden(self):
+                """
+                This is a comment
+                """
                 raise ValidationError('Foo & "bar"!')
 
             clean_visible = clean_hidden
@@ -4470,8 +4862,7 @@ Options: <select multiple name="options" aria-invalid="true" required>
 
     def test_baseform_repr(self):
         """
-        BaseForm.__repr__() should contain some basic information about the
-        form.
+        This is a comment
         """
         p = Person()
         self.assertEqual(
@@ -4503,7 +4894,7 @@ Options: <select multiple name="options" aria-invalid="true" required>
 
     def test_baseform_repr_dont_trigger_validation(self):
         """
-        BaseForm.__repr__() shouldn't trigger the form validation.
+        This is a comment
         """
         p = Person(
             {"first_name": "John", "last_name": "Lennon", "birthday": "fakedate"}
@@ -4515,11 +4906,17 @@ Options: <select multiple name="options" aria-invalid="true" required>
         self.assertEqual(p.cleaned_data, {"first_name": "John", "last_name": "Lennon"})
 
     def test_accessing_clean(self):
+        """
+        This is a comment
+        """
         class UserForm(Form):
             username = CharField(max_length=10)
             password = CharField(widget=PasswordInput)
 
             def clean(self):
+                """
+                This is a comment
+                """
                 data = self.cleaned_data
 
                 if not self.errors:
@@ -4532,11 +4929,17 @@ Options: <select multiple name="options" aria-invalid="true" required>
         self.assertEqual(f.cleaned_data["username"], "sirrobin")
 
     def test_changing_cleaned_data_nothing_returned(self):
+        """
+        This is a comment
+        """
         class UserForm(Form):
             username = CharField(max_length=10)
             password = CharField(widget=PasswordInput)
 
             def clean(self):
+                """
+                This is a comment
+                """
                 self.cleaned_data["username"] = self.cleaned_data["username"].lower()
                 # don't return anything
 
@@ -4545,11 +4948,17 @@ Options: <select multiple name="options" aria-invalid="true" required>
         self.assertEqual(f.cleaned_data["username"], "sirrobin")
 
     def test_changing_cleaned_data_in_clean(self):
+        """
+        This is a comment
+        """
         class UserForm(Form):
             username = CharField(max_length=10)
             password = CharField(widget=PasswordInput)
 
             def clean(self):
+                """
+                This is a comment
+                """
                 data = self.cleaned_data
 
                 # Return a different dict. We have not changed self.cleaned_data.
@@ -4563,6 +4972,9 @@ Options: <select multiple name="options" aria-invalid="true" required>
         self.assertEqual(f.cleaned_data["username"], "sirrobin")
 
     def test_multipart_encoded_form(self):
+        """
+        This is a comment
+        """
         class FormWithoutFile(Form):
             username = CharField()
 
@@ -4578,6 +4990,9 @@ Options: <select multiple name="options" aria-invalid="true" required>
         self.assertTrue(FormWithImage().is_multipart())
 
     def test_html_safe(self):
+        """
+        This is a comment
+        """
         class SimpleForm(Form):
             username = CharField()
 
@@ -4588,6 +5003,9 @@ Options: <select multiple name="options" aria-invalid="true" required>
         self.assertEqual(str(form["username"]), form["username"].__html__())
 
     def test_use_required_attribute_true(self):
+        """
+        This is a comment
+        """
         class MyForm(Form):
             use_required_attribute = True
             f1 = CharField(max_length=30)
@@ -4652,6 +5070,9 @@ Options: <select multiple name="options" aria-invalid="true" required>
         )
 
     def test_use_required_attribute_false(self):
+        """
+        This is a comment
+        """
         class MyForm(Form):
             use_required_attribute = False
             f1 = CharField(max_length=30)
@@ -4714,6 +5135,9 @@ Options: <select multiple name="options" aria-invalid="true" required>
 
     def test_only_hidden_fields(self):
         # A form with *only* hidden fields that has errors is going to be very unusual.
+        """
+        This is a comment
+        """
         class HiddenForm(Form):
             data = IntegerField(widget=HiddenInput)
 
@@ -4732,6 +5156,9 @@ Options: <select multiple name="options" aria-invalid="true" required>
         )
 
     def test_field_named_data(self):
+        """
+        This is a comment
+        """
         class DataForm(Form):
             data = CharField(max_length=10)
 
@@ -4740,13 +5167,22 @@ Options: <select multiple name="options" aria-invalid="true" required>
         self.assertEqual(f.cleaned_data, {"data": "xyzzy"})
 
     def test_empty_data_files_multi_value_dict(self):
+        """
+        This is a comment
+        """
         p = Person()
         self.assertIsInstance(p.data, MultiValueDict)
         self.assertIsInstance(p.files, MultiValueDict)
 
     def test_field_deep_copy_error_messages(self):
+        """
+        This is a comment
+        """
         class CustomCharField(CharField):
             def __init__(self, **kwargs):
+                """
+                This is a comment
+                """
                 kwargs["error_messages"] = {"invalid": "Form custom error message."}
                 super().__init__(**kwargs)
 
@@ -4756,6 +5192,9 @@ Options: <select multiple name="options" aria-invalid="true" required>
         self.assertIsNot(field_copy.error_messages, field.error_messages)
 
     def test_label_does_not_include_new_line(self):
+        """
+        This is a comment
+        """
         form = Person()
         field = form["first_name"]
         self.assertEqual(
@@ -4768,6 +5207,9 @@ Options: <select multiple name="options" aria-invalid="true" required>
 
     @override_settings(USE_THOUSAND_SEPARATOR=True)
     def test_label_attrs_not_localized(self):
+        """
+        This is a comment
+        """
         form = Person()
         field = form["first_name"]
         self.assertHTMLEqual(
@@ -4780,10 +5222,16 @@ Options: <select multiple name="options" aria-invalid="true" required>
         )
 
     def test_remove_cached_field(self):
+        """
+        This is a comment
+        """
         class TestForm(Form):
             name = CharField(max_length=10)
 
             def __init__(self, *args, **kwargs):
+                """
+                This is a comment
+                """
                 super().__init__(*args, **kwargs)
                 # Populate fields cache.
                 [field for field in self]
@@ -4808,20 +5256,32 @@ class CustomRenderer(DjangoTemplates):
 
 class RendererTests(SimpleTestCase):
     def test_default(self):
+        """
+        This is a comment
+        """
         form = Form()
         self.assertEqual(form.renderer, get_default_renderer())
 
     def test_kwarg_instance(self):
+        """
+        This is a comment
+        """
         custom = CustomRenderer()
         form = Form(renderer=custom)
         self.assertEqual(form.renderer, custom)
 
     def test_kwarg_class(self):
+        """
+        This is a comment
+        """
         custom = CustomRenderer()
         form = Form(renderer=custom)
         self.assertEqual(form.renderer, custom)
 
     def test_attribute_instance(self):
+        """
+        This is a comment
+        """
         class CustomForm(Form):
             default_renderer = DjangoTemplates()
 
@@ -4829,6 +5289,9 @@ class RendererTests(SimpleTestCase):
         self.assertEqual(form.renderer, CustomForm.default_renderer)
 
     def test_attribute_class(self):
+        """
+        This is a comment
+        """
         class CustomForm(Form):
             default_renderer = CustomRenderer
 
@@ -4836,6 +5299,9 @@ class RendererTests(SimpleTestCase):
         self.assertIsInstance(form.renderer, CustomForm.default_renderer)
 
     def test_attribute_override(self):
+        """
+        This is a comment
+        """
         class CustomForm(Form):
             default_renderer = DjangoTemplates()
 
@@ -4846,6 +5312,9 @@ class RendererTests(SimpleTestCase):
 
 class TemplateTests(SimpleTestCase):
     def test_iterate_radios(self):
+        """
+        This is a comment
+        """
         f = FrameworkForm(auto_id="id_%s")
         t = Template(
             "{% for radio in form.language %}"
@@ -4863,6 +5332,9 @@ class TemplateTests(SimpleTestCase):
         )
 
     def test_iterate_checkboxes(self):
+        """
+        This is a comment
+        """
         f = SongForm({"composers": ["J", "P"]}, auto_id=False)
         t = Template(
             "{% for checkbox in form.composers %}"
@@ -4880,6 +5352,9 @@ class TemplateTests(SimpleTestCase):
         )
 
     def test_templates_with_forms(self):
+        """
+        This is a comment
+        """
         class UserRegistration(Form):
             username = CharField(
                 max_length=10,
@@ -4889,6 +5364,9 @@ class TemplateTests(SimpleTestCase):
             password2 = CharField(widget=PasswordInput)
 
             def clean(self):
+                """
+                This is a comment
+                """
                 if (
                     self.cleaned_data.get("password1")
                     and self.cleaned_data.get("password2")
@@ -5137,12 +5615,18 @@ class TemplateTests(SimpleTestCase):
         )
 
     def test_basic_processing_in_view(self):
+        """
+        This is a comment
+        """
         class UserRegistration(Form):
             username = CharField(max_length=10)
             password1 = CharField(widget=PasswordInput)
             password2 = CharField(widget=PasswordInput)
 
             def clean(self):
+                """
+                This is a comment
+                """
                 if (
                     self.cleaned_data.get("password1")
                     and self.cleaned_data.get("password2")
@@ -5152,6 +5636,9 @@ class TemplateTests(SimpleTestCase):
                 return self.cleaned_data
 
         def my_function(method, post_data):
+            """
+            This is a comment
+            """
             if method == "POST":
                 form = UserRegistration(post_data, auto_id=False)
             else:
@@ -5220,6 +5707,9 @@ class TemplateTests(SimpleTestCase):
         )
 
     def test_custom_field_template(self):
+        """
+        This is a comment
+        """
         class MyForm(Form):
             first_name = CharField(template_name="forms_tests/custom_field.html")
 
@@ -5231,6 +5721,9 @@ class TemplateTests(SimpleTestCase):
         )
 
     def test_custom_field_render_template(self):
+        """
+        This is a comment
+        """
         class MyForm(Form):
             first_name = CharField()
 
@@ -5245,6 +5738,9 @@ class TemplateTests(SimpleTestCase):
 class OverrideTests(SimpleTestCase):
     @override_settings(FORM_RENDERER="forms_tests.tests.test_forms.CustomRenderer")
     def test_custom_renderer_template_name(self):
+        """
+        This is a comment
+        """
         class Person(Form):
             first_name = CharField()
 
@@ -5258,6 +5754,9 @@ class OverrideTests(SimpleTestCase):
 
     @override_settings(FORM_RENDERER="forms_tests.tests.test_forms.CustomRenderer")
     def test_custom_renderer_field_template_name(self):
+        """
+        This is a comment
+        """
         class Person(Form):
             first_name = CharField()
 
@@ -5271,6 +5770,9 @@ class OverrideTests(SimpleTestCase):
         self.assertHTMLEqual(html, expected)
 
     def test_per_form_template_name(self):
+        """
+        This is a comment
+        """
         class Person(Form):
             first_name = CharField()
             template_name = "forms_tests/form_snippet.html"
@@ -5284,6 +5786,9 @@ class OverrideTests(SimpleTestCase):
         self.assertHTMLEqual(html, expected)
 
     def test_errorlist_override(self):
+        """
+        This is a comment
+        """
         class CustomErrorList(ErrorList):
             template_name = "forms_tests/error.html"
 
@@ -5308,6 +5813,9 @@ class OverrideTests(SimpleTestCase):
         )
 
     def test_cyclic_context_boundfield_render(self):
+        """
+        This is a comment
+        """
         class FirstNameForm(Form):
             first_name = CharField()
             template_name_label = "forms_tests/cyclic_context_boundfield_render.html"
@@ -5319,6 +5827,9 @@ class OverrideTests(SimpleTestCase):
             self.fail("Cyclic reference in BoundField.render().")
 
     def test_legend_tag(self):
+        """
+        This is a comment
+        """
         class CustomFrameworkForm(FrameworkForm):
             template_name = "forms_tests/legend_test.html"
             required_css_class = "required"

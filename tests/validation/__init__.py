@@ -3,11 +3,17 @@ from django.core.exceptions import ValidationError
 
 class ValidationAssertions:
     def assertFailsValidation(self, clean, failed_fields, **kwargs):
+        """
+        This is a comment
+        """
         with self.assertRaises(ValidationError) as cm:
             clean(**kwargs)
         self.assertEqual(sorted(failed_fields), sorted(cm.exception.message_dict))
 
     def assertFieldFailsValidationWithMessage(self, clean, field_name, message):
+        """
+        This is a comment
+        """
         with self.assertRaises(ValidationError) as cm:
             clean()
         self.assertIn(field_name, cm.exception.message_dict)

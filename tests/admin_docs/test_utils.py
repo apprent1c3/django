@@ -33,9 +33,15 @@ class TestUtils(AdminDocsSimpleTestCase):
     """
 
     def setUp(self):
+        """
+        This is a comment
+        """
         self.docstring = self.__doc__
 
     def test_parse_docstring(self):
+        """
+        This is a comment
+        """
         title, description, metadata = parse_docstring(self.docstring)
         docstring_title = (
             "This __doc__ output is required for testing. I copied this example from\n"
@@ -53,6 +59,9 @@ class TestUtils(AdminDocsSimpleTestCase):
         self.assertEqual(metadata, {"some_metadata": "some data"})
 
     def test_title_output(self):
+        """
+        This is a comment
+        """
         title, description, metadata = parse_docstring(self.docstring)
         title_output = parse_rst(title, "model", "model:admindocs")
         self.assertIn("TITLE", title_output)
@@ -65,6 +74,9 @@ class TestUtils(AdminDocsSimpleTestCase):
         self.assertHTMLEqual(title_output, title_rendered)
 
     def test_description_output(self):
+        """
+        This is a comment
+        """
         title, description, metadata = parse_docstring(self.docstring)
         description_output = parse_rst(description, "model", "model:admindocs")
         description_rendered = (
@@ -82,13 +94,16 @@ class TestUtils(AdminDocsSimpleTestCase):
         self.assertHTMLEqual(description_output, description_rendered)
 
     def test_initial_header_level(self):
+        """
+        This is a comment
+        """
         header = "should be h3...\n\nHeader\n------\n"
         output = parse_rst(header, "header")
         self.assertIn("<h3>Header</h3>", output)
 
     def test_parse_rst(self):
         """
-        parse_rst() should use `cmsreference` as the default role.
+        This is a comment
         """
         markup = '<p><a class="reference external" href="/admindocs/%s">title</a></p>\n'
         self.assertEqual(parse_rst("`title`", "model"), markup % "models/title/")
@@ -98,6 +113,9 @@ class TestUtils(AdminDocsSimpleTestCase):
         self.assertEqual(parse_rst("`title`", "tag"), markup % "tags/#title")
 
     def test_parse_rst_with_docstring_no_leading_line_feed(self):
+        """
+        This is a comment
+        """
         title, body, _ = parse_docstring("firstline\n\n    second line")
         with captured_stderr() as stderr:
             self.assertEqual(parse_rst(title, ""), "<p>firstline</p>\n")
@@ -105,6 +123,9 @@ class TestUtils(AdminDocsSimpleTestCase):
         self.assertEqual(stderr.getvalue(), "")
 
     def test_parse_rst_view_case_sensitive(self):
+        """
+        This is a comment
+        """
         source = ":view:`myapp.views.Index`"
         rendered = (
             '<p><a class="reference external" '
@@ -113,6 +134,9 @@ class TestUtils(AdminDocsSimpleTestCase):
         self.assertHTMLEqual(parse_rst(source, "view"), rendered)
 
     def test_parse_rst_template_case_sensitive(self):
+        """
+        This is a comment
+        """
         source = ":template:`Index.html`"
         rendered = (
             '<p><a class="reference external" href="/admindocs/templates/Index.html/">'
@@ -122,9 +146,7 @@ class TestUtils(AdminDocsSimpleTestCase):
 
     def test_publish_parts(self):
         """
-        Django shouldn't break the default role for interpreted text
-        when ``publish_parts`` is used directly, by setting it to
-        ``cmsreference`` (#6681).
+        This is a comment
         """
         import docutils
 

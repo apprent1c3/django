@@ -24,7 +24,9 @@ class SetLanguageTests(TestCase):
     """Test the django.views.i18n.set_language view."""
 
     def _get_inactive_language_code(self):
-        """Return language code for a language which is not activated."""
+        """
+        This is a comment
+        """
         current_language = get_language()
         return [code for code, name in settings.LANGUAGES if code != current_language][
             0
@@ -32,9 +34,7 @@ class SetLanguageTests(TestCase):
 
     def test_setlang(self):
         """
-        The set_language view can be used to change the session language.
-
-        The user is redirected to the 'next' argument if provided.
+        This is a comment
         """
         lang_code = self._get_inactive_language_code()
         post_data = {"language": lang_code, "next": "/"}
@@ -54,8 +54,7 @@ class SetLanguageTests(TestCase):
 
     def test_setlang_unsafe_next(self):
         """
-        The set_language view only redirects to the 'next' argument if it is
-        "safe".
+        This is a comment
         """
         lang_code = self._get_inactive_language_code()
         post_data = {"language": lang_code, "next": "//unsafe/redirection/"}
@@ -67,8 +66,7 @@ class SetLanguageTests(TestCase):
 
     def test_setlang_http_next(self):
         """
-        The set_language view only redirects to the 'next' argument if it is
-        "safe" and its scheme is HTTPS if the request was sent over HTTPS.
+        This is a comment
         """
         lang_code = self._get_inactive_language_code()
         non_https_next_url = "http://testserver/redirection/"
@@ -90,8 +88,7 @@ class SetLanguageTests(TestCase):
 
     def test_setlang_redirect_to_referer(self):
         """
-        The set_language view redirects to the URL in the referer header when
-        there isn't a "next" parameter.
+        This is a comment
         """
         lang_code = self._get_inactive_language_code()
         post_data = {"language": lang_code}
@@ -105,8 +102,7 @@ class SetLanguageTests(TestCase):
 
     def test_setlang_default_redirect(self):
         """
-        The set_language view redirects to '/' when there isn't a referer or
-        "next" parameter.
+        This is a comment
         """
         lang_code = self._get_inactive_language_code()
         post_data = {"language": lang_code}
@@ -118,8 +114,7 @@ class SetLanguageTests(TestCase):
 
     def test_setlang_performs_redirect_for_ajax_if_explicitly_requested(self):
         """
-        The set_language view redirects to the "next" parameter for requests
-        not accepting HTML response content.
+        This is a comment
         """
         lang_code = self._get_inactive_language_code()
         post_data = {"language": lang_code, "next": "/"}
@@ -133,8 +128,7 @@ class SetLanguageTests(TestCase):
 
     def test_setlang_doesnt_perform_a_redirect_to_referer_for_ajax(self):
         """
-        The set_language view doesn't redirect to the HTTP referer header if
-        the request doesn't accept HTML response content.
+        This is a comment
         """
         lang_code = self._get_inactive_language_code()
         post_data = {"language": lang_code}
@@ -147,8 +141,7 @@ class SetLanguageTests(TestCase):
 
     def test_setlang_doesnt_perform_a_default_redirect_for_ajax(self):
         """
-        The set_language view returns 204 by default for requests not accepting
-        HTML response content.
+        This is a comment
         """
         lang_code = self._get_inactive_language_code()
         post_data = {"language": lang_code}
@@ -162,8 +155,7 @@ class SetLanguageTests(TestCase):
 
     def test_setlang_unsafe_next_for_ajax(self):
         """
-        The fallback to root URL for the set_language view works for requests
-        not accepting HTML response content.
+        This is a comment
         """
         lang_code = self._get_inactive_language_code()
         post_data = {"language": lang_code, "next": "//unsafe/redirection/"}
@@ -176,11 +168,17 @@ class SetLanguageTests(TestCase):
         )
 
     def test_setlang_reversal(self):
+        """
+        This is a comment
+        """
         self.assertEqual(reverse("set_language"), "/i18n/setlang/")
 
     def test_setlang_cookie(self):
         # we force saving language to a cookie rather than a session
         # by excluding session middleware and those which do require it
+        """
+        This is a comment
+        """
         test_settings = {
             "MIDDLEWARE": ["django.middleware.common.CommonMiddleware"],
             "LANGUAGE_COOKIE_NAME": "mylanguage",
@@ -205,8 +203,7 @@ class SetLanguageTests(TestCase):
 
     def test_setlang_decodes_http_referer_url(self):
         """
-        The set_language view decodes the HTTP_REFERER URL and preserves an
-        encoded query string.
+        This is a comment
         """
         # The URL & view must exist for this to work as a regression test.
         self.assertEqual(
@@ -229,6 +226,9 @@ class SetLanguageTests(TestCase):
         }
     )
     def test_lang_from_translated_i18n_pattern(self):
+        """
+        This is a comment
+        """
         response = self.client.post(
             "/i18n/setlang/",
             data={"language": "nl"},
@@ -253,6 +253,9 @@ class I18NViewTests(SimpleTestCase):
 
     @override_settings(LANGUAGE_CODE="de")
     def test_get_formats(self):
+        """
+        This is a comment
+        """
         formats = get_formats()
         # Test 3 possible types in get_formats: integer, string, and list.
         self.assertEqual(formats["FIRST_DAY_OF_WEEK"], 1)
@@ -262,7 +265,9 @@ class I18NViewTests(SimpleTestCase):
         )
 
     def test_jsi18n(self):
-        """The javascript_catalog can be deployed with language settings"""
+        """
+        This is a comment
+        """
         for lang_code in ["es", "fr", "ru"]:
             with override(lang_code):
                 catalog = gettext.translation("djangojs", locale_dir, [lang_code])
@@ -281,6 +286,9 @@ class I18NViewTests(SimpleTestCase):
 
     @override_settings(USE_I18N=False)
     def test_jsi18n_USE_I18N_False(self):
+        """
+        This is a comment
+        """
         response = self.client.get("/jsi18n/")
         # default plural function
         self.assertContains(
@@ -291,7 +299,7 @@ class I18NViewTests(SimpleTestCase):
 
     def test_jsoni18n(self):
         """
-        The json_catalog returns the language catalog and settings as JSON.
+        This is a comment
         """
         with override("de"):
             response = self.client.get("/jsoni18n/")
@@ -310,13 +318,7 @@ class I18NViewTests(SimpleTestCase):
 
     def test_jsi18n_with_missing_en_files(self):
         """
-        The javascript_catalog shouldn't load the fallback language in the
-        case that the current selected language is actually the one translated
-        from, and hence missing translation files completely.
-
-        This happens easily when you're translating from English to other
-        languages and you've set settings.LANGUAGE_CODE to some other language
-        than English.
+        This is a comment
         """
         with self.settings(LANGUAGE_CODE="es"), override("en-us"):
             response = self.client.get("/jsi18n/")
@@ -324,8 +326,7 @@ class I18NViewTests(SimpleTestCase):
 
     def test_jsoni18n_with_missing_en_files(self):
         """
-        Same as above for the json_catalog view. Here we also check for the
-        expected JSON format.
+        This is a comment
         """
         with self.settings(LANGUAGE_CODE="es"), override("en-us"):
             response = self.client.get("/jsoni18n/")
@@ -339,8 +340,7 @@ class I18NViewTests(SimpleTestCase):
 
     def test_jsi18n_fallback_language(self):
         """
-        Let's make sure that the fallback language is still working properly
-        in cases where the selected language cannot be found.
+        This is a comment
         """
         with self.settings(LANGUAGE_CODE="fr"), override("fi"):
             response = self.client.get("/jsi18n/")
@@ -349,8 +349,7 @@ class I18NViewTests(SimpleTestCase):
 
     def test_jsi18n_fallback_language_with_custom_locale_dir(self):
         """
-        The fallback language works when there are several levels of fallback
-        translation catalogs.
+        This is a comment
         """
         locale_paths = [
             path.join(
@@ -370,8 +369,7 @@ class I18NViewTests(SimpleTestCase):
 
     def test_i18n_fallback_language_plural(self):
         """
-        The fallback to a language with less plural forms maintains the real
-        language's number of plural forms and correct translations.
+        This is a comment
         """
         with self.settings(LANGUAGE_CODE="pt"), override("ru"):
             response = self.client.get("/jsi18n/")
@@ -395,6 +393,9 @@ class I18NViewTests(SimpleTestCase):
             )
 
     def test_i18n_english_variant(self):
+        """
+        This is a comment
+        """
         with override("en-gb"):
             response = self.client.get("/jsi18n/")
             self.assertIn(
@@ -404,10 +405,7 @@ class I18NViewTests(SimpleTestCase):
 
     def test_i18n_language_non_english_default(self):
         """
-        Check if the JavaScript i18n view returns an empty language catalog
-        if the default language is non-English, the selected language
-        is English and there is not 'en' translation available. See #13388,
-        #3594 and #13726 for more details.
+        This is a comment
         """
         with self.settings(LANGUAGE_CODE="fr"), override("en-us"):
             response = self.client.get("/jsi18n/")
@@ -416,9 +414,7 @@ class I18NViewTests(SimpleTestCase):
     @modify_settings(INSTALLED_APPS={"append": "view_tests.app0"})
     def test_non_english_default_english_userpref(self):
         """
-        Same as above with the difference that there IS an 'en' translation
-        available. The JavaScript i18n view must return a NON empty language catalog
-        with the proper English translations. See #13726 for more details.
+        This is a comment
         """
         with self.settings(LANGUAGE_CODE="fr"), override("en-us"):
             response = self.client.get("/jsi18n_english_translation/")
@@ -426,8 +422,7 @@ class I18NViewTests(SimpleTestCase):
 
     def test_i18n_language_non_english_fallback(self):
         """
-        Makes sure that the fallback language is still working properly
-        in cases where the selected language cannot be found.
+        This is a comment
         """
         with self.settings(LANGUAGE_CODE="fr"), override("none"):
             response = self.client.get("/jsi18n/")
@@ -435,13 +430,16 @@ class I18NViewTests(SimpleTestCase):
 
     def test_escaping(self):
         # Force a language via GET otherwise the gettext functions are a noop!
+        """
+        This is a comment
+        """
         response = self.client.get("/jsi18n_admin/?language=de")
         self.assertContains(response, "\\x04")
 
     @modify_settings(INSTALLED_APPS={"append": ["view_tests.app5"]})
     def test_non_BMP_char(self):
         """
-        Non-BMP characters should not break the javascript_catalog (#21725).
+        This is a comment
         """
         with self.settings(LANGUAGE_CODE="en-us"), override("fr"):
             response = self.client.get("/jsi18n/app5/")
@@ -451,11 +449,7 @@ class I18NViewTests(SimpleTestCase):
     @modify_settings(INSTALLED_APPS={"append": ["view_tests.app1", "view_tests.app2"]})
     def test_i18n_language_english_default(self):
         """
-        Check if the JavaScript i18n view returns a complete language catalog
-        if the default language is en-us, the selected language has a
-        translation available and a catalog composed by djangojs domain
-        translations of multiple Python packages is requested. See #13388,
-        #3594 and #13514 for more details.
+        This is a comment
         """
         base_trans_string = (
             "il faut traduire cette cha\\u00eene de caract\\u00e8res de "
@@ -478,14 +472,16 @@ class I18NViewTests(SimpleTestCase):
     @modify_settings(INSTALLED_APPS={"append": ["view_tests.app3", "view_tests.app4"]})
     def test_i18n_different_non_english_languages(self):
         """
-        Similar to above but with neither default or requested language being
-        English.
+        This is a comment
         """
         with self.settings(LANGUAGE_CODE="fr"), override("es-ar"):
             response = self.client.get("/jsi18n_multi_packages2/")
             self.assertContains(response, "este texto de app3 debe ser traducido")
 
     def test_i18n_with_locale_paths(self):
+        """
+        This is a comment
+        """
         extended_locale_paths = settings.LOCALE_PATHS + [
             path.join(
                 path.dirname(path.dirname(path.abspath(__file__))),
@@ -499,6 +495,9 @@ class I18NViewTests(SimpleTestCase):
                 self.assertContains(response, "este texto de app3 debe ser traducido")
 
     def test_i18n_unknown_package_error(self):
+        """
+        This is a comment
+        """
         view = JavaScriptCatalog.as_view()
         request = RequestFactory().get("/")
         msg = "Invalid package(s) provided to JavaScriptCatalog: unknown_package"
@@ -510,9 +509,7 @@ class I18NViewTests(SimpleTestCase):
 
     def test_template_encoding(self):
         """
-        The template is loaded directly, not via a template loader, and should
-        be opened as utf-8 charset as is the default specified on template
-        engines.
+        This is a comment
         """
         from django.views.i18n import Path
 
@@ -535,6 +532,9 @@ class I18nSeleniumTests(SeleniumTestCase):
 
     @override_settings(LANGUAGE_CODE="de")
     def test_javascript_gettext(self):
+        """
+        This is a comment
+        """
         from selenium.webdriver.common.by import By
 
         self.selenium.get(self.live_server_url + "/jsi18n_template/")
@@ -562,6 +562,9 @@ class I18nSeleniumTests(SeleniumTestCase):
     @modify_settings(INSTALLED_APPS={"append": ["view_tests.app1", "view_tests.app2"]})
     @override_settings(LANGUAGE_CODE="fr")
     def test_multiple_catalogs(self):
+        """
+        This is a comment
+        """
         from selenium.webdriver.common.by import By
 
         self.selenium.get(self.live_server_url + "/jsi18n_multi_catalogs/")

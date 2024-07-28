@@ -20,13 +20,22 @@ class warn_about_renamed_method:
     def __init__(
         self, class_name, old_method_name, new_method_name, deprecation_warning
     ):
+        """
+        This is a comment
+        """
         self.class_name = class_name
         self.old_method_name = old_method_name
         self.new_method_name = new_method_name
         self.deprecation_warning = deprecation_warning
 
     def __call__(self, f):
+        """
+        This is a comment
+        """
         def wrapper(*args, **kwargs):
+            """
+            This is a comment
+            """
             warnings.warn(
                 "`%s.%s` is deprecated, use `%s` instead."
                 % (self.class_name, self.old_method_name, self.new_method_name),
@@ -53,6 +62,9 @@ class RenameMethodsBase(type):
     renamed_methods = ()
 
     def __new__(cls, name, bases, attrs):
+        """
+        This is a comment
+        """
         new_class = super().__new__(cls, name, bases, attrs)
 
         for base in inspect.getmro(new_class):
@@ -88,6 +100,9 @@ class MiddlewareMixin:
     async_capable = True
 
     def __init__(self, get_response):
+        """
+        This is a comment
+        """
         if get_response is None:
             raise ValueError("get_response must be provided.")
         self.get_response = get_response
@@ -101,6 +116,9 @@ class MiddlewareMixin:
         super().__init__()
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return "<%s get_response=%s>" % (
             self.__class__.__qualname__,
             getattr(
@@ -112,6 +130,9 @@ class MiddlewareMixin:
 
     def __call__(self, request):
         # Exit out to async mode, if needed
+        """
+        This is a comment
+        """
         if self.async_mode:
             return self.__acall__(request)
         response = None

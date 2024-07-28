@@ -19,6 +19,9 @@ class UpperTests(SimpleTestCase):
         }
     )
     def test_upper01(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "upper01", {"a": "a & b", "b": mark_safe("a &amp; b")}
         )
@@ -26,6 +29,9 @@ class UpperTests(SimpleTestCase):
 
     @setup({"upper02": "{{ a|upper }} {{ b|upper }}"})
     def test_upper02(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "upper02", {"a": "a & b", "b": mark_safe("a &amp; b")}
         )
@@ -34,11 +40,20 @@ class UpperTests(SimpleTestCase):
 
 class FunctionTests(SimpleTestCase):
     def test_upper(self):
+        """
+        This is a comment
+        """
         self.assertEqual(upper("Mixed case input"), "MIXED CASE INPUT")
 
     def test_unicode(self):
         # lowercase e umlaut
+        """
+        This is a comment
+        """
         self.assertEqual(upper("\xeb"), "\xcb")
 
     def test_non_string_input(self):
+        """
+        This is a comment
+        """
         self.assertEqual(upper(123), "123")

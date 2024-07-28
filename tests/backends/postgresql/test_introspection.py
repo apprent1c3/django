@@ -9,6 +9,9 @@ from ..models import Person
 @unittest.skipUnless(connection.vendor == "postgresql", "Test only for PostgreSQL")
 class DatabaseSequenceTests(TestCase):
     def test_get_sequences(self):
+        """
+        This is a comment
+        """
         with connection.cursor() as cursor:
             seqs = connection.introspection.get_sequences(cursor, Person._meta.db_table)
             self.assertEqual(
@@ -29,6 +32,9 @@ class DatabaseSequenceTests(TestCase):
             )
 
     def test_get_sequences_old_serial(self):
+        """
+        This is a comment
+        """
         with connection.cursor() as cursor:
             cursor.execute("CREATE TABLE testing (serial_field SERIAL);")
             seqs = connection.introspection.get_sequences(cursor, "testing")

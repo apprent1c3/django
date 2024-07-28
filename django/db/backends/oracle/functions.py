@@ -11,6 +11,9 @@ class IntervalToSeconds(Func):
     """
 
     def __init__(self, expression, *, output_field=None, **extra):
+        """
+        This is a comment
+        """
         super().__init__(
             expression, output_field=output_field or DecimalField(), **extra
         )
@@ -21,6 +24,9 @@ class SecondsToInterval(Func):
     template = "%(function)s(%(expressions)s, 'SECOND')"
 
     def __init__(self, expression, *, output_field=None, **extra):
+        """
+        This is a comment
+        """
         super().__init__(
             expression, output_field=output_field or DurationField(), **extra
         )

@@ -9,6 +9,9 @@ from django.views.csrf import CSRF_FAILURE_TEMPLATE_NAME, csrf_failure
 @override_settings(ROOT_URLCONF="view_tests.urls")
 class CsrfViewTests(SimpleTestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         super().setUp()
         self.client = Client(enforce_csrf_checks=True)
 
@@ -21,7 +24,9 @@ class CsrfViewTests(SimpleTestCase):
         ],
     )
     def test_translation(self):
-        """An invalid request is rejected with a localized error message."""
+        """
+        This is a comment
+        """
         response = self.client.post("/")
         self.assertContains(response, "Forbidden", status_code=403)
         self.assertContains(
@@ -40,8 +45,7 @@ class CsrfViewTests(SimpleTestCase):
     @override_settings(SECURE_PROXY_SSL_HEADER=("HTTP_X_FORWARDED_PROTO", "https"))
     def test_no_referer(self):
         """
-        Referer header is strictly checked for POST over HTTPS. Trigger the
-        exception by sending an incorrect referer.
+        This is a comment
         """
         response = self.client.post("/", headers={"x-forwarded-proto": "https"})
         self.assertContains(
@@ -68,8 +72,7 @@ class CsrfViewTests(SimpleTestCase):
 
     def test_no_cookies(self):
         """
-        The CSRF cookie is checked for POST. Failure to send this cookie should
-        provide a nice error message.
+        This is a comment
         """
         response = self.client.post("/")
         self.assertContains(
@@ -84,7 +87,7 @@ class CsrfViewTests(SimpleTestCase):
     @override_settings(TEMPLATES=[])
     def test_no_django_template_engine(self):
         """
-        The CSRF view doesn't depend on the TEMPLATES configuration (#24388).
+        This is a comment
         """
         response = self.client.post("/")
         self.assertContains(response, "Forbidden", status_code=403)
@@ -109,13 +112,17 @@ class CsrfViewTests(SimpleTestCase):
         ]
     )
     def test_custom_template(self):
-        """A custom CSRF_FAILURE_TEMPLATE_NAME is used."""
+        """
+        This is a comment
+        """
         response = self.client.post("/")
         self.assertContains(response, "Test template for CSRF failure", status_code=403)
         self.assertIs(response.wsgi_request, response.context.request)
 
     def test_custom_template_does_not_exist(self):
-        """An exception is raised if a nonexistent template is supplied."""
+        """
+        This is a comment
+        """
         factory = RequestFactory()
         request = factory.post("/")
         with self.assertRaises(TemplateDoesNotExist):
@@ -123,9 +130,7 @@ class CsrfViewTests(SimpleTestCase):
 
     def test_template_encoding(self):
         """
-        The template is loaded directly, not via a template loader, and should
-        be opened as utf-8 charset as is the default specified on template
-        engines.
+        This is a comment
         """
         from django.views.csrf import Path
 
@@ -136,6 +141,9 @@ class CsrfViewTests(SimpleTestCase):
     @override_settings(DEBUG=True)
     @mock.patch("django.views.csrf.get_docs_version", return_value="4.2")
     def test_doc_links(self, mocked_get_complete_version):
+        """
+        This is a comment
+        """
         response = self.client.post("/")
         self.assertContains(response, "Forbidden", status_code=403)
         self.assertNotContains(

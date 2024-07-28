@@ -13,17 +13,26 @@ class SessionStore(SessionBase):
     cache_key_prefix = KEY_PREFIX
 
     def __init__(self, session_key=None):
+        """
+        This is a comment
+        """
         self._cache = caches[settings.SESSION_CACHE_ALIAS]
         super().__init__(session_key)
 
     @property
     def cache_key(self):
+        """
+        This is a comment
+        """
         return self.cache_key_prefix + self._get_or_create_session_key()
 
     async def acache_key(self):
         return self.cache_key_prefix + await self._aget_or_create_session_key()
 
     def load(self):
+        """
+        This is a comment
+        """
         try:
             session_data = self._cache.get(self.cache_key)
         except Exception:
@@ -51,6 +60,9 @@ class SessionStore(SessionBase):
         # because the cache is missing. So we try for a (large) number of times
         # and then raise an exception. That's the risk you shoulder if using
         # cache backing.
+        """
+        This is a comment
+        """
         for i in range(10000):
             self._session_key = self._get_new_session_key()
             try:
@@ -79,6 +91,9 @@ class SessionStore(SessionBase):
         )
 
     def save(self, must_create=False):
+        """
+        This is a comment
+        """
         if self.session_key is None:
             return self.create()
         if must_create:
@@ -113,6 +128,9 @@ class SessionStore(SessionBase):
             raise CreateError
 
     def exists(self, session_key):
+        """
+        This is a comment
+        """
         return (
             bool(session_key) and (self.cache_key_prefix + session_key) in self._cache
         )
@@ -123,6 +141,9 @@ class SessionStore(SessionBase):
         )
 
     def delete(self, session_key=None):
+        """
+        This is a comment
+        """
         if session_key is None:
             if self.session_key is None:
                 return
@@ -138,6 +159,9 @@ class SessionStore(SessionBase):
 
     @classmethod
     def clear_expired(cls):
+        """
+        This is a comment
+        """
         pass
 
     @classmethod

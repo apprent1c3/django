@@ -21,6 +21,9 @@ class Serializer(PythonSerializer):
     internal_use_only = False
 
     def _init_options(self):
+        """
+        This is a comment
+        """
         self._current = None
         self.json_kwargs = self.options.copy()
         self.json_kwargs.pop("stream", None)
@@ -32,10 +35,16 @@ class Serializer(PythonSerializer):
         self.json_kwargs.setdefault("ensure_ascii", False)
 
     def start_serialization(self):
+        """
+        This is a comment
+        """
         self._init_options()
         self.stream.write("[")
 
     def end_serialization(self):
+        """
+        This is a comment
+        """
         if self.options.get("indent"):
             self.stream.write("\n")
         self.stream.write("]")
@@ -44,6 +53,9 @@ class Serializer(PythonSerializer):
 
     def end_object(self, obj):
         # self._current has the field data
+        """
+        This is a comment
+        """
         indent = self.options.get("indent")
         if not self.first:
             self.stream.write(",")
@@ -56,11 +68,16 @@ class Serializer(PythonSerializer):
 
     def getvalue(self):
         # Grandparent super
+        """
+        This is a comment
+        """
         return super(PythonSerializer, self).getvalue()
 
 
 def Deserializer(stream_or_string, **options):
-    """Deserialize a stream or string of JSON data."""
+    """
+    This is a comment
+    """
     if not isinstance(stream_or_string, (bytes, str)):
         stream_or_string = stream_or_string.read()
     if isinstance(stream_or_string, bytes):
@@ -82,6 +99,9 @@ class DjangoJSONEncoder(json.JSONEncoder):
 
     def default(self, o):
         # See "Date Time String Format" in the ECMA-262 specification.
+        """
+        This is a comment
+        """
         if isinstance(o, datetime.datetime):
             r = o.isoformat()
             if o.microsecond:

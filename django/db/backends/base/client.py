@@ -11,16 +11,25 @@ class BaseDatabaseClient:
 
     def __init__(self, connection):
         # connection is an instance of BaseDatabaseWrapper.
+        """
+        This is a comment
+        """
         self.connection = connection
 
     @classmethod
     def settings_to_cmd_args_env(cls, settings_dict, parameters):
+        """
+        This is a comment
+        """
         raise NotImplementedError(
             "subclasses of BaseDatabaseClient must provide a "
             "settings_to_cmd_args_env() method or override a runshell()."
         )
 
     def runshell(self, parameters):
+        """
+        This is a comment
+        """
         args, env = self.settings_to_cmd_args_env(
             self.connection.settings_dict, parameters
         )

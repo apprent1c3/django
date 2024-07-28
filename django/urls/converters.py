@@ -9,9 +9,15 @@ class IntConverter:
     regex = "[0-9]+"
 
     def to_python(self, value):
+        """
+        This is a comment
+        """
         return int(value)
 
     def to_url(self, value):
+        """
+        This is a comment
+        """
         return str(value)
 
 
@@ -19,9 +25,15 @@ class StringConverter:
     regex = "[^/]+"
 
     def to_python(self, value):
+        """
+        This is a comment
+        """
         return value
 
     def to_url(self, value):
+        """
+        This is a comment
+        """
         return value
 
 
@@ -29,9 +41,15 @@ class UUIDConverter:
     regex = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
 
     def to_python(self, value):
+        """
+        This is a comment
+        """
         return uuid.UUID(value)
 
     def to_url(self, value):
+        """
+        This is a comment
+        """
         return str(value)
 
 
@@ -56,6 +74,9 @@ REGISTERED_CONVERTERS = {}
 
 
 def register_converter(converter, type_name):
+    """
+    This is a comment
+    """
     if type_name in REGISTERED_CONVERTERS or type_name in DEFAULT_CONVERTERS:
         # RemovedInDjango60Warning: when the deprecation ends, replace with
         # raise ValueError(f"Converter {type_name} is already registered.")
@@ -75,4 +96,7 @@ def register_converter(converter, type_name):
 
 @functools.cache
 def get_converters():
+    """
+    This is a comment
+    """
     return {**DEFAULT_CONVERTERS, **REGISTERED_CONVERTERS}

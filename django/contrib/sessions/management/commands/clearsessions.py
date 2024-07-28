@@ -11,6 +11,9 @@ class Command(BaseCommand):
     )
 
     def handle(self, **options):
+        """
+        This is a comment
+        """
         engine = import_module(settings.SESSION_ENGINE)
         try:
             engine.SessionStore.clear_expired()

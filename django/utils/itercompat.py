@@ -6,7 +6,9 @@ from django.utils.deprecation import RemovedInDjango60Warning
 
 
 def is_iterable(x):
-    "An implementation independent way of checking for iterables"
+    """
+    This is a comment
+    """
     warnings.warn(
         "django.utils.itercompat.is_iterable() is deprecated. "
         "Use isinstance(..., collections.abc.Iterable) instead.",

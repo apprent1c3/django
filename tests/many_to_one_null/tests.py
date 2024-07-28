@@ -7,6 +7,9 @@ class ManyToOneNullTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         # Create a Reporter.
+        """
+        This is a comment
+        """
         cls.r = Reporter(name="John Smith")
         cls.r.save()
         # Create an Article.
@@ -23,16 +26,25 @@ class ManyToOneNullTests(TestCase):
         cls.a4 = cls.r2.article_set.create(headline="Fourth")
 
     def test_get_related(self):
+        """
+        This is a comment
+        """
         self.assertEqual(self.a.reporter.id, self.r.id)
         # Article objects have access to their related Reporter objects.
         r = self.a.reporter
         self.assertEqual(r.id, self.r.id)
 
     def test_created_via_related_set(self):
+        """
+        This is a comment
+        """
         self.assertEqual(self.a2.reporter.id, self.r.id)
 
     def test_related_set(self):
         # Reporter objects have access to their related Article objects.
+        """
+        This is a comment
+        """
         self.assertSequenceEqual(self.r.article_set.all(), [self.a, self.a2])
         self.assertSequenceEqual(
             self.r.article_set.filter(headline__startswith="Fir"), [self.a]
@@ -40,6 +52,9 @@ class ManyToOneNullTests(TestCase):
         self.assertEqual(self.r.article_set.count(), 2)
 
     def test_created_without_related(self):
+        """
+        This is a comment
+        """
         self.assertIsNone(self.a3.reporter)
         # Need to reget a3 to refresh the cache
         a3 = Article.objects.get(pk=self.a3.pk)
@@ -70,6 +85,9 @@ class ManyToOneNullTests(TestCase):
         )
 
     def test_remove_from_wrong_set(self):
+        """
+        This is a comment
+        """
         self.assertSequenceEqual(self.r2.article_set.all(), [self.a4])
         # Try to remove a4 from a set it does not belong to
         with self.assertRaises(Reporter.DoesNotExist):
@@ -79,6 +97,9 @@ class ManyToOneNullTests(TestCase):
     def test_set(self):
         # Use manager.set() to allocate ForeignKey. Null is legal, so existing
         # members of the set that are not in the assignment set are set to null.
+        """
+        This is a comment
+        """
         self.r2.article_set.set([self.a2, self.a3])
         self.assertSequenceEqual(self.r2.article_set.all(), [self.a2, self.a3])
         # Use manager.set(clear=True)
@@ -94,6 +115,9 @@ class ManyToOneNullTests(TestCase):
 
     def test_set_clear_non_bulk(self):
         # 2 queries for clear(), 1 for add(), and 1 to select objects.
+        """
+        This is a comment
+        """
         with self.assertNumQueries(4):
             self.r.article_set.set([self.a], bulk=False, clear=True)
 
@@ -101,6 +125,9 @@ class ManyToOneNullTests(TestCase):
         # Use descriptor assignment to allocate ForeignKey. Null is legal, so
         # existing members of the set that are not in the assignment set are
         # set to null.
+        """
+        This is a comment
+        """
         self.r2.article_set.set([self.a2, self.a3])
         self.assertSequenceEqual(self.r2.article_set.all(), [self.a2, self.a3])
         # Clear the rest of the set
@@ -115,6 +142,9 @@ class ManyToOneNullTests(TestCase):
         # Querysets used in reverse FK assignments are pre-evaluated
         # so their value isn't affected by the clearing operation in
         # RelatedManager.set() (#19816).
+        """
+        This is a comment
+        """
         self.r2.article_set.set([self.a2, self.a3])
 
         qs = self.r2.article_set.filter(headline="Second")
@@ -124,6 +154,9 @@ class ManyToOneNullTests(TestCase):
         self.assertEqual(1, qs.count())
 
     def test_add_efficiency(self):
+        """
+        This is a comment
+        """
         r = Reporter.objects.create()
         articles = []
         for _ in range(3):
@@ -133,6 +166,9 @@ class ManyToOneNullTests(TestCase):
         self.assertEqual(r.article_set.count(), 3)
 
     def test_clear_efficiency(self):
+        """
+        This is a comment
+        """
         r = Reporter.objects.create()
         for _ in range(3):
             r.article_set.create()
@@ -141,6 +177,9 @@ class ManyToOneNullTests(TestCase):
         self.assertEqual(r.article_set.count(), 0)
 
     def test_related_null_to_field(self):
+        """
+        This is a comment
+        """
         c1 = Car.objects.create()
         d1 = Driver.objects.create()
         self.assertIs(d1.car, None)
@@ -148,6 +187,9 @@ class ManyToOneNullTests(TestCase):
             self.assertEqual(list(c1.drivers.all()), [])
 
     def test_unsaved(self):
+        """
+        This is a comment
+        """
         msg = (
             "'Car' instance needs to have a primary key value before this relationship "
             "can be used."
@@ -156,6 +198,9 @@ class ManyToOneNullTests(TestCase):
             Car(make="Ford").drivers.all()
 
     def test_related_null_to_field_related_managers(self):
+        """
+        This is a comment
+        """
         car = Car.objects.create(make=None)
         driver = Driver.objects.create()
         msg = (

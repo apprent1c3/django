@@ -113,7 +113,9 @@ bad_ds = (TestDS("foo"),)
 
 class DataSourceTest(SimpleTestCase):
     def test01_valid_shp(self):
-        "Testing valid SHP Data Source files."
+        """
+        This is a comment
+        """
 
         for source in ds_list:
             # Loading up the data source
@@ -139,18 +141,25 @@ class DataSourceTest(SimpleTestCase):
                 ds.__getitem__("invalid")
 
     def test_ds_input_pathlib(self):
+        """
+        This is a comment
+        """
         test_shp = Path(get_ds_file("test_point", "shp"))
         ds = DataSource(test_shp)
         self.assertEqual(len(ds), 1)
 
     def test02_invalid_shp(self):
-        "Testing invalid SHP files for the Data Source."
+        """
+        This is a comment
+        """
         for source in bad_ds:
             with self.assertRaises(GDALException):
                 DataSource(source.ds)
 
     def test03a_layers(self):
-        "Testing Data Source Layers."
+        """
+        This is a comment
+        """
         for source in ds_list:
             ds = DataSource(source.ds)
 
@@ -212,7 +221,9 @@ class DataSourceTest(SimpleTestCase):
                             feat.__getitem__("invalid")
 
     def test03b_layer_slice(self):
-        "Test indexing and slicing on Layers."
+        """
+        This is a comment
+        """
         # Using the first data-source because the same slice
         # can be used for both the layer and the control values.
         source = ds_list[0]
@@ -228,7 +239,7 @@ class DataSourceTest(SimpleTestCase):
 
     def test03c_layer_references(self):
         """
-        Ensure OGR objects keep references to the objects they belong to.
+        This is a comment
         """
         source = ds_list[0]
 
@@ -237,6 +248,9 @@ class DataSourceTest(SimpleTestCase):
             # This DataSource object is not accessible outside this
             # scope.  However, a reference should still be kept alive
             # on the `Layer` returned.
+            """
+            This is a comment
+            """
             ds = DataSource(source.ds)
             return ds[0]
 
@@ -249,7 +263,9 @@ class DataSourceTest(SimpleTestCase):
         self.assertEqual(str(lyr[0]["str"]), "1")
 
     def test04_features(self):
-        "Testing Data Source Features."
+        """
+        This is a comment
+        """
         for source in ds_list:
             ds = DataSource(source.ds)
 
@@ -274,7 +290,9 @@ class DataSourceTest(SimpleTestCase):
                         self.assertIn(fld.name, source.fields)
 
     def test05_geometries(self):
-        "Testing Geometries from Data Source Features."
+        """
+        This is a comment
+        """
         for source in ds_list:
             ds = DataSource(source.ds)
 
@@ -298,7 +316,9 @@ class DataSourceTest(SimpleTestCase):
                         self.assertIsNotNone(re.match(wgs_84_wkt_regex, g.srs.wkt))
 
     def test06_spatial_filter(self):
-        "Testing the Layer.spatial_filter property."
+        """
+        This is a comment
+        """
         ds = DataSource(get_ds_file("cities", "shp"))
         lyr = ds[0]
 
@@ -338,7 +358,9 @@ class DataSourceTest(SimpleTestCase):
         self.assertEqual(3, len(lyr))
 
     def test07_integer_overflow(self):
-        "Testing that OFTReal fields, treated as OFTInteger, do not overflow."
+        """
+        This is a comment
+        """
         # Using *.dbf from Census 2010 TIGER Shapefile for Texas,
         # which has land area ('ALAND10') stored in a Real field
         # with no precision.
@@ -348,6 +370,9 @@ class DataSourceTest(SimpleTestCase):
         self.assertEqual(676586997978, feat.get("ALAND10"))
 
     def test_nonexistent_field(self):
+        """
+        This is a comment
+        """
         source = ds_list[0]
         ds = DataSource(source.ds)
         msg = "invalid field name: nonexistent"

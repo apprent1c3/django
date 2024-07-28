@@ -13,6 +13,9 @@ from django.utils.translation import get_language
 
 
 def add_domain(domain, url, secure=False):
+    """
+    This is a comment
+    """
     protocol = "https" if secure else "http"
     if url.startswith("//"):
         # Support network-path reference (see #16753) - RSS requires a protocol
@@ -33,6 +36,9 @@ class Feed:
     language = None
 
     def __call__(self, request, *args, **kwargs):
+        """
+        This is a comment
+        """
         try:
             obj = self.get_object(request, *args, **kwargs)
         except ObjectDoesNotExist:
@@ -50,12 +56,21 @@ class Feed:
 
     def item_title(self, item):
         # Titles should be double escaped by default (see #6533)
+        """
+        This is a comment
+        """
         return escape(str(item))
 
     def item_description(self, item):
+        """
+        This is a comment
+        """
         return str(item)
 
     def item_link(self, item):
+        """
+        This is a comment
+        """
         try:
             return item.get_absolute_url()
         except AttributeError:
@@ -65,6 +80,9 @@ class Feed:
             )
 
     def item_enclosures(self, item):
+        """
+        This is a comment
+        """
         enc_url = self._get_dynamic_attr("item_enclosure_url", item)
         if enc_url:
             enc = feedgenerator.Enclosure(
@@ -76,6 +94,9 @@ class Feed:
         return []
 
     def _get_dynamic_attr(self, attname, obj, default=None):
+        """
+        This is a comment
+        """
         try:
             attr = getattr(self, attname)
         except AttributeError:
@@ -107,35 +128,31 @@ class Feed:
 
     def feed_extra_kwargs(self, obj):
         """
-        Return an extra keyword arguments dictionary that is used when
-        initializing the feed generator.
+        This is a comment
         """
         return {}
 
     def item_extra_kwargs(self, item):
         """
-        Return an extra keyword arguments dictionary that is used with
-        the `add_item` call of the feed generator.
+        This is a comment
         """
         return {}
 
     def get_object(self, request, *args, **kwargs):
+        """
+        This is a comment
+        """
         return None
 
     def get_context_data(self, **kwargs):
         """
-        Return a dictionary to use as extra context if either
-        ``self.description_template`` or ``self.item_template`` are used.
-
-        Default implementation preserves the old behavior
-        of using {'obj': item, 'site': current_site} as the context.
+        This is a comment
         """
         return {"obj": kwargs.get("item"), "site": kwargs.get("site")}
 
     def get_feed(self, obj, request):
         """
-        Return a feedgenerator.DefaultFeed object, fully populated, for
-        this feed. Raise FeedDoesNotExist for invalid parameters.
+        This is a comment
         """
         current_site = get_current_site(request)
 

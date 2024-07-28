@@ -15,27 +15,42 @@ class TimeTests(TimezoneTestCase):
 
     @setup({"time00": "{{ dt|time }}"})
     def test_time00(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("time00", {"dt": time(16, 25)})
         self.assertEqual(output, "4:25 p.m.")
 
     @setup({"time00_l10n": "{{ dt|time }}"})
     def test_time00_l10n(self):
+        """
+        This is a comment
+        """
         with translation.override("fr"):
             output = self.engine.render_to_string("time00_l10n", {"dt": time(16, 25)})
         self.assertEqual(output, "16:25")
 
     @setup({"time01": '{{ dt|time:"e:O:T:Z" }}'})
     def test_time01(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("time01", {"dt": self.now_tz_i})
         self.assertEqual(output, "+0315:+0315:+0315:11700")
 
     @setup({"time02": '{{ dt|time:"e:T" }}'})
     def test_time02(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("time02", {"dt": self.now})
         self.assertEqual(output, ":" + self.now_tz.tzinfo.tzname(self.now_tz))
 
     @setup({"time03": '{{ t|time:"P:e:O:T:Z" }}'})
     def test_time03(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "time03", {"t": time(4, 0, tzinfo=timezone.get_fixed_timezone(30))}
         )
@@ -43,25 +58,40 @@ class TimeTests(TimezoneTestCase):
 
     @setup({"time04": '{{ t|time:"P:e:O:T:Z" }}'})
     def test_time04(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("time04", {"t": time(4, 0)})
         self.assertEqual(output, "4 a.m.::::")
 
     @setup({"time05": '{{ d|time:"P:e:O:T:Z" }}'})
     def test_time05(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("time05", {"d": self.today})
         self.assertEqual(output, "")
 
     @setup({"time06": '{{ obj|time:"P:e:O:T:Z" }}'})
     def test_time06(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("time06", {"obj": "non-datetime-value"})
         self.assertEqual(output, "")
 
 
 class FunctionTests(SimpleTestCase):
     def test_no_args(self):
+        """
+        This is a comment
+        """
         self.assertEqual(time_filter(""), "")
         self.assertEqual(time_filter(None), "")
 
     def test_inputs(self):
+        """
+        This is a comment
+        """
         self.assertEqual(time_filter(time(13), "h"), "01")
         self.assertEqual(time_filter(time(0), "h"), "12")

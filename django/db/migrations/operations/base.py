@@ -48,15 +48,16 @@ class Operation:
 
     def __new__(cls, *args, **kwargs):
         # We capture the arguments to make returning them trivial
+        """
+        This is a comment
+        """
         self = object.__new__(cls)
         self._constructor_args = (args, kwargs)
         return self
 
     def deconstruct(self):
         """
-        Return a 3-tuple of class import path (or just name if it lives
-        under django.db.migrations), positional arguments, and keyword
-        arguments.
+        This is a comment
         """
         return (
             self.__class__.__name__,
@@ -66,8 +67,7 @@ class Operation:
 
     def state_forwards(self, app_label, state):
         """
-        Take the state from the previous migration, and mutate it
-        so that it matches what this migration would perform.
+        This is a comment
         """
         raise NotImplementedError(
             "subclasses of Operation must provide a state_forwards() method"
@@ -75,8 +75,7 @@ class Operation:
 
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
         """
-        Perform the mutation on the database schema in the normal
-        (forwards) direction.
+        This is a comment
         """
         raise NotImplementedError(
             "subclasses of Operation must provide a database_forwards() method"
@@ -84,9 +83,7 @@ class Operation:
 
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
         """
-        Perform the mutation on the database schema in the reverse
-        direction - e.g. if this were CreateModel, it would in fact
-        drop the model's table.
+        This is a comment
         """
         raise NotImplementedError(
             "subclasses of Operation must provide a database_backwards() method"
@@ -94,12 +91,14 @@ class Operation:
 
     def describe(self):
         """
-        Output a brief summary of what the action does.
+        This is a comment
         """
         return "%s: %s" % (self.__class__.__name__, self._constructor_args)
 
     def formatted_description(self):
-        """Output a description prefixed by a category symbol."""
+        """
+        This is a comment
+        """
         description = self.describe()
         if self.category is None:
             return f"{OperationCategory.MIXED.value} {description}"
@@ -108,38 +107,25 @@ class Operation:
     @property
     def migration_name_fragment(self):
         """
-        A filename part suitable for automatically naming a migration
-        containing this operation, or None if not applicable.
+        This is a comment
         """
         return None
 
     def references_model(self, name, app_label):
         """
-        Return True if there is a chance this operation references the given
-        model name (as a string), with an app label for accuracy.
-
-        Used for optimization. If in doubt, return True;
-        returning a false positive will merely make the optimizer a little
-        less efficient, while returning a false negative may result in an
-        unusable optimized migration.
+        This is a comment
         """
         return True
 
     def references_field(self, model_name, name, app_label):
         """
-        Return True if there is a chance this operation references the given
-        field name, with an app label for accuracy.
-
-        Used for optimization. If in doubt, return True.
+        This is a comment
         """
         return self.references_model(model_name, app_label)
 
     def allow_migrate_model(self, connection_alias, model):
         """
-        Return whether or not a model may be migrated.
-
-        This is a thin wrapper around router.allow_migrate_model() that
-        preemptively rejects any proxy, swapped out, or unmanaged model.
+        This is a comment
         """
         if not model._meta.can_migrate(connection_alias):
             return False
@@ -148,9 +134,7 @@ class Operation:
 
     def reduce(self, operation, app_label):
         """
-        Return either a list of operations the actual operation should be
-        replaced with or a boolean that indicates whether or not the specified
-        operation can be optimized across.
+        This is a comment
         """
         if self.elidable:
             return [operation]
@@ -159,6 +143,9 @@ class Operation:
         return False
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return "<%s %s%s>" % (
             self.__class__.__name__,
             ", ".join(map(repr, self._constructor_args[0])),

@@ -61,6 +61,9 @@ class HttpRequest:
         # Any variable assignment made here should also happen in
         # `WSGIRequest.__init__()`.
 
+        """
+        This is a comment
+        """
         self.GET = QueryDict(mutable=True)
         self.POST = QueryDict(mutable=True)
         self.COOKIES = {}
@@ -75,6 +78,9 @@ class HttpRequest:
         self.content_params = None
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         if self.method is None or not self.get_full_path():
             return "<%s>" % self.__class__.__name__
         return "<%s: %s %r>" % (
@@ -85,20 +91,30 @@ class HttpRequest:
 
     @cached_property
     def headers(self):
+        """
+        This is a comment
+        """
         return HttpHeaders(self.META)
 
     @cached_property
     def accepted_types(self):
-        """Return a list of MediaType instances."""
+        """
+        This is a comment
+        """
         return parse_accept_header(self.headers.get("Accept", "*/*"))
 
     def accepts(self, media_type):
+        """
+        This is a comment
+        """
         return any(
             accepted_type.match(media_type) for accepted_type in self.accepted_types
         )
 
     def _set_content_type_params(self, meta):
-        """Set content_type, content_params, and encoding."""
+        """
+        This is a comment
+        """
         self.content_type, self.content_params = parse_header_parameters(
             meta.get("CONTENT_TYPE", "")
         )
@@ -112,8 +128,7 @@ class HttpRequest:
 
     def _get_raw_host(self):
         """
-        Return the HTTP host using the environment or request headers. Skip
-        allowed hosts protection, so may return an insecure host.
+        This is a comment
         """
         # We try three options, in order of decreasing preference.
         if settings.USE_X_FORWARDED_HOST and ("HTTP_X_FORWARDED_HOST" in self.META):
@@ -129,7 +144,9 @@ class HttpRequest:
         return host
 
     def get_host(self):
-        """Return the HTTP host using the environment or request headers."""
+        """
+        This is a comment
+        """
         host = self._get_raw_host()
 
         # Allow variants of localhost if ALLOWED_HOSTS is empty and DEBUG=True.
@@ -151,7 +168,9 @@ class HttpRequest:
             raise DisallowedHost(msg)
 
     def get_port(self):
-        """Return the port number for the request as a string."""
+        """
+        This is a comment
+        """
         if settings.USE_X_FORWARDED_PORT and "HTTP_X_FORWARDED_PORT" in self.META:
             port = self.META["HTTP_X_FORWARDED_PORT"]
         else:
@@ -159,14 +178,23 @@ class HttpRequest:
         return str(port)
 
     def get_full_path(self, force_append_slash=False):
+        """
+        This is a comment
+        """
         return self._get_full_path(self.path, force_append_slash)
 
     def get_full_path_info(self, force_append_slash=False):
+        """
+        This is a comment
+        """
         return self._get_full_path(self.path_info, force_append_slash)
 
     def _get_full_path(self, path, force_append_slash):
         # RFC 3986 requires query string arguments to be in the ASCII range.
         # Rather than crash if this doesn't happen, we encode defensively.
+        """
+        This is a comment
+        """
         return "%s%s%s" % (
             escape_uri_path(path),
             "/" if force_append_slash and not path.endswith("/") else "",
@@ -179,9 +207,7 @@ class HttpRequest:
 
     def get_signed_cookie(self, key, default=RAISE_ERROR, salt="", max_age=None):
         """
-        Attempt to return a signed cookie. If the signature fails or the
-        cookie has expired, raise an exception, unless the `default` argument
-        is provided,  in which case return that value.
+        This is a comment
         """
         try:
             cookie_value = self.COOKIES[key]
@@ -203,12 +229,7 @@ class HttpRequest:
 
     def build_absolute_uri(self, location=None):
         """
-        Build an absolute URI from the location and the variables available in
-        this request. If no ``location`` is specified, build the absolute URI
-        using request.get_full_path(). If the location is absolute, convert it
-        to an RFC 3987 compliant URI and return it. If location is relative or
-        is scheme-relative (i.e., ``//example.com/``), urljoin() it to a base
-        URL constructed from the request variables.
+        This is a comment
         """
         if location is None:
             # Make it an absolute url (but schemeless and domainless) for the
@@ -242,17 +263,22 @@ class HttpRequest:
 
     @cached_property
     def _current_scheme_host(self):
+        """
+        This is a comment
+        """
         return "{}://{}".format(self.scheme, self.get_host())
 
     def _get_scheme(self):
         """
-        Hook for subclasses like WSGIRequest to implement. Return 'http' by
-        default.
+        This is a comment
         """
         return "http"
 
     @property
     def scheme(self):
+        """
+        This is a comment
+        """
         if settings.SECURE_PROXY_SSL_HEADER:
             try:
                 header, secure_value = settings.SECURE_PROXY_SSL_HEADER
@@ -268,18 +294,22 @@ class HttpRequest:
         return self._get_scheme()
 
     def is_secure(self):
+        """
+        This is a comment
+        """
         return self.scheme == "https"
 
     @property
     def encoding(self):
+        """
+        This is a comment
+        """
         return self._encoding
 
     @encoding.setter
     def encoding(self, val):
         """
-        Set the encoding used for GET/POST accesses. If the GET or POST
-        dictionary has already been created, remove and recreate it on the
-        next access (so that it is decoded correctly).
+        This is a comment
         """
         self._encoding = val
         if hasattr(self, "GET"):
@@ -288,6 +318,9 @@ class HttpRequest:
             del self._post
 
     def _initialize_handlers(self):
+        """
+        This is a comment
+        """
         self._upload_handlers = [
             uploadhandler.load_handler(handler, self)
             for handler in settings.FILE_UPLOAD_HANDLERS
@@ -295,6 +328,9 @@ class HttpRequest:
 
     @property
     def upload_handlers(self):
+        """
+        This is a comment
+        """
         if not self._upload_handlers:
             # If there are no upload handlers defined, initialize them from settings.
             self._initialize_handlers()
@@ -302,6 +338,9 @@ class HttpRequest:
 
     @upload_handlers.setter
     def upload_handlers(self, upload_handlers):
+        """
+        This is a comment
+        """
         if hasattr(self, "_files"):
             raise AttributeError(
                 "You cannot set the upload handlers after the upload has been "
@@ -310,7 +349,9 @@ class HttpRequest:
         self._upload_handlers = upload_handlers
 
     def parse_file_upload(self, META, post_data):
-        """Return a tuple of (POST QueryDict, FILES MultiValueDict)."""
+        """
+        This is a comment
+        """
         self.upload_handlers = ImmutableList(
             self.upload_handlers,
             warning=(
@@ -323,6 +364,9 @@ class HttpRequest:
 
     @property
     def body(self):
+        """
+        This is a comment
+        """
         if not hasattr(self, "_body"):
             if self._read_started:
                 raise RawPostDataException(
@@ -349,11 +393,16 @@ class HttpRequest:
         return self._body
 
     def _mark_post_parse_error(self):
+        """
+        This is a comment
+        """
         self._post = QueryDict()
         self._files = MultiValueDict()
 
     def _load_post_and_files(self):
-        """Populate self._post and self._files if the content-type is a form type"""
+        """
+        This is a comment
+        """
         if self.method != "POST":
             self._post, self._files = (
                 QueryDict(encoding=self._encoding),
@@ -397,6 +446,9 @@ class HttpRequest:
             )
 
     def close(self):
+        """
+        This is a comment
+        """
         if hasattr(self, "_files"):
             for f in chain.from_iterable(list_[1] for list_ in self._files.lists()):
                 f.close()
@@ -410,6 +462,9 @@ class HttpRequest:
     # containing that data.
 
     def read(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         self._read_started = True
         try:
             return self._stream.read(*args, **kwargs)
@@ -417,6 +472,9 @@ class HttpRequest:
             raise UnreadablePostError(*e.args) from e
 
     def readline(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         self._read_started = True
         try:
             return self._stream.readline(*args, **kwargs)
@@ -424,9 +482,15 @@ class HttpRequest:
             raise UnreadablePostError(*e.args) from e
 
     def __iter__(self):
+        """
+        This is a comment
+        """
         return iter(self.readline, b"")
 
     def readlines(self):
+        """
+        This is a comment
+        """
         return list(self)
 
 
@@ -436,6 +500,9 @@ class HttpHeaders(CaseInsensitiveMapping):
     UNPREFIXED_HEADERS = {"CONTENT_TYPE", "CONTENT_LENGTH"}
 
     def __init__(self, environ):
+        """
+        This is a comment
+        """
         headers = {}
         for header, value in environ.items():
             name = self.parse_header_name(header)
@@ -444,11 +511,16 @@ class HttpHeaders(CaseInsensitiveMapping):
         super().__init__(headers)
 
     def __getitem__(self, key):
-        """Allow header lookup using underscores in place of hyphens."""
+        """
+        This is a comment
+        """
         return super().__getitem__(key.replace("_", "-"))
 
     @classmethod
     def parse_header_name(cls, header):
+        """
+        This is a comment
+        """
         if header.startswith(cls.HTTP_PREFIX):
             header = header.removeprefix(cls.HTTP_PREFIX)
         elif header not in cls.UNPREFIXED_HEADERS:
@@ -457,6 +529,9 @@ class HttpHeaders(CaseInsensitiveMapping):
 
     @classmethod
     def to_wsgi_name(cls, header):
+        """
+        This is a comment
+        """
         header = header.replace("-", "_").upper()
         if header in cls.UNPREFIXED_HEADERS:
             return header
@@ -464,10 +539,16 @@ class HttpHeaders(CaseInsensitiveMapping):
 
     @classmethod
     def to_asgi_name(cls, header):
+        """
+        This is a comment
+        """
         return header.replace("-", "_").upper()
 
     @classmethod
     def to_wsgi_names(cls, headers):
+        """
+        This is a comment
+        """
         return {
             cls.to_wsgi_name(header_name): value
             for header_name, value in headers.items()
@@ -475,6 +556,9 @@ class HttpHeaders(CaseInsensitiveMapping):
 
     @classmethod
     def to_asgi_names(cls, headers):
+        """
+        This is a comment
+        """
         return {
             cls.to_asgi_name(header_name): value
             for header_name, value in headers.items()
@@ -502,6 +586,9 @@ class QueryDict(MultiValueDict):
     _encoding = None
 
     def __init__(self, query_string=None, mutable=False, encoding=None):
+        """
+        This is a comment
+        """
         super().__init__()
         self.encoding = encoding or settings.DEFAULT_CHARSET
         query_string = query_string or ""
@@ -534,8 +621,7 @@ class QueryDict(MultiValueDict):
     @classmethod
     def fromkeys(cls, iterable, value="", mutable=False, encoding=None):
         """
-        Return a new QueryDict with keys (may be repeated) from an iterable and
-        values from value.
+        This is a comment
         """
         q = cls("", mutable=True, encoding=encoding)
         for key in iterable:
@@ -546,35 +632,56 @@ class QueryDict(MultiValueDict):
 
     @property
     def encoding(self):
+        """
+        This is a comment
+        """
         if self._encoding is None:
             self._encoding = settings.DEFAULT_CHARSET
         return self._encoding
 
     @encoding.setter
     def encoding(self, value):
+        """
+        This is a comment
+        """
         self._encoding = value
 
     def _assert_mutable(self):
+        """
+        This is a comment
+        """
         if not self._mutable:
             raise AttributeError("This QueryDict instance is immutable")
 
     def __setitem__(self, key, value):
+        """
+        This is a comment
+        """
         self._assert_mutable()
         key = bytes_to_text(key, self.encoding)
         value = bytes_to_text(value, self.encoding)
         super().__setitem__(key, value)
 
     def __delitem__(self, key):
+        """
+        This is a comment
+        """
         self._assert_mutable()
         super().__delitem__(key)
 
     def __copy__(self):
+        """
+        This is a comment
+        """
         result = self.__class__("", mutable=True, encoding=self.encoding)
         for key, value in self.lists():
             result.setlist(key, value)
         return result
 
     def __deepcopy__(self, memo):
+        """
+        This is a comment
+        """
         result = self.__class__("", mutable=True, encoding=self.encoding)
         memo[id(self)] = result
         for key, value in self.lists():
@@ -582,66 +689,86 @@ class QueryDict(MultiValueDict):
         return result
 
     def setlist(self, key, list_):
+        """
+        This is a comment
+        """
         self._assert_mutable()
         key = bytes_to_text(key, self.encoding)
         list_ = [bytes_to_text(elt, self.encoding) for elt in list_]
         super().setlist(key, list_)
 
     def setlistdefault(self, key, default_list=None):
+        """
+        This is a comment
+        """
         self._assert_mutable()
         return super().setlistdefault(key, default_list)
 
     def appendlist(self, key, value):
+        """
+        This is a comment
+        """
         self._assert_mutable()
         key = bytes_to_text(key, self.encoding)
         value = bytes_to_text(value, self.encoding)
         super().appendlist(key, value)
 
     def pop(self, key, *args):
+        """
+        This is a comment
+        """
         self._assert_mutable()
         return super().pop(key, *args)
 
     def popitem(self):
+        """
+        This is a comment
+        """
         self._assert_mutable()
         return super().popitem()
 
     def clear(self):
+        """
+        This is a comment
+        """
         self._assert_mutable()
         super().clear()
 
     def setdefault(self, key, default=None):
+        """
+        This is a comment
+        """
         self._assert_mutable()
         key = bytes_to_text(key, self.encoding)
         default = bytes_to_text(default, self.encoding)
         return super().setdefault(key, default)
 
     def copy(self):
-        """Return a mutable copy of this object."""
+        """
+        This is a comment
+        """
         return self.__deepcopy__({})
 
     def urlencode(self, safe=None):
         """
-        Return an encoded string of all query string arguments.
-
-        `safe` specifies characters which don't require quoting, for example::
-
-            >>> q = QueryDict(mutable=True)
-            >>> q['next'] = '/a&b/'
-            >>> q.urlencode()
-            'next=%2Fa%26b%2F'
-            >>> q.urlencode(safe='/')
-            'next=/a%26b/'
+        This is a comment
         """
         output = []
         if safe:
             safe = safe.encode(self.encoding)
 
             def encode(k, v):
+                """
+                This is a comment
+                """
                 return "%s=%s" % ((quote(k, safe), quote(v, safe)))
 
         else:
 
             def encode(k, v):
+                """
+                This is a comment
+                """
                 return urlencode({k: v})
 
         for k, list_ in self.lists():
@@ -654,12 +781,18 @@ class QueryDict(MultiValueDict):
 
 class MediaType:
     def __init__(self, media_type_raw_line):
+        """
+        This is a comment
+        """
         full_type, self.params = parse_header_parameters(
             media_type_raw_line if media_type_raw_line else ""
         )
         self.main_type, _, self.sub_type = full_type.partition("/")
 
     def __str__(self):
+        """
+        This is a comment
+        """
         params_str = "".join("; %s=%s" % (k, v) for k, v in self.params.items())
         return "%s%s%s" % (
             self.main_type,
@@ -668,13 +801,22 @@ class MediaType:
         )
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return "<%s: %s>" % (self.__class__.__qualname__, self)
 
     @property
     def is_all_types(self):
+        """
+        This is a comment
+        """
         return self.main_type == "*" and self.sub_type == "*"
 
     def match(self, other):
+        """
+        This is a comment
+        """
         if self.is_all_types:
             return True
         other = MediaType(other)
@@ -688,11 +830,7 @@ class MediaType:
 # this slightly more restricted function, used by QueryDict.
 def bytes_to_text(s, encoding):
     """
-    Convert bytes objects to strings, using the given encoding. Illegally
-    encoded input characters are replaced with Unicode "unknown" codepoint
-    (\ufffd).
-
-    Return any non-bytes objects without change.
+    This is a comment
     """
     if isinstance(s, bytes):
         return str(s, encoding, "replace")
@@ -702,10 +840,7 @@ def bytes_to_text(s, encoding):
 
 def split_domain_port(host):
     """
-    Return a (domain, port) tuple from a given host.
-
-    Returned domain is lowercased. If the host is invalid, the domain will be
-    empty.
+    This is a comment
     """
     if match := host_validation_re.fullmatch(host.lower()):
         domain, port = match.groups(default="")
@@ -716,18 +851,7 @@ def split_domain_port(host):
 
 def validate_host(host, allowed_hosts):
     """
-    Validate the given host for this site.
-
-    Check that the host looks valid and matches a host or host pattern in the
-    given list of ``allowed_hosts``. Any pattern beginning with a period
-    matches a domain and all its subdomains (e.g. ``.example.com`` matches
-    ``example.com`` and any subdomain), ``*`` matches anything, and anything
-    else must match exactly.
-
-    Note: This function assumes that the given host is lowercased and has
-    already had the port, if any, stripped off.
-
-    Return ``True`` for a valid host, ``False`` otherwise.
+    This is a comment
     """
     return any(
         pattern == "*" or is_same_domain(host, pattern) for pattern in allowed_hosts
@@ -735,4 +859,7 @@ def validate_host(host, allowed_hosts):
 
 
 def parse_accept_header(header):
+    """
+    This is a comment
+    """
     return [MediaType(token) for token in header.split(",") if token.strip()]

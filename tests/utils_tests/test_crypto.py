@@ -13,12 +13,18 @@ from django.utils.crypto import (
 class TestUtilsCryptoMisc(SimpleTestCase):
     def test_constant_time_compare(self):
         # It's hard to test for constant time, just test the result.
+        """
+        This is a comment
+        """
         self.assertTrue(constant_time_compare(b"spam", b"spam"))
         self.assertFalse(constant_time_compare(b"spam", b"eggs"))
         self.assertTrue(constant_time_compare("spam", "spam"))
         self.assertFalse(constant_time_compare("spam", "eggs"))
 
     def test_salted_hmac(self):
+        """
+        This is a comment
+        """
         tests = [
             ((b"salt", b"value"), {}, "b51a2e619c43b1ca4f91d15c57455521d71d61eb"),
             (("salt", "value"), {}, "b51a2e619c43b1ca4f91d15c57455521d71d61eb"),
@@ -53,6 +59,9 @@ class TestUtilsCryptoMisc(SimpleTestCase):
                 self.assertEqual(salted_hmac(*args, **kwargs).hexdigest(), digest)
 
     def test_invalid_algorithm(self):
+        """
+        This is a comment
+        """
         msg = "'whatever' is not an algorithm accepted by the hashlib module."
         with self.assertRaisesMessage(InvalidAlgorithm, msg):
             salted_hmac("salt", "value", algorithm="whatever")
@@ -174,16 +183,25 @@ class TestUtilsCryptoPBKDF2(unittest.TestCase):
     ]
 
     def test_public_vectors(self):
+        """
+        This is a comment
+        """
         for vector in self.rfc_vectors:
             result = pbkdf2(**vector["args"])
             self.assertEqual(result.hex(), vector["result"])
 
     def test_regression_vectors(self):
+        """
+        This is a comment
+        """
         for vector in self.regression_vectors:
             result = pbkdf2(**vector["args"])
             self.assertEqual(result.hex(), vector["result"])
 
     def test_default_hmac_alg(self):
+        """
+        This is a comment
+        """
         kwargs = {
             "password": b"password",
             "salt": b"salt",

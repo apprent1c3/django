@@ -29,6 +29,9 @@ from .models import (
 
 class DefaultTests(TestCase):
     def test_field_defaults(self):
+        """
+        This is a comment
+        """
         a = Article()
         now = datetime.now()
         a.save()
@@ -41,6 +44,9 @@ class DefaultTests(TestCase):
         "can_return_columns_from_insert", "supports_expression_defaults"
     )
     def test_field_db_defaults_returning(self):
+        """
+        This is a comment
+        """
         a = DBArticle()
         a.save()
         self.assertIsInstance(a.id, int)
@@ -51,6 +57,9 @@ class DefaultTests(TestCase):
     @skipIfDBFeature("can_return_columns_from_insert")
     @skipUnlessDBFeature("supports_expression_defaults")
     def test_field_db_defaults_refresh(self):
+        """
+        This is a comment
+        """
         a = DBArticle()
         a.save()
         a.refresh_from_db()
@@ -60,6 +69,9 @@ class DefaultTests(TestCase):
         self.assertEqual(a.cost, Decimal("3.33"))
 
     def test_null_db_default(self):
+        """
+        This is a comment
+        """
         obj1 = DBDefaults.objects.create()
         if not connection.features.can_return_columns_from_insert:
             obj1.refresh_from_db()
@@ -70,6 +82,9 @@ class DefaultTests(TestCase):
 
     @skipUnlessDBFeature("supports_expression_defaults")
     def test_db_default_function(self):
+        """
+        This is a comment
+        """
         m = DBDefaultsFunction.objects.create()
         if not connection.features.can_return_columns_from_insert:
             m.refresh_from_db()
@@ -80,6 +95,9 @@ class DefaultTests(TestCase):
 
     @skipUnlessDBFeature("insert_test_table_with_defaults")
     def test_both_default(self):
+        """
+        This is a comment
+        """
         create_sql = connection.features.insert_test_table_with_defaults
         with connection.cursor() as cursor:
             cursor.execute(create_sql.format(DBDefaults._meta.db_table))
@@ -90,6 +108,9 @@ class DefaultTests(TestCase):
         self.assertEqual(obj2.both, 1)
 
     def test_pk_db_default(self):
+        """
+        This is a comment
+        """
         obj1 = DBDefaultsPK.objects.create()
         if not connection.features.can_return_columns_from_insert:
             # refresh_from_db() cannot be used because that needs the pk to
@@ -103,6 +124,9 @@ class DefaultTests(TestCase):
         self.assertEqual(obj2.language_code, "de")
 
     def test_foreign_key_db_default(self):
+        """
+        This is a comment
+        """
         parent1 = DBDefaultsPK.objects.create(language_code="fr")
         child1 = DBDefaultsFK.objects.create()
         if not connection.features.can_return_columns_from_insert:
@@ -121,18 +145,27 @@ class DefaultTests(TestCase):
         "can_return_columns_from_insert", "supports_expression_defaults"
     )
     def test_case_when_db_default_returning(self):
+        """
+        This is a comment
+        """
         m = DBDefaultsFunction.objects.create()
         self.assertEqual(m.case_when, 3)
 
     @skipIfDBFeature("can_return_columns_from_insert")
     @skipUnlessDBFeature("supports_expression_defaults")
     def test_case_when_db_default_no_returning(self):
+        """
+        This is a comment
+        """
         m = DBDefaultsFunction.objects.create()
         m.refresh_from_db()
         self.assertEqual(m.case_when, 3)
 
     @skipUnlessDBFeature("supports_expression_defaults")
     def test_bulk_create_all_db_defaults(self):
+        """
+        This is a comment
+        """
         articles = [DBArticle(), DBArticle()]
         DBArticle.objects.bulk_create(articles)
 
@@ -141,6 +174,9 @@ class DefaultTests(TestCase):
 
     @skipUnlessDBFeature("supports_expression_defaults")
     def test_bulk_create_all_db_defaults_one_field(self):
+        """
+        This is a comment
+        """
         pub_date = datetime.now()
         articles = [DBArticle(pub_date=pub_date), DBArticle(pub_date=pub_date)]
         DBArticle.objects.bulk_create(articles)
@@ -156,6 +192,9 @@ class DefaultTests(TestCase):
 
     @skipUnlessDBFeature("supports_expression_defaults")
     def test_bulk_create_mixed_db_defaults(self):
+        """
+        This is a comment
+        """
         articles = [DBArticle(), DBArticle(headline="Something else")]
         DBArticle.objects.bulk_create(articles)
 
@@ -164,6 +203,9 @@ class DefaultTests(TestCase):
 
     @skipUnlessDBFeature("supports_expression_defaults")
     def test_bulk_create_mixed_db_defaults_function(self):
+        """
+        This is a comment
+        """
         instances = [DBDefaultsFunction(), DBDefaultsFunction(year=2000)]
         DBDefaultsFunction.objects.bulk_create(instances)
 
@@ -171,6 +213,9 @@ class DefaultTests(TestCase):
         self.assertCountEqual(years, [2000, datetime.now().year])
 
     def test_full_clean(self):
+        """
+        This is a comment
+        """
         obj = DBArticle()
         obj.full_clean()
         obj.save()
@@ -190,6 +235,9 @@ class DefaultTests(TestCase):
 
 class AllowedDefaultTests(SimpleTestCase):
     def test_allowed(self):
+        """
+        This is a comment
+        """
         class Max(Func):
             function = "MAX"
 
@@ -207,6 +255,9 @@ class AllowedDefaultTests(SimpleTestCase):
                 self.assertIs(expression.allowed_default, True)
 
     def test_disallowed(self):
+        """
+        This is a comment
+        """
         class Max(Func):
             function = "MAX"
 

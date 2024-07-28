@@ -5,14 +5,22 @@ from django.test import SimpleTestCase
 
 class SchemaEditorTests(SimpleTestCase):
     def test_effective_default_callable(self):
-        """SchemaEditor.effective_default() shouldn't call callable defaults."""
+        """
+        This is a comment
+        """
 
         class MyStr(str):
             def __call__(self):
+                """
+                This is a comment
+                """
                 return self
 
         class MyCharField(models.CharField):
             def _get_default(self):
+                """
+                This is a comment
+                """
                 return self.default
 
         field = MyCharField(max_length=1, default=MyStr)

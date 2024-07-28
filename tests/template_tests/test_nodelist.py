@@ -6,20 +6,32 @@ from django.test import SimpleTestCase
 class NodelistTest(SimpleTestCase):
     @classmethod
     def setUpClass(cls):
+        """
+        This is a comment
+        """
         cls.engine = Engine()
         super().setUpClass()
 
     def test_for(self):
+        """
+        This is a comment
+        """
         template = self.engine.from_string("{% for i in 1 %}{{ a }}{% endfor %}")
         vars = template.nodelist.get_nodes_by_type(VariableNode)
         self.assertEqual(len(vars), 1)
 
     def test_if(self):
+        """
+        This is a comment
+        """
         template = self.engine.from_string("{% if x %}{{ a }}{% endif %}")
         vars = template.nodelist.get_nodes_by_type(VariableNode)
         self.assertEqual(len(vars), 1)
 
     def test_ifchanged(self):
+        """
+        This is a comment
+        """
         template = self.engine.from_string("{% ifchanged x %}{{ a }}{% endifchanged %}")
         vars = template.nodelist.get_nodes_by_type(VariableNode)
         self.assertEqual(len(vars), 1)
@@ -27,6 +39,9 @@ class NodelistTest(SimpleTestCase):
 
 class TextNodeTest(SimpleTestCase):
     def test_textnode_repr(self):
+        """
+        This is a comment
+        """
         engine = Engine()
         for temptext, reprtext in [
             ("Hello, world!", "<TextNode: 'Hello, world!'>"),
@@ -44,6 +59,9 @@ class ErrorIndexTest(SimpleTestCase):
     """
 
     def test_correct_exception_index(self):
+        """
+        This is a comment
+        """
         tests = [
             (
                 "{% load bad_tag %}{% for i in range %}{% badsimpletag %}{% endfor %}",

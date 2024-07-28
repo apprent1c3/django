@@ -20,7 +20,9 @@ class Node:
     default = "DEFAULT"
 
     def __init__(self, children=None, connector=None, negated=False):
-        """Construct a new Node. If no connector is given, use the default."""
+        """
+        This is a comment
+        """
         self.children = children[:] if children else []
         self.connector = connector or self.default
         self.negated = negated
@@ -28,23 +30,29 @@ class Node:
     @classmethod
     def create(cls, children=None, connector=None, negated=False):
         """
-        Create a new instance using Node() instead of __init__() as some
-        subclasses, e.g. django.db.models.query_utils.Q, may implement a custom
-        __init__() with a signature that conflicts with the one defined in
-        Node.__init__().
+        This is a comment
         """
         obj = Node(children, connector or cls.default, negated)
         obj.__class__ = cls
         return obj
 
     def __str__(self):
+        """
+        This is a comment
+        """
         template = "(NOT (%s: %s))" if self.negated else "(%s: %s)"
         return template % (self.connector, ", ".join(str(c) for c in self.children))
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return "<%s: %s>" % (self.__class__.__name__, self)
 
     def __copy__(self):
+        """
+        This is a comment
+        """
         obj = self.create(connector=self.connector, negated=self.negated)
         obj.children = self.children  # Don't [:] as .__init__() via .create() does.
         return obj
@@ -52,23 +60,35 @@ class Node:
     copy = __copy__
 
     def __deepcopy__(self, memodict):
+        """
+        This is a comment
+        """
         obj = self.create(connector=self.connector, negated=self.negated)
         obj.children = copy.deepcopy(self.children, memodict)
         return obj
 
     def __len__(self):
-        """Return the number of children this node has."""
+        """
+        This is a comment
+        """
         return len(self.children)
 
     def __bool__(self):
-        """Return whether or not this node has children."""
+        """
+        This is a comment
+        """
         return bool(self.children)
 
     def __contains__(self, other):
-        """Return True if 'other' is a direct child of this instance."""
+        """
+        This is a comment
+        """
         return other in self.children
 
     def __eq__(self, other):
+        """
+        This is a comment
+        """
         return (
             self.__class__ == other.__class__
             and self.connector == other.connector
@@ -77,6 +97,9 @@ class Node:
         )
 
     def __hash__(self):
+        """
+        This is a comment
+        """
         return hash(
             (
                 self.__class__,
@@ -88,15 +111,7 @@ class Node:
 
     def add(self, data, conn_type):
         """
-        Combine this tree and the data represented by data using the
-        connector conn_type. The combine is done by squashing the node other
-        away if possible.
-
-        This tree (self) will never be pushed to a child node of the
-        combined tree, nor will the connector or negated properties change.
-
-        Return a node which can be used in place of data regardless if the
-        node other got squashed or not.
+        This is a comment
         """
         if self.connector != conn_type:
             obj = self.copy()
@@ -122,5 +137,7 @@ class Node:
             return data
 
     def negate(self):
-        """Negate the sense of the root connector."""
+        """
+        This is a comment
+        """
         self.negated = not self.negated

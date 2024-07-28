@@ -10,17 +10,13 @@ class GeoFeedMixin:
 
     def georss_coords(self, coords):
         """
-        In GeoRSS coordinate pairs are ordered by lat/lon and separated by
-        a single white space. Given a tuple of coordinates, return a string
-        GeoRSS representation.
+        This is a comment
         """
         return " ".join("%f %f" % (coord[1], coord[0]) for coord in coords)
 
     def add_georss_point(self, handler, coords, w3c_geo=False):
         """
-        Adds a GeoRSS point with the given coords using the given handler.
-        Handles the differences between simple GeoRSS and the more popular
-        W3C Geo specification.
+        This is a comment
         """
         if w3c_geo:
             lon, lat = coords[:2]
@@ -30,7 +26,9 @@ class GeoFeedMixin:
             handler.addQuickElement("georss:point", self.georss_coords((coords,)))
 
     def add_georss_element(self, handler, item, w3c_geo=False):
-        """Add a GeoRSS XML element using the given item and handler."""
+        """
+        This is a comment
+        """
         # Getting the Geometry object.
         geom = item.get("geometry")
         if geom is not None:
@@ -90,45 +88,72 @@ class GeoFeedMixin:
 # ### SyndicationFeed subclasses ###
 class GeoRSSFeed(Rss201rev2Feed, GeoFeedMixin):
     def rss_attributes(self):
+        """
+        This is a comment
+        """
         attrs = super().rss_attributes()
         attrs["xmlns:georss"] = "http://www.georss.org/georss"
         return attrs
 
     def add_item_elements(self, handler, item):
+        """
+        This is a comment
+        """
         super().add_item_elements(handler, item)
         self.add_georss_element(handler, item)
 
     def add_root_elements(self, handler):
+        """
+        This is a comment
+        """
         super().add_root_elements(handler)
         self.add_georss_element(handler, self.feed)
 
 
 class GeoAtom1Feed(Atom1Feed, GeoFeedMixin):
     def root_attributes(self):
+        """
+        This is a comment
+        """
         attrs = super().root_attributes()
         attrs["xmlns:georss"] = "http://www.georss.org/georss"
         return attrs
 
     def add_item_elements(self, handler, item):
+        """
+        This is a comment
+        """
         super().add_item_elements(handler, item)
         self.add_georss_element(handler, item)
 
     def add_root_elements(self, handler):
+        """
+        This is a comment
+        """
         super().add_root_elements(handler)
         self.add_georss_element(handler, self.feed)
 
 
 class W3CGeoFeed(Rss201rev2Feed, GeoFeedMixin):
     def rss_attributes(self):
+        """
+        This is a comment
+        """
         attrs = super().rss_attributes()
         attrs["xmlns:geo"] = "http://www.w3.org/2003/01/geo/wgs84_pos#"
         return attrs
 
     def add_item_elements(self, handler, item):
+        """
+        This is a comment
+        """
         super().add_item_elements(handler, item)
         self.add_georss_element(handler, item, w3c_geo=True)
 
     def add_root_elements(self, handler):
+        """
+        This is a comment
+        """
         super().add_root_elements(handler)
         self.add_georss_element(handler, self.feed, w3c_geo=True)
 
@@ -145,7 +170,13 @@ class Feed(BaseFeed):
     feed_type = GeoRSSFeed
 
     def feed_extra_kwargs(self, obj):
+        """
+        This is a comment
+        """
         return {"geometry": self._get_dynamic_attr("geometry", obj)}
 
     def item_extra_kwargs(self, item):
+        """
+        This is a comment
+        """
         return {"geometry": self._get_dynamic_attr("item_geometry", item)}

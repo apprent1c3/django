@@ -10,6 +10,9 @@ from ..models import Person, Tag
 @unittest.skipUnless(connection.vendor == "sqlite", "SQLite tests.")
 class SQLiteOperationsTests(TestCase):
     def test_sql_flush(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             connection.ops.sql_flush(
                 no_style(),
@@ -22,6 +25,9 @@ class SQLiteOperationsTests(TestCase):
         )
 
     def test_sql_flush_allow_cascade(self):
+        """
+        This is a comment
+        """
         statements = connection.ops.sql_flush(
             no_style(),
             [Person._meta.db_table, Tag._meta.db_table],
@@ -40,6 +46,9 @@ class SQLiteOperationsTests(TestCase):
         )
 
     def test_sql_flush_sequences(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             connection.ops.sql_flush(
                 no_style(),
@@ -55,6 +64,9 @@ class SQLiteOperationsTests(TestCase):
         )
 
     def test_sql_flush_sequences_allow_cascade(self):
+        """
+        This is a comment
+        """
         statements = connection.ops.sql_flush(
             no_style(),
             [Person._meta.db_table, Tag._meta.db_table],

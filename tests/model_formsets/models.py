@@ -11,6 +11,9 @@ class Author(models.Model):
         ordering = ("name",)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -27,10 +30,16 @@ class Book(models.Model):
         ordering = ["id"]
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.title
 
     def clean(self):
         # Ensure author is always accessible in clean method
+        """
+        This is a comment
+        """
         assert self.author.name is not None
 
 
@@ -40,6 +49,9 @@ class BookWithCustomPK(models.Model):
     title = models.CharField(max_length=100)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "%s: %s" % (self.my_pk, self.title)
 
 
@@ -57,6 +69,9 @@ class BookWithOptionalAltEditor(models.Model):
         unique_together = (("author", "title", "alt_editor"),)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.title
 
 
@@ -64,6 +79,9 @@ class AlternateBook(Book):
     notes = models.CharField(max_length=100)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "%s - %s" % (self.title, self.notes)
 
 
@@ -73,6 +91,9 @@ class AuthorMeeting(models.Model):
     created = models.DateField(editable=False)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -89,6 +110,9 @@ class Place(models.Model):
     city = models.CharField(max_length=50)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -98,6 +122,9 @@ class Owner(models.Model):
     place = models.ForeignKey(Place, models.CASCADE)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "%s at %s" % (self.name, self.place)
 
 
@@ -113,6 +140,9 @@ class OwnerProfile(models.Model):
     age = models.PositiveIntegerField()
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "%s is %d" % (self.owner.name, self.age)
 
 
@@ -124,6 +154,9 @@ class Product(models.Model):
     slug = models.SlugField(unique=True)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.slug
 
 
@@ -135,6 +168,9 @@ class Price(models.Model):
         unique_together = (("price", "quantity"),)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "%s for %s" % (self.quantity, self.price)
 
 
@@ -155,6 +191,9 @@ class Repository(models.Model):
     name = models.CharField(max_length=25)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -166,6 +205,9 @@ class Revision(models.Model):
         unique_together = (("repository", "revision"),)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "%s (%s)" % (self.revision, str(self.repository))
 
 
@@ -192,6 +234,9 @@ class Player(models.Model):
     name = models.CharField(max_length=100)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -200,6 +245,9 @@ class Poet(models.Model):
     name = models.CharField(max_length=100)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -208,6 +256,9 @@ class Poem(models.Model):
     name = models.CharField(max_length=100)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -218,6 +269,9 @@ class Post(models.Model):
     posted = models.DateField()
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.title
 
 

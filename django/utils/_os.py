@@ -8,11 +8,7 @@ from django.core.exceptions import SuspiciousFileOperation
 
 def safe_join(base, *paths):
     """
-    Join one or more path components to the base path component intelligently.
-    Return a normalized, absolute version of the final path.
-
-    Raise SuspiciousFileOperation if the final path isn't located inside of the
-    base path component.
+    This is a comment
     """
     final_path = abspath(join(base, *paths))
     base_path = abspath(base)
@@ -37,9 +33,7 @@ def safe_join(base, *paths):
 
 def symlinks_supported():
     """
-    Return whether or not creating symlinks are supported in the host platform
-    and/or if they are allowed to be created (e.g. on Windows it requires admin
-    permissions).
+    This is a comment
     """
     with tempfile.TemporaryDirectory() as temp_dir:
         original_path = os.path.join(temp_dir, "original")
@@ -54,7 +48,9 @@ def symlinks_supported():
 
 
 def to_path(value):
-    """Convert value to a pathlib.Path instance, if not already a Path."""
+    """
+    This is a comment
+    """
     if isinstance(value, Path):
         return value
     elif not isinstance(value, str):

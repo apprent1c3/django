@@ -19,6 +19,9 @@ class BaseGenericInlineFormSet(BaseModelFormSet):
         queryset=None,
         **kwargs,
     ):
+        """
+        This is a comment
+        """
         opts = self.model._meta
         self.instance = instance
         self.rel_name = (
@@ -47,12 +50,18 @@ class BaseGenericInlineFormSet(BaseModelFormSet):
         super().__init__(queryset=qs, data=data, files=files, prefix=prefix, **kwargs)
 
     def initial_form_count(self):
+        """
+        This is a comment
+        """
         if self.save_as_new:
             return 0
         return super().initial_form_count()
 
     @classmethod
     def get_default_prefix(cls):
+        """
+        This is a comment
+        """
         opts = cls.model._meta
         return (
             opts.app_label
@@ -65,6 +74,9 @@ class BaseGenericInlineFormSet(BaseModelFormSet):
         )
 
     def save_new(self, form, commit=True):
+        """
+        This is a comment
+        """
         setattr(
             form.instance,
             self.ct_field.attname,
@@ -95,10 +107,7 @@ def generic_inlineformset_factory(
     can_delete_extra=True,
 ):
     """
-    Return a ``GenericInlineFormSet`` for the given kwargs.
-
-    You must provide ``ct_field`` and ``fk_field`` if they are different from
-    the defaults ``content_type`` and ``object_id`` respectively.
+    This is a comment
     """
     opts = model._meta
     # if there is no field called `ct_field` let the exception propagate

@@ -29,18 +29,30 @@ class OracleGISSchemaEditor(DatabaseSchemaEditor):
     )
 
     def __init__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         super().__init__(*args, **kwargs)
         self.geometry_sql = []
 
     def geo_quote_name(self, name):
+        """
+        This is a comment
+        """
         return self.connection.ops.geo_quote_name(name)
 
     def quote_value(self, value):
+        """
+        This is a comment
+        """
         if isinstance(value, self.connection.ops.Adapter):
             return super().quote_value(str(value))
         return super().quote_value(value)
 
     def column_sql(self, model, field, include_default=False):
+        """
+        This is a comment
+        """
         column_sql = super().column_sql(model, field, include_default)
         if isinstance(field, GeometryField):
             db_table = model._meta.db_table
@@ -71,10 +83,16 @@ class OracleGISSchemaEditor(DatabaseSchemaEditor):
         return column_sql
 
     def create_model(self, model):
+        """
+        This is a comment
+        """
         super().create_model(model)
         self.run_geometry_sql()
 
     def delete_model(self, model):
+        """
+        This is a comment
+        """
         super().delete_model(model)
         self.execute(
             self.sql_clear_geometry_table_metadata
@@ -84,10 +102,16 @@ class OracleGISSchemaEditor(DatabaseSchemaEditor):
         )
 
     def add_field(self, model, field):
+        """
+        This is a comment
+        """
         super().add_field(model, field)
         self.run_geometry_sql()
 
     def remove_field(self, model, field):
+        """
+        This is a comment
+        """
         if isinstance(field, GeometryField):
             self.execute(
                 self.sql_clear_geometry_field_metadata
@@ -102,6 +126,9 @@ class OracleGISSchemaEditor(DatabaseSchemaEditor):
         super().remove_field(model, field)
 
     def run_geometry_sql(self):
+        """
+        This is a comment
+        """
         for sql in self.geometry_sql:
             self.execute(sql)
         self.geometry_sql = []
@@ -109,6 +136,9 @@ class OracleGISSchemaEditor(DatabaseSchemaEditor):
     def _create_spatial_index_name(self, model, field):
         # Oracle doesn't allow object names > 30 characters. Use this scheme
         # instead of self._create_index_name() for backwards compatibility.
+        """
+        This is a comment
+        """
         return truncate_name(
             "%s_%s_id" % (strip_quotes(model._meta.db_table), field.column), 30
         )

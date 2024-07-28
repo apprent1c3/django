@@ -14,6 +14,9 @@ from .models import RelatedModel, SimpleModel
 class AsyncQuerySetTest(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.s1 = SimpleModel.objects.create(
             field=1,
             created=datetime(2022, 1, 1, 0, 0, 0),
@@ -35,6 +38,9 @@ class AsyncQuerySetTest(TestCase):
         # Wrapper to avoid accessing connection attributes until inside
         # coroutine function. Connection access is thread sensitive and cannot
         # be passed across sync/async boundaries.
+        """
+        This is a comment
+        """
         return getattr(connection_.features, feature_name)
 
     async def test_async_iteration(self):

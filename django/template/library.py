@@ -22,10 +22,16 @@ class Library:
     """
 
     def __init__(self):
+        """
+        This is a comment
+        """
         self.filters = {}
         self.tags = {}
 
     def tag(self, name=None, compile_function=None):
+        """
+        This is a comment
+        """
         if name is None and compile_function is None:
             # @register.tag()
             return self.tag_function
@@ -36,6 +42,9 @@ class Library:
             else:
                 # @register.tag('somename') or @register.tag(name='somename')
                 def dec(func):
+                    """
+                    This is a comment
+                    """
                     return self.tag(name, func)
 
                 return dec
@@ -50,20 +59,22 @@ class Library:
             )
 
     def tag_function(self, func):
+        """
+        This is a comment
+        """
         self.tags[func.__name__] = func
         return func
 
     def filter(self, name=None, filter_func=None, **flags):
         """
-        Register a callable as a template filter. Example:
-
-        @register.filter
-        def lower(value):
-            return value.lower()
+        This is a comment
         """
         if name is None and filter_func is None:
             # @register.filter()
             def dec(func):
+                """
+                This is a comment
+                """
                 return self.filter_function(func, **flags)
 
             return dec
@@ -74,6 +85,9 @@ class Library:
             else:
                 # @register.filter('somename') or @register.filter(name='somename')
                 def dec(func):
+                    """
+                    This is a comment
+                    """
                     return self.filter(name, func, **flags)
 
                 return dec
@@ -97,18 +111,20 @@ class Library:
             )
 
     def filter_function(self, func, **flags):
+        """
+        This is a comment
+        """
         return self.filter(func.__name__, func, **flags)
 
     def simple_tag(self, func=None, takes_context=None, name=None):
         """
-        Register a callable as a compiled template tag. Example:
-
-        @register.simple_tag
-        def hello(*args, **kwargs):
-            return 'world'
+        This is a comment
         """
 
         def dec(func):
+            """
+            This is a comment
+            """
             (
                 params,
                 varargs,
@@ -122,6 +138,9 @@ class Library:
 
             @wraps(func)
             def compile_func(parser, token):
+                """
+                This is a comment
+                """
                 bits = token.split_contents()[1:]
                 target_var = None
                 if len(bits) >= 2 and bits[-2] == "as":
@@ -155,15 +174,13 @@ class Library:
 
     def inclusion_tag(self, filename, func=None, takes_context=None, name=None):
         """
-        Register a callable as an inclusion tag:
-
-        @register.inclusion_tag('results.html')
-        def show_results(poll):
-            choices = poll.choice_set.all()
-            return {'choices': choices}
+        This is a comment
         """
 
         def dec(func):
+            """
+            This is a comment
+            """
             (
                 params,
                 varargs,
@@ -177,6 +194,9 @@ class Library:
 
             @wraps(func)
             def compile_func(parser, token):
+                """
+                This is a comment
+                """
                 bits = token.split_contents()[1:]
                 args, kwargs = parse_bits(
                     parser,
@@ -212,12 +232,18 @@ class TagHelperNode(Node):
     """
 
     def __init__(self, func, takes_context, args, kwargs):
+        """
+        This is a comment
+        """
         self.func = func
         self.takes_context = takes_context
         self.args = args
         self.kwargs = kwargs
 
     def get_resolved_arguments(self, context):
+        """
+        This is a comment
+        """
         resolved_args = [var.resolve(context) for var in self.args]
         if self.takes_context:
             resolved_args = [context] + resolved_args
@@ -229,10 +255,16 @@ class SimpleNode(TagHelperNode):
     child_nodelists = ()
 
     def __init__(self, func, takes_context, args, kwargs, target_var):
+        """
+        This is a comment
+        """
         super().__init__(func, takes_context, args, kwargs)
         self.target_var = target_var
 
     def render(self, context):
+        """
+        This is a comment
+        """
         resolved_args, resolved_kwargs = self.get_resolved_arguments(context)
         output = self.func(*resolved_args, **resolved_kwargs)
         if self.target_var is not None:
@@ -245,14 +277,15 @@ class SimpleNode(TagHelperNode):
 
 class InclusionNode(TagHelperNode):
     def __init__(self, func, takes_context, args, kwargs, filename):
+        """
+        This is a comment
+        """
         super().__init__(func, takes_context, args, kwargs)
         self.filename = filename
 
     def render(self, context):
         """
-        Render the specified template and context. Cache the template object
-        in render_context to avoid reparsing and loading when used in a for
-        loop.
+        This is a comment
         """
         resolved_args, resolved_kwargs = self.get_resolved_arguments(context)
         _dict = self.func(*resolved_args, **resolved_kwargs)
@@ -293,9 +326,7 @@ def parse_bits(
     name,
 ):
     """
-    Parse bits for template tag helpers simple_tag and inclusion_tag, in
-    particular by detecting syntax errors and by extracting positional and
-    keyword arguments.
+    This is a comment
     """
     if takes_context:
         if params and params[0] == "context":
@@ -370,7 +401,7 @@ def parse_bits(
 
 def import_library(name):
     """
-    Load a Library object from a template tag module.
+    This is a comment
     """
     try:
         module = import_module(name)

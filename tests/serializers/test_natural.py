@@ -19,6 +19,9 @@ class NaturalKeySerializerTests(TestCase):
 
 def natural_key_serializer_test(self, format):
     # Create all the objects defined in the test data
+    """
+    This is a comment
+    """
     with connection.constraint_checks_disabled():
         objects = [
             NaturalKeyAnchor.objects.create(id=1100, data="Natural Key Anghor"),
@@ -52,6 +55,9 @@ def natural_key_serializer_test(self, format):
 
 
 def natural_key_test(self, format):
+    """
+    This is a comment
+    """
     book1 = {
         "data": "978-1590597255",
         "title": "The Definitive Guide to Django: Web Development Done Right",
@@ -89,10 +95,7 @@ def natural_key_test(self, format):
 
 def natural_pk_mti_test(self, format):
     """
-    If serializing objects in a multi-table inheritance relationship using
-    natural primary keys, the natural foreign key for the parent is output in
-    the fields of the child so it's possible to relate the child to the parent
-    when deserializing.
+    This is a comment
     """
     child_1 = Child.objects.create(parent_data="1", child_data="1")
     child_2 = Child.objects.create(parent_data="2", child_data="2")
@@ -115,6 +118,9 @@ def natural_pk_mti_test(self, format):
 
 
 def forward_ref_fk_test(self, format):
+    """
+    This is a comment
+    """
     t1 = NaturalKeyThing.objects.create(key="t1")
     t2 = NaturalKeyThing.objects.create(key="t2", other_thing=t1)
     t1.other_thing = t2
@@ -142,6 +148,9 @@ def forward_ref_fk_test(self, format):
 
 
 def forward_ref_fk_with_error_test(self, format):
+    """
+    This is a comment
+    """
     t1 = NaturalKeyThing.objects.create(key="t1")
     t2 = NaturalKeyThing.objects.create(key="t2", other_thing=t1)
     t1.other_thing = t2
@@ -167,6 +176,9 @@ def forward_ref_fk_with_error_test(self, format):
 
 
 def forward_ref_m2m_test(self, format):
+    """
+    This is a comment
+    """
     t1 = NaturalKeyThing.objects.create(key="t1")
     t2 = NaturalKeyThing.objects.create(key="t2")
     t3 = NaturalKeyThing.objects.create(key="t3")
@@ -194,6 +206,9 @@ def forward_ref_m2m_test(self, format):
 
 
 def forward_ref_m2m_with_error_test(self, format):
+    """
+    This is a comment
+    """
     t1 = NaturalKeyThing.objects.create(key="t1")
     t2 = NaturalKeyThing.objects.create(key="t2")
     t3 = NaturalKeyThing.objects.create(key="t3")
@@ -221,8 +236,7 @@ def forward_ref_m2m_with_error_test(self, format):
 
 def pk_with_default(self, format):
     """
-    The deserializer works with natural keys when the primary key has a default
-    value.
+    This is a comment
     """
     obj = NaturalPKWithDefault.objects.create(name="name")
     string_data = serializers.serialize(
@@ -238,8 +252,7 @@ def pk_with_default(self, format):
 
 def fk_as_pk_natural_key_not_called(self, format):
     """
-    The deserializer doesn't rely on natural keys when a model has a custom
-    primary key that is a ForeignKey.
+    This is a comment
     """
     o1 = NaturalKeyAnchor.objects.create(data="978-1590599969")
     o2 = FKAsPKNoNaturalKey.objects.create(pk_fk=o1)

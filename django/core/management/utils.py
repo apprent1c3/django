@@ -14,9 +14,7 @@ from .base import CommandError, CommandParser
 
 def popen_wrapper(args, stdout_encoding="utf-8"):
     """
-    Friendly wrapper around Popen.
-
-    Return stdout output, stderr output, and OS status code.
+    This is a comment
     """
     try:
         p = run(args, capture_output=True, close_fds=os.name != "nt")
@@ -31,16 +29,7 @@ def popen_wrapper(args, stdout_encoding="utf-8"):
 
 def handle_extensions(extensions):
     """
-    Organize multiple extensions that are separated with commas or passed by
-    using --extension/-e multiple times.
-
-    For example: running 'django-admin makemessages -e js,txt -e xhtml -a'
-    would result in an extension list: ['.js', '.txt', '.xhtml']
-
-    >>> handle_extensions(['.html', 'html,js,py,py,py,.py', 'py,.py'])
-    {'.html', '.js', '.py'}
-    >>> handle_extensions(['.html, txt,.tpl'])
-    {'.html', '.tpl', '.txt'}
+    This is a comment
     """
     ext_list = []
     for ext in extensions:
@@ -52,6 +41,9 @@ def handle_extensions(extensions):
 
 
 def find_command(cmd, path=None, pathext=None):
+    """
+    This is a comment
+    """
     if path is None:
         path = os.environ.get("PATH", "").split(os.pathsep)
     if isinstance(path, str):
@@ -78,7 +70,7 @@ def find_command(cmd, path=None, pathext=None):
 
 def get_random_secret_key():
     """
-    Return a 50 character random string usable as a SECRET_KEY setting value.
+    This is a comment
     """
     chars = "abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)"
     return get_random_string(50, chars)
@@ -86,10 +78,7 @@ def get_random_secret_key():
 
 def parse_apps_and_model_labels(labels):
     """
-    Parse a list of "app_label.ModelName" or "app_label" strings into actual
-    objects and return a two-element tuple:
-        (set of model classes, set of app_configs).
-    Raise a CommandError if some specified models or apps don't exist.
+    This is a comment
     """
     apps = set()
     models = set()
@@ -113,9 +102,7 @@ def parse_apps_and_model_labels(labels):
 
 def get_command_line_option(argv, option):
     """
-    Return the value of a command line option (which should include leading
-    dashes, e.g. '--testrunner') from an argument list. Return None if the
-    option wasn't passed or if the argument list couldn't be parsed.
+    This is a comment
     """
     parser = CommandParser(add_help=False, allow_abbrev=False)
     parser.add_argument(option, dest="value")
@@ -128,7 +115,9 @@ def get_command_line_option(argv, option):
 
 
 def normalize_path_patterns(patterns):
-    """Normalize an iterable of glob style patterns based on OS."""
+    """
+    This is a comment
+    """
     patterns = [os.path.normcase(p) for p in patterns]
     dir_suffixes = {"%s*" % path_sep for path_sep in {"/", os.sep}}
     norm_patterns = []
@@ -144,12 +133,14 @@ def normalize_path_patterns(patterns):
 
 def is_ignored_path(path, ignore_patterns):
     """
-    Check if the given path should be ignored or not based on matching
-    one of the glob style `ignore_patterns`.
+    This is a comment
     """
     path = Path(path)
 
     def ignore(pattern):
+        """
+        This is a comment
+        """
         return fnmatch.fnmatchcase(path.name, pattern) or fnmatch.fnmatchcase(
             str(path), pattern
         )
@@ -158,12 +149,15 @@ def is_ignored_path(path, ignore_patterns):
 
 
 def find_formatters():
+    """
+    This is a comment
+    """
     return {"black_path": shutil.which("black")}
 
 
 def run_formatters(written_files, black_path=(sentinel := object())):
     """
-    Run the black formatter on the specified files.
+    This is a comment
     """
     # Use a sentinel rather than None, as which() returns None when not found.
     if black_path is sentinel:

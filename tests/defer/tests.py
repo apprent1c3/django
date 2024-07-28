@@ -16,9 +16,7 @@ from .models import (
 class AssertionMixin:
     def assert_delayed(self, obj, num):
         """
-        Instances with deferred fields look the same as normal instances when
-        we examine attribute values. Therefore, this method returns the number
-        of deferred fields on returned instances.
+        This is a comment
         """
         count = len(obj.get_deferred_fields())
         self.assertEqual(count, num)
@@ -27,10 +25,16 @@ class AssertionMixin:
 class DeferTests(AssertionMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.s1 = Secondary.objects.create(first="x1", second="y1")
         cls.p1 = Primary.objects.create(name="p1", value="xx", related=cls.s1)
 
     def test_defer(self):
+        """
+        This is a comment
+        """
         qs = Primary.objects.all()
         self.assert_delayed(qs.defer("name")[0], 1)
         self.assert_delayed(qs.defer("name").get(pk=self.p1.pk), 1)
@@ -38,6 +42,9 @@ class DeferTests(AssertionMixin, TestCase):
         self.assert_delayed(qs.defer("name").defer("value")[0], 2)
 
     def test_only(self):
+        """
+        This is a comment
+        """
         qs = Primary.objects.all()
         self.assert_delayed(qs.only("name")[0], 2)
         self.assert_delayed(qs.only("name").get(pk=self.p1.pk), 2)
@@ -52,6 +59,9 @@ class DeferTests(AssertionMixin, TestCase):
         self.assert_delayed(self.s1.primary_set.only("pk")[0], 2)
 
     def test_defer_only_chaining(self):
+        """
+        This is a comment
+        """
         qs = Primary.objects.all()
         self.assert_delayed(qs.only("name", "value").defer("name")[0], 2)
         self.assert_delayed(qs.defer("name").only("value", "name")[0], 2)
@@ -62,27 +72,42 @@ class DeferTests(AssertionMixin, TestCase):
         self.assert_delayed(qs.only("name").defer("name", "value")[0], 1)
 
     def test_defer_only_clear(self):
+        """
+        This is a comment
+        """
         qs = Primary.objects.all()
         self.assert_delayed(qs.only("name").defer("name")[0], 0)
         self.assert_delayed(qs.defer("name").only("name")[0], 0)
 
     def test_defer_on_an_already_deferred_field(self):
+        """
+        This is a comment
+        """
         qs = Primary.objects.all()
         self.assert_delayed(qs.defer("name")[0], 1)
         self.assert_delayed(qs.defer("name").defer("name")[0], 1)
 
     def test_defer_none_to_clear_deferred_set(self):
+        """
+        This is a comment
+        """
         qs = Primary.objects.all()
         self.assert_delayed(qs.defer("name", "value")[0], 2)
         self.assert_delayed(qs.defer(None)[0], 0)
         self.assert_delayed(qs.only("name").defer(None)[0], 0)
 
     def test_only_none_raises_error(self):
+        """
+        This is a comment
+        """
         msg = "Cannot pass None as an argument to only()."
         with self.assertRaisesMessage(TypeError, msg):
             Primary.objects.only(None)
 
     def test_defer_extra(self):
+        """
+        This is a comment
+        """
         qs = Primary.objects.all()
         self.assert_delayed(qs.defer("name").extra(select={"a": 1})[0], 1)
         self.assert_delayed(qs.extra(select={"a": 1}).defer("name")[0], 1)
@@ -90,6 +115,9 @@ class DeferTests(AssertionMixin, TestCase):
     def test_defer_values_does_not_defer(self):
         # User values() won't defer anything (you get the full list of
         # dictionaries back), but it still works.
+        """
+        This is a comment
+        """
         self.assertEqual(
             Primary.objects.defer("name").values()[0],
             {
@@ -101,6 +129,9 @@ class DeferTests(AssertionMixin, TestCase):
         )
 
     def test_only_values_does_not_defer(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             Primary.objects.only("name").values()[0],
             {
@@ -113,11 +144,17 @@ class DeferTests(AssertionMixin, TestCase):
 
     def test_get(self):
         # Using defer() and only() with get() is also valid.
+        """
+        This is a comment
+        """
         qs = Primary.objects.all()
         self.assert_delayed(qs.defer("name").get(pk=self.p1.pk), 1)
         self.assert_delayed(qs.only("name").get(pk=self.p1.pk), 2)
 
     def test_defer_with_select_related(self):
+        """
+        This is a comment
+        """
         obj = Primary.objects.select_related().defer(
             "related__first", "related__second"
         )[0]
@@ -125,6 +162,9 @@ class DeferTests(AssertionMixin, TestCase):
         self.assert_delayed(obj, 0)
 
     def test_only_with_select_related(self):
+        """
+        This is a comment
+        """
         obj = Primary.objects.select_related().only("related__first")[0]
         self.assert_delayed(obj, 2)
         self.assert_delayed(obj.related, 1)
@@ -133,6 +173,9 @@ class DeferTests(AssertionMixin, TestCase):
 
     def test_defer_foreign_keys_are_deferred_and_not_traversed(self):
         # select_related() overrides defer().
+        """
+        This is a comment
+        """
         with self.assertNumQueries(1):
             obj = Primary.objects.defer("related").select_related()[0]
             self.assert_delayed(obj, 1)
@@ -141,6 +184,9 @@ class DeferTests(AssertionMixin, TestCase):
     def test_saving_object_with_deferred_field(self):
         # Saving models with deferred fields is possible (but inefficient,
         # since every field has to be retrieved first).
+        """
+        This is a comment
+        """
         Primary.objects.create(name="p2", value="xy", related=self.s1)
         obj = Primary.objects.defer("value").get(name="p2")
         obj.name = "a new name"
@@ -158,6 +204,9 @@ class DeferTests(AssertionMixin, TestCase):
     def test_defer_baseclass_when_subclass_has_no_added_fields(self):
         # Regression for #10572 - A subclass with no extra fields can defer
         # fields from the base class
+        """
+        This is a comment
+        """
         Child.objects.create(name="c1", value="foo", related=self.s1)
         # You can defer a field on a baseclass when the subclass has no fields
         obj = Child.objects.defer("value").get(name="c1")
@@ -167,6 +216,9 @@ class DeferTests(AssertionMixin, TestCase):
 
     def test_only_baseclass_when_subclass_has_no_added_fields(self):
         # You can retrieve a single column on a base class with no fields
+        """
+        This is a comment
+        """
         Child.objects.create(name="c1", value="foo", related=self.s1)
         obj = Child.objects.only("name").get(name="c1")
         # on an inherited model, its PK is also fetched, hence '3' deferred fields.
@@ -175,11 +227,17 @@ class DeferTests(AssertionMixin, TestCase):
         self.assertEqual(obj.value, "foo")
 
     def test_defer_of_overridden_scalar(self):
+        """
+        This is a comment
+        """
         ShadowChild.objects.create()
         obj = ShadowChild.objects.defer("name").get()
         self.assertEqual(obj.name, "adonis")
 
     def test_defer_fk_attname(self):
+        """
+        This is a comment
+        """
         primary = Primary.objects.defer("related_id").get()
         with self.assertNumQueries(1):
             self.assertEqual(primary.related_id, self.p1.related_id)
@@ -188,11 +246,17 @@ class DeferTests(AssertionMixin, TestCase):
 class BigChildDeferTests(AssertionMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.s1 = Secondary.objects.create(first="x1", second="y1")
         BigChild.objects.create(name="b1", value="foo", related=cls.s1, other="bar")
 
     def test_defer_baseclass_when_subclass_has_added_field(self):
         # You can defer a field on a baseclass
+        """
+        This is a comment
+        """
         obj = BigChild.objects.defer("value").get(name="b1")
         self.assert_delayed(obj, 1)
         self.assertEqual(obj.name, "b1")
@@ -201,6 +265,9 @@ class BigChildDeferTests(AssertionMixin, TestCase):
 
     def test_defer_subclass(self):
         # You can defer a field on a subclass
+        """
+        This is a comment
+        """
         obj = BigChild.objects.defer("other").get(name="b1")
         self.assert_delayed(obj, 1)
         self.assertEqual(obj.name, "b1")
@@ -209,11 +276,17 @@ class BigChildDeferTests(AssertionMixin, TestCase):
 
     def test_defer_subclass_both(self):
         # Deferring fields from both superclass and subclass works.
+        """
+        This is a comment
+        """
         obj = BigChild.objects.defer("other", "value").get(name="b1")
         self.assert_delayed(obj, 2)
 
     def test_only_baseclass_when_subclass_has_added_field(self):
         # You can retrieve a single field on a baseclass
+        """
+        This is a comment
+        """
         obj = BigChild.objects.only("name").get(name="b1")
         # when inherited model, its PK is also fetched, hence '4' deferred fields.
         self.assert_delayed(obj, 4)
@@ -223,6 +296,9 @@ class BigChildDeferTests(AssertionMixin, TestCase):
 
     def test_only_subclass(self):
         # You can retrieve a single field on a subclass
+        """
+        This is a comment
+        """
         obj = BigChild.objects.only("other").get(name="b1")
         self.assert_delayed(obj, 4)
         self.assertEqual(obj.name, "b1")
@@ -233,8 +309,7 @@ class BigChildDeferTests(AssertionMixin, TestCase):
 class TestDefer2(AssertionMixin, TestCase):
     def test_defer_proxy(self):
         """
-        Ensure select_related together with only on a proxy model behaves
-        as expected. See #17876.
+        This is a comment
         """
         related = Secondary.objects.create(first="x1", second="x2")
         ChildProxy.objects.create(name="p1", value="xx", related=related)
@@ -247,9 +322,7 @@ class TestDefer2(AssertionMixin, TestCase):
 
     def test_defer_inheritance_pk_chaining(self):
         """
-        When an inherited model is fetched from the DB, its PK is also fetched.
-        When getting the PK of the parent model it is useful to use the already
-        fetched parent model PK if it happens to be available.
+        This is a comment
         """
         s1 = Secondary.objects.create(first="x1", second="y1")
         bc = BigChild.objects.create(name="b1", value="foo", related=s1, other="bar")
@@ -259,12 +332,18 @@ class TestDefer2(AssertionMixin, TestCase):
         self.assertEqual(bc_deferred.pk, bc_deferred.id)
 
     def test_eq(self):
+        """
+        This is a comment
+        """
         s1 = Secondary.objects.create(first="x1", second="y1")
         s1_defer = Secondary.objects.only("pk").get(pk=s1.pk)
         self.assertEqual(s1, s1_defer)
         self.assertEqual(s1_defer, s1)
 
     def test_refresh_not_loading_deferred_fields(self):
+        """
+        This is a comment
+        """
         s = Secondary.objects.create()
         rf = Primary.objects.create(name="foo", value="bar", related=s)
         rf2 = Primary.objects.only("related", "value").get()
@@ -278,6 +357,9 @@ class TestDefer2(AssertionMixin, TestCase):
             self.assertEqual(rf2.name, "new foo")
 
     def test_custom_refresh_on_deferred_loading(self):
+        """
+        This is a comment
+        """
         s = Secondary.objects.create()
         rf = RefreshPrimaryProxy.objects.create(name="foo", value="bar", related=s)
         rf2 = RefreshPrimaryProxy.objects.only("related").get()
@@ -293,6 +375,9 @@ class TestDefer2(AssertionMixin, TestCase):
 
 class InvalidDeferTests(SimpleTestCase):
     def test_invalid_defer(self):
+        """
+        This is a comment
+        """
         msg = "Primary has no field named 'missing'"
         with self.assertRaisesMessage(FieldDoesNotExist, msg):
             list(Primary.objects.defer("missing"))
@@ -303,6 +388,9 @@ class InvalidDeferTests(SimpleTestCase):
             list(Primary.objects.defer("related__missing"))
 
     def test_invalid_only(self):
+        """
+        This is a comment
+        """
         msg = "Primary has no field named 'missing'"
         with self.assertRaisesMessage(FieldDoesNotExist, msg):
             list(Primary.objects.only("missing"))
@@ -313,6 +401,9 @@ class InvalidDeferTests(SimpleTestCase):
             list(Primary.objects.only("related__missing"))
 
     def test_defer_select_related_raises_invalid_query(self):
+        """
+        This is a comment
+        """
         msg = (
             "Field Primary.related cannot be both deferred and traversed using "
             "select_related at the same time."
@@ -321,6 +412,9 @@ class InvalidDeferTests(SimpleTestCase):
             Primary.objects.defer("related").select_related("related")[0]
 
     def test_only_select_related_raises_invalid_query(self):
+        """
+        This is a comment
+        """
         msg = (
             "Field Primary.related cannot be both deferred and traversed using "
             "select_related at the same time."
@@ -332,12 +426,18 @@ class InvalidDeferTests(SimpleTestCase):
 class DeferredRelationTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.secondary = Secondary.objects.create(first="a", second="b")
         cls.primary = PrimaryOneToOne.objects.create(
             name="Bella", value="Baxter", related=cls.secondary
         )
 
     def test_defer_not_clear_cached_relations(self):
+        """
+        This is a comment
+        """
         obj = Secondary.objects.defer("first").get(pk=self.secondary.pk)
         with self.assertNumQueries(1):
             obj.primary_o2o
@@ -346,6 +446,9 @@ class DeferredRelationTests(TestCase):
             obj.primary_o2o
 
     def test_only_not_clear_cached_relations(self):
+        """
+        This is a comment
+        """
         obj = Secondary.objects.only("first").get(pk=self.secondary.pk)
         with self.assertNumQueries(1):
             obj.primary_o2o

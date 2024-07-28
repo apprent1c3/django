@@ -19,4 +19,7 @@ class Article(models.Model):
         ordering = ("pub_date",)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.headline

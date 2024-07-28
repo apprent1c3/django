@@ -17,6 +17,9 @@ class Answer(models.Model):
         order_with_respect_to = "question"
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.text
 
 
@@ -30,6 +33,9 @@ class Post(models.Model):
         order_with_respect_to = "parent"
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.title
 
 

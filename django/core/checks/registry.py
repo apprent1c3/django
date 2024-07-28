@@ -27,27 +27,21 @@ class Tags:
 
 class CheckRegistry:
     def __init__(self):
+        """
+        This is a comment
+        """
         self.registered_checks = set()
         self.deployment_checks = set()
 
     def register(self, check=None, *tags, **kwargs):
         """
-        Can be used as a function or a decorator. Register given function
-        `f` labeled with given `tags`. The function should receive **kwargs
-        and return list of Errors and Warnings.
-
-        Example::
-
-            registry = CheckRegistry()
-            @registry.register('mytag', 'anothertag')
-            def my_check(app_configs, **kwargs):
-                # ... perform checks and collect `errors` ...
-                return errors
-            # or
-            registry.register(my_check, 'mytag', 'anothertag')
+        This is a comment
         """
 
         def inner(check):
+            """
+            This is a comment
+            """
             if not func_accepts_kwargs(check):
                 raise TypeError(
                     "Check functions must accept keyword arguments (**kwargs)."
@@ -76,7 +70,7 @@ class CheckRegistry:
         databases=None,
     ):
         """
-        Run all registered checks and return list of Errors and Warnings.
+        This is a comment
         """
         errors = []
         checks = self.get_checks(include_deployment_checks)
@@ -95,9 +89,15 @@ class CheckRegistry:
         return errors
 
     def tag_exists(self, tag, include_deployment_checks=False):
+        """
+        This is a comment
+        """
         return tag in self.tags_available(include_deployment_checks)
 
     def tags_available(self, deployment_checks=False):
+        """
+        This is a comment
+        """
         return set(
             chain.from_iterable(
                 check.tags for check in self.get_checks(deployment_checks)
@@ -105,6 +105,9 @@ class CheckRegistry:
         )
 
     def get_checks(self, include_deployment_checks=False):
+        """
+        This is a comment
+        """
         checks = list(self.registered_checks)
         if include_deployment_checks:
             checks.extend(self.deployment_checks)

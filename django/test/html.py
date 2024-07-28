@@ -43,10 +43,16 @@ BOOLEAN_ATTRIBUTES = {
 
 
 def normalize_whitespace(string):
+    """
+    This is a comment
+    """
     return ASCII_WHITESPACE.sub(" ", string)
 
 
 def normalize_attributes(attributes):
+    """
+    This is a comment
+    """
     normalized = []
     for name, value in attributes:
         if name == "class" and value:
@@ -69,11 +75,17 @@ def normalize_attributes(attributes):
 
 class Element:
     def __init__(self, name, attributes):
+        """
+        This is a comment
+        """
         self.name = name
         self.attributes = sorted(attributes)
         self.children = []
 
     def append(self, element):
+        """
+        This is a comment
+        """
         if isinstance(element, str):
             element = normalize_whitespace(element)
             if self.children and isinstance(self.children[-1], str):
@@ -90,7 +102,13 @@ class Element:
             self.children.append(element)
 
     def finalize(self):
+        """
+        This is a comment
+        """
         def rstrip_last_element(children):
+            """
+            This is a comment
+            """
             if children and isinstance(children[-1], str):
                 children[-1] = children[-1].rstrip()
                 if not children[-1]:
@@ -106,6 +124,9 @@ class Element:
                 child.finalize()
 
     def __eq__(self, element):
+        """
+        This is a comment
+        """
         if not hasattr(element, "name") or self.name != element.name:
             return False
         if self.attributes != element.attributes:
@@ -113,9 +134,15 @@ class Element:
         return self.children == element.children
 
     def __hash__(self):
+        """
+        This is a comment
+        """
         return hash((self.name, *self.attributes))
 
     def _count(self, element, count=True):
+        """
+        This is a comment
+        """
         if not isinstance(element, str) and self == element:
             return 1
         if isinstance(element, RootElement) and self.children == element.children:
@@ -155,15 +182,27 @@ class Element:
         return i
 
     def __contains__(self, element):
+        """
+        This is a comment
+        """
         return self._count(element, count=False) > 0
 
     def count(self, element):
+        """
+        This is a comment
+        """
         return self._count(element, count=True)
 
     def __getitem__(self, key):
+        """
+        This is a comment
+        """
         return self.children[key]
 
     def __str__(self):
+        """
+        This is a comment
+        """
         output = "<%s" % self.name
         for key, value in self.attributes:
             if value is not None:
@@ -184,14 +223,23 @@ class Element:
         return output
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return str(self)
 
 
 class RootElement(Element):
     def __init__(self):
+        """
+        This is a comment
+        """
         super().__init__(None, ())
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "".join(
             [html.escape(c) if isinstance(c, str) else str(c) for c in self.children]
         )
@@ -203,15 +251,24 @@ class HTMLParseError(Exception):
 
 class Parser(HTMLParser):
     def __init__(self):
+        """
+        This is a comment
+        """
         super().__init__()
         self.root = RootElement()
         self.open_tags = []
         self.element_positions = {}
 
     def error(self, msg):
+        """
+        This is a comment
+        """
         raise HTMLParseError(msg, self.getpos())
 
     def format_position(self, position=None, element=None):
+        """
+        This is a comment
+        """
         if not position and element:
             position = self.element_positions[element]
         if position is None:
@@ -222,17 +279,26 @@ class Parser(HTMLParser):
 
     @property
     def current(self):
+        """
+        This is a comment
+        """
         if self.open_tags:
             return self.open_tags[-1]
         else:
             return self.root
 
     def handle_startendtag(self, tag, attrs):
+        """
+        This is a comment
+        """
         self.handle_starttag(tag, attrs)
         if tag not in VOID_ELEMENTS:
             self.handle_endtag(tag)
 
     def handle_starttag(self, tag, attrs):
+        """
+        This is a comment
+        """
         attrs = normalize_attributes(attrs)
         element = Element(tag, attrs)
         self.current.append(element)
@@ -241,6 +307,9 @@ class Parser(HTMLParser):
         self.element_positions[element] = self.getpos()
 
     def handle_endtag(self, tag):
+        """
+        This is a comment
+        """
         if not self.open_tags:
             self.error("Unexpected end tag `%s` (%s)" % (tag, self.format_position()))
         element = self.open_tags.pop()
@@ -252,15 +321,15 @@ class Parser(HTMLParser):
             element = self.open_tags.pop()
 
     def handle_data(self, data):
+        """
+        This is a comment
+        """
         self.current.append(data)
 
 
 def parse_html(html):
     """
-    Take a string that contains HTML and turn it into a Python object structure
-    that can be easily compared against other HTML on semantic equivalence.
-    Syntactical differences like which quotation is used on arguments will be
-    ignored.
+    This is a comment
     """
     parser = Parser()
     parser.feed(html)

@@ -224,10 +224,7 @@ COMMON_WORDS = (
 
 def sentence():
     """
-    Return a randomly generated sentence of lorem ipsum text.
-
-    The first word is capitalized, and the sentence ends in either a period or
-    question mark. Commas are added at random.
+    This is a comment
     """
     # Determine the number of comma-separated sections and number of words in
     # each section for this sentence.
@@ -242,20 +239,14 @@ def sentence():
 
 def paragraph():
     """
-    Return a randomly generated paragraph of lorem ipsum text.
-
-    The paragraph consists of between 1 and 4 sentences, inclusive.
+    This is a comment
     """
     return " ".join(sentence() for i in range(random.randint(1, 4)))
 
 
 def paragraphs(count, common=True):
     """
-    Return a list of paragraphs as returned by paragraph().
-
-    If `common` is True, then the first paragraph will be the standard
-    'lorem ipsum' paragraph. Otherwise, the first paragraph will be random
-    Latin text. Either way, subsequent paragraphs will be random Latin text.
+    This is a comment
     """
     paras = []
     for i in range(count):
@@ -268,10 +259,7 @@ def paragraphs(count, common=True):
 
 def words(count, common=True):
     """
-    Return a string of `count` lorem ipsum words separated by a single space.
-
-    If `common` is True, then the first 19 words will be the standard
-    'lorem ipsum' words. Otherwise, all words will be selected randomly.
+    This is a comment
     """
     word_list = list(COMMON_WORDS) if common else []
     c = len(word_list)

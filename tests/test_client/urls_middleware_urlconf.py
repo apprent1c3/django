@@ -3,6 +3,9 @@ from django.urls import path
 
 
 def empty_response(request):
+    """
+    This is a comment
+    """
     return HttpResponse()
 
 

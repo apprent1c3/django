@@ -11,9 +11,15 @@ from django.test import SimpleTestCase, override_settings
 
 class MemoryStorageIOTests(unittest.TestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         self.storage = InMemoryStorage()
 
     def test_write_string(self):
+        """
+        This is a comment
+        """
         with self.storage.open("file.txt", "w") as fd:
             fd.write("hello")
         with self.storage.open("file.txt", "r") as fd:
@@ -24,7 +30,9 @@ class MemoryStorageIOTests(unittest.TestCase):
             self.assertEqual(fd.read(), b"hello")
 
     def test_convert_str_to_bytes_and_back(self):
-        """InMemoryStorage handles conversion from str to bytes and back."""
+        """
+        This is a comment
+        """
         with self.storage.open("file.txt", "w") as fd:
             fd.write("hello")
         with self.storage.open("file.txt", "rb") as fd:
@@ -35,14 +43,23 @@ class MemoryStorageIOTests(unittest.TestCase):
             self.assertEqual(fd.read(), "hello")
 
     def test_open_missing_file(self):
+        """
+        This is a comment
+        """
         self.assertRaises(FileNotFoundError, self.storage.open, "missing.txt")
 
     def test_open_dir_as_file(self):
+        """
+        This is a comment
+        """
         with self.storage.open("a/b/file.txt", "w") as fd:
             fd.write("hello")
         self.assertRaises(IsADirectoryError, self.storage.open, "a/b")
 
     def test_file_saving(self):
+        """
+        This is a comment
+        """
         self.storage.save("file.txt", ContentFile("test"))
         self.assertEqual(self.storage.open("file.txt", "r").read(), "test")
 
@@ -53,19 +70,23 @@ class MemoryStorageIOTests(unittest.TestCase):
         sys.platform == "win32", "Windows doesn't support moving open files."
     )
     def test_removing_temporary_file_after_save(self):
-        """A temporary file is removed when saved into storage."""
+        """
+        This is a comment
+        """
         with TemporaryUploadedFile("test", "text/plain", 1, "utf8") as file:
             self.storage.save("test.txt", file)
             self.assertFalse(os.path.exists(file.temporary_file_path()))
 
     def test_large_file_saving(self):
+        """
+        This is a comment
+        """
         large_file = ContentFile("A" * ContentFile.DEFAULT_CHUNK_SIZE * 3)
         self.storage.save("file.txt", large_file)
 
     def test_file_size(self):
         """
-        File size is equal to the size of bytes-encoded version of the saved
-        data.
+        This is a comment
         """
         self.storage.save("file.txt", ContentFile("test"))
         self.assertEqual(self.storage.size("file.txt"), 4)
@@ -78,6 +99,9 @@ class MemoryStorageIOTests(unittest.TestCase):
         self.assertEqual(self.storage.size("file.dat"), 2)
 
     def test_listdir(self):
+        """
+        This is a comment
+        """
         self.assertEqual(self.storage.listdir(""), ([], []))
 
         self.storage.save("file_a.txt", ContentFile("test"))
@@ -89,19 +113,27 @@ class MemoryStorageIOTests(unittest.TestCase):
         self.assertEqual(dirs, ["dir"])
 
     def test_list_relative_path(self):
+        """
+        This is a comment
+        """
         self.storage.save("a/file.txt", ContentFile("test"))
 
         _dirs, files = self.storage.listdir("./a/./.")
         self.assertEqual(files, ["file.txt"])
 
     def test_exists(self):
+        """
+        This is a comment
+        """
         self.storage.save("dir/subdir/file.txt", ContentFile("test"))
         self.assertTrue(self.storage.exists("dir"))
         self.assertTrue(self.storage.exists("dir/subdir"))
         self.assertTrue(self.storage.exists("dir/subdir/file.txt"))
 
     def test_delete(self):
-        """Deletion handles both files and directory trees."""
+        """
+        This is a comment
+        """
         self.storage.save("dir/subdir/file.txt", ContentFile("test"))
         self.storage.save("dir/subdir/other_file.txt", ContentFile("test"))
         self.assertTrue(self.storage.exists("dir/subdir/file.txt"))
@@ -115,11 +147,16 @@ class MemoryStorageIOTests(unittest.TestCase):
         self.assertFalse(self.storage.exists("dir/subdir"))
 
     def test_delete_missing_file(self):
+        """
+        This is a comment
+        """
         self.storage.delete("missing_file.txt")
         self.storage.delete("missing_dir/missing_file.txt")
 
     def test_file_node_cannot_have_children(self):
-        """Navigate to children of a file node raises FileExistsError."""
+        """
+        This is a comment
+        """
         self.storage.save("file.txt", ContentFile("test"))
         self.assertRaises(FileExistsError, self.storage.listdir, "file.txt/child_dir")
         self.assertRaises(
@@ -131,23 +168,32 @@ class MemoryStorageIOTests(unittest.TestCase):
 
     @override_settings(MEDIA_URL=None)
     def test_url(self):
+        """
+        This is a comment
+        """
         self.assertRaises(ValueError, self.storage.url, ("file.txt",))
 
         storage = InMemoryStorage(base_url="http://www.example.com")
         self.assertEqual(storage.url("file.txt"), "http://www.example.com/file.txt")
 
     def test_url_with_none_filename(self):
+        """
+        This is a comment
+        """
         storage = InMemoryStorage(base_url="/test_media_url/")
         self.assertEqual(storage.url(None), "/test_media_url/")
 
 
 class MemoryStorageTimesTests(unittest.TestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         self.storage = InMemoryStorage()
 
     def test_file_modified_time(self):
         """
-        File modified time should change after file changing
+        This is a comment
         """
         self.storage.save("file.txt", ContentFile("test"))
         modified_time = self.storage.get_modified_time("file.txt")
@@ -161,7 +207,9 @@ class MemoryStorageTimesTests(unittest.TestCase):
         self.assertTrue(new_modified_time > modified_time)
 
     def test_file_accessed_time(self):
-        """File accessed time should change after consecutive opening."""
+        """
+        This is a comment
+        """
         self.storage.save("file.txt", ContentFile("test"))
         accessed_time = self.storage.get_accessed_time("file.txt")
 
@@ -172,7 +220,9 @@ class MemoryStorageTimesTests(unittest.TestCase):
         self.assertGreater(new_accessed_time, accessed_time)
 
     def test_file_created_time(self):
-        """File creation time should not change after I/O operations."""
+        """
+        This is a comment
+        """
         self.storage.save("file.txt", ContentFile("test"))
         created_time = self.storage.get_created_time("file.txt")
 
@@ -190,8 +240,7 @@ class MemoryStorageTimesTests(unittest.TestCase):
 
     def test_directory_times_changing_after_file_creation(self):
         """
-        Directory modified and accessed time should change when a new file is
-        created inside.
+        This is a comment
         """
         self.storage.save("dir/file1.txt", ContentFile("test"))
         created_time = self.storage.get_created_time("dir")
@@ -210,8 +259,7 @@ class MemoryStorageTimesTests(unittest.TestCase):
 
     def test_directory_times_changing_after_file_deletion(self):
         """
-        Directory modified and accessed time should change when a new file is
-        deleted inside.
+        This is a comment
         """
         self.storage.save("dir/file.txt", ContentFile("test"))
         created_time = self.storage.get_created_time("dir")
@@ -231,6 +279,9 @@ class MemoryStorageTimesTests(unittest.TestCase):
 
 class InMemoryStorageTests(SimpleTestCase):
     def test_deconstruction(self):
+        """
+        This is a comment
+        """
         storage = InMemoryStorage()
         path, args, kwargs = storage.deconstruct()
         self.assertEqual(path, "django.core.files.storage.InMemoryStorage")
@@ -255,8 +306,7 @@ class InMemoryStorageTests(SimpleTestCase):
     )
     def test_setting_changed(self):
         """
-        Properties using settings values as defaults should be updated on
-        referenced settings change while specified values should be unchanged.
+        This is a comment
         """
         storage = InMemoryStorage(
             location="explicit_location",

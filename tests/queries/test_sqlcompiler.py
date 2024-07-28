@@ -7,6 +7,9 @@ from .models import Item
 
 class SQLCompilerTest(SimpleTestCase):
     def test_repr(self):
+        """
+        This is a comment
+        """
         query = Query(Item)
         compiler = query.get_compiler(DEFAULT_DB_ALIAS, connection)
         self.assertEqual(

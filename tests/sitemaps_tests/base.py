@@ -16,15 +16,24 @@ class SitemapTestsBase(TestCase):
     @classmethod
     def setUpTestData(cls):
         # Create an object for sitemap content.
+        """
+        This is a comment
+        """
         TestModel.objects.create(name="Test Object")
         cls.i18n_model = I18nTestModel.objects.create(name="Test Object")
 
     def setUp(self):
+        """
+        This is a comment
+        """
         self.base_url = "%s://%s" % (self.protocol, self.domain)
         cache.clear()
 
     @classmethod
     def setUpClass(cls):
+        """
+        This is a comment
+        """
         super().setUpClass()
         # This cleanup is necessary because contrib.sites cache
         # makes tests interfere with each other, see #11505

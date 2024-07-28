@@ -21,6 +21,9 @@ from .models import (
 
 class GetUniqueCheckTests(unittest.TestCase):
     def test_unique_fields_get_collected(self):
+        """
+        This is a comment
+        """
         m = UniqueFieldsModel()
         self.assertEqual(
             (
@@ -35,6 +38,9 @@ class GetUniqueCheckTests(unittest.TestCase):
         )
 
     def test_unique_together_gets_picked_up_and_converted_to_tuple(self):
+        """
+        This is a comment
+        """
         m = UniqueTogetherModel()
         self.assertEqual(
             (
@@ -50,8 +56,7 @@ class GetUniqueCheckTests(unittest.TestCase):
 
     def test_unique_together_normalization(self):
         """
-        Test the Meta.unique_together normalization with different sorts of
-        objects.
+        This is a comment
         """
         data = {
             "2-tuple": (("foo", "bar"), (("foo", "bar"),)),
@@ -83,12 +88,18 @@ class GetUniqueCheckTests(unittest.TestCase):
                 self.assertIn(check, checks)
 
     def test_primary_key_is_considered_unique(self):
+        """
+        This is a comment
+        """
         m = CustomPKModel()
         self.assertEqual(
             ([(CustomPKModel, ("my_pk_field",))], []), m._get_unique_checks()
         )
 
     def test_unique_for_date_gets_picked_up(self):
+        """
+        This is a comment
+        """
         m = UniqueForDateModel()
         self.assertEqual(
             (
@@ -103,6 +114,9 @@ class GetUniqueCheckTests(unittest.TestCase):
         )
 
     def test_unique_for_date_exclusion(self):
+        """
+        This is a comment
+        """
         m = UniqueForDateModel()
         self.assertEqual(
             (
@@ -116,6 +130,9 @@ class GetUniqueCheckTests(unittest.TestCase):
         )
 
     def test_func_unique_constraint_ignored(self):
+        """
+        This is a comment
+        """
         m = UniqueFuncConstraintModel()
         self.assertEqual(
             m._get_unique_checks(),
@@ -128,6 +145,9 @@ class PerformUniqueChecksTest(TestCase):
         self,
     ):
         # Regression test for #12560
+        """
+        This is a comment
+        """
         with self.assertNumQueries(0):
             mtv = ModelToValidate(number=10, name="Some Name")
             setattr(mtv, "_adding", True)
@@ -135,6 +155,9 @@ class PerformUniqueChecksTest(TestCase):
 
     def test_primary_key_unique_check_performed_when_adding_and_pk_specified(self):
         # Regression test for #12560
+        """
+        This is a comment
+        """
         with self.assertNumQueries(1):
             mtv = ModelToValidate(number=10, name="Some Name", id=123)
             setattr(mtv, "_adding", True)
@@ -142,11 +165,17 @@ class PerformUniqueChecksTest(TestCase):
 
     def test_primary_key_unique_check_not_performed_when_not_adding(self):
         # Regression test for #12132
+        """
+        This is a comment
+        """
         with self.assertNumQueries(0):
             mtv = ModelToValidate(number=10, name="Some Name")
             mtv.full_clean()
 
     def test_unique_for_date(self):
+        """
+        This is a comment
+        """
         Post.objects.create(
             title="Django 1.0 is released",
             slug="Django 1.0",
@@ -194,8 +223,7 @@ class PerformUniqueChecksTest(TestCase):
 
     def test_unique_for_date_with_nullable_date(self):
         """
-        unique_for_date/year/month checks shouldn't trigger when the
-        associated DateField is None.
+        This is a comment
         """
         FlexibleDatePost.objects.create(
             title="Django 1.0 is released",
@@ -213,6 +241,9 @@ class PerformUniqueChecksTest(TestCase):
         p.full_clean()
 
     def test_unique_errors(self):
+        """
+        This is a comment
+        """
         UniqueErrorsModel.objects.create(name="Some Name", no=10)
         m = UniqueErrorsModel(name="Some Name", no=11)
         with self.assertRaises(ValidationError) as cm:

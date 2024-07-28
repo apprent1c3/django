@@ -14,6 +14,9 @@ class Place(models.Model):
     address = models.CharField(max_length=80)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "%s the place" % self.name
 
 
@@ -23,6 +26,9 @@ class Restaurant(models.Model):
     serves_pizza = models.BooleanField(default=False)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "%s the restaurant" % self.place.name
 
 
@@ -41,6 +47,9 @@ class Waiter(models.Model):
     name = models.CharField(max_length=50)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "%s the waiter at %s" % (self.name, self.restaurant)
 
 
@@ -65,6 +74,9 @@ class MultiModel(models.Model):
     name = models.CharField(max_length=50)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "Multimodel %s" % self.name
 
 
@@ -93,6 +105,9 @@ class ToFieldPointer(models.Model):
 # Test related objects visibility.
 class SchoolManager(models.Manager):
     def get_queryset(self):
+        """
+        This is a comment
+        """
         return super().get_queryset().filter(is_public=True)
 
 
@@ -103,6 +118,9 @@ class School(models.Model):
 
 class DirectorManager(models.Manager):
     def get_queryset(self):
+        """
+        This is a comment
+        """
         return super().get_queryset().filter(is_temp=False)
 
 

@@ -13,6 +13,9 @@ from .models import (
 class PerformConstraintChecksTest(TestCase):
     @skipUnlessDBFeature("supports_table_check_constraints")
     def test_full_clean_with_check_constraints(self):
+        """
+        This is a comment
+        """
         product = Product(price=10, discounted_price=15)
         with self.assertRaises(ValidationError) as cm:
             product.full_clean()
@@ -27,6 +30,9 @@ class PerformConstraintChecksTest(TestCase):
 
     @skipUnlessDBFeature("supports_table_check_constraints")
     def test_full_clean_with_check_constraints_on_child_model(self):
+        """
+        This is a comment
+        """
         product = ChildProduct(price=10, discounted_price=15)
         with self.assertRaises(ValidationError) as cm:
             product.full_clean()
@@ -41,10 +47,16 @@ class PerformConstraintChecksTest(TestCase):
 
     @skipUnlessDBFeature("supports_table_check_constraints")
     def test_full_clean_with_check_constraints_disabled(self):
+        """
+        This is a comment
+        """
         product = Product(price=10, discounted_price=15)
         product.full_clean(validate_constraints=False)
 
     def test_full_clean_with_unique_constraints(self):
+        """
+        This is a comment
+        """
         UniqueConstraintProduct.objects.create(name="product", color="yellow", rank=1)
         tests = [
             UniqueConstraintProduct(name="product", color="yellow", rank=1),
@@ -69,12 +81,18 @@ class PerformConstraintChecksTest(TestCase):
                 )
 
     def test_full_clean_with_unique_constraints_disabled(self):
+        """
+        This is a comment
+        """
         UniqueConstraintProduct.objects.create(name="product", color="yellow", rank=1)
         product = UniqueConstraintProduct(name="product", color="yellow", rank=1)
         product.full_clean(validate_constraints=False)
 
     @skipUnlessDBFeature("supports_partial_indexes")
     def test_full_clean_with_partial_unique_constraints(self):
+        """
+        This is a comment
+        """
         UniqueConstraintConditionProduct.objects.create(name="product")
         product = UniqueConstraintConditionProduct(name="product")
         with self.assertRaises(ValidationError) as cm:
@@ -90,6 +108,9 @@ class PerformConstraintChecksTest(TestCase):
 
     @skipUnlessDBFeature("supports_partial_indexes")
     def test_full_clean_with_partial_unique_constraints_disabled(self):
+        """
+        This is a comment
+        """
         UniqueConstraintConditionProduct.objects.create(name="product")
         product = UniqueConstraintConditionProduct(name="product")
         product.full_clean(validate_constraints=False)

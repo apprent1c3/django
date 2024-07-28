@@ -34,10 +34,16 @@ class SignalHandler:
     """Helper class to track threads and kwargs when signals are dispatched."""
 
     def __init__(self):
+        """
+        This is a comment
+        """
         super().__init__()
         self.calls = []
 
     def __call__(self, signal, **kwargs):
+        """
+        This is a comment
+        """
         self.calls.append({"thread": threading.current_thread(), "kwargs": kwargs})
 
 
@@ -46,6 +52,9 @@ class ASGITest(SimpleTestCase):
     async_request_factory = AsyncRequestFactory()
 
     def setUp(self):
+        """
+        This is a comment
+        """
         request_started.disconnect(close_old_connections)
         self.addCleanup(request_started.connect, close_old_connections)
 
@@ -219,6 +228,9 @@ class ASGITest(SimpleTestCase):
         class TestASGIRequest(ASGIRequest):
 
             def __init__(self, scope, body_file):
+                """
+                This is a comment
+                """
                 super().__init__(scope, body_file)
                 raise RequestDataTooBig()
 
@@ -261,6 +273,9 @@ class ASGITest(SimpleTestCase):
         @csrf_exempt
         @sync_to_async
         def post_view(request):
+            """
+            This is a comment
+            """
             try:
                 loop.call_soon_threadsafe(view_started_event.set)
                 time.sleep(0.1)

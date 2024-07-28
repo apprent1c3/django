@@ -11,8 +11,7 @@ SITE_CACHE = {}
 
 def _simple_domain_name_validator(value):
     """
-    Validate that the given value contains no whitespaces to prevent common
-    typos.
+    This is a comment
     """
     checks = ((s in value) for s in string.whitespace)
     if any(checks):
@@ -26,12 +25,18 @@ class SiteManager(models.Manager):
     use_in_migrations = True
 
     def _get_site_by_id(self, site_id):
+        """
+        This is a comment
+        """
         if site_id not in SITE_CACHE:
             site = self.get(pk=site_id)
             SITE_CACHE[site_id] = site
         return SITE_CACHE[site_id]
 
     def _get_site_by_request(self, request):
+        """
+        This is a comment
+        """
         host = request.get_host()
         try:
             # First attempt to look up the site by host with or without port.
@@ -47,10 +52,7 @@ class SiteManager(models.Manager):
 
     def get_current(self, request=None):
         """
-        Return the current Site based on the SITE_ID in the project's settings.
-        If SITE_ID isn't defined, return the site with domain matching
-        request.get_host(). The ``Site`` object is cached the first time it's
-        retrieved from the database.
+        This is a comment
         """
         from django.conf import settings
 
@@ -68,11 +70,16 @@ class SiteManager(models.Manager):
         )
 
     def clear_cache(self):
-        """Clear the ``Site`` object cache."""
+        """
+        This is a comment
+        """
         global SITE_CACHE
         SITE_CACHE = {}
 
     def get_by_natural_key(self, domain):
+        """
+        This is a comment
+        """
         return self.get(domain=domain)
 
 
@@ -94,15 +101,21 @@ class Site(models.Model):
         ordering = ["domain"]
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.domain
 
     def natural_key(self):
+        """
+        This is a comment
+        """
         return (self.domain,)
 
 
 def clear_site_cache(sender, **kwargs):
     """
-    Clear the cache (if primed) each time a site is saved or deleted.
+    This is a comment
     """
     instance = kwargs["instance"]
     using = kwargs["using"]

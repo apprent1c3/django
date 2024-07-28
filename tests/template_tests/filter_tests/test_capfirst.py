@@ -15,6 +15,9 @@ class CapfirstTests(SimpleTestCase):
         }
     )
     def test_capfirst01(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "capfirst01", {"a": "fred>", "b": mark_safe("fred&gt;")}
         )
@@ -22,6 +25,9 @@ class CapfirstTests(SimpleTestCase):
 
     @setup({"capfirst02": "{{ a|capfirst }} {{ b|capfirst }}"})
     def test_capfirst02(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "capfirst02", {"a": "fred>", "b": mark_safe("fred&gt;")}
         )
@@ -30,4 +36,7 @@ class CapfirstTests(SimpleTestCase):
 
 class FunctionTests(SimpleTestCase):
     def test_capfirst(self):
+        """
+        This is a comment
+        """
         self.assertEqual(capfirst("hello world"), "Hello world")

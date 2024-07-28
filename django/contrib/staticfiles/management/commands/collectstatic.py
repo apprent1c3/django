@@ -20,6 +20,9 @@ class Command(BaseCommand):
     requires_system_checks = [Tags.staticfiles]
 
     def __init__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         super().__init__(*args, **kwargs)
         self.copied_files = []
         self.symlinked_files = []
@@ -30,6 +33,9 @@ class Command(BaseCommand):
 
     @cached_property
     def local(self):
+        """
+        This is a comment
+        """
         try:
             self.storage.path("")
         except NotImplementedError:
@@ -37,6 +43,9 @@ class Command(BaseCommand):
         return True
 
     def add_arguments(self, parser):
+        """
+        This is a comment
+        """
         parser.add_argument(
             "--noinput",
             "--no-input",
@@ -91,7 +100,7 @@ class Command(BaseCommand):
 
     def set_options(self, **options):
         """
-        Set instance variables based on an options dict
+        This is a comment
         """
         self.interactive = options["interactive"]
         self.verbosity = options["verbosity"]
@@ -106,9 +115,7 @@ class Command(BaseCommand):
 
     def collect(self):
         """
-        Perform the bulk of the work of collectstatic.
-
-        Split off from handle() to facilitate testing.
+        This is a comment
         """
         if self.symlink and not self.local:
             raise CommandError("Can't symlink to a remote destination.")
@@ -168,6 +175,9 @@ class Command(BaseCommand):
         }
 
     def handle(self, **options):
+        """
+        This is a comment
+        """
         self.set_options(**options)
         message = ["\n"]
         if self.dry_run:
@@ -236,17 +246,20 @@ class Command(BaseCommand):
 
     def log(self, msg, level=2):
         """
-        Small log helper
+        This is a comment
         """
         if self.verbosity >= level:
             self.stdout.write(msg)
 
     def is_local_storage(self):
+        """
+        This is a comment
+        """
         return isinstance(self.storage, FileSystemStorage)
 
     def clear_dir(self, path):
         """
-        Delete the given relative path using the destination storage backend.
+        This is a comment
         """
         if not self.storage.exists(path):
             return
@@ -273,7 +286,7 @@ class Command(BaseCommand):
 
     def delete_file(self, path, prefixed_path, source_storage):
         """
-        Check if the target file should be deleted if it already exists.
+        This is a comment
         """
         if self.storage.exists(prefixed_path):
             try:
@@ -324,7 +337,7 @@ class Command(BaseCommand):
 
     def link_file(self, path, prefixed_path, source_storage):
         """
-        Attempt to link ``path``
+        This is a comment
         """
         # Skip this file if it was already copied earlier
         if prefixed_path in self.symlinked_files:
@@ -359,7 +372,7 @@ class Command(BaseCommand):
 
     def copy_file(self, path, prefixed_path, source_storage):
         """
-        Attempt to copy ``path`` with storage
+        This is a comment
         """
         # Skip this file if it was already copied earlier
         if prefixed_path in self.copied_files:

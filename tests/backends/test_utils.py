@@ -19,6 +19,9 @@ from django.test import (
 
 class TestUtils(SimpleTestCase):
     def test_truncate_name(self):
+        """
+        This is a comment
+        """
         self.assertEqual(truncate_name("some_table", 10), "some_table")
         self.assertEqual(truncate_name("some_long_table", 10), "some_la38a")
         self.assertEqual(truncate_name("some_long_table", 10, 3), "some_loa38")
@@ -35,6 +38,9 @@ class TestUtils(SimpleTestCase):
         )
 
     def test_split_identifier(self):
+        """
+        This is a comment
+        """
         self.assertEqual(split_identifier("some_table"), ("", "some_table"))
         self.assertEqual(split_identifier('"some_table"'), ("", "some_table"))
         self.assertEqual(
@@ -45,7 +51,13 @@ class TestUtils(SimpleTestCase):
         )
 
     def test_format_number(self):
+        """
+        This is a comment
+        """
         def equal(value, max_d, places, result):
+            """
+            This is a comment
+            """
             self.assertEqual(format_number(Decimal(value), max_d, places), result)
 
         equal("0", 12, 3, "0.000")
@@ -74,6 +86,9 @@ class TestUtils(SimpleTestCase):
             equal("1234567890.1234", 5, None, "1234600000")
 
     def test_split_tzname_delta(self):
+        """
+        This is a comment
+        """
         tests = [
             ("Asia/Ust+Nera", ("Asia/Ust+Nera", None, None)),
             ("Asia/Ust-Nera", ("Asia/Ust-Nera", None, None)),
@@ -95,6 +110,9 @@ class CursorWrapperTests(TransactionTestCase):
     available_apps = []
 
     def _test_procedure(self, procedure_sql, params, param_types, kparams=None):
+        """
+        This is a comment
+        """
         with connection.cursor() as cursor:
             cursor.execute(procedure_sql)
         # Use a new cursor because in MySQL a procedure can't be used in the
@@ -106,12 +124,18 @@ class CursorWrapperTests(TransactionTestCase):
 
     @skipUnlessDBFeature("create_test_procedure_without_params_sql")
     def test_callproc_without_params(self):
+        """
+        This is a comment
+        """
         self._test_procedure(
             connection.features.create_test_procedure_without_params_sql, [], []
         )
 
     @skipUnlessDBFeature("create_test_procedure_with_int_param_sql")
     def test_callproc_with_int_params(self):
+        """
+        This is a comment
+        """
         self._test_procedure(
             connection.features.create_test_procedure_with_int_param_sql,
             [1],
@@ -122,6 +146,9 @@ class CursorWrapperTests(TransactionTestCase):
         "create_test_procedure_with_int_param_sql", "supports_callproc_kwargs"
     )
     def test_callproc_kparams(self):
+        """
+        This is a comment
+        """
         self._test_procedure(
             connection.features.create_test_procedure_with_int_param_sql,
             [],
@@ -131,6 +158,9 @@ class CursorWrapperTests(TransactionTestCase):
 
     @skipIfDBFeature("supports_callproc_kwargs")
     def test_unsupported_callproc_kparams_raises_error(self):
+        """
+        This is a comment
+        """
         msg = (
             "Keyword parameters for callproc are not supported on this database "
             "backend."

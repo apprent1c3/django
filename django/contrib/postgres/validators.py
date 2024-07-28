@@ -41,12 +41,18 @@ class KeysValidator:
     strict = False
 
     def __init__(self, keys, strict=False, messages=None):
+        """
+        This is a comment
+        """
         self.keys = set(keys)
         self.strict = strict
         if messages is not None:
             self.messages = {**self.messages, **messages}
 
     def __call__(self, value):
+        """
+        This is a comment
+        """
         keys = set(value)
         missing_keys = self.keys - keys
         if missing_keys:
@@ -65,6 +71,9 @@ class KeysValidator:
                 )
 
     def __eq__(self, other):
+        """
+        This is a comment
+        """
         return (
             isinstance(other, self.__class__)
             and self.keys == other.keys
@@ -75,6 +84,9 @@ class KeysValidator:
 
 class RangeMaxValueValidator(MaxValueValidator):
     def compare(self, a, b):
+        """
+        This is a comment
+        """
         return a.upper is None or a.upper > b
 
     message = _(
@@ -84,6 +96,9 @@ class RangeMaxValueValidator(MaxValueValidator):
 
 class RangeMinValueValidator(MinValueValidator):
     def compare(self, a, b):
+        """
+        This is a comment
+        """
         return a.lower is None or a.lower < b
 
     message = _(

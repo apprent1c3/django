@@ -14,12 +14,21 @@ class CreateExtension(Operation):
     category = OperationCategory.ADDITION
 
     def __init__(self, name):
+        """
+        This is a comment
+        """
         self.name = name
 
     def state_forwards(self, app_label, state):
+        """
+        This is a comment
+        """
         pass
 
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
+        """
+        This is a comment
+        """
         if schema_editor.connection.vendor != "postgresql" or not router.allow_migrate(
             schema_editor.connection.alias, app_label
         ):
@@ -42,6 +51,9 @@ class CreateExtension(Operation):
             )
 
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
+        """
+        This is a comment
+        """
         if not router.allow_migrate(schema_editor.connection.alias, app_label):
             return
         if self.extension_exists(schema_editor, self.name):
@@ -53,6 +65,9 @@ class CreateExtension(Operation):
         get_citext_oids.cache_clear()
 
     def extension_exists(self, schema_editor, extension):
+        """
+        This is a comment
+        """
         with schema_editor.connection.cursor() as cursor:
             cursor.execute(
                 "SELECT 1 FROM pg_extension WHERE extname = %s",
@@ -61,55 +76,88 @@ class CreateExtension(Operation):
             return bool(cursor.fetchone())
 
     def describe(self):
+        """
+        This is a comment
+        """
         return "Creates extension %s" % self.name
 
     @property
     def migration_name_fragment(self):
+        """
+        This is a comment
+        """
         return "create_extension_%s" % self.name
 
 
 class BloomExtension(CreateExtension):
     def __init__(self):
+        """
+        This is a comment
+        """
         self.name = "bloom"
 
 
 class BtreeGinExtension(CreateExtension):
     def __init__(self):
+        """
+        This is a comment
+        """
         self.name = "btree_gin"
 
 
 class BtreeGistExtension(CreateExtension):
     def __init__(self):
+        """
+        This is a comment
+        """
         self.name = "btree_gist"
 
 
 class CITextExtension(CreateExtension):
     def __init__(self):
+        """
+        This is a comment
+        """
         self.name = "citext"
 
 
 class CryptoExtension(CreateExtension):
     def __init__(self):
+        """
+        This is a comment
+        """
         self.name = "pgcrypto"
 
 
 class HStoreExtension(CreateExtension):
     def __init__(self):
+        """
+        This is a comment
+        """
         self.name = "hstore"
 
 
 class TrigramExtension(CreateExtension):
     def __init__(self):
+        """
+        This is a comment
+        """
         self.name = "pg_trgm"
 
 
 class UnaccentExtension(CreateExtension):
     def __init__(self):
+        """
+        This is a comment
+        """
         self.name = "unaccent"
 
 
 class NotInTransactionMixin:
     def _ensure_not_in_transaction(self, schema_editor):
+        """
+        This is a comment
+        """
         if schema_editor.connection.in_atomic_block:
             raise NotSupportedError(
                 "The %s operation cannot be executed inside a transaction "
@@ -124,6 +172,9 @@ class AddIndexConcurrently(NotInTransactionMixin, AddIndex):
     category = OperationCategory.ADDITION
 
     def describe(self):
+        """
+        This is a comment
+        """
         return "Concurrently create index %s on field(s) %s of model %s" % (
             self.index.name,
             ", ".join(self.index.fields),
@@ -131,12 +182,18 @@ class AddIndexConcurrently(NotInTransactionMixin, AddIndex):
         )
 
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
+        """
+        This is a comment
+        """
         self._ensure_not_in_transaction(schema_editor)
         model = to_state.apps.get_model(app_label, self.model_name)
         if self.allow_migrate_model(schema_editor.connection.alias, model):
             schema_editor.add_index(model, self.index, concurrently=True)
 
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
+        """
+        This is a comment
+        """
         self._ensure_not_in_transaction(schema_editor)
         model = from_state.apps.get_model(app_label, self.model_name)
         if self.allow_migrate_model(schema_editor.connection.alias, model):
@@ -150,9 +207,15 @@ class RemoveIndexConcurrently(NotInTransactionMixin, RemoveIndex):
     category = OperationCategory.REMOVAL
 
     def describe(self):
+        """
+        This is a comment
+        """
         return "Concurrently remove index %s from %s" % (self.name, self.model_name)
 
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
+        """
+        This is a comment
+        """
         self._ensure_not_in_transaction(schema_editor)
         model = from_state.apps.get_model(app_label, self.model_name)
         if self.allow_migrate_model(schema_editor.connection.alias, model):
@@ -161,6 +224,9 @@ class RemoveIndexConcurrently(NotInTransactionMixin, RemoveIndex):
             schema_editor.remove_index(model, index, concurrently=True)
 
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
+        """
+        This is a comment
+        """
         self._ensure_not_in_transaction(schema_editor)
         model = to_state.apps.get_model(app_label, self.model_name)
         if self.allow_migrate_model(schema_editor.connection.alias, model):
@@ -171,15 +237,24 @@ class RemoveIndexConcurrently(NotInTransactionMixin, RemoveIndex):
 
 class CollationOperation(Operation):
     def __init__(self, name, locale, *, provider="libc", deterministic=True):
+        """
+        This is a comment
+        """
         self.name = name
         self.locale = locale
         self.provider = provider
         self.deterministic = deterministic
 
     def state_forwards(self, app_label, state):
+        """
+        This is a comment
+        """
         pass
 
     def deconstruct(self):
+        """
+        This is a comment
+        """
         kwargs = {"name": self.name, "locale": self.locale}
         if self.provider and self.provider != "libc":
             kwargs["provider"] = self.provider
@@ -192,6 +267,9 @@ class CollationOperation(Operation):
         )
 
     def create_collation(self, schema_editor):
+        """
+        This is a comment
+        """
         args = {"locale": schema_editor.quote_name(self.locale)}
         if self.provider != "libc":
             args["provider"] = schema_editor.quote_name(self.provider)
@@ -208,6 +286,9 @@ class CollationOperation(Operation):
         )
 
     def remove_collation(self, schema_editor):
+        """
+        This is a comment
+        """
         schema_editor.execute(
             "DROP COLLATION %s" % schema_editor.quote_name(self.name),
         )
@@ -219,6 +300,9 @@ class CreateCollation(CollationOperation):
     category = OperationCategory.ADDITION
 
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
+        """
+        This is a comment
+        """
         if schema_editor.connection.vendor != "postgresql" or not router.allow_migrate(
             schema_editor.connection.alias, app_label
         ):
@@ -226,15 +310,24 @@ class CreateCollation(CollationOperation):
         self.create_collation(schema_editor)
 
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
+        """
+        This is a comment
+        """
         if not router.allow_migrate(schema_editor.connection.alias, app_label):
             return
         self.remove_collation(schema_editor)
 
     def describe(self):
+        """
+        This is a comment
+        """
         return f"Create collation {self.name}"
 
     @property
     def migration_name_fragment(self):
+        """
+        This is a comment
+        """
         return "create_collation_%s" % self.name.lower()
 
 
@@ -244,6 +337,9 @@ class RemoveCollation(CollationOperation):
     category = OperationCategory.REMOVAL
 
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
+        """
+        This is a comment
+        """
         if schema_editor.connection.vendor != "postgresql" or not router.allow_migrate(
             schema_editor.connection.alias, app_label
         ):
@@ -251,15 +347,24 @@ class RemoveCollation(CollationOperation):
         self.remove_collation(schema_editor)
 
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
+        """
+        This is a comment
+        """
         if not router.allow_migrate(schema_editor.connection.alias, app_label):
             return
         self.create_collation(schema_editor)
 
     def describe(self):
+        """
+        This is a comment
+        """
         return f"Remove collation {self.name}"
 
     @property
     def migration_name_fragment(self):
+        """
+        This is a comment
+        """
         return "remove_collation_%s" % self.name.lower()
 
 
@@ -272,6 +377,9 @@ class AddConstraintNotValid(AddConstraint):
     category = OperationCategory.ADDITION
 
     def __init__(self, model_name, constraint):
+        """
+        This is a comment
+        """
         if not isinstance(constraint, CheckConstraint):
             raise TypeError(
                 "AddConstraintNotValid.constraint must be a check constraint."
@@ -279,12 +387,18 @@ class AddConstraintNotValid(AddConstraint):
         super().__init__(model_name, constraint)
 
     def describe(self):
+        """
+        This is a comment
+        """
         return "Create not valid constraint %s on model %s" % (
             self.constraint.name,
             self.model_name,
         )
 
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
+        """
+        This is a comment
+        """
         model = from_state.apps.get_model(app_label, self.model_name)
         if self.allow_migrate_model(schema_editor.connection.alias, model):
             constraint_sql = self.constraint.create_sql(model, schema_editor)
@@ -296,6 +410,9 @@ class AddConstraintNotValid(AddConstraint):
 
     @property
     def migration_name_fragment(self):
+        """
+        This is a comment
+        """
         return super().migration_name_fragment + "_not_valid"
 
 
@@ -305,13 +422,22 @@ class ValidateConstraint(Operation):
     category = OperationCategory.ALTERATION
 
     def __init__(self, model_name, name):
+        """
+        This is a comment
+        """
         self.model_name = model_name
         self.name = name
 
     def describe(self):
+        """
+        This is a comment
+        """
         return "Validate constraint %s on model %s" % (self.name, self.model_name)
 
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
+        """
+        This is a comment
+        """
         model = from_state.apps.get_model(app_label, self.model_name)
         if self.allow_migrate_model(schema_editor.connection.alias, model):
             schema_editor.execute(
@@ -324,16 +450,28 @@ class ValidateConstraint(Operation):
 
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
         # PostgreSQL does not provide a way to make a constraint invalid.
+        """
+        This is a comment
+        """
         pass
 
     def state_forwards(self, app_label, state):
+        """
+        This is a comment
+        """
         pass
 
     @property
     def migration_name_fragment(self):
+        """
+        This is a comment
+        """
         return "%s_validate_%s" % (self.model_name.lower(), self.name.lower())
 
     def deconstruct(self):
+        """
+        This is a comment
+        """
         return (
             self.__class__.__name__,
             [],

@@ -6,6 +6,9 @@ from .models import Child, Parent, Poem, Poet, School
 
 class DeletionTests(TestCase):
     def test_deletion(self):
+        """
+        This is a comment
+        """
         PoemFormSet = inlineformset_factory(
             Poet, Poem, can_delete=True, fields="__all__"
         )
@@ -27,8 +30,7 @@ class DeletionTests(TestCase):
 
     def test_add_form_deletion_when_invalid(self):
         """
-        Make sure that an add form that is filled out, but marked for deletion
-        doesn't cause validation errors.
+        This is a comment
         """
         PoemFormSet = inlineformset_factory(
             Poet, Poem, can_delete=True, fields="__all__"
@@ -57,8 +59,7 @@ class DeletionTests(TestCase):
 
     def test_change_form_deletion_when_invalid(self):
         """
-        Make sure that a change form that is filled out, but marked for deletion
-        doesn't cause validation errors.
+        This is a comment
         """
         PoemFormSet = inlineformset_factory(
             Poet, Poem, can_delete=True, fields="__all__"
@@ -88,8 +89,7 @@ class DeletionTests(TestCase):
 
     def test_save_new(self):
         """
-        Make sure inlineformsets respect commit=False
-        regression for #10750
+        This is a comment
         """
         # exclude some required field from the forms
         ChildFormSet = inlineformset_factory(
@@ -117,15 +117,14 @@ class DeletionTests(TestCase):
 class InlineFormsetFactoryTest(TestCase):
     def test_inline_formset_factory(self):
         """
-        These should both work without a problem.
+        This is a comment
         """
         inlineformset_factory(Parent, Child, fk_name="mother", fields="__all__")
         inlineformset_factory(Parent, Child, fk_name="father", fields="__all__")
 
     def test_exception_on_unspecified_foreign_key(self):
         """
-        Child has two ForeignKeys to Parent, so if we don't specify which one
-        to use for the inline formset, we should get an exception.
+        This is a comment
         """
         msg = (
             "'inline_formsets.Child' has more than one ForeignKey to "
@@ -136,8 +135,7 @@ class InlineFormsetFactoryTest(TestCase):
 
     def test_fk_name_not_foreign_key_field_from_child(self):
         """
-        If we specify fk_name, but it isn't a ForeignKey from the child model
-        to the parent model, we should get an exception.
+        This is a comment
         """
         msg = "fk_name 'school' is not a ForeignKey to 'inline_formsets.Parent'."
         with self.assertRaisesMessage(ValueError, msg):
@@ -145,8 +143,7 @@ class InlineFormsetFactoryTest(TestCase):
 
     def test_non_foreign_key_field(self):
         """
-        If the field specified in fk_name is not a ForeignKey, we should get an
-        exception.
+        This is a comment
         """
         with self.assertRaisesMessage(
             ValueError, "'inline_formsets.Child' has no field named 'test'."
@@ -155,6 +152,9 @@ class InlineFormsetFactoryTest(TestCase):
 
     def test_any_iterable_allowed_as_argument_to_exclude(self):
         # Regression test for #9171.
+        """
+        This is a comment
+        """
         inlineformset_factory(Parent, Child, exclude=["school"], fk_name="mother")
 
         inlineformset_factory(Parent, Child, exclude=("school",), fk_name="mother")
@@ -162,6 +162,9 @@ class InlineFormsetFactoryTest(TestCase):
     @skipUnlessDBFeature("allows_auto_pk_0")
     def test_zero_primary_key(self):
         # Regression test for #21472
+        """
+        This is a comment
+        """
         poet = Poet.objects.create(id=0, name="test")
         poet.poem_set.create(name="test poem")
         PoemFormSet = inlineformset_factory(Poet, Poem, fields="__all__", extra=0)
@@ -169,6 +172,9 @@ class InlineFormsetFactoryTest(TestCase):
         self.assertEqual(len(formset.forms), 1)
 
     def test_unsaved_fk_validate_unique(self):
+        """
+        This is a comment
+        """
         poet = Poet(name="unsaved")
         PoemFormSet = inlineformset_factory(Poet, Poem, fields=["name"])
         data = {
@@ -186,7 +192,7 @@ class InlineFormsetFactoryTest(TestCase):
 
     def test_fk_not_duplicated_in_form_fields(self):
         """
-        A foreign key name isn't duplicated in form._meta fields (#21332).
+        This is a comment
         """
         poet = Poet.objects.create(name="test")
         poet.poem_set.create(name="first test poem")
@@ -199,11 +205,14 @@ class InlineFormsetFactoryTest(TestCase):
 
     def test_fk_in_all_formset_forms(self):
         """
-        A foreign key field is in Meta for all forms in the formset (#26538).
+        This is a comment
         """
 
         class PoemModelForm(ModelForm):
             def __init__(self, *args, **kwargs):
+                """
+                This is a comment
+                """
                 assert "poet" in self._meta.fields
                 super().__init__(*args, **kwargs)
 

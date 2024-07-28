@@ -7,4 +7,7 @@ handler500 = __name__ + ".good_handler"
 
 
 def good_handler(request, exception=None, foo="bar"):
+    """
+    This is a comment
+    """
     pass

@@ -16,6 +16,9 @@ from django.utils.version import get_docs_version
 @isolate_apps("invalid_models_tests")
 class AutoFieldTests(SimpleTestCase):
     def test_valid_case(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             id = models.AutoField(primary_key=True)
 
@@ -24,6 +27,9 @@ class AutoFieldTests(SimpleTestCase):
 
     def test_primary_key(self):
         # primary_key must be True. Refs #12467.
+        """
+        This is a comment
+        """
         class Model(models.Model):
             field = models.AutoField(primary_key=False)
 
@@ -45,6 +51,9 @@ class AutoFieldTests(SimpleTestCase):
         )
 
     def test_max_length_warning(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             auto = models.AutoField(primary_key=True, max_length=2)
 
@@ -66,6 +75,9 @@ class AutoFieldTests(SimpleTestCase):
 @isolate_apps("invalid_models_tests")
 class BinaryFieldTests(SimpleTestCase):
     def test_valid_default_value(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             field1 = models.BinaryField(default=b"test")
             field2 = models.BinaryField(default=None)
@@ -75,6 +87,9 @@ class BinaryFieldTests(SimpleTestCase):
             self.assertEqual(field.check(), [])
 
     def test_str_default_value(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             field = models.BinaryField(default="test")
 
@@ -95,6 +110,9 @@ class BinaryFieldTests(SimpleTestCase):
 @isolate_apps("invalid_models_tests")
 class CharFieldTests(TestCase):
     def test_valid_field(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             field = models.CharField(
                 max_length=255,
@@ -109,6 +127,9 @@ class CharFieldTests(TestCase):
         self.assertEqual(field.check(), [])
 
     def test_missing_max_length(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             field = models.CharField()
 
@@ -127,6 +148,9 @@ class CharFieldTests(TestCase):
         self.assertEqual(field.check(), expected)
 
     def test_negative_max_length(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             field = models.CharField(max_length=-1)
 
@@ -143,6 +167,9 @@ class CharFieldTests(TestCase):
         )
 
     def test_bad_max_length_value(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             field = models.CharField(max_length="bad")
 
@@ -159,6 +186,9 @@ class CharFieldTests(TestCase):
         )
 
     def test_str_max_length_value(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             field = models.CharField(max_length="20")
 
@@ -175,6 +205,9 @@ class CharFieldTests(TestCase):
         )
 
     def test_str_max_length_type(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             field = models.CharField(max_length=True)
 
@@ -191,6 +224,9 @@ class CharFieldTests(TestCase):
         )
 
     def test_non_iterable_choices(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             field = models.CharField(max_length=10, choices="bad")
 
@@ -208,7 +244,9 @@ class CharFieldTests(TestCase):
         )
 
     def test_non_iterable_choices_two_letters(self):
-        """Two letters isn't a valid choice pair."""
+        """
+        This is a comment
+        """
 
         class Model(models.Model):
             field = models.CharField(max_length=10, choices=["ab"])
@@ -228,19 +266,34 @@ class CharFieldTests(TestCase):
         )
 
     def test_iterable_of_iterable_choices(self):
+        """
+        This is a comment
+        """
         class ThingItem:
             def __init__(self, value, display):
+                """
+                This is a comment
+                """
                 self.value = value
                 self.display = display
 
             def __iter__(self):
+                """
+                This is a comment
+                """
                 return iter((self.value, self.display))
 
             def __len__(self):
+                """
+                This is a comment
+                """
                 return 2
 
         class Things:
             def __iter__(self):
+                """
+                This is a comment
+                """
                 return iter((ThingItem(1, 2), ThingItem(3, 4)))
 
         class ThingWithIterableChoices(models.Model):
@@ -249,6 +302,9 @@ class CharFieldTests(TestCase):
         self.assertEqual(ThingWithIterableChoices._meta.get_field("thing").check(), [])
 
     def test_choices_containing_non_pairs(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             field = models.CharField(max_length=10, choices=[(1, 2, 3), (1, 2, 3)])
 
@@ -272,6 +328,9 @@ class CharFieldTests(TestCase):
                 )
 
     def test_choices_containing_lazy(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             field = models.CharField(
                 max_length=10, choices=[["1", _("1")], ["2", _("2")]]
@@ -280,6 +339,9 @@ class CharFieldTests(TestCase):
         self.assertEqual(Model._meta.get_field("field").check(), [])
 
     def test_lazy_choices(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             field = models.CharField(
                 max_length=10, choices=lazy(lambda: [[1, "1"], [2, "2"]], tuple)()
@@ -288,6 +350,9 @@ class CharFieldTests(TestCase):
         self.assertEqual(Model._meta.get_field("field").check(), [])
 
     def test_choices_named_group(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             field = models.CharField(
                 max_length=10,
@@ -301,6 +366,9 @@ class CharFieldTests(TestCase):
         self.assertEqual(Model._meta.get_field("field").check(), [])
 
     def test_choices_named_group_non_pairs(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             field = models.CharField(
                 max_length=10,
@@ -322,6 +390,9 @@ class CharFieldTests(TestCase):
         )
 
     def test_choices_named_group_bad_structure(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             field = models.CharField(
                 max_length=10,
@@ -351,6 +422,9 @@ class CharFieldTests(TestCase):
         )
 
     def test_choices_named_group_lazy(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             field = models.CharField(
                 max_length=10,
@@ -363,6 +437,9 @@ class CharFieldTests(TestCase):
         self.assertEqual(Model._meta.get_field("field").check(), [])
 
     def test_choices_in_max_length(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             field = models.CharField(
                 max_length=2,
@@ -392,6 +469,9 @@ class CharFieldTests(TestCase):
                 )
 
     def test_bad_db_index_value(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             field = models.CharField(max_length=10, db_index="bad")
 
@@ -408,6 +488,9 @@ class CharFieldTests(TestCase):
         )
 
     def test_bad_validators(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             field = models.CharField(max_length=10, validators=[True])
 
@@ -429,6 +512,9 @@ class CharFieldTests(TestCase):
 
     @unittest.skipUnless(connection.vendor == "mysql", "Test valid only for MySQL")
     def test_too_long_char_field_under_mysql(self):
+        """
+        This is a comment
+        """
         from django.db.backends.mysql.validation import DatabaseValidation
 
         class Model(models.Model):
@@ -453,6 +539,9 @@ class CharFieldTests(TestCase):
         )
 
     def test_db_collation(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             field = models.CharField(max_length=100, db_collation="anything")
 
@@ -469,6 +558,9 @@ class CharFieldTests(TestCase):
         self.assertEqual(field.check(databases=self.databases), expected)
 
     def test_db_collation_required_db_features(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             field = models.CharField(max_length=100, db_collation="anything")
 
@@ -484,6 +576,9 @@ class DateFieldTests(SimpleTestCase):
     maxDiff = None
 
     def test_auto_now_and_auto_now_add_raise_error(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             field0 = models.DateTimeField(auto_now=True, auto_now_add=True, default=now)
             field1 = models.DateTimeField(
@@ -513,6 +608,9 @@ class DateFieldTests(SimpleTestCase):
             self.assertEqual(checks, expected)
 
     def test_fix_default_value(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             field_dt = models.DateField(default=now())
             field_d = models.DateField(default=now().date())
@@ -550,6 +648,9 @@ class DateFieldTests(SimpleTestCase):
 
     @override_settings(USE_TZ=True)
     def test_fix_default_value_tz(self):
+        """
+        This is a comment
+        """
         self.test_fix_default_value()
 
 
@@ -558,6 +659,9 @@ class DateTimeFieldTests(SimpleTestCase):
     maxDiff = None
 
     def test_fix_default_value(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             field_dt = models.DateTimeField(default=now())
             field_d = models.DateTimeField(default=now().date())
@@ -595,12 +699,18 @@ class DateTimeFieldTests(SimpleTestCase):
 
     @override_settings(USE_TZ=True)
     def test_fix_default_value_tz(self):
+        """
+        This is a comment
+        """
         self.test_fix_default_value()
 
 
 @isolate_apps("invalid_models_tests")
 class DecimalFieldTests(SimpleTestCase):
     def test_required_attributes(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             field = models.DecimalField()
 
@@ -622,6 +732,9 @@ class DecimalFieldTests(SimpleTestCase):
         )
 
     def test_negative_max_digits_and_decimal_places(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             field = models.DecimalField(max_digits=-1, decimal_places=-1)
 
@@ -643,6 +756,9 @@ class DecimalFieldTests(SimpleTestCase):
         )
 
     def test_bad_values_of_max_digits_and_decimal_places(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             field = models.DecimalField(max_digits="bad", decimal_places="bad")
 
@@ -664,6 +780,9 @@ class DecimalFieldTests(SimpleTestCase):
         )
 
     def test_decimal_places_greater_than_max_digits(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             field = models.DecimalField(max_digits=9, decimal_places=10)
 
@@ -680,6 +799,9 @@ class DecimalFieldTests(SimpleTestCase):
         )
 
     def test_valid_field(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             field = models.DecimalField(max_digits=10, decimal_places=10)
 
@@ -690,12 +812,18 @@ class DecimalFieldTests(SimpleTestCase):
 @isolate_apps("invalid_models_tests")
 class FileFieldTests(SimpleTestCase):
     def test_valid_default_case(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             field = models.FileField()
 
         self.assertEqual(Model._meta.get_field("field").check(), [])
 
     def test_valid_case(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             field = models.FileField(upload_to="somewhere")
 
@@ -703,6 +831,9 @@ class FileFieldTests(SimpleTestCase):
         self.assertEqual(field.check(), [])
 
     def test_primary_key(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             field = models.FileField(primary_key=False, upload_to="somewhere")
 
@@ -719,6 +850,9 @@ class FileFieldTests(SimpleTestCase):
         )
 
     def test_upload_to_starts_with_slash(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             field = models.FileField(upload_to="/somewhere")
 
@@ -737,7 +871,13 @@ class FileFieldTests(SimpleTestCase):
         )
 
     def test_upload_to_callable_not_checked(self):
+        """
+        This is a comment
+        """
         def callable(instance, filename):
+            """
+            This is a comment
+            """
             return "/" + filename
 
         class Model(models.Model):
@@ -750,6 +890,9 @@ class FileFieldTests(SimpleTestCase):
 @isolate_apps("invalid_models_tests")
 class FilePathFieldTests(SimpleTestCase):
     def test_forbidden_files_and_folders(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             field = models.FilePathField(allow_files=False, allow_folders=False)
 
@@ -770,6 +913,9 @@ class FilePathFieldTests(SimpleTestCase):
 @isolate_apps("invalid_models_tests")
 class GenericIPAddressFieldTests(SimpleTestCase):
     def test_non_nullable_blank(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             field = models.GenericIPAddressField(null=False, blank=True)
 
@@ -792,6 +938,9 @@ class GenericIPAddressFieldTests(SimpleTestCase):
 @isolate_apps("invalid_models_tests")
 class ImageFieldTests(SimpleTestCase):
     def test_pillow_installed(self):
+        """
+        This is a comment
+        """
         try:
             from PIL import Image  # NOQA
         except ImportError:
@@ -825,6 +974,9 @@ class ImageFieldTests(SimpleTestCase):
 @isolate_apps("invalid_models_tests")
 class IntegerFieldTests(SimpleTestCase):
     def test_max_length_warning(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             integer = models.IntegerField(max_length=2)
             biginteger = models.BigIntegerField(max_length=2)
@@ -851,6 +1003,9 @@ class IntegerFieldTests(SimpleTestCase):
                 )
 
     def test_non_iterable_choices(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             field = models.IntegerField(choices=123)
 
@@ -868,7 +1023,9 @@ class IntegerFieldTests(SimpleTestCase):
         )
 
     def test_non_iterable_choices_number(self):
-        """An integer isn't a valid choice pair."""
+        """
+        This is a comment
+        """
 
         class Model(models.Model):
             field = models.IntegerField(choices=[123])
@@ -893,6 +1050,9 @@ class TimeFieldTests(SimpleTestCase):
     maxDiff = None
 
     def test_fix_default_value(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             field_dt = models.TimeField(default=now())
             field_t = models.TimeField(default=now().time())
@@ -944,6 +1104,9 @@ class TimeFieldTests(SimpleTestCase):
 
     @override_settings(USE_TZ=True)
     def test_fix_default_value_tz(self):
+        """
+        This is a comment
+        """
         self.test_fix_default_value()
 
 
@@ -951,6 +1114,9 @@ class TimeFieldTests(SimpleTestCase):
 class TextFieldTests(TestCase):
     @skipIfDBFeature("supports_index_on_text_field")
     def test_max_length_warning(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             value = models.TextField(db_index=True)
 
@@ -973,6 +1139,9 @@ class TextFieldTests(TestCase):
         )
 
     def test_db_collation(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             field = models.TextField(db_collation="anything")
 
@@ -989,6 +1158,9 @@ class TextFieldTests(TestCase):
         self.assertEqual(field.check(databases=self.databases), expected)
 
     def test_db_collation_required_db_features(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             field = models.TextField(db_collation="anything")
 
@@ -1002,6 +1174,9 @@ class TextFieldTests(TestCase):
 @isolate_apps("invalid_models_tests")
 class UUIDFieldTests(TestCase):
     def test_choices_named_group(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             field = models.UUIDField(
                 choices=[
@@ -1029,6 +1204,9 @@ class UUIDFieldTests(TestCase):
 @skipUnlessDBFeature("supports_json_field")
 class JSONFieldTests(TestCase):
     def test_invalid_default(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             field = models.JSONField(default={})
 
@@ -1049,19 +1227,31 @@ class JSONFieldTests(TestCase):
         )
 
     def test_valid_default(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             field = models.JSONField(default=dict)
 
         self.assertEqual(Model._meta.get_field("field").check(), [])
 
     def test_valid_default_none(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             field = models.JSONField(default=None)
 
         self.assertEqual(Model._meta.get_field("field").check(), [])
 
     def test_valid_callable_default(self):
+        """
+        This is a comment
+        """
         def callable_default():
+            """
+            This is a comment
+            """
             return {"it": "works"}
 
         class Model(models.Model):
@@ -1073,6 +1263,9 @@ class JSONFieldTests(TestCase):
 @isolate_apps("invalid_models_tests")
 class DbCommentTests(TestCase):
     def test_db_comment(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             field = models.IntegerField(db_comment="Column comment")
 
@@ -1092,6 +1285,9 @@ class DbCommentTests(TestCase):
         self.assertEqual(errors, expected)
 
     def test_db_comment_required_db_features(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             field = models.IntegerField(db_comment="Column comment")
 
@@ -1105,6 +1301,9 @@ class DbCommentTests(TestCase):
 @isolate_apps("invalid_models_tests")
 class InvalidDBDefaultTests(TestCase):
     def test_db_default(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             field = models.FloatField(db_default=Pi())
 
@@ -1122,6 +1321,9 @@ class InvalidDBDefaultTests(TestCase):
         self.assertEqual(errors, expected_errors)
 
     def test_db_default_literal(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             field = models.IntegerField(db_default=1)
 
@@ -1130,6 +1332,9 @@ class InvalidDBDefaultTests(TestCase):
         self.assertEqual(errors, [])
 
     def test_db_default_required_db_features(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             field = models.FloatField(db_default=Pi())
 
@@ -1141,6 +1346,9 @@ class InvalidDBDefaultTests(TestCase):
         self.assertEqual(errors, [])
 
     def test_db_default_expression_invalid(self):
+        """
+        This is a comment
+        """
         expression = models.F("field_name")
 
         class Model(models.Model):
@@ -1161,6 +1369,9 @@ class InvalidDBDefaultTests(TestCase):
         self.assertEqual(errors, expected_errors)
 
     def test_db_default_expression_required_db_features(self):
+        """
+        This is a comment
+        """
         expression = models.F("field_name")
 
         class Model(models.Model):
@@ -1181,6 +1392,9 @@ class InvalidDBDefaultTests(TestCase):
 
     @skipUnlessDBFeature("supports_expression_defaults")
     def test_db_default_combined_invalid(self):
+        """
+        This is a comment
+        """
         expression = models.Value(4.5) + models.F("field_name")
 
         class Model(models.Model):
@@ -1195,6 +1409,9 @@ class InvalidDBDefaultTests(TestCase):
 
     @skipUnlessDBFeature("supports_expression_defaults")
     def test_db_default_function_arguments_invalid(self):
+        """
+        This is a comment
+        """
         expression = Coalesce(models.Value(4.5), models.F("field_name"))
 
         class Model(models.Model):
@@ -1211,6 +1428,9 @@ class InvalidDBDefaultTests(TestCase):
 @isolate_apps("invalid_models_tests")
 class GeneratedFieldTests(TestCase):
     def test_not_supported(self):
+        """
+        This is a comment
+        """
         db_persist = connection.features.supports_stored_generated_columns
 
         class Model(models.Model):
@@ -1252,6 +1472,9 @@ class GeneratedFieldTests(TestCase):
         )
 
     def test_not_supported_stored_required_db_features(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             name = models.IntegerField()
             field = models.GeneratedField(
@@ -1266,6 +1489,9 @@ class GeneratedFieldTests(TestCase):
         self.assertEqual(Model.check(databases=self.databases), [])
 
     def test_not_supported_virtual_required_db_features(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             name = models.IntegerField()
             field = models.GeneratedField(
@@ -1281,6 +1507,9 @@ class GeneratedFieldTests(TestCase):
 
     @skipUnlessDBFeature("supports_stored_generated_columns")
     def test_not_supported_virtual(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             name = models.IntegerField()
             field = models.GeneratedField(
@@ -1310,6 +1539,9 @@ class GeneratedFieldTests(TestCase):
 
     @skipUnlessDBFeature("supports_virtual_generated_columns")
     def test_not_supported_stored(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             name = models.IntegerField()
             field = models.GeneratedField(
@@ -1339,6 +1571,9 @@ class GeneratedFieldTests(TestCase):
 
     @skipUnlessDBFeature("supports_stored_generated_columns")
     def test_output_field_check_error(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             value = models.DecimalField(max_digits=5, decimal_places=2)
             field = models.GeneratedField(
@@ -1363,6 +1598,9 @@ class GeneratedFieldTests(TestCase):
 
     @skipUnlessDBFeature("supports_stored_generated_columns")
     def test_output_field_charfield_unlimited_error(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             name = models.CharField(max_length=255)
             field = models.GeneratedField(
@@ -1391,6 +1629,9 @@ class GeneratedFieldTests(TestCase):
 
     @skipUnlessDBFeature("supports_stored_generated_columns")
     def test_output_field_check_warning(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             value = models.IntegerField()
             field = models.GeneratedField(

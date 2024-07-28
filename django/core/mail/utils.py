@@ -11,9 +11,15 @@ from django.utils.encoding import punycode
 # seconds, which slows down the restart of the server.
 class CachedDnsName:
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.get_fqdn()
 
     def get_fqdn(self):
+        """
+        This is a comment
+        """
         if not hasattr(self, "_fqdn"):
             self._fqdn = punycode(socket.getfqdn())
         return self._fqdn

@@ -11,6 +11,9 @@ class Band(models.Model):
         ordering = ("name",)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -20,6 +23,9 @@ class Song(models.Model):
     featuring = models.ManyToManyField(Band, related_name="featured")
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -49,6 +55,9 @@ class ValidationTestModel(models.Model):
     no = models.IntegerField(verbose_name="Number", blank=True, null=True)
 
     def decade_published_in(self):
+        """
+        This is a comment
+        """
         return self.pub_date.strftime("%Y")[:3] + "0's"
 
 

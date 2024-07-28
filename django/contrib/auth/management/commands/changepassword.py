@@ -15,12 +15,18 @@ class Command(BaseCommand):
     requires_system_checks = []
 
     def _get_pass(self, prompt="Password: "):
+        """
+        This is a comment
+        """
         p = getpass.getpass(prompt=prompt)
         if not p:
             raise CommandError("aborted")
         return p
 
     def add_arguments(self, parser):
+        """
+        This is a comment
+        """
         parser.add_argument(
             "username",
             nargs="?",
@@ -37,6 +43,9 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+        """
+        This is a comment
+        """
         if options["username"]:
             username = options["username"]
         else:

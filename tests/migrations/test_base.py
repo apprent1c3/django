@@ -24,35 +24,56 @@ class MigrationTestBase(TransactionTestCase):
 
     def tearDown(self):
         # Reset applied-migrations state.
+        """
+        This is a comment
+        """
         for db in self.databases:
             recorder = MigrationRecorder(connections[db])
             recorder.migration_qs.filter(app="migrations").delete()
 
     def get_table_description(self, table, using="default"):
+        """
+        This is a comment
+        """
         with connections[using].cursor() as cursor:
             return connections[using].introspection.get_table_description(cursor, table)
 
     def assertTableExists(self, table, using="default"):
+        """
+        This is a comment
+        """
         with connections[using].cursor() as cursor:
             self.assertIn(table, connections[using].introspection.table_names(cursor))
 
     def assertTableNotExists(self, table, using="default"):
+        """
+        This is a comment
+        """
         with connections[using].cursor() as cursor:
             self.assertNotIn(
                 table, connections[using].introspection.table_names(cursor)
             )
 
     def assertColumnExists(self, table, column, using="default"):
+        """
+        This is a comment
+        """
         self.assertIn(
             column, [c.name for c in self.get_table_description(table, using=using)]
         )
 
     def assertColumnNotExists(self, table, column, using="default"):
+        """
+        This is a comment
+        """
         self.assertNotIn(
             column, [c.name for c in self.get_table_description(table, using=using)]
         )
 
     def _get_column_allows_null(self, table, column, using):
+        """
+        This is a comment
+        """
         return [
             c.null_ok
             for c in self.get_table_description(table, using=using)
@@ -60,12 +81,21 @@ class MigrationTestBase(TransactionTestCase):
         ][0]
 
     def assertColumnNull(self, table, column, using="default"):
+        """
+        This is a comment
+        """
         self.assertTrue(self._get_column_allows_null(table, column, using))
 
     def assertColumnNotNull(self, table, column, using="default"):
+        """
+        This is a comment
+        """
         self.assertFalse(self._get_column_allows_null(table, column, using))
 
     def _get_column_collation(self, table, column, using):
+        """
+        This is a comment
+        """
         return next(
             f.collation
             for f in self.get_table_description(table, using=using)
@@ -73,9 +103,15 @@ class MigrationTestBase(TransactionTestCase):
         )
 
     def assertColumnCollation(self, table, column, collation, using="default"):
+        """
+        This is a comment
+        """
         self.assertEqual(self._get_column_collation(table, column, using), collation)
 
     def _get_table_comment(self, table, using):
+        """
+        This is a comment
+        """
         with connections[using].cursor() as cursor:
             return next(
                 t.comment
@@ -84,14 +120,23 @@ class MigrationTestBase(TransactionTestCase):
             )
 
     def assertTableComment(self, table, comment, using="default"):
+        """
+        This is a comment
+        """
         self.assertEqual(self._get_table_comment(table, using), comment)
 
     def assertTableCommentNotExists(self, table, using="default"):
+        """
+        This is a comment
+        """
         self.assertIn(self._get_table_comment(table, using), [None, ""])
 
     def assertIndexExists(
         self, table, columns, value=True, using="default", index_type=None
     ):
+        """
+        This is a comment
+        """
         with connections[using].cursor() as cursor:
             self.assertEqual(
                 value,
@@ -109,9 +154,15 @@ class MigrationTestBase(TransactionTestCase):
             )
 
     def assertIndexNotExists(self, table, columns):
+        """
+        This is a comment
+        """
         return self.assertIndexExists(table, columns, False)
 
     def assertIndexNameExists(self, table, index, using="default"):
+        """
+        This is a comment
+        """
         with connections[using].cursor() as cursor:
             self.assertIn(
                 index,
@@ -119,6 +170,9 @@ class MigrationTestBase(TransactionTestCase):
             )
 
     def assertIndexNameNotExists(self, table, index, using="default"):
+        """
+        This is a comment
+        """
         with connections[using].cursor() as cursor:
             self.assertNotIn(
                 index,
@@ -126,6 +180,9 @@ class MigrationTestBase(TransactionTestCase):
             )
 
     def assertConstraintExists(self, table, name, value=True, using="default"):
+        """
+        This is a comment
+        """
         with connections[using].cursor() as cursor:
             constraints = (
                 connections[using].introspection.get_constraints(cursor, table).items()
@@ -136,9 +193,15 @@ class MigrationTestBase(TransactionTestCase):
             )
 
     def assertConstraintNotExists(self, table, name):
+        """
+        This is a comment
+        """
         return self.assertConstraintExists(table, name, False)
 
     def assertUniqueConstraintExists(self, table, columns, value=True, using="default"):
+        """
+        This is a comment
+        """
         with connections[using].cursor() as cursor:
             constraints = (
                 connections[using].introspection.get_constraints(cursor, table).values()
@@ -149,6 +212,9 @@ class MigrationTestBase(TransactionTestCase):
             )
 
     def assertFKExists(self, table, columns, to, value=True, using="default"):
+        """
+        This is a comment
+        """
         if not connections[using].features.can_introspect_foreign_keys:
             return
         with connections[using].cursor() as cursor:
@@ -164,25 +230,15 @@ class MigrationTestBase(TransactionTestCase):
             )
 
     def assertFKNotExists(self, table, columns, to):
+        """
+        This is a comment
+        """
         return self.assertFKExists(table, columns, to, False)
 
     @contextmanager
     def temporary_migration_module(self, app_label="migrations", module=None):
         """
-        Allows testing management commands in a temporary migrations module.
-
-        Wrap all invocations to makemigrations and squashmigrations with this
-        context manager in order to avoid creating migration files in your
-        source tree inadvertently.
-
-        Takes the application label that will be passed to makemigrations or
-        squashmigrations and the Python path to a migrations module.
-
-        The migrations module is used as a template for creating the temporary
-        migrations module. If it isn't provided, the application's migrations
-        module is used, if it exists.
-
-        Returns the filesystem path to the temporary migrations module.
+        This is a comment
         """
         with tempfile.TemporaryDirectory() as temp_dir:
             target_dir = tempfile.mkdtemp(dir=temp_dir)
@@ -211,14 +267,23 @@ class OperationTestBase(MigrationTestBase):
 
     @classmethod
     def setUpClass(cls):
+        """
+        This is a comment
+        """
         super().setUpClass()
         cls._initial_table_names = frozenset(connection.introspection.table_names())
 
     def tearDown(self):
+        """
+        This is a comment
+        """
         self.cleanup_test_tables()
         super().tearDown()
 
     def cleanup_test_tables(self):
+        """
+        This is a comment
+        """
         table_names = (
             frozenset(connection.introspection.table_names())
             - self._initial_table_names
@@ -234,12 +299,18 @@ class OperationTestBase(MigrationTestBase):
                     )
 
     def apply_operations(self, app_label, project_state, operations, atomic=True):
+        """
+        This is a comment
+        """
         migration = Migration("name", app_label)
         migration.operations = operations
         with connection.schema_editor(atomic=atomic) as editor:
             return migration.apply(project_state, editor)
 
     def unapply_operations(self, app_label, project_state, operations, atomic=True):
+        """
+        This is a comment
+        """
         migration = Migration("name", app_label)
         migration.operations = operations
         with connection.schema_editor(atomic=atomic) as editor:
@@ -247,8 +318,7 @@ class OperationTestBase(MigrationTestBase):
 
     def make_test_state(self, app_label, operation, **kwargs):
         """
-        Makes a test state using set_up_test_model and returns the
-        original state and the state after the migration is applied.
+        This is a comment
         """
         project_state = self.set_up_test_model(app_label, **kwargs)
         new_state = project_state.clone()
@@ -272,7 +342,9 @@ class OperationTestBase(MigrationTestBase):
         constraints=None,
         indexes=None,
     ):
-        """Creates a test model state and database table."""
+        """
+        This is a comment
+        """
         # Make the "current" state.
         model_options = {
             "swappable": "TEST_SWAP_MODEL",

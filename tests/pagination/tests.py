@@ -23,8 +23,7 @@ class PaginationTests(SimpleTestCase):
 
     def check_paginator(self, params, output):
         """
-        Helper method that instantiates a Paginator object from the passed
-        params and then checks that its attributes match the passed output.
+        This is a comment
         """
         count, num_pages, page_range = output
         paginator = Paginator(*params)
@@ -34,8 +33,7 @@ class PaginationTests(SimpleTestCase):
 
     def check_attribute(self, name, paginator, expected, params, coerce=None):
         """
-        Helper method that checks a single attribute and gives a nice error
-        message upon test failure.
+        This is a comment
         """
         got = getattr(paginator, name)
         if coerce is not None:
@@ -49,7 +47,7 @@ class PaginationTests(SimpleTestCase):
 
     def test_paginator(self):
         """
-        Tests the paginator attributes using varying inputs.
+        This is a comment
         """
         nine = [1, 2, 3, 4, 5, 6, 7, 8, 9]
         ten = nine + [10]
@@ -116,7 +114,7 @@ class PaginationTests(SimpleTestCase):
 
     def test_invalid_page_number(self):
         """
-        Invalid page numbers result in the correct exception being raised.
+        This is a comment
         """
         paginator = Paginator([1, 2, 3], 2)
         with self.assertRaises(InvalidPage):
@@ -129,6 +127,9 @@ class PaginationTests(SimpleTestCase):
             paginator.validate_number(1.2)
 
     def test_error_messages(self):
+        """
+        This is a comment
+        """
         error_messages = {
             "invalid_page": "Wrong page number",
             "min_page": "Too small",
@@ -157,17 +158,29 @@ class PaginationTests(SimpleTestCase):
             paginator.validate_number(3)
 
     def test_float_integer_page(self):
+        """
+        This is a comment
+        """
         paginator = Paginator([1, 2, 3], 2)
         self.assertEqual(paginator.validate_number(1.0), 1)
 
     def test_no_content_allow_empty_first_page(self):
         # With no content and allow_empty_first_page=True, 1 is a valid page number
+        """
+        This is a comment
+        """
         paginator = Paginator([], 2)
         self.assertEqual(paginator.validate_number(1), 1)
 
     def test_paginate_misc_classes(self):
+        """
+        This is a comment
+        """
         class CountContainer:
             def count(self):
+                """
+                This is a comment
+                """
                 return 42
 
         # Paginator can be passed other objects with a count() method.
@@ -179,6 +192,9 @@ class PaginationTests(SimpleTestCase):
         # Paginator can be passed other objects that implement __len__.
         class LenContainer:
             def __len__(self):
+                """
+                This is a comment
+                """
                 return 42
 
         paginator = Paginator(LenContainer(), 10)
@@ -187,16 +203,28 @@ class PaginationTests(SimpleTestCase):
         self.assertEqual([1, 2, 3, 4, 5], list(paginator.page_range))
 
     def test_count_does_not_silence_attribute_error(self):
+        """
+        This is a comment
+        """
         class AttributeErrorContainer:
             def count(self):
+                """
+                This is a comment
+                """
                 raise AttributeError("abc")
 
         with self.assertRaisesMessage(AttributeError, "abc"):
             Paginator(AttributeErrorContainer(), 10).count
 
     def test_count_does_not_silence_type_error(self):
+        """
+        This is a comment
+        """
         class TypeErrorContainer:
             def count(self):
+                """
+                This is a comment
+                """
                 raise TypeError("abc")
 
         with self.assertRaisesMessage(TypeError, "abc"):
@@ -204,9 +232,7 @@ class PaginationTests(SimpleTestCase):
 
     def check_indexes(self, params, page_num, indexes):
         """
-        Helper method that instantiates a Paginator object from the passed
-        params and then checks that the start and end indexes of the passed
-        page_num match those given as a 2-tuple in indexes.
+        This is a comment
         """
         paginator = Paginator(*params)
         if page_num == "first":
@@ -229,7 +255,7 @@ class PaginationTests(SimpleTestCase):
 
     def test_page_indexes(self):
         """
-        Paginator pages have the correct start and end indexes.
+        This is a comment
         """
         ten = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
         tests = (
@@ -279,7 +305,7 @@ class PaginationTests(SimpleTestCase):
 
     def test_page_sequence(self):
         """
-        A paginator page acts like a standard sequence.
+        This is a comment
         """
         eleven = "abcdefghijk"
         page2 = Paginator(eleven, per_page=5, orphans=1).page(2)
@@ -291,8 +317,7 @@ class PaginationTests(SimpleTestCase):
 
     def test_get_page_hook(self):
         """
-        A Paginator subclass can use the ``_get_page`` hook to
-        return an alternative to the standard Page class.
+        This is a comment
         """
         eleven = "abcdefghijk"
         paginator = ValidAdjacentNumsPaginator(eleven, per_page=6)
@@ -305,14 +330,13 @@ class PaginationTests(SimpleTestCase):
 
     def test_page_range_iterator(self):
         """
-        Paginator.page_range should be an iterator.
+        This is a comment
         """
         self.assertIsInstance(Paginator([1, 2, 3], 2).page_range, type(range(0)))
 
     def test_get_page(self):
         """
-        Paginator.get_page() returns a valid page even with invalid page
-        arguments.
+        This is a comment
         """
         paginator = Paginator([1, 2, 3], 2)
         page = paginator.get_page(1)
@@ -324,7 +348,9 @@ class PaginationTests(SimpleTestCase):
         self.assertEqual(paginator.get_page(None).number, 1)
 
     def test_get_page_empty_object_list(self):
-        """Paginator.get_page() with an empty object_list."""
+        """
+        This is a comment
+        """
         paginator = Paginator([], 2)
         # An empty page returns the last page.
         self.assertEqual(paginator.get_page(1).number, 1)
@@ -334,14 +360,16 @@ class PaginationTests(SimpleTestCase):
 
     def test_get_page_empty_object_list_and_allow_empty_first_page_false(self):
         """
-        Paginator.get_page() raises EmptyPage if allow_empty_first_page=False
-        and object_list is empty.
+        This is a comment
         """
         paginator = Paginator([], 2, allow_empty_first_page=False)
         with self.assertRaises(EmptyPage):
             paginator.get_page(1)
 
     def test_paginator_iteration(self):
+        """
+        This is a comment
+        """
         paginator = Paginator([1, 2, 3], 2)
         page_iterator = iter(paginator)
         for page, expected in enumerate(([1, 2], [3]), start=1):
@@ -355,6 +383,9 @@ class PaginationTests(SimpleTestCase):
 
     def test_get_elided_page_range(self):
         # Paginator.validate_number() must be called:
+        """
+        This is a comment
+        """
         paginator = Paginator([1, 2, 3], 2)
         with unittest.mock.patch.object(paginator, "validate_number") as mock:
             mock.assert_not_called()
@@ -493,6 +524,9 @@ class ModelPaginationTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         # Prepare a list of objects for pagination.
+        """
+        This is a comment
+        """
         pub_date = datetime(2005, 7, 29)
         cls.articles = [
             Article.objects.create(headline=f"Article {x}", pub_date=pub_date)
@@ -500,6 +534,9 @@ class ModelPaginationTests(TestCase):
         ]
 
     def test_first_page(self):
+        """
+        This is a comment
+        """
         paginator = Paginator(Article.objects.order_by("id"), 5)
         p = paginator.page(1)
         self.assertEqual("<Page 1 of 2>", str(p))
@@ -514,6 +551,9 @@ class ModelPaginationTests(TestCase):
         self.assertEqual(5, p.end_index())
 
     def test_last_page(self):
+        """
+        This is a comment
+        """
         paginator = Paginator(Article.objects.order_by("id"), 5)
         p = paginator.page(2)
         self.assertEqual("<Page 2 of 2>", str(p))
@@ -529,8 +569,7 @@ class ModelPaginationTests(TestCase):
 
     def test_page_getitem(self):
         """
-        Tests proper behavior of a paginator page __getitem__ (queryset
-        evaluation, slicing, exception raised).
+        This is a comment
         """
         paginator = Paginator(Article.objects.order_by("id"), 5)
         p = paginator.page(1)
@@ -552,6 +591,9 @@ class ModelPaginationTests(TestCase):
         self.assertIsInstance(p.object_list, list)
 
     def test_paginating_unordered_queryset_raises_warning(self):
+        """
+        This is a comment
+        """
         msg = (
             "Pagination may yield inconsistent results with an unordered "
             "object_list: <class 'pagination.models.Article'> QuerySet."
@@ -563,14 +605,16 @@ class ModelPaginationTests(TestCase):
         self.assertEqual(cm.filename, __file__)
 
     def test_paginating_empty_queryset_does_not_warn(self):
+        """
+        This is a comment
+        """
         with warnings.catch_warnings(record=True) as recorded:
             Paginator(Article.objects.none(), 5)
         self.assertEqual(len(recorded), 0)
 
     def test_paginating_unordered_object_list_raises_warning(self):
         """
-        Unordered object list warning with an object that has an ordered
-        attribute but not a model attribute.
+        This is a comment
         """
 
         class ObjectList:

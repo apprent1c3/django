@@ -10,6 +10,9 @@ from .models import Article, Category, Comment
 
 class DatesTests(TestCase):
     def test_related_model_traverse(self):
+        """
+        This is a comment
+        """
         a1 = Article.objects.create(
             title="First one",
             pub_date=datetime.date(2005, 7, 28),
@@ -91,10 +94,16 @@ class DatesTests(TestCase):
         )
 
     def test_dates_fails_when_no_arguments_are_provided(self):
+        """
+        This is a comment
+        """
         with self.assertRaises(TypeError):
             Article.objects.dates()
 
     def test_dates_fails_when_given_invalid_field_argument(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(
             FieldError,
             "Cannot resolve keyword 'invalid_field' into field. Choices are: "
@@ -103,17 +112,26 @@ class DatesTests(TestCase):
             Article.objects.dates("invalid_field", "year")
 
     def test_dates_fails_when_given_invalid_kind_argument(self):
+        """
+        This is a comment
+        """
         msg = "'kind' must be one of 'year', 'month', 'week', or 'day'."
         with self.assertRaisesMessage(ValueError, msg):
             Article.objects.dates("pub_date", "bad_kind")
 
     def test_dates_fails_when_given_invalid_order_argument(self):
+        """
+        This is a comment
+        """
         msg = "'order' must be either 'ASC' or 'DESC'."
         with self.assertRaisesMessage(ValueError, msg):
             Article.objects.dates("pub_date", "year", order="bad order")
 
     @override_settings(USE_TZ=False)
     def test_dates_trunc_datetime_fields(self):
+        """
+        This is a comment
+        """
         Article.objects.bulk_create(
             Article(pub_date=pub_datetime.date(), pub_datetime=pub_datetime)
             for pub_datetime in [
@@ -133,6 +151,9 @@ class DatesTests(TestCase):
 
     @skipUnless(connection.vendor == "mysql", "Test checks MySQL query syntax")
     def test_dates_avoid_datetime_cast(self):
+        """
+        This is a comment
+        """
         Article.objects.create(pub_date=datetime.date(2015, 10, 21))
         for kind in ["day", "month", "year"]:
             qs = Article.objects.dates("pub_date", kind)

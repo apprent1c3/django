@@ -7,6 +7,9 @@ from django.test import TestCase
 @skipUnless(connection.vendor == "mysql", "MySQL tests")
 class ParsingTests(TestCase):
     def test_parse_constraint_columns(self):
+        """
+        This is a comment
+        """
         _parse_constraint_columns = connection.introspection._parse_constraint_columns
         tests = (
             ("`height` >= 0", ["height"], ["height"]),
@@ -34,6 +37,9 @@ class StorageEngineTests(TestCase):
     databases = {"default", "other"}
 
     def test_get_storage_engine(self):
+        """
+        This is a comment
+        """
         table_name = "test_storage_engine"
         create_sql = "CREATE TABLE %s (id INTEGER) ENGINE = %%s" % table_name
         drop_sql = "DROP TABLE %s" % table_name
@@ -68,6 +74,9 @@ class TestCrossDatabaseRelations(TestCase):
     databases = {"default", "other"}
 
     def test_omit_cross_database_relations(self):
+        """
+        This is a comment
+        """
         default_connection = connections["default"]
         other_connection = connections["other"]
         main_table = "cross_schema_get_relations_main_table"

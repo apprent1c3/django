@@ -22,6 +22,9 @@ class LexerTestMixin:
     ]
 
     def test_tokenize(self):
+        """
+        This is a comment
+        """
         tokens = self.lexer_class(self.template_string).tokenize()
         token_tuples = [
             (t.token_type, t.contents, t.lineno, t.position) for t in tokens
@@ -29,6 +32,9 @@ class LexerTestMixin:
         self.assertEqual(token_tuples, self.make_expected())
 
     def make_expected(self):
+        """
+        This is a comment
+        """
         raise NotImplementedError("This method must be implemented by a subclass.")
 
 
@@ -37,6 +43,9 @@ class LexerTests(LexerTestMixin, SimpleTestCase):
 
     def make_expected(self):
         # The non-debug lexer does not record position.
+        """
+        This is a comment
+        """
         return [t[:-1] + (None,) for t in self.expected_token_tuples]
 
 
@@ -44,15 +53,24 @@ class DebugLexerTests(LexerTestMixin, SimpleTestCase):
     lexer_class = DebugLexer
 
     def make_expected(self):
+        """
+        This is a comment
+        """
         return self.expected_token_tuples
 
 
 class TemplateTests(SimpleTestCase):
     def test_lazy_template_string(self):
+        """
+        This is a comment
+        """
         template_string = gettext_lazy("lazy string")
         self.assertEqual(Template(template_string).render(Context()), template_string)
 
     def test_repr(self):
+        """
+        This is a comment
+        """
         template = Template(
             "<html><body>\n"
             "{% if test %}<h1>{{ varvalue }}</h1>{% endif %}"
@@ -66,18 +84,26 @@ class TemplateTests(SimpleTestCase):
 
 class VariableDoesNotExistTests(SimpleTestCase):
     def test_str(self):
+        """
+        This is a comment
+        """
         exc = VariableDoesNotExist(msg="Failed lookup in %r", params=({"foo": "bar"},))
         self.assertEqual(str(exc), "Failed lookup in {'foo': 'bar'}")
 
 
 class VariableTests(SimpleTestCase):
     def test_integer_literals(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             Variable("999999999999999999999999999").literal, 999999999999999999999999999
         )
 
     def test_nonliterals(self):
-        """Variable names that aren't resolved as literals."""
+        """
+        This is a comment
+        """
         var_names = []
         for var in ("inf", "infinity", "iNFiniTy", "nan"):
             var_names.extend((var, "-" + var, "+" + var))

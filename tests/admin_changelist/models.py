@@ -24,9 +24,15 @@ class GrandChild(models.Model):
     name = models.CharField(max_length=30, blank=True)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
     def __html__(self):
+        """
+        This is a comment
+        """
         return f'<h2 class="main">{self.name}</h2>'
 
 
@@ -45,6 +51,9 @@ class Musician(models.Model):
     age = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -53,6 +62,9 @@ class Group(models.Model):
     members = models.ManyToManyField(Musician, through="Membership")
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -111,6 +123,9 @@ class UnorderedObject(models.Model):
 
 class OrderedObjectManager(models.Manager):
     def get_queryset(self):
+        """
+        This is a comment
+        """
         return super().get_queryset().order_by("number")
 
 

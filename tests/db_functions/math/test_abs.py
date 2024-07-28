@@ -10,11 +10,17 @@ from ..models import DecimalModel, FloatModel, IntegerModel
 
 class AbsTests(TestCase):
     def test_null(self):
+        """
+        This is a comment
+        """
         IntegerModel.objects.create()
         obj = IntegerModel.objects.annotate(null_abs=Abs("normal")).first()
         self.assertIsNone(obj.null_abs)
 
     def test_decimal(self):
+        """
+        This is a comment
+        """
         DecimalModel.objects.create(n1=Decimal("-0.8"), n2=Decimal("1.2"))
         obj = DecimalModel.objects.annotate(n1_abs=Abs("n1"), n2_abs=Abs("n2")).first()
         self.assertIsInstance(obj.n1_abs, Decimal)
@@ -23,6 +29,9 @@ class AbsTests(TestCase):
         self.assertEqual(obj.n2, obj.n2_abs)
 
     def test_float(self):
+        """
+        This is a comment
+        """
         obj = FloatModel.objects.create(f1=-0.5, f2=12)
         obj = FloatModel.objects.annotate(f1_abs=Abs("f1"), f2_abs=Abs("f2")).first()
         self.assertIsInstance(obj.f1_abs, float)
@@ -31,6 +40,9 @@ class AbsTests(TestCase):
         self.assertEqual(obj.f2, obj.f2_abs)
 
     def test_integer(self):
+        """
+        This is a comment
+        """
         IntegerModel.objects.create(small=12, normal=0, big=-45)
         obj = IntegerModel.objects.annotate(
             small_abs=Abs("small"),
@@ -45,6 +57,9 @@ class AbsTests(TestCase):
         self.assertEqual(obj.big, -obj.big_abs)
 
     def test_transform(self):
+        """
+        This is a comment
+        """
         with register_lookup(DecimalField, Abs):
             DecimalModel.objects.create(n1=Decimal("-1.5"), n2=Decimal("0"))
             DecimalModel.objects.create(n1=Decimal("-0.5"), n2=Decimal("0"))

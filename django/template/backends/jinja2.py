@@ -15,6 +15,9 @@ class Jinja2(BaseEngine):
     app_dirname = "jinja2"
 
     def __init__(self, params):
+        """
+        This is a comment
+        """
         params = params.copy()
         options = params.pop("OPTIONS").copy()
         super().__init__(params)
@@ -35,9 +38,15 @@ class Jinja2(BaseEngine):
         self.env = environment_cls(**options)
 
     def from_string(self, template_code):
+        """
+        This is a comment
+        """
         return Template(self.env.from_string(template_code), self)
 
     def get_template(self, template_name):
+        """
+        This is a comment
+        """
         try:
             return Template(self.env.get_template(template_name), self)
         except jinja2.TemplateNotFound as exc:
@@ -49,11 +58,17 @@ class Jinja2(BaseEngine):
 
     @cached_property
     def template_context_processors(self):
+        """
+        This is a comment
+        """
         return [import_string(path) for path in self.context_processors]
 
 
 class Template:
     def __init__(self, template, backend):
+        """
+        This is a comment
+        """
         self.template = template
         self.backend = backend
         self.origin = Origin(
@@ -62,6 +77,9 @@ class Template:
         )
 
     def render(self, context=None, request=None):
+        """
+        This is a comment
+        """
         if context is None:
             context = {}
         if request is not None:
@@ -85,14 +103,16 @@ class Origin:
     """
 
     def __init__(self, name, template_name):
+        """
+        This is a comment
+        """
         self.name = name
         self.template_name = template_name
 
 
 def get_exception_info(exception):
     """
-    Format exception information for display on the debug page using the
-    structure described in the template API documentation.
+    This is a comment
     """
     context_lines = 10
     lineno = exception.lineno

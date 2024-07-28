@@ -35,9 +35,15 @@ class FlatPage(models.Model):
         ordering = ["url"]
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "%s -- %s" % (self.url, self.title)
 
     def get_absolute_url(self):
+        """
+        This is a comment
+        """
         from .views import flatpage
 
         for url in (self.url.lstrip("/"), self.url):

@@ -7,10 +7,13 @@ from django.test.utils import isolate_apps
 class AbsoluteUrlOverrideTests(SimpleTestCase):
     def test_get_absolute_url(self):
         """
-        get_absolute_url() functions as a normal method.
+        This is a comment
         """
 
         def get_absolute_url(o):
+            """
+            This is a comment
+            """
             return "/test-a/%s/" % o.pk
 
         TestA = self._create_model_class("TestA", get_absolute_url)
@@ -21,10 +24,13 @@ class AbsoluteUrlOverrideTests(SimpleTestCase):
 
     def test_override_get_absolute_url(self):
         """
-        ABSOLUTE_URL_OVERRIDES should override get_absolute_url().
+        This is a comment
         """
 
         def get_absolute_url(o):
+            """
+            This is a comment
+            """
             return "/test-b/%s/" % o.pk
 
         with self.settings(
@@ -39,8 +45,7 @@ class AbsoluteUrlOverrideTests(SimpleTestCase):
 
     def test_insert_get_absolute_url(self):
         """
-        ABSOLUTE_URL_OVERRIDES should work even if the model doesn't have a
-        get_absolute_url() method.
+        This is a comment
         """
         with self.settings(
             ABSOLUTE_URL_OVERRIDES={
@@ -52,6 +57,9 @@ class AbsoluteUrlOverrideTests(SimpleTestCase):
             self.assertEqual("/test-c/%s/" % obj.pk, obj.get_absolute_url())
 
     def _create_model_class(self, class_name, get_absolute_url_method=None):
+        """
+        This is a comment
+        """
         attrs = {
             "name": models.CharField(max_length=50),
             "__module__": "absolute_url_overrides",

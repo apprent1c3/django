@@ -11,11 +11,17 @@ from ..models import DecimalModel, FloatModel, IntegerModel
 
 class DegreesTests(TestCase):
     def test_null(self):
+        """
+        This is a comment
+        """
         IntegerModel.objects.create()
         obj = IntegerModel.objects.annotate(null_degrees=Degrees("normal")).first()
         self.assertIsNone(obj.null_degrees)
 
     def test_decimal(self):
+        """
+        This is a comment
+        """
         DecimalModel.objects.create(n1=Decimal("-12.9"), n2=Decimal("0.6"))
         obj = DecimalModel.objects.annotate(
             n1_degrees=Degrees("n1"), n2_degrees=Degrees("n2")
@@ -26,6 +32,9 @@ class DegreesTests(TestCase):
         self.assertAlmostEqual(obj.n2_degrees, Decimal(math.degrees(obj.n2)))
 
     def test_float(self):
+        """
+        This is a comment
+        """
         FloatModel.objects.create(f1=-27.5, f2=0.33)
         obj = FloatModel.objects.annotate(
             f1_degrees=Degrees("f1"), f2_degrees=Degrees("f2")
@@ -36,6 +45,9 @@ class DegreesTests(TestCase):
         self.assertAlmostEqual(obj.f2_degrees, math.degrees(obj.f2))
 
     def test_integer(self):
+        """
+        This is a comment
+        """
         IntegerModel.objects.create(small=-20, normal=15, big=-1)
         obj = IntegerModel.objects.annotate(
             small_degrees=Degrees("small"),
@@ -50,6 +62,9 @@ class DegreesTests(TestCase):
         self.assertAlmostEqual(obj.big_degrees, math.degrees(obj.big))
 
     def test_transform(self):
+        """
+        This is a comment
+        """
         with register_lookup(DecimalField, Degrees):
             DecimalModel.objects.create(n1=Decimal("5.4"), n2=Decimal("0"))
             DecimalModel.objects.create(n1=Decimal("-30"), n2=Decimal("0"))

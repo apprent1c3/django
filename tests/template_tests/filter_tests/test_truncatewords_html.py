@@ -4,6 +4,9 @@ from django.test import SimpleTestCase
 
 class FunctionTests(SimpleTestCase):
     def test_truncate_zero(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             truncatewords_html(
                 '<p>one <a href="#">two - three <br>four</a> five</p>', 0
@@ -12,6 +15,9 @@ class FunctionTests(SimpleTestCase):
         )
 
     def test_truncate(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             truncatewords_html(
                 '<p>one <a href="#">two - three <br>four</a> five</p>', 2
@@ -20,6 +26,9 @@ class FunctionTests(SimpleTestCase):
         )
 
     def test_truncate2(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             truncatewords_html(
                 '<p>one <a href="#">two - three <br>four</a> five</p>', 4
@@ -28,6 +37,9 @@ class FunctionTests(SimpleTestCase):
         )
 
     def test_truncate3(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             truncatewords_html(
                 '<p>one <a href="#">two - three <br>four</a> five</p>', 5
@@ -36,6 +48,9 @@ class FunctionTests(SimpleTestCase):
         )
 
     def test_truncate4(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             truncatewords_html(
                 '<p>one <a href="#">two - three <br>four</a> five</p>', 100
@@ -44,11 +59,17 @@ class FunctionTests(SimpleTestCase):
         )
 
     def test_truncate_unicode(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             truncatewords_html("\xc5ngstr\xf6m was here", 1), "\xc5ngstr\xf6m …"
         )
 
     def test_truncate_complex(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             truncatewords_html(
                 "<i>Buenos d&iacute;as! &#x00bf;C&oacute;mo est&aacute;?</i>", 3
@@ -57,4 +78,7 @@ class FunctionTests(SimpleTestCase):
         )
 
     def test_invalid_arg(self):
+        """
+        This is a comment
+        """
         self.assertEqual(truncatewords_html("<p>string</p>", "a"), "<p>string</p>")

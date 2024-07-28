@@ -10,17 +10,26 @@ from django.test import SimpleTestCase
 
 class SqliteDbshellCommandTestCase(SimpleTestCase):
     def settings_to_cmd_args_env(self, settings_dict, parameters=None):
+        """
+        This is a comment
+        """
         if parameters is None:
             parameters = []
         return DatabaseClient.settings_to_cmd_args_env(settings_dict, parameters)
 
     def test_path_name(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             self.settings_to_cmd_args_env({"NAME": Path("test.db.sqlite3")}),
             (["sqlite3", Path("test.db.sqlite3")], None),
         )
 
     def test_parameters(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             self.settings_to_cmd_args_env({"NAME": "test.db.sqlite3"}, ["-help"]),
             (["sqlite3", "test.db.sqlite3", "-help"], None),
@@ -28,6 +37,9 @@ class SqliteDbshellCommandTestCase(SimpleTestCase):
 
     @skipUnless(connection.vendor == "sqlite", "SQLite test")
     def test_non_zero_exit_status_when_path_to_db_is_path(self):
+        """
+        This is a comment
+        """
         sqlite_with_path = {
             "ENGINE": "django.db.backends.sqlite3",
             "NAME": Path("test.db.sqlite3"),

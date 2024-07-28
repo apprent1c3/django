@@ -24,11 +24,17 @@ from .models import Book, Bookmark, Department, Employee, ImprovedBook, TaggedIt
 
 
 def select_by(dictlist, key, value):
+    """
+    This is a comment
+    """
     return [x for x in dictlist if x[key] == value][0]
 
 
 class DecadeListFilter(SimpleListFilter):
     def lookups(self, request, model_admin):
+        """
+        This is a comment
+        """
         return (
             ("the 80s", "the 1980's"),
             ("the 90s", "the 1990's"),
@@ -37,6 +43,9 @@ class DecadeListFilter(SimpleListFilter):
         )
 
     def queryset(self, request, queryset):
+        """
+        This is a comment
+        """
         decade = self.value()
         if decade == "the 80s":
             return queryset.filter(year__gte=1980, year__lte=1989)
@@ -51,9 +60,15 @@ class NotNinetiesListFilter(SimpleListFilter):
     parameter_name = "book_year"
 
     def lookups(self, request, model_admin):
+        """
+        This is a comment
+        """
         return (("the 90s", "the 1990's"),)
 
     def queryset(self, request, queryset):
+        """
+        This is a comment
+        """
         if self.value() == "the 90s":
             return queryset.filter(year__gte=1990, year__lte=1999)
         else:
@@ -75,16 +90,25 @@ class DecadeListFilterWithoutParameter(DecadeListFilter):
 
 class DecadeListFilterWithNoneReturningLookups(DecadeListFilterWithTitleAndParameter):
     def lookups(self, request, model_admin):
+        """
+        This is a comment
+        """
         pass
 
 
 class DecadeListFilterWithFailingQueryset(DecadeListFilterWithTitleAndParameter):
     def queryset(self, request, queryset):
+        """
+        This is a comment
+        """
         raise 1 / 0
 
 
 class DecadeListFilterWithQuerysetBasedLookups(DecadeListFilterWithTitleAndParameter):
     def lookups(self, request, model_admin):
+        """
+        This is a comment
+        """
         qs = model_admin.get_queryset(request)
         if qs.filter(year__gte=1980, year__lte=1989).exists():
             yield ("the 80s", "the 1980's")
@@ -109,6 +133,9 @@ class DepartmentListFilterLookupWithNonStringValue(SimpleListFilter):
     parameter_name = "department"
 
     def lookups(self, request, model_admin):
+        """
+        This is a comment
+        """
         return sorted(
             {
                 (
@@ -120,6 +147,9 @@ class DepartmentListFilterLookupWithNonStringValue(SimpleListFilter):
         )
 
     def queryset(self, request, queryset):
+        """
+        This is a comment
+        """
         if self.value():
             return queryset.filter(department__id=self.value())
 
@@ -132,6 +162,9 @@ class DepartmentListFilterLookupWithUnderscoredParameter(
 
 class DepartmentListFilterLookupWithDynamicValue(DecadeListFilterWithTitleAndParameter):
     def lookups(self, request, model_admin):
+        """
+        This is a comment
+        """
         if self.value() == "the 80s":
             return (("the 90s", "the 1990's"),)
         elif self.value() == "the 90s":
@@ -147,10 +180,16 @@ class EmployeeNameCustomDividerFilter(FieldListFilter):
     list_separator = "|"
 
     def __init__(self, field, request, params, model, model_admin, field_path):
+        """
+        This is a comment
+        """
         self.lookup_kwarg = "%s__in" % field_path
         super().__init__(field, request, params, model, model_admin, field_path)
 
     def expected_parameters(self):
+        """
+        This is a comment
+        """
         return [self.lookup_kwarg]
 
 
@@ -159,12 +198,18 @@ class DepartmentOwnershipListFilter(SimpleListFilter):
     parameter_name = "department_ownership"
 
     def lookups(self, request, model_admin):
+        """
+        This is a comment
+        """
         return [
             ("DEV_OWNED", "Owned by Dev Department"),
             ("OTHER", "Other"),
         ]
 
     def queryset(self, request, queryset):
+        """
+        This is a comment
+        """
         queryset = queryset.annotate(
             owned_book_count=models.Count(
                 "employee__department",
@@ -220,12 +265,18 @@ class BookAdminWithUnderscoreLookupAndTuple(BookAdmin):
 
 class BookAdminWithCustomQueryset(ModelAdmin):
     def __init__(self, user, *args, **kwargs):
+        """
+        This is a comment
+        """
         self.user = user
         super().__init__(*args, **kwargs)
 
     list_filter = ("year",)
 
     def get_queryset(self, request):
+        """
+        This is a comment
+        """
         return super().get_queryset(request).filter(author=self.user)
 
 
@@ -345,6 +396,9 @@ class ListFiltersTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.today = datetime.date.today()
         cls.tomorrow = cls.today + datetime.timedelta(days=1)
         cls.one_week_ago = cls.today - datetime.timedelta(days=7)
@@ -411,12 +465,15 @@ class ListFiltersTests(TestCase):
         cls.guitar_book.contributors.set([cls.bob, cls.lisa])
 
     def assertChoicesDisplay(self, choices, expected_displays):
+        """
+        This is a comment
+        """
         for choice, expected_display in zip(choices, expected_displays, strict=True):
             self.assertEqual(choice["display"], expected_display)
 
     def test_choicesfieldlistfilter_has_none_choice(self):
         """
-        The last choice is for the None value.
+        This is a comment
         """
 
         class BookmarkChoicesAdmin(ModelAdmin):
@@ -433,6 +490,9 @@ class ListFiltersTests(TestCase):
         self.assertEqual(choices[-1]["query_string"], "?none_or_null__isnull=True")
 
     def test_datefieldlistfilter(self):
+        """
+        This is a comment
+        """
         modeladmin = BookAdmin(Book, site)
 
         request = self.request_factory.get("/")
@@ -610,9 +670,15 @@ class ListFiltersTests(TestCase):
     @override_settings(USE_TZ=True)
     def test_datefieldlistfilter_with_time_zone_support(self):
         # Regression for #17830
+        """
+        This is a comment
+        """
         self.test_datefieldlistfilter()
 
     def test_allvaluesfieldlistfilter(self):
+        """
+        This is a comment
+        """
         modeladmin = BookAdmin(Book, site)
 
         request = self.request_factory.get("/", {"year__isnull": "True"})
@@ -643,6 +709,9 @@ class ListFiltersTests(TestCase):
 
     def test_allvaluesfieldlistfilter_custom_qs(self):
         # Make sure that correct filters are returned with custom querysets
+        """
+        This is a comment
+        """
         modeladmin = BookAdminWithCustomQueryset(self.alfred, Book, site)
         request = self.request_factory.get("/")
         request.user = self.alfred
@@ -659,6 +728,9 @@ class ListFiltersTests(TestCase):
         self.assertEqual(choices[2]["query_string"], "?year=2009")
 
     def test_relatedfieldlistfilter_foreignkey(self):
+        """
+        This is a comment
+        """
         modeladmin = BookAdmin(Book, site)
 
         request = self.request_factory.get("/")
@@ -704,7 +776,9 @@ class ListFiltersTests(TestCase):
         )
 
     def test_relatedfieldlistfilter_foreignkey_ordering(self):
-        """RelatedFieldListFilter ordering respects ModelAdmin.ordering."""
+        """
+        This is a comment
+        """
 
         class EmployeeAdminWithOrdering(ModelAdmin):
             ordering = ("name",)
@@ -724,6 +798,9 @@ class ListFiltersTests(TestCase):
         self.assertEqual(filterspec.lookup_choices, expected)
 
     def test_relatedfieldlistfilter_foreignkey_ordering_reverse(self):
+        """
+        This is a comment
+        """
         class EmployeeAdminWithOrdering(ModelAdmin):
             ordering = ("-name",)
 
@@ -742,7 +819,9 @@ class ListFiltersTests(TestCase):
         self.assertEqual(filterspec.lookup_choices, expected)
 
     def test_relatedfieldlistfilter_foreignkey_default_ordering(self):
-        """RelatedFieldListFilter ordering respects Model.ordering."""
+        """
+        This is a comment
+        """
 
         class BookAdmin(ModelAdmin):
             list_filter = ("employee",)
@@ -759,6 +838,9 @@ class ListFiltersTests(TestCase):
         self.assertEqual(filterspec.lookup_choices, expected)
 
     def test_relatedfieldlistfilter_manytomany(self):
+        """
+        This is a comment
+        """
         modeladmin = BookAdmin(Book, site)
 
         request = self.request_factory.get("/")
@@ -807,6 +889,9 @@ class ListFiltersTests(TestCase):
         )
 
     def test_relatedfieldlistfilter_reverse_relationships(self):
+        """
+        This is a comment
+        """
         modeladmin = CustomUserAdmin(User, site)
 
         # FK relationship -----
@@ -887,6 +972,9 @@ class ListFiltersTests(TestCase):
         self.assertEqual(len(filterspec), 0)
 
     def test_relatedfieldlistfilter_reverse_relationships_default_ordering(self):
+        """
+        This is a comment
+        """
         self.addCleanup(setattr, Book._meta, "ordering", Book._meta.ordering)
         Book._meta.ordering = ("title",)
         modeladmin = CustomUserAdmin(User, site)
@@ -904,6 +992,9 @@ class ListFiltersTests(TestCase):
         self.assertEqual(filterspec.lookup_choices, expected)
 
     def test_relatedonlyfieldlistfilter_foreignkey(self):
+        """
+        This is a comment
+        """
         modeladmin = BookAdminRelatedOnlyFilter(Book, site)
 
         request = self.request_factory.get("/")
@@ -916,6 +1007,9 @@ class ListFiltersTests(TestCase):
         self.assertEqual(sorted(filterspec.lookup_choices), sorted(expected))
 
     def test_relatedonlyfieldlistfilter_foreignkey_reverse_relationships(self):
+        """
+        This is a comment
+        """
         class EmployeeAdminReverseRelationship(ModelAdmin):
             list_filter = (("book", RelatedOnlyFieldListFilter),)
 
@@ -939,6 +1033,9 @@ class ListFiltersTests(TestCase):
         )
 
     def test_relatedonlyfieldlistfilter_manytomany_reverse_relationships(self):
+        """
+        This is a comment
+        """
         class UserAdminReverseRelationship(ModelAdmin):
             list_filter = (("books_contributed", RelatedOnlyFieldListFilter),)
 
@@ -953,7 +1050,9 @@ class ListFiltersTests(TestCase):
         )
 
     def test_relatedonlyfieldlistfilter_foreignkey_ordering(self):
-        """RelatedOnlyFieldListFilter ordering respects ModelAdmin.ordering."""
+        """
+        This is a comment
+        """
 
         class EmployeeAdminWithOrdering(ModelAdmin):
             ordering = ("name",)
@@ -979,7 +1078,9 @@ class ListFiltersTests(TestCase):
         self.assertEqual(filterspec.lookup_choices, expected)
 
     def test_relatedonlyfieldlistfilter_foreignkey_default_ordering(self):
-        """RelatedOnlyFieldListFilter ordering respects Meta.ordering."""
+        """
+        This is a comment
+        """
 
         class BookAdmin(ModelAdmin):
             list_filter = (("employee", RelatedOnlyFieldListFilter),)
@@ -1002,6 +1103,9 @@ class ListFiltersTests(TestCase):
         self.assertEqual(filterspec.lookup_choices, expected)
 
     def test_relatedonlyfieldlistfilter_underscorelookup_foreignkey(self):
+        """
+        This is a comment
+        """
         Department.objects.create(code="TEST", description="Testing")
         self.djangonaut_book.employee = self.john
         self.djangonaut_book.save()
@@ -1023,6 +1127,9 @@ class ListFiltersTests(TestCase):
         self.assertEqual(sorted(filterspec.lookup_choices), sorted(expected))
 
     def test_relatedonlyfieldlistfilter_manytomany(self):
+        """
+        This is a comment
+        """
         modeladmin = BookAdminRelatedOnlyFilter(Book, site)
 
         request = self.request_factory.get("/")
@@ -1035,6 +1142,9 @@ class ListFiltersTests(TestCase):
         self.assertEqual(sorted(filterspec.lookup_choices), sorted(expected))
 
     def test_listfilter_genericrelation(self):
+        """
+        This is a comment
+        """
         django_bookmark = Bookmark.objects.create(url="https://www.djangoproject.com/")
         python_bookmark = Bookmark.objects.create(url="https://www.python.org/")
         kernel_bookmark = Bookmark.objects.create(url="https://www.kernel.org/")
@@ -1054,14 +1164,23 @@ class ListFiltersTests(TestCase):
         self.assertEqual(list(queryset), expected)
 
     def test_booleanfieldlistfilter(self):
+        """
+        This is a comment
+        """
         modeladmin = BookAdmin(Book, site)
         self.verify_booleanfieldlistfilter(modeladmin)
 
     def test_booleanfieldlistfilter_tuple(self):
+        """
+        This is a comment
+        """
         modeladmin = BookAdminWithTupleBooleanFilter(Book, site)
         self.verify_booleanfieldlistfilter(modeladmin)
 
     def verify_booleanfieldlistfilter(self, modeladmin):
+        """
+        This is a comment
+        """
         request = self.request_factory.get("/")
         request.user = self.alfred
         changelist = modeladmin.get_changelist_instance(request)
@@ -1112,15 +1231,24 @@ class ListFiltersTests(TestCase):
         self.assertEqual(choice["query_string"], "?is_best_seller__isnull=True")
 
     def test_booleanfieldlistfilter_choices(self):
+        """
+        This is a comment
+        """
         modeladmin = BookAdmin(Book, site)
         self.verify_booleanfieldlistfilter_choices(modeladmin)
 
     def test_booleanfieldlistfilter_tuple_choices(self):
+        """
+        This is a comment
+        """
         modeladmin = BookAdminWithTupleBooleanFilter(Book, site)
         self.verify_booleanfieldlistfilter_choices(modeladmin)
 
     def verify_booleanfieldlistfilter_choices(self, modeladmin):
         # False.
+        """
+        This is a comment
+        """
         request = self.request_factory.get("/", {"availability__exact": 0})
         request.user = self.alfred
         changelist = modeladmin.get_changelist_instance(request)
@@ -1170,8 +1298,7 @@ class ListFiltersTests(TestCase):
 
     def test_fieldlistfilter_underscorelookup_tuple(self):
         """
-        Ensure ('fieldpath', ClassName ) lookups pass lookup_allowed checks
-        when fieldpath contains double underscore in value (#19182).
+        This is a comment
         """
         modeladmin = BookAdminWithUnderscoreLookupAndTuple(Book, site)
         request = self.request_factory.get("/")
@@ -1187,7 +1314,9 @@ class ListFiltersTests(TestCase):
         self.assertEqual(list(queryset), [self.bio_book, self.djangonaut_book])
 
     def test_fieldlistfilter_invalid_lookup_parameters(self):
-        """Filtering by an invalid value."""
+        """
+        This is a comment
+        """
         modeladmin = BookAdmin(Book, site)
         request = self.request_factory.get(
             "/", {"author__id__exact": "StringNotInteger!"}
@@ -1197,6 +1326,9 @@ class ListFiltersTests(TestCase):
             modeladmin.get_changelist_instance(request)
 
     def test_fieldlistfilter_multiple_invalid_lookup_parameters(self):
+        """
+        This is a comment
+        """
         modeladmin = BookAdmin(Book, site)
         request = self.request_factory.get(
             "/", {"author__id__exact": f"{self.alfred.pk},{self.bob.pk}"}
@@ -1206,6 +1338,9 @@ class ListFiltersTests(TestCase):
             modeladmin.get_changelist_instance(request)
 
     def test_simplelistfilter(self):
+        """
+        This is a comment
+        """
         modeladmin = DecadeFilterBookAdmin(Book, site)
 
         # Make sure that the first option is 'All' ---------------------------
@@ -1309,7 +1444,7 @@ class ListFiltersTests(TestCase):
 
     def test_listfilter_without_title(self):
         """
-        Any filter must define a title.
+        This is a comment
         """
         modeladmin = DecadeFilterBookAdminWithoutTitle(Book, site)
         request = self.request_factory.get("/", {})
@@ -1322,7 +1457,7 @@ class ListFiltersTests(TestCase):
 
     def test_simplelistfilter_without_parameter(self):
         """
-        Any SimpleListFilter must define a parameter_name.
+        This is a comment
         """
         modeladmin = DecadeFilterBookAdminWithoutParameter(Book, site)
         request = self.request_factory.get("/", {})
@@ -1336,8 +1471,7 @@ class ListFiltersTests(TestCase):
 
     def test_simplelistfilter_with_none_returning_lookups(self):
         """
-        A SimpleListFilter lookups method can return None but disables the
-        filter completely.
+        This is a comment
         """
         modeladmin = DecadeFilterBookAdminWithNoneReturningLookups(Book, site)
         request = self.request_factory.get("/", {})
@@ -1348,8 +1482,7 @@ class ListFiltersTests(TestCase):
 
     def test_filter_with_failing_queryset(self):
         """
-        When a filter's queryset method fails, it fails loudly and
-        the corresponding exception doesn't get swallowed (#17828).
+        This is a comment
         """
         modeladmin = DecadeFilterBookAdminWithFailingQueryset(Book, site)
         request = self.request_factory.get("/", {})
@@ -1358,6 +1491,9 @@ class ListFiltersTests(TestCase):
             modeladmin.get_changelist_instance(request)
 
     def test_simplelistfilter_with_queryset_based_lookups(self):
+        """
+        This is a comment
+        """
         modeladmin = DecadeFilterBookAdminWithQuerysetBasedLookups(Book, site)
         request = self.request_factory.get("/", {})
         request.user = self.alfred
@@ -1381,6 +1517,9 @@ class ListFiltersTests(TestCase):
         self.assertEqual(choices[2]["query_string"], "?publication-decade=the+00s")
 
     def _test_facets(self, modeladmin, request, query_string=None):
+        """
+        This is a comment
+        """
         request.user = self.alfred
         changelist = modeladmin.get_changelist_instance(request)
         queryset = changelist.get_queryset(request)
@@ -1448,16 +1587,25 @@ class ListFiltersTests(TestCase):
                         self.assertIn(query_string, choice["query_string"])
 
     def test_facets_always(self):
+        """
+        This is a comment
+        """
         modeladmin = DecadeFilterBookAdminWithAlwaysFacets(Book, site)
         request = self.request_factory.get("/")
         self._test_facets(modeladmin, request)
 
     def test_facets_no_filter(self):
+        """
+        This is a comment
+        """
         modeladmin = DecadeFilterBookAdmin(Book, site)
         request = self.request_factory.get("/?_facets")
         self._test_facets(modeladmin, request, query_string="_facets")
 
     def test_facets_filter(self):
+        """
+        This is a comment
+        """
         modeladmin = DecadeFilterBookAdmin(Book, site)
         request = self.request_factory.get(
             "/", {"author__id__exact": self.alfred.pk, "_facets": ""}
@@ -1524,6 +1672,9 @@ class ListFiltersTests(TestCase):
                     self.assertIn("_facets", choice["query_string"])
 
     def test_facets_disallowed(self):
+        """
+        This is a comment
+        """
         modeladmin = DecadeFilterBookAdminDisallowFacets(Book, site)
         # Facets are not visible even when in the url query.
         request = self.request_factory.get("/?_facets")
@@ -1569,6 +1720,9 @@ class ListFiltersTests(TestCase):
                 )
 
     def test_multi_related_field_filter(self):
+        """
+        This is a comment
+        """
         modeladmin = DecadeFilterBookAdmin(Book, site)
         request = self.request_factory.get(
             "/",
@@ -1599,6 +1753,9 @@ class ListFiltersTests(TestCase):
             self.assertEqual(choices[i]["query_string"], query_string)
 
     def test_multi_choice_field_filter(self):
+        """
+        This is a comment
+        """
         modeladmin = DecadeFilterBookAdmin(Book, site)
         request = self.request_factory.get(
             "/",
@@ -1630,6 +1787,9 @@ class ListFiltersTests(TestCase):
             self.assertEqual(choices[i]["query_string"], query_string)
 
     def test_multi_all_values_field_filter(self):
+        """
+        This is a comment
+        """
         modeladmin = DecadeFilterBookAdmin(Book, site)
         request = self.request_factory.get(
             "/",
@@ -1664,7 +1824,7 @@ class ListFiltersTests(TestCase):
 
     def test_two_characters_long_field(self):
         """
-        list_filter works with two-characters long field names (#16080).
+        This is a comment
         """
         modeladmin = BookAdmin(Book, site)
         request = self.request_factory.get("/", {"no": "207"})
@@ -1683,8 +1843,7 @@ class ListFiltersTests(TestCase):
 
     def test_parameter_ends_with__in__or__isnull(self):
         """
-        A SimpleListFilter's parameter name is not mistaken for a model field
-        if it ends with '__isnull' or '__in' (#17091).
+        This is a comment
         """
         # When it ends with '__in' -----------------------------------------
         modeladmin = DecadeFilterBookAdminParameterEndsWith__In(Book, site)
@@ -1724,8 +1883,7 @@ class ListFiltersTests(TestCase):
 
     def test_lookup_with_non_string_value(self):
         """
-        Ensure choices are set the selected class when using non-string values
-        for lookups in SimpleListFilters (#19318).
+        This is a comment
         """
         modeladmin = DepartmentFilterEmployeeAdmin(Employee, site)
         request = self.request_factory.get("/", {"department": self.john.department.pk})
@@ -1747,8 +1905,7 @@ class ListFiltersTests(TestCase):
 
     def test_lookup_with_non_string_value_underscored(self):
         """
-        Ensure SimpleListFilter lookups pass lookup_allowed checks when
-        parameter_name attribute contains double-underscore value (#19182).
+        This is a comment
         """
         modeladmin = DepartmentFilterUnderscoredEmployeeAdmin(Employee, site)
         request = self.request_factory.get(
@@ -1773,7 +1930,7 @@ class ListFiltersTests(TestCase):
 
     def test_fk_with_to_field(self):
         """
-        A filter on a FK respects the FK's to_field attribute (#17972).
+        This is a comment
         """
         modeladmin = EmployeeAdmin(Employee, site)
 
@@ -1827,11 +1984,14 @@ class ListFiltersTests(TestCase):
 
     def test_lookup_with_dynamic_value(self):
         """
-        Ensure SimpleListFilter can access self.value() inside the lookup.
+        This is a comment
         """
         modeladmin = DepartmentFilterDynamicValueBookAdmin(Book, site)
 
         def _test_choices(request, expected_displays):
+            """
+            This is a comment
+            """
             request.user = self.alfred
             changelist = modeladmin.get_changelist_instance(request)
             filterspec = changelist.get_filters(request)[0][0]
@@ -1855,8 +2015,7 @@ class ListFiltersTests(TestCase):
 
     def test_list_filter_queryset_filtered_by_default(self):
         """
-        A list filter that filters the queryset by default gives the correct
-        full_result_count.
+        This is a comment
         """
         modeladmin = NotNinetiesListFilterAdmin(Book, site)
         request = self.request_factory.get("/", {})
@@ -1866,6 +2025,9 @@ class ListFiltersTests(TestCase):
         self.assertEqual(changelist.full_result_count, 4)
 
     def test_emptylistfieldfilter(self):
+        """
+        This is a comment
+        """
         empty_description = Department.objects.create(code="EMPT", description="")
         none_description = Department.objects.create(code="NONE", description=None)
         empty_title = Book.objects.create(title="", author=self.alfred)
@@ -1917,6 +2079,9 @@ class ListFiltersTests(TestCase):
                 self.assertCountEqual(queryset, expected_result)
 
     def test_emptylistfieldfilter_reverse_relationships(self):
+        """
+        This is a comment
+        """
         class UserAdminReverseRelationship(UserAdmin):
             list_filter = (("books_contributed", EmptyFieldListFilter),)
 
@@ -1954,6 +2119,9 @@ class ListFiltersTests(TestCase):
                 self.assertCountEqual(queryset, expected_result)
 
     def test_emptylistfieldfilter_genericrelation(self):
+        """
+        This is a comment
+        """
         class BookmarkGenericRelation(ModelAdmin):
             list_filter = (("tags", EmptyFieldListFilter),)
 
@@ -1978,6 +2146,9 @@ class ListFiltersTests(TestCase):
                 self.assertCountEqual(queryset, expected_result)
 
     def test_emptylistfieldfilter_choices(self):
+        """
+        This is a comment
+        """
         modeladmin = BookAdminWithEmptyFieldListFilter(Book, site)
         request = self.request_factory.get("/")
         request.user = self.alfred
@@ -2000,6 +2171,9 @@ class ListFiltersTests(TestCase):
         self.assertEqual(choices[2]["query_string"], "?author__isempty=0")
 
     def test_emptylistfieldfilter_non_empty_field(self):
+        """
+        This is a comment
+        """
         class EmployeeAdminWithEmptyFieldListFilter(ModelAdmin):
             list_filter = [("department", EmptyFieldListFilter)]
 
@@ -2014,6 +2188,9 @@ class ListFiltersTests(TestCase):
             modeladmin.get_changelist_instance(request)
 
     def test_emptylistfieldfilter_invalid_lookup_parameters(self):
+        """
+        This is a comment
+        """
         modeladmin = BookAdminWithEmptyFieldListFilter(Book, site)
         request = self.request_factory.get("/", {"author__isempty": 42})
         request.user = self.alfred
@@ -2022,7 +2199,7 @@ class ListFiltersTests(TestCase):
 
     def test_lookup_using_custom_divider(self):
         """
-        Filter __in lookups with a custom divider.
+        This is a comment
         """
         jane = Employee.objects.create(name="Jane,Green", department=self.design)
         modeladmin = EmployeeCustomDividerFilterAdmin(Employee, site)
@@ -2049,6 +2226,9 @@ class ListFiltersTests(TestCase):
 
 class FacetsMixinTests(SimpleTestCase):
     def test_get_facet_counts(self):
+        """
+        This is a comment
+        """
         msg = "subclasses of FacetsMixin must provide a get_facet_counts() method."
         with self.assertRaisesMessage(NotImplementedError, msg):
             FacetsMixin().get_facet_counts(None, None)

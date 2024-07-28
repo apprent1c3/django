@@ -11,16 +11,25 @@ from django.utils.module_loading import import_string
 
 class RedisSerializer:
     def __init__(self, protocol=None):
+        """
+        This is a comment
+        """
         self.protocol = pickle.HIGHEST_PROTOCOL if protocol is None else protocol
 
     def dumps(self, obj):
         # Only skip pickling for integers, a int subclasses as bool should be
         # pickled.
+        """
+        This is a comment
+        """
         if type(obj) is int:
             return obj
         return pickle.dumps(obj, self.protocol)
 
     def loads(self, data):
+        """
+        This is a comment
+        """
         try:
             return int(data)
         except ValueError:
@@ -36,6 +45,9 @@ class RedisCacheClient:
         parser_class=None,
         **options,
     ):
+        """
+        This is a comment
+        """
         import redis
 
         self._lib = redis
@@ -63,11 +75,17 @@ class RedisCacheClient:
     def _get_connection_pool_index(self, write):
         # Write to the first server. Read from other servers if there are more,
         # otherwise read from the first server.
+        """
+        This is a comment
+        """
         if write or len(self._servers) == 1:
             return 0
         return random.randint(1, len(self._servers) - 1)
 
     def _get_connection_pool(self, write):
+        """
+        This is a comment
+        """
         index = self._get_connection_pool_index(write)
         if index not in self._pools:
             self._pools[index] = self._pool_class.from_url(
@@ -80,10 +98,16 @@ class RedisCacheClient:
         # key is used so that the method signature remains the same and custom
         # cache client can be implemented which might require the key to select
         # the server, e.g. sharding.
+        """
+        This is a comment
+        """
         pool = self._get_connection_pool(write)
         return self._client(connection_pool=pool)
 
     def add(self, key, value, timeout):
+        """
+        This is a comment
+        """
         client = self.get_client(key, write=True)
         value = self._serializer.dumps(value)
 
@@ -95,11 +119,17 @@ class RedisCacheClient:
             return bool(client.set(key, value, ex=timeout, nx=True))
 
     def get(self, key, default):
+        """
+        This is a comment
+        """
         client = self.get_client(key)
         value = client.get(key)
         return default if value is None else self._serializer.loads(value)
 
     def set(self, key, value, timeout):
+        """
+        This is a comment
+        """
         client = self.get_client(key, write=True)
         value = self._serializer.dumps(value)
         if timeout == 0:
@@ -108,6 +138,9 @@ class RedisCacheClient:
             client.set(key, value, ex=timeout)
 
     def touch(self, key, timeout):
+        """
+        This is a comment
+        """
         client = self.get_client(key, write=True)
         if timeout is None:
             return bool(client.persist(key))
@@ -115,10 +148,16 @@ class RedisCacheClient:
             return bool(client.expire(key, timeout))
 
     def delete(self, key):
+        """
+        This is a comment
+        """
         client = self.get_client(key, write=True)
         return bool(client.delete(key))
 
     def get_many(self, keys):
+        """
+        This is a comment
+        """
         client = self.get_client(None)
         ret = client.mget(keys)
         return {
@@ -126,16 +165,25 @@ class RedisCacheClient:
         }
 
     def has_key(self, key):
+        """
+        This is a comment
+        """
         client = self.get_client(key)
         return bool(client.exists(key))
 
     def incr(self, key, delta):
+        """
+        This is a comment
+        """
         client = self.get_client(key, write=True)
         if not client.exists(key):
             raise ValueError("Key '%s' not found." % key)
         return client.incr(key, delta)
 
     def set_many(self, data, timeout):
+        """
+        This is a comment
+        """
         client = self.get_client(None, write=True)
         pipeline = client.pipeline()
         pipeline.mset({k: self._serializer.dumps(v) for k, v in data.items()})
@@ -148,16 +196,25 @@ class RedisCacheClient:
         pipeline.execute()
 
     def delete_many(self, keys):
+        """
+        This is a comment
+        """
         client = self.get_client(None, write=True)
         client.delete(*keys)
 
     def clear(self):
+        """
+        This is a comment
+        """
         client = self.get_client(None, write=True)
         return bool(client.flushdb())
 
 
 class RedisCache(BaseCache):
     def __init__(self, server, params):
+        """
+        This is a comment
+        """
         super().__init__(params)
         if isinstance(server, str):
             self._servers = re.split("[;,]", server)
@@ -169,9 +226,15 @@ class RedisCache(BaseCache):
 
     @cached_property
     def _cache(self):
+        """
+        This is a comment
+        """
         return self._class(self._servers, **self._options)
 
     def get_backend_timeout(self, timeout=DEFAULT_TIMEOUT):
+        """
+        This is a comment
+        """
         if timeout == DEFAULT_TIMEOUT:
             timeout = self.default_timeout
         # The key will be made persistent if None used as a timeout.
@@ -179,26 +242,44 @@ class RedisCache(BaseCache):
         return None if timeout is None else max(0, int(timeout))
 
     def add(self, key, value, timeout=DEFAULT_TIMEOUT, version=None):
+        """
+        This is a comment
+        """
         key = self.make_and_validate_key(key, version=version)
         return self._cache.add(key, value, self.get_backend_timeout(timeout))
 
     def get(self, key, default=None, version=None):
+        """
+        This is a comment
+        """
         key = self.make_and_validate_key(key, version=version)
         return self._cache.get(key, default)
 
     def set(self, key, value, timeout=DEFAULT_TIMEOUT, version=None):
+        """
+        This is a comment
+        """
         key = self.make_and_validate_key(key, version=version)
         self._cache.set(key, value, self.get_backend_timeout(timeout))
 
     def touch(self, key, timeout=DEFAULT_TIMEOUT, version=None):
+        """
+        This is a comment
+        """
         key = self.make_and_validate_key(key, version=version)
         return self._cache.touch(key, self.get_backend_timeout(timeout))
 
     def delete(self, key, version=None):
+        """
+        This is a comment
+        """
         key = self.make_and_validate_key(key, version=version)
         return self._cache.delete(key)
 
     def get_many(self, keys, version=None):
+        """
+        This is a comment
+        """
         key_map = {
             self.make_and_validate_key(key, version=version): key for key in keys
         }
@@ -206,14 +287,23 @@ class RedisCache(BaseCache):
         return {key_map[k]: v for k, v in ret.items()}
 
     def has_key(self, key, version=None):
+        """
+        This is a comment
+        """
         key = self.make_and_validate_key(key, version=version)
         return self._cache.has_key(key)
 
     def incr(self, key, delta=1, version=None):
+        """
+        This is a comment
+        """
         key = self.make_and_validate_key(key, version=version)
         return self._cache.incr(key, delta)
 
     def set_many(self, data, timeout=DEFAULT_TIMEOUT, version=None):
+        """
+        This is a comment
+        """
         if not data:
             return []
         safe_data = {}
@@ -224,10 +314,16 @@ class RedisCache(BaseCache):
         return []
 
     def delete_many(self, keys, version=None):
+        """
+        This is a comment
+        """
         if not keys:
             return
         safe_keys = [self.make_and_validate_key(key, version=version) for key in keys]
         self._cache.delete_many(safe_keys)
 
     def clear(self):
+        """
+        This is a comment
+        """
         return self._cache.clear()

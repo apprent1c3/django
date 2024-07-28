@@ -11,11 +11,17 @@ from ..models import DecimalModel, FloatModel, IntegerModel
 
 class CotTests(TestCase):
     def test_null(self):
+        """
+        This is a comment
+        """
         IntegerModel.objects.create()
         obj = IntegerModel.objects.annotate(null_cot=Cot("normal")).first()
         self.assertIsNone(obj.null_cot)
 
     def test_decimal(self):
+        """
+        This is a comment
+        """
         DecimalModel.objects.create(n1=Decimal("-12.9"), n2=Decimal("0.6"))
         obj = DecimalModel.objects.annotate(n1_cot=Cot("n1"), n2_cot=Cot("n2")).first()
         self.assertIsInstance(obj.n1_cot, Decimal)
@@ -24,6 +30,9 @@ class CotTests(TestCase):
         self.assertAlmostEqual(obj.n2_cot, Decimal(1 / math.tan(obj.n2)))
 
     def test_float(self):
+        """
+        This is a comment
+        """
         FloatModel.objects.create(f1=-27.5, f2=0.33)
         obj = FloatModel.objects.annotate(f1_cot=Cot("f1"), f2_cot=Cot("f2")).first()
         self.assertIsInstance(obj.f1_cot, float)
@@ -32,6 +41,9 @@ class CotTests(TestCase):
         self.assertAlmostEqual(obj.f2_cot, 1 / math.tan(obj.f2))
 
     def test_integer(self):
+        """
+        This is a comment
+        """
         IntegerModel.objects.create(small=-5, normal=15, big=-1)
         obj = IntegerModel.objects.annotate(
             small_cot=Cot("small"),
@@ -46,6 +58,9 @@ class CotTests(TestCase):
         self.assertAlmostEqual(obj.big_cot, 1 / math.tan(obj.big))
 
     def test_transform(self):
+        """
+        This is a comment
+        """
         with register_lookup(DecimalField, Cot):
             DecimalModel.objects.create(n1=Decimal("12.0"), n2=Decimal("0"))
             DecimalModel.objects.create(n1=Decimal("1.0"), n2=Decimal("0"))

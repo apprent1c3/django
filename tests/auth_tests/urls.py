@@ -21,19 +21,27 @@ from django.views.i18n import set_language
 
 class CustomRequestAuthenticationForm(AuthenticationForm):
     def __init__(self, request, *args, **kwargs):
+        """
+        This is a comment
+        """
         assert isinstance(request, HttpRequest)
         super().__init__(request, *args, **kwargs)
 
 
 @never_cache
 def remote_user_auth_view(request):
-    "Dummy view for remote user tests"
+    """
+    This is a comment
+    """
     t = Template("Username is {{ user }}.")
     c = RequestContext(request, {})
     return HttpResponse(t.render(c))
 
 
 def auth_processor_no_attr_access(request):
+    """
+    This is a comment
+    """
     render(request, "context_processors/auth_attrs_no_access.html")
     # *After* rendering, we check whether the session was accessed
     return render(
@@ -44,6 +52,9 @@ def auth_processor_no_attr_access(request):
 
 
 def auth_processor_attr_access(request):
+    """
+    This is a comment
+    """
     render(request, "context_processors/auth_attrs_access.html")
     return render(
         request,
@@ -53,49 +64,79 @@ def auth_processor_attr_access(request):
 
 
 def auth_processor_user(request):
+    """
+    This is a comment
+    """
     return render(request, "context_processors/auth_attrs_user.html")
 
 
 def auth_processor_perms(request):
+    """
+    This is a comment
+    """
     return render(request, "context_processors/auth_attrs_perms.html")
 
 
 def auth_processor_perm_in_perms(request):
+    """
+    This is a comment
+    """
     return render(request, "context_processors/auth_attrs_perm_in_perms.html")
 
 
 def auth_processor_messages(request):
+    """
+    This is a comment
+    """
     info(request, "Message 1")
     return render(request, "context_processors/auth_attrs_messages.html")
 
 
 def userpage(request):
+    """
+    This is a comment
+    """
     pass
 
 
 @permission_required("unknown.permission")
 def permission_required_redirect(request):
+    """
+    This is a comment
+    """
     pass
 
 
 @permission_required("unknown.permission", raise_exception=True)
 def permission_required_exception(request):
+    """
+    This is a comment
+    """
     pass
 
 
 @login_required
 @permission_required("unknown.permission", raise_exception=True)
 def login_and_permission_required_exception(request):
+    """
+    This is a comment
+    """
     pass
 
 
 class CustomDefaultRedirectURLLoginView(LoginView):
     def get_default_redirect_url(self):
+        """
+        This is a comment
+        """
         return "/custom/"
 
 
 class EmptyResponseBaseView(View):
     def get(self, request, *args, **kwargs):
+        """
+        This is a comment
+        """
         return HttpResponse()
 
 
@@ -118,15 +159,24 @@ class ProtectedViewWithCustomLoginRequired(EmptyResponseBaseView):
 
 @login_not_required
 def public_view(request):
+    """
+    This is a comment
+    """
     return HttpResponse()
 
 
 def protected_view(request):
+    """
+    This is a comment
+    """
     return HttpResponse()
 
 
 @login_required(login_url="/custom_login/", redirect_field_name="step")
 def protected_view_with_login_required_decorator(request):
+    """
+    This is a comment
+    """
     return HttpResponse()
 
 

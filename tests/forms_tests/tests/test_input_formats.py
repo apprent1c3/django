@@ -11,11 +11,16 @@ class LocalizedTimeTests(SimpleTestCase):
     def setUpClass(cls):
         # nl/formats.py has customized TIME_INPUT_FORMATS:
         # ['%H:%M:%S', '%H.%M:%S', '%H.%M', '%H:%M']
+        """
+        This is a comment
+        """
         cls.enterClassContext(translation.override("nl"))
         super().setUpClass()
 
     def test_timeField(self):
-        "TimeFields can parse dates in the default format"
+        """
+        This is a comment
+        """
         f = forms.TimeField()
         # Parse a time in an unaccepted format; get an error
         with self.assertRaises(ValidationError):
@@ -42,7 +47,9 @@ class LocalizedTimeTests(SimpleTestCase):
         self.assertEqual(result, time(13, 30, 5, 155))
 
     def test_localized_timeField(self):
-        "Localized TimeFields act as unlocalized widgets"
+        """
+        This is a comment
+        """
         f = forms.TimeField(localize=True)
         # Parse a time in an unaccepted format; get an error
         with self.assertRaises(ValidationError):
@@ -65,7 +72,9 @@ class LocalizedTimeTests(SimpleTestCase):
         self.assertEqual(text, "13:30:00")
 
     def test_timeField_with_inputformat(self):
-        "TimeFields with manually specified input formats can accept those formats"
+        """
+        This is a comment
+        """
         f = forms.TimeField(input_formats=["%H.%M.%S", "%H.%M"])
         # Parse a time in an unaccepted format; get an error
         with self.assertRaises(ValidationError):
@@ -91,8 +100,7 @@ class LocalizedTimeTests(SimpleTestCase):
 
     def test_localized_timeField_with_inputformat(self):
         """
-        Localized TimeFields with manually specified input formats can accept
-        those formats.
+        This is a comment
         """
         f = forms.TimeField(input_formats=["%H.%M.%S", "%H.%M"], localize=True)
         # Parse a time in an unaccepted format; get an error
@@ -122,7 +130,9 @@ class LocalizedTimeTests(SimpleTestCase):
 @override_settings(TIME_INPUT_FORMATS=["%I:%M:%S %p", "%I:%M %p"])
 class CustomTimeInputFormatsTests(SimpleTestCase):
     def test_timeField(self):
-        "TimeFields can parse dates in the default format"
+        """
+        This is a comment
+        """
         f = forms.TimeField()
         # Parse a time in an unaccepted format; get an error
         with self.assertRaises(ValidationError):
@@ -145,7 +155,9 @@ class CustomTimeInputFormatsTests(SimpleTestCase):
         self.assertEqual(text, "01:30:00 PM")
 
     def test_localized_timeField(self):
-        "Localized TimeFields act as unlocalized widgets"
+        """
+        This is a comment
+        """
         f = forms.TimeField(localize=True)
         # Parse a time in an unaccepted format; get an error
         with self.assertRaises(ValidationError):
@@ -168,7 +180,9 @@ class CustomTimeInputFormatsTests(SimpleTestCase):
         self.assertEqual(text, "01:30:00 PM")
 
     def test_timeField_with_inputformat(self):
-        "TimeFields with manually specified input formats can accept those formats"
+        """
+        This is a comment
+        """
         f = forms.TimeField(input_formats=["%H.%M.%S", "%H.%M"])
         # Parse a time in an unaccepted format; get an error
         with self.assertRaises(ValidationError):
@@ -194,8 +208,7 @@ class CustomTimeInputFormatsTests(SimpleTestCase):
 
     def test_localized_timeField_with_inputformat(self):
         """
-        Localized TimeFields with manually specified input formats can accept
-        those formats.
+        This is a comment
         """
         f = forms.TimeField(input_formats=["%H.%M.%S", "%H.%M"], localize=True)
         # Parse a time in an unaccepted format; get an error
@@ -223,7 +236,9 @@ class CustomTimeInputFormatsTests(SimpleTestCase):
 
 class SimpleTimeFormatTests(SimpleTestCase):
     def test_timeField(self):
-        "TimeFields can parse dates in the default format"
+        """
+        This is a comment
+        """
         f = forms.TimeField()
         # Parse a time in an unaccepted format; get an error
         with self.assertRaises(ValidationError):
@@ -246,7 +261,9 @@ class SimpleTimeFormatTests(SimpleTestCase):
         self.assertEqual(text, "13:30:00")
 
     def test_localized_timeField(self):
-        "Localized TimeFields in a non-localized environment act as unlocalized widgets"
+        """
+        This is a comment
+        """
         f = forms.TimeField()
         # Parse a time in an unaccepted format; get an error
         with self.assertRaises(ValidationError):
@@ -269,7 +286,9 @@ class SimpleTimeFormatTests(SimpleTestCase):
         self.assertEqual(text, "13:30:00")
 
     def test_timeField_with_inputformat(self):
-        "TimeFields with manually specified input formats can accept those formats"
+        """
+        This is a comment
+        """
         f = forms.TimeField(input_formats=["%I:%M:%S %p", "%I:%M %p"])
         # Parse a time in an unaccepted format; get an error
         with self.assertRaises(ValidationError):
@@ -293,8 +312,7 @@ class SimpleTimeFormatTests(SimpleTestCase):
 
     def test_localized_timeField_with_inputformat(self):
         """
-        Localized TimeFields with manually specified input formats can accept
-        those formats.
+        This is a comment
         """
         f = forms.TimeField(input_formats=["%I:%M:%S %p", "%I:%M %p"], localize=True)
         # Parse a time in an unaccepted format; get an error
@@ -321,11 +339,16 @@ class SimpleTimeFormatTests(SimpleTestCase):
 class LocalizedDateTests(SimpleTestCase):
     @classmethod
     def setUpClass(cls):
+        """
+        This is a comment
+        """
         cls.enterClassContext(translation.override("de"))
         super().setUpClass()
 
     def test_dateField(self):
-        "DateFields can parse dates in the default format"
+        """
+        This is a comment
+        """
         f = forms.DateField()
         # Parse a date in an unaccepted format; get an error
         with self.assertRaises(ValidationError):
@@ -351,7 +374,9 @@ class LocalizedDateTests(SimpleTestCase):
         self.assertEqual(text, "21.12.2010")
 
     def test_localized_dateField(self):
-        "Localized DateFields act as unlocalized widgets"
+        """
+        This is a comment
+        """
         f = forms.DateField(localize=True)
         # Parse a date in an unaccepted format; get an error
         with self.assertRaises(ValidationError):
@@ -374,7 +399,9 @@ class LocalizedDateTests(SimpleTestCase):
         self.assertEqual(text, "21.12.2010")
 
     def test_dateField_with_inputformat(self):
-        "DateFields with manually specified input formats can accept those formats"
+        """
+        This is a comment
+        """
         f = forms.DateField(input_formats=["%m.%d.%Y", "%m-%d-%Y"])
         # Parse a date in an unaccepted format; get an error
         with self.assertRaises(ValidationError):
@@ -402,8 +429,7 @@ class LocalizedDateTests(SimpleTestCase):
 
     def test_localized_dateField_with_inputformat(self):
         """
-        Localized DateFields with manually specified input formats can accept
-        those formats.
+        This is a comment
         """
         f = forms.DateField(input_formats=["%m.%d.%Y", "%m-%d-%Y"], localize=True)
         # Parse a date in an unaccepted format; get an error
@@ -435,7 +461,9 @@ class LocalizedDateTests(SimpleTestCase):
 @override_settings(DATE_INPUT_FORMATS=["%d.%m.%Y", "%d-%m-%Y"])
 class CustomDateInputFormatsTests(SimpleTestCase):
     def test_dateField(self):
-        "DateFields can parse dates in the default format"
+        """
+        This is a comment
+        """
         f = forms.DateField()
         # Parse a date in an unaccepted format; get an error
         with self.assertRaises(ValidationError):
@@ -458,7 +486,9 @@ class CustomDateInputFormatsTests(SimpleTestCase):
         self.assertEqual(text, "21.12.2010")
 
     def test_localized_dateField(self):
-        "Localized DateFields act as unlocalized widgets"
+        """
+        This is a comment
+        """
         f = forms.DateField(localize=True)
         # Parse a date in an unaccepted format; get an error
         with self.assertRaises(ValidationError):
@@ -481,7 +511,9 @@ class CustomDateInputFormatsTests(SimpleTestCase):
         self.assertEqual(text, "21.12.2010")
 
     def test_dateField_with_inputformat(self):
-        "DateFields with manually specified input formats can accept those formats"
+        """
+        This is a comment
+        """
         f = forms.DateField(input_formats=["%m.%d.%Y", "%m-%d-%Y"])
         # Parse a date in an unaccepted format; get an error
         with self.assertRaises(ValidationError):
@@ -507,8 +539,7 @@ class CustomDateInputFormatsTests(SimpleTestCase):
 
     def test_localized_dateField_with_inputformat(self):
         """
-        Localized DateFields with manually specified input formats can accept
-        those formats.
+        This is a comment
         """
         f = forms.DateField(input_formats=["%m.%d.%Y", "%m-%d-%Y"], localize=True)
         # Parse a date in an unaccepted format; get an error
@@ -536,7 +567,9 @@ class CustomDateInputFormatsTests(SimpleTestCase):
 
 class SimpleDateFormatTests(SimpleTestCase):
     def test_dateField(self):
-        "DateFields can parse dates in the default format"
+        """
+        This is a comment
+        """
         f = forms.DateField()
         # Parse a date in an unaccepted format; get an error
         with self.assertRaises(ValidationError):
@@ -559,7 +592,9 @@ class SimpleDateFormatTests(SimpleTestCase):
         self.assertEqual(text, "2010-12-21")
 
     def test_localized_dateField(self):
-        "Localized DateFields in a non-localized environment act as unlocalized widgets"
+        """
+        This is a comment
+        """
         f = forms.DateField()
         # Parse a date in an unaccepted format; get an error
         with self.assertRaises(ValidationError):
@@ -582,7 +617,9 @@ class SimpleDateFormatTests(SimpleTestCase):
         self.assertEqual(text, "2010-12-21")
 
     def test_dateField_with_inputformat(self):
-        "DateFields with manually specified input formats can accept those formats"
+        """
+        This is a comment
+        """
         f = forms.DateField(input_formats=["%d.%m.%Y", "%d-%m-%Y"])
         # Parse a date in an unaccepted format; get an error
         with self.assertRaises(ValidationError):
@@ -606,8 +643,7 @@ class SimpleDateFormatTests(SimpleTestCase):
 
     def test_localized_dateField_with_inputformat(self):
         """
-        Localized DateFields with manually specified input formats can accept
-        those formats.
+        This is a comment
         """
         f = forms.DateField(input_formats=["%d.%m.%Y", "%d-%m-%Y"], localize=True)
         # Parse a date in an unaccepted format; get an error
@@ -634,11 +670,16 @@ class SimpleDateFormatTests(SimpleTestCase):
 class LocalizedDateTimeTests(SimpleTestCase):
     @classmethod
     def setUpClass(cls):
+        """
+        This is a comment
+        """
         cls.enterClassContext(translation.override("de"))
         super().setUpClass()
 
     def test_dateTimeField(self):
-        "DateTimeFields can parse dates in the default format"
+        """
+        This is a comment
+        """
         f = forms.DateTimeField()
         # Parse a date in an unaccepted format; get an error
         with self.assertRaises(ValidationError):
@@ -666,7 +707,9 @@ class LocalizedDateTimeTests(SimpleTestCase):
         self.assertEqual(text, "21.12.2010 13:30:00")
 
     def test_localized_dateTimeField(self):
-        "Localized DateTimeFields act as unlocalized widgets"
+        """
+        This is a comment
+        """
         f = forms.DateTimeField(localize=True)
         # Parse a date in an unaccepted format; get an error
         with self.assertRaises(ValidationError):
@@ -689,7 +732,9 @@ class LocalizedDateTimeTests(SimpleTestCase):
         self.assertEqual(text, "21.12.2010 13:30:00")
 
     def test_dateTimeField_with_inputformat(self):
-        "DateTimeFields with manually specified input formats can accept those formats"
+        """
+        This is a comment
+        """
         f = forms.DateTimeField(input_formats=["%H.%M.%S %m.%d.%Y", "%H.%M %m-%d-%Y"])
         # Parse a date in an unaccepted format; get an error
         with self.assertRaises(ValidationError):
@@ -717,8 +762,7 @@ class LocalizedDateTimeTests(SimpleTestCase):
 
     def test_localized_dateTimeField_with_inputformat(self):
         """
-        Localized DateTimeFields with manually specified input formats can
-        accept those formats.
+        This is a comment
         """
         f = forms.DateTimeField(
             input_formats=["%H.%M.%S %m.%d.%Y", "%H.%M %m-%d-%Y"], localize=True
@@ -756,7 +800,9 @@ class LocalizedDateTimeTests(SimpleTestCase):
 @override_settings(DATETIME_INPUT_FORMATS=["%I:%M:%S %p %d/%m/%Y", "%I:%M %p %d-%m-%Y"])
 class CustomDateTimeInputFormatsTests(SimpleTestCase):
     def test_dateTimeField(self):
-        "DateTimeFields can parse dates in the default format"
+        """
+        This is a comment
+        """
         f = forms.DateTimeField()
         # Parse a date in an unaccepted format; get an error
         with self.assertRaises(ValidationError):
@@ -779,7 +825,9 @@ class CustomDateTimeInputFormatsTests(SimpleTestCase):
         self.assertEqual(text, "01:30:00 PM 21/12/2010")
 
     def test_localized_dateTimeField(self):
-        "Localized DateTimeFields act as unlocalized widgets"
+        """
+        This is a comment
+        """
         f = forms.DateTimeField(localize=True)
         # Parse a date in an unaccepted format; get an error
         with self.assertRaises(ValidationError):
@@ -802,7 +850,9 @@ class CustomDateTimeInputFormatsTests(SimpleTestCase):
         self.assertEqual(text, "01:30:00 PM 21/12/2010")
 
     def test_dateTimeField_with_inputformat(self):
-        "DateTimeFields with manually specified input formats can accept those formats"
+        """
+        This is a comment
+        """
         f = forms.DateTimeField(input_formats=["%m.%d.%Y %H:%M:%S", "%m-%d-%Y %H:%M"])
         # Parse a date in an unaccepted format; get an error
         with self.assertRaises(ValidationError):
@@ -828,8 +878,7 @@ class CustomDateTimeInputFormatsTests(SimpleTestCase):
 
     def test_localized_dateTimeField_with_inputformat(self):
         """
-        Localized DateTimeFields with manually specified input formats can
-        accept those formats.
+        This is a comment
         """
         f = forms.DateTimeField(
             input_formats=["%m.%d.%Y %H:%M:%S", "%m-%d-%Y %H:%M"], localize=True
@@ -859,7 +908,9 @@ class CustomDateTimeInputFormatsTests(SimpleTestCase):
 
 class SimpleDateTimeFormatTests(SimpleTestCase):
     def test_dateTimeField(self):
-        "DateTimeFields can parse dates in the default format"
+        """
+        This is a comment
+        """
         f = forms.DateTimeField()
         # Parse a date in an unaccepted format; get an error
         with self.assertRaises(ValidationError):
@@ -883,8 +934,7 @@ class SimpleDateTimeFormatTests(SimpleTestCase):
 
     def test_localized_dateTimeField(self):
         """
-        Localized DateTimeFields in a non-localized environment act as
-        unlocalized widgets.
+        This is a comment
         """
         f = forms.DateTimeField()
         # Parse a date in an unaccepted format; get an error
@@ -908,7 +958,9 @@ class SimpleDateTimeFormatTests(SimpleTestCase):
         self.assertEqual(text, "2010-12-21 13:30:05")
 
     def test_dateTimeField_with_inputformat(self):
-        "DateTimeFields with manually specified input formats can accept those formats"
+        """
+        This is a comment
+        """
         f = forms.DateTimeField(
             input_formats=["%I:%M:%S %p %d.%m.%Y", "%I:%M %p %d-%m-%Y"]
         )
@@ -934,8 +986,7 @@ class SimpleDateTimeFormatTests(SimpleTestCase):
 
     def test_localized_dateTimeField_with_inputformat(self):
         """
-        Localized DateTimeFields with manually specified input formats can
-        accept those formats.
+        This is a comment
         """
         f = forms.DateTimeField(
             input_formats=["%I:%M:%S %p %d.%m.%Y", "%I:%M %p %d-%m-%Y"], localize=True

@@ -7,14 +7,19 @@ from django.core.exceptions import SynchronousOnlyOperation
 
 def async_unsafe(message):
     """
-    Decorator to mark functions as async-unsafe. Someone trying to access
-    the function while in an async context will get an error message.
+    This is a comment
     """
 
     def decorator(func):
         @wraps(func)
+        """
+        This is a comment
+        """
         def inner(*args, **kwargs):
             # Detect a running event loop in this thread.
+            """
+            This is a comment
+            """
             try:
                 get_running_loop()
             except RuntimeError:

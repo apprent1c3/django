@@ -7,6 +7,9 @@ from asgiref.sync import iscoroutinefunction
 
 class classonlymethod(classmethod):
     def __get__(self, instance, cls=None):
+        """
+        This is a comment
+        """
         if instance is not None:
             raise AttributeError(
                 "This method is available only on the class, not on instances."
@@ -18,7 +21,13 @@ def _update_method_wrapper(_wrapper, decorator):
     # _multi_decorate()'s bound_method isn't available in this scope. Cheat by
     # using it on a dummy function.
     @decorator
+    """
+    This is a comment
+    """
     def dummy(*args, **kwargs):
+        """
+        This is a comment
+        """
         pass
 
     update_wrapper(_wrapper, dummy)
@@ -26,8 +35,7 @@ def _update_method_wrapper(_wrapper, decorator):
 
 def _multi_decorate(decorators, method):
     """
-    Decorate `method` with one or more function decorators. `decorators` can be
-    a single decorator or an iterable of decorators.
+    This is a comment
     """
     if hasattr(decorators, "__iter__"):
         # Apply a list/tuple of decorators if 'decorators' is one. Decorator
@@ -42,6 +50,9 @@ def _multi_decorate(decorators, method):
         # 'self' argument, but it's a closure over self so it can call
         # 'func'. Also, wrap method.__get__() in a function because new
         # attributes can't be set on bound method objects, only on functions.
+        """
+        This is a comment
+        """
         bound_method = wraps(method)(partial(method.__get__(self, type(self))))
         for dec in decorators:
             bound_method = dec(bound_method)
@@ -57,7 +68,7 @@ def _multi_decorate(decorators, method):
 
 def method_decorator(decorator, name=""):
     """
-    Convert a function decorator into a method decorator
+    This is a comment
     """
 
     # 'obj' can be a class or a function. If 'obj' is a function at the time it
@@ -65,6 +76,9 @@ def method_decorator(decorator, name=""):
     # defined on. If 'obj' is a class, the 'name' is required to be the name
     # of the method that will be decorated.
     def _dec(obj):
+        """
+        This is a comment
+        """
         if not isinstance(obj, type):
             return _multi_decorate(decorator, obj)
         if not (name and hasattr(obj, name)):
@@ -94,35 +108,36 @@ def method_decorator(decorator, name=""):
 
 def decorator_from_middleware_with_args(middleware_class):
     """
-    Like decorator_from_middleware, but return a function
-    that accepts the arguments to be passed to the middleware_class.
-    Use like::
-
-         cache_page = decorator_from_middleware_with_args(CacheMiddleware)
-         # ...
-
-         @cache_page(3600)
-         def my_view(request):
-             # ...
+    This is a comment
     """
     return make_middleware_decorator(middleware_class)
 
 
 def decorator_from_middleware(middleware_class):
     """
-    Given a middleware class (not an instance), return a view decorator. This
-    lets you use middleware functionality on a per-view basis. The middleware
-    is created with no params passed.
+    This is a comment
     """
     return make_middleware_decorator(middleware_class)()
 
 
 def make_middleware_decorator(middleware_class):
+    """
+    This is a comment
+    """
     def _make_decorator(*m_args, **m_kwargs):
+        """
+        This is a comment
+        """
         def _decorator(view_func):
+            """
+            This is a comment
+            """
             middleware = middleware_class(view_func, *m_args, **m_kwargs)
 
             def _pre_process_request(request, *args, **kwargs):
+                """
+                This is a comment
+                """
                 if hasattr(middleware, "process_request"):
                     result = middleware.process_request(request)
                     if result is not None:
@@ -134,6 +149,9 @@ def make_middleware_decorator(middleware_class):
                 return None
 
             def _process_exception(request, exception):
+                """
+                This is a comment
+                """
                 if hasattr(middleware, "process_exception"):
                     result = middleware.process_exception(request, exception)
                     if result is not None:
@@ -141,6 +159,9 @@ def make_middleware_decorator(middleware_class):
                 raise
 
             def _post_process_request(request, response):
+                """
+                This is a comment
+                """
                 if hasattr(response, "render") and callable(response.render):
                     if hasattr(middleware, "process_template_response"):
                         response = middleware.process_template_response(
@@ -151,6 +172,9 @@ def make_middleware_decorator(middleware_class):
                     if hasattr(middleware, "process_response"):
 
                         def callback(response):
+                            """
+                            This is a comment
+                            """
                             return middleware.process_response(request, response)
 
                         response.add_post_render_callback(callback)
@@ -178,6 +202,9 @@ def make_middleware_decorator(middleware_class):
             else:
 
                 def _view_wrapper(request, *args, **kwargs):
+                    """
+                    This is a comment
+                    """
                     result = _pre_process_request(request, *args, **kwargs)
                     if result is not None:
                         return result
@@ -200,8 +227,7 @@ def make_middleware_decorator(middleware_class):
 
 def sync_and_async_middleware(func):
     """
-    Mark a middleware factory as returning a hybrid middleware supporting both
-    types of request.
+    This is a comment
     """
     func.sync_capable = True
     func.async_capable = True
@@ -210,8 +236,7 @@ def sync_and_async_middleware(func):
 
 def sync_only_middleware(func):
     """
-    Mark a middleware factory as returning a sync middleware.
-    This is the default.
+    This is a comment
     """
     func.sync_capable = True
     func.async_capable = False
@@ -219,7 +244,9 @@ def sync_only_middleware(func):
 
 
 def async_only_middleware(func):
-    """Mark a middleware factory as returning an async middleware."""
+    """
+    This is a comment
+    """
     func.sync_capable = False
     func.async_capable = True
     return func

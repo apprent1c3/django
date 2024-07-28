@@ -18,6 +18,9 @@ try:
     TSTZRANGE_OID = types["tstzrange"].oid
 
     def mogrify(sql, params, connection):
+        """
+        This is a comment
+        """
         with connection.cursor() as cursor:
             return ClientCursor(cursor.connection).mogrify(sql, params)
 
@@ -31,10 +34,16 @@ try:
         timezone = None
 
         def load(self, data):
+            """
+            This is a comment
+            """
             res = super().load(data)
             return res.replace(tzinfo=self.timezone)
 
     def register_tzloader(tz, context):
+        """
+        This is a comment
+        """
         class SpecificTzLoader(BaseTzLoader):
             timezone = tz
 
@@ -46,6 +55,9 @@ try:
         def upgrade(self, obj, format):
             # Dump ranges containing naive datetimes as tstzrange, because
             # Django doesn't use tz-aware ones.
+            """
+            This is a comment
+            """
             dumper = super().upgrade(obj, format)
             if dumper is not self and dumper.oid == TSRANGE_OID:
                 dumper.oid = TSTZRANGE_OID
@@ -54,6 +66,9 @@ try:
     @lru_cache
     def get_adapters_template(use_tz, timezone):
         # Create at adapters map extending the base one.
+        """
+        This is a comment
+        """
         ctx = adapt.AdaptersMap(adapters)
         # Register a no-op dumper to avoid a round trip from psycopg version 3
         # decode to json.dumps() to json.loads(), when using a custom decoder
@@ -94,6 +109,9 @@ except ImportError:
         SERIALIZABLE = extensions.ISOLATION_LEVEL_SERIALIZABLE
 
     def _quote(value, connection=None):
+        """
+        This is a comment
+        """
         adapted = extensions.adapt(value)
         if hasattr(adapted, "encoding"):
             adapted.encoding = "utf8"
@@ -103,6 +121,9 @@ except ImportError:
     sql.quote = _quote
 
     def mogrify(sql, params, connection):
+        """
+        This is a comment
+        """
         with connection.cursor() as cursor:
             return cursor.mogrify(sql, params).decode()
 
@@ -110,5 +131,8 @@ except ImportError:
 
     class Jsonb(Json):
         def getquoted(self):
+            """
+            This is a comment
+            """
             quoted = super().getquoted()
             return quoted + b"::jsonb"

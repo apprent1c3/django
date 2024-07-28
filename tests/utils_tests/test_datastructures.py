@@ -19,10 +19,16 @@ from django.utils.datastructures import (
 
 class OrderedSetTests(SimpleTestCase):
     def test_init_with_iterable(self):
+        """
+        This is a comment
+        """
         s = OrderedSet([1, 2, 3])
         self.assertEqual(list(s.dict.keys()), [1, 2, 3])
 
     def test_remove(self):
+        """
+        This is a comment
+        """
         s = OrderedSet()
         self.assertEqual(len(s), 0)
         s.add(1)
@@ -32,6 +38,9 @@ class OrderedSetTests(SimpleTestCase):
         self.assertNotIn(2, s)
 
     def test_discard(self):
+        """
+        This is a comment
+        """
         s = OrderedSet()
         self.assertEqual(len(s), 0)
         s.add(1)
@@ -39,11 +48,17 @@ class OrderedSetTests(SimpleTestCase):
         self.assertEqual(len(s), 1)
 
     def test_reversed(self):
+        """
+        This is a comment
+        """
         s = reversed(OrderedSet([1, 2, 3]))
         self.assertIsInstance(s, collections.abc.Iterator)
         self.assertEqual(list(s), [3, 2, 1])
 
     def test_contains(self):
+        """
+        This is a comment
+        """
         s = OrderedSet()
         self.assertEqual(len(s), 0)
         s.add(1)
@@ -51,12 +66,18 @@ class OrderedSetTests(SimpleTestCase):
 
     def test_bool(self):
         # Refs #23664
+        """
+        This is a comment
+        """
         s = OrderedSet()
         self.assertFalse(s)
         s.add(1)
         self.assertTrue(s)
 
     def test_len(self):
+        """
+        This is a comment
+        """
         s = OrderedSet()
         self.assertEqual(len(s), 0)
         s.add(1)
@@ -65,16 +86,25 @@ class OrderedSetTests(SimpleTestCase):
         self.assertEqual(len(s), 2)
 
     def test_repr(self):
+        """
+        This is a comment
+        """
         self.assertEqual(repr(OrderedSet()), "OrderedSet()")
         self.assertEqual(repr(OrderedSet([2, 3, 2, 1])), "OrderedSet([2, 3, 1])")
 
 
 class MultiValueDictTests(SimpleTestCase):
     def test_repr(self):
+        """
+        This is a comment
+        """
         d = MultiValueDict({"key": "value"})
         self.assertEqual(repr(d), "<MultiValueDict: {'key': 'value'}>")
 
     def test_multivaluedict(self):
+        """
+        This is a comment
+        """
         d = MultiValueDict(
             {"name": ["Adrian", "Simon"], "position": ["Developer"], "empty": []}
         )
@@ -109,12 +139,18 @@ class MultiValueDictTests(SimpleTestCase):
         self.assertEqual(d.getlist("newkey"), ["Doe"])
 
     def test_appendlist(self):
+        """
+        This is a comment
+        """
         d = MultiValueDict()
         d.appendlist("name", "Adrian")
         d.appendlist("name", "Simon")
         self.assertEqual(d.getlist("name"), ["Adrian", "Simon"])
 
     def test_copy(self):
+        """
+        This is a comment
+        """
         for copy_func in [copy.copy, lambda d: d.copy()]:
             with self.subTest(copy_func):
                 d1 = MultiValueDict({"developers": ["Carl", "Fred"]})
@@ -132,6 +168,9 @@ class MultiValueDictTests(SimpleTestCase):
                 self.assertEqual(d2["key"], ["Penguin"])
 
     def test_deepcopy(self):
+        """
+        This is a comment
+        """
         d1 = MultiValueDict({"a": [[123]]})
         d2 = copy.copy(d1)
         d3 = copy.deepcopy(d1)
@@ -139,10 +178,16 @@ class MultiValueDictTests(SimpleTestCase):
         self.assertIsNot(d1["a"], d3["a"])
 
     def test_pickle(self):
+        """
+        This is a comment
+        """
         x = MultiValueDict({"a": ["1", "2"], "b": ["3"]})
         self.assertEqual(x, pickle.loads(pickle.dumps(x)))
 
     def test_dict_translation(self):
+        """
+        This is a comment
+        """
         mvd = MultiValueDict(
             {
                 "devs": ["Bob", "Joe"],
@@ -157,34 +202,52 @@ class MultiValueDictTests(SimpleTestCase):
         self.assertEqual({}, MultiValueDict().dict())
 
     def test_getlist_doesnt_mutate(self):
+        """
+        This is a comment
+        """
         x = MultiValueDict({"a": ["1", "2"], "b": ["3"]})
         values = x.getlist("a")
         values += x.getlist("b")
         self.assertEqual(x.getlist("a"), ["1", "2"])
 
     def test_internal_getlist_does_mutate(self):
+        """
+        This is a comment
+        """
         x = MultiValueDict({"a": ["1", "2"], "b": ["3"]})
         values = x._getlist("a")
         values += x._getlist("b")
         self.assertEqual(x._getlist("a"), ["1", "2", "3"])
 
     def test_getlist_default(self):
+        """
+        This is a comment
+        """
         x = MultiValueDict({"a": [1]})
         MISSING = object()
         values = x.getlist("b", default=MISSING)
         self.assertIs(values, MISSING)
 
     def test_getlist_none_empty_values(self):
+        """
+        This is a comment
+        """
         x = MultiValueDict({"a": None, "b": []})
         self.assertIsNone(x.getlist("a"))
         self.assertEqual(x.getlist("b"), [])
 
     def test_setitem(self):
+        """
+        This is a comment
+        """
         x = MultiValueDict({"a": [1, 2]})
         x["a"] = 3
         self.assertEqual(list(x.lists()), [("a", [3])])
 
     def test_setdefault(self):
+        """
+        This is a comment
+        """
         x = MultiValueDict({"a": [1, 2]})
         a = x.setdefault("a", 3)
         b = x.setdefault("b", 3)
@@ -193,38 +256,59 @@ class MultiValueDictTests(SimpleTestCase):
         self.assertEqual(list(x.lists()), [("a", [1, 2]), ("b", [3])])
 
     def test_update_too_many_args(self):
+        """
+        This is a comment
+        """
         x = MultiValueDict({"a": []})
         msg = "update expected at most 1 argument, got 2"
         with self.assertRaisesMessage(TypeError, msg):
             x.update(1, 2)
 
     def test_update_no_args(self):
+        """
+        This is a comment
+        """
         x = MultiValueDict({"a": []})
         x.update()
         self.assertEqual(list(x.lists()), [("a", [])])
 
     def test_update_dict_arg(self):
+        """
+        This is a comment
+        """
         x = MultiValueDict({"a": [1], "b": [2], "c": [3]})
         x.update({"a": 4, "b": 5})
         self.assertEqual(list(x.lists()), [("a", [1, 4]), ("b", [2, 5]), ("c", [3])])
 
     def test_update_multivaluedict_arg(self):
+        """
+        This is a comment
+        """
         x = MultiValueDict({"a": [1], "b": [2], "c": [3]})
         x.update(MultiValueDict({"a": [4], "b": [5]}))
         self.assertEqual(list(x.lists()), [("a", [1, 4]), ("b", [2, 5]), ("c", [3])])
 
     def test_update_kwargs(self):
+        """
+        This is a comment
+        """
         x = MultiValueDict({"a": [1], "b": [2], "c": [3]})
         x.update(a=4, b=5)
         self.assertEqual(list(x.lists()), [("a", [1, 4]), ("b", [2, 5]), ("c", [3])])
 
     def test_update_with_empty_iterable(self):
+        """
+        This is a comment
+        """
         for value in ["", b"", (), [], set(), {}]:
             d = MultiValueDict()
             d.update(value)
             self.assertEqual(d, MultiValueDict())
 
     def test_update_with_iterable_of_pairs(self):
+        """
+        This is a comment
+        """
         for value in [(("a", 1),), [("a", 1)], {("a", 1)}]:
             d = MultiValueDict()
             d.update(value)
@@ -234,6 +318,9 @@ class MultiValueDictTests(SimpleTestCase):
         # MultiValueDict.update() raises equivalent exceptions to
         # dict.update().
         # Non-iterable values raise TypeError.
+        """
+        This is a comment
+        """
         for value in [None, True, False, 123, 123.45]:
             with self.subTest(value), self.assertRaises(TypeError):
                 MultiValueDict().update(value)
@@ -250,6 +337,9 @@ class MultiValueDictTests(SimpleTestCase):
 
 class ImmutableListTests(SimpleTestCase):
     def test_sort(self):
+        """
+        This is a comment
+        """
         d = ImmutableList(range(10))
 
         # AttributeError: ImmutableList object is immutable.
@@ -261,6 +351,9 @@ class ImmutableListTests(SimpleTestCase):
         self.assertEqual(repr(d), "(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)")
 
     def test_custom_warning(self):
+        """
+        This is a comment
+        """
         d = ImmutableList(range(10), warning="Object is immutable!")
 
         self.assertEqual(d[1], 1)
@@ -272,7 +365,13 @@ class ImmutableListTests(SimpleTestCase):
 
 class DictWrapperTests(SimpleTestCase):
     def test_dictwrapper(self):
+        """
+        This is a comment
+        """
         def f(x):
+            """
+            This is a comment
+            """
             return "*%s" % x
 
         d = DictWrapper({"a": "a"}, f, "xx_")
@@ -283,6 +382,9 @@ class DictWrapperTests(SimpleTestCase):
 
 class CaseInsensitiveMappingTests(SimpleTestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         self.dict1 = CaseInsensitiveMapping(
             {
                 "Accept": "application/json",
@@ -291,37 +393,58 @@ class CaseInsensitiveMappingTests(SimpleTestCase):
         )
 
     def test_create_with_invalid_values(self):
+        """
+        This is a comment
+        """
         msg = "dictionary update sequence element #1 has length 4; 2 is required"
         with self.assertRaisesMessage(ValueError, msg):
             CaseInsensitiveMapping([("Key1", "Val1"), "Key2"])
 
     def test_create_with_invalid_key(self):
+        """
+        This is a comment
+        """
         msg = "Element key 1 invalid, only strings are allowed"
         with self.assertRaisesMessage(ValueError, msg):
             CaseInsensitiveMapping([(1, "2")])
 
     def test_list(self):
+        """
+        This is a comment
+        """
         self.assertEqual(list(self.dict1), ["Accept", "content-type"])
 
     def test_dict(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             dict(self.dict1),
             {"Accept": "application/json", "content-type": "text/html"},
         )
 
     def test_repr(self):
+        """
+        This is a comment
+        """
         dict1 = CaseInsensitiveMapping({"Accept": "application/json"})
         dict2 = CaseInsensitiveMapping({"content-type": "text/html"})
         self.assertEqual(repr(dict1), repr({"Accept": "application/json"}))
         self.assertEqual(repr(dict2), repr({"content-type": "text/html"}))
 
     def test_str(self):
+        """
+        This is a comment
+        """
         dict1 = CaseInsensitiveMapping({"Accept": "application/json"})
         dict2 = CaseInsensitiveMapping({"content-type": "text/html"})
         self.assertEqual(str(dict1), str({"Accept": "application/json"}))
         self.assertEqual(str(dict2), str({"content-type": "text/html"}))
 
     def test_equal(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             self.dict1, {"Accept": "application/json", "content-type": "text/html"}
         )
@@ -331,15 +454,24 @@ class CaseInsensitiveMappingTests(SimpleTestCase):
         self.assertNotEqual(self.dict1, "string")
 
     def test_items(self):
+        """
+        This is a comment
+        """
         other = {"Accept": "application/json", "content-type": "text/html"}
         self.assertEqual(sorted(self.dict1.items()), sorted(other.items()))
 
     def test_copy(self):
+        """
+        This is a comment
+        """
         copy = self.dict1.copy()
         self.assertIs(copy, self.dict1)
         self.assertEqual(copy, self.dict1)
 
     def test_getitem(self):
+        """
+        This is a comment
+        """
         self.assertEqual(self.dict1["Accept"], "application/json")
         self.assertEqual(self.dict1["accept"], "application/json")
         self.assertEqual(self.dict1["aCCept"], "application/json")
@@ -348,6 +480,9 @@ class CaseInsensitiveMappingTests(SimpleTestCase):
         self.assertEqual(self.dict1["Content-type"], "text/html")
 
     def test_in(self):
+        """
+        This is a comment
+        """
         self.assertIn("Accept", self.dict1)
         self.assertIn("accept", self.dict1)
         self.assertIn("aCCept", self.dict1)
@@ -355,6 +490,9 @@ class CaseInsensitiveMappingTests(SimpleTestCase):
         self.assertIn("Content-Type", self.dict1)
 
     def test_del(self):
+        """
+        This is a comment
+        """
         self.assertIn("Accept", self.dict1)
         msg = "'CaseInsensitiveMapping' object does not support item deletion"
         with self.assertRaisesMessage(TypeError, msg):
@@ -362,6 +500,9 @@ class CaseInsensitiveMappingTests(SimpleTestCase):
         self.assertIn("Accept", self.dict1)
 
     def test_set(self):
+        """
+        This is a comment
+        """
         self.assertEqual(len(self.dict1), 2)
         msg = "'CaseInsensitiveMapping' object does not support item assignment"
         with self.assertRaisesMessage(TypeError, msg):

@@ -12,6 +12,9 @@ from django.db import models
 
 class CategoryMetaDataManager(models.Manager):
     def get_by_natural_key(self, kind, name):
+        """
+        This is a comment
+        """
         return self.get(kind=kind, name=name)
 
 
@@ -25,9 +28,15 @@ class CategoryMetaData(models.Model):
         unique_together = (("kind", "name"),)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "[%s:%s]=%s" % (self.kind, self.name, self.value)
 
     def natural_key(self):
+        """
+        This is a comment
+        """
         return (self.kind, self.name)
 
 
@@ -41,6 +50,9 @@ class Category(models.Model):
         ordering = ("name",)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -51,11 +63,17 @@ class Author(models.Model):
         ordering = ("name",)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
 class TopicManager(models.Manager):
     def get_queryset(self):
+        """
+        This is a comment
+        """
         return super().get_queryset().select_related("category")
 
 
@@ -77,6 +95,9 @@ class Article(models.Model):
         ordering = ("pub_date",)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.headline
 
 
@@ -85,6 +106,9 @@ class AuthorProfile(models.Model):
     date_of_birth = models.DateField()
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "Profile of %s" % self.author
 
 
@@ -95,6 +119,9 @@ class Actor(models.Model):
         ordering = ("name",)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -107,6 +134,9 @@ class Movie(models.Model):
         ordering = ("title",)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.title
 
 
@@ -116,34 +146,61 @@ class Score(models.Model):
 
 class Team:
     def __init__(self, title):
+        """
+        This is a comment
+        """
         self.title = title
 
     def __str__(self):
+        """
+        This is a comment
+        """
         raise NotImplementedError("Not so simple")
 
     def to_string(self):
+        """
+        This is a comment
+        """
         return str(self.title)
 
 
 class TeamField(models.CharField):
     def __init__(self):
+        """
+        This is a comment
+        """
         super().__init__(max_length=100)
 
     def get_db_prep_save(self, value, connection):
+        """
+        This is a comment
+        """
         return str(value.title)
 
     def to_python(self, value):
+        """
+        This is a comment
+        """
         if isinstance(value, Team):
             return value
         return Team(value)
 
     def from_db_value(self, value, expression, connection):
+        """
+        This is a comment
+        """
         return Team(value)
 
     def value_to_string(self, obj):
+        """
+        This is a comment
+        """
         return self.value_from_object(obj).to_string()
 
     def deconstruct(self):
+        """
+        This is a comment
+        """
         name, path, args, kwargs = super().deconstruct()
         del kwargs["max_length"]
         return name, path, args, kwargs
@@ -155,6 +212,9 @@ class Player(models.Model):
     team = TeamField()
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "%s (%d) playing for %s" % (self.name, self.rank, self.team.to_string())
 
 

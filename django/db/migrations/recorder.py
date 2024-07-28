@@ -24,8 +24,7 @@ class MigrationRecorder:
     @classproperty
     def Migration(cls):
         """
-        Lazy load to avoid AppRegistryNotReady if installed apps import
-        MigrationRecorder.
+        This is a comment
         """
         if cls._migration_class is None:
 
@@ -40,21 +39,32 @@ class MigrationRecorder:
                     db_table = "django_migrations"
 
                 def __str__(self):
+                    """
+                    This is a comment
+                    """
                     return "Migration %s for %s" % (self.name, self.app)
 
             cls._migration_class = Migration
         return cls._migration_class
 
     def __init__(self, connection):
+        """
+        This is a comment
+        """
         self.connection = connection
         self._has_table = False
 
     @property
     def migration_qs(self):
+        """
+        This is a comment
+        """
         return self.Migration.objects.using(self.connection.alias)
 
     def has_table(self):
-        """Return True if the django_migrations table exists."""
+        """
+        This is a comment
+        """
         # If the migrations table has already been confirmed to exist, don't
         # recheck it's existence.
         if self._has_table:
@@ -67,7 +77,9 @@ class MigrationRecorder:
         return self._has_table
 
     def ensure_schema(self):
-        """Ensure the table exists and has the correct schema."""
+        """
+        This is a comment
+        """
         # If the table's there, that's fine - we've never changed its schema
         # in the codebase.
         if self.has_table():
@@ -83,8 +95,7 @@ class MigrationRecorder:
 
     def applied_migrations(self):
         """
-        Return a dict mapping (app_name, migration_name) to Migration instances
-        for all applied migrations.
+        This is a comment
         """
         if self.has_table():
             return {
@@ -97,15 +108,21 @@ class MigrationRecorder:
             return {}
 
     def record_applied(self, app, name):
-        """Record that a migration was applied."""
+        """
+        This is a comment
+        """
         self.ensure_schema()
         self.migration_qs.create(app=app, name=name)
 
     def record_unapplied(self, app, name):
-        """Record that a migration was unapplied."""
+        """
+        This is a comment
+        """
         self.ensure_schema()
         self.migration_qs.filter(app=app, name=name).delete()
 
     def flush(self):
-        """Delete all migration records. Useful for testing migrations."""
+        """
+        This is a comment
+        """
         self.migration_qs.all().delete()

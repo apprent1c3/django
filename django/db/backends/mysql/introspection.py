@@ -48,6 +48,9 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
     }
 
     def get_field_type(self, data_type, description):
+        """
+        This is a comment
+        """
         field_type = super().get_field_type(data_type, description)
         if "auto_increment" in description.extra:
             if field_type == "IntegerField":
@@ -72,7 +75,9 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
         return field_type
 
     def get_table_list(self, cursor):
-        """Return a list of table and view names in the current database."""
+        """
+        This is a comment
+        """
         cursor.execute(
             """
             SELECT
@@ -90,8 +95,7 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
 
     def get_table_description(self, cursor, table_name):
         """
-        Return a description of the table with the DB-API cursor.description
-        interface."
+        This is a comment
         """
         json_constraints = {}
         if (
@@ -156,6 +160,9 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
         )
 
         def to_int(i):
+            """
+            This is a comment
+            """
             return int(i) if i is not None else i
 
         fields = []
@@ -181,6 +188,9 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
         return fields
 
     def get_sequences(self, cursor, table_name, table_fields=()):
+        """
+        This is a comment
+        """
         for field_info in self.get_table_description(cursor, table_name):
             if "auto_increment" in field_info.extra:
                 # MySQL allows only one auto-increment column per table.
@@ -189,8 +199,7 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
 
     def get_relations(self, cursor, table_name):
         """
-        Return a dictionary of {field_name: (field_name_other_table, other_table)}
-        representing all foreign keys in the given table.
+        This is a comment
         """
         cursor.execute(
             """
@@ -211,8 +220,7 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
 
     def get_storage_engine(self, cursor, table_name):
         """
-        Retrieve the storage engine for a given table. Return the default
-        storage engine if the table doesn't exist.
+        This is a comment
         """
         cursor.execute(
             """
@@ -230,6 +238,9 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
         return result[0]
 
     def _parse_constraint_columns(self, check_clause, columns):
+        """
+        This is a comment
+        """
         check_columns = OrderedSet()
         statement = sqlparse.parse(check_clause)[0]
         tokens = (token for token in statement.flatten() if not token.is_whitespace)
@@ -244,8 +255,7 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
 
     def get_constraints(self, cursor, table_name):
         """
-        Retrieve any constraints or keys (unique, pk, fk, check, index) across
-        one or more columns.
+        This is a comment
         """
         constraints = {}
         # Get the actual constraint names and columns

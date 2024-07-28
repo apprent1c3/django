@@ -20,10 +20,16 @@ class Song(models.Model):
         ordering = ("title",)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.title
 
     def readonly_method_on_model(self):
         # does nothing
+        """
+        This is a comment
+        """
         pass
 
 

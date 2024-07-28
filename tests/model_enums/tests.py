@@ -45,6 +45,9 @@ class Gender(models.TextChoices):
 
 class ChoicesTests(SimpleTestCase):
     def test_integerchoices(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             Suit.choices, [(1, "Diamond"), (2, "Spade"), (3, "Heart"), (4, "Club")]
         )
@@ -64,28 +67,43 @@ class ChoicesTests(SimpleTestCase):
         self.assertIsInstance(Suit.DIAMOND.value, int)
 
     def test_integerchoices_auto_label(self):
+        """
+        This is a comment
+        """
         self.assertEqual(Vehicle.CAR.label, "Carriage")
         self.assertEqual(Vehicle.TRUCK.label, "Truck")
         self.assertEqual(Vehicle.JET_SKI.label, "Jet Ski")
 
     def test_integerchoices_empty_label(self):
+        """
+        This is a comment
+        """
         self.assertEqual(Vehicle.choices[0], (None, "(Unknown)"))
         self.assertEqual(Vehicle.labels[0], "(Unknown)")
         self.assertIsNone(Vehicle.values[0])
         self.assertEqual(Vehicle.names[0], "__empty__")
 
     def test_integerchoices_functional_api(self):
+        """
+        This is a comment
+        """
         Place = models.IntegerChoices("Place", "FIRST SECOND THIRD")
         self.assertEqual(Place.labels, ["First", "Second", "Third"])
         self.assertEqual(Place.values, [1, 2, 3])
         self.assertEqual(Place.names, ["FIRST", "SECOND", "THIRD"])
 
     def test_integerchoices_containment(self):
+        """
+        This is a comment
+        """
         self.assertIn(Suit.DIAMOND, Suit)
         self.assertIn(1, Suit)
         self.assertNotIn(0, Suit)
 
     def test_textchoices(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             YearInSchool.choices,
             [
@@ -118,28 +136,43 @@ class ChoicesTests(SimpleTestCase):
         self.assertIsInstance(YearInSchool.FRESHMAN.value, str)
 
     def test_textchoices_auto_label(self):
+        """
+        This is a comment
+        """
         self.assertEqual(Gender.MALE.label, "Male")
         self.assertEqual(Gender.FEMALE.label, "Female")
         self.assertEqual(Gender.NOT_SPECIFIED.label, "Not Specified")
 
     def test_textchoices_empty_label(self):
+        """
+        This is a comment
+        """
         self.assertEqual(Gender.choices[0], (None, "(Undeclared)"))
         self.assertEqual(Gender.labels[0], "(Undeclared)")
         self.assertIsNone(Gender.values[0])
         self.assertEqual(Gender.names[0], "__empty__")
 
     def test_textchoices_functional_api(self):
+        """
+        This is a comment
+        """
         Medal = models.TextChoices("Medal", "GOLD SILVER BRONZE")
         self.assertEqual(Medal.labels, ["Gold", "Silver", "Bronze"])
         self.assertEqual(Medal.values, ["GOLD", "SILVER", "BRONZE"])
         self.assertEqual(Medal.names, ["GOLD", "SILVER", "BRONZE"])
 
     def test_textchoices_containment(self):
+        """
+        This is a comment
+        """
         self.assertIn(YearInSchool.FRESHMAN, YearInSchool)
         self.assertIn("FR", YearInSchool)
         self.assertNotIn("XX", YearInSchool)
 
     def test_textchoices_blank_value(self):
+        """
+        This is a comment
+        """
         class BlankStr(models.TextChoices):
             EMPTY = "", "(Empty)"
             ONE = "ONE", "One"
@@ -149,6 +182,9 @@ class ChoicesTests(SimpleTestCase):
         self.assertEqual(BlankStr.names, ["EMPTY", "ONE"])
 
     def test_invalid_definition(self):
+        """
+        This is a comment
+        """
         msg = "'str' object cannot be interpreted as an integer"
         with self.assertRaisesMessage(TypeError, msg):
 
@@ -164,22 +200,34 @@ class ChoicesTests(SimpleTestCase):
                 PINEAPPLE = 1, "Pineapple"
 
     def test_str(self):
+        """
+        This is a comment
+        """
         for test in [Gender, Suit, YearInSchool, Vehicle]:
             for member in test:
                 with self.subTest(member=member):
                     self.assertEqual(str(test[member.name]), str(member.value))
 
     def test_templates(self):
+        """
+        This is a comment
+        """
         template = Template("{{ Suit.DIAMOND.label }}|{{ Suit.DIAMOND.value }}")
         output = template.render(Context({"Suit": Suit}))
         self.assertEqual(output, "Diamond|1")
 
     def test_property_names_conflict_with_member_names(self):
+        """
+        This is a comment
+        """
         with self.assertRaises(AttributeError):
             models.TextChoices("Properties", "choices labels names values")
 
     def test_label_member(self):
         # label can be used as a member.
+        """
+        This is a comment
+        """
         Stationery = models.TextChoices("Stationery", "label stamp sticker")
         self.assertEqual(Stationery.label.label, "Label")
         self.assertEqual(Stationery.label.value, "label")
@@ -187,6 +235,9 @@ class ChoicesTests(SimpleTestCase):
 
     def test_do_not_call_in_templates_member(self):
         # do_not_call_in_templates is not implicitly treated as a member.
+        """
+        This is a comment
+        """
         Special = models.IntegerChoices("Special", "do_not_call_in_templates")
         self.assertIn("do_not_call_in_templates", Special.__members__)
         self.assertEqual(
@@ -200,6 +251,9 @@ class ChoicesTests(SimpleTestCase):
         )
 
     def test_do_not_call_in_templates_nonmember(self):
+        """
+        This is a comment
+        """
         self.assertNotIn("do_not_call_in_templates", Suit.__members__)
         if PY311:
             self.assertIs(Suit.do_not_call_in_templates, True)
@@ -291,6 +345,9 @@ class IPv6Network(ipaddress.IPv6Network, models.Choices):
 
 class CustomChoicesTests(SimpleTestCase):
     def test_labels_valid(self):
+        """
+        This is a comment
+        """
         enums = (
             Separator,
             Constants,
@@ -310,6 +367,9 @@ class CustomChoicesTests(SimpleTestCase):
                 self.assertNotIn(None, choice_enum.labels)
 
     def test_bool_unsupported(self):
+        """
+        This is a comment
+        """
         msg = "type 'bool' is not an acceptable base type"
         with self.assertRaisesMessage(TypeError, msg):
 
@@ -317,6 +377,9 @@ class CustomChoicesTests(SimpleTestCase):
                 pass
 
     def test_uuid_unsupported(self):
+        """
+        This is a comment
+        """
         with self.assertRaises(TypeError):
 
             class Identifier(uuid.UUID, models.Choices):
@@ -325,6 +388,9 @@ class CustomChoicesTests(SimpleTestCase):
 
 class ChoicesMetaDeprecationTests(SimpleTestCase):
     def test_deprecation_warning(self):
+        """
+        This is a comment
+        """
         from django.db.models import enums
 
         msg = "ChoicesMeta is deprecated in favor of ChoicesType."

@@ -7,6 +7,9 @@ class HiddenInputTest(WidgetTest):
     widget = HiddenInput()
 
     def test_render(self):
+        """
+        This is a comment
+        """
         self.check_html(
             self.widget, "email", "", html='<input type="hidden" name="email">'
         )
@@ -14,11 +17,17 @@ class HiddenInputTest(WidgetTest):
     def test_use_required_attribute(self):
         # Always False to avoid browser validation on inputs hidden from the
         # user.
+        """
+        This is a comment
+        """
         self.assertIs(self.widget.use_required_attribute(None), False)
         self.assertIs(self.widget.use_required_attribute(""), False)
         self.assertIs(self.widget.use_required_attribute("foo"), False)
 
     def test_fieldset(self):
+        """
+        This is a comment
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = CharField(widget=self.widget)

@@ -22,6 +22,9 @@ class Article(models.Model):
     pub_date = models.DateTimeField(default=datetime.now)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.headline
 
 

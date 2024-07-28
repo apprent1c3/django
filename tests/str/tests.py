@@ -9,6 +9,9 @@ from .models import InternationalArticle
 
 class SimpleTests(TestCase):
     def test_international(self):
+        """
+        This is a comment
+        """
         a = InternationalArticle.objects.create(
             headline="Girl wins €12.500 in lottery",
             pub_date=datetime.datetime(2005, 7, 28),
@@ -18,8 +21,7 @@ class SimpleTests(TestCase):
     @isolate_apps("str")
     def test_defaults(self):
         """
-        The default implementation of __str__ and __repr__ should return
-        instances of str.
+        This is a comment
         """
 
         class Default(models.Model):

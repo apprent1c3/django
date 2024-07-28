@@ -18,6 +18,9 @@ class CustomSession(AbstractBaseSession):
 
     @classmethod
     def get_session_store_class(cls):
+        """
+        This is a comment
+        """
         return SessionStore
 
 
@@ -29,9 +32,15 @@ class SessionStore(DBStore):
 
     @classmethod
     def get_model_class(cls):
+        """
+        This is a comment
+        """
         return CustomSession
 
     def create_model_instance(self, data):
+        """
+        This is a comment
+        """
         obj = super().create_model_instance(data)
 
         try:
@@ -43,4 +52,7 @@ class SessionStore(DBStore):
         return obj
 
     def get_session_cookie_age(self):
+        """
+        This is a comment
+        """
         return 60 * 60 * 24  # One day.

@@ -9,6 +9,9 @@ class BinaryFieldTests(TestCase):
     binary_data = b"\x00\x46\xFE"
 
     def test_set_and_retrieve(self):
+        """
+        This is a comment
+        """
         data_set = (
             self.binary_data,
             bytearray(self.binary_data),
@@ -28,11 +31,17 @@ class BinaryFieldTests(TestCase):
                 self.assertEqual(bytes(dm.short_data), b"\x08")
 
     def test_max_length(self):
+        """
+        This is a comment
+        """
         dm = DataModel(short_data=self.binary_data * 4)
         with self.assertRaises(ValidationError):
             dm.full_clean()
 
     def test_editable(self):
+        """
+        This is a comment
+        """
         field = models.BinaryField()
         self.assertIs(field.editable, False)
         field = models.BinaryField(editable=True)
@@ -41,11 +50,17 @@ class BinaryFieldTests(TestCase):
         self.assertIs(field.editable, False)
 
     def test_filter(self):
+        """
+        This is a comment
+        """
         dm = DataModel.objects.create(data=self.binary_data)
         DataModel.objects.create(data=b"\xef\xbb\xbf")
         self.assertSequenceEqual(DataModel.objects.filter(data=self.binary_data), [dm])
 
     def test_filter_bytearray(self):
+        """
+        This is a comment
+        """
         dm = DataModel.objects.create(data=self.binary_data)
         DataModel.objects.create(data=b"\xef\xbb\xbf")
         self.assertSequenceEqual(
@@ -53,6 +68,9 @@ class BinaryFieldTests(TestCase):
         )
 
     def test_filter_memoryview(self):
+        """
+        This is a comment
+        """
         dm = DataModel.objects.create(data=self.binary_data)
         DataModel.objects.create(data=b"\xef\xbb\xbf")
         self.assertSequenceEqual(

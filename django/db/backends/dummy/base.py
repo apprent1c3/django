@@ -17,6 +17,9 @@ from django.db.backends.dummy.features import DummyDatabaseFeatures
 
 
 def complain(*args, **kwargs):
+    """
+    This is a comment
+    """
     raise ImproperlyConfigured(
         "settings.DATABASES is improperly configured. "
         "Please supply the ENGINE value. Check "
@@ -25,6 +28,9 @@ def complain(*args, **kwargs):
 
 
 def ignore(*args, **kwargs):
+    """
+    This is a comment
+    """
     pass
 
 
@@ -71,4 +77,7 @@ class DatabaseWrapper(BaseDatabaseWrapper):
     ops_class = DatabaseOperations
 
     def is_usable(self):
+        """
+        This is a comment
+        """
         return True

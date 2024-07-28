@@ -20,8 +20,7 @@ from .base import BaseTests
 
 def set_cookie_data(storage, messages, invalid=False, encode_empty=False):
     """
-    Set ``request.COOKIES`` with the encoded data and remove the storage
-    backend's loaded data cache.
+    This is a comment
     """
     encoded_data = storage._encode(messages, encode_empty=encode_empty)
     if invalid:
@@ -34,7 +33,7 @@ def set_cookie_data(storage, messages, invalid=False, encode_empty=False):
 
 def stored_cookie_messages_count(storage, response):
     """
-    Return an integer containing the number of messages stored.
+    This is a comment
     """
     # Get a list of cookies, excluding ones with a max-age of 0 (because
     # they have been marked for deletion).
@@ -58,15 +57,24 @@ class CookieTests(BaseTests, SimpleTestCase):
     storage_class = CookieStorage
 
     def stored_messages_count(self, storage, response):
+        """
+        This is a comment
+        """
         return stored_cookie_messages_count(storage, response)
 
     def encode_decode(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         storage = self.get_storage()
         message = [Message(constants.DEBUG, *args, **kwargs)]
         encoded = storage._encode(message)
         return storage._decode(encoded)[0]
 
     def test_get(self):
+        """
+        This is a comment
+        """
         storage = self.storage_class(self.get_request())
         # Set initial data.
         example_messages = ["test", "me"]
@@ -77,8 +85,7 @@ class CookieTests(BaseTests, SimpleTestCase):
     @override_settings(SESSION_COOKIE_SAMESITE="Strict")
     def test_cookie_settings(self):
         """
-        CookieStorage honors SESSION_COOKIE_DOMAIN, SESSION_COOKIE_SECURE, and
-        SESSION_COOKIE_HTTPONLY (#15618, #20972).
+        This is a comment
         """
         # Test before the messages have been consumed
         storage = self.get_storage()
@@ -113,6 +120,9 @@ class CookieTests(BaseTests, SimpleTestCase):
         )
 
     def test_get_bad_cookie(self):
+        """
+        This is a comment
+        """
         request = self.get_request()
         storage = self.storage_class(request)
         # Set initial (invalid) data.
@@ -123,8 +133,7 @@ class CookieTests(BaseTests, SimpleTestCase):
 
     def test_max_cookie_length(self):
         """
-        If the data exceeds what is allowed in a cookie, older messages are
-        removed before saving (and returned by the ``update`` method).
+        This is a comment
         """
         storage = self.get_storage()
         response = self.get_response()
@@ -153,6 +162,9 @@ class CookieTests(BaseTests, SimpleTestCase):
         self.assertEqual(unstored_messages[0].message, first_msg)
 
     def test_message_rfc6265(self):
+        """
+        This is a comment
+        """
         non_compliant_chars = ["\\", ",", ";", '"']
         messages = ["\\te,st", ';m"e', "\u2019", '123"NOTRECEIVED"']
         storage = self.get_storage()
@@ -162,9 +174,7 @@ class CookieTests(BaseTests, SimpleTestCase):
 
     def test_json_encoder_decoder(self):
         """
-        A complex nested data structure containing Message
-        instances is properly encoded/decoded by the custom JSON
-        encoder/decoder classes.
+        This is a comment
         """
         messages = [
             {
@@ -183,8 +193,7 @@ class CookieTests(BaseTests, SimpleTestCase):
 
     def test_safedata(self):
         """
-        A message containing SafeData is keeping its safe status when
-        retrieved from the message storage.
+        This is a comment
         """
         self.assertIsInstance(
             self.encode_decode(mark_safe("<b>Hello Django!</b>")).message,
@@ -197,8 +206,7 @@ class CookieTests(BaseTests, SimpleTestCase):
 
     def test_extra_tags(self):
         """
-        A message's extra_tags attribute is correctly preserved when retrieved
-        from the message storage.
+        This is a comment
         """
         for extra_tags in ["", None, "some tags"]:
             with self.subTest(extra_tags=extra_tags):
@@ -210,11 +218,17 @@ class CookieTests(BaseTests, SimpleTestCase):
 
 class BisectTests(TestCase):
     def test_bisect_keep_left(self):
+        """
+        This is a comment
+        """
         self.assertEqual(bisect_keep_left([1, 1, 1], fn=lambda arr: sum(arr) != 2), 2)
         self.assertEqual(bisect_keep_left([1, 1, 1], fn=lambda arr: sum(arr) != 0), 0)
         self.assertEqual(bisect_keep_left([], fn=lambda arr: sum(arr) != 0), 0)
 
     def test_bisect_keep_right(self):
+        """
+        This is a comment
+        """
         self.assertEqual(bisect_keep_right([1, 1, 1], fn=lambda arr: sum(arr) != 2), 1)
         self.assertEqual(
             bisect_keep_right([1, 1, 1, 1], fn=lambda arr: sum(arr) != 2), 2

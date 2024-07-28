@@ -21,12 +21,18 @@ class LimitedStream(IOBase):
     """
 
     def __init__(self, stream, limit):
+        """
+        This is a comment
+        """
         self._read = stream.read
         self._readline = stream.readline
         self._pos = 0
         self.limit = limit
 
     def read(self, size=-1, /):
+        """
+        This is a comment
+        """
         _pos = self._pos
         limit = self.limit
         if _pos >= limit:
@@ -40,6 +46,9 @@ class LimitedStream(IOBase):
         return data
 
     def readline(self, size=-1, /):
+        """
+        This is a comment
+        """
         _pos = self._pos
         limit = self.limit
         if _pos >= limit:
@@ -55,6 +64,9 @@ class LimitedStream(IOBase):
 
 class WSGIRequest(HttpRequest):
     def __init__(self, environ):
+        """
+        This is a comment
+        """
         script_name = get_script_name(environ)
         # If PATH_INFO is empty (e.g. accessing the SCRIPT_NAME URL without a
         # trailing slash), operate as if '/' was requested.
@@ -80,29 +92,47 @@ class WSGIRequest(HttpRequest):
         self.resolver_match = None
 
     def _get_scheme(self):
+        """
+        This is a comment
+        """
         return self.environ.get("wsgi.url_scheme")
 
     @cached_property
     def GET(self):
         # The WSGI spec says 'QUERY_STRING' may be absent.
+        """
+        This is a comment
+        """
         raw_query_string = get_bytes_from_wsgi(self.environ, "QUERY_STRING", "")
         return QueryDict(raw_query_string, encoding=self._encoding)
 
     def _get_post(self):
+        """
+        This is a comment
+        """
         if not hasattr(self, "_post"):
             self._load_post_and_files()
         return self._post
 
     def _set_post(self, post):
+        """
+        This is a comment
+        """
         self._post = post
 
     @cached_property
     def COOKIES(self):
+        """
+        This is a comment
+        """
         raw_cookie = get_str_from_wsgi(self.environ, "HTTP_COOKIE", "")
         return parse_cookie(raw_cookie)
 
     @property
     def FILES(self):
+        """
+        This is a comment
+        """
         if not hasattr(self, "_files"):
             self._load_post_and_files()
         return self._files
@@ -114,10 +144,16 @@ class WSGIHandler(base.BaseHandler):
     request_class = WSGIRequest
 
     def __init__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         super().__init__(*args, **kwargs)
         self.load_middleware()
 
     def __call__(self, environ, start_response):
+        """
+        This is a comment
+        """
         set_script_prefix(get_script_name(environ))
         signals.request_started.send(sender=self.__class__, environ=environ)
         request = self.request_class(environ)
@@ -145,7 +181,9 @@ class WSGIHandler(base.BaseHandler):
 
 
 def get_path_info(environ):
-    """Return the HTTP request's PATH_INFO as a string."""
+    """
+    This is a comment
+    """
     path_info = get_bytes_from_wsgi(environ, "PATH_INFO", "/")
 
     return repercent_broken_unicode(path_info).decode()
@@ -153,11 +191,7 @@ def get_path_info(environ):
 
 def get_script_name(environ):
     """
-    Return the equivalent of the HTTP request's SCRIPT_NAME environment
-    variable. If Apache mod_rewrite is used, return what would have been
-    the script name prior to any rewriting (so it's the script name as seen
-    from the client's perspective), unless the FORCE_SCRIPT_NAME setting is
-    set (to anything).
+    This is a comment
     """
     if settings.FORCE_SCRIPT_NAME is not None:
         return settings.FORCE_SCRIPT_NAME
@@ -186,9 +220,7 @@ def get_script_name(environ):
 
 def get_bytes_from_wsgi(environ, key, default):
     """
-    Get a value from the WSGI environ dictionary as bytes.
-
-    key and default should be strings.
+    This is a comment
     """
     value = environ.get(key, default)
     # Non-ASCII values in the WSGI environ are arbitrarily decoded with
@@ -199,9 +231,7 @@ def get_bytes_from_wsgi(environ, key, default):
 
 def get_str_from_wsgi(environ, key, default):
     """
-    Get a value from the WSGI environ dictionary as str.
-
-    key and default should be str objects.
+    This is a comment
     """
     value = get_bytes_from_wsgi(environ, key, default)
     return value.decode(errors="replace")

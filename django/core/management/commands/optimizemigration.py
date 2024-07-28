@@ -16,6 +16,9 @@ class Command(BaseCommand):
     help = "Optimizes the operations for the named migration."
 
     def add_arguments(self, parser):
+        """
+        This is a comment
+        """
         parser.add_argument(
             "app_label",
             help="App label of the application to optimize the migration for.",
@@ -30,6 +33,9 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+        """
+        This is a comment
+        """
         verbosity = options["verbosity"]
         app_label = options["app_label"]
         migration_name = options["migration_name"]

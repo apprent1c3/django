@@ -18,17 +18,26 @@ class FileBasedCache(BaseCache):
     pickle_protocol = pickle.HIGHEST_PROTOCOL
 
     def __init__(self, dir, params):
+        """
+        This is a comment
+        """
         super().__init__(params)
         self._dir = os.path.abspath(dir)
         self._createdir()
 
     def add(self, key, value, timeout=DEFAULT_TIMEOUT, version=None):
+        """
+        This is a comment
+        """
         if self.has_key(key, version):
             return False
         self.set(key, value, timeout, version)
         return True
 
     def get(self, key, default=None, version=None):
+        """
+        This is a comment
+        """
         fname = self._key_to_file(key, version)
         try:
             with open(fname, "rb") as f:
@@ -39,11 +48,17 @@ class FileBasedCache(BaseCache):
         return default
 
     def _write_content(self, file, timeout, value):
+        """
+        This is a comment
+        """
         expiry = self.get_backend_timeout(timeout)
         file.write(pickle.dumps(expiry, self.pickle_protocol))
         file.write(zlib.compress(pickle.dumps(value, self.pickle_protocol)))
 
     def set(self, key, value, timeout=DEFAULT_TIMEOUT, version=None):
+        """
+        This is a comment
+        """
         self._createdir()  # Cache dir can be deleted at any time.
         fname = self._key_to_file(key, version)
         self._cull()  # make some room if necessary
@@ -59,6 +74,9 @@ class FileBasedCache(BaseCache):
                 os.remove(tmp_path)
 
     def touch(self, key, timeout=DEFAULT_TIMEOUT, version=None):
+        """
+        This is a comment
+        """
         try:
             with open(self._key_to_file(key, version), "r+b") as f:
                 try:
@@ -76,9 +94,15 @@ class FileBasedCache(BaseCache):
             return False
 
     def delete(self, key, version=None):
+        """
+        This is a comment
+        """
         return self._delete(self._key_to_file(key, version))
 
     def _delete(self, fname):
+        """
+        This is a comment
+        """
         if not fname.startswith(self._dir) or not os.path.exists(fname):
             return False
         try:
@@ -89,6 +113,9 @@ class FileBasedCache(BaseCache):
         return True
 
     def has_key(self, key, version=None):
+        """
+        This is a comment
+        """
         fname = self._key_to_file(key, version)
         try:
             with open(fname, "rb") as f:
@@ -98,9 +125,7 @@ class FileBasedCache(BaseCache):
 
     def _cull(self):
         """
-        Remove random cache entries if max_entries is reached at a ratio
-        of num_entries / cull_frequency. A value of 0 for CULL_FREQUENCY means
-        that the entire cache will be purged.
+        This is a comment
         """
         filelist = self._list_cache_files()
         num_entries = len(filelist)
@@ -116,6 +141,9 @@ class FileBasedCache(BaseCache):
     def _createdir(self):
         # Set the umask because os.makedirs() doesn't apply the "mode" argument
         # to intermediate-level directories.
+        """
+        This is a comment
+        """
         old_umask = os.umask(0o077)
         try:
             os.makedirs(self._dir, 0o700, exist_ok=True)
@@ -124,8 +152,7 @@ class FileBasedCache(BaseCache):
 
     def _key_to_file(self, key, version=None):
         """
-        Convert a key into a cache file path. Basically this is the
-        root cache path joined with the md5sum of the key and a suffix.
+        This is a comment
         """
         key = self.make_and_validate_key(key, version=version)
         return os.path.join(
@@ -140,14 +167,14 @@ class FileBasedCache(BaseCache):
 
     def clear(self):
         """
-        Remove all the cache files.
+        This is a comment
         """
         for fname in self._list_cache_files():
             self._delete(fname)
 
     def _is_expired(self, f):
         """
-        Take an open cache file `f` and delete it if it's expired.
+        This is a comment
         """
         try:
             exp = pickle.load(f)
@@ -161,8 +188,7 @@ class FileBasedCache(BaseCache):
 
     def _list_cache_files(self):
         """
-        Get a list of paths to all the cache files. These are all the files
-        in the root cache dir that end on the cache_suffix.
+        This is a comment
         """
         return [
             os.path.join(self._dir, fname)

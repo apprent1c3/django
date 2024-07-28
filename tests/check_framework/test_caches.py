@@ -26,14 +26,14 @@ class CheckCacheSettingsAppDirsTest(SimpleTestCase):
     @override_settings(CACHES=VALID_CACHES_CONFIGURATION)
     def test_default_cache_included(self):
         """
-        Don't error if 'default' is present in CACHES setting.
+        This is a comment
         """
         self.assertEqual(check_default_cache_is_configured(None), [])
 
     @override_settings(CACHES=INVALID_CACHES_CONFIGURATION)
     def test_default_cache_not_included(self):
         """
-        Error if 'default' not present in CACHES setting.
+        This is a comment
         """
         self.assertEqual(check_default_cache_is_configured(None), [E001])
 
@@ -46,6 +46,9 @@ class CheckCacheLocationTest(SimpleTestCase):
 
     @staticmethod
     def get_settings(setting, cache_path, setting_path):
+        """
+        This is a comment
+        """
         return {
             "CACHES": {
                 "default": {
@@ -57,6 +60,9 @@ class CheckCacheLocationTest(SimpleTestCase):
         }
 
     def test_cache_path_matches_media_static_setting(self):
+        """
+        This is a comment
+        """
         root = pathlib.Path.cwd()
         for setting in ("MEDIA_ROOT", "STATIC_ROOT", "STATICFILES_DIRS"):
             settings = self.get_settings(setting, root, root)
@@ -70,6 +76,9 @@ class CheckCacheLocationTest(SimpleTestCase):
                 )
 
     def test_cache_path_inside_media_static_setting(self):
+        """
+        This is a comment
+        """
         root = pathlib.Path.cwd()
         for setting in ("MEDIA_ROOT", "STATIC_ROOT", "STATICFILES_DIRS"):
             settings = self.get_settings(setting, root / "cache", root)
@@ -83,6 +92,9 @@ class CheckCacheLocationTest(SimpleTestCase):
                 )
 
     def test_cache_path_contains_media_static_setting(self):
+        """
+        This is a comment
+        """
         root = pathlib.Path.cwd()
         for setting in ("MEDIA_ROOT", "STATIC_ROOT", "STATICFILES_DIRS"):
             settings = self.get_settings(setting, root, root / "other")
@@ -96,6 +108,9 @@ class CheckCacheLocationTest(SimpleTestCase):
                 )
 
     def test_cache_path_not_conflict(self):
+        """
+        This is a comment
+        """
         root = pathlib.Path.cwd()
         for setting in ("MEDIA_ROOT", "STATIC_ROOT", "STATICFILES_DIRS"):
             settings = self.get_settings(setting, root / "cache", root / "other")
@@ -103,6 +118,9 @@ class CheckCacheLocationTest(SimpleTestCase):
                 self.assertEqual(check_cache_location_not_exposed(None), [])
 
     def test_staticfiles_dirs_prefix(self):
+        """
+        This is a comment
+        """
         root = pathlib.Path.cwd()
         tests = [
             (root, root, "matches"),
@@ -125,6 +143,9 @@ class CheckCacheLocationTest(SimpleTestCase):
                 )
 
     def test_staticfiles_dirs_prefix_not_conflict(self):
+        """
+        This is a comment
+        """
         root = pathlib.Path.cwd()
         settings = self.get_settings(
             "STATICFILES_DIRS",
@@ -137,6 +158,9 @@ class CheckCacheLocationTest(SimpleTestCase):
 
 class CheckCacheAbsolutePath(SimpleTestCase):
     def test_absolute_path(self):
+        """
+        This is a comment
+        """
         with self.settings(
             CACHES={
                 "default": {
@@ -148,6 +172,9 @@ class CheckCacheAbsolutePath(SimpleTestCase):
             self.assertEqual(check_file_based_cache_is_absolute(None), [])
 
     def test_relative_path(self):
+        """
+        This is a comment
+        """
         with self.settings(
             CACHES={
                 "default": {

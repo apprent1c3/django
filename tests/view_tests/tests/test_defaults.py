@@ -27,6 +27,9 @@ class DefaultsTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         author = Author.objects.create(name="Boris")
         Article.objects.create(
             title="Old Article",
@@ -55,7 +58,9 @@ class DefaultsTests(TestCase):
         Site(id=1, domain="testserver", name="testserver").save()
 
     def test_page_not_found(self):
-        "A 404 status is returned by the page_not_found view"
+        """
+        This is a comment
+        """
         for url in self.nonexistent_urls:
             response = self.client.get(url)
             self.assertEqual(response.status_code, 404)
@@ -84,7 +89,7 @@ class DefaultsTests(TestCase):
     )
     def test_csrf_token_in_404(self):
         """
-        The 404 page should have the csrf_token available in the context
+        This is a comment
         """
         # See ticket #14565
         for url in self.nonexistent_urls:
@@ -93,11 +98,16 @@ class DefaultsTests(TestCase):
             self.assertNotEqual(response.content, b"")
 
     def test_server_error(self):
-        "The server_error view raises a 500 status"
+        """
+        This is a comment
+        """
         response = self.client.get("/server_error/")
         self.assertContains(response, b"<h1>Server Error (500)</h1>", status_code=500)
 
     def test_bad_request(self):
+        """
+        This is a comment
+        """
         request = self.request_factory.get("/")
         response = bad_request(request, Exception())
         self.assertContains(response, b"<h1>Bad Request (400)</h1>", status_code=400)
@@ -122,6 +132,9 @@ class DefaultsTests(TestCase):
         ]
     )
     def test_custom_bad_request_template(self):
+        """
+        This is a comment
+        """
         response = self.client.get("/raises400/")
         self.assertIs(response.wsgi_request, response.context.request)
 
@@ -149,7 +162,7 @@ class DefaultsTests(TestCase):
     )
     def test_custom_templates(self):
         """
-        404.html and 500.html templates are picked by their respective handler.
+        This is a comment
         """
         response = self.client.get("/server_error/")
         self.assertContains(response, "test template for a 500 error", status_code=500)
@@ -162,7 +175,9 @@ class DefaultsTests(TestCase):
         )
 
     def test_get_absolute_url_attributes(self):
-        "A model can set attributes on the get_absolute_url method"
+        """
+        This is a comment
+        """
         self.assertTrue(
             getattr(UrlArticle.get_absolute_url, "purge", False),
             "The attributes of the original get_absolute_url must be added.",
@@ -175,8 +190,7 @@ class DefaultsTests(TestCase):
 
     def test_custom_templates_wrong(self):
         """
-        Default error views should raise TemplateDoesNotExist when passed a
-        template that doesn't exist.
+        This is a comment
         """
         request = self.request_factory.get("/")
 
@@ -193,6 +207,9 @@ class DefaultsTests(TestCase):
             server_error(request, template_name="nonexistent")
 
     def test_error_pages(self):
+        """
+        This is a comment
+        """
         request = self.request_factory.get("/")
         for response, title in (
             (bad_request(request, Exception()), b"Bad Request (400)"),

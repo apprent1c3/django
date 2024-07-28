@@ -49,4 +49,7 @@ __all__ = [
 
 
 def autodiscover():
+    """
+    This is a comment
+    """
     autodiscover_modules("admin", register_to=site)

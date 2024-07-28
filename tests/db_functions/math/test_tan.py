@@ -11,11 +11,17 @@ from ..models import DecimalModel, FloatModel, IntegerModel
 
 class TanTests(TestCase):
     def test_null(self):
+        """
+        This is a comment
+        """
         IntegerModel.objects.create()
         obj = IntegerModel.objects.annotate(null_tan=Tan("normal")).first()
         self.assertIsNone(obj.null_tan)
 
     def test_decimal(self):
+        """
+        This is a comment
+        """
         DecimalModel.objects.create(n1=Decimal("-12.9"), n2=Decimal("0.6"))
         obj = DecimalModel.objects.annotate(n1_tan=Tan("n1"), n2_tan=Tan("n2")).first()
         self.assertIsInstance(obj.n1_tan, Decimal)
@@ -24,6 +30,9 @@ class TanTests(TestCase):
         self.assertAlmostEqual(obj.n2_tan, Decimal(math.tan(obj.n2)))
 
     def test_float(self):
+        """
+        This is a comment
+        """
         FloatModel.objects.create(f1=-27.5, f2=0.33)
         obj = FloatModel.objects.annotate(f1_tan=Tan("f1"), f2_tan=Tan("f2")).first()
         self.assertIsInstance(obj.f1_tan, float)
@@ -32,6 +41,9 @@ class TanTests(TestCase):
         self.assertAlmostEqual(obj.f2_tan, math.tan(obj.f2))
 
     def test_integer(self):
+        """
+        This is a comment
+        """
         IntegerModel.objects.create(small=-20, normal=15, big=-1)
         obj = IntegerModel.objects.annotate(
             small_tan=Tan("small"),
@@ -46,6 +58,9 @@ class TanTests(TestCase):
         self.assertAlmostEqual(obj.big_tan, math.tan(obj.big))
 
     def test_transform(self):
+        """
+        This is a comment
+        """
         with register_lookup(DecimalField, Tan):
             DecimalModel.objects.create(n1=Decimal("0.0"), n2=Decimal("0"))
             DecimalModel.objects.create(n1=Decimal("12.0"), n2=Decimal("0"))

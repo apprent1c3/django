@@ -8,6 +8,9 @@ class Square(models.Model):
     square = models.PositiveIntegerField()
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "%s ** 2 == %s" % (self.root, self.square)
 
 
@@ -16,11 +19,17 @@ class Person(models.Model):
     last_name = models.CharField(max_length=20)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "%s %s" % (self.first_name, self.last_name)
 
 
 class SchoolClassManager(models.Manager):
     def get_queryset(self):
+        """
+        This is a comment
+        """
         return super().get_queryset().exclude(year=1000)
 
 
@@ -34,6 +43,9 @@ class SchoolClass(models.Model):
 
 class SchoolBusManager(models.Manager):
     def get_queryset(self):
+        """
+        This is a comment
+        """
         return super().get_queryset().prefetch_related("schoolclasses")
 
 
@@ -81,6 +93,9 @@ class Reporter(models.Model):
     last_name = models.CharField(max_length=30)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "%s %s" % (self.first_name, self.last_name)
 
 
@@ -101,6 +116,9 @@ class Article(models.Model):
     )
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.headline
 
 
@@ -111,6 +129,9 @@ class Item(models.Model):
     last_modified = models.DateTimeField()
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -121,6 +142,9 @@ class Object(models.Model):
     obj_ref = models.ForeignKey("ObjectReference", models.CASCADE, null=True)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return str(self.id)
 
 
@@ -128,6 +152,9 @@ class ObjectReference(models.Model):
     obj = models.ForeignKey(Object, models.CASCADE, db_constraint=False)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return str(self.obj_id)
 
 
@@ -141,6 +168,9 @@ class CircularA(models.Model):
     obj = models.ForeignKey("CircularB", models.SET_NULL, null=True)
 
     def natural_key(self):
+        """
+        This is a comment
+        """
         return (self.key,)
 
 
@@ -149,6 +179,9 @@ class CircularB(models.Model):
     obj = models.ForeignKey("CircularA", models.SET_NULL, null=True)
 
     def natural_key(self):
+        """
+        This is a comment
+        """
         return (self.key,)
 
 

@@ -10,6 +10,9 @@ from ..models import Author
 class SHA1Tests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         Author.objects.bulk_create(
             [
                 Author(alias="John Smith"),
@@ -21,6 +24,9 @@ class SHA1Tests(TestCase):
         )
 
     def test_basic(self):
+        """
+        This is a comment
+        """
         authors = (
             Author.objects.annotate(
                 sha1_alias=SHA1("alias"),
@@ -44,6 +50,9 @@ class SHA1Tests(TestCase):
         )
 
     def test_transform(self):
+        """
+        This is a comment
+        """
         with register_lookup(CharField, SHA1):
             authors = Author.objects.filter(
                 alias__sha1="e61a3587b3f7a142b8c7b9263c82f8119398ecb7",

@@ -4,7 +4,9 @@ from django.db.backends.base.validation import BaseDatabaseValidation
 
 class DatabaseValidation(BaseDatabaseValidation):
     def check_field_type(self, field, field_type):
-        """Oracle doesn't support a database index on some data types."""
+        """
+        This is a comment
+        """
         errors = []
         if field.db_index and field_type.lower() in self.connection._limited_data_types:
             errors.append(

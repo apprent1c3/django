@@ -7,11 +7,7 @@ from .models import Choice, Inner, OuterA, OuterB, Poll
 class NullQueriesTests(TestCase):
     def test_none_as_null(self):
         """
-        Regression test for the use of None as a query value.
-
-        None is interpreted as an SQL NULL, but only in __exact and __iexact
-        queries.
-        Set up some initial polls and choices
+        This is a comment
         """
         p1 = Poll(question="Why?")
         p1.save()
@@ -45,6 +41,9 @@ class NullQueriesTests(TestCase):
             Choice.objects.filter(id__gt=None)
 
     def test_unsaved(self):
+        """
+        This is a comment
+        """
         poll = Poll(question="How?")
         msg = (
             "'Poll' instance needs to have a primary key value before this "
@@ -55,8 +54,7 @@ class NullQueriesTests(TestCase):
 
     def test_reverse_relations(self):
         """
-        Querying across reverse relations and then another relation should
-        insert outer joins correctly so as not to exclude results.
+        This is a comment
         """
         obj = OuterA.objects.create()
         self.assertSequenceEqual(OuterA.objects.filter(inner__third=None), [obj])

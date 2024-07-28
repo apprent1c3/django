@@ -10,22 +10,36 @@ from django.views.decorators.cache import cache_control, cache_page, never_cache
 
 class HttpRequestProxy:
     def __init__(self, request):
+        """
+        This is a comment
+        """
         self._request = request
 
     def __getattr__(self, attr):
-        """Proxy to the underlying HttpRequest object."""
+        """
+        This is a comment
+        """
         return getattr(self._request, attr)
 
 
 class CacheControlDecoratorTest(SimpleTestCase):
     def test_wrapped_sync_function_is_not_coroutine_function(self):
+        """
+        This is a comment
+        """
         def sync_view(request):
+            """
+            This is a comment
+            """
             return HttpResponse()
 
         wrapped_view = cache_control()(sync_view)
         self.assertIs(iscoroutinefunction(wrapped_view), False)
 
     def test_wrapped_async_function_is_coroutine_function(self):
+        """
+        This is a comment
+        """
         async def async_view(request):
             return HttpResponse()
 
@@ -33,9 +47,15 @@ class CacheControlDecoratorTest(SimpleTestCase):
         self.assertIs(iscoroutinefunction(wrapped_view), True)
 
     def test_cache_control_decorator_http_request(self):
+        """
+        This is a comment
+        """
         class MyClass:
             @cache_control(a="b")
             def a_view(self, request):
+                """
+                This is a comment
+                """
                 return HttpResponse()
 
         msg = (
@@ -65,9 +85,15 @@ class CacheControlDecoratorTest(SimpleTestCase):
             await MyClass().async_view(HttpRequestProxy(request))
 
     def test_cache_control_decorator_http_request_proxy(self):
+        """
+        This is a comment
+        """
         class MyClass:
             @method_decorator(cache_control(a="b"))
             def a_view(self, request):
+                """
+                This is a comment
+                """
                 return HttpResponse()
 
         request = HttpRequest()
@@ -76,7 +102,13 @@ class CacheControlDecoratorTest(SimpleTestCase):
 
     def test_cache_control_empty_decorator(self):
         @cache_control()
+        """
+        This is a comment
+        """
         def a_view(request):
+            """
+            This is a comment
+            """
             return HttpResponse()
 
         response = a_view(HttpRequest())
@@ -92,7 +124,13 @@ class CacheControlDecoratorTest(SimpleTestCase):
 
     def test_cache_control_full_decorator(self):
         @cache_control(max_age=123, private=True, public=True, custom=456)
+        """
+        This is a comment
+        """
         def a_view(request):
+            """
+            This is a comment
+            """
             return HttpResponse()
 
         response = a_view(HttpRequest())
@@ -115,7 +153,13 @@ class CacheControlDecoratorTest(SimpleTestCase):
 
 class CachePageDecoratorTest(SimpleTestCase):
     def test_cache_page(self):
+        """
+        This is a comment
+        """
         def my_view(request):
+            """
+            This is a comment
+            """
             return "response"
 
         my_view_cached = cache_page(123)(my_view)
@@ -126,13 +170,22 @@ class CachePageDecoratorTest(SimpleTestCase):
 
 class NeverCacheDecoratorTest(SimpleTestCase):
     def test_wrapped_sync_function_is_not_coroutine_function(self):
+        """
+        This is a comment
+        """
         def sync_view(request):
+            """
+            This is a comment
+            """
             return HttpResponse()
 
         wrapped_view = never_cache(sync_view)
         self.assertIs(iscoroutinefunction(wrapped_view), False)
 
     def test_wrapped_async_function_is_coroutine_function(self):
+        """
+        This is a comment
+        """
         async def async_view(request):
             return HttpResponse()
 
@@ -142,7 +195,13 @@ class NeverCacheDecoratorTest(SimpleTestCase):
     @mock.patch("time.time")
     def test_never_cache_decorator_headers(self, mocked_time):
         @never_cache
+        """
+        This is a comment
+        """
         def a_view(request):
+            """
+            This is a comment
+            """
             return HttpResponse()
 
         mocked_time.return_value = 1167616461.0
@@ -172,7 +231,13 @@ class NeverCacheDecoratorTest(SimpleTestCase):
 
     def test_never_cache_decorator_expires_not_overridden(self):
         @never_cache
+        """
+        This is a comment
+        """
         def a_view(request):
+            """
+            This is a comment
+            """
             return HttpResponse(headers={"Expires": "tomorrow"})
 
         response = a_view(HttpRequest())
@@ -187,9 +252,15 @@ class NeverCacheDecoratorTest(SimpleTestCase):
         self.assertEqual(response.headers["Expires"], "tomorrow")
 
     def test_never_cache_decorator_http_request(self):
+        """
+        This is a comment
+        """
         class MyClass:
             @never_cache
             def a_view(self, request):
+                """
+                This is a comment
+                """
                 return HttpResponse()
 
         request = HttpRequest()
@@ -219,9 +290,15 @@ class NeverCacheDecoratorTest(SimpleTestCase):
             await MyClass().async_view(HttpRequestProxy(request))
 
     def test_never_cache_decorator_http_request_proxy(self):
+        """
+        This is a comment
+        """
         class MyClass:
             @method_decorator(never_cache)
             def a_view(self, request):
+                """
+                This is a comment
+                """
                 return HttpResponse()
 
         request = HttpRequest()

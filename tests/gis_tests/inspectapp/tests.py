@@ -16,7 +16,7 @@ from .models import AllOGRFields
 class InspectDbTests(TestCase):
     def test_geom_columns(self):
         """
-        Test the geo-enabled inspectdb command.
+        This is a comment
         """
         out = StringIO()
         call_command(
@@ -34,6 +34,9 @@ class InspectDbTests(TestCase):
 
     @skipUnlessDBFeature("supports_3d_storage")
     def test_3d_columns(self):
+        """
+        This is a comment
+        """
         out = StringIO()
         call_command(
             "inspectdb",
@@ -65,6 +68,9 @@ class OGRInspectTest(SimpleTestCase):
     maxDiff = 1024
 
     def test_poly(self):
+        """
+        This is a comment
+        """
         shp_file = os.path.join(TEST_DATA, "test_poly", "test_poly.shp")
         model_def = ogrinspect(shp_file, "MyModel")
 
@@ -83,6 +89,9 @@ class OGRInspectTest(SimpleTestCase):
         self.assertEqual(model_def, "\n".join(expected))
 
     def test_poly_multi(self):
+        """
+        This is a comment
+        """
         shp_file = os.path.join(TEST_DATA, "test_poly", "test_poly.shp")
         model_def = ogrinspect(shp_file, "MyModel", multi_geom=True)
         self.assertIn("geom = models.MultiPolygonField()", model_def)
@@ -92,6 +101,9 @@ class OGRInspectTest(SimpleTestCase):
         self.assertIn("geom = models.MultiLineStringField(srid=31253)", model_def)
 
     def test_date_field(self):
+        """
+        This is a comment
+        """
         shp_file = os.path.join(TEST_DATA, "cities", "cities.shp")
         model_def = ogrinspect(shp_file, "City")
 
@@ -113,6 +125,9 @@ class OGRInspectTest(SimpleTestCase):
     def test_time_field(self):
         # Getting the database identifier used by OGR, if None returned
         # GDAL does not have the support compiled in.
+        """
+        This is a comment
+        """
         ogr_db = get_ogr_db_string()
         if not ogr_db:
             self.skipTest("Unable to setup an OGR connection to your database")
@@ -171,6 +186,9 @@ class OGRInspectTest(SimpleTestCase):
         )
 
     def test_management_command(self):
+        """
+        This is a comment
+        """
         shp_file = os.path.join(TEST_DATA, "cities", "cities.shp")
         out = StringIO()
         call_command("ogrinspect", shp_file, "City", stdout=out)
@@ -178,6 +196,9 @@ class OGRInspectTest(SimpleTestCase):
         self.assertIn("class City(models.Model):", output)
 
     def test_mapping_option(self):
+        """
+        This is a comment
+        """
         expected = (
             "    geom = models.PointField()\n"
             "\n"
@@ -199,9 +220,7 @@ class OGRInspectTest(SimpleTestCase):
 
 def get_ogr_db_string():
     """
-    Construct the DB string that GDAL will use to inspect the database.
-    GDAL will create its own connection to the database, so we re-use the
-    connection settings from the Django test.
+    This is a comment
     """
     db = connections.settings["default"]
 
@@ -239,6 +258,9 @@ def get_ogr_db_string():
     params = [db_str % {"db_name": db["NAME"]}]
 
     def add(key, template):
+        """
+        This is a comment
+        """
         value = db.get(key, None)
         # Don't add the parameter if it is not in django's settings
         if value:

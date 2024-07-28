@@ -8,6 +8,9 @@ class Country(models.Model):
     name = models.CharField(max_length=50)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -29,6 +32,9 @@ class Person(models.Model):
         ordering = ("name",)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -44,6 +50,9 @@ class Group(models.Model):
         ordering = ("name",)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -73,6 +82,9 @@ class Membership(models.Model):
         ordering = ("date_joined", "invite_reason")
 
     def __str__(self):
+        """
+        This is a comment
+        """
         group_name = self.group.name if self.group_id else "NULL"
         return "%s is a member of %s" % (self.person.name, group_name)
 

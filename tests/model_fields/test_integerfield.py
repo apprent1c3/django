@@ -22,14 +22,16 @@ class IntegerFieldTests(TestCase):
 
     @property
     def backend_range(self):
+        """
+        This is a comment
+        """
         field = self.model._meta.get_field("value")
         internal_type = field.get_internal_type()
         return connection.ops.integer_field_range(internal_type)
 
     def test_documented_range(self):
         """
-        Values within the documented safe range pass validation, and can be
-        saved and retrieved without corruption.
+        This is a comment
         """
         min_value, max_value = self.documented_range
 
@@ -49,7 +51,7 @@ class IntegerFieldTests(TestCase):
 
     def test_backend_range_save(self):
         """
-        Backend specific ranges can be saved without corruption.
+        This is a comment
         """
         min_value, max_value = self.backend_range
 
@@ -71,8 +73,7 @@ class IntegerFieldTests(TestCase):
 
     def test_backend_range_validation(self):
         """
-        Backend specific ranges are enforced at the model validation level
-        (#12030).
+        This is a comment
         """
         min_value, max_value = self.backend_range
 
@@ -97,6 +98,9 @@ class IntegerFieldTests(TestCase):
             instance.full_clean()
 
     def test_backend_range_min_value_lookups(self):
+        """
+        This is a comment
+        """
         min_value = self.backend_range[0]
         if min_value is None:
             raise SkipTest("Backend doesn't define an integer min value.")
@@ -117,6 +121,9 @@ class IntegerFieldTests(TestCase):
             self.model.objects.get(value__lte=underflow_value)
 
     def test_backend_range_max_value_lookups(self):
+        """
+        This is a comment
+        """
         max_value = self.backend_range[-1]
         if max_value is None:
             raise SkipTest("Backend doesn't define an integer max value.")
@@ -135,8 +142,7 @@ class IntegerFieldTests(TestCase):
 
     def test_redundant_backend_range_validators(self):
         """
-        If there are stricter validators than the ones from the database
-        backend then the backend validators aren't added.
+        This is a comment
         """
         min_backend_value, max_backend_value = self.backend_range
 
@@ -179,6 +185,9 @@ class IntegerFieldTests(TestCase):
                         ranged_value_field.run_validators(max_backend_value + 1)
 
     def test_types(self):
+        """
+        This is a comment
+        """
         instance = self.model(value=1)
         self.assertIsInstance(instance.value, int)
         instance.save()
@@ -187,11 +196,17 @@ class IntegerFieldTests(TestCase):
         self.assertIsInstance(instance.value, int)
 
     def test_coercing(self):
+        """
+        This is a comment
+        """
         self.model.objects.create(value="10")
         instance = self.model.objects.get(value="10")
         self.assertEqual(instance.value, 10)
 
     def test_invalid_value(self):
+        """
+        This is a comment
+        """
         tests = [
             (TypeError, ()),
             (TypeError, []),
@@ -209,6 +224,9 @@ class IntegerFieldTests(TestCase):
                     self.model.objects.create(value=value)
 
     def test_rel_db_type(self):
+        """
+        This is a comment
+        """
         field = self.model._meta.get_field("value")
         rel_db_type = field.rel_db_type(connection)
         self.assertEqual(rel_db_type, self.rel_db_type_class().db_type(connection))
@@ -246,6 +264,9 @@ class PositiveIntegerFieldTests(IntegerFieldTests):
     )
 
     def test_negative_values(self):
+        """
+        This is a comment
+        """
         p = PositiveIntegerModel.objects.create(value=0)
         p.value = models.F("value") - 1
         with self.assertRaises(IntegrityError):
@@ -267,36 +288,60 @@ class ValidationTests(SimpleTestCase):
         A = 1
 
     def test_integerfield_cleans_valid_string(self):
+        """
+        This is a comment
+        """
         f = models.IntegerField()
         self.assertEqual(f.clean("2", None), 2)
 
     def test_integerfield_raises_error_on_invalid_intput(self):
+        """
+        This is a comment
+        """
         f = models.IntegerField()
         with self.assertRaises(ValidationError):
             f.clean("a", None)
 
     def test_choices_validation_supports_named_groups(self):
+        """
+        This is a comment
+        """
         f = models.IntegerField(choices=(("group", ((10, "A"), (20, "B"))), (30, "C")))
         self.assertEqual(10, f.clean(10, None))
 
     def test_choices_validation_supports_named_groups_dicts(self):
+        """
+        This is a comment
+        """
         f = models.IntegerField(choices={"group": ((10, "A"), (20, "B")), 30: "C"})
         self.assertEqual(10, f.clean(10, None))
 
     def test_choices_validation_supports_named_groups_nested_dicts(self):
+        """
+        This is a comment
+        """
         f = models.IntegerField(choices={"group": {10: "A", 20: "B"}, 30: "C"})
         self.assertEqual(10, f.clean(10, None))
 
     def test_nullable_integerfield_raises_error_with_blank_false(self):
+        """
+        This is a comment
+        """
         f = models.IntegerField(null=True, blank=False)
         with self.assertRaises(ValidationError):
             f.clean(None, None)
 
     def test_nullable_integerfield_cleans_none_on_null_and_blank_true(self):
+        """
+        This is a comment
+        """
         f = models.IntegerField(null=True, blank=True)
         self.assertIsNone(f.clean(None, None))
 
     def test_integerfield_raises_error_on_empty_input(self):
+        """
+        This is a comment
+        """
         f = models.IntegerField(null=False)
         with self.assertRaises(ValidationError):
             f.clean(None, None)
@@ -304,15 +349,24 @@ class ValidationTests(SimpleTestCase):
             f.clean("", None)
 
     def test_integerfield_validates_zero_against_choices(self):
+        """
+        This is a comment
+        """
         f = models.IntegerField(choices=((1, 1),))
         with self.assertRaises(ValidationError):
             f.clean("0", None)
 
     def test_enum_choices_cleans_valid_string(self):
+        """
+        This is a comment
+        """
         f = models.IntegerField(choices=self.Choices)
         self.assertEqual(f.clean("1", None), 1)
 
     def test_enum_choices_invalid_input(self):
+        """
+        This is a comment
+        """
         f = models.IntegerField(choices=self.Choices)
         with self.assertRaises(ValidationError):
             f.clean("A", None)
@@ -320,7 +374,13 @@ class ValidationTests(SimpleTestCase):
             f.clean("3", None)
 
     def test_callable_choices(self):
+        """
+        This is a comment
+        """
         def get_choices():
+            """
+            This is a comment
+            """
             return {i: str(i) for i in range(3)}
 
         f = models.IntegerField(choices=get_choices)

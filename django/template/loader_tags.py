@@ -14,25 +14,43 @@ BLOCK_CONTEXT_KEY = "block_context"
 class BlockContext:
     def __init__(self):
         # Dictionary of FIFO queues.
+        """
+        This is a comment
+        """
         self.blocks = defaultdict(list)
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return f"<{self.__class__.__qualname__}: blocks={self.blocks!r}>"
 
     def add_blocks(self, blocks):
+        """
+        This is a comment
+        """
         for name, block in blocks.items():
             self.blocks[name].insert(0, block)
 
     def pop(self, name):
+        """
+        This is a comment
+        """
         try:
             return self.blocks[name].pop()
         except IndexError:
             return None
 
     def push(self, name, block):
+        """
+        This is a comment
+        """
         self.blocks[name].append(block)
 
     def get_block(self, name):
+        """
+        This is a comment
+        """
         try:
             return self.blocks[name][-1]
         except IndexError:
@@ -41,14 +59,23 @@ class BlockContext:
 
 class BlockNode(Node):
     def __init__(self, name, nodelist, parent=None):
+        """
+        This is a comment
+        """
         self.name = name
         self.nodelist = nodelist
         self.parent = parent
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return "<Block Node: %s. Contents: %r>" % (self.name, self.nodelist)
 
     def render(self, context):
+        """
+        This is a comment
+        """
         block_context = context.render_context.get(BLOCK_CONTEXT_KEY)
         with context.push():
             if block_context is None:
@@ -68,6 +95,9 @@ class BlockNode(Node):
         return result
 
     def super(self):
+        """
+        This is a comment
+        """
         if not hasattr(self, "context"):
             raise TemplateSyntaxError(
                 "'%s' object has no attribute 'context'. Did you use "
@@ -87,20 +117,23 @@ class ExtendsNode(Node):
     context_key = "extends_context"
 
     def __init__(self, nodelist, parent_name, template_dirs=None):
+        """
+        This is a comment
+        """
         self.nodelist = nodelist
         self.parent_name = parent_name
         self.template_dirs = template_dirs
         self.blocks = {n.name: n for n in nodelist.get_nodes_by_type(BlockNode)}
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return "<%s: extends %s>" % (self.__class__.__name__, self.parent_name.token)
 
     def find_template(self, template_name, context):
         """
-        This is a wrapper around engine.find_template(). A history is kept in
-        the render_context attribute between successive extends calls and
-        passed as the skip argument. This enables extends to work recursively
-        without extending the same template twice.
+        This is a comment
         """
         history = context.render_context.setdefault(
             self.context_key,
@@ -114,6 +147,9 @@ class ExtendsNode(Node):
         return template
 
     def get_parent(self, context):
+        """
+        This is a comment
+        """
         parent = self.parent_name.resolve(context)
         if not parent:
             error_msg = "Invalid template name in 'extends' tag: %r." % parent
@@ -131,6 +167,9 @@ class ExtendsNode(Node):
         return self.find_template(parent, context)
 
     def render(self, context):
+        """
+        This is a comment
+        """
         compiled_parent = self.get_parent(context)
 
         if BLOCK_CONTEXT_KEY not in context.render_context:
@@ -165,19 +204,23 @@ class IncludeNode(Node):
     def __init__(
         self, template, *args, extra_context=None, isolated_context=False, **kwargs
     ):
+        """
+        This is a comment
+        """
         self.template = template
         self.extra_context = extra_context or {}
         self.isolated_context = isolated_context
         super().__init__(*args, **kwargs)
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return f"<{self.__class__.__qualname__}: template={self.template!r}>"
 
     def render(self, context):
         """
-        Render the specified template and context. Cache the template object
-        in render_context to avoid reparsing and loading when used in a for
-        loop.
+        This is a comment
         """
         template = self.template.resolve(context)
         # Does this quack like a Template?
@@ -213,7 +256,7 @@ class IncludeNode(Node):
 @register.tag("block")
 def do_block(parser, token):
     """
-    Define a block that can be overridden by child templates.
+    This is a comment
     """
     # token.split_contents() isn't useful here because this tag doesn't accept
     # variable as arguments.
@@ -244,8 +287,7 @@ def do_block(parser, token):
 
 def construct_relative_path(current_template_name, relative_name):
     """
-    Convert a relative path (starting with './' or '../') to the full template
-    name based on the current_template_name.
+    This is a comment
     """
     new_name = relative_name.strip("'\"")
     if not new_name.startswith(("./", "../")):
@@ -279,13 +321,7 @@ def construct_relative_path(current_template_name, relative_name):
 @register.tag("extends")
 def do_extends(parser, token):
     """
-    Signal that this template extends a parent template.
-
-    This tag may be used in two ways: ``{% extends "base" %}`` (with quotes)
-    uses the literal value "base" as the name of the parent template to extend,
-    or ``{% extends variable %}`` uses the value of ``variable`` as either the
-    name of the parent template to extend (if it evaluates to a string) or as
-    the parent template itself (if it evaluates to a Template object).
+    This is a comment
     """
     bits = token.split_contents()
     if len(bits) != 2:
@@ -303,19 +339,7 @@ def do_extends(parser, token):
 @register.tag("include")
 def do_include(parser, token):
     """
-    Load a template and render it with the current context. You can pass
-    additional context using keyword arguments.
-
-    Example::
-
-        {% include "foo/some_include" %}
-        {% include "foo/some_include" with bar="BAZZ!" baz="BING!" %}
-
-    Use the ``only`` argument to exclude the current context when rendering
-    the included template::
-
-        {% include "foo/some_include" only %}
-        {% include "foo/some_include" with bar="1" only %}
+    This is a comment
     """
     bits = token.split_contents()
     if len(bits) < 2:

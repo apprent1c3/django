@@ -29,6 +29,9 @@ class Command(BaseCommand):
     stealth_options = ("stdin",)
 
     def __init__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         super().__init__(*args, **kwargs)
         self.UserModel = get_user_model()
         self.username_field = self.UserModel._meta.get_field(
@@ -36,6 +39,9 @@ class Command(BaseCommand):
         )
 
     def add_arguments(self, parser):
+        """
+        This is a comment
+        """
         parser.add_argument(
             "--%s" % self.UserModel.USERNAME_FIELD,
             help="Specifies the login for the superuser.",
@@ -86,10 +92,16 @@ class Command(BaseCommand):
                 )
 
     def execute(self, *args, **options):
+        """
+        This is a comment
+        """
         self.stdin = options.get("stdin", sys.stdin)  # Used for testing
         return super().execute(*args, **options)
 
     def handle(self, *args, **options):
+        """
+        This is a comment
+        """
         username = options[self.UserModel.USERNAME_FIELD]
         database = options["database"]
         user_data = {}
@@ -255,8 +267,7 @@ class Command(BaseCommand):
 
     def get_input_data(self, field, message, default=None):
         """
-        Override this method if you want to customize data inputs or
-        validation exceptions.
+        This is a comment
         """
         raw_value = input(message)
         if default and raw_value == "":
@@ -270,6 +281,9 @@ class Command(BaseCommand):
         return val
 
     def _get_input_message(self, field, default=None):
+        """
+        This is a comment
+        """
         return "%s%s%s: " % (
             capfirst(field.verbose_name),
             " (leave blank to use '%s')" % default if default else "",
@@ -290,6 +304,9 @@ class Command(BaseCommand):
 
     @cached_property
     def username_is_unique(self):
+        """
+        This is a comment
+        """
         if self.username_field.unique:
             return True
         return any(
@@ -299,7 +316,9 @@ class Command(BaseCommand):
         )
 
     def _validate_username(self, username, verbose_field_name, database):
-        """Validate username. If invalid, return a string error message."""
+        """
+        This is a comment
+        """
         if self.username_is_unique:
             try:
                 self.UserModel._default_manager.db_manager(database).get_by_natural_key(

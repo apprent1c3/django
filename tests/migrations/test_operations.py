@@ -36,9 +36,7 @@ class OperationTests(OperationTestBase):
 
     def test_create_model(self):
         """
-        Tests the CreateModel operation.
-        Most other tests use this operation as part of setup, so check failures
-        here first.
+        This is a comment
         """
         operation = migrations.CreateModel(
             "Pony",
@@ -78,6 +76,9 @@ class OperationTests(OperationTestBase):
         self.assertNotIn("managers", definition[2])
 
     def test_create_model_with_duplicate_field_name(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(
             ValueError, "Found duplicate value pink in CreateModel fields argument."
         ):
@@ -91,6 +92,9 @@ class OperationTests(OperationTestBase):
             )
 
     def test_create_model_with_duplicate_base(self):
+        """
+        This is a comment
+        """
         message = "Found duplicate value test_crmo.pony in CreateModel bases argument."
         with self.assertRaisesMessage(ValueError, message):
             migrations.CreateModel(
@@ -169,6 +173,9 @@ class OperationTests(OperationTestBase):
             )
 
     def test_create_model_with_duplicate_manager_name(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(
             ValueError,
             "Found duplicate value objects in CreateModel managers argument.",
@@ -184,8 +191,7 @@ class OperationTests(OperationTestBase):
 
     def test_create_model_with_unique_after(self):
         """
-        Tests the CreateModel operation directly followed by an
-        AlterUniqueTogether (bug #22844 - sqlite remake issues)
+        This is a comment
         """
         operation1 = migrations.CreateModel(
             "Pony",
@@ -233,8 +239,7 @@ class OperationTests(OperationTestBase):
 
     def test_create_model_m2m(self):
         """
-        Test the creation of a model with a ManyToMany field and the
-        auto-created "through" model.
+        This is a comment
         """
         project_state = self.set_up_test_model("test_crmomm")
         operation = migrations.CreateModel(
@@ -274,7 +279,9 @@ class OperationTests(OperationTestBase):
 
     @skipUnlessDBFeature("supports_collation_on_charfield", "supports_foreign_keys")
     def test_create_fk_models_to_pk_field_db_collation(self):
-        """Creation of models with a FK to a PK with db_collation."""
+        """
+        This is a comment
+        """
         collation = connection.features.test_collations.get("non_default")
         if not collation:
             self.skipTest("Language collations are not supported.")
@@ -334,7 +341,7 @@ class OperationTests(OperationTestBase):
 
     def test_create_model_inheritance(self):
         """
-        Tests the CreateModel operation on a multi-table inheritance setup.
+        This is a comment
         """
         project_state = self.set_up_test_model("test_crmoih")
         # Test the state alteration
@@ -372,7 +379,7 @@ class OperationTests(OperationTestBase):
 
     def test_create_proxy_model(self):
         """
-        CreateModel ignores proxy models.
+        This is a comment
         """
         project_state = self.set_up_test_model("test_crprmo")
         # Test the state alteration
@@ -408,7 +415,7 @@ class OperationTests(OperationTestBase):
 
     def test_create_unmanaged_model(self):
         """
-        CreateModel ignores unmanaged models.
+        This is a comment
         """
         project_state = self.set_up_test_model("test_crummo")
         # Test the state alteration
@@ -439,6 +446,9 @@ class OperationTests(OperationTestBase):
 
     @skipUnlessDBFeature("supports_table_check_constraints")
     def test_create_model_with_constraint(self):
+        """
+        This is a comment
+        """
         where = models.Q(pink__gt=2)
         check_constraint = models.CheckConstraint(
             condition=where, name="test_constraint_pony_pink_gt_2"
@@ -482,6 +492,9 @@ class OperationTests(OperationTestBase):
 
     @skipUnlessDBFeature("supports_table_check_constraints")
     def test_create_model_with_boolean_expression_in_check_constraint(self):
+        """
+        This is a comment
+        """
         app_label = "test_crmobechc"
         rawsql_constraint = models.CheckConstraint(
             condition=models.expressions.RawSQL(
@@ -523,6 +536,9 @@ class OperationTests(OperationTestBase):
             cursor.execute(insert_sql % (2, 499))
 
     def test_create_model_with_partial_unique_constraint(self):
+        """
+        This is a comment
+        """
         partial_unique_constraint = models.UniqueConstraint(
             fields=["pink"],
             condition=models.Q(weight__gt=5),
@@ -572,6 +588,9 @@ class OperationTests(OperationTestBase):
         )
 
     def test_create_model_with_deferred_unique_constraint(self):
+        """
+        This is a comment
+        """
         deferred_unique_constraint = models.UniqueConstraint(
             fields=["pink"],
             name="deferrable_pink_constraint",
@@ -631,6 +650,9 @@ class OperationTests(OperationTestBase):
 
     @skipUnlessDBFeature("supports_covering_indexes")
     def test_create_model_with_covering_unique_constraint(self):
+        """
+        This is a comment
+        """
         covering_unique_constraint = models.UniqueConstraint(
             fields=["pink"],
             include=["weight"],
@@ -675,7 +697,7 @@ class OperationTests(OperationTestBase):
 
     def test_create_model_managers(self):
         """
-        The managers on a model are set.
+        This is a comment
         """
         project_state = self.set_up_test_model("test_cmoma")
         # Test the state alteration
@@ -706,7 +728,7 @@ class OperationTests(OperationTestBase):
 
     def test_delete_model(self):
         """
-        Tests the DeleteModel operation.
+        This is a comment
         """
         project_state = self.set_up_test_model("test_dlmo")
         # Test the state alteration
@@ -734,7 +756,7 @@ class OperationTests(OperationTestBase):
 
     def test_delete_proxy_model(self):
         """
-        Tests the DeleteModel operation ignores proxy models.
+        This is a comment
         """
         project_state = self.set_up_test_model("test_dlprmo", proxy_model=True)
         # Test the state alteration
@@ -759,6 +781,9 @@ class OperationTests(OperationTestBase):
         self.assertTableNotExists("test_dlprmo_proxypony")
 
     def test_delete_mti_model(self):
+        """
+        This is a comment
+        """
         project_state = self.set_up_test_model("test_dlmtimo", mti_model=True)
         # Test the state alteration
         operation = migrations.DeleteModel("ShetlandPony")
@@ -787,7 +812,7 @@ class OperationTests(OperationTestBase):
 
     def test_rename_model(self):
         """
-        Tests the RenameModel operation.
+        This is a comment
         """
         project_state = self.set_up_test_model("test_rnmo", related_model=True)
         # Test the state alteration
@@ -859,8 +884,7 @@ class OperationTests(OperationTestBase):
 
     def test_rename_model_state_forwards(self):
         """
-        RenameModel operations shouldn't trigger the caching of rendered apps
-        on state without prior apps.
+        This is a comment
         """
         state = ProjectState()
         state.add_model(ModelState("migrations", "Foo", []))
@@ -879,7 +903,7 @@ class OperationTests(OperationTestBase):
 
     def test_rename_model_with_self_referential_fk(self):
         """
-        Tests the RenameModel operation on model with self referential FK.
+        This is a comment
         """
         project_state = self.set_up_test_model("test_rmwsrf", related_model=True)
         # Test the state alteration
@@ -940,8 +964,7 @@ class OperationTests(OperationTestBase):
 
     def test_rename_model_with_superclass_fk(self):
         """
-        Tests the RenameModel operation on a model which has a superclass that
-        has a foreign key.
+        This is a comment
         """
         project_state = self.set_up_test_model(
             "test_rmwsc", related_model=True, mti_model=True
@@ -989,6 +1012,9 @@ class OperationTests(OperationTestBase):
             )
 
     def test_rename_model_no_relations_with_db_table_noop(self):
+        """
+        This is a comment
+        """
         app_label = "test_rmwdbtnoop"
         project_state = self.set_up_test_model(app_label, db_table="my_pony")
         operation = migrations.RenameModel("Pony", "LittleHorse")
@@ -999,6 +1025,9 @@ class OperationTests(OperationTestBase):
 
     @skipUnlessDBFeature("supports_foreign_keys")
     def test_rename_model_with_db_table_and_fk_noop(self):
+        """
+        This is a comment
+        """
         app_label = "test_rmwdbtfk"
         project_state = self.set_up_test_model(
             app_label, db_table="my_pony", related_model=True
@@ -1010,6 +1039,9 @@ class OperationTests(OperationTestBase):
             operation.database_forwards(app_label, editor, project_state, new_state)
 
     def test_rename_model_with_self_referential_m2m(self):
+        """
+        This is a comment
+        """
         app_label = "test_rename_model_with_self_referential_m2m"
 
         project_state = self.apply_operations(
@@ -1037,6 +1069,9 @@ class OperationTests(OperationTestBase):
         pony.ponies.add(pony)
 
     def test_rename_model_with_m2m(self):
+        """
+        This is a comment
+        """
         app_label = "test_rename_model_with_m2m"
         project_state = self.apply_operations(
             app_label,
@@ -1082,6 +1117,9 @@ class OperationTests(OperationTestBase):
         )
 
     def test_rename_model_with_m2m_models_in_different_apps_with_same_name(self):
+        """
+        This is a comment
+        """
         app_label_1 = "test_rmw_m2m_1"
         app_label_2 = "test_rmw_m2m_2"
         project_state = self.apply_operations(
@@ -1149,6 +1187,9 @@ class OperationTests(OperationTestBase):
         self.assertColumnExists(m2m_table, "from_rider_id")
 
     def test_rename_model_with_db_table_rename_m2m(self):
+        """
+        This is a comment
+        """
         app_label = "test_rmwdbrm2m"
         project_state = self.apply_operations(
             app_label,
@@ -1182,6 +1223,9 @@ class OperationTests(OperationTestBase):
         pony.riders.add(rider)
 
     def test_rename_m2m_target_model(self):
+        """
+        This is a comment
+        """
         app_label = "test_rename_m2m_target_model"
         project_state = self.apply_operations(
             app_label,
@@ -1227,6 +1271,9 @@ class OperationTests(OperationTestBase):
         )
 
     def test_rename_m2m_through_model(self):
+        """
+        This is a comment
+        """
         app_label = "test_rename_through"
         project_state = self.apply_operations(
             app_label,
@@ -1298,7 +1345,9 @@ class OperationTests(OperationTestBase):
         self.assertEqual(pony.riders.count(), 2)
 
     def test_rename_m2m_model_after_rename_field(self):
-        """RenameModel renames a many-to-many column after a RenameField."""
+        """
+        This is a comment
+        """
         app_label = "test_rename_multiple"
         project_state = self.apply_operations(
             app_label,
@@ -1346,6 +1395,9 @@ class OperationTests(OperationTestBase):
         ponyrider.riders.add(jockey)
 
     def test_rename_m2m_field_with_2_references(self):
+        """
+        This is a comment
+        """
         app_label = "test_rename_many_refs"
         project_state = self.apply_operations(
             app_label,
@@ -1430,7 +1482,7 @@ class OperationTests(OperationTestBase):
 
     def test_add_field(self):
         """
-        Tests the AddField operation.
+        This is a comment
         """
         # Test the state alteration
         operation = migrations.AddField(
@@ -1464,6 +1516,9 @@ class OperationTests(OperationTestBase):
 
     @skipUnlessDBFeature("supports_stored_generated_columns")
     def test_add_generated_field(self):
+        """
+        This is a comment
+        """
         app_label = "test_add_generated_field"
         project_state = self.apply_operations(
             app_label,
@@ -1512,7 +1567,7 @@ class OperationTests(OperationTestBase):
 
     def test_add_charfield(self):
         """
-        Tests the AddField operation on TextField.
+        This is a comment
         """
         project_state = self.set_up_test_model("test_adchfl")
 
@@ -1557,7 +1612,7 @@ class OperationTests(OperationTestBase):
 
     def test_add_textfield(self):
         """
-        Tests the AddField operation on TextField.
+        This is a comment
         """
         project_state = self.set_up_test_model("test_adtxtfl")
 
@@ -1602,7 +1657,7 @@ class OperationTests(OperationTestBase):
 
     def test_add_binaryfield(self):
         """
-        Tests the AddField operation on TextField/BinaryField.
+        This is a comment
         """
         project_state = self.set_up_test_model("test_adbinfl")
 
@@ -1648,8 +1703,7 @@ class OperationTests(OperationTestBase):
 
     def test_column_name_quoting(self):
         """
-        Column names that are SQL keywords shouldn't cause problems when used
-        in migrations (#22168).
+        This is a comment
         """
         project_state = self.set_up_test_model("test_regr22168")
         operation = migrations.AddField(
@@ -1667,8 +1721,7 @@ class OperationTests(OperationTestBase):
 
     def test_add_field_preserve_default(self):
         """
-        Tests the AddField operation's state alteration
-        when preserve_default = False.
+        This is a comment
         """
         project_state = self.set_up_test_model("test_adflpd")
         # Test the state alteration
@@ -1700,7 +1753,9 @@ class OperationTests(OperationTestBase):
         )
 
     def test_add_field_database_default(self):
-        """The AddField operation can set and unset a database default."""
+        """
+        This is a comment
+        """
         app_label = "test_adfldd"
         table_name = f"{app_label}_pony"
         project_state = self.set_up_test_model(app_label)
@@ -1744,6 +1799,9 @@ class OperationTests(OperationTestBase):
         )
 
     def test_add_field_database_default_special_char_escaping(self):
+        """
+        This is a comment
+        """
         app_label = "test_adflddsce"
         table_name = f"{app_label}_pony"
         project_state = self.set_up_test_model(app_label)
@@ -1792,6 +1850,9 @@ class OperationTests(OperationTestBase):
 
     @skipUnlessDBFeature("supports_expression_defaults")
     def test_add_field_database_default_function(self):
+        """
+        This is a comment
+        """
         app_label = "test_adflddf"
         table_name = f"{app_label}_pony"
         project_state = self.set_up_test_model(app_label)
@@ -1819,7 +1880,9 @@ class OperationTests(OperationTestBase):
         self.assertAlmostEqual(old_pony.height, math.pi)
 
     def test_add_field_both_defaults(self):
-        """The AddField operation with both default and db_default."""
+        """
+        This is a comment
+        """
         app_label = "test_adflbddd"
         table_name = f"{app_label}_pony"
         project_state = self.set_up_test_model(app_label)
@@ -1871,7 +1934,7 @@ class OperationTests(OperationTestBase):
 
     def test_add_field_m2m(self):
         """
-        Tests the AddField operation with a ManyToManyField.
+        This is a comment
         """
         project_state = self.set_up_test_model("test_adflmm", second_model=True)
         # Test the state alteration
@@ -1902,6 +1965,9 @@ class OperationTests(OperationTestBase):
         self.assertTableNotExists("test_adflmm_pony_stables")
 
     def test_alter_field_m2m(self):
+        """
+        This is a comment
+        """
         project_state = self.set_up_test_model("test_alflmm", second_model=True)
 
         project_state = self.apply_operations(
@@ -1935,6 +2001,9 @@ class OperationTests(OperationTestBase):
         self.assertTrue(Pony._meta.get_field("stables").blank)
 
     def test_repoint_field_m2m(self):
+        """
+        This is a comment
+        """
         project_state = self.set_up_test_model(
             "test_alflmm", second_model=True, third_model=True
         )
@@ -1972,6 +2041,9 @@ class OperationTests(OperationTestBase):
         p.places.all().delete()
 
     def test_remove_field_m2m(self):
+        """
+        This is a comment
+        """
         project_state = self.set_up_test_model("test_rmflmm", second_model=True)
 
         project_state = self.apply_operations(
@@ -1999,6 +2071,9 @@ class OperationTests(OperationTestBase):
         self.assertTableExists("test_rmflmm_pony_stables")
 
     def test_remove_field_m2m_with_through(self):
+        """
+        This is a comment
+        """
         project_state = self.set_up_test_model("test_rmflmmwt", second_model=True)
 
         self.assertTableNotExists("test_rmflmmwt_ponystables")
@@ -2040,7 +2115,7 @@ class OperationTests(OperationTestBase):
 
     def test_remove_field(self):
         """
-        Tests the RemoveField operation.
+        This is a comment
         """
         project_state = self.set_up_test_model("test_rmfl")
         # Test the state alteration
@@ -2070,7 +2145,7 @@ class OperationTests(OperationTestBase):
 
     def test_remove_fk(self):
         """
-        Tests the RemoveField operation on a foreign key.
+        This is a comment
         """
         project_state = self.set_up_test_model("test_rfk", related_model=True)
         self.assertColumnExists("test_rfk_rider", "pony_id")
@@ -2087,7 +2162,7 @@ class OperationTests(OperationTestBase):
 
     def test_alter_model_table(self):
         """
-        Tests the AlterModelTable operation.
+        This is a comment
         """
         project_state = self.set_up_test_model("test_almota")
         # Test the state alteration
@@ -2128,14 +2203,14 @@ class OperationTests(OperationTestBase):
 
     def test_alter_model_table_none(self):
         """
-        Tests the AlterModelTable operation if the table name is set to None.
+        This is a comment
         """
         operation = migrations.AlterModelTable("Pony", None)
         self.assertEqual(operation.describe(), "Rename table for Pony to (default)")
 
     def test_alter_model_table_noop(self):
         """
-        Tests the AlterModelTable operation if the table name is not changed.
+        This is a comment
         """
         project_state = self.set_up_test_model("test_almota")
         # Test the state alteration
@@ -2160,7 +2235,7 @@ class OperationTests(OperationTestBase):
 
     def test_alter_model_table_m2m(self):
         """
-        AlterModelTable should rename auto-generated M2M tables.
+        This is a comment
         """
         app_label = "test_talflmltlm2m"
         pony_db_table = "pony_foo"
@@ -2194,6 +2269,9 @@ class OperationTests(OperationTestBase):
         self.assertTableNotExists(new_m2m_table)
 
     def test_alter_model_table_m2m_field(self):
+        """
+        This is a comment
+        """
         app_label = "test_talm2mfl"
         project_state = self.set_up_test_model(app_label, second_model=True)
         # Add the M2M field.
@@ -2232,7 +2310,7 @@ class OperationTests(OperationTestBase):
 
     def test_alter_field(self):
         """
-        Tests the AlterField operation.
+        This is a comment
         """
         project_state = self.set_up_test_model("test_alfl")
         # Test the state alteration
@@ -2266,6 +2344,9 @@ class OperationTests(OperationTestBase):
         self.assertEqual(sorted(definition[2]), ["field", "model_name", "name"])
 
     def test_alter_field_add_database_default(self):
+        """
+        This is a comment
+        """
         app_label = "test_alfladd"
         project_state = self.set_up_test_model(app_label)
         operation = migrations.AlterField(
@@ -2305,7 +2386,9 @@ class OperationTests(OperationTestBase):
         )
 
     def test_alter_field_change_default_to_database_default(self):
-        """The AlterField operation changing default to db_default."""
+        """
+        This is a comment
+        """
         app_label = "test_alflcdtdd"
         project_state = self.set_up_test_model(app_label)
         operation = migrations.AlterField(
@@ -2336,7 +2419,7 @@ class OperationTests(OperationTestBase):
 
     def test_alter_field_change_nullable_to_database_default_not_null(self):
         """
-        The AlterField operation changing a null field to db_default.
+        This is a comment
         """
         app_label = "test_alflcntddnn"
         project_state = self.set_up_test_model(app_label)
@@ -2369,6 +2452,9 @@ class OperationTests(OperationTestBase):
         self.assertIsNone(pony.green)
 
     def test_alter_field_change_nullable_to_decimal_database_default_not_null(self):
+        """
+        This is a comment
+        """
         app_label = "test_alflcntdddn"
         project_state = self.set_up_test_model(app_label)
         operation_1 = migrations.AddField(
@@ -2407,6 +2493,9 @@ class OperationTests(OperationTestBase):
 
     @skipIfDBFeature("interprets_empty_strings_as_nulls")
     def test_alter_field_change_blank_nullable_database_default_to_not_null(self):
+        """
+        This is a comment
+        """
         app_label = "test_alflcbnddnn"
         table_name = f"{app_label}_pony"
         project_state = self.set_up_test_model(app_label)
@@ -2444,8 +2533,7 @@ class OperationTests(OperationTestBase):
 
     def test_alter_field_add_db_column_noop(self):
         """
-        AlterField operation is a noop when adding only a db_column and the
-        column name is not changed.
+        This is a comment
         """
         app_label = "test_afadbn"
         project_state = self.set_up_test_model(app_label, related_model=True)
@@ -2500,6 +2588,9 @@ class OperationTests(OperationTestBase):
         self.assertColumnExists(rider_table, "pony_id")
 
     def test_alter_field_foreignobject_noop(self):
+        """
+        This is a comment
+        """
         app_label = "test_alflfo_noop"
         project_state = self.set_up_test_model(app_label)
         project_state = self.apply_operations(
@@ -2547,6 +2638,9 @@ class OperationTests(OperationTestBase):
 
     @skipUnlessDBFeature("supports_comments")
     def test_alter_model_table_comment(self):
+        """
+        This is a comment
+        """
         app_label = "test_almotaco"
         project_state = self.set_up_test_model(app_label)
         pony_table = f"{app_label}_pony"
@@ -2581,8 +2675,7 @@ class OperationTests(OperationTestBase):
 
     def test_alter_field_pk(self):
         """
-        The AlterField operation on primary keys (things like PostgreSQL's
-        SERIAL weirdness).
+        This is a comment
         """
         project_state = self.set_up_test_model("test_alflpk")
         # Test the state alteration
@@ -2611,7 +2704,7 @@ class OperationTests(OperationTestBase):
     @skipUnlessDBFeature("supports_foreign_keys")
     def test_alter_field_pk_fk(self):
         """
-        Tests the AlterField operation on primary keys changes any FKs pointing to it.
+        This is a comment
         """
         project_state = self.set_up_test_model("test_alflpkfk", related_model=True)
         project_state = self.apply_operations(
@@ -2647,6 +2740,9 @@ class OperationTests(OperationTestBase):
         )
 
         def assertIdTypeEqualsFkType():
+            """
+            This is a comment
+            """
             with connection.cursor() as cursor:
                 id_type, id_null = [
                     (c.type_code, c.null_ok)
@@ -2724,8 +2820,7 @@ class OperationTests(OperationTestBase):
     @skipUnlessDBFeature("supports_collation_on_charfield", "supports_foreign_keys")
     def test_alter_field_pk_fk_db_collation(self):
         """
-        AlterField operation of db_collation on primary keys changes any FKs
-        pointing to it.
+        This is a comment
         """
         collation = connection.features.test_collations.get("non_default")
         if not collation:
@@ -2779,6 +2874,9 @@ class OperationTests(OperationTestBase):
             operation.database_backwards(app_label, editor, new_state, project_state)
 
     def test_alter_field_pk_mti_fk(self):
+        """
+        This is a comment
+        """
         app_label = "test_alflpkmtifk"
         project_state = self.set_up_test_model(app_label, mti_model=True)
         project_state = self.apply_operations(
@@ -2811,6 +2909,9 @@ class OperationTests(OperationTestBase):
         )
 
         def _get_column_id_type(cursor, table, column):
+            """
+            This is a comment
+            """
             return [
                 c.type_code
                 for c in connection.introspection.get_table_description(
@@ -2821,6 +2922,9 @@ class OperationTests(OperationTestBase):
             ][0]
 
         def assertIdTypeEqualsMTIFkType():
+            """
+            This is a comment
+            """
             with connection.cursor() as cursor:
                 parent_id_type = _get_column_id_type(cursor, "pony", "id")
                 child_id_type = _get_column_id_type(
@@ -2863,6 +2967,9 @@ class OperationTests(OperationTestBase):
             )
 
     def test_alter_field_pk_mti_and_fk_to_base(self):
+        """
+        This is a comment
+        """
         app_label = "test_alflpkmtiftb"
         project_state = self.set_up_test_model(
             app_label,
@@ -2882,6 +2989,9 @@ class OperationTests(OperationTestBase):
         )
 
         def _get_column_id_type(cursor, table, column):
+            """
+            This is a comment
+            """
             return [
                 c.type_code
                 for c in connection.introspection.get_table_description(
@@ -2892,6 +3002,9 @@ class OperationTests(OperationTestBase):
             ][0]
 
         def assertIdTypeEqualsMTIFkType():
+            """
+            This is a comment
+            """
             with connection.cursor() as cursor:
                 parent_id_type = _get_column_id_type(cursor, "pony", "id")
                 fk_id_type = _get_column_id_type(cursor, "rider", "pony_id")
@@ -2934,6 +3047,9 @@ class OperationTests(OperationTestBase):
             )
 
     def test_alter_id_pk_to_uuid_pk(self):
+        """
+        This is a comment
+        """
         app_label = "test_alidpktuuidpk"
         project_state = self.set_up_test_model(app_label)
         new_state = project_state.clone()
@@ -2971,6 +3087,9 @@ class OperationTests(OperationTestBase):
 
     @skipUnlessDBFeature("supports_foreign_keys")
     def test_alter_field_reloads_state_on_fk_with_to_field_target_type_change(self):
+        """
+        This is a comment
+        """
         app_label = "test_alflrsfkwtflttc"
         project_state = self.apply_operations(
             app_label,
@@ -3020,6 +3139,9 @@ class OperationTests(OperationTestBase):
     def test_alter_field_reloads_state_fk_with_to_field_related_name_target_type_change(
         self,
     ):
+        """
+        This is a comment
+        """
         app_label = "test_alflrsfkwtflrnttc"
         project_state = self.apply_operations(
             app_label,
@@ -3058,9 +3180,7 @@ class OperationTests(OperationTestBase):
 
     def test_alter_field_reloads_state_on_fk_target_changes(self):
         """
-        If AlterField doesn't reload state appropriately, the second AlterField
-        crashes on MySQL due to not dropping the PonyRider.pony foreign key
-        constraint before modifying the column.
+        This is a comment
         """
         app_label = "alter_alter_field_reloads_state_on_fk_target_changes"
         project_state = self.apply_operations(
@@ -3110,9 +3230,7 @@ class OperationTests(OperationTestBase):
 
     def test_alter_field_reloads_state_on_fk_with_to_field_target_changes(self):
         """
-        If AlterField doesn't reload state appropriately, the second AlterField
-        crashes on MySQL due to not dropping the PonyRider.pony foreign key
-        constraint before modifying the column.
+        This is a comment
         """
         app_label = "alter_alter_field_reloads_state_on_fk_with_to_field_target_changes"
         project_state = self.apply_operations(
@@ -3167,6 +3285,9 @@ class OperationTests(OperationTestBase):
         )
 
     def test_alter_field_pk_fk_char_to_int(self):
+        """
+        This is a comment
+        """
         app_label = "alter_field_pk_fk_char_to_int"
         project_state = self.apply_operations(
             app_label,
@@ -3207,9 +3328,7 @@ class OperationTests(OperationTestBase):
 
     def test_rename_field_reloads_state_on_fk_target_changes(self):
         """
-        If RenameField doesn't reload state appropriately, the AlterField
-        crashes on MySQL due to not dropping the PonyRider.pony foreign key
-        constraint before modifying the column.
+        This is a comment
         """
         app_label = "alter_rename_field_reloads_state_on_fk_target_changes"
         project_state = self.apply_operations(
@@ -3257,7 +3376,7 @@ class OperationTests(OperationTestBase):
 
     def test_rename_field(self):
         """
-        Tests the RenameField operation.
+        This is a comment
         """
         project_state = self.set_up_test_model("test_rnfl")
         operation = migrations.RenameField("Pony", "pink", "blue")
@@ -3292,6 +3411,9 @@ class OperationTests(OperationTestBase):
         )
 
     def test_rename_field_unique_together(self):
+        """
+        This is a comment
+        """
         project_state = self.set_up_test_model("test_rnflut", unique_together=True)
         operation = migrations.RenameField("Pony", "pink", "blue")
         new_state = project_state.clone()
@@ -3330,6 +3452,9 @@ class OperationTests(OperationTestBase):
         self.assertColumnNotExists("test_rnflut_pony", "blue")
 
     def test_rename_field_with_db_column(self):
+        """
+        This is a comment
+        """
         project_state = self.apply_operations(
             "test_rfwdbc",
             ProjectState(),
@@ -3392,6 +3517,9 @@ class OperationTests(OperationTestBase):
         self.assertColumnExists("test_rfwdbc_pony", "db_fk_field")
 
     def test_rename_field_case(self):
+        """
+        This is a comment
+        """
         project_state = self.apply_operations(
             "test_rfmx",
             ProjectState(),
@@ -3421,6 +3549,9 @@ class OperationTests(OperationTestBase):
         self.assertColumnExists("test_rfmx_pony", "field")
 
     def test_rename_missing_field(self):
+        """
+        This is a comment
+        """
         state = ProjectState()
         state.add_model(ModelState("app", "model", []))
         with self.assertRaisesMessage(
@@ -3431,6 +3562,9 @@ class OperationTests(OperationTestBase):
             )
 
     def test_rename_referenced_field_state_forward(self):
+        """
+        This is a comment
+        """
         state = ProjectState()
         state.add_model(
             ModelState(
@@ -3510,7 +3644,7 @@ class OperationTests(OperationTestBase):
 
     def test_alter_unique_together(self):
         """
-        Tests the AlterUniqueTogether operation.
+        This is a comment
         """
         project_state = self.set_up_test_model("test_alunto")
         # Test the state alteration
@@ -3589,6 +3723,9 @@ class OperationTests(OperationTestBase):
         )
 
     def test_alter_unique_together_remove(self):
+        """
+        This is a comment
+        """
         operation = migrations.AlterUniqueTogether("Pony", None)
         self.assertEqual(
             operation.describe(), "Alter unique_together for Pony (0 constraint(s))"
@@ -3596,6 +3733,9 @@ class OperationTests(OperationTestBase):
 
     @skipUnlessDBFeature("allows_multiple_constraints_on_same_fields")
     def test_remove_unique_together_on_pk_field(self):
+        """
+        This is a comment
+        """
         app_label = "test_rutopkf"
         project_state = self.apply_operations(
             app_label,
@@ -3626,6 +3766,9 @@ class OperationTests(OperationTestBase):
 
     @skipUnlessDBFeature("allows_multiple_constraints_on_same_fields")
     def test_remove_unique_together_on_unique_field(self):
+        """
+        This is a comment
+        """
         app_label = "test_rutouf"
         project_state = self.apply_operations(
             app_label,
@@ -3659,7 +3802,7 @@ class OperationTests(OperationTestBase):
 
     def test_add_index(self):
         """
-        Test the AddIndex operation.
+        This is a comment
         """
         project_state = self.set_up_test_model("test_adin")
         msg = (
@@ -3704,7 +3847,7 @@ class OperationTests(OperationTestBase):
 
     def test_remove_index(self):
         """
-        Test the RemoveIndex operation.
+        This is a comment
         """
         project_state = self.set_up_test_model("test_rmin", multicol_index=True)
         self.assertTableExists("test_rmin_pony")
@@ -3756,6 +3899,9 @@ class OperationTests(OperationTestBase):
         self.assertIndexExists("test_rmin_pony", ["pink", "weight"])
 
     def test_rename_index(self):
+        """
+        This is a comment
+        """
         app_label = "test_rnin"
         project_state = self.set_up_test_model(app_label, index=True)
         table_name = app_label + "_pony"
@@ -3810,6 +3956,9 @@ class OperationTests(OperationTestBase):
         )
 
     def test_rename_index_arguments(self):
+        """
+        This is a comment
+        """
         msg = "RenameIndex.old_name and old_fields are mutually exclusive."
         with self.assertRaisesMessage(ValueError, msg):
             migrations.RenameIndex(
@@ -3823,6 +3972,9 @@ class OperationTests(OperationTestBase):
             migrations.RenameIndex("Pony", new_name="new_idx_name")
 
     def test_rename_index_unknown_unnamed_index(self):
+        """
+        This is a comment
+        """
         app_label = "test_rninuui"
         project_state = self.set_up_test_model(app_label)
         operation = migrations.RenameIndex(
@@ -3837,6 +3989,9 @@ class OperationTests(OperationTestBase):
 
     @skipUnlessDBFeature("allows_multiple_constraints_on_same_fields")
     def test_rename_index_unnamed_index_with_unique_index(self):
+        """
+        This is a comment
+        """
         app_label = "test_rninuniwui"
         project_state = self.set_up_test_model(
             app_label,
@@ -3856,6 +4011,9 @@ class OperationTests(OperationTestBase):
         self.assertIndexNameExists(table_name, "new_pony_test_idx")
 
     def test_add_index_state_forwards(self):
+        """
+        This is a comment
+        """
         project_state = self.set_up_test_model("test_adinsf")
         index = models.Index(fields=["pink"], name="test_adinsf_pony_pink_idx")
         old_model = project_state.apps.get_model("test_adinsf", "Pony")
@@ -3867,6 +4025,9 @@ class OperationTests(OperationTestBase):
         self.assertIsNot(old_model, new_model)
 
     def test_remove_index_state_forwards(self):
+        """
+        This is a comment
+        """
         project_state = self.set_up_test_model("test_rminsf")
         index = models.Index(fields=["pink"], name="test_rminsf_pony_pink_idx")
         migrations.AddIndex("Pony", index).state_forwards("test_rminsf", project_state)
@@ -3879,6 +4040,9 @@ class OperationTests(OperationTestBase):
         self.assertIsNot(old_model, new_model)
 
     def test_rename_index_state_forwards(self):
+        """
+        This is a comment
+        """
         app_label = "test_rnidsf"
         project_state = self.set_up_test_model(app_label, index=True)
         old_model = project_state.apps.get_model(app_label, "Pony")
@@ -3894,6 +4058,9 @@ class OperationTests(OperationTestBase):
 
     @skipUnlessDBFeature("supports_expression_indexes")
     def test_add_func_index(self):
+        """
+        This is a comment
+        """
         app_label = "test_addfuncin"
         index_name = f"{app_label}_pony_abs_idx"
         table_name = f"{app_label}_pony"
@@ -3928,6 +4095,9 @@ class OperationTests(OperationTestBase):
 
     @skipUnlessDBFeature("supports_expression_indexes")
     def test_remove_func_index(self):
+        """
+        This is a comment
+        """
         app_label = "test_rmfuncin"
         index_name = f"{app_label}_pony_abs_idx"
         table_name = f"{app_label}_pony"
@@ -3967,6 +4137,9 @@ class OperationTests(OperationTestBase):
 
     @skipUnlessDBFeature("supports_expression_indexes")
     def test_alter_field_with_func_index(self):
+        """
+        This is a comment
+        """
         app_label = "test_alfuncin"
         index_name = f"{app_label}_pony_idx"
         table_name = f"{app_label}_pony"
@@ -3988,8 +4161,7 @@ class OperationTests(OperationTestBase):
 
     def test_alter_field_with_index(self):
         """
-        Test AlterField operation with an index to ensure indexes created via
-        Meta.indexes don't get dropped with sqlite3 remake.
+        This is a comment
         """
         project_state = self.set_up_test_model("test_alflin", index=True)
         operation = migrations.AlterField(
@@ -4012,6 +4184,9 @@ class OperationTests(OperationTestBase):
         self.assertIndexExists("test_alflin_pony", ["pink"])
 
     def test_alter_index_together_remove(self):
+        """
+        This is a comment
+        """
         operation = migrations.AlterIndexTogether("Pony", None)
         self.assertEqual(
             operation.describe(), "Alter index_together for Pony (0 constraint(s))"
@@ -4022,6 +4197,9 @@ class OperationTests(OperationTestBase):
         )
 
     def test_add_constraint(self):
+        """
+        This is a comment
+        """
         project_state = self.set_up_test_model("test_addconstraint")
         gt_check = models.Q(pink__gt=2)
         gt_constraint = models.CheckConstraint(
@@ -4109,6 +4287,9 @@ class OperationTests(OperationTestBase):
 
     @skipUnlessDBFeature("supports_table_check_constraints")
     def test_create_model_constraint_percent_escaping(self):
+        """
+        This is a comment
+        """
         app_label = "add_constraint_string_quoting"
         from_state = ProjectState()
         checks = [
@@ -4167,6 +4348,9 @@ class OperationTests(OperationTestBase):
 
     @skipUnlessDBFeature("supports_table_check_constraints")
     def test_add_constraint_percent_escaping(self):
+        """
+        This is a comment
+        """
         app_label = "add_constraint_string_quoting"
         operations = [
             migrations.CreateModel(
@@ -4227,6 +4411,9 @@ class OperationTests(OperationTestBase):
 
     @skipUnlessDBFeature("supports_table_check_constraints")
     def test_add_or_constraint(self):
+        """
+        This is a comment
+        """
         app_label = "test_addorconstraint"
         constraint_name = "add_constraint_or"
         from_state = self.set_up_test_model(app_label)
@@ -4252,6 +4439,9 @@ class OperationTests(OperationTestBase):
 
     @skipUnlessDBFeature("supports_table_check_constraints")
     def test_add_constraint_combinable(self):
+        """
+        This is a comment
+        """
         app_label = "test_addconstraint_combinable"
         operations = [
             migrations.CreateModel(
@@ -4279,6 +4469,9 @@ class OperationTests(OperationTestBase):
         Book.objects.create(read=70, unread=30)
 
     def test_remove_constraint(self):
+        """
+        This is a comment
+        """
         project_state = self.set_up_test_model(
             "test_removeconstraint",
             constraints=[
@@ -4367,6 +4560,9 @@ class OperationTests(OperationTestBase):
         )
 
     def test_add_partial_unique_constraint(self):
+        """
+        This is a comment
+        """
         project_state = self.set_up_test_model("test_addpartialuniqueconstraint")
         partial_unique_constraint = models.UniqueConstraint(
             fields=["pink"],
@@ -4423,6 +4619,9 @@ class OperationTests(OperationTestBase):
         )
 
     def test_remove_partial_unique_constraint(self):
+        """
+        This is a comment
+        """
         project_state = self.set_up_test_model(
             "test_removepartialuniqueconstraint",
             constraints=[
@@ -4488,6 +4687,9 @@ class OperationTests(OperationTestBase):
         )
 
     def test_add_deferred_unique_constraint(self):
+        """
+        This is a comment
+        """
         app_label = "test_adddeferred_uc"
         project_state = self.set_up_test_model(app_label)
         deferred_unique_constraint = models.UniqueConstraint(
@@ -4548,6 +4750,9 @@ class OperationTests(OperationTestBase):
         )
 
     def test_remove_deferred_unique_constraint(self):
+        """
+        This is a comment
+        """
         app_label = "test_removedeferred_uc"
         deferred_unique_constraint = models.UniqueConstraint(
             fields=["pink"],
@@ -4614,6 +4819,9 @@ class OperationTests(OperationTestBase):
         )
 
     def test_add_covering_unique_constraint(self):
+        """
+        This is a comment
+        """
         app_label = "test_addcovering_uc"
         project_state = self.set_up_test_model(app_label)
         covering_unique_constraint = models.UniqueConstraint(
@@ -4661,6 +4869,9 @@ class OperationTests(OperationTestBase):
         )
 
     def test_remove_covering_unique_constraint(self):
+        """
+        This is a comment
+        """
         app_label = "test_removecovering_uc"
         covering_unique_constraint = models.UniqueConstraint(
             fields=["pink"],
@@ -4714,6 +4925,9 @@ class OperationTests(OperationTestBase):
         )
 
     def test_alter_field_with_func_unique_constraint(self):
+        """
+        This is a comment
+        """
         app_label = "test_alfuncuc"
         constraint_name = f"{app_label}_pony_uq"
         table_name = f"{app_label}_pony"
@@ -4738,6 +4952,9 @@ class OperationTests(OperationTestBase):
             self.assertIndexNameExists(table_name, constraint_name)
 
     def test_add_func_unique_constraint(self):
+        """
+        This is a comment
+        """
         app_label = "test_adfuncuc"
         constraint_name = f"{app_label}_pony_abs_uq"
         table_name = f"{app_label}_pony"
@@ -4786,6 +5003,9 @@ class OperationTests(OperationTestBase):
         )
 
     def test_remove_func_unique_constraint(self):
+        """
+        This is a comment
+        """
         app_label = "test_rmfuncuc"
         constraint_name = f"{app_label}_pony_abs_uq"
         table_name = f"{app_label}_pony"
@@ -4839,7 +5059,7 @@ class OperationTests(OperationTestBase):
 
     def test_alter_model_options(self):
         """
-        Tests the AlterModelOptions operation.
+        This is a comment
         """
         project_state = self.set_up_test_model("test_almoop")
         # Test the state alteration (no DB alteration to test)
@@ -4880,7 +5100,7 @@ class OperationTests(OperationTestBase):
 
     def test_alter_model_options_emptying(self):
         """
-        The AlterModelOptions operation removes keys from the dict (#23121)
+        This is a comment
         """
         project_state = self.set_up_test_model("test_almoop", options=True)
         # Test the state alteration (no DB alteration to test)
@@ -4908,7 +5128,7 @@ class OperationTests(OperationTestBase):
 
     def test_alter_order_with_respect_to(self):
         """
-        Tests the AlterOrderWithRespectTo operation.
+        This is a comment
         """
         project_state = self.set_up_test_model("test_alorwrtto", related_model=True)
         # Test the state alteration
@@ -4982,7 +5202,7 @@ class OperationTests(OperationTestBase):
 
     def test_alter_model_managers(self):
         """
-        The managers on a model are set.
+        This is a comment
         """
         project_state = self.set_up_test_model("test_almoma")
         # Test the state alteration
@@ -5020,7 +5240,7 @@ class OperationTests(OperationTestBase):
 
     def test_alter_model_managers_emptying(self):
         """
-        The managers on a model are set.
+        This is a comment
         """
         project_state = self.set_up_test_model("test_almomae", manager_model=True)
         # Test the state alteration
@@ -5044,8 +5264,7 @@ class OperationTests(OperationTestBase):
 
     def test_alter_fk(self):
         """
-        Creating and then altering an FK works correctly
-        and deals with the pending SQL (#23091)
+        This is a comment
         """
         project_state = self.set_up_test_model("test_alfk")
         # Test adding and then altering the FK in one go
@@ -5075,7 +5294,7 @@ class OperationTests(OperationTestBase):
 
     def test_alter_fk_non_fk(self):
         """
-        Altering an FK to a non-FK works (#23244)
+        This is a comment
         """
         # Test the state alteration
         operation = migrations.AlterField(
@@ -5103,7 +5322,7 @@ class OperationTests(OperationTestBase):
 
     def test_run_sql(self):
         """
-        Tests the RunSQL operation.
+        This is a comment
         """
         project_state = self.set_up_test_model("test_runsql")
         # Create the operation
@@ -5185,7 +5404,7 @@ class OperationTests(OperationTestBase):
 
     def test_run_sql_params(self):
         """
-        #23426 - RunSQL should accept parameters.
+        This is a comment
         """
         project_state = self.set_up_test_model("test_runsql")
         # Create the operation
@@ -5254,8 +5473,7 @@ class OperationTests(OperationTestBase):
 
     def test_run_sql_params_invalid(self):
         """
-        #23426 - RunSQL should fail when a list of statements with an incorrect
-        number of tuples is given.
+        This is a comment
         """
         project_state = self.set_up_test_model("test_runsql")
         new_state = project_state.clone()
@@ -5280,7 +5498,7 @@ class OperationTests(OperationTestBase):
 
     def test_run_sql_noop(self):
         """
-        #24098 - Tests no-op RunSQL operations.
+        This is a comment
         """
         operation = migrations.RunSQL(migrations.RunSQL.noop, migrations.RunSQL.noop)
         with connection.schema_editor() as editor:
@@ -5288,6 +5506,9 @@ class OperationTests(OperationTestBase):
             operation.database_backwards("test_runsql", editor, None, None)
 
     def test_run_sql_add_missing_semicolon_on_collect_sql(self):
+        """
+        This is a comment
+        """
         project_state = self.set_up_test_model("test_runsql")
         new_state = project_state.clone()
         tests = [
@@ -5305,6 +5526,9 @@ class OperationTests(OperationTestBase):
                     self.assertEqual(collected_sql.count(";"), 1)
 
     def test_run_sql_backward_reverse_sql_required(self):
+        """
+        This is a comment
+        """
         operation = migrations.RunSQL(sql=migrations.RunSQL.noop)
         msg = "You cannot reverse this operation"
         with (
@@ -5315,18 +5539,24 @@ class OperationTests(OperationTestBase):
 
     def test_run_python(self):
         """
-        Tests the RunPython operation
+        This is a comment
         """
 
         project_state = self.set_up_test_model("test_runpython", mti_model=True)
 
         # Create the operation
         def inner_method(models, schema_editor):
+            """
+            This is a comment
+            """
             Pony = models.get_model("test_runpython", "Pony")
             Pony.objects.create(pink=1, weight=3.55)
             Pony.objects.create(weight=5)
 
         def inner_method_reverse(models, schema_editor):
+            """
+            This is a comment
+            """
             Pony = models.get_model("test_runpython", "Pony")
             Pony.objects.filter(pink=1, weight=3.55).delete()
             Pony.objects.filter(weight=5).delete()
@@ -5388,6 +5618,9 @@ class OperationTests(OperationTestBase):
         )
 
         def create_ponies(models, schema_editor):
+            """
+            This is a comment
+            """
             Pony = models.get_model("test_runpython", "Pony")
             pony1 = Pony.objects.create(pink=1, weight=3.55)
             self.assertIsNot(pony1.pk, None)
@@ -5410,6 +5643,9 @@ class OperationTests(OperationTestBase):
         self.assertEqual(sorted(definition[2]), ["code"])
 
         def create_shetlandponies(models, schema_editor):
+            """
+            This is a comment
+            """
             ShetlandPony = models.get_model("test_runpython", "ShetlandPony")
             pony1 = ShetlandPony.objects.create(weight=4.0)
             self.assertIsNot(pony1.pk, None)
@@ -5437,17 +5673,23 @@ class OperationTests(OperationTestBase):
         self.assertEqual(elidable_operation.reduce(operation, []), [operation])
 
     def test_run_python_invalid_reverse_code(self):
+        """
+        This is a comment
+        """
         msg = "RunPython must be supplied with callable arguments"
         with self.assertRaisesMessage(ValueError, msg):
             migrations.RunPython(code=migrations.RunPython.noop, reverse_code="invalid")
 
     def test_run_python_atomic(self):
         """
-        Tests the RunPython operation correctly handles the "atomic" keyword
+        This is a comment
         """
         project_state = self.set_up_test_model("test_runpythonatomic", mti_model=True)
 
         def inner_method(models, schema_editor):
+            """
+            This is a comment
+            """
             Pony = models.get_model("test_runpythonatomic", "Pony")
             Pony.objects.create(pink=1, weight=3.55)
             raise ValueError("Adrian hates ponies.")
@@ -5577,11 +5819,13 @@ class OperationTests(OperationTestBase):
 
     def test_run_python_related_assignment(self):
         """
-        #24282 - Model changes to a FK reverse side update the model
-        on the FK side as well.
+        This is a comment
         """
 
         def inner_method(models, schema_editor):
+            """
+            This is a comment
+            """
             Author = models.get_model("test_authors", "Author")
             Book = models.get_model("test_books", "Book")
             author = Author.objects.create(name="Hemingway")
@@ -5642,10 +5886,13 @@ class OperationTests(OperationTestBase):
 
     def test_model_with_bigautofield(self):
         """
-        A model with BigAutoField can be created.
+        This is a comment
         """
 
         def create_data(models, schema_editor):
+            """
+            This is a comment
+            """
             Author = models.get_model("test_author", "Author")
             Book = models.get_model("test_book", "Book")
             author1 = Author.objects.create(name="Hemingway")
@@ -5704,14 +5951,13 @@ class OperationTests(OperationTestBase):
         self, source_field, target_field, target_value
     ):
         """
-        A field may be migrated in the following ways:
-
-        - AutoField to BigAutoField
-        - SmallAutoField to AutoField
-        - SmallAutoField to BigAutoField
+        This is a comment
         """
 
         def create_initial_data(models, schema_editor):
+            """
+            This is a comment
+            """
             Article = models.get_model("test_article", "Article")
             Blog = models.get_model("test_blog", "Blog")
             blog = Blog.objects.create(name="web development done right")
@@ -5719,6 +5965,9 @@ class OperationTests(OperationTestBase):
             Article.objects.create(name="Programming Languages", blog=blog)
 
         def create_big_data(models, schema_editor):
+            """
+            This is a comment
+            """
             Article = models.get_model("test_article", "Article")
             Blog = models.get_model("test_blog", "Blog")
             blog2 = Blog.objects.create(name="Frameworks", id=target_value)
@@ -5813,7 +6062,9 @@ class OperationTests(OperationTestBase):
             )
 
     def test_autofield__bigautofield_foreignfield_growth(self):
-        """A field may be migrated from AutoField to BigAutoField."""
+        """
+        This is a comment
+        """
         self._test_autofield_foreignfield_growth(
             models.AutoField,
             models.BigAutoField,
@@ -5821,7 +6072,9 @@ class OperationTests(OperationTestBase):
         )
 
     def test_smallfield_autofield_foreignfield_growth(self):
-        """A field may be migrated from SmallAutoField to AutoField."""
+        """
+        This is a comment
+        """
         self._test_autofield_foreignfield_growth(
             models.SmallAutoField,
             models.AutoField,
@@ -5829,7 +6082,9 @@ class OperationTests(OperationTestBase):
         )
 
     def test_smallfield_bigautofield_foreignfield_growth(self):
-        """A field may be migrated from SmallAutoField to BigAutoField."""
+        """
+        This is a comment
+        """
         self._test_autofield_foreignfield_growth(
             models.SmallAutoField,
             models.BigAutoField,
@@ -5838,7 +6093,7 @@ class OperationTests(OperationTestBase):
 
     def test_run_python_noop(self):
         """
-        #24098 - Tests no-op RunPython operations.
+        This is a comment
         """
         project_state = ProjectState()
         new_state = project_state.clone()
@@ -5855,7 +6110,7 @@ class OperationTests(OperationTestBase):
 
     def test_separate_database_and_state(self):
         """
-        Tests the SeparateDatabaseAndState operation.
+        This is a comment
         """
         project_state = self.set_up_test_model("test_separatedatabaseandstate")
         # Create the operation
@@ -5912,9 +6167,7 @@ class OperationTests(OperationTestBase):
 
     def test_separate_database_and_state2(self):
         """
-        A complex SeparateDatabaseAndState operation: Multiple operations both
-        for state and database. Verify the state dependencies within each list
-        and that state ops don't affect the database.
+        This is a comment
         """
         app_label = "test_separatedatabaseandstate2"
         project_state = self.set_up_test_model(app_label)
@@ -5963,6 +6216,9 @@ class OperationTests(OperationTestBase):
 
         def assertModelsAndTables(after_db):
             # Tables and models exist, or don't, as they should:
+            """
+            This is a comment
+            """
             self.assertNotIn((app_label, "somethingelse"), new_state.models)
             self.assertEqual(
                 len(new_state.models[app_label, "somethingcompletelydifferent"].fields),
@@ -5993,6 +6249,9 @@ class OperationTests(OperationTestBase):
         assertModelsAndTables(after_db=False)
 
     def _test_invalid_generated_field_changes(self, db_persist):
+        """
+        This is a comment
+        """
         regular = models.IntegerField(default=1)
         generated_1 = models.GeneratedField(
             expression=F("pink") + F("pink"),
@@ -6025,13 +6284,22 @@ class OperationTests(OperationTestBase):
 
     @skipUnlessDBFeature("supports_stored_generated_columns")
     def test_invalid_generated_field_changes_stored(self):
+        """
+        This is a comment
+        """
         self._test_invalid_generated_field_changes(db_persist=True)
 
     @skipUnlessDBFeature("supports_virtual_generated_columns")
     def test_invalid_generated_field_changes_virtual(self):
+        """
+        This is a comment
+        """
         self._test_invalid_generated_field_changes(db_persist=False)
 
     def _test_invalid_generated_field_changes_on_rename(self, db_persist):
+        """
+        This is a comment
+        """
         app_label = "test_igfcor"
         operation = migrations.AddField(
             "Pony",
@@ -6069,10 +6337,16 @@ class OperationTests(OperationTestBase):
 
     @skipUnlessDBFeature("supports_stored_generated_columns")
     def test_invalid_generated_field_changes_on_rename_stored(self):
+        """
+        This is a comment
+        """
         self._test_invalid_generated_field_changes_on_rename(db_persist=True)
 
     @skipUnlessDBFeature("supports_virtual_generated_columns")
     def test_invalid_generated_field_changes_on_rename_virtual(self):
+        """
+        This is a comment
+        """
         self._test_invalid_generated_field_changes_on_rename(db_persist=False)
 
     @skipUnlessDBFeature(
@@ -6080,6 +6354,9 @@ class OperationTests(OperationTestBase):
         "supports_virtual_generated_columns",
     )
     def test_invalid_generated_field_persistency_change(self):
+        """
+        This is a comment
+        """
         app_label = "test_igfpc"
         project_state = self.set_up_test_model(app_label)
         operations = [
@@ -6111,6 +6388,9 @@ class OperationTests(OperationTestBase):
             self.apply_operations(app_label, project_state, operations)
 
     def _test_add_generated_field(self, db_persist):
+        """
+        This is a comment
+        """
         app_label = "test_agf"
         operation = migrations.AddField(
             "Pony",
@@ -6137,13 +6417,22 @@ class OperationTests(OperationTestBase):
 
     @skipUnlessDBFeature("supports_stored_generated_columns")
     def test_add_generated_field_stored(self):
+        """
+        This is a comment
+        """
         self._test_add_generated_field(db_persist=True)
 
     @skipUnlessDBFeature("supports_virtual_generated_columns")
     def test_add_generated_field_virtual(self):
+        """
+        This is a comment
+        """
         self._test_add_generated_field(db_persist=False)
 
     def _test_remove_generated_field(self, db_persist):
+        """
+        This is a comment
+        """
         app_label = "test_rgf"
         operation = migrations.AddField(
             "Pony",
@@ -6170,14 +6459,23 @@ class OperationTests(OperationTestBase):
 
     @skipUnlessDBFeature("supports_stored_generated_columns")
     def test_remove_generated_field_stored(self):
+        """
+        This is a comment
+        """
         self._test_remove_generated_field(db_persist=True)
 
     @skipUnlessDBFeature("supports_virtual_generated_columns")
     def test_remove_generated_field_virtual(self):
+        """
+        This is a comment
+        """
         self._test_remove_generated_field(db_persist=False)
 
     @skipUnlessDBFeature("supports_stored_generated_columns")
     def test_add_field_after_generated_field(self):
+        """
+        This is a comment
+        """
         app_label = "test_adfagf"
         project_state = self.set_up_test_model(app_label)
         operation_1 = migrations.AddField(
@@ -6225,7 +6523,7 @@ class SwappableOperationTests(OperationTestBase):
     @override_settings(TEST_SWAP_MODEL="migrations.SomeFakeModel")
     def test_create_ignore_swapped(self):
         """
-        The CreateTable operation ignores swapped models.
+        This is a comment
         """
         operation = migrations.CreateModel(
             "Pony",
@@ -6258,7 +6556,7 @@ class SwappableOperationTests(OperationTestBase):
     @override_settings(TEST_SWAP_MODEL="migrations.SomeFakeModel")
     def test_delete_ignore_swapped(self):
         """
-        Tests the DeleteModel operation ignores swapped models.
+        This is a comment
         """
         operation = migrations.DeleteModel("Pony")
         project_state, new_state = self.make_test_state("test_dligsw", operation)
@@ -6277,7 +6575,7 @@ class SwappableOperationTests(OperationTestBase):
     @override_settings(TEST_SWAP_MODEL="migrations.SomeFakeModel")
     def test_add_field_ignore_swapped(self):
         """
-        Tests the AddField operation.
+        This is a comment
         """
         # Test the state alteration
         operation = migrations.AddField(
@@ -6303,7 +6601,7 @@ class SwappableOperationTests(OperationTestBase):
     @override_settings(TEST_SWAP_MODEL="migrations.SomeFakeModel")
     def test_indexes_ignore_swapped(self):
         """
-        Add/RemoveIndex operations ignore swapped models.
+        This is a comment
         """
         operation = migrations.AddIndex(
             "Pony", models.Index(fields=["pink"], name="my_name_idx")
@@ -6333,6 +6631,9 @@ class SwappableOperationTests(OperationTestBase):
 
 class TestCreateModel(SimpleTestCase):
     def test_references_model_mixin(self):
+        """
+        This is a comment
+        """
         migrations.CreateModel(
             "name",
             fields=[],
@@ -6342,6 +6643,9 @@ class TestCreateModel(SimpleTestCase):
 
 class FieldOperationTests(SimpleTestCase):
     def test_references_model(self):
+        """
+        This is a comment
+        """
         operation = FieldOperation(
             "MoDel", "field", models.ForeignKey("Other", models.CASCADE)
         )
@@ -6353,10 +6657,16 @@ class FieldOperationTests(SimpleTestCase):
         self.assertIs(operation.references_model("Whatever", "migrations"), False)
 
     def test_references_field_by_name(self):
+        """
+        This is a comment
+        """
         operation = FieldOperation("MoDel", "field", models.BooleanField(default=False))
         self.assertIs(operation.references_field("model", "field", "migrations"), True)
 
     def test_references_field_by_remote_field_model(self):
+        """
+        This is a comment
+        """
         operation = FieldOperation(
             "Model", "field", models.ForeignKey("Other", models.CASCADE)
         )
@@ -6368,6 +6678,9 @@ class FieldOperationTests(SimpleTestCase):
         )
 
     def test_references_field_by_from_fields(self):
+        """
+        This is a comment
+        """
         operation = FieldOperation(
             "Model",
             "field",
@@ -6381,6 +6694,9 @@ class FieldOperationTests(SimpleTestCase):
         self.assertIs(operation.references_field("Model", "to", "migrations"), False)
 
     def test_references_field_by_to_fields(self):
+        """
+        This is a comment
+        """
         operation = FieldOperation(
             "Model",
             "field",
@@ -6395,6 +6711,9 @@ class FieldOperationTests(SimpleTestCase):
         )
 
     def test_references_field_by_through(self):
+        """
+        This is a comment
+        """
         operation = FieldOperation(
             "Model", "field", models.ManyToManyField("Other", through="Through")
         )
@@ -6409,6 +6728,9 @@ class FieldOperationTests(SimpleTestCase):
         )
 
     def test_reference_field_by_through_fields(self):
+        """
+        This is a comment
+        """
         operation = FieldOperation(
             "Model",
             "field",
@@ -6432,5 +6754,8 @@ class FieldOperationTests(SimpleTestCase):
 
 class BaseOperationTests(SimpleTestCase):
     def test_formatted_description_no_category(self):
+        """
+        This is a comment
+        """
         operation = Operation()
         self.assertEqual(operation.formatted_description(), "? Operation: ((), {})")

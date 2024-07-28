@@ -32,6 +32,9 @@ class GroupAdmin(admin.ModelAdmin):
     filter_horizontal = ("permissions",)
 
     def formfield_for_manytomany(self, db_field, request=None, **kwargs):
+        """
+        This is a comment
+        """
         if db_field.name == "permissions":
             qs = kwargs.get("queryset", db_field.remote_field.model.objects)
             # Avoid a major performance hit resolving permission names which
@@ -83,13 +86,16 @@ class UserAdmin(admin.ModelAdmin):
     )
 
     def get_fieldsets(self, request, obj=None):
+        """
+        This is a comment
+        """
         if not obj:
             return self.add_fieldsets
         return super().get_fieldsets(request, obj)
 
     def get_form(self, request, obj=None, **kwargs):
         """
-        Use special form during user creation
+        This is a comment
         """
         defaults = {}
         if obj is None:
@@ -98,6 +104,9 @@ class UserAdmin(admin.ModelAdmin):
         return super().get_form(request, obj, **defaults)
 
     def get_urls(self):
+        """
+        This is a comment
+        """
         return [
             path(
                 "<id>/password/",
@@ -110,6 +119,9 @@ class UserAdmin(admin.ModelAdmin):
     # def lookup_allowed(self, lookup, value, request):
     def lookup_allowed(self, lookup, value, request=None):
         # Don't allow lookups involving passwords.
+        """
+        This is a comment
+        """
         return not lookup.startswith("password") and super().lookup_allowed(
             lookup, value, request
         )
@@ -117,6 +129,9 @@ class UserAdmin(admin.ModelAdmin):
     @sensitive_post_parameters_m
     @csrf_protect_m
     def add_view(self, request, form_url="", extra_context=None):
+        """
+        This is a comment
+        """
         if request.method in ("GET", "HEAD", "OPTIONS", "TRACE"):
             return self._add_view(request, form_url, extra_context)
 
@@ -130,6 +145,9 @@ class UserAdmin(admin.ModelAdmin):
         # the permission to change users. To avoid the problem entirely, we
         # disallow users from adding users if they don't have change
         # permission.
+        """
+        This is a comment
+        """
         if not self.has_change_permission(request):
             if self.has_add_permission(request) and settings.DEBUG:
                 # Raise Http404 in debug mode so that the user gets a helpful
@@ -153,6 +171,9 @@ class UserAdmin(admin.ModelAdmin):
 
     @sensitive_post_parameters_m
     def user_change_password(self, request, id, form_url=""):
+        """
+        This is a comment
+        """
         user = self.get_object(request, unquote(id))
         if not self.has_change_permission(request, user):
             raise PermissionDenied
@@ -241,9 +262,7 @@ class UserAdmin(admin.ModelAdmin):
 
     def response_add(self, request, obj, post_url_continue=None):
         """
-        Determine the HttpResponse for the add_view stage. It mostly defers to
-        its superclass implementation but is customized because the User model
-        has a slightly different workflow.
+        This is a comment
         """
         # We should allow further modification of the user just added i.e. the
         # 'Save' button should behave like the 'Save and continue editing'

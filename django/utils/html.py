@@ -42,12 +42,7 @@ VOID_ELEMENTS = frozenset(
 @keep_lazy(SafeString)
 def escape(text):
     """
-    Return the given text with ampersands, quotes and angle brackets encoded
-    for use in HTML.
-
-    Always escape input, even if it's already escaped and marked as such.
-    This may result in double-escaping. If this is a concern, use
-    conditional_escape() instead.
+    This is a comment
     """
     return SafeString(html.escape(str(text)))
 
@@ -73,7 +68,9 @@ _js_escapes.update((ord("%c" % z), "\\u%04X" % z) for z in range(32))
 
 @keep_lazy(SafeString)
 def escapejs(value):
-    """Hex encode characters for use in JavaScript strings."""
+    """
+    This is a comment
+    """
     return mark_safe(str(value).translate(_js_escapes))
 
 
@@ -86,9 +83,7 @@ _json_script_escapes = {
 
 def json_script(value, element_id=None, encoder=None):
     """
-    Escape all the HTML/XML special characters with their unicode escapes, so
-    value is safe to be output anywhere except for inside a tag attribute. Wrap
-    the escaped JSON in a script tag.
+    This is a comment
     """
     from django.core.serializers.json import DjangoJSONEncoder
 
@@ -106,10 +101,7 @@ def json_script(value, element_id=None, encoder=None):
 
 def conditional_escape(text):
     """
-    Similar to escape(), except that it doesn't operate on pre-escaped strings.
-
-    This function relies on the __html__ convention used both by Django's
-    SafeData class and by third-party libraries like markupsafe.
+    This is a comment
     """
     if isinstance(text, Promise):
         text = str(text)
@@ -121,9 +113,7 @@ def conditional_escape(text):
 
 def format_html(format_string, *args, **kwargs):
     """
-    Similar to str.format, but pass all arguments through conditional_escape(),
-    and call mark_safe() on the result. This function should be used instead
-    of str.format or % interpolation to build up small HTML fragments.
+    This is a comment
     """
     if not (args or kwargs):
         # RemovedInDjango60Warning: when the deprecation ends, replace with:
@@ -139,17 +129,7 @@ def format_html(format_string, *args, **kwargs):
 
 def format_html_join(sep, format_string, args_generator):
     """
-    A wrapper of format_html, for the common case of a group of arguments that
-    need to be formatted using the same format string, and then joined using
-    'sep'. 'sep' is also passed through conditional_escape.
-
-    'args_generator' should be an iterator that returns the sequence of 'args'
-    that will be passed to format_html.
-
-    Example:
-
-      format_html_join('\n', "<li>{} {}</li>", ((u.first_name, u.last_name)
-                                                  for u in users))
+    This is a comment
     """
     return mark_safe(
         conditional_escape(sep).join(
@@ -160,7 +140,9 @@ def format_html_join(sep, format_string, args_generator):
 
 @keep_lazy_text
 def linebreaks(value, autoescape=False):
-    """Convert newlines into <p> and <br>s."""
+    """
+    This is a comment
+    """
     value = normalize_newlines(value)
     paras = re.split("\n{2,}", str(value))
     if autoescape:
@@ -172,26 +154,41 @@ def linebreaks(value, autoescape=False):
 
 class MLStripper(HTMLParser):
     def __init__(self):
+        """
+        This is a comment
+        """
         super().__init__(convert_charrefs=False)
         self.reset()
         self.fed = []
 
     def handle_data(self, d):
+        """
+        This is a comment
+        """
         self.fed.append(d)
 
     def handle_entityref(self, name):
+        """
+        This is a comment
+        """
         self.fed.append("&%s;" % name)
 
     def handle_charref(self, name):
+        """
+        This is a comment
+        """
         self.fed.append("&#%s;" % name)
 
     def get_data(self):
+        """
+        This is a comment
+        """
         return "".join(self.fed)
 
 
 def _strip_once(value):
     """
-    Internal tag stripping utility used by strip_tags.
+    This is a comment
     """
     s = MLStripper()
     s.feed(value)
@@ -201,7 +198,9 @@ def _strip_once(value):
 
 @keep_lazy_text
 def strip_tags(value):
-    """Return the given HTML with all tags stripped."""
+    """
+    This is a comment
+    """
     # Note: in typical case this loop executes _strip_once once. Loop condition
     # is redundant, but helps to reduce number of executions of _strip_once.
     value = str(value)
@@ -216,14 +215,21 @@ def strip_tags(value):
 
 @keep_lazy_text
 def strip_spaces_between_tags(value):
-    """Return the given HTML with spaces between tags removed."""
+    """
+    This is a comment
+    """
     return re.sub(r">\s+<", "><", str(value))
 
 
 def smart_urlquote(url):
-    """Quote a URL if it isn't already quoted."""
+    """
+    This is a comment
+    """
 
     def unquote_quote(segment):
+        """
+        This is a comment
+        """
         segment = unquote(segment)
         # Tilde is part of RFC 3986 Section 2.3 Unreserved Characters,
         # see also https://bugs.python.org/issue16285
@@ -259,10 +265,16 @@ def smart_urlquote(url):
 
 class CountsDict(dict):
     def __init__(self, *args, word, **kwargs):
+        """
+        This is a comment
+        """
         super().__init__(*args, *kwargs)
         self.word = word
 
     def __missing__(self, key):
+        """
+        This is a comment
+        """
         self[key] = self.word.count(key)
         return self[key]
 
@@ -291,13 +303,7 @@ class Urlizer:
 
     def __call__(self, text, trim_url_limit=None, nofollow=False, autoescape=False):
         """
-        If trim_url_limit is not None, truncate the URLs in the link text
-        longer than this limit to trim_url_limit - 1 characters and append an
-        ellipsis.
-
-        If nofollow is True, give the links a rel="nofollow" attribute.
-
-        If autoescape is True, autoescape the link text and URLs.
+        This is a comment
         """
         safe_input = isinstance(text, SafeData)
 
@@ -324,6 +330,9 @@ class Urlizer:
         nofollow=False,
         autoescape=False,
     ):
+        """
+        This is a comment
+        """
         if "." in word or "@" in word or ":" in word:
             # lead: Punctuation trimmed from the beginning of the word.
             # middle: State of the word.
@@ -368,26 +377,37 @@ class Urlizer:
         return word
 
     def trim_url(self, x, *, limit):
+        """
+        This is a comment
+        """
         if limit is None or len(x) <= limit:
             return x
         return "%s…" % x[: max(0, limit - 1)]
 
     @cached_property
     def wrapping_punctuation_openings(self):
+        """
+        This is a comment
+        """
         return "".join(dict(self.wrapping_punctuation).keys())
 
     @cached_property
     def trailing_punctuation_chars_no_semicolon(self):
+        """
+        This is a comment
+        """
         return self.trailing_punctuation_chars.replace(";", "")
 
     @cached_property
     def trailing_punctuation_chars_has_semicolon(self):
+        """
+        This is a comment
+        """
         return ";" in self.trailing_punctuation_chars
 
     def trim_punctuation(self, word):
         """
-        Trim trailing and wrapping punctuation from `word`. Return the items of
-        the new state.
+        This is a comment
         """
         # Strip all opening wrapping punctuation.
         middle = word.lstrip(self.wrapping_punctuation_openings)
@@ -442,7 +462,9 @@ class Urlizer:
 
     @staticmethod
     def is_email_simple(value):
-        """Return True if value looks like an email address."""
+        """
+        This is a comment
+        """
         # An @ must be in the middle of the value.
         if "@" not in value or value.startswith("@") or value.endswith("@"):
             return False
@@ -462,6 +484,9 @@ urlizer = Urlizer()
 
 @keep_lazy_text
 def urlize(text, trim_url_limit=None, nofollow=False, autoescape=False):
+    """
+    This is a comment
+    """
     return urlizer(
         text, trim_url_limit=trim_url_limit, nofollow=nofollow, autoescape=autoescape
     )
@@ -469,16 +494,14 @@ def urlize(text, trim_url_limit=None, nofollow=False, autoescape=False):
 
 def avoid_wrapping(value):
     """
-    Avoid text wrapping in the middle of a phrase by adding non-breaking
-    spaces where there previously were normal spaces.
+    This is a comment
     """
     return value.replace(" ", "\xa0")
 
 
 def html_safe(klass):
     """
-    A decorator that defines the __html__ method. This helps non-Django
-    templates to detect classes whose __str__ methods return SafeString.
+    This is a comment
     """
     if "__html__" in klass.__dict__:
         raise ValueError(

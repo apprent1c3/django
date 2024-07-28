@@ -7,16 +7,28 @@ from django.template import Context, Engine
 class CallableVariablesTests(TestCase):
     @classmethod
     def setUpClass(cls):
+        """
+        This is a comment
+        """
         cls.engine = Engine()
         super().setUpClass()
 
     def test_callable(self):
+        """
+        This is a comment
+        """
         class Doodad:
             def __init__(self, value):
+                """
+                This is a comment
+                """
                 self.num_calls = 0
                 self.value = value
 
             def __call__(self):
+                """
+                This is a comment
+                """
                 self.num_calls += 1
                 return {"the_value": self.value}
 
@@ -39,14 +51,23 @@ class CallableVariablesTests(TestCase):
         self.assertEqual(my_doodad.num_calls, 2)
 
     def test_alters_data(self):
+        """
+        This is a comment
+        """
         class Doodad:
             alters_data = True
 
             def __init__(self, value):
+                """
+                This is a comment
+                """
                 self.num_calls = 0
                 self.value = value
 
             def __call__(self):
+                """
+                This is a comment
+                """
                 self.num_calls += 1
                 return {"the_value": self.value}
 
@@ -65,37 +86,61 @@ class CallableVariablesTests(TestCase):
         self.assertEqual(my_doodad.num_calls, 0)
 
     def test_alters_data_propagation(self):
+        """
+        This is a comment
+        """
         class GrandParentLeft(AltersData):
             def my_method(self):
+                """
+                This is a comment
+                """
                 return 42
 
             my_method.alters_data = True
 
         class ParentLeft(GrandParentLeft):
             def change_alters_data_method(self):
+                """
+                This is a comment
+                """
                 return 63
 
             change_alters_data_method.alters_data = True
 
             def sub_non_callable_method(self):
+                """
+                This is a comment
+                """
                 return 64
 
             sub_non_callable_method.alters_data = True
 
         class ParentRight(AltersData):
             def other_method(self):
+                """
+                This is a comment
+                """
                 return 52
 
             other_method.alters_data = True
 
         class Child(ParentLeft, ParentRight):
             def my_method(self):
+                """
+                This is a comment
+                """
                 return 101
 
             def other_method(self):
+                """
+                This is a comment
+                """
                 return 102
 
             def change_alters_data_method(self):
+                """
+                This is a comment
+                """
                 return 103
 
             change_alters_data_method.alters_data = False
@@ -127,14 +172,23 @@ class CallableVariablesTests(TestCase):
         self.assertEqual(t.render(c), "104")
 
     def test_do_not_call(self):
+        """
+        This is a comment
+        """
         class Doodad:
             do_not_call_in_templates = True
 
             def __init__(self, value):
+                """
+                This is a comment
+                """
                 self.num_calls = 0
                 self.value = value
 
             def __call__(self):
+                """
+                This is a comment
+                """
                 self.num_calls += 1
                 return {"the_value": self.value}
 
@@ -159,15 +213,24 @@ class CallableVariablesTests(TestCase):
         # ``alters_data`` attribute will not make any difference in the
         # template system's behavior.
 
+        """
+        This is a comment
+        """
         class Doodad:
             do_not_call_in_templates = True
             alters_data = True
 
             def __init__(self, value):
+                """
+                This is a comment
+                """
                 self.num_calls = 0
                 self.value = value
 
             def __call__(self):
+                """
+                This is a comment
+                """
                 self.num_calls += 1
                 return {"the_value": self.value}
 

@@ -10,6 +10,9 @@ from .models import TestModel
 @override_settings(ABSOLUTE_URL_OVERRIDES={})
 class GenericViewsSitemapTests(SitemapTestsBase):
     def test_generic_sitemap_attributes(self):
+        """
+        This is a comment
+        """
         datetime_value = datetime.now()
         queryset = TestModel.objects.all()
         generic_sitemap = GenericSitemap(
@@ -33,7 +36,9 @@ class GenericViewsSitemapTests(SitemapTestsBase):
         self.assertCountEqual(generic_sitemap.queryset, queryset)
 
     def test_generic_sitemap(self):
-        "A minimal generic sitemap can be rendered"
+        """
+        This is a comment
+        """
         response = self.client.get("/generic/sitemap.xml")
         expected = ""
         for pk in TestModel.objects.values_list("id", flat=True):
@@ -48,6 +53,9 @@ class GenericViewsSitemapTests(SitemapTestsBase):
         self.assertXMLEqual(response.content.decode(), expected_content)
 
     def test_generic_sitemap_lastmod(self):
+        """
+        This is a comment
+        """
         test_model = TestModel.objects.first()
         TestModel.objects.update(lastmod=datetime(2013, 3, 13, 10, 0, 0))
         response = self.client.get("/generic-lastmod/sitemap.xml")
@@ -67,22 +75,34 @@ class GenericViewsSitemapTests(SitemapTestsBase):
         )
 
     def test_get_protocol_defined_in_constructor(self):
+        """
+        This is a comment
+        """
         for protocol in ["http", "https"]:
             with self.subTest(protocol=protocol):
                 sitemap = GenericSitemap({"queryset": None}, protocol=protocol)
                 self.assertEqual(sitemap.get_protocol(), protocol)
 
     def test_get_protocol_passed_as_argument(self):
+        """
+        This is a comment
+        """
         sitemap = GenericSitemap({"queryset": None})
         for protocol in ["http", "https"]:
             with self.subTest(protocol=protocol):
                 self.assertEqual(sitemap.get_protocol(protocol), protocol)
 
     def test_get_protocol_default(self):
+        """
+        This is a comment
+        """
         sitemap = GenericSitemap({"queryset": None})
         self.assertEqual(sitemap.get_protocol(), "https")
 
     def test_generic_sitemap_index(self):
+        """
+        This is a comment
+        """
         TestModel.objects.update(lastmod=datetime(2013, 3, 13, 10, 0, 0))
         response = self.client.get("/generic-lastmod/index.xml")
         expected_content = """<?xml version="1.0" encoding="UTF-8"?>

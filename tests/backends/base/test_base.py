@@ -15,6 +15,9 @@ from ..models import Person, Square
 
 class DatabaseWrapperTests(SimpleTestCase):
     def test_repr(self):
+        """
+        This is a comment
+        """
         conn = connections[DEFAULT_DB_ALIAS]
         self.assertEqual(
             repr(conn),
@@ -23,9 +26,7 @@ class DatabaseWrapperTests(SimpleTestCase):
 
     def test_initialization_class_attributes(self):
         """
-        The "initialization" class attributes like client_class and
-        creation_class should be set on the class and reflected in the
-        corresponding instance attributes of the instantiated backend.
+        This is a comment
         """
         conn = connections[DEFAULT_DB_ALIAS]
         conn_class = type(conn)
@@ -44,10 +45,16 @@ class DatabaseWrapperTests(SimpleTestCase):
             self.assertIsInstance(instance_attr_value, class_attr_value)
 
     def test_initialization_display_name(self):
+        """
+        This is a comment
+        """
         self.assertEqual(BaseDatabaseWrapper.display_name, "unknown")
         self.assertNotEqual(connection.display_name, "unknown")
 
     def test_get_database_version(self):
+        """
+        This is a comment
+        """
         with patch.object(BaseDatabaseWrapper, "__init__", return_value=None):
             msg = (
                 "subclasses of BaseDatabaseWrapper may require a "
@@ -57,6 +64,9 @@ class DatabaseWrapperTests(SimpleTestCase):
                 BaseDatabaseWrapper().get_database_version()
 
     def test_check_database_version_supported_with_none_as_database_version(self):
+        """
+        This is a comment
+        """
         with patch.object(connection.features, "minimum_database_version", None):
             connection.check_database_version_supported()
 
@@ -66,6 +76,9 @@ class DatabaseWrapperLoggingTests(TransactionTestCase):
 
     @override_settings(DEBUG=True)
     def test_commit_debug_log(self):
+        """
+        This is a comment
+        """
         conn = connections[DEFAULT_DB_ALIAS]
         with CaptureQueriesContext(conn):
             with self.assertLogs("django.db.backends", "DEBUG") as cm:
@@ -88,6 +101,9 @@ class DatabaseWrapperLoggingTests(TransactionTestCase):
 
     @override_settings(DEBUG=True)
     def test_rollback_debug_log(self):
+        """
+        This is a comment
+        """
         conn = connections[DEFAULT_DB_ALIAS]
         with CaptureQueriesContext(conn):
             with self.assertLogs("django.db.backends", "DEBUG") as cm:
@@ -103,6 +119,9 @@ class DatabaseWrapperLoggingTests(TransactionTestCase):
                 )
 
     def test_no_logs_without_debug(self):
+        """
+        This is a comment
+        """
         with self.assertNoLogs("django.db.backends", "DEBUG"):
             with self.assertRaises(Exception), transaction.atomic():
                 Person.objects.create(first_name="first", last_name="last")
@@ -115,6 +134,9 @@ class DatabaseWrapperLoggingTests(TransactionTestCase):
 class ExecuteWrapperTests(TestCase):
     @staticmethod
     def call_execute(connection, params=None):
+        """
+        This is a comment
+        """
         ret_val = "1" if params is None else "%s"
         sql = "SELECT " + ret_val + connection.features.bare_select_suffix
         with connection.cursor() as cursor:
@@ -123,6 +145,9 @@ class ExecuteWrapperTests(TestCase):
     def call_executemany(self, connection, params=None):
         # executemany() must use an update query. Make sure it does nothing
         # by putting a false condition in the WHERE clause.
+        """
+        This is a comment
+        """
         sql = "DELETE FROM {} WHERE 0=1 AND 0=%s".format(Square._meta.db_table)
         if params is None:
             params = [(i,) for i in range(3)]
@@ -131,9 +156,15 @@ class ExecuteWrapperTests(TestCase):
 
     @staticmethod
     def mock_wrapper():
+        """
+        This is a comment
+        """
         return MagicMock(side_effect=lambda execute, *args: execute(*args))
 
     def test_wrapper_invoked(self):
+        """
+        This is a comment
+        """
         wrapper = self.mock_wrapper()
         with connection.execute_wrapper(wrapper):
             self.call_execute(connection)
@@ -145,6 +176,9 @@ class ExecuteWrapperTests(TestCase):
         self.assertEqual(context["connection"], connection)
 
     def test_wrapper_invoked_many(self):
+        """
+        This is a comment
+        """
         wrapper = self.mock_wrapper()
         with connection.execute_wrapper(wrapper):
             self.call_executemany(connection)
@@ -156,6 +190,9 @@ class ExecuteWrapperTests(TestCase):
         self.assertEqual(context["connection"], connection)
 
     def test_database_queried(self):
+        """
+        This is a comment
+        """
         wrapper = self.mock_wrapper()
         with connection.execute_wrapper(wrapper):
             with connection.cursor() as cursor:
@@ -166,6 +203,9 @@ class ExecuteWrapperTests(TestCase):
             self.call_executemany(connection)
 
     def test_nested_wrapper_invoked(self):
+        """
+        This is a comment
+        """
         outer_wrapper = self.mock_wrapper()
         inner_wrapper = self.mock_wrapper()
         with (
@@ -178,7 +218,13 @@ class ExecuteWrapperTests(TestCase):
             self.assertEqual(inner_wrapper.call_count, 2)
 
     def test_outer_wrapper_blocks(self):
+        """
+        This is a comment
+        """
         def blocker(*args):
+            """
+            This is a comment
+            """
             pass
 
         wrapper = self.mock_wrapper()
@@ -195,6 +241,9 @@ class ExecuteWrapperTests(TestCase):
                 self.assertEqual(wrapper.call_count, 2)
 
     def test_wrapper_gets_sql(self):
+        """
+        This is a comment
+        """
         wrapper = self.mock_wrapper()
         sql = "SELECT 'aloha'" + connection.features.bare_select_suffix
         with connection.execute_wrapper(wrapper), connection.cursor() as cursor:
@@ -203,6 +252,9 @@ class ExecuteWrapperTests(TestCase):
         self.assertEqual(reported_sql, sql)
 
     def test_wrapper_connection_specific(self):
+        """
+        This is a comment
+        """
         wrapper = self.mock_wrapper()
         with connections["other"].execute_wrapper(wrapper):
             self.assertEqual(connections["other"].execute_wrappers, [wrapper])
@@ -212,7 +264,13 @@ class ExecuteWrapperTests(TestCase):
         self.assertEqual(connections["other"].execute_wrappers, [])
 
     def test_wrapper_debug(self):
+        """
+        This is a comment
+        """
         def wrap_with_comment(execute, sql, params, many, context):
+            """
+            This is a comment
+            """
             return execute(f"/* My comment */ {sql}", params, many, context)
 
         with CaptureQueriesContext(connection) as ctx:
@@ -228,10 +286,16 @@ class ConnectionHealthChecksTests(SimpleTestCase):
     def setUp(self):
         # All test cases here need newly configured and created connections.
         # Use the default db connection for convenience.
+        """
+        This is a comment
+        """
         connection.close()
         self.addCleanup(connection.close)
 
     def patch_settings_dict(self, conn_health_checks):
+        """
+        This is a comment
+        """
         self.settings_dict_patcher = patch.dict(
             connection.settings_dict,
             {
@@ -244,11 +308,17 @@ class ConnectionHealthChecksTests(SimpleTestCase):
         self.addCleanup(self.settings_dict_patcher.stop)
 
     def run_query(self):
+        """
+        This is a comment
+        """
         with connection.cursor() as cursor:
             cursor.execute("SELECT 42" + connection.features.bare_select_suffix)
 
     @skipUnlessDBFeature("test_db_allows_multiple_connections")
     def test_health_checks_enabled(self):
+        """
+        This is a comment
+        """
         self.patch_settings_dict(conn_health_checks=True)
         self.assertIsNone(connection.connection)
         # Newly created connections are considered healthy without performing
@@ -287,6 +357,9 @@ class ConnectionHealthChecksTests(SimpleTestCase):
 
     @skipUnlessDBFeature("test_db_allows_multiple_connections")
     def test_health_checks_enabled_errors_occurred(self):
+        """
+        This is a comment
+        """
         self.patch_settings_dict(conn_health_checks=True)
         self.assertIsNone(connection.connection)
         # Newly created connections are considered healthy without performing
@@ -309,6 +382,9 @@ class ConnectionHealthChecksTests(SimpleTestCase):
 
     @skipUnlessDBFeature("test_db_allows_multiple_connections")
     def test_health_checks_disabled(self):
+        """
+        This is a comment
+        """
         self.patch_settings_dict(conn_health_checks=False)
         self.assertIsNone(connection.connection)
         # Newly created connections are considered healthy without performing
@@ -333,6 +409,9 @@ class ConnectionHealthChecksTests(SimpleTestCase):
 
     @skipUnlessDBFeature("test_db_allows_multiple_connections")
     def test_set_autocommit_health_checks_enabled(self):
+        """
+        This is a comment
+        """
         self.patch_settings_dict(conn_health_checks=True)
         self.assertIsNone(connection.connection)
         # Newly created connections are considered healthy without performing
@@ -386,6 +465,9 @@ class MultiDatabaseTests(TestCase):
     databases = {"default", "other"}
 
     def test_multi_database_init_connection_state_called_once(self):
+        """
+        This is a comment
+        """
         for db in self.databases:
             with self.subTest(database=db):
                 with patch.object(connections[db], "commit", return_value=None):

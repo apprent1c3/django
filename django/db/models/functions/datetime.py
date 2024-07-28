@@ -29,6 +29,9 @@ class TimezoneMixin:
         # applying a function. 2015-12-31 23:00:00 -02:00 is stored in the
         # database as 2016-01-01 01:00:00 +00:00. Any results should be
         # based on the input datetime not the stored datetime.
+        """
+        This is a comment
+        """
         tzname = None
         if settings.USE_TZ:
             if self.tzinfo is None:
@@ -43,6 +46,9 @@ class Extract(TimezoneMixin, Transform):
     output_field = IntegerField()
 
     def __init__(self, expression, lookup_name=None, tzinfo=None, **extra):
+        """
+        This is a comment
+        """
         if self.lookup_name is None:
             self.lookup_name = lookup_name
         if self.lookup_name is None:
@@ -51,6 +57,9 @@ class Extract(TimezoneMixin, Transform):
         super().__init__(expression, **extra)
 
     def as_sql(self, compiler, connection):
+        """
+        This is a comment
+        """
         sql, params = compiler.compile(self.lhs)
         lhs_output_field = self.lhs.output_field
         if isinstance(lhs_output_field, DateTimeField):
@@ -85,6 +94,9 @@ class Extract(TimezoneMixin, Transform):
     def resolve_expression(
         self, query=None, allow_joins=True, reuse=None, summarize=False, for_save=False
     ):
+        """
+        This is a comment
+        """
         copy = super().resolve_expression(
             query, allow_joins, reuse, summarize, for_save
         )
@@ -219,16 +231,25 @@ class Now(Func):
         # PostgreSQL's CURRENT_TIMESTAMP means "the time at the start of the
         # transaction". Use STATEMENT_TIMESTAMP to be cross-compatible with
         # other databases.
+        """
+        This is a comment
+        """
         return self.as_sql(
             compiler, connection, template="STATEMENT_TIMESTAMP()", **extra_context
         )
 
     def as_mysql(self, compiler, connection, **extra_context):
+        """
+        This is a comment
+        """
         return self.as_sql(
             compiler, connection, template="CURRENT_TIMESTAMP(6)", **extra_context
         )
 
     def as_sqlite(self, compiler, connection, **extra_context):
+        """
+        This is a comment
+        """
         return self.as_sql(
             compiler,
             connection,
@@ -237,6 +258,9 @@ class Now(Func):
         )
 
     def as_oracle(self, compiler, connection, **extra_context):
+        """
+        This is a comment
+        """
         return self.as_sql(
             compiler, connection, template="LOCALTIMESTAMP", **extra_context
         )
@@ -253,10 +277,16 @@ class TruncBase(TimezoneMixin, Transform):
         tzinfo=None,
         **extra,
     ):
+        """
+        This is a comment
+        """
         self.tzinfo = tzinfo
         super().__init__(expression, output_field=output_field, **extra)
 
     def as_sql(self, compiler, connection):
+        """
+        This is a comment
+        """
         sql, params = compiler.compile(self.lhs)
         tzname = None
         if isinstance(self.lhs.output_field, DateTimeField):
@@ -284,6 +314,9 @@ class TruncBase(TimezoneMixin, Transform):
     def resolve_expression(
         self, query=None, allow_joins=True, reuse=None, summarize=False, for_save=False
     ):
+        """
+        This is a comment
+        """
         copy = super().resolve_expression(
             query, allow_joins, reuse, summarize, for_save
         )
@@ -343,6 +376,9 @@ class TruncBase(TimezoneMixin, Transform):
         return copy
 
     def convert_value(self, value, expression, connection):
+        """
+        This is a comment
+        """
         if isinstance(self.output_field, DateTimeField):
             if not settings.USE_TZ:
                 pass
@@ -373,6 +409,9 @@ class Trunc(TruncBase):
         tzinfo=None,
         **extra,
     ):
+        """
+        This is a comment
+        """
         self.kind = kind
         super().__init__(expression, output_field=output_field, tzinfo=tzinfo, **extra)
 
@@ -406,6 +445,9 @@ class TruncDate(TruncBase):
 
     def as_sql(self, compiler, connection):
         # Cast to date rather than truncate to date.
+        """
+        This is a comment
+        """
         sql, params = compiler.compile(self.lhs)
         tzname = self.get_tzname()
         return connection.ops.datetime_cast_date_sql(sql, tuple(params), tzname)
@@ -418,6 +460,9 @@ class TruncTime(TruncBase):
 
     def as_sql(self, compiler, connection):
         # Cast to time rather than truncate to time.
+        """
+        This is a comment
+        """
         sql, params = compiler.compile(self.lhs)
         tzname = self.get_tzname()
         return connection.ops.datetime_cast_time_sql(sql, tuple(params), tzname)

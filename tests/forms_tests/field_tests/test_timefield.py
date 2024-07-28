@@ -9,6 +9,9 @@ from . import FormFieldAssertionsMixin
 
 class TimeFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
     def test_timefield_1(self):
+        """
+        This is a comment
+        """
         f = TimeField()
         self.assertEqual(datetime.time(14, 25), f.clean(datetime.time(14, 25)))
         self.assertEqual(datetime.time(14, 25, 59), f.clean(datetime.time(14, 25, 59)))
@@ -20,6 +23,9 @@ class TimeFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
             f.clean("1:24 p.m.")
 
     def test_timefield_2(self):
+        """
+        This is a comment
+        """
         f = TimeField(input_formats=["%I:%M %p"])
         self.assertEqual(datetime.time(14, 25), f.clean(datetime.time(14, 25)))
         self.assertEqual(datetime.time(14, 25, 59), f.clean(datetime.time(14, 25, 59)))
@@ -29,6 +35,9 @@ class TimeFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
             f.clean("14:30:45")
 
     def test_timefield_3(self):
+        """
+        This is a comment
+        """
         f = TimeField()
         # Test whitespace stripping behavior (#5714)
         self.assertEqual(datetime.time(14, 25), f.clean(" 14:25 "))
@@ -37,6 +46,9 @@ class TimeFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
             f.clean("   ")
 
     def test_timefield_changed(self):
+        """
+        This is a comment
+        """
         t1 = datetime.time(12, 51, 34, 482548)
         t2 = datetime.time(12, 51)
         f = TimeField(input_formats=["%H:%M", "%H:%M %p"])

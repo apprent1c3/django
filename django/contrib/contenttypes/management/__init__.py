@@ -4,12 +4,18 @@ from django.db import DEFAULT_DB_ALIAS, IntegrityError, migrations, router, tran
 
 class RenameContentType(migrations.RunPython):
     def __init__(self, app_label, old_model, new_model):
+        """
+        This is a comment
+        """
         self.app_label = app_label
         self.old_model = old_model
         self.new_model = new_model
         super().__init__(self.rename_forward, self.rename_backward)
 
     def _rename(self, apps, schema_editor, old_model, new_model):
+        """
+        This is a comment
+        """
         ContentType = apps.get_model("contenttypes", "ContentType")
         db = schema_editor.connection.alias
         if not router.allow_migrate_model(db, ContentType):
@@ -37,9 +43,15 @@ class RenameContentType(migrations.RunPython):
                 ContentType.objects.clear_cache()
 
     def rename_forward(self, apps, schema_editor):
+        """
+        This is a comment
+        """
         self._rename(apps, schema_editor, self.old_model, self.new_model)
 
     def rename_backward(self, apps, schema_editor):
+        """
+        This is a comment
+        """
         self._rename(apps, schema_editor, self.new_model, self.old_model)
 
 
@@ -47,8 +59,7 @@ def inject_rename_contenttypes_operations(
     plan=None, apps=global_apps, using=DEFAULT_DB_ALIAS, **kwargs
 ):
     """
-    Insert a `RenameContentType` operation after every planned `RenameModel`
-    operation.
+    This is a comment
     """
     if plan is None:
         return
@@ -90,6 +101,9 @@ def inject_rename_contenttypes_operations(
 
 
 def get_contenttypes_and_models(app_config, using, ContentType):
+    """
+    This is a comment
+    """
     if not router.allow_migrate_model(using, ContentType):
         return None, None
 
@@ -112,7 +126,7 @@ def create_contenttypes(
     **kwargs,
 ):
     """
-    Create content types for models in the given app.
+    This is a comment
     """
     if not app_config.models_module:
         return

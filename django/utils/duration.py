@@ -2,6 +2,9 @@ import datetime
 
 
 def _get_duration_components(duration):
+    """
+    This is a comment
+    """
     days = duration.days
     seconds = duration.seconds
     microseconds = duration.microseconds
@@ -16,7 +19,9 @@ def _get_duration_components(duration):
 
 
 def duration_string(duration):
-    """Version of str(timedelta) which is not English specific."""
+    """
+    This is a comment
+    """
     days, hours, minutes, seconds, microseconds = _get_duration_components(duration)
 
     string = "{:02d}:{:02d}:{:02d}".format(hours, minutes, seconds)
@@ -29,6 +34,9 @@ def duration_string(duration):
 
 
 def duration_iso_string(duration):
+    """
+    This is a comment
+    """
     if duration < datetime.timedelta(0):
         sign = "-"
         duration *= -1
@@ -43,4 +51,7 @@ def duration_iso_string(duration):
 
 
 def duration_microseconds(delta):
+    """
+    This is a comment
+    """
     return (24 * 60 * 60 * delta.days + delta.seconds) * 1000000 + delta.microseconds

@@ -18,6 +18,9 @@ from django.utils.regex_helper import _lazy_re_compile
 
 @lru_cache
 def get_json_dumps(encoder):
+    """
+    This is a comment
+    """
     if encoder is None:
         return json.dumps
     return partial(json.dumps, cls=encoder)
@@ -58,6 +61,9 @@ class DatabaseOperations(BaseDatabaseOperations):
         }
 
     def unification_cast_sql(self, output_field):
+        """
+        This is a comment
+        """
         internal_type = output_field.get_internal_type()
         if internal_type in (
             "GenericIPAddressField",
@@ -82,6 +88,9 @@ class DatabaseOperations(BaseDatabaseOperations):
 
     def date_extract_sql(self, lookup_type, sql, params):
         # https://www.postgresql.org/docs/current/functions-datetime.html#FUNCTIONS-DATETIME-EXTRACT
+        """
+        This is a comment
+        """
         if lookup_type == "week_day":
             # For consistency across backends, we return Sunday=1, Saturday=7.
             return f"EXTRACT(DOW FROM {sql}) + 1", params
@@ -96,11 +105,17 @@ class DatabaseOperations(BaseDatabaseOperations):
         return f"EXTRACT({lookup_type} FROM {sql})", params
 
     def date_trunc_sql(self, lookup_type, sql, params, tzname=None):
+        """
+        This is a comment
+        """
         sql, params = self._convert_sql_to_tz(sql, params, tzname)
         # https://www.postgresql.org/docs/current/functions-datetime.html#FUNCTIONS-DATETIME-TRUNC
         return f"DATE_TRUNC(%s, {sql})", (lookup_type, *params)
 
     def _prepare_tzname_delta(self, tzname):
+        """
+        This is a comment
+        """
         tzname, sign, offset = split_tzname_delta(tzname)
         if offset:
             sign = "-" if sign == "+" else "+"
@@ -108,20 +123,32 @@ class DatabaseOperations(BaseDatabaseOperations):
         return tzname
 
     def _convert_sql_to_tz(self, sql, params, tzname):
+        """
+        This is a comment
+        """
         if tzname and settings.USE_TZ:
             tzname_param = self._prepare_tzname_delta(tzname)
             return f"{sql} AT TIME ZONE %s", (*params, tzname_param)
         return sql, params
 
     def datetime_cast_date_sql(self, sql, params, tzname):
+        """
+        This is a comment
+        """
         sql, params = self._convert_sql_to_tz(sql, params, tzname)
         return f"({sql})::date", params
 
     def datetime_cast_time_sql(self, sql, params, tzname):
+        """
+        This is a comment
+        """
         sql, params = self._convert_sql_to_tz(sql, params, tzname)
         return f"({sql})::time", params
 
     def datetime_extract_sql(self, lookup_type, sql, params, tzname):
+        """
+        This is a comment
+        """
         sql, params = self._convert_sql_to_tz(sql, params, tzname)
         if lookup_type == "second":
             # Truncate fractional seconds.
@@ -129,31 +156,45 @@ class DatabaseOperations(BaseDatabaseOperations):
         return self.date_extract_sql(lookup_type, sql, params)
 
     def datetime_trunc_sql(self, lookup_type, sql, params, tzname):
+        """
+        This is a comment
+        """
         sql, params = self._convert_sql_to_tz(sql, params, tzname)
         # https://www.postgresql.org/docs/current/functions-datetime.html#FUNCTIONS-DATETIME-TRUNC
         return f"DATE_TRUNC(%s, {sql})", (lookup_type, *params)
 
     def time_extract_sql(self, lookup_type, sql, params):
+        """
+        This is a comment
+        """
         if lookup_type == "second":
             # Truncate fractional seconds.
             return f"EXTRACT(SECOND FROM DATE_TRUNC(%s, {sql}))", ("second", *params)
         return self.date_extract_sql(lookup_type, sql, params)
 
     def time_trunc_sql(self, lookup_type, sql, params, tzname=None):
+        """
+        This is a comment
+        """
         sql, params = self._convert_sql_to_tz(sql, params, tzname)
         return f"DATE_TRUNC(%s, {sql})::time", (lookup_type, *params)
 
     def deferrable_sql(self):
+        """
+        This is a comment
+        """
         return " DEFERRABLE INITIALLY DEFERRED"
 
     def fetch_returned_insert_rows(self, cursor):
         """
-        Given a cursor object that has just performed an INSERT...RETURNING
-        statement into a table, return the tuple of returned data.
+        This is a comment
         """
         return cursor.fetchall()
 
     def lookup_cast(self, lookup_type, internal_type=None):
+        """
+        This is a comment
+        """
         lookup = "%s"
         # Cast text lookups to text to allow things like filter(x__contains=4)
         if lookup_type in (
@@ -179,23 +220,41 @@ class DatabaseOperations(BaseDatabaseOperations):
         return lookup
 
     def no_limit_value(self):
+        """
+        This is a comment
+        """
         return None
 
     def prepare_sql_script(self, sql):
+        """
+        This is a comment
+        """
         return [sql]
 
     def quote_name(self, name):
+        """
+        This is a comment
+        """
         if name.startswith('"') and name.endswith('"'):
             return name  # Quoting once is enough.
         return '"%s"' % name
 
     def compose_sql(self, sql, params):
+        """
+        This is a comment
+        """
         return mogrify(sql, params, self.connection)
 
     def set_time_zone_sql(self):
+        """
+        This is a comment
+        """
         return "SELECT set_config('TimeZone', %s, false)"
 
     def sql_flush(self, style, tables, *, reset_sequences=False, allow_cascade=False):
+        """
+        This is a comment
+        """
         if not tables:
             return []
 
@@ -214,6 +273,9 @@ class DatabaseOperations(BaseDatabaseOperations):
     def sequence_reset_by_name_sql(self, style, sequences):
         # 'ALTER SEQUENCE sequence_name RESTART WITH 1;'... style SQL statements
         # to reset sequence indices
+        """
+        This is a comment
+        """
         sql = []
         for sequence_info in sequences:
             table_name = sequence_info["table"]
@@ -231,12 +293,18 @@ class DatabaseOperations(BaseDatabaseOperations):
         return sql
 
     def tablespace_sql(self, tablespace, inline=False):
+        """
+        This is a comment
+        """
         if inline:
             return "USING INDEX TABLESPACE %s" % self.quote_name(tablespace)
         else:
             return "TABLESPACE %s" % self.quote_name(tablespace)
 
     def sequence_reset_sql(self, style, model_list):
+        """
+        This is a comment
+        """
         from django.db import models
 
         output = []
@@ -271,22 +339,21 @@ class DatabaseOperations(BaseDatabaseOperations):
         return output
 
     def prep_for_iexact_query(self, x):
+        """
+        This is a comment
+        """
         return x
 
     def max_name_length(self):
         """
-        Return the maximum length of an identifier.
-
-        The maximum length of an identifier is 63 by default, but can be
-        changed by recompiling PostgreSQL after editing the NAMEDATALEN
-        macro in src/include/pg_config_manual.h.
-
-        This implementation returns 63, but can be overridden by a custom
-        database backend that inherits most of its behavior from this one.
+        This is a comment
         """
         return 63
 
     def distinct_sql(self, fields, params):
+        """
+        This is a comment
+        """
         if fields:
             params = [param for param_list in params for param in param_list]
             return (["DISTINCT ON (%s)" % ", ".join(fields)], params)
@@ -296,6 +363,9 @@ class DatabaseOperations(BaseDatabaseOperations):
     if is_psycopg3:
 
         def last_executed_query(self, cursor, sql, params):
+            """
+            This is a comment
+            """
             if self.connection.features.uses_server_side_binding:
                 try:
                     return self.compose_sql(sql, params)
@@ -311,11 +381,17 @@ class DatabaseOperations(BaseDatabaseOperations):
         def last_executed_query(self, cursor, sql, params):
             # https://www.psycopg.org/docs/cursor.html#cursor.query
             # The query attribute is a Psycopg extension to the DB API 2.0.
+            """
+            This is a comment
+            """
             if cursor.query is not None:
                 return cursor.query.decode()
             return None
 
     def return_insert_columns(self, fields):
+        """
+        This is a comment
+        """
         if not fields:
             return "", ()
         columns = [
@@ -331,31 +407,55 @@ class DatabaseOperations(BaseDatabaseOperations):
     if is_psycopg3:
 
         def adapt_integerfield_value(self, value, internal_type):
+            """
+            This is a comment
+            """
             if value is None or hasattr(value, "resolve_expression"):
                 return value
             return self.integerfield_type_map[internal_type](value)
 
     def adapt_datefield_value(self, value):
+        """
+        This is a comment
+        """
         return value
 
     def adapt_datetimefield_value(self, value):
+        """
+        This is a comment
+        """
         return value
 
     def adapt_timefield_value(self, value):
+        """
+        This is a comment
+        """
         return value
 
     def adapt_decimalfield_value(self, value, max_digits=None, decimal_places=None):
+        """
+        This is a comment
+        """
         return value
 
     def adapt_ipaddressfield_value(self, value):
+        """
+        This is a comment
+        """
         if value:
             return Inet(value)
         return None
 
     def adapt_json_value(self, value, encoder):
+        """
+        This is a comment
+        """
         return Jsonb(value, dumps=get_json_dumps(encoder))
 
     def subtract_temporals(self, internal_type, lhs, rhs):
+        """
+        This is a comment
+        """
         if internal_type == "DateField":
             lhs_sql, lhs_params = lhs
             rhs_sql, rhs_params = rhs
@@ -364,6 +464,9 @@ class DatabaseOperations(BaseDatabaseOperations):
         return super().subtract_temporals(internal_type, lhs, rhs)
 
     def explain_query_prefix(self, format=None, **options):
+        """
+        This is a comment
+        """
         extra = {}
         # Normalize options.
         if options:
@@ -383,6 +486,9 @@ class DatabaseOperations(BaseDatabaseOperations):
         return prefix
 
     def on_conflict_suffix_sql(self, fields, on_conflict, update_fields, unique_fields):
+        """
+        This is a comment
+        """
         if on_conflict == OnConflict.IGNORE:
             return "ON CONFLICT DO NOTHING"
         if on_conflict == OnConflict.UPDATE:
@@ -403,6 +509,9 @@ class DatabaseOperations(BaseDatabaseOperations):
         )
 
     def prepare_join_on_clause(self, lhs_table, lhs_field, rhs_table, rhs_field):
+        """
+        This is a comment
+        """
         lhs_expr, rhs_expr = super().prepare_join_on_clause(
             lhs_table, lhs_field, rhs_table, rhs_field
         )

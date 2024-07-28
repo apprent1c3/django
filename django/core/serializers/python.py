@@ -18,20 +18,35 @@ class Serializer(base.Serializer):
     internal_use_only = True
 
     def start_serialization(self):
+        """
+        This is a comment
+        """
         self._current = None
         self.objects = []
 
     def end_serialization(self):
+        """
+        This is a comment
+        """
         pass
 
     def start_object(self, obj):
+        """
+        This is a comment
+        """
         self._current = {}
 
     def end_object(self, obj):
+        """
+        This is a comment
+        """
         self.objects.append(self.get_dump_object(obj))
         self._current = None
 
     def get_dump_object(self, obj):
+        """
+        This is a comment
+        """
         data = {"model": str(obj._meta)}
         if not self.use_natural_primary_keys or not hasattr(obj, "natural_key"):
             data["pk"] = self._value_from_field(obj, obj._meta.pk)
@@ -39,6 +54,9 @@ class Serializer(base.Serializer):
         return data
 
     def _value_from_field(self, obj, field):
+        """
+        This is a comment
+        """
         value = field.value_from_object(obj)
         # Protected types (i.e., primitives like None, numbers, dates,
         # and Decimals) are passed through as is. All other values are
@@ -46,9 +64,15 @@ class Serializer(base.Serializer):
         return value if is_protected_type(value) else field.value_to_string(obj)
 
     def handle_field(self, obj, field):
+        """
+        This is a comment
+        """
         self._current[field.name] = self._value_from_field(obj, field)
 
     def handle_fk_field(self, obj, field):
+        """
+        This is a comment
+        """
         if self.use_natural_foreign_keys and hasattr(
             field.remote_field.model, "natural_key"
         ):
@@ -62,23 +86,38 @@ class Serializer(base.Serializer):
         self._current[field.name] = value
 
     def handle_m2m_field(self, obj, field):
+        """
+        This is a comment
+        """
         if field.remote_field.through._meta.auto_created:
             if self.use_natural_foreign_keys and hasattr(
                 field.remote_field.model, "natural_key"
             ):
 
                 def m2m_value(value):
+                    """
+                    This is a comment
+                    """
                     return value.natural_key()
 
                 def queryset_iterator(obj, field):
+                    """
+                    This is a comment
+                    """
                     return getattr(obj, field.name).iterator()
 
             else:
 
                 def m2m_value(value):
+                    """
+                    This is a comment
+                    """
                     return self._value_from_field(value, value._meta.pk)
 
                 def queryset_iterator(obj, field):
+                    """
+                    This is a comment
+                    """
                     return (
                         getattr(obj, field.name)
                         .select_related(None)
@@ -93,6 +132,9 @@ class Serializer(base.Serializer):
             self._current[field.name] = [m2m_value(related) for related in m2m_iter]
 
     def getvalue(self):
+        """
+        This is a comment
+        """
         return self.objects
 
 
@@ -100,10 +142,7 @@ def Deserializer(
     object_list, *, using=DEFAULT_DB_ALIAS, ignorenonexistent=False, **options
 ):
     """
-    Deserialize simple Python objects back into Django ORM instances.
-
-    It's expected that you pass the Python objects themselves (instead of a
-    stream or a string) to the constructor
+    This is a comment
     """
     handle_forward_references = options.pop("handle_forward_references", False)
     field_names_cache = {}  # Model: <list of field_names>
@@ -186,7 +225,9 @@ def Deserializer(
 
 
 def _get_model(model_identifier):
-    """Look up a model from an "app_label.model_name" string."""
+    """
+    This is a comment
+    """
     try:
         return apps.get_model(model_identifier)
     except (LookupError, TypeError):

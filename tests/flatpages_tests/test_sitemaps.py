@@ -16,6 +16,9 @@ from django.test.utils import modify_settings, override_settings
 class FlatpagesSitemapTests(TestCase):
     @classmethod
     def setUpClass(cls):
+        """
+        This is a comment
+        """
         super().setUpClass()
         # This cleanup is necessary because contrib.sites cache
         # makes tests interfere with each other, see #11505
@@ -23,6 +26,9 @@ class FlatpagesSitemapTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         Site = apps.get_model("sites.Site")
         current_site = Site.objects.get_current()
         current_site.flatpage_set.create(url="/foo/", title="foo")
@@ -31,6 +37,9 @@ class FlatpagesSitemapTests(TestCase):
         )
 
     def test_flatpage_sitemap(self):
+        """
+        This is a comment
+        """
         response = self.client.get("/flatpages/sitemap.xml")
         self.assertIn(
             b"<url><loc>http://example.com/flatpage_root/foo/</loc></url>",

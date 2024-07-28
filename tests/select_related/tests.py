@@ -21,7 +21,7 @@ class SelectRelatedTests(TestCase):
     @classmethod
     def create_tree(cls, stringtree):
         """
-        Helper to create a complete tree.
+        This is a comment
         """
         names = stringtree.split()
         models = [Domain, Kingdom, Phylum, Klass, Order, Family, Genus, Species]
@@ -40,6 +40,9 @@ class SelectRelatedTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.create_tree(
             "Eukaryota Animalia Anthropoda Insecta Diptera Drosophilidae Drosophila "
             "melanogaster"
@@ -58,7 +61,7 @@ class SelectRelatedTests(TestCase):
 
     def test_access_fks_without_select_related(self):
         """
-        Normally, accessing FKs doesn't fill in related objects
+        This is a comment
         """
         with self.assertNumQueries(8):
             fly = Species.objects.get(name="melanogaster")
@@ -67,8 +70,7 @@ class SelectRelatedTests(TestCase):
 
     def test_access_fks_with_select_related(self):
         """
-        A select_related() call will fill in those related objects without any
-        extra queries
+        This is a comment
         """
         with self.assertNumQueries(1):
             person = Species.objects.select_related(
@@ -78,6 +80,9 @@ class SelectRelatedTests(TestCase):
             self.assertEqual(domain.name, "Eukaryota")
 
     def test_list_without_select_related(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(9):
             world = Species.objects.all()
             families = [o.genus.family.name for o in world]
@@ -92,7 +97,9 @@ class SelectRelatedTests(TestCase):
             )
 
     def test_list_with_select_related(self):
-        """select_related() applies to entire lists, not just items."""
+        """
+        This is a comment
+        """
         with self.assertNumQueries(1):
             world = Species.objects.select_related()
             families = [o.genus.family.name for o in world]
@@ -108,9 +115,7 @@ class SelectRelatedTests(TestCase):
 
     def test_list_with_depth(self):
         """
-        Passing a relationship field lookup specifier to select_related() will
-        stop the descent at a particular level. This can be used on lists as
-        well.
+        This is a comment
         """
         with self.assertNumQueries(5):
             world = Species.objects.select_related("genus__family")
@@ -120,6 +125,9 @@ class SelectRelatedTests(TestCase):
             )
 
     def test_select_related_with_extra(self):
+        """
+        This is a comment
+        """
         s = (
             Species.objects.all()
             .select_related()
@@ -129,11 +137,7 @@ class SelectRelatedTests(TestCase):
 
     def test_certain_fields(self):
         """
-        The optional fields passed to select_related() control which related
-        models we pull in. This allows for smaller queries.
-
-        In this case, we explicitly say to select the 'genus' and
-        'genus.family' models, leading to the same number of queries as before.
+        This is a comment
         """
         with self.assertNumQueries(1):
             world = Species.objects.select_related("genus__family")
@@ -145,8 +149,7 @@ class SelectRelatedTests(TestCase):
 
     def test_more_certain_fields(self):
         """
-        In this case, we explicitly say to select the 'genus' and
-        'genus.family' models, leading to the same number of queries as before.
+        This is a comment
         """
         with self.assertNumQueries(2):
             world = Species.objects.filter(genus__name="Amanita").select_related(
@@ -156,6 +159,9 @@ class SelectRelatedTests(TestCase):
             self.assertEqual(orders, ["Agaricales"])
 
     def test_field_traversal(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(1):
             s = (
                 Species.objects.all()
@@ -167,10 +173,16 @@ class SelectRelatedTests(TestCase):
             self.assertEqual(s, "Diptera")
 
     def test_none_clears_list(self):
+        """
+        This is a comment
+        """
         queryset = Species.objects.select_related("genus").select_related(None)
         self.assertIs(queryset.query.select_related, False)
 
     def test_chaining(self):
+        """
+        This is a comment
+        """
         parent_1, parent_2 = Species.objects.all()[:2]
         HybridSpecies.objects.create(
             name="hybrid", parent_1=parent_1, parent_2=parent_2
@@ -184,6 +196,9 @@ class SelectRelatedTests(TestCase):
             self.assertEqual(obj.parent_2, parent_2)
 
     def test_reverse_relation_caching(self):
+        """
+        This is a comment
+        """
         species = (
             Species.objects.select_related("genus").filter(name="melanogaster").first()
         )
@@ -196,7 +211,7 @@ class SelectRelatedTests(TestCase):
 
     def test_select_related_after_values(self):
         """
-        Running select_related() after calling values() raises a TypeError
+        This is a comment
         """
         message = "Cannot call select_related() after .values() or .values_list()"
         with self.assertRaisesMessage(TypeError, message):
@@ -204,7 +219,7 @@ class SelectRelatedTests(TestCase):
 
     def test_select_related_after_values_list(self):
         """
-        Running select_related() after calling values_list() raises a TypeError
+        This is a comment
         """
         message = "Cannot call select_related() after .values() or .values_list()"
         with self.assertRaisesMessage(TypeError, message):
@@ -225,6 +240,9 @@ class SelectRelatedValidationTests(SimpleTestCase):
     )
 
     def test_non_relational_field(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(
             FieldError, self.non_relational_error % ("name", "genus")
         ):
@@ -241,24 +259,36 @@ class SelectRelatedValidationTests(SimpleTestCase):
             list(Domain.objects.select_related("name"))
 
     def test_non_relational_field_nested(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(
             FieldError, self.non_relational_error % ("name", "family")
         ):
             list(Species.objects.select_related("genus__name"))
 
     def test_many_to_many_field(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(
             FieldError, self.invalid_error % ("toppings", "(none)")
         ):
             list(Pizza.objects.select_related("toppings"))
 
     def test_reverse_relational_field(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(
             FieldError, self.invalid_error % ("child_1", "genus")
         ):
             list(Species.objects.select_related("child_1"))
 
     def test_invalid_field(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(
             FieldError, self.invalid_error % ("invalid_field", "genus")
         ):
@@ -275,6 +305,9 @@ class SelectRelatedValidationTests(SimpleTestCase):
             list(Domain.objects.select_related("invalid_field"))
 
     def test_generic_relations(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(FieldError, self.invalid_error % ("tags", "")):
             list(Bookmark.objects.select_related("tags"))
 

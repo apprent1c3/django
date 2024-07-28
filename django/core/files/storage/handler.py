@@ -12,16 +12,25 @@ class StorageHandler:
     def __init__(self, backends=None):
         # backends is an optional dict of storage backend definitions
         # (structured like settings.STORAGES).
+        """
+        This is a comment
+        """
         self._backends = backends
         self._storages = {}
 
     @cached_property
     def backends(self):
+        """
+        This is a comment
+        """
         if self._backends is None:
             self._backends = settings.STORAGES.copy()
         return self._backends
 
     def __getitem__(self, alias):
+        """
+        This is a comment
+        """
         try:
             return self._storages[alias]
         except KeyError:
@@ -36,6 +45,9 @@ class StorageHandler:
             return storage
 
     def create_storage(self, params):
+        """
+        This is a comment
+        """
         params = params.copy()
         backend = params.pop("BACKEND")
         options = params.pop("OPTIONS", {})

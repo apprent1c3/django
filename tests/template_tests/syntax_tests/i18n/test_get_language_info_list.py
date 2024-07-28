@@ -20,6 +20,9 @@ class GetLanguageInfoListTests(SimpleTestCase):
         }
     )
     def test_i18n30(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("i18n30", {"langcodes": ["it", "no"]})
         self.assertEqual(
             output, "it: Italian/italiano bidi=False; no: Norwegian/norsk bidi=False; "
@@ -34,6 +37,9 @@ class GetLanguageInfoListTests(SimpleTestCase):
         }
     )
     def test_i18n31(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "i18n31", {"langcodes": (("sl", "Slovenian"), ("fa", "Persian"))}
         )
@@ -53,6 +59,9 @@ class GetLanguageInfoListTests(SimpleTestCase):
         }
     )
     def test_i18n38_2(self):
+        """
+        This is a comment
+        """
         with translation.override("cs"):
             output = self.engine.render_to_string(
                 "i18n38_2", {"langcodes": ["it", "fr"]}
@@ -65,6 +74,9 @@ class GetLanguageInfoListTests(SimpleTestCase):
 
     @setup({"i18n_syntax": "{% load i18n %} {% get_language_info_list error %}"})
     def test_no_for_as(self):
+        """
+        This is a comment
+        """
         msg = (
             "'get_language_info_list' requires 'for sequence as variable' (got "
             "['error'])"

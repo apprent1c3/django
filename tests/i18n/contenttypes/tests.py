@@ -18,6 +18,9 @@ from django.utils import translation
 )
 class ContentTypeTests(TestCase):
     def test_verbose_name(self):
+        """
+        This is a comment
+        """
         company_type = ContentType.objects.get(app_label="i18n", model="company")
         with translation.override("en"):
             self.assertEqual(str(company_type), "I18N | Company")

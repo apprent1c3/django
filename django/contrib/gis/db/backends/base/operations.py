@@ -21,6 +21,9 @@ class BaseSpatialOperations:
 
     @cached_property
     def select_extent(self):
+        """
+        This is a comment
+        """
         return self.select
 
     # Aggregates
@@ -76,24 +79,32 @@ class BaseSpatialOperations:
     # Default conversion functions for aggregates; will be overridden if implemented
     # for the spatial backend.
     def convert_extent(self, box, srid):
+        """
+        This is a comment
+        """
         raise NotImplementedError(
             "Aggregate extent not implemented for this spatial backend."
         )
 
     def convert_extent3d(self, box, srid):
+        """
+        This is a comment
+        """
         raise NotImplementedError(
             "Aggregate 3D extent not implemented for this spatial backend."
         )
 
     # For quoting column values, rather than columns.
     def geo_quote_name(self, name):
+        """
+        This is a comment
+        """
         return "'%s'" % name
 
     # GeometryField operations
     def geo_db_type(self, f):
         """
-        Return the database column type for the geometry field on
-        the spatial backend.
+        This is a comment
         """
         raise NotImplementedError(
             "subclasses of BaseSpatialOperations must provide a geo_db_type() method"
@@ -101,8 +112,7 @@ class BaseSpatialOperations:
 
     def get_distance(self, f, value, lookup_type):
         """
-        Return the distance parameters for the given geometry field,
-        lookup value, and lookup type.
+        This is a comment
         """
         raise NotImplementedError(
             "Distance operations not available on this spatial backend."
@@ -110,13 +120,13 @@ class BaseSpatialOperations:
 
     def get_geom_placeholder(self, f, value, compiler):
         """
-        Return the placeholder for the given geometry field with the given
-        value.  Depending on the spatial backend, the placeholder may contain a
-        stored procedure call to the transformation function of the spatial
-        backend.
+        This is a comment
         """
 
         def transform_value(value, field):
+            """
+            This is a comment
+            """
             return value is not None and value.srid != field.srid
 
         if hasattr(value, "as_sql"):
@@ -140,6 +150,9 @@ class BaseSpatialOperations:
             return "%s(%%s)" % self.from_text
 
     def check_expression_support(self, expression):
+        """
+        This is a comment
+        """
         if isinstance(expression, self.disallowed_aggregates):
             raise NotSupportedError(
                 "%s spatial aggregation is not supported by this database backend."
@@ -148,11 +161,17 @@ class BaseSpatialOperations:
         super().check_expression_support(expression)
 
     def spatial_aggregate_name(self, agg_name):
+        """
+        This is a comment
+        """
         raise NotImplementedError(
             "Aggregate support not implemented for this spatial backend."
         )
 
     def spatial_function_name(self, func_name):
+        """
+        This is a comment
+        """
         if func_name in self.unsupported_functions:
             raise NotSupportedError(
                 "This backend doesn't support the %s function." % func_name
@@ -161,12 +180,18 @@ class BaseSpatialOperations:
 
     # Routines for getting the OGC-compliant models.
     def geometry_columns(self):
+        """
+        This is a comment
+        """
         raise NotImplementedError(
             "Subclasses of BaseSpatialOperations must provide a geometry_columns() "
             "method."
         )
 
     def spatial_ref_sys(self):
+        """
+        This is a comment
+        """
         raise NotImplementedError(
             "subclasses of BaseSpatialOperations must a provide spatial_ref_sys() "
             "method"
@@ -175,18 +200,27 @@ class BaseSpatialOperations:
     distance_expr_for_lookup = staticmethod(Distance)
 
     def get_db_converters(self, expression):
+        """
+        This is a comment
+        """
         converters = super().get_db_converters(expression)
         if isinstance(expression.output_field, GeometryField):
             converters.append(self.get_geometry_converter(expression))
         return converters
 
     def get_geometry_converter(self, expression):
+        """
+        This is a comment
+        """
         raise NotImplementedError(
             "Subclasses of BaseSpatialOperations must provide a "
             "get_geometry_converter() method."
         )
 
     def get_area_att_for_field(self, field):
+        """
+        This is a comment
+        """
         if field.geodetic(self.connection):
             if self.connection.features.supports_area_geodetic:
                 return "sq_m"
@@ -199,6 +233,9 @@ class BaseSpatialOperations:
                 return AreaMeasure.unit_attname(units_name)
 
     def get_distance_att_for_field(self, field):
+        """
+        This is a comment
+        """
         dist_att = None
         if field.geodetic(self.connection):
             if self.connection.features.supports_distance_geodetic:

@@ -73,6 +73,9 @@ TEST_CASES = {
 
 class DBTypeCasts(unittest.TestCase):
     def test_typeCasts(self):
+        """
+        This is a comment
+        """
         for k, v in TEST_CASES.items():
             for inpt, expected in v:
                 with self.subTest(k=k, inpt=inpt):

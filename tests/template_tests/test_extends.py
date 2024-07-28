@@ -10,12 +10,18 @@ RECURSIVE = os.path.join(ROOT, "recursive_templates")
 
 class ExtendsBehaviorTests(SimpleTestCase):
     def test_normal_extend(self):
+        """
+        This is a comment
+        """
         engine = Engine(dirs=[os.path.join(RECURSIVE, "fs")])
         template = engine.get_template("one.html")
         output = template.render(Context({}))
         self.assertEqual(output.strip(), "three two one")
 
     def test_extend_recursive(self):
+        """
+        This is a comment
+        """
         engine = Engine(
             dirs=[
                 os.path.join(RECURSIVE, "fs"),
@@ -28,6 +34,9 @@ class ExtendsBehaviorTests(SimpleTestCase):
         self.assertEqual(output.strip(), "fs3/recursive fs2/recursive fs/recursive")
 
     def test_extend_missing(self):
+        """
+        This is a comment
+        """
         engine = Engine(dirs=[os.path.join(RECURSIVE, "fs")])
         template = engine.get_template("extend-missing.html")
         with self.assertRaises(TemplateDoesNotExist) as e:
@@ -38,6 +47,9 @@ class ExtendsBehaviorTests(SimpleTestCase):
         self.assertEqual(tried[0][0].template_name, "missing.html")
 
     def test_recursive_multiple_loaders(self):
+        """
+        This is a comment
+        """
         engine = Engine(
             dirs=[os.path.join(RECURSIVE, "fs")],
             loaders=[
@@ -69,8 +81,7 @@ class ExtendsBehaviorTests(SimpleTestCase):
 
     def test_extend_self_error(self):
         """
-        Catch if a template extends itself and no other matching
-        templates are found.
+        This is a comment
         """
         engine = Engine(dirs=[os.path.join(RECURSIVE, "fs")])
         template = engine.get_template("self.html")
@@ -83,6 +94,9 @@ class ExtendsBehaviorTests(SimpleTestCase):
         self.assertEqual(message, "Skipped to avoid recursion")
 
     def test_extend_cached(self):
+        """
+        This is a comment
+        """
         engine = Engine(
             dirs=[
                 os.path.join(RECURSIVE, "fs"),
@@ -121,8 +135,7 @@ class ExtendsBehaviorTests(SimpleTestCase):
 
     def test_unique_history_per_loader(self):
         """
-        Extending should continue even if two loaders return the same
-        name for a template.
+        This is a comment
         """
         engine = Engine(
             loaders=[
@@ -149,8 +162,7 @@ class ExtendsBehaviorTests(SimpleTestCase):
 
     def test_block_override_in_extended_included_template(self):
         """
-        ExtendsNode.find_template() initializes history with self.origin
-        (#28071).
+        This is a comment
         """
         engine = Engine(
             loaders=[

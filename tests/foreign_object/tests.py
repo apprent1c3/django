@@ -31,6 +31,9 @@ class MultiColumnFKTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         # Creating countries
+        """
+        This is a comment
+        """
         cls.usa = Country.objects.create(name="United States of America")
         cls.soviet_union = Country.objects.create(name="Soviet Union")
         # Creating People
@@ -51,6 +54,9 @@ class MultiColumnFKTests(TestCase):
     def test_get_succeeds_on_multicolumn_match(self):
         # Membership objects have access to their related Person if both
         # country_ids match between them
+        """
+        This is a comment
+        """
         membership = Membership.objects.create(
             membership_country_id=self.usa.id,
             person_id=self.bob.id,
@@ -63,6 +69,9 @@ class MultiColumnFKTests(TestCase):
     def test_get_fails_on_multicolumn_mismatch(self):
         # Membership objects returns DoesNotExist error when there is no
         # Person with the same id and country_id
+        """
+        This is a comment
+        """
         membership = Membership.objects.create(
             membership_country_id=self.usa.id,
             person_id=self.jane.id,
@@ -74,6 +83,9 @@ class MultiColumnFKTests(TestCase):
 
     def test_reverse_query_returns_correct_result(self):
         # Creating a valid membership because it has the same country has the person
+        """
+        This is a comment
+        """
         Membership.objects.create(
             membership_country_id=self.usa.id,
             person_id=self.bob.id,
@@ -95,6 +107,9 @@ class MultiColumnFKTests(TestCase):
 
     def test_query_filters_correctly(self):
         # Creating a to valid memberships
+        """
+        This is a comment
+        """
         Membership.objects.create(
             membership_country_id=self.usa.id,
             person_id=self.bob.id,
@@ -120,6 +135,9 @@ class MultiColumnFKTests(TestCase):
         )
 
     def test_reverse_query_filters_correctly(self):
+        """
+        This is a comment
+        """
         timemark = datetime.datetime.now(tz=datetime.timezone.utc).replace(tzinfo=None)
         timedelta = datetime.timedelta(days=1)
 
@@ -152,6 +170,9 @@ class MultiColumnFKTests(TestCase):
         )
 
     def test_forward_in_lookup_filters_correctly(self):
+        """
+        This is a comment
+        """
         Membership.objects.create(
             membership_country_id=self.usa.id,
             person_id=self.bob.id,
@@ -186,6 +207,9 @@ class MultiColumnFKTests(TestCase):
         )
 
     def test_double_nested_query(self):
+        """
+        This is a comment
+        """
         m1 = Membership.objects.create(
             membership_country_id=self.usa.id,
             person_id=self.bob.id,
@@ -225,12 +249,15 @@ class MultiColumnFKTests(TestCase):
 
     def test_query_does_not_mutate(self):
         """
-        Recompiling the same subquery doesn't mutate it.
+        This is a comment
         """
         queryset = Friendship.objects.filter(to_friend__in=Person.objects.all())
         self.assertEqual(str(queryset.query), str(queryset.query))
 
     def test_select_related_foreignkey_forward_works(self):
+        """
+        This is a comment
+        """
         Membership.objects.create(
             membership_country=self.usa, person=self.bob, group=self.cia
         )
@@ -248,6 +275,9 @@ class MultiColumnFKTests(TestCase):
         self.assertEqual(people, normal_people)
 
     def test_prefetch_foreignkey_forward_works(self):
+        """
+        This is a comment
+        """
         Membership.objects.create(
             membership_country=self.usa, person=self.bob, group=self.cia
         )
@@ -265,6 +295,9 @@ class MultiColumnFKTests(TestCase):
         self.assertEqual(people, normal_people)
 
     def test_prefetch_foreignkey_reverse_works(self):
+        """
+        This is a comment
+        """
         Membership.objects.create(
             membership_country=self.usa, person=self.bob, group=self.cia
         )
@@ -287,6 +320,9 @@ class MultiColumnFKTests(TestCase):
 
     def test_m2m_through_forward_returns_valid_members(self):
         # We start out by making sure that the Group 'CIA' has no members.
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(self.cia.members.all(), [])
 
         Membership.objects.create(
@@ -304,6 +340,9 @@ class MultiColumnFKTests(TestCase):
 
     def test_m2m_through_reverse_returns_valid_members(self):
         # We start out by making sure that Bob is in no groups.
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(self.bob.groups.all(), [])
 
         Membership.objects.create(
@@ -320,6 +359,9 @@ class MultiColumnFKTests(TestCase):
 
     def test_m2m_through_forward_ignores_invalid_members(self):
         # We start out by making sure that the Group 'CIA' has no members.
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(self.cia.members.all(), [])
 
         # Something adds jane to group CIA but Jane is in Soviet Union which
@@ -333,6 +375,9 @@ class MultiColumnFKTests(TestCase):
 
     def test_m2m_through_reverse_ignores_invalid_members(self):
         # We start out by making sure that Jane has no groups.
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(self.jane.groups.all(), [])
 
         # Something adds jane to group CIA but Jane is in Soviet Union which
@@ -345,6 +390,9 @@ class MultiColumnFKTests(TestCase):
         self.assertQuerySetEqual(self.jane.groups.all(), [])
 
     def test_m2m_through_on_self_works(self):
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(self.jane.friends.all(), [])
 
         Friendship.objects.create(
@@ -359,6 +407,9 @@ class MultiColumnFKTests(TestCase):
         )
 
     def test_m2m_through_on_self_ignores_mismatch_columns(self):
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(self.jane.friends.all(), [])
 
         # Note that we use ids instead of instances. This is because instances
@@ -374,6 +425,9 @@ class MultiColumnFKTests(TestCase):
         self.assertQuerySetEqual(self.jane.friends.all(), [])
 
     def test_prefetch_related_m2m_forward_works(self):
+        """
+        This is a comment
+        """
         Membership.objects.create(
             membership_country=self.usa, person=self.bob, group=self.cia
         )
@@ -390,6 +444,9 @@ class MultiColumnFKTests(TestCase):
         self.assertEqual(members_lists, normal_members_lists)
 
     def test_prefetch_related_m2m_reverse_works(self):
+        """
+        This is a comment
+        """
         Membership.objects.create(
             membership_country=self.usa, person=self.bob, group=self.cia
         )
@@ -407,6 +464,9 @@ class MultiColumnFKTests(TestCase):
 
     @translation.override("fi")
     def test_translations(self):
+        """
+        This is a comment
+        """
         a1 = Article.objects.create(pub_date=datetime.date.today())
         at1_fi = ArticleTranslation(
             article=a1, lang="fi", title="Otsikko", body="Diipadaapa"
@@ -457,6 +517,9 @@ class MultiColumnFKTests(TestCase):
             )
 
     def test_foreign_key_raises_informative_does_not_exist(self):
+        """
+        This is a comment
+        """
         referrer = ArticleTranslation()
         with self.assertRaisesMessage(
             Article.DoesNotExist, "ArticleTranslation has no article"
@@ -464,6 +527,9 @@ class MultiColumnFKTests(TestCase):
             referrer.article
 
     def test_foreign_key_related_query_name(self):
+        """
+        This is a comment
+        """
         a1 = Article.objects.create(pub_date=datetime.date.today())
         ArticleTag.objects.create(article=a1, name="foo")
         self.assertEqual(Article.objects.filter(tag__name="foo").count(), 1)
@@ -477,6 +543,9 @@ class MultiColumnFKTests(TestCase):
             Article.objects.filter(tags__name="foo")
 
     def test_many_to_many_related_query_name(self):
+        """
+        This is a comment
+        """
         a1 = Article.objects.create(pub_date=datetime.date.today())
         i1 = ArticleIdea.objects.create(name="idea1")
         a1.ideas.add(i1)
@@ -492,6 +561,9 @@ class MultiColumnFKTests(TestCase):
 
     @translation.override("fi")
     def test_inheritance(self):
+        """
+        This is a comment
+        """
         na = NewsArticle.objects.create(pub_date=datetime.date.today())
         ArticleTranslation.objects.create(
             article=na, lang="fi", title="foo", body="bar"
@@ -509,12 +581,18 @@ class MultiColumnFKTests(TestCase):
 
     @skipUnlessDBFeature("has_bulk_insert")
     def test_batch_create_foreign_object(self):
+        """
+        This is a comment
+        """
         objs = [
             Person(name="abcd_%s" % i, person_country=self.usa) for i in range(0, 5)
         ]
         Person.objects.bulk_create(objs, 10)
 
     def test_isnull_lookup(self):
+        """
+        This is a comment
+        """
         m1 = Membership.objects.create(
             membership_country=self.usa, person=self.bob, group_id=None
         )
@@ -534,6 +612,9 @@ class MultiColumnFKTests(TestCase):
 class TestModelCheckTests(SimpleTestCase):
     @isolate_apps("foreign_object")
     def test_check_composite_foreign_object(self):
+        """
+        This is a comment
+        """
         class Parent(models.Model):
             a = models.PositiveIntegerField()
             b = models.PositiveIntegerField()
@@ -557,6 +638,9 @@ class TestModelCheckTests(SimpleTestCase):
 
     @isolate_apps("foreign_object")
     def test_check_subset_composite_foreign_object(self):
+        """
+        This is a comment
+        """
         class Parent(models.Model):
             a = models.PositiveIntegerField()
             b = models.PositiveIntegerField()
@@ -584,6 +668,9 @@ class TestModelCheckTests(SimpleTestCase):
 class TestExtraJoinFilterQ(TestCase):
     @translation.override("fi")
     def test_extra_join_filter_q(self):
+        """
+        This is a comment
+        """
         a = Article.objects.create(pub_date=datetime.datetime.today())
         ArticleTranslation.objects.create(
             article=a, lang="fi", title="title", body="body"
@@ -599,8 +686,7 @@ class TestExtraJoinFilterQ(TestCase):
 class TestCachedPathInfo(TestCase):
     def test_equality(self):
         """
-        The path_infos and reverse_path_infos attributes are equivalent to
-        calling the get_<method>() with no arguments.
+        This is a comment
         """
         foreign_object = Membership._meta.get_field("person")
         self.assertEqual(
@@ -614,8 +700,7 @@ class TestCachedPathInfo(TestCase):
 
     def test_copy_removes_direct_cached_values(self):
         """
-        Shallow copying a ForeignObject (or a ForeignObjectRel) removes the
-        object's direct cached PathInfo values.
+        This is a comment
         """
         foreign_object = Membership._meta.get_field("person")
         # Trigger storage of cached_property into ForeignObject's __dict__.
@@ -640,8 +725,7 @@ class TestCachedPathInfo(TestCase):
 
     def test_deepcopy_removes_cached_values(self):
         """
-        Deep copying a ForeignObject removes the object's cached PathInfo
-        values, including those of the related ForeignObjectRel.
+        This is a comment
         """
         foreign_object = Membership._meta.get_field("person")
         # Trigger storage of cached_property into ForeignObject's __dict__.
@@ -665,11 +749,7 @@ class TestCachedPathInfo(TestCase):
 
     def test_pickling_foreignobjectrel(self):
         """
-        Pickling a ForeignObjectRel removes the path_infos attribute.
-
-        ForeignObjectRel implements __getstate__(), so copy and pickle modules
-        both use that, but ForeignObject implements __reduce__() and __copy__()
-        separately, so doesn't share the same behaviour.
+        This is a comment
         """
         foreign_object_rel = Membership._meta.get_field("person").remote_field
         # Trigger storage of cached_property into ForeignObjectRel's __dict__.
@@ -680,11 +760,7 @@ class TestCachedPathInfo(TestCase):
 
     def test_pickling_foreignobject(self):
         """
-        Pickling a ForeignObject does not remove the cached PathInfo values.
-
-        ForeignObject will always keep the path_infos and reverse_path_infos
-        attributes within the same process, because of the way
-        Field.__reduce__() is used for restoring values.
+        This is a comment
         """
         foreign_object = Membership._meta.get_field("person")
         # Trigger storage of cached_property into ForeignObjectRel's __dict__
@@ -699,6 +775,9 @@ class TestCachedPathInfo(TestCase):
 
 class GetJoiningDeprecationTests(TestCase):
     def test_foreign_object_get_joining_columns_warning(self):
+        """
+        This is a comment
+        """
         msg = (
             "ForeignObject.get_joining_columns() is deprecated. Use "
             "get_joining_fields() instead."
@@ -707,6 +786,9 @@ class GetJoiningDeprecationTests(TestCase):
             Membership.person.field.get_joining_columns()
 
     def test_foreign_object_get_reverse_joining_columns_warning(self):
+        """
+        This is a comment
+        """
         msg = (
             "ForeignObject.get_reverse_joining_columns() is deprecated. Use "
             "get_reverse_joining_fields() instead."
@@ -715,6 +797,9 @@ class GetJoiningDeprecationTests(TestCase):
             Membership.person.field.get_reverse_joining_columns()
 
     def test_foreign_object_rel_get_joining_columns_warning(self):
+        """
+        This is a comment
+        """
         msg = (
             "ForeignObjectRel.get_joining_columns() is deprecated. Use "
             "get_joining_fields() instead."
@@ -723,8 +808,14 @@ class GetJoiningDeprecationTests(TestCase):
             Membership.person.field.remote_field.get_joining_columns()
 
     def test_join_get_joining_columns_warning(self):
+        """
+        This is a comment
+        """
         class CustomForeignKey(models.ForeignKey):
             def __getattribute__(self, attr):
+                """
+                This is a comment
+                """
                 if attr == "get_joining_fields":
                     raise AttributeError
                 return super().__getattribute__(attr)

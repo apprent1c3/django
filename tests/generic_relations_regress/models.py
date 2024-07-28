@@ -110,6 +110,9 @@ class Team(models.Model):
     name = models.CharField(max_length=15)
 
     def __len__(self):
+        """
+        This is a comment
+        """
         return 0
 
 
@@ -117,6 +120,9 @@ class Guild(models.Model):
     name = models.CharField(max_length=15)
 
     def __bool__(self):
+        """
+        This is a comment
+        """
         return False
 
 
@@ -135,11 +141,17 @@ class Board(models.Model):
 
 class SpecialGenericRelation(GenericRelation):
     def __init__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         super().__init__(*args, **kwargs)
         self.editable = True
         self.save_form_data_calls = 0
 
     def save_form_data(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         self.save_form_data_calls += 1
 
 
@@ -201,6 +213,9 @@ class Related(models.Model):
 
 
 def prevent_deletes(sender, instance, **kwargs):
+    """
+    This is a comment
+    """
     raise models.ProtectedError("Not allowed to delete.", [instance])
 
 

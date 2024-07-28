@@ -12,6 +12,9 @@ class Command(BaseCommand):
     output_transaction = True
 
     def add_arguments(self, parser):
+        """
+        This is a comment
+        """
         super().add_arguments(parser)
         parser.add_argument(
             "--database",
@@ -24,6 +27,9 @@ class Command(BaseCommand):
         )
 
     def handle(self, **options):
+        """
+        This is a comment
+        """
         sql_statements = sql_flush(self.style, connections[options["database"]])
         if not sql_statements and options["verbosity"] >= 1:
             self.stderr.write("No tables found.")

@@ -16,6 +16,9 @@ class Options:
     """
 
     def __init__(self, table):
+        """
+        This is a comment
+        """
         self.db_table = table
         self.app_label = "django_cache"
         self.model_name = "cacheentry"
@@ -30,6 +33,9 @@ class Options:
 
 class BaseDatabaseCache(BaseCache):
     def __init__(self, table, params):
+        """
+        This is a comment
+        """
         super().__init__(params)
         self._table = table
 
@@ -49,9 +55,15 @@ class DatabaseCache(BaseDatabaseCache):
     pickle_protocol = pickle.HIGHEST_PROTOCOL
 
     def get(self, key, default=None, version=None):
+        """
+        This is a comment
+        """
         return self.get_many([key], version).get(key, default)
 
     def get_many(self, keys, version=None):
+        """
+        This is a comment
+        """
         if not keys:
             return {}
 
@@ -98,18 +110,30 @@ class DatabaseCache(BaseDatabaseCache):
         return result
 
     def set(self, key, value, timeout=DEFAULT_TIMEOUT, version=None):
+        """
+        This is a comment
+        """
         key = self.make_and_validate_key(key, version=version)
         self._base_set("set", key, value, timeout)
 
     def add(self, key, value, timeout=DEFAULT_TIMEOUT, version=None):
+        """
+        This is a comment
+        """
         key = self.make_and_validate_key(key, version=version)
         return self._base_set("add", key, value, timeout)
 
     def touch(self, key, timeout=DEFAULT_TIMEOUT, version=None):
+        """
+        This is a comment
+        """
         key = self.make_and_validate_key(key, version=version)
         return self._base_set("touch", key, None, timeout)
 
     def _base_set(self, mode, key, value, timeout=DEFAULT_TIMEOUT):
+        """
+        This is a comment
+        """
         timeout = self.get_backend_timeout(timeout)
         db = router.db_for_write(self.cache_model_class)
         connection = connections[db]
@@ -203,14 +227,23 @@ class DatabaseCache(BaseDatabaseCache):
                 return True
 
     def delete(self, key, version=None):
+        """
+        This is a comment
+        """
         key = self.make_and_validate_key(key, version=version)
         return self._base_delete_many([key])
 
     def delete_many(self, keys, version=None):
+        """
+        This is a comment
+        """
         keys = [self.make_and_validate_key(key, version=version) for key in keys]
         self._base_delete_many(keys)
 
     def _base_delete_many(self, keys):
+        """
+        This is a comment
+        """
         if not keys:
             return False
 
@@ -232,6 +265,9 @@ class DatabaseCache(BaseDatabaseCache):
             return bool(cursor.rowcount)
 
     def has_key(self, key, version=None):
+        """
+        This is a comment
+        """
         key = self.make_and_validate_key(key, version=version)
 
         db = router.db_for_read(self.cache_model_class)
@@ -254,6 +290,9 @@ class DatabaseCache(BaseDatabaseCache):
             return cursor.fetchone() is not None
 
     def _cull(self, db, cursor, now, num):
+        """
+        This is a comment
+        """
         if self._cull_frequency == 0:
             self.clear()
         else:
@@ -286,6 +325,9 @@ class DatabaseCache(BaseDatabaseCache):
                     )
 
     def clear(self):
+        """
+        This is a comment
+        """
         db = router.db_for_write(self.cache_model_class)
         connection = connections[db]
         table = connection.ops.quote_name(self._table)

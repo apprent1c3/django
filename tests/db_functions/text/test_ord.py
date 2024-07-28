@@ -9,11 +9,17 @@ from ..models import Author
 class OrdTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.john = Author.objects.create(name="John Smith", alias="smithj")
         cls.elena = Author.objects.create(name="Élena Jordan", alias="elena")
         cls.rhonda = Author.objects.create(name="Rhonda")
 
     def test_basic(self):
+        """
+        This is a comment
+        """
         authors = Author.objects.annotate(name_part=Ord("name"))
         self.assertCountEqual(
             authors.filter(name_part__gt=Ord(Value("John"))), [self.elena, self.rhonda]
@@ -23,6 +29,9 @@ class OrdTests(TestCase):
         )
 
     def test_transform(self):
+        """
+        This is a comment
+        """
         with register_lookup(CharField, Ord):
             authors = Author.objects.annotate(first_initial=Left("name", 1))
             self.assertCountEqual(

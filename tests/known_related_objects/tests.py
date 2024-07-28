@@ -7,6 +7,9 @@ from .models import Organiser, Pool, PoolStyle, Tournament
 class ExistingRelatedInstancesTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.t1 = Tournament.objects.create(name="Tourney 1")
         cls.t2 = Tournament.objects.create(name="Tourney 2")
         cls.o1 = Organiser.objects.create(name="Organiser 1")
@@ -29,12 +32,18 @@ class ExistingRelatedInstancesTests(TestCase):
         )
 
     def test_foreign_key(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(2):
             tournament = Tournament.objects.get(pk=self.t1.pk)
             pool = tournament.pool_set.all()[0]
             self.assertIs(tournament, pool.tournament)
 
     def test_foreign_key_prefetch_related(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(2):
             tournament = Tournament.objects.prefetch_related("pool_set").get(
                 pk=self.t1.pk
@@ -43,6 +52,9 @@ class ExistingRelatedInstancesTests(TestCase):
             self.assertIs(tournament, pool.tournament)
 
     def test_foreign_key_multiple_prefetch(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(2):
             tournaments = list(
                 Tournament.objects.prefetch_related("pool_set").order_by("pk")
@@ -53,6 +65,9 @@ class ExistingRelatedInstancesTests(TestCase):
             self.assertIs(tournaments[1], pool2.tournament)
 
     def test_queryset_or(self):
+        """
+        This is a comment
+        """
         tournament_1 = self.t1
         tournament_2 = self.t2
         with self.assertNumQueries(1):
@@ -61,6 +76,9 @@ class ExistingRelatedInstancesTests(TestCase):
             self.assertEqual(related_objects, {tournament_1, tournament_2})
 
     def test_queryset_or_different_cached_items(self):
+        """
+        This is a comment
+        """
         tournament = self.t1
         organiser = self.o1
         with self.assertNumQueries(1):
@@ -70,6 +88,9 @@ class ExistingRelatedInstancesTests(TestCase):
             self.assertIs(first.organiser, organiser)
 
     def test_queryset_or_only_one_with_precache(self):
+        """
+        This is a comment
+        """
         tournament_1 = self.t1
         tournament_2 = self.t2
         # 2 queries here as pool 3 has tournament 2, which is not cached
@@ -84,6 +105,9 @@ class ExistingRelatedInstancesTests(TestCase):
             self.assertEqual(related_objects, {tournament_1, tournament_2})
 
     def test_queryset_and(self):
+        """
+        This is a comment
+        """
         tournament = self.t1
         organiser = self.o1
         with self.assertNumQueries(1):
@@ -93,66 +117,99 @@ class ExistingRelatedInstancesTests(TestCase):
             self.assertIs(first.organiser, organiser)
 
     def test_one_to_one(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(2):
             style = PoolStyle.objects.get(pk=self.ps1.pk)
             pool = style.pool
             self.assertIs(style, pool.poolstyle)
 
     def test_one_to_one_select_related(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(1):
             style = PoolStyle.objects.select_related("pool").get(pk=self.ps1.pk)
             pool = style.pool
             self.assertIs(style, pool.poolstyle)
 
     def test_one_to_one_multi_select_related(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(1):
             poolstyles = list(PoolStyle.objects.select_related("pool").order_by("pk"))
             self.assertIs(poolstyles[0], poolstyles[0].pool.poolstyle)
             self.assertIs(poolstyles[1], poolstyles[1].pool.poolstyle)
 
     def test_one_to_one_prefetch_related(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(2):
             style = PoolStyle.objects.prefetch_related("pool").get(pk=self.ps1.pk)
             pool = style.pool
             self.assertIs(style, pool.poolstyle)
 
     def test_one_to_one_multi_prefetch_related(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(2):
             poolstyles = list(PoolStyle.objects.prefetch_related("pool").order_by("pk"))
             self.assertIs(poolstyles[0], poolstyles[0].pool.poolstyle)
             self.assertIs(poolstyles[1], poolstyles[1].pool.poolstyle)
 
     def test_reverse_one_to_one(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(2):
             pool = Pool.objects.get(pk=self.p2.pk)
             style = pool.poolstyle
             self.assertIs(pool, style.pool)
 
     def test_reverse_one_to_one_select_related(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(1):
             pool = Pool.objects.select_related("poolstyle").get(pk=self.p2.pk)
             style = pool.poolstyle
             self.assertIs(pool, style.pool)
 
     def test_reverse_one_to_one_prefetch_related(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(2):
             pool = Pool.objects.prefetch_related("poolstyle").get(pk=self.p2.pk)
             style = pool.poolstyle
             self.assertIs(pool, style.pool)
 
     def test_reverse_one_to_one_multi_select_related(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(1):
             pools = list(Pool.objects.select_related("poolstyle").order_by("pk"))
             self.assertIs(pools[1], pools[1].poolstyle.pool)
             self.assertIs(pools[2], pools[2].poolstyle.pool)
 
     def test_reverse_one_to_one_multi_prefetch_related(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(2):
             pools = list(Pool.objects.prefetch_related("poolstyle").order_by("pk"))
             self.assertIs(pools[1], pools[1].poolstyle.pool)
             self.assertIs(pools[2], pools[2].poolstyle.pool)
 
     def test_reverse_fk_select_related_multiple(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(1):
             ps = list(
                 PoolStyle.objects.annotate(
@@ -166,6 +223,9 @@ class ExistingRelatedInstancesTests(TestCase):
             self.assertIs(ps[0], ps[0].pool_2.another_style)
 
     def test_multilevel_reverse_fk_cyclic_select_related(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(3):
             p = list(
                 PoolStyle.objects.annotate(
@@ -175,6 +235,9 @@ class ExistingRelatedInstancesTests(TestCase):
             self.assertEqual(p[0].tournament_pool.tournament, p[0].pool.tournament)
 
     def test_multilevel_reverse_fk_select_related(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(2):
             p = list(
                 Tournament.objects.filter(id=self.t2.id)

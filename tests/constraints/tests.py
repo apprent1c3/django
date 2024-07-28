@@ -23,52 +23,79 @@ from .models import (
 
 
 def get_constraints(table):
+    """
+    This is a comment
+    """
     with connection.cursor() as cursor:
         return connection.introspection.get_constraints(cursor, table)
 
 
 class BaseConstraintTests(SimpleTestCase):
     def test_constraint_sql(self):
+        """
+        This is a comment
+        """
         c = BaseConstraint(name="name")
         msg = "This method must be implemented by a subclass."
         with self.assertRaisesMessage(NotImplementedError, msg):
             c.constraint_sql(None, None)
 
     def test_contains_expressions(self):
+        """
+        This is a comment
+        """
         c = BaseConstraint(name="name")
         self.assertIs(c.contains_expressions, False)
 
     def test_create_sql(self):
+        """
+        This is a comment
+        """
         c = BaseConstraint(name="name")
         msg = "This method must be implemented by a subclass."
         with self.assertRaisesMessage(NotImplementedError, msg):
             c.create_sql(None, None)
 
     def test_remove_sql(self):
+        """
+        This is a comment
+        """
         c = BaseConstraint(name="name")
         msg = "This method must be implemented by a subclass."
         with self.assertRaisesMessage(NotImplementedError, msg):
             c.remove_sql(None, None)
 
     def test_validate(self):
+        """
+        This is a comment
+        """
         c = BaseConstraint(name="name")
         msg = "This method must be implemented by a subclass."
         with self.assertRaisesMessage(NotImplementedError, msg):
             c.validate(None, None)
 
     def test_default_violation_error_message(self):
+        """
+        This is a comment
+        """
         c = BaseConstraint(name="name")
         self.assertEqual(
             c.get_violation_error_message(), "Constraint “name” is violated."
         )
 
     def test_custom_violation_error_message(self):
+        """
+        This is a comment
+        """
         c = BaseConstraint(
             name="base_name", violation_error_message="custom %(name)s message"
         )
         self.assertEqual(c.get_violation_error_message(), "custom base_name message")
 
     def test_custom_violation_error_message_clone(self):
+        """
+        This is a comment
+        """
         constraint = BaseConstraint(
             name="base_name",
             violation_error_message="custom %(name)s message",
@@ -79,10 +106,16 @@ class BaseConstraintTests(SimpleTestCase):
         )
 
     def test_custom_violation_code_message(self):
+        """
+        This is a comment
+        """
         c = BaseConstraint(name="base_name", violation_error_code="custom_code")
         self.assertEqual(c.violation_error_code, "custom_code")
 
     def test_deconstruction(self):
+        """
+        This is a comment
+        """
         constraint = BaseConstraint(
             name="base_name",
             violation_error_message="custom %(name)s message",
@@ -101,11 +134,17 @@ class BaseConstraintTests(SimpleTestCase):
         )
 
     def test_deprecation(self):
+        """
+        This is a comment
+        """
         msg = "Passing positional arguments to BaseConstraint is deprecated."
         with self.assertRaisesMessage(RemovedInDjango60Warning, msg):
             BaseConstraint("name", "violation error message")
 
     def test_name_required(self):
+        """
+        This is a comment
+        """
         msg = (
             "BaseConstraint.__init__() missing 1 required keyword-only argument: 'name'"
         )
@@ -114,12 +153,18 @@ class BaseConstraintTests(SimpleTestCase):
 
     @ignore_warnings(category=RemovedInDjango60Warning)
     def test_positional_arguments(self):
+        """
+        This is a comment
+        """
         c = BaseConstraint("name", "custom %(name)s message")
         self.assertEqual(c.get_violation_error_message(), "custom name message")
 
 
 class CheckConstraintTests(TestCase):
     def test_eq(self):
+        """
+        This is a comment
+        """
         check1 = models.Q(price__gt=models.F("discounted_price"))
         check2 = models.Q(price__lt=models.F("discounted_price"))
         self.assertEqual(
@@ -178,6 +223,9 @@ class CheckConstraintTests(TestCase):
         )
 
     def test_repr(self):
+        """
+        This is a comment
+        """
         constraint = models.CheckConstraint(
             condition=models.Q(price__gt=models.F("discounted_price")),
             name="price_gt_discounted_price",
@@ -189,6 +237,9 @@ class CheckConstraintTests(TestCase):
         )
 
     def test_repr_with_violation_error_message(self):
+        """
+        This is a comment
+        """
         constraint = models.CheckConstraint(
             condition=models.Q(price__lt=1),
             name="price_lt_one",
@@ -201,6 +252,9 @@ class CheckConstraintTests(TestCase):
         )
 
     def test_repr_with_violation_error_code(self):
+        """
+        This is a comment
+        """
         constraint = models.CheckConstraint(
             condition=models.Q(price__lt=1),
             name="price_lt_one",
@@ -213,11 +267,17 @@ class CheckConstraintTests(TestCase):
         )
 
     def test_invalid_check_types(self):
+        """
+        This is a comment
+        """
         msg = "CheckConstraint.condition must be a Q instance or boolean expression."
         with self.assertRaisesMessage(TypeError, msg):
             models.CheckConstraint(condition=models.F("discounted_price"), name="check")
 
     def test_deconstruction(self):
+        """
+        This is a comment
+        """
         check = models.Q(price__gt=models.F("discounted_price"))
         name = "price_gt_discounted_price"
         constraint = models.CheckConstraint(condition=check, name=name)
@@ -228,12 +288,18 @@ class CheckConstraintTests(TestCase):
 
     @skipUnlessDBFeature("supports_table_check_constraints")
     def test_database_constraint(self):
+        """
+        This is a comment
+        """
         Product.objects.create(price=10, discounted_price=5)
         with self.assertRaises(IntegrityError):
             Product.objects.create(price=10, discounted_price=20)
 
     @skipUnlessDBFeature("supports_table_check_constraints")
     def test_database_constraint_unicode(self):
+        """
+        This is a comment
+        """
         Product.objects.create(price=10, discounted_price=5, unit="μg/mL")
         with self.assertRaises(IntegrityError):
             Product.objects.create(price=10, discounted_price=7, unit="l")
@@ -242,6 +308,9 @@ class CheckConstraintTests(TestCase):
         "supports_table_check_constraints", "can_introspect_check_constraints"
     )
     def test_name(self):
+        """
+        This is a comment
+        """
         constraints = get_constraints(Product._meta.db_table)
         for expected_name in (
             "price_gt_discounted_price",
@@ -254,10 +323,16 @@ class CheckConstraintTests(TestCase):
         "supports_table_check_constraints", "can_introspect_check_constraints"
     )
     def test_abstract_name(self):
+        """
+        This is a comment
+        """
         constraints = get_constraints(ChildModel._meta.db_table)
         self.assertIn("constraints_childmodel_adult", constraints)
 
     def test_validate(self):
+        """
+        This is a comment
+        """
         check = models.Q(price__gt=models.F("discounted_price"))
         constraint = models.CheckConstraint(condition=check, name="price")
         # Invalid product.
@@ -278,6 +353,9 @@ class CheckConstraintTests(TestCase):
         constraint.validate(Product, Product(price=10, discounted_price=5))
 
     def test_validate_custom_error(self):
+        """
+        This is a comment
+        """
         check = models.Q(price__gt=models.F("discounted_price"))
         constraint = models.CheckConstraint(
             condition=check,
@@ -293,6 +371,9 @@ class CheckConstraintTests(TestCase):
         self.assertEqual(cm.exception.code, "fake_discount")
 
     def test_validate_boolean_expressions(self):
+        """
+        This is a comment
+        """
         constraint = models.CheckConstraint(
             condition=models.expressions.ExpressionWrapper(
                 models.Q(price__gt=500) | models.Q(price__lt=500),
@@ -307,6 +388,9 @@ class CheckConstraintTests(TestCase):
         constraint.validate(Product, Product(price=499, discounted_price=5))
 
     def test_validate_rawsql_expressions_noop(self):
+        """
+        This is a comment
+        """
         constraint = models.CheckConstraint(
             condition=models.expressions.RawSQL(
                 "price < %s OR price > %s",
@@ -323,6 +407,9 @@ class CheckConstraintTests(TestCase):
     @skipUnlessDBFeature("supports_comparing_boolean_expr")
     def test_validate_nullable_field_with_none(self):
         # Nullable fields should be considered valid on None values.
+        """
+        This is a comment
+        """
         constraint = models.CheckConstraint(
             condition=models.Q(price__gte=0),
             name="positive_price",
@@ -331,6 +418,9 @@ class CheckConstraintTests(TestCase):
 
     @skipIfDBFeature("supports_comparing_boolean_expr")
     def test_validate_nullable_field_with_isnull(self):
+        """
+        This is a comment
+        """
         constraint = models.CheckConstraint(
             condition=models.Q(price__gte=0) | models.Q(price__isnull=True),
             name="positive_price",
@@ -339,6 +429,9 @@ class CheckConstraintTests(TestCase):
 
     @skipUnlessDBFeature("supports_json_field")
     def test_validate_nullable_jsonfield(self):
+        """
+        This is a comment
+        """
         is_null_constraint = models.CheckConstraint(
             condition=models.Q(data__isnull=True),
             name="nullable_data",
@@ -357,6 +450,9 @@ class CheckConstraintTests(TestCase):
         is_not_null_constraint.validate(JSONFieldModel, JSONFieldModel(data={}))
 
     def test_validate_pk_field(self):
+        """
+        This is a comment
+        """
         constraint_with_pk = models.CheckConstraint(
             condition=~models.Q(pk=models.F("age")),
             name="pk_not_age_check",
@@ -371,6 +467,9 @@ class CheckConstraintTests(TestCase):
 
     @skipUnlessDBFeature("supports_json_field")
     def test_validate_jsonfield_exact(self):
+        """
+        This is a comment
+        """
         data = {"release": "5.0.2", "version": "stable"}
         json_exact_constraint = models.CheckConstraint(
             condition=models.Q(data__version="stable"),
@@ -384,6 +483,9 @@ class CheckConstraintTests(TestCase):
             json_exact_constraint.validate(JSONFieldModel, JSONFieldModel(data=data))
 
     def test_check_deprecation(self):
+        """
+        This is a comment
+        """
         msg = "CheckConstraint.check is deprecated in favor of `.condition`."
         condition = models.Q(foo="bar")
         with self.assertWarnsRegex(RemovedInDjango60Warning, msg):
@@ -400,10 +502,16 @@ class CheckConstraintTests(TestCase):
 class UniqueConstraintTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.p1 = UniqueConstraintProduct.objects.create(name="p1", color="red")
         cls.p2 = UniqueConstraintProduct.objects.create(name="p2")
 
     def test_eq(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             models.UniqueConstraint(fields=["foo", "bar"], name="unique"),
             models.UniqueConstraint(fields=["foo", "bar"], name="unique"),
@@ -481,6 +589,9 @@ class UniqueConstraintTests(TestCase):
         )
 
     def test_eq_with_condition(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             models.UniqueConstraint(
                 fields=["foo", "bar"],
@@ -507,6 +618,9 @@ class UniqueConstraintTests(TestCase):
         )
 
     def test_eq_with_deferrable(self):
+        """
+        This is a comment
+        """
         constraint_1 = models.UniqueConstraint(
             fields=["foo", "bar"],
             name="unique",
@@ -521,6 +635,9 @@ class UniqueConstraintTests(TestCase):
         self.assertNotEqual(constraint_1, constraint_2)
 
     def test_eq_with_include(self):
+        """
+        This is a comment
+        """
         constraint_1 = models.UniqueConstraint(
             fields=["foo", "bar"],
             name="include",
@@ -535,6 +652,9 @@ class UniqueConstraintTests(TestCase):
         self.assertNotEqual(constraint_1, constraint_2)
 
     def test_eq_with_opclasses(self):
+        """
+        This is a comment
+        """
         constraint_1 = models.UniqueConstraint(
             fields=["foo", "bar"],
             name="opclasses",
@@ -549,6 +669,9 @@ class UniqueConstraintTests(TestCase):
         self.assertNotEqual(constraint_1, constraint_2)
 
     def test_eq_with_expressions(self):
+        """
+        This is a comment
+        """
         constraint = models.UniqueConstraint(
             Lower("title"),
             F("author"),
@@ -568,6 +691,9 @@ class UniqueConstraintTests(TestCase):
         self.assertNotEqual(constraint, another_constraint)
 
     def test_eq_with_nulls_distinct(self):
+        """
+        This is a comment
+        """
         constraint_1 = models.UniqueConstraint(
             Lower("title"),
             nulls_distinct=False,
@@ -589,6 +715,9 @@ class UniqueConstraintTests(TestCase):
         self.assertNotEqual(constraint_2, constraint_3)
 
     def test_repr(self):
+        """
+        This is a comment
+        """
         fields = ["foo", "bar"]
         name = "unique_fields"
         constraint = models.UniqueConstraint(fields=fields, name=name)
@@ -598,6 +727,9 @@ class UniqueConstraintTests(TestCase):
         )
 
     def test_repr_with_condition(self):
+        """
+        This is a comment
+        """
         constraint = models.UniqueConstraint(
             fields=["foo", "bar"],
             name="unique_fields",
@@ -610,6 +742,9 @@ class UniqueConstraintTests(TestCase):
         )
 
     def test_repr_with_deferrable(self):
+        """
+        This is a comment
+        """
         constraint = models.UniqueConstraint(
             fields=["foo", "bar"],
             name="unique_fields",
@@ -622,6 +757,9 @@ class UniqueConstraintTests(TestCase):
         )
 
     def test_repr_with_include(self):
+        """
+        This is a comment
+        """
         constraint = models.UniqueConstraint(
             fields=["foo", "bar"],
             name="include_fields",
@@ -634,6 +772,9 @@ class UniqueConstraintTests(TestCase):
         )
 
     def test_repr_with_opclasses(self):
+        """
+        This is a comment
+        """
         constraint = models.UniqueConstraint(
             fields=["foo", "bar"],
             name="opclasses_fields",
@@ -646,6 +787,9 @@ class UniqueConstraintTests(TestCase):
         )
 
     def test_repr_with_nulls_distinct(self):
+        """
+        This is a comment
+        """
         constraint = models.UniqueConstraint(
             fields=["foo", "bar"],
             name="nulls_distinct_fields",
@@ -658,6 +802,9 @@ class UniqueConstraintTests(TestCase):
         )
 
     def test_repr_with_expressions(self):
+        """
+        This is a comment
+        """
         constraint = models.UniqueConstraint(
             Lower("title"),
             F("author"),
@@ -670,6 +817,9 @@ class UniqueConstraintTests(TestCase):
         )
 
     def test_repr_with_violation_error_message(self):
+        """
+        This is a comment
+        """
         constraint = models.UniqueConstraint(
             models.F("baz__lower"),
             name="unique_lower_baz",
@@ -684,6 +834,9 @@ class UniqueConstraintTests(TestCase):
         )
 
     def test_repr_with_violation_error_code(self):
+        """
+        This is a comment
+        """
         constraint = models.UniqueConstraint(
             models.F("baz__lower"),
             name="unique_lower_baz",
@@ -698,6 +851,9 @@ class UniqueConstraintTests(TestCase):
         )
 
     def test_deconstruction(self):
+        """
+        This is a comment
+        """
         fields = ["foo", "bar"]
         name = "unique_fields"
         constraint = models.UniqueConstraint(fields=fields, name=name)
@@ -707,6 +863,9 @@ class UniqueConstraintTests(TestCase):
         self.assertEqual(kwargs, {"fields": tuple(fields), "name": name})
 
     def test_deconstruction_with_condition(self):
+        """
+        This is a comment
+        """
         fields = ["foo", "bar"]
         name = "unique_fields"
         condition = models.Q(foo=models.F("bar"))
@@ -721,6 +880,9 @@ class UniqueConstraintTests(TestCase):
         )
 
     def test_deconstruction_with_deferrable(self):
+        """
+        This is a comment
+        """
         fields = ["foo"]
         name = "unique_fields"
         constraint = models.UniqueConstraint(
@@ -741,6 +903,9 @@ class UniqueConstraintTests(TestCase):
         )
 
     def test_deconstruction_with_include(self):
+        """
+        This is a comment
+        """
         fields = ["foo", "bar"]
         name = "unique_fields"
         include = ["baz_1", "baz_2"]
@@ -758,6 +923,9 @@ class UniqueConstraintTests(TestCase):
         )
 
     def test_deconstruction_with_opclasses(self):
+        """
+        This is a comment
+        """
         fields = ["foo", "bar"]
         name = "unique_fields"
         opclasses = ["varchar_pattern_ops", "text_pattern_ops"]
@@ -777,6 +945,9 @@ class UniqueConstraintTests(TestCase):
         )
 
     def test_deconstruction_with_nulls_distinct(self):
+        """
+        This is a comment
+        """
         fields = ["foo", "bar"]
         name = "unique_fields"
         constraint = models.UniqueConstraint(
@@ -795,6 +966,9 @@ class UniqueConstraintTests(TestCase):
         )
 
     def test_deconstruction_with_expressions(self):
+        """
+        This is a comment
+        """
         name = "unique_fields"
         constraint = models.UniqueConstraint(Lower("title"), name=name)
         path, args, kwargs = constraint.deconstruct()
@@ -803,6 +977,9 @@ class UniqueConstraintTests(TestCase):
         self.assertEqual(kwargs, {"name": name})
 
     def test_database_constraint(self):
+        """
+        This is a comment
+        """
         with self.assertRaises(IntegrityError):
             UniqueConstraintProduct.objects.create(
                 name=self.p1.name, color=self.p1.color
@@ -810,12 +987,18 @@ class UniqueConstraintTests(TestCase):
 
     @skipUnlessDBFeature("supports_partial_indexes")
     def test_database_constraint_with_condition(self):
+        """
+        This is a comment
+        """
         UniqueConstraintConditionProduct.objects.create(name="p1")
         UniqueConstraintConditionProduct.objects.create(name="p2")
         with self.assertRaises(IntegrityError):
             UniqueConstraintConditionProduct.objects.create(name="p1")
 
     def test_model_validation(self):
+        """
+        This is a comment
+        """
         msg = "Unique constraint product with this Name and Color already exists."
         with self.assertRaisesMessage(ValidationError, msg):
             UniqueConstraintProduct(
@@ -825,8 +1008,7 @@ class UniqueConstraintTests(TestCase):
     @skipUnlessDBFeature("supports_partial_indexes")
     def test_model_validation_with_condition(self):
         """
-        Partial unique constraints are not ignored by
-        Model.validate_constraints().
+        This is a comment
         """
         obj1 = UniqueConstraintConditionProduct.objects.create(name="p1", color="red")
         obj2 = UniqueConstraintConditionProduct.objects.create(name="p2")
@@ -838,8 +1020,14 @@ class UniqueConstraintTests(TestCase):
             UniqueConstraintConditionProduct(name=obj2.name).validate_constraints()
 
     def test_model_validation_constraint_no_code_error(self):
+        """
+        This is a comment
+        """
         class ValidateNoCodeErrorConstraint(UniqueConstraint):
             def validate(self, model, instance, **kwargs):
+                """
+                This is a comment
+                """
                 raise ValidationError({"name": ValidationError("Already exists.")})
 
         class NoCodeErrorConstraintModel(models.Model):
@@ -858,6 +1046,9 @@ class UniqueConstraintTests(TestCase):
             NoCodeErrorConstraintModel(name="test").validate_constraints()
 
     def test_validate(self):
+        """
+        This is a comment
+        """
         constraint = UniqueConstraintProduct._meta.constraints[0]
         msg = "Unique constraint product with this Name and Color already exists."
         non_unique_product = UniqueConstraintProduct(
@@ -898,6 +1089,9 @@ class UniqueConstraintTests(TestCase):
 
     @skipUnlessDBFeature("supports_table_check_constraints")
     def test_validate_fields_unattached(self):
+        """
+        This is a comment
+        """
         Product.objects.create(price=42)
         constraint = models.UniqueConstraint(fields=["price"], name="uniq_prices")
         msg = "Product with this Price already exists."
@@ -906,6 +1100,9 @@ class UniqueConstraintTests(TestCase):
 
     @skipUnlessDBFeature("supports_partial_indexes")
     def test_validate_condition(self):
+        """
+        This is a comment
+        """
         p1 = UniqueConstraintConditionProduct.objects.create(name="p1")
         constraint = UniqueConstraintConditionProduct._meta.constraints[0]
         msg = "Constraint “name_without_color_uniq” is violated."
@@ -930,6 +1127,9 @@ class UniqueConstraintTests(TestCase):
 
     @skipUnlessDBFeature("supports_partial_indexes")
     def test_validate_condition_custom_error(self):
+        """
+        This is a comment
+        """
         p1 = UniqueConstraintConditionProduct.objects.create(name="p1")
         constraint = models.UniqueConstraint(
             fields=["name"],
@@ -947,6 +1147,9 @@ class UniqueConstraintTests(TestCase):
         self.assertEqual(cm.exception.code, "custom_code")
 
     def test_validate_expression(self):
+        """
+        This is a comment
+        """
         constraint = models.UniqueConstraint(Lower("name"), name="name_lower_uniq")
         msg = "Constraint “name_lower_uniq” is violated."
         with self.assertRaisesMessage(ValidationError, msg):
@@ -968,6 +1171,9 @@ class UniqueConstraintTests(TestCase):
         )
 
     def test_validate_ordered_expression(self):
+        """
+        This is a comment
+        """
         constraint = models.UniqueConstraint(
             Lower("name").desc(), name="name_lower_uniq_desc"
         )
@@ -991,6 +1197,9 @@ class UniqueConstraintTests(TestCase):
         )
 
     def test_validate_expression_condition(self):
+        """
+        This is a comment
+        """
         constraint = models.UniqueConstraint(
             Lower("name"),
             name="name_lower_without_color_uniq",
@@ -1021,6 +1230,9 @@ class UniqueConstraintTests(TestCase):
         )
 
     def test_validate_expression_str(self):
+        """
+        This is a comment
+        """
         constraint = models.UniqueConstraint("name", name="name_uniq")
         msg = "Constraint “name_uniq” is violated."
         with self.assertRaisesMessage(ValidationError, msg):
@@ -1036,6 +1248,9 @@ class UniqueConstraintTests(TestCase):
 
     @skipUnlessDBFeature("supports_table_check_constraints")
     def test_validate_nullable_textfield_with_isnull_true(self):
+        """
+        This is a comment
+        """
         is_null_constraint = models.UniqueConstraint(
             "price",
             "discounted_price",
@@ -1073,6 +1288,9 @@ class UniqueConstraintTests(TestCase):
 
     @skipUnlessDBFeature("supports_table_check_constraints")
     def test_validate_nulls_distinct_fields(self):
+        """
+        This is a comment
+        """
         Product.objects.create(price=42)
         constraint = models.UniqueConstraint(
             fields=["price"],
@@ -1087,6 +1305,9 @@ class UniqueConstraintTests(TestCase):
 
     @skipUnlessDBFeature("supports_table_check_constraints")
     def test_validate_nulls_distinct_expressions(self):
+        """
+        This is a comment
+        """
         Product.objects.create(price=42)
         constraint = models.UniqueConstraint(
             Abs("price"),
@@ -1100,11 +1321,17 @@ class UniqueConstraintTests(TestCase):
             constraint.validate(Product, Product(price=None))
 
     def test_name(self):
+        """
+        This is a comment
+        """
         constraints = get_constraints(UniqueConstraintProduct._meta.db_table)
         expected_name = "name_color_uniq"
         self.assertIn(expected_name, constraints)
 
     def test_condition_must_be_q(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(
             ValueError, "UniqueConstraint.condition must be a Q instance."
         ):
@@ -1112,10 +1339,16 @@ class UniqueConstraintTests(TestCase):
 
     @skipUnlessDBFeature("supports_deferrable_unique_constraints")
     def test_initially_deferred_database_constraint(self):
+        """
+        This is a comment
+        """
         obj_1 = UniqueConstraintDeferrable.objects.create(name="p1", shelf="front")
         obj_2 = UniqueConstraintDeferrable.objects.create(name="p2", shelf="back")
 
         def swap():
+            """
+            This is a comment
+            """
             obj_1.name, obj_2.name = obj_2.name, obj_1.name
             obj_1.save()
             obj_2.save()
@@ -1130,6 +1363,9 @@ class UniqueConstraintTests(TestCase):
 
     @skipUnlessDBFeature("supports_deferrable_unique_constraints")
     def test_initially_immediate_database_constraint(self):
+        """
+        This is a comment
+        """
         obj_1 = UniqueConstraintDeferrable.objects.create(name="p1", shelf="front")
         obj_2 = UniqueConstraintDeferrable.objects.create(name="p2", shelf="back")
         obj_1.shelf, obj_2.shelf = obj_2.shelf, obj_1.shelf
@@ -1143,6 +1379,9 @@ class UniqueConstraintTests(TestCase):
             obj_2.save()
 
     def test_deferrable_with_condition(self):
+        """
+        This is a comment
+        """
         message = "UniqueConstraint with conditions cannot be deferred."
         with self.assertRaisesMessage(ValueError, message):
             models.UniqueConstraint(
@@ -1153,6 +1392,9 @@ class UniqueConstraintTests(TestCase):
             )
 
     def test_deferrable_with_include(self):
+        """
+        This is a comment
+        """
         message = "UniqueConstraint with include fields cannot be deferred."
         with self.assertRaisesMessage(ValueError, message):
             models.UniqueConstraint(
@@ -1163,6 +1405,9 @@ class UniqueConstraintTests(TestCase):
             )
 
     def test_deferrable_with_opclasses(self):
+        """
+        This is a comment
+        """
         message = "UniqueConstraint with opclasses cannot be deferred."
         with self.assertRaisesMessage(ValueError, message):
             models.UniqueConstraint(
@@ -1173,6 +1418,9 @@ class UniqueConstraintTests(TestCase):
             )
 
     def test_deferrable_with_expressions(self):
+        """
+        This is a comment
+        """
         message = "UniqueConstraint with expressions cannot be deferred."
         with self.assertRaisesMessage(ValueError, message):
             models.UniqueConstraint(
@@ -1182,6 +1430,9 @@ class UniqueConstraintTests(TestCase):
             )
 
     def test_invalid_defer_argument(self):
+        """
+        This is a comment
+        """
         message = "UniqueConstraint.deferrable must be a Deferrable instance."
         with self.assertRaisesMessage(TypeError, message):
             models.UniqueConstraint(
@@ -1195,11 +1446,17 @@ class UniqueConstraintTests(TestCase):
         "supports_covering_indexes",
     )
     def test_include_database_constraint(self):
+        """
+        This is a comment
+        """
         UniqueConstraintInclude.objects.create(name="p1", color="red")
         with self.assertRaises(IntegrityError):
             UniqueConstraintInclude.objects.create(name="p1", color="blue")
 
     def test_invalid_include_argument(self):
+        """
+        This is a comment
+        """
         msg = "UniqueConstraint.include must be a list or tuple."
         with self.assertRaisesMessage(TypeError, msg):
             models.UniqueConstraint(
@@ -1209,6 +1466,9 @@ class UniqueConstraintTests(TestCase):
             )
 
     def test_invalid_opclasses_argument(self):
+        """
+        This is a comment
+        """
         msg = "UniqueConstraint.opclasses must be a list or tuple."
         with self.assertRaisesMessage(TypeError, msg):
             models.UniqueConstraint(
@@ -1218,6 +1478,9 @@ class UniqueConstraintTests(TestCase):
             )
 
     def test_invalid_nulls_distinct_argument(self):
+        """
+        This is a comment
+        """
         msg = "UniqueConstraint.nulls_distinct must be a bool."
         with self.assertRaisesMessage(TypeError, msg):
             models.UniqueConstraint(
@@ -1225,6 +1488,9 @@ class UniqueConstraintTests(TestCase):
             )
 
     def test_opclasses_and_fields_same_length(self):
+        """
+        This is a comment
+        """
         msg = (
             "UniqueConstraint.fields and UniqueConstraint.opclasses must have "
             "the same number of elements."
@@ -1237,6 +1503,9 @@ class UniqueConstraintTests(TestCase):
             )
 
     def test_requires_field_or_expression(self):
+        """
+        This is a comment
+        """
         msg = (
             "At least one field or expression is required to define a unique "
             "constraint."
@@ -1245,11 +1514,17 @@ class UniqueConstraintTests(TestCase):
             models.UniqueConstraint(name="name")
 
     def test_expressions_and_fields_mutually_exclusive(self):
+        """
+        This is a comment
+        """
         msg = "UniqueConstraint.fields and expressions are mutually exclusive."
         with self.assertRaisesMessage(ValueError, msg):
             models.UniqueConstraint(Lower("field_1"), fields=["field_2"], name="name")
 
     def test_expressions_with_opclasses(self):
+        """
+        This is a comment
+        """
         msg = (
             "UniqueConstraint.opclasses cannot be used with expressions. Use "
             "django.contrib.postgres.indexes.OpClass() instead."
@@ -1262,6 +1537,9 @@ class UniqueConstraintTests(TestCase):
             )
 
     def test_requires_name(self):
+        """
+        This is a comment
+        """
         msg = "A unique constraint must be named."
         with self.assertRaisesMessage(ValueError, msg):
             models.UniqueConstraint(fields=["field"])

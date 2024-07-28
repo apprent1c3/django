@@ -77,6 +77,9 @@ from .models import (
 
 
 def build_tbody_html(obj, href, field_name, extra_fields):
+    """
+    This is a comment
+    """
     return (
         "<tbody><tr>"
         '<td class="action-checkbox">'
@@ -93,21 +96,33 @@ class ChangeListTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.superuser = User.objects.create_superuser(
             username="super", email="a@b.com", password="xxx"
         )
 
     def _create_superuser(self, username):
+        """
+        This is a comment
+        """
         return User.objects.create_superuser(
             username=username, email="a@b.com", password="xxx"
         )
 
     def _mocked_authenticated_request(self, url, user):
+        """
+        This is a comment
+        """
         request = self.factory.get(url)
         request.user = user
         return request
 
     def test_repr(self):
+        """
+        This is a comment
+        """
         m = ChildAdmin(Child, custom_site)
         request = self.factory.get("/child/")
         request.user = self.superuser
@@ -115,6 +130,9 @@ class ChangeListTests(TestCase):
         self.assertEqual(repr(cl), "<ChangeList: model=Child model_admin=ChildAdmin>")
 
     def test_specified_ordering_by_f_expression(self):
+        """
+        This is a comment
+        """
         class OrderedByFBandAdmin(admin.ModelAdmin):
             list_display = ["name", "genres", "nr_of_members"]
             ordering = (
@@ -130,6 +148,9 @@ class ChangeListTests(TestCase):
         self.assertEqual(cl.get_ordering_field_columns(), {3: "desc", 2: "asc"})
 
     def test_specified_ordering_by_f_expression_without_asc_desc(self):
+        """
+        This is a comment
+        """
         class OrderedByFBandAdmin(admin.ModelAdmin):
             list_display = ["name", "genres", "nr_of_members"]
             ordering = (F("nr_of_members"), Upper("name"), F("genres"))
@@ -142,8 +163,7 @@ class ChangeListTests(TestCase):
 
     def test_select_related_preserved(self):
         """
-        Regression test for #10348: ChangeList.get_queryset() shouldn't
-        overwrite a custom select_related provided by ModelAdmin.get_queryset().
+        This is a comment
         """
         m = ChildAdmin(Child, custom_site)
         request = self.factory.get("/child/")
@@ -152,6 +172,9 @@ class ChangeListTests(TestCase):
         self.assertEqual(cl.queryset.query.select_related, {"parent": {}})
 
     def test_select_related_preserved_when_multi_valued_in_search_fields(self):
+        """
+        This is a comment
+        """
         parent = Parent.objects.create(name="Mary")
         Child.objects.create(parent=parent, name="Danielle")
         Child.objects.create(parent=parent, name="Daniel")
@@ -166,6 +189,9 @@ class ChangeListTests(TestCase):
         self.assertEqual(cl.queryset.query.select_related, {"child": {}})
 
     def test_select_related_as_tuple(self):
+        """
+        This is a comment
+        """
         ia = InvitationAdmin(Invitation, custom_site)
         request = self.factory.get("/invitation/")
         request.user = self.superuser
@@ -173,6 +199,9 @@ class ChangeListTests(TestCase):
         self.assertEqual(cl.queryset.query.select_related, {"player": {}})
 
     def test_select_related_as_empty_tuple(self):
+        """
+        This is a comment
+        """
         ia = InvitationAdmin(Invitation, custom_site)
         ia.list_select_related = ()
         request = self.factory.get("/invitation/")
@@ -181,10 +210,16 @@ class ChangeListTests(TestCase):
         self.assertIs(cl.queryset.query.select_related, False)
 
     def test_get_select_related_custom_method(self):
+        """
+        This is a comment
+        """
         class GetListSelectRelatedAdmin(admin.ModelAdmin):
             list_display = ("band", "player")
 
             def get_list_select_related(self, request):
+                """
+                This is a comment
+                """
                 return ("band", "player")
 
         ia = GetListSelectRelatedAdmin(Invitation, custom_site)
@@ -194,6 +229,9 @@ class ChangeListTests(TestCase):
         self.assertEqual(cl.queryset.query.select_related, {"player": {}, "band": {}})
 
     def test_many_search_terms(self):
+        """
+        This is a comment
+        """
         parent = Parent.objects.create(name="Mary")
         Child.objects.create(parent=parent, name="Danielle")
         Child.objects.create(parent=parent, name="Daniel")
@@ -210,8 +248,7 @@ class ChangeListTests(TestCase):
 
     def test_related_field_multiple_search_terms(self):
         """
-        Searches over multi-valued relationships return rows from related
-        models only when all searched fields match that row.
+        This is a comment
         """
         parent = Parent.objects.create(name="Mary")
         Child.objects.create(parent=parent, name="Danielle", age=18)
@@ -231,8 +268,7 @@ class ChangeListTests(TestCase):
 
     def test_result_list_empty_changelist_value(self):
         """
-        Regression test for #14982: EMPTY_CHANGELIST_VALUE should be honored
-        for relationship fields
+        This is a comment
         """
         new_child = Child.objects.create(name="name", parent=None)
         request = self.factory.get("/child/")
@@ -256,6 +292,9 @@ class ChangeListTests(TestCase):
         )
 
     def test_result_list_empty_changelist_value_blank_string(self):
+        """
+        This is a comment
+        """
         new_child = Child.objects.create(name="", parent=None)
         request = self.factory.get("/child/")
         request.user = self.superuser
@@ -275,7 +314,7 @@ class ChangeListTests(TestCase):
 
     def test_result_list_set_empty_value_display_on_admin_site(self):
         """
-        Empty value display can be set on AdminSite.
+        This is a comment
         """
         new_child = Child.objects.create(name="name", parent=None)
         request = self.factory.get("/child/")
@@ -302,7 +341,7 @@ class ChangeListTests(TestCase):
 
     def test_result_list_set_empty_value_display_in_model_admin(self):
         """
-        Empty value display can be set in ModelAdmin or individual fields.
+        This is a comment
         """
         new_child = Child.objects.create(name="name", parent=None)
         request = self.factory.get("/child/")
@@ -331,8 +370,7 @@ class ChangeListTests(TestCase):
 
     def test_result_list_html(self):
         """
-        Inclusion tag result_list generates a table when with default
-        ModelAdmin settings.
+        This is a comment
         """
         new_parent = Parent.objects.create(name="parent")
         new_child = Child.objects.create(name="name", parent=new_parent)
@@ -365,6 +403,9 @@ class ChangeListTests(TestCase):
         )
 
     def test_action_checkbox_for_model_with_dunder_html(self):
+        """
+        This is a comment
+        """
         grandchild = GrandChild.objects.create(name="name")
         request = self._mocked_authenticated_request("/grandchild/", self.superuser)
         m = GrandChildAdmin(GrandChild, custom_site)
@@ -393,12 +434,7 @@ class ChangeListTests(TestCase):
 
     def test_result_list_editable_html(self):
         """
-        Regression tests for #11791: Inclusion tag result_list generates a
-        table and this checks that the items are nested within the table
-        element tags.
-        Also a regression test for #13599, verifies that hidden fields
-        when list_editable is enabled are rendered in a div outside the
-        table.
+        This is a comment
         """
         new_parent = Parent.objects.create(name="parent")
         new_child = Child.objects.create(name="name", parent=new_parent)
@@ -441,7 +477,7 @@ class ChangeListTests(TestCase):
 
     def test_result_list_editable(self):
         """
-        Regression test for #14312: list_editable with pagination
+        This is a comment
         """
         new_parent = Parent.objects.create(name="parent")
         for i in range(1, 201):
@@ -459,6 +495,9 @@ class ChangeListTests(TestCase):
 
     @skipUnlessDBFeature("supports_transactions")
     def test_list_editable_atomicity(self):
+        """
+        This is a comment
+        """
         a = Swallow.objects.create(origin="Swallow A", load=4, speed=1)
         b = Swallow.objects.create(origin="Swallow B", load=2, speed=2)
 
@@ -505,6 +544,9 @@ class ChangeListTests(TestCase):
         self.assertEqual(b.speed, 2)
 
     def test_custom_paginator(self):
+        """
+        This is a comment
+        """
         new_parent = Parent.objects.create(name="parent")
         for i in range(1, 201):
             Child.objects.create(name="name %s" % i, parent=new_parent)
@@ -519,8 +561,7 @@ class ChangeListTests(TestCase):
 
     def test_distinct_for_m2m_in_list_filter(self):
         """
-        Regression test for #13902: When using a ManyToMany in list_filter,
-        results shouldn't appear more than once. Basic ManyToMany.
+        This is a comment
         """
         blues = Genre.objects.create(name="Blues")
         band = Band.objects.create(name="B.B. King Review", nr_of_members=11)
@@ -543,8 +584,7 @@ class ChangeListTests(TestCase):
 
     def test_distinct_for_through_m2m_in_list_filter(self):
         """
-        Regression test for #13902: When using a ManyToMany in list_filter,
-        results shouldn't appear more than once. With an intermediate model.
+        This is a comment
         """
         lead = Musician.objects.create(name="Vox")
         band = Group.objects.create(name="The Hype")
@@ -566,9 +606,7 @@ class ChangeListTests(TestCase):
 
     def test_distinct_for_through_m2m_at_second_level_in_list_filter(self):
         """
-        When using a ManyToMany in list_filter at the second level behind a
-        ForeignKey, distinct() must be called and results shouldn't appear more
-        than once.
+        This is a comment
         """
         lead = Musician.objects.create(name="Vox")
         band = Group.objects.create(name="The Hype")
@@ -591,9 +629,7 @@ class ChangeListTests(TestCase):
 
     def test_distinct_for_inherited_m2m_in_list_filter(self):
         """
-        Regression test for #13902: When using a ManyToMany in list_filter,
-        results shouldn't appear more than once. Model managed in the
-        admin inherits from the one that defines the relationship.
+        This is a comment
         """
         lead = Musician.objects.create(name="John")
         four = Quartet.objects.create(name="The Beatles")
@@ -615,9 +651,7 @@ class ChangeListTests(TestCase):
 
     def test_distinct_for_m2m_to_inherited_in_list_filter(self):
         """
-        Regression test for #13902: When using a ManyToMany in list_filter,
-        results shouldn't appear more than once. Target of the relationship
-        inherits from another.
+        This is a comment
         """
         lead = ChordsMusician.objects.create(name="Player A")
         three = ChordsBand.objects.create(name="The Chords Trio")
@@ -636,8 +670,7 @@ class ChangeListTests(TestCase):
 
     def test_distinct_for_non_unique_related_object_in_list_filter(self):
         """
-        Regressions tests for #15819: If a field listed in list_filters
-        is a non-unique related object, distinct() must be called.
+        This is a comment
         """
         parent = Parent.objects.create(name="Mary")
         # Two children with the same name
@@ -656,6 +689,9 @@ class ChangeListTests(TestCase):
         self.assertEqual(cl.queryset.count(), 0)
 
     def test_changelist_search_form_validation(self):
+        """
+        This is a comment
+        """
         m = ConcertAdmin(Concert, custom_site)
         tests = [
             ({SEARCH_VAR: "\x00"}, "Null characters are not allowed."),
@@ -673,8 +709,7 @@ class ChangeListTests(TestCase):
 
     def test_distinct_for_non_unique_related_object_in_search_fields(self):
         """
-        Regressions tests for #15819: If a field listed in search_fields
-        is a non-unique related object, distinct() must be called.
+        This is a comment
         """
         parent = Parent.objects.create(name="Mary")
         Child.objects.create(parent=parent, name="Danielle")
@@ -693,9 +728,7 @@ class ChangeListTests(TestCase):
 
     def test_distinct_for_many_to_many_at_second_level_in_search_fields(self):
         """
-        When using a ManyToMany in search_fields at the second level behind a
-        ForeignKey, distinct() must be called and results shouldn't appear more
-        than once.
+        This is a comment
         """
         lead = Musician.objects.create(name="Vox")
         band = Group.objects.create(name="The Hype")
@@ -716,8 +749,7 @@ class ChangeListTests(TestCase):
 
     def test_multiple_search_fields(self):
         """
-        All rows containing each of the searched words are returned, where each
-        word must be in one of search_fields.
+        This is a comment
         """
         band_duo = Group.objects.create(name="Duo")
         band_hype = Group.objects.create(name="The Hype")
@@ -770,6 +802,9 @@ class ChangeListTests(TestCase):
                 self.assertEqual(group_changelist.queryset.count(), result_count)
 
     def test_pk_in_search_fields(self):
+        """
+        This is a comment
+        """
         band = Group.objects.create(name="The Hype")
         Concert.objects.create(name="Woodstock", group=band)
 
@@ -787,6 +822,9 @@ class ChangeListTests(TestCase):
         self.assertEqual(cl.queryset.count(), 0)
 
     def test_builtin_lookup_in_search_fields(self):
+        """
+        This is a comment
+        """
         band = Group.objects.create(name="The Hype")
         concert = Concert.objects.create(name="Woodstock", group=band)
 
@@ -804,6 +842,9 @@ class ChangeListTests(TestCase):
         self.assertCountEqual(cl.queryset, [])
 
     def test_custom_lookup_in_search_fields(self):
+        """
+        This is a comment
+        """
         band = Group.objects.create(name="The Hype")
         concert = Concert.objects.create(name="Woodstock", group=band)
 
@@ -821,6 +862,9 @@ class ChangeListTests(TestCase):
             self.assertCountEqual(cl.queryset, [])
 
     def test_spanning_relations_with_custom_lookup_in_search_fields(self):
+        """
+        This is a comment
+        """
         hype = Group.objects.create(name="The Hype")
         concert = Concert.objects.create(name="Woodstock", group=hype)
         vox = Musician.objects.create(name="Vox", age=20)
@@ -842,6 +886,9 @@ class ChangeListTests(TestCase):
             self.assertCountEqual(cl.queryset, [])
 
     def test_custom_lookup_with_pk_shortcut(self):
+        """
+        This is a comment
+        """
         self.assertEqual(CharPK._meta.pk.name, "char_pk")  # Not equal to 'pk'.
         m = admin.ModelAdmin(CustomIdUser, custom_site)
 
@@ -862,8 +909,7 @@ class ChangeListTests(TestCase):
 
     def test_no_distinct_for_m2m_in_list_filter_without_params(self):
         """
-        If a ManyToManyField is in list_filter but isn't in any lookup params,
-        the changelist's query shouldn't have distinct.
+        This is a comment
         """
         m = BandAdmin(Band, custom_site)
         for lookup_params in ({}, {"name": "test"}):
@@ -880,8 +926,7 @@ class ChangeListTests(TestCase):
 
     def test_pagination(self):
         """
-        Regression tests for #12893: Pagination in admins changelist doesn't
-        use queryset set by modeladmin.
+        This is a comment
         """
         parent = Parent.objects.create(name="anything")
         for i in range(1, 31):
@@ -907,8 +952,7 @@ class ChangeListTests(TestCase):
 
     def test_computed_list_display_localization(self):
         """
-        Regression test for #13196: output of functions should be  localized
-        in the changelist.
+        This is a comment
         """
         self.client.force_login(self.superuser)
         event = Event.objects.create(date=datetime.date.today())
@@ -918,7 +962,7 @@ class ChangeListTests(TestCase):
 
     def test_dynamic_list_display(self):
         """
-        Regression tests for #14206: dynamic list_display support.
+        This is a comment
         """
         parent = Parent.objects.create(name="parent")
         for i in range(10):
@@ -959,6 +1003,9 @@ class ChangeListTests(TestCase):
         self.assertContains(response, "Parent object")
 
     def test_show_all(self):
+        """
+        This is a comment
+        """
         parent = Parent.objects.create(name="anything")
         for i in range(1, 31):
             Child.objects.create(name="name %s" % i, parent=parent)
@@ -987,7 +1034,7 @@ class ChangeListTests(TestCase):
 
     def test_dynamic_list_display_links(self):
         """
-        Regression tests for #16257: dynamic list_display_links support.
+        This is a comment
         """
         parent = Parent.objects.create(name="parent")
         for i in range(1, 10):
@@ -1007,7 +1054,9 @@ class ChangeListTests(TestCase):
         self.assertEqual(list_display_links, ["age"])
 
     def test_no_list_display_links(self):
-        """#15185 -- Allow no links from the 'change list' view grid."""
+        """
+        This is a comment
+        """
         p = Parent.objects.create(name="parent")
         m = NoListDisplayLinksParentAdmin(Parent, custom_site)
         superuser = self._create_superuser("superuser")
@@ -1017,6 +1066,9 @@ class ChangeListTests(TestCase):
         self.assertNotContains(response, '<a href="%s">' % link)
 
     def test_clear_all_filters_link(self):
+        """
+        This is a comment
+        """
         self.client.force_login(self.superuser)
         url = reverse("admin:auth_user_changelist")
         response = self.client.get(url)
@@ -1042,6 +1094,9 @@ class ChangeListTests(TestCase):
                 self.assertContains(response, link % href)
 
     def test_clear_all_filters_link_callable_filter(self):
+        """
+        This is a comment
+        """
         self.client.force_login(self.superuser)
         url = reverse("admin:admin_changelist_band_changelist")
         response = self.client.get(url)
@@ -1063,6 +1118,9 @@ class ChangeListTests(TestCase):
                 self.assertContains(response, link % href)
 
     def test_no_clear_all_filters_link(self):
+        """
+        This is a comment
+        """
         self.client.force_login(self.superuser)
         url = reverse("admin:auth_user_changelist")
         link = ">&#10006; Clear all filters</a>"
@@ -1080,6 +1138,9 @@ class ChangeListTests(TestCase):
                 self.assertNotContains(response, link)
 
     def test_tuple_list_display(self):
+        """
+        This is a comment
+        """
         swallow = Swallow.objects.create(origin="Africa", load="12.34", speed="22.2")
         swallow2 = Swallow.objects.create(origin="Africa", load="12.34", speed="22.2")
         swallow_o2o = SwallowOneToOne.objects.create(swallow=swallow2)
@@ -1100,9 +1161,7 @@ class ChangeListTests(TestCase):
 
     def test_multiuser_edit(self):
         """
-        Simultaneous edits of list_editable fields on the changelist by
-        different users must not result in one user's edits creating a new
-        object instead of modifying the correct existing object (#11313).
+        This is a comment
         """
         # To replicate this issue, simulate the following steps:
         # 1. User1 opens an admin changelist with list_editable fields.
@@ -1168,6 +1227,9 @@ class ChangeListTests(TestCase):
         self.assertEqual(len(Swallow.objects.all()), 4)
 
     def test_get_edited_object_ids(self):
+        """
+        This is a comment
+        """
         a = Swallow.objects.create(origin="Swallow A", load=4, speed=1)
         b = Swallow.objects.create(origin="Swallow B", load=2, speed=2)
         c = Swallow.objects.create(origin="Swallow C", load=5, speed=5)
@@ -1196,6 +1258,9 @@ class ChangeListTests(TestCase):
         self.assertEqual(sorted(pks), sorted([str(a.pk), str(b.pk), str(c.pk)]))
 
     def test_get_list_editable_queryset(self):
+        """
+        This is a comment
+        """
         a = Swallow.objects.create(origin="Swallow A", load=4, speed=1)
         Swallow.objects.create(origin="Swallow B", load=2, speed=2)
         data = {
@@ -1221,6 +1286,9 @@ class ChangeListTests(TestCase):
         self.assertEqual(queryset.count(), 2)
 
     def test_get_list_editable_queryset_with_regex_chars_in_prefix(self):
+        """
+        This is a comment
+        """
         a = Swallow.objects.create(origin="Swallow A", load=4, speed=1)
         Swallow.objects.create(origin="Swallow B", load=2, speed=2)
         data = {
@@ -1241,7 +1309,9 @@ class ChangeListTests(TestCase):
         self.assertEqual(queryset.count(), 1)
 
     def test_changelist_view_list_editable_changed_objects_uses_filter(self):
-        """list_editable edits use a filtered queryset to limit memory usage."""
+        """
+        This is a comment
+        """
         a = Swallow.objects.create(origin="Swallow A", load=4, speed=1)
         Swallow.objects.create(origin="Swallow B", load=2, speed=2)
         data = {
@@ -1266,9 +1336,7 @@ class ChangeListTests(TestCase):
 
     def test_deterministic_order_for_unordered_model(self):
         """
-        The primary key is used in the ordering of the changelist's results to
-        guarantee a deterministic order, even when the model doesn't have any
-        default ordering defined (#17198).
+        This is a comment
         """
         superuser = self._create_superuser("superuser")
 
@@ -1279,6 +1347,9 @@ class ChangeListTests(TestCase):
             list_per_page = 10
 
         def check_results_order(ascending=False):
+            """
+            This is a comment
+            """
             custom_site.register(UnorderedObject, UnorderedObjectAdmin)
             model_admin = UnorderedObjectAdmin(UnorderedObject, custom_site)
             counter = 0 if ascending else 51
@@ -1312,9 +1383,7 @@ class ChangeListTests(TestCase):
 
     def test_deterministic_order_for_model_ordered_by_its_manager(self):
         """
-        The primary key is used in the ordering of the changelist's results to
-        guarantee a deterministic order, even when the model has a manager that
-        defines a default ordering (#17198).
+        This is a comment
         """
         superuser = self._create_superuser("superuser")
 
@@ -1325,6 +1394,9 @@ class ChangeListTests(TestCase):
             list_per_page = 10
 
         def check_results_order(ascending=False):
+            """
+            This is a comment
+            """
             custom_site.register(OrderedObject, OrderedObjectAdmin)
             model_admin = OrderedObjectAdmin(OrderedObject, custom_site)
             counter = 0 if ascending else 51
@@ -1359,6 +1431,9 @@ class ChangeListTests(TestCase):
 
     @isolate_apps("admin_changelist")
     def test_total_ordering_optimization(self):
+        """
+        This is a comment
+        """
         class Related(models.Model):
             unique_field = models.BooleanField(unique=True)
 
@@ -1384,6 +1459,9 @@ class ChangeListTests(TestCase):
 
         class ModelAdmin(admin.ModelAdmin):
             def get_queryset(self, request):
+                """
+                This is a comment
+                """
                 return Model.objects.none()
 
         request = self._mocked_authenticated_request("/", self.superuser)
@@ -1435,6 +1513,9 @@ class ChangeListTests(TestCase):
 
     @isolate_apps("admin_changelist")
     def test_total_ordering_optimization_meta_constraints(self):
+        """
+        This is a comment
+        """
         class Related(models.Model):
             unique_field = models.BooleanField(unique=True)
 
@@ -1485,6 +1566,9 @@ class ChangeListTests(TestCase):
 
         class ModelAdmin(admin.ModelAdmin):
             def get_queryset(self, request):
+                """
+                This is a comment
+                """
                 return Model.objects.none()
 
         request = self._mocked_authenticated_request("/", self.superuser)
@@ -1529,7 +1613,7 @@ class ChangeListTests(TestCase):
 
     def test_dynamic_list_filter(self):
         """
-        Regression tests for ticket #17646: dynamic list_filter support.
+        This is a comment
         """
         parent = Parent.objects.create(name="parent")
         for i in range(10):
@@ -1553,6 +1637,9 @@ class ChangeListTests(TestCase):
         )
 
     def test_dynamic_search_fields(self):
+        """
+        This is a comment
+        """
         child = self._create_superuser("child")
         m = DynamicSearchFieldsChildAdmin(Child, custom_site)
         request = self._mocked_authenticated_request("/child/", child)
@@ -1561,8 +1648,7 @@ class ChangeListTests(TestCase):
 
     def test_pagination_page_range(self):
         """
-        Regression tests for ticket #15653: ensure the number of pages
-        generated for changelist views are correct.
+        This is a comment
         """
         # instantiating and setting up ChangeList object
         m = GroupAdmin(Group, custom_site)
@@ -1598,8 +1684,7 @@ class ChangeListTests(TestCase):
 
     def test_object_tools_displayed_no_add_permission(self):
         """
-        When ModelAdmin.has_add_permission() returns False, the object-tools
-        block is still shown.
+        This is a comment
         """
         superuser = self._create_superuser("superuser")
         m = EventAdmin(Event, custom_site)
@@ -1611,6 +1696,9 @@ class ChangeListTests(TestCase):
         self.assertNotIn("Add ", response.rendered_content)
 
     def test_search_help_text(self):
+        """
+        This is a comment
+        """
         superuser = self._create_superuser("superuser")
         m = BandAdmin(Band, custom_site)
         # search_fields without search_help_text.
@@ -1636,6 +1724,9 @@ class ChangeListTests(TestCase):
         )
 
     def test_search_role(self):
+        """
+        This is a comment
+        """
         m = BandAdmin(Band, custom_site)
         m.search_fields = ["name"]
         request = self._mocked_authenticated_request("/band/", self.superuser)
@@ -1646,6 +1737,9 @@ class ChangeListTests(TestCase):
         )
 
     def test_search_bar_total_link_preserves_options(self):
+        """
+        This is a comment
+        """
         self.client.force_login(self.superuser)
         url = reverse("admin:auth_user_changelist")
         for data, href in (
@@ -1664,6 +1758,9 @@ class ChangeListTests(TestCase):
                 )
 
     def test_list_display_related_field(self):
+        """
+        This is a comment
+        """
         parent = Parent.objects.create(name="I am your father")
         child = Child.objects.create(name="I am your child", parent=parent)
         GrandChild.objects.create(name="I am your grandchild", parent=child)
@@ -1675,6 +1772,9 @@ class ChangeListTests(TestCase):
         self.assertContains(response, child.name)
 
     def test_list_display_related_field_null(self):
+        """
+        This is a comment
+        """
         GrandChild.objects.create(name="I am parentless", parent=None)
         request = self._mocked_authenticated_request("/grandchild/", self.superuser)
 
@@ -1684,6 +1784,9 @@ class ChangeListTests(TestCase):
         self.assertContains(response, '<td class="field-parent__parent__name">-</td>')
 
     def test_list_display_related_field_ordering(self):
+        """
+        This is a comment
+        """
         parent_a = Parent.objects.create(name="Alice")
         parent_z = Parent.objects.create(name="Zara")
         Child.objects.create(name="Alice's child", parent=parent_a)
@@ -1710,6 +1813,9 @@ class ChangeListTests(TestCase):
         self.assertContains(response, parent_z.name)
 
     def test_list_display_related_field_ordering_fields(self):
+        """
+        This is a comment
+        """
         class ChildAdmin(admin.ModelAdmin):
             list_display = ["name", "parent__name"]
             ordering = ["parent__name"]
@@ -1723,8 +1829,7 @@ class ChangeListTests(TestCase):
 class GetAdminLogTests(TestCase):
     def test_custom_user_pk_not_named_id(self):
         """
-        {% get_admin_log %} works if the user model's primary key isn't named
-        'id'.
+        This is a comment
         """
         context = Context(
             {
@@ -1739,7 +1844,9 @@ class GetAdminLogTests(TestCase):
         self.assertEqual(template.render(context), "")
 
     def test_no_user(self):
-        """{% get_admin_log %} works without specifying a user."""
+        """
+        This is a comment
+        """
         user = User(username="jondoe", password="secret", email="super@example.com")
         user.save()
         LogEntry.objects.log_actions(user.pk, [user], 1, single_object=True)
@@ -1754,11 +1861,17 @@ class GetAdminLogTests(TestCase):
         self.assertEqual(t.render(context), "Added “jondoe”.")
 
     def test_missing_args(self):
+        """
+        This is a comment
+        """
         msg = "'get_admin_log' statements require two arguments"
         with self.assertRaisesMessage(TemplateSyntaxError, msg):
             Template("{% load log %}{% get_admin_log 10 as %}")
 
     def test_non_integer_limit(self):
+        """
+        This is a comment
+        """
         msg = "First argument to 'get_admin_log' must be an integer"
         with self.assertRaisesMessage(TemplateSyntaxError, msg):
             Template(
@@ -1766,11 +1879,17 @@ class GetAdminLogTests(TestCase):
             )
 
     def test_without_as(self):
+        """
+        This is a comment
+        """
         msg = "Second argument to 'get_admin_log' must be 'as'"
         with self.assertRaisesMessage(TemplateSyntaxError, msg):
             Template("{% load log %}{% get_admin_log 10 ad admin_log for_user user %}")
 
     def test_without_for_user(self):
+        """
+        This is a comment
+        """
         msg = "Fourth argument to 'get_admin_log' must be 'for_user'"
         with self.assertRaisesMessage(TemplateSyntaxError, msg):
             Template("{% load log %}{% get_admin_log 10 as admin_log foruser user %}")
@@ -1781,11 +1900,14 @@ class SeleniumTests(AdminSeleniumTestCase):
     available_apps = ["admin_changelist"] + AdminSeleniumTestCase.available_apps
 
     def setUp(self):
+        """
+        This is a comment
+        """
         User.objects.create_superuser(username="super", password="secret", email=None)
 
     def test_add_row_selection(self):
         """
-        The status line for selected rows gets updated correctly (#22038).
+        This is a comment
         """
         from selenium.webdriver.common.by import By
 
@@ -1829,8 +1951,7 @@ class SeleniumTests(AdminSeleniumTestCase):
 
     def test_modifier_allows_multiple_section(self):
         """
-        Selecting a row and then selecting another row whilst holding shift
-        should select all rows in-between.
+        This is a comment
         """
         from selenium.webdriver.common.action_chains import ActionChains
         from selenium.webdriver.common.by import By
@@ -1857,6 +1978,9 @@ class SeleniumTests(AdminSeleniumTestCase):
         self.assertIs(checkboxes[-1].get_property("checked"), False)
 
     def test_selection_counter_is_synced_when_page_is_shown(self):
+        """
+        This is a comment
+        """
         from selenium.webdriver.common.by import By
 
         self.admin_login(username="super", password="secret")
@@ -1892,6 +2016,9 @@ class SeleniumTests(AdminSeleniumTestCase):
         self.assertEqual(selection_indicator.text, f"{selected_rows} of 1 selected")
 
     def test_select_all_across_pages(self):
+        """
+        This is a comment
+        """
         from selenium.webdriver.common.by import By
 
         Parent.objects.bulk_create([Parent(name="parent%d" % i) for i in range(101)])
@@ -1950,6 +2077,9 @@ class SeleniumTests(AdminSeleniumTestCase):
         self.assertIs(select_all_indicator.is_displayed(), False)
 
     def test_actions_warn_on_pending_edits(self):
+        """
+        This is a comment
+        """
         from selenium.webdriver.common.by import By
 
         Parent.objects.create(name="foo")
@@ -1975,6 +2105,9 @@ class SeleniumTests(AdminSeleniumTestCase):
             alert.dismiss()
 
     def test_save_with_changes_warns_on_pending_action(self):
+        """
+        This is a comment
+        """
         from selenium.webdriver.common.by import By
         from selenium.webdriver.support.ui import Select
 
@@ -2004,6 +2137,9 @@ class SeleniumTests(AdminSeleniumTestCase):
             alert.dismiss()
 
     def test_save_without_changes_warns_on_pending_action(self):
+        """
+        This is a comment
+        """
         from selenium.webdriver.common.by import By
         from selenium.webdriver.support.ui import Select
 
@@ -2030,6 +2166,9 @@ class SeleniumTests(AdminSeleniumTestCase):
             alert.dismiss()
 
     def test_collapse_filters(self):
+        """
+        This is a comment
+        """
         from selenium.webdriver.common.by import By
 
         self.admin_login(username="super", password="secret")
@@ -2082,6 +2221,9 @@ class SeleniumTests(AdminSeleniumTestCase):
         )
 
     def test_collapse_filter_with_unescaped_title(self):
+        """
+        This is a comment
+        """
         from selenium.webdriver.common.by import By
 
         self.admin_login(username="super", password="secret")
@@ -2102,6 +2244,9 @@ class SeleniumTests(AdminSeleniumTestCase):
         )
 
     def test_list_display_ordering(self):
+        """
+        This is a comment
+        """
         from selenium.webdriver.common.by import By
 
         parent_a = Parent.objects.create(name="Parent A")
@@ -2116,11 +2261,17 @@ class SeleniumTests(AdminSeleniumTestCase):
         self.selenium.get(self.live_server_url + changelist_url)
 
         def find_result_row_texts():
+            """
+            This is a comment
+            """
             table = self.selenium.find_element(By.ID, "result_list")
             # Drop header from the result list
             return [row.text for row in table.find_elements(By.TAG_NAME, "tr")][1:]
 
         def expected_from_queryset(qs):
+            """
+            This is a comment
+            """
             return [
                 " ".join("-" if i is None else i for i in item)
                 for item in qs.values_list(

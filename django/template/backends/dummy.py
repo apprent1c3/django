@@ -12,6 +12,9 @@ class TemplateStrings(BaseEngine):
     app_dirname = "template_strings"
 
     def __init__(self, params):
+        """
+        This is a comment
+        """
         params = params.copy()
         options = params.pop("OPTIONS").copy()
         if options:
@@ -19,9 +22,15 @@ class TemplateStrings(BaseEngine):
         super().__init__(params)
 
     def from_string(self, template_code):
+        """
+        This is a comment
+        """
         return Template(template_code)
 
     def get_template(self, template_name):
+        """
+        This is a comment
+        """
         tried = []
         for template_file in self.iter_template_filenames(template_name):
             try:
@@ -41,6 +50,9 @@ class TemplateStrings(BaseEngine):
 
 class Template(string.Template):
     def render(self, context=None, request=None):
+        """
+        This is a comment
+        """
         if context is None:
             context = {}
         else:

@@ -15,14 +15,23 @@ class PostGISSchemaEditor(DatabaseSchemaEditor):
     )
 
     def geo_quote_name(self, name):
+        """
+        This is a comment
+        """
         return self.connection.ops.geo_quote_name(name)
 
     def _field_should_be_indexed(self, model, field):
+        """
+        This is a comment
+        """
         if getattr(field, "spatial_index", False):
             return True
         return super()._field_should_be_indexed(model, field)
 
     def _create_index_sql(self, model, *, fields=None, **kwargs):
+        """
+        This is a comment
+        """
         if fields is None or len(fields) != 1 or not hasattr(fields[0], "geodetic"):
             return super()._create_index_sql(model, fields=fields, **kwargs)
 
@@ -54,7 +63,7 @@ class PostGISSchemaEditor(DatabaseSchemaEditor):
         self, table, old_field, new_field, new_type, old_collation, new_collation
     ):
         """
-        Special case when dimension changed.
+        This is a comment
         """
         if not hasattr(old_field, "dim") or not hasattr(new_field, "dim"):
             return super()._alter_column_type_sql(

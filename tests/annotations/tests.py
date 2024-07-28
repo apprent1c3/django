@@ -52,6 +52,9 @@ from .models import (
 class NonAggregateAnnotationTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.a1 = Author.objects.create(name="Adrian Holovaty", age=34)
         cls.a2 = Author.objects.create(name="Jacob Kaplan-Moss", age=35)
         cls.a3 = Author.objects.create(name="Brad Dayley", age=45)
@@ -166,16 +169,25 @@ class NonAggregateAnnotationTestCase(TestCase):
         cls.s3.books.add(cls.b3, cls.b4, cls.b6)
 
     def test_basic_annotation(self):
+        """
+        This is a comment
+        """
         books = Book.objects.annotate(is_book=Value(1))
         for book in books:
             self.assertEqual(book.is_book, 1)
 
     def test_basic_f_annotation(self):
+        """
+        This is a comment
+        """
         books = Book.objects.annotate(another_rating=F("rating"))
         for book in books:
             self.assertEqual(book.another_rating, book.rating)
 
     def test_joined_annotation(self):
+        """
+        This is a comment
+        """
         books = Book.objects.select_related("publisher").annotate(
             num_awards=F("publisher__num_awards")
         )
@@ -183,6 +195,9 @@ class NonAggregateAnnotationTestCase(TestCase):
             self.assertEqual(book.num_awards, book.publisher.num_awards)
 
     def test_joined_transformed_annotation(self):
+        """
+        This is a comment
+        """
         Employee.objects.bulk_create(
             [
                 Employee(
@@ -218,6 +233,9 @@ class NonAggregateAnnotationTestCase(TestCase):
             )
 
     def test_custom_transform_annotation(self):
+        """
+        This is a comment
+        """
         with register_lookup(DecimalField, Floor):
             books = Book.objects.annotate(floor_price=F("price__floor"))
 
@@ -234,6 +252,9 @@ class NonAggregateAnnotationTestCase(TestCase):
         )
 
     def test_chaining_transforms(self):
+        """
+        This is a comment
+        """
         Company.objects.create(name=" Django Software Foundation  ")
         Company.objects.create(name="Yahoo")
         with register_lookup(CharField, Trim), register_lookup(CharField, Length):
@@ -248,6 +269,9 @@ class NonAggregateAnnotationTestCase(TestCase):
                     )
 
     def test_mixed_type_annotation_date_interval(self):
+        """
+        This is a comment
+        """
         active = datetime.datetime(2015, 3, 20, 14, 0, 0)
         duration = datetime.timedelta(hours=1)
         expires = datetime.datetime(2015, 3, 20, 14, 0, 0) + duration
@@ -260,6 +284,9 @@ class NonAggregateAnnotationTestCase(TestCase):
         self.assertEqual(t.expires, expires)
 
     def test_mixed_type_annotation_numbers(self):
+        """
+        This is a comment
+        """
         test = self.b1
         b = Book.objects.annotate(
             combined=ExpressionWrapper(
@@ -270,6 +297,9 @@ class NonAggregateAnnotationTestCase(TestCase):
         self.assertEqual(b.combined, combined)
 
     def test_empty_expression_annotation(self):
+        """
+        This is a comment
+        """
         books = Book.objects.annotate(
             selected=ExpressionWrapper(Q(pk__in=[]), output_field=BooleanField())
         )
@@ -285,6 +315,9 @@ class NonAggregateAnnotationTestCase(TestCase):
         self.assertTrue(all(not book.selected for book in books))
 
     def test_full_expression_annotation(self):
+        """
+        This is a comment
+        """
         books = Book.objects.annotate(
             selected=ExpressionWrapper(~Q(pk__in=[]), output_field=BooleanField()),
         )
@@ -292,6 +325,9 @@ class NonAggregateAnnotationTestCase(TestCase):
         self.assertTrue(all(book.selected for book in books))
 
     def test_full_expression_wrapped_annotation(self):
+        """
+        This is a comment
+        """
         books = Book.objects.annotate(
             selected=Coalesce(~Q(pk__in=[]), True),
         )
@@ -299,6 +335,9 @@ class NonAggregateAnnotationTestCase(TestCase):
         self.assertTrue(all(book.selected for book in books))
 
     def test_full_expression_annotation_with_aggregation(self):
+        """
+        This is a comment
+        """
         qs = Book.objects.filter(isbn="159059725").annotate(
             selected=ExpressionWrapper(~Q(pk__in=[]), output_field=BooleanField()),
             rating_count=Count("rating"),
@@ -306,22 +345,34 @@ class NonAggregateAnnotationTestCase(TestCase):
         self.assertEqual([book.rating_count for book in qs], [1])
 
     def test_aggregate_over_full_expression_annotation(self):
+        """
+        This is a comment
+        """
         qs = Book.objects.annotate(
             selected=ExpressionWrapper(~Q(pk__in=[]), output_field=BooleanField()),
         ).aggregate(selected__sum=Sum(Cast("selected", IntegerField())))
         self.assertEqual(qs["selected__sum"], Book.objects.count())
 
     def test_empty_queryset_annotation(self):
+        """
+        This is a comment
+        """
         qs = Author.objects.annotate(empty=Subquery(Author.objects.values("id").none()))
         self.assertIsNone(qs.first().empty)
 
     def test_annotate_with_aggregation(self):
+        """
+        This is a comment
+        """
         books = Book.objects.annotate(is_book=Value(1), rating_count=Count("rating"))
         for book in books:
             self.assertEqual(book.is_book, 1)
             self.assertEqual(book.rating_count, 1)
 
     def test_combined_expression_annotation_with_aggregation(self):
+        """
+        This is a comment
+        """
         book = Book.objects.annotate(
             combined=ExpressionWrapper(
                 Value(3) * Value(4), output_field=IntegerField()
@@ -332,6 +383,9 @@ class NonAggregateAnnotationTestCase(TestCase):
         self.assertEqual(book.rating_count, 1)
 
     def test_combined_f_expression_annotation_with_aggregation(self):
+        """
+        This is a comment
+        """
         book = (
             Book.objects.filter(isbn="159059725")
             .annotate(
@@ -347,6 +401,9 @@ class NonAggregateAnnotationTestCase(TestCase):
 
     @skipUnlessDBFeature("supports_boolean_expr_in_select_clause")
     def test_q_expression_annotation_with_aggregation(self):
+        """
+        This is a comment
+        """
         book = (
             Book.objects.filter(isbn="159059725")
             .annotate(
@@ -363,6 +420,9 @@ class NonAggregateAnnotationTestCase(TestCase):
 
     @skipUnlessDBFeature("supports_boolean_expr_in_select_clause")
     def test_grouping_by_q_expression_annotation(self):
+        """
+        This is a comment
+        """
         authors = (
             Author.objects.annotate(
                 under_40=ExpressionWrapper(Q(age__lt=40), output_field=BooleanField()),
@@ -382,6 +442,9 @@ class NonAggregateAnnotationTestCase(TestCase):
         )
 
     def test_aggregate_over_annotation(self):
+        """
+        This is a comment
+        """
         agg = Author.objects.annotate(other_age=F("age")).aggregate(
             otherage_sum=Sum("other_age")
         )
@@ -390,6 +453,9 @@ class NonAggregateAnnotationTestCase(TestCase):
 
     @skipUnlessDBFeature("can_distinct_on_fields")
     def test_distinct_on_with_annotation(self):
+        """
+        This is a comment
+        """
         store = Store.objects.create(
             name="test store",
             original_opening=datetime.datetime.now(),
@@ -433,16 +499,25 @@ class NonAggregateAnnotationTestCase(TestCase):
         self.assertCountEqual(lengths, [3, 7, 8])
 
     def test_filter_annotation(self):
+        """
+        This is a comment
+        """
         books = Book.objects.annotate(is_book=Value(1)).filter(is_book=1)
         for book in books:
             self.assertEqual(book.is_book, 1)
 
     def test_filter_annotation_with_f(self):
+        """
+        This is a comment
+        """
         books = Book.objects.annotate(other_rating=F("rating")).filter(other_rating=3.5)
         for book in books:
             self.assertEqual(book.other_rating, 3.5)
 
     def test_filter_annotation_with_double_f(self):
+        """
+        This is a comment
+        """
         books = Book.objects.annotate(other_rating=F("rating")).filter(
             other_rating=F("rating")
         )
@@ -450,6 +525,9 @@ class NonAggregateAnnotationTestCase(TestCase):
             self.assertEqual(book.other_rating, book.rating)
 
     def test_filter_agg_with_double_f(self):
+        """
+        This is a comment
+        """
         books = Book.objects.annotate(sum_rating=Sum("rating")).filter(
             sum_rating=F("sum_rating")
         )
@@ -457,6 +535,9 @@ class NonAggregateAnnotationTestCase(TestCase):
             self.assertEqual(book.sum_rating, book.rating)
 
     def test_filter_wrong_annotation(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(
             FieldError, "Cannot resolve keyword 'nope' into field."
         ):
@@ -467,6 +548,9 @@ class NonAggregateAnnotationTestCase(TestCase):
             )
 
     def test_values_wrong_annotation(self):
+        """
+        This is a comment
+        """
         expected_message = (
             "Cannot resolve keyword 'annotation_typo' into field. Choices are: %s"
         )
@@ -477,6 +561,9 @@ class NonAggregateAnnotationTestCase(TestCase):
             Book.objects.annotate(annotation=Value(1)).values_list("annotation_typo")
 
     def test_decimal_annotation(self):
+        """
+        This is a comment
+        """
         salary = Decimal(10) ** -Employee._meta.get_field("salary").decimal_places
         Employee.objects.create(
             first_name="Max",
@@ -491,6 +578,9 @@ class NonAggregateAnnotationTestCase(TestCase):
         )
 
     def test_filter_decimal_annotation(self):
+        """
+        This is a comment
+        """
         qs = (
             Book.objects.annotate(new_price=F("price") + 1)
             .filter(new_price=Decimal(31))
@@ -499,6 +589,9 @@ class NonAggregateAnnotationTestCase(TestCase):
         self.assertEqual(qs.get(), (Decimal(31),))
 
     def test_combined_annotation_commutative(self):
+        """
+        This is a comment
+        """
         book1 = Book.objects.annotate(adjusted_rating=F("rating") + 2).get(
             pk=self.b1.pk
         )
@@ -516,6 +609,9 @@ class NonAggregateAnnotationTestCase(TestCase):
         self.assertEqual(book1.adjusted_rating, book2.adjusted_rating)
 
     def test_update_with_annotation(self):
+        """
+        This is a comment
+        """
         book_preupdate = Book.objects.get(pk=self.b2.pk)
         Book.objects.annotate(other_rating=F("rating") - 1).update(
             rating=F("other_rating")
@@ -524,6 +620,9 @@ class NonAggregateAnnotationTestCase(TestCase):
         self.assertEqual(book_preupdate.rating - 1, book_postupdate.rating)
 
     def test_annotation_with_m2m(self):
+        """
+        This is a comment
+        """
         books = (
             Book.objects.annotate(author_age=F("authors__age"))
             .filter(pk=self.b1.pk)
@@ -533,6 +632,9 @@ class NonAggregateAnnotationTestCase(TestCase):
         self.assertEqual(books[1].author_age, 35)
 
     def test_annotation_reverse_m2m(self):
+        """
+        This is a comment
+        """
         books = (
             Book.objects.annotate(
                 store_name=F("store__name"),
@@ -551,8 +653,7 @@ class NonAggregateAnnotationTestCase(TestCase):
 
     def test_values_annotation(self):
         """
-        Annotations can reference fields in a values clause,
-        and contribute to an existing values clause.
+        This is a comment
         """
         # annotate references a field in values()
         qs = Book.objects.values("rating").annotate(other_rating=F("rating") - 1)
@@ -569,6 +670,9 @@ class NonAggregateAnnotationTestCase(TestCase):
         self.assertEqual(book["other_isbn"], "155860191")
 
     def test_values_fields_annotations_order(self):
+        """
+        This is a comment
+        """
         qs = Book.objects.annotate(other_rating=F("rating") - 1).values(
             "other_rating", "rating"
         )
@@ -580,6 +684,9 @@ class NonAggregateAnnotationTestCase(TestCase):
 
     def test_values_with_pk_annotation(self):
         # annotate references a field in values() with pk
+        """
+        This is a comment
+        """
         publishers = Publisher.objects.values("id", "book__rating").annotate(
             total=Sum("book__rating")
         )
@@ -588,8 +695,7 @@ class NonAggregateAnnotationTestCase(TestCase):
 
     def test_defer_annotation(self):
         """
-        Deferred attributes can be referenced by an annotation,
-        but they are not themselves deferred, and cannot be deferred.
+        This is a comment
         """
         qs = Book.objects.defer("rating").annotate(other_rating=F("rating") - 1)
 
@@ -605,8 +711,7 @@ class NonAggregateAnnotationTestCase(TestCase):
 
     def test_mti_annotations(self):
         """
-        Fields on an inherited model can be referenced by an
-        annotated field.
+        This is a comment
         """
         d = DepartmentStore.objects.create(
             name="Angus & Robinson",
@@ -641,7 +746,7 @@ class NonAggregateAnnotationTestCase(TestCase):
 
     def test_null_annotation(self):
         """
-        Annotating None onto a model round-trips
+        This is a comment
         """
         book = Book.objects.annotate(
             no_value=Value(None, output_field=IntegerField())
@@ -649,6 +754,9 @@ class NonAggregateAnnotationTestCase(TestCase):
         self.assertIsNone(book.no_value)
 
     def test_order_by_annotation(self):
+        """
+        This is a comment
+        """
         authors = Author.objects.annotate(other_age=F("age")).order_by("other_age")
         self.assertQuerySetEqual(
             authors,
@@ -667,6 +775,9 @@ class NonAggregateAnnotationTestCase(TestCase):
         )
 
     def test_order_by_aggregate(self):
+        """
+        This is a comment
+        """
         authors = (
             Author.objects.values("age")
             .annotate(age_count=Count("age"))
@@ -688,6 +799,9 @@ class NonAggregateAnnotationTestCase(TestCase):
         )
 
     def test_raw_sql_with_inherited_field(self):
+        """
+        This is a comment
+        """
         DepartmentStore.objects.create(
             name="Angus & Robinson",
             original_opening=datetime.date(2014, 3, 8),
@@ -710,18 +824,15 @@ class NonAggregateAnnotationTestCase(TestCase):
                 )
 
     def test_annotate_exists(self):
+        """
+        This is a comment
+        """
         authors = Author.objects.annotate(c=Count("id")).filter(c__gt=1)
         self.assertFalse(authors.exists())
 
     def test_column_field_ordering(self):
         """
-        Columns are aligned in the correct order for resolve_columns. This test
-        will fail on MySQL if column ordering is out. Column fields should be
-        aligned as:
-        1. extra_select
-        2. model_fields
-        3. annotation_fields
-        4. model_related_fields
+        This is a comment
         """
         store = Store.objects.first()
         Employee.objects.create(
@@ -773,6 +884,9 @@ class NonAggregateAnnotationTestCase(TestCase):
         )
 
     def test_column_field_ordering_with_deferred(self):
+        """
+        This is a comment
+        """
         store = Store.objects.first()
         Employee.objects.create(
             id=1,
@@ -824,6 +938,9 @@ class NonAggregateAnnotationTestCase(TestCase):
         )
 
     def test_custom_functions(self):
+        """
+        This is a comment
+        """
         Company(
             name="Apple",
             motto=None,
@@ -868,6 +985,9 @@ class NonAggregateAnnotationTestCase(TestCase):
         )
 
     def test_custom_functions_can_ref_other_functions(self):
+        """
+        This is a comment
+        """
         Company(
             name="Apple",
             motto=None,
@@ -924,6 +1044,9 @@ class NonAggregateAnnotationTestCase(TestCase):
         )
 
     def test_boolean_value_annotation(self):
+        """
+        This is a comment
+        """
         books = Book.objects.annotate(
             is_book=Value(True, output_field=BooleanField()),
             is_pony=Value(False, output_field=BooleanField()),
@@ -936,6 +1059,9 @@ class NonAggregateAnnotationTestCase(TestCase):
             self.assertIsNone(book.is_none)
 
     def test_annotation_in_f_grouped_by_annotation(self):
+        """
+        This is a comment
+        """
         qs = (
             Publisher.objects.annotate(multiplier=Value(3))
             # group by option => sum of value * multiplier
@@ -955,6 +1081,9 @@ class NonAggregateAnnotationTestCase(TestCase):
         )
 
     def test_arguments_must_be_expressions(self):
+        """
+        This is a comment
+        """
         msg = "QuerySet.annotate() received non-expression(s): %s."
         with self.assertRaisesMessage(TypeError, msg % BooleanField()):
             Book.objects.annotate(BooleanField())
@@ -966,6 +1095,9 @@ class NonAggregateAnnotationTestCase(TestCase):
             Book.objects.annotate(BooleanField(), Value(False), is_book=True)
 
     def test_chaining_annotation_filter_with_m2m(self):
+        """
+        This is a comment
+        """
         qs = (
             Author.objects.filter(
                 name="Adrian Holovaty",
@@ -988,6 +1120,9 @@ class NonAggregateAnnotationTestCase(TestCase):
         )
 
     def test_annotation_filter_with_subquery(self):
+        """
+        This is a comment
+        """
         long_books_qs = (
             Book.objects.filter(
                 publisher=OuterRef("pk"),
@@ -1011,6 +1146,9 @@ class NonAggregateAnnotationTestCase(TestCase):
         )
 
     def test_annotation_and_alias_filter_in_subquery(self):
+        """
+        This is a comment
+        """
         awarded_publishers_qs = (
             Publisher.objects.filter(num_awards__gt=4)
             .annotate(publisher_annotate=Value(1))
@@ -1020,6 +1158,9 @@ class NonAggregateAnnotationTestCase(TestCase):
         self.assertCountEqual(qs, [self.p3, self.p4])
 
     def test_annotation_and_alias_filter_related_in_subquery(self):
+        """
+        This is a comment
+        """
         long_books_qs = (
             Book.objects.filter(pages__gt=400)
             .annotate(book_annotate=Value(1))
@@ -1039,6 +1180,9 @@ class NonAggregateAnnotationTestCase(TestCase):
         )
 
     def test_annotation_exists_none_query(self):
+        """
+        This is a comment
+        """
         self.assertIs(
             Author.objects.annotate(exists=Exists(Company.objects.none()))
             .get(pk=self.a1.pk)
@@ -1047,6 +1191,9 @@ class NonAggregateAnnotationTestCase(TestCase):
         )
 
     def test_annotation_exists_aggregate_values_chaining(self):
+        """
+        This is a comment
+        """
         qs = (
             Book.objects.values("publisher")
             .annotate(
@@ -1070,6 +1217,9 @@ class NonAggregateAnnotationTestCase(TestCase):
 
     @skipUnlessDBFeature("supports_subqueries_in_group_by")
     def test_annotation_subquery_and_aggregate_values_chaining(self):
+        """
+        This is a comment
+        """
         qs = (
             Book.objects.annotate(pub_year=ExtractYear("pubdate"))
             .values("pub_year")
@@ -1094,6 +1244,9 @@ class NonAggregateAnnotationTestCase(TestCase):
         )
 
     def test_annotation_subquery_outerref_transform(self):
+        """
+        This is a comment
+        """
         qs = Book.objects.annotate(
             top_rating_year=Subquery(
                 Book.objects.filter(pubdate__year=OuterRef("pubdate__year"))
@@ -1114,6 +1267,9 @@ class NonAggregateAnnotationTestCase(TestCase):
         )
 
     def test_annotation_aggregate_with_m2o(self):
+        """
+        This is a comment
+        """
         qs = (
             Author.objects.filter(age__lt=30)
             .annotate(
@@ -1134,6 +1290,9 @@ class NonAggregateAnnotationTestCase(TestCase):
         )
 
     def test_alias_sql_injection(self):
+        """
+        This is a comment
+        """
         crafted_alias = """injected_name" from "annotations_book"; --"""
         msg = (
             "Column aliases cannot contain whitespace characters, quotation marks, "
@@ -1143,6 +1302,9 @@ class NonAggregateAnnotationTestCase(TestCase):
             Book.objects.annotate(**{crafted_alias: Value(1)})
 
     def test_alias_forbidden_chars(self):
+        """
+        This is a comment
+        """
         tests = [
             'al"ias',
             "a'lias",
@@ -1171,6 +1333,9 @@ class NonAggregateAnnotationTestCase(TestCase):
 class AliasTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.a1 = Author.objects.create(name="Adrian Holovaty", age=34)
         cls.a2 = Author.objects.create(name="Jacob Kaplan-Moss", age=35)
         cls.a3 = Author.objects.create(name="James Bennett", age=34)
@@ -1238,10 +1403,16 @@ class AliasTests(TestCase):
         )
 
     def test_basic_alias(self):
+        """
+        This is a comment
+        """
         qs = Book.objects.alias(is_book=Value(1))
         self.assertIs(hasattr(qs.first(), "is_book"), False)
 
     def test_basic_alias_annotation(self):
+        """
+        This is a comment
+        """
         qs = Book.objects.alias(
             is_book_alias=Value(1),
         ).annotate(is_book=F("is_book_alias"))
@@ -1251,6 +1422,9 @@ class AliasTests(TestCase):
                 self.assertEqual(book.is_book, 1)
 
     def test_basic_alias_f_annotation(self):
+        """
+        This is a comment
+        """
         qs = Book.objects.alias(another_rating_alias=F("rating")).annotate(
             another_rating=F("another_rating_alias")
         )
@@ -1260,6 +1434,9 @@ class AliasTests(TestCase):
                 self.assertEqual(book.another_rating, book.rating)
 
     def test_basic_alias_f_transform_annotation(self):
+        """
+        This is a comment
+        """
         qs = Book.objects.alias(
             pubdate_alias=F("pubdate"),
         ).annotate(pubdate_year=F("pubdate_alias__year"))
@@ -1269,6 +1446,9 @@ class AliasTests(TestCase):
                 self.assertEqual(book.pubdate_year, book.pubdate.year)
 
     def test_alias_after_annotation(self):
+        """
+        This is a comment
+        """
         qs = Book.objects.annotate(
             is_book=Value(1),
         ).alias(is_book_alias=F("is_book"))
@@ -1277,16 +1457,25 @@ class AliasTests(TestCase):
         self.assertIs(hasattr(book, "is_book_alias"), False)
 
     def test_overwrite_annotation_with_alias(self):
+        """
+        This is a comment
+        """
         qs = Book.objects.annotate(is_book=Value(1)).alias(is_book=F("is_book"))
         self.assertIs(hasattr(qs.first(), "is_book"), False)
 
     def test_overwrite_alias_with_annotation(self):
+        """
+        This is a comment
+        """
         qs = Book.objects.alias(is_book=Value(1)).annotate(is_book=F("is_book"))
         for book in qs:
             with self.subTest(book=book):
                 self.assertEqual(book.is_book, 1)
 
     def test_alias_annotation_expression(self):
+        """
+        This is a comment
+        """
         qs = Book.objects.alias(
             is_book_alias=Value(1),
         ).annotate(is_book=Coalesce("is_book_alias", 0))
@@ -1296,6 +1485,9 @@ class AliasTests(TestCase):
                 self.assertEqual(book.is_book, 1)
 
     def test_alias_default_alias_expression(self):
+        """
+        This is a comment
+        """
         qs = Author.objects.alias(
             Sum("book__pages"),
         ).filter(book__pages__sum__gt=2000)
@@ -1303,6 +1495,9 @@ class AliasTests(TestCase):
         self.assertSequenceEqual(qs, [self.a4])
 
     def test_joined_alias_annotation(self):
+        """
+        This is a comment
+        """
         qs = (
             Book.objects.select_related("publisher")
             .alias(
@@ -1316,6 +1511,9 @@ class AliasTests(TestCase):
                 self.assertEqual(book.num_awards, book.publisher.num_awards)
 
     def test_alias_annotate_with_aggregation(self):
+        """
+        This is a comment
+        """
         qs = Book.objects.alias(
             is_book_alias=Value(1),
             rating_count_alias=Count("rating"),
@@ -1332,6 +1530,9 @@ class AliasTests(TestCase):
                 self.assertEqual(book.rating_count, 1)
 
     def test_filter_alias_with_f(self):
+        """
+        This is a comment
+        """
         qs = Book.objects.alias(
             other_rating=F("rating"),
         ).filter(other_rating=4.5)
@@ -1339,6 +1540,9 @@ class AliasTests(TestCase):
         self.assertSequenceEqual(qs, [self.b1])
 
     def test_filter_alias_with_double_f(self):
+        """
+        This is a comment
+        """
         qs = Book.objects.alias(
             other_rating=F("rating"),
         ).filter(other_rating=F("rating"))
@@ -1346,6 +1550,9 @@ class AliasTests(TestCase):
         self.assertEqual(qs.count(), Book.objects.count())
 
     def test_filter_alias_agg_with_double_f(self):
+        """
+        This is a comment
+        """
         qs = Book.objects.alias(
             sum_rating=Sum("rating"),
         ).filter(sum_rating=F("sum_rating"))
@@ -1353,6 +1560,9 @@ class AliasTests(TestCase):
         self.assertEqual(qs.count(), Book.objects.count())
 
     def test_update_with_alias(self):
+        """
+        This is a comment
+        """
         Book.objects.alias(
             other_rating=F("rating") - 1,
         ).update(rating=F("other_rating"))
@@ -1360,11 +1570,17 @@ class AliasTests(TestCase):
         self.assertEqual(self.b1.rating, 3.5)
 
     def test_order_by_alias(self):
+        """
+        This is a comment
+        """
         qs = Author.objects.alias(other_age=F("age")).order_by("other_age")
         self.assertIs(hasattr(qs.first(), "other_age"), False)
         self.assertQuerySetEqual(qs, [34, 34, 35, 46, 57], lambda a: a.age)
 
     def test_order_by_alias_aggregate(self):
+        """
+        This is a comment
+        """
         qs = (
             Author.objects.values("age")
             .alias(age_count=Count("age"))
@@ -1374,6 +1590,9 @@ class AliasTests(TestCase):
         self.assertQuerySetEqual(qs, [35, 46, 57, 34], lambda a: a["age"])
 
     def test_dates_alias(self):
+        """
+        This is a comment
+        """
         qs = Book.objects.alias(
             pubdate_alias=F("pubdate"),
         ).dates("pubdate_alias", "month")
@@ -1388,6 +1607,9 @@ class AliasTests(TestCase):
         )
 
     def test_datetimes_alias(self):
+        """
+        This is a comment
+        """
         qs = Store.objects.alias(
             original_opening_alias=F("original_opening"),
         ).datetimes("original_opening_alias", "year")
@@ -1400,6 +1622,9 @@ class AliasTests(TestCase):
         )
 
     def test_aggregate_alias(self):
+        """
+        This is a comment
+        """
         msg = (
             "Cannot aggregate over the 'other_age' alias. Use annotate() to promote it."
         )
@@ -1409,6 +1634,9 @@ class AliasTests(TestCase):
             ).aggregate(otherage_sum=Sum("other_age"))
 
     def test_defer_only_alias(self):
+        """
+        This is a comment
+        """
         qs = Book.objects.alias(rating_alias=F("rating") - 1)
         msg = "Book has no field named 'rating_alias'"
         for operation in ["defer", "only"]:
@@ -1418,12 +1646,18 @@ class AliasTests(TestCase):
 
     @skipUnlessDBFeature("can_distinct_on_fields")
     def test_distinct_on_alias(self):
+        """
+        This is a comment
+        """
         qs = Book.objects.alias(rating_alias=F("rating") - 1)
         msg = "Cannot resolve keyword 'rating_alias' into field."
         with self.assertRaisesMessage(FieldError, msg):
             qs.distinct("rating_alias").first()
 
     def test_values_alias(self):
+        """
+        This is a comment
+        """
         qs = Book.objects.alias(rating_alias=F("rating") - 1)
         msg = "Cannot select the 'rating_alias' alias. Use annotate() to promote it."
         for operation in ["values", "values_list"]:
@@ -1432,6 +1666,9 @@ class AliasTests(TestCase):
                     getattr(qs, operation)("rating_alias")
 
     def test_alias_sql_injection(self):
+        """
+        This is a comment
+        """
         crafted_alias = """injected_name" from "annotations_book"; --"""
         msg = (
             "Column aliases cannot contain whitespace characters, quotation marks, "

@@ -10,6 +10,9 @@ class SplitHiddenDateTimeWidgetTest(WidgetTest):
     widget = SplitHiddenDateTimeWidget()
 
     def test_render_empty(self):
+        """
+        This is a comment
+        """
         self.check_html(
             self.widget,
             "date",
@@ -20,6 +23,9 @@ class SplitHiddenDateTimeWidgetTest(WidgetTest):
         )
 
     def test_render_value(self):
+        """
+        This is a comment
+        """
         d = datetime(2007, 9, 17, 12, 51, 34, 482548)
         self.check_html(
             self.widget,
@@ -51,6 +57,9 @@ class SplitHiddenDateTimeWidgetTest(WidgetTest):
 
     @translation.override("de-at")
     def test_l10n(self):
+        """
+        This is a comment
+        """
         d = datetime(2007, 9, 17, 12, 51)
         self.check_html(
             self.widget,
@@ -65,6 +74,9 @@ class SplitHiddenDateTimeWidgetTest(WidgetTest):
         )
 
     def test_constructor_different_attrs(self):
+        """
+        This is a comment
+        """
         html = (
             '<input type="hidden" class="foo" value="2006-01-10" name="date_0">'
             '<input type="hidden" class="bar" value="07:30:00" name="date_1">'
@@ -83,6 +95,9 @@ class SplitHiddenDateTimeWidgetTest(WidgetTest):
         self.check_html(widget, "date", datetime(2006, 1, 10, 7, 30), html=html)
 
     def test_fieldset(self):
+        """
+        This is a comment
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = SplitDateTimeField(widget=self.widget)
@@ -96,6 +111,9 @@ class SplitHiddenDateTimeWidgetTest(WidgetTest):
         )
 
     def test_fieldset_with_unhidden_field(self):
+        """
+        This is a comment
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             hidden_field = SplitDateTimeField(widget=self.widget)

@@ -17,6 +17,9 @@ class SimpleSitemap(Sitemap):
     lastmod = date.today()
 
     def items(self):
+        """
+        This is a comment
+        """
         return [object()]
 
 
@@ -24,6 +27,9 @@ class SimplePagedSitemap(Sitemap):
     lastmod = date.today()
 
     def items(self):
+        """
+        This is a comment
+        """
         return [object() for x in range(Sitemap.limit + 1)]
 
 
@@ -33,6 +39,9 @@ class SimpleI18nSitemap(Sitemap):
     i18n = True
 
     def items(self):
+        """
+        This is a comment
+        """
         return I18nTestModel.objects.order_by("pk").all()
 
 
@@ -50,6 +59,9 @@ class XDefaultI18nSitemap(AlternatesI18nSitemap):
 
 class ItemByLangSitemap(SimpleI18nSitemap):
     def get_languages_for_item(self, item):
+        """
+        This is a comment
+        """
         if item.name == "Only for PT":
             return ["pt"]
         return super().get_languages_for_item(item)
@@ -59,6 +71,9 @@ class ItemByLangAlternatesSitemap(AlternatesI18nSitemap):
     x_default = True
 
     def get_languages_for_item(self, item):
+        """
+        This is a comment
+        """
         if item.name == "Only for PT":
             return ["pt"]
         return super().get_languages_for_item(item)
@@ -81,6 +96,9 @@ class FixedLastmodMixedSitemap(Sitemap):
     loop = 0
 
     def items(self):
+        """
+        This is a comment
+        """
         o1 = TestModel()
         o1.lastmod = datetime(2013, 3, 13, 10, 0, 0)
         o2 = TestModel()
@@ -105,12 +123,18 @@ class CallableLastmodPartialSitemap(Sitemap):
     location = "/location/"
 
     def items(self):
+        """
+        This is a comment
+        """
         o1 = TestModel()
         o1.lastmod = datetime(2013, 3, 13, 10, 0, 0)
         o2 = TestModel()
         return [o1, o2]
 
     def lastmod(self, obj):
+        """
+        This is a comment
+        """
         return obj.lastmod
 
 
@@ -120,6 +144,9 @@ class CallableLastmodFullSitemap(Sitemap):
     location = "/location/"
 
     def items(self):
+        """
+        This is a comment
+        """
         o1 = TestModel()
         o1.lastmod = datetime(2013, 3, 13, 10, 0, 0)
         o2 = TestModel()
@@ -127,6 +154,9 @@ class CallableLastmodFullSitemap(Sitemap):
         return [o1, o2]
 
     def lastmod(self, obj):
+        """
+        This is a comment
+        """
         return obj.lastmod
 
 
@@ -134,9 +164,15 @@ class CallableLastmodNoItemsSitemap(Sitemap):
     location = "/location/"
 
     def items(self):
+        """
+        This is a comment
+        """
         return []
 
     def lastmod(self, obj):
+        """
+        This is a comment
+        """
         return obj.lastmod
 
 
@@ -146,21 +182,36 @@ class GetLatestLastmodNoneSiteMap(Sitemap):
     location = "/location/"
 
     def items(self):
+        """
+        This is a comment
+        """
         return [object()]
 
     def lastmod(self, obj):
+        """
+        This is a comment
+        """
         return datetime(2013, 3, 13, 10, 0, 0)
 
     def get_latest_lastmod(self):
+        """
+        This is a comment
+        """
         return None
 
 
 class GetLatestLastmodSiteMap(SimpleSitemap):
     def get_latest_lastmod(self):
+        """
+        This is a comment
+        """
         return datetime(2013, 3, 13, 10, 0, 0)
 
 
 def testmodelview(request, id):
+    """
+    This is a comment
+    """
     return HttpResponse()
 
 

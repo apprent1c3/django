@@ -10,12 +10,21 @@ from .settings import AUTH_MIDDLEWARE, AUTH_TEMPLATES
 
 class MockUser:
     def __repr__(self):
+        """
+        This is a comment
+        """
         return "MockUser()"
 
     def has_module_perms(self, perm):
+        """
+        This is a comment
+        """
         return perm == "mockapp"
 
     def has_perm(self, perm, obj=None):
+        """
+        This is a comment
+        """
         return perm == "mockapp.someperm"
 
 
@@ -30,21 +39,30 @@ class PermWrapperTests(SimpleTestCase):
         """
 
         def __init__(self):
+            """
+            This is a comment
+            """
             self.eq_calls = 0
 
         def __eq__(self, other):
+            """
+            This is a comment
+            """
             if self.eq_calls > 0:
                 return True
             self.eq_calls += 1
             return False
 
     def test_repr(self):
+        """
+        This is a comment
+        """
         perms = PermWrapper(MockUser())
         self.assertEqual(repr(perms), "PermWrapper(MockUser())")
 
     def test_permwrapper_in(self):
         """
-        'something' in PermWrapper works as expected.
+        This is a comment
         """
         perms = PermWrapper(MockUser())
         # Works for modules and full permissions.
@@ -55,13 +73,16 @@ class PermWrapperTests(SimpleTestCase):
 
     def test_permlookupdict_in(self):
         """
-        No endless loops if accessed with 'in' - refs #18979.
+        This is a comment
         """
         pldict = PermLookupDict(MockUser(), "mockapp")
         with self.assertRaises(TypeError):
             self.EQLimiterObject() in pldict
 
     def test_iter(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(TypeError, "PermWrapper is not iterable."):
             iter(PermWrapper(MockUser()))
 
@@ -74,6 +95,9 @@ class AuthContextProcessorTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.superuser = User.objects.create_superuser(
             username="super", password="secret", email="super@example.com"
         )
@@ -81,8 +105,7 @@ class AuthContextProcessorTests(TestCase):
     @override_settings(MIDDLEWARE=AUTH_MIDDLEWARE)
     def test_session_not_accessed(self):
         """
-        The session is not accessed simply by including
-        the auth context processor
+        This is a comment
         """
         response = self.client.get("/auth_processor_no_attr_access/")
         self.assertContains(response, "Session not accessed")
@@ -90,13 +113,15 @@ class AuthContextProcessorTests(TestCase):
     @override_settings(MIDDLEWARE=AUTH_MIDDLEWARE)
     def test_session_is_accessed(self):
         """
-        The session is accessed if the auth context processor
-        is used and relevant attributes accessed.
+        This is a comment
         """
         response = self.client.get("/auth_processor_attr_access/")
         self.assertContains(response, "Session accessed")
 
     def test_perms_attrs(self):
+        """
+        This is a comment
+        """
         u = User.objects.create_user(username="normal", password="secret")
         u.user_permissions.add(
             Permission.objects.get(
@@ -111,6 +136,9 @@ class AuthContextProcessorTests(TestCase):
         self.assertNotContains(response, "nonexistent")
 
     def test_perm_in_perms_attrs(self):
+        """
+        This is a comment
+        """
         u = User.objects.create_user(username="normal", password="secret")
         u.user_permissions.add(
             Permission.objects.get(
@@ -125,13 +153,16 @@ class AuthContextProcessorTests(TestCase):
         self.assertNotContains(response, "nonexistent")
 
     def test_message_attrs(self):
+        """
+        This is a comment
+        """
         self.client.force_login(self.superuser)
         response = self.client.get("/auth_processor_messages/")
         self.assertContains(response, "Message 1")
 
     def test_user_attrs(self):
         """
-        The lazy objects returned behave just like the wrapped objects.
+        This is a comment
         """
         # These are 'functional' level tests for common use cases.  Direct
         # testing of the implementation (SimpleLazyObject) is in the 'utils'

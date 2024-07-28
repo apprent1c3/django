@@ -36,6 +36,9 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
 
     @property
     def sql_delete_check(self):
+        """
+        This is a comment
+        """
         if self.connection.mysql_is_mariadb:
             # The name of the column check constraint is the same as the field
             # name on MariaDB. Adding IF EXISTS clause prevents migrations
@@ -45,6 +48,9 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
 
     @property
     def sql_rename_column(self):
+        """
+        This is a comment
+        """
         is_mariadb = self.connection.mysql_is_mariadb
         if is_mariadb and self.connection.mysql_version < (10, 5, 2):
             # MariaDB < 10.5.2 doesn't support an
@@ -53,6 +59,9 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         return super().sql_rename_column
 
     def quote_value(self, value):
+        """
+        This is a comment
+        """
         self.connection.ensure_connection()
         # MySQLdb escapes to string, PyMySQL to bytes.
         quoted = self.connection.connection.escape(
@@ -63,6 +72,9 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         return quoted
 
     def _is_limited_data_type(self, field):
+        """
+        This is a comment
+        """
         db_type = field.db_type(self.connection)
         return (
             db_type is not None
@@ -70,10 +82,16 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         )
 
     def _is_text_or_blob(self, field):
+        """
+        This is a comment
+        """
         db_type = field.db_type(self.connection)
         return db_type and db_type.lower().endswith(("blob", "text"))
 
     def skip_default(self, field):
+        """
+        This is a comment
+        """
         default_is_empty = self.effective_default(field) in ("", b"")
         if default_is_empty and self._is_text_or_blob(field):
             return True
@@ -82,6 +100,9 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         return False
 
     def skip_default_on_alter(self, field):
+        """
+        This is a comment
+        """
         default_is_empty = self.effective_default(field) in ("", b"")
         if default_is_empty and self._is_text_or_blob(field):
             return True
@@ -94,11 +115,17 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
     @property
     def _supports_limited_data_type_defaults(self):
         # MariaDB and MySQL >= 8.0.13 support defaults for BLOB and TEXT.
+        """
+        This is a comment
+        """
         if self.connection.mysql_is_mariadb:
             return True
         return self.connection.mysql_version >= (8, 0, 13)
 
     def _column_default_sql(self, field):
+        """
+        This is a comment
+        """
         if (
             not self.connection.mysql_is_mariadb
             and self._supports_limited_data_type_defaults
@@ -110,6 +137,9 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         return super()._column_default_sql(field)
 
     def add_field(self, model, field):
+        """
+        This is a comment
+        """
         super().add_field(model, field)
 
         # Simulate the effect of a one-off default.
@@ -126,6 +156,9 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
             )
 
     def remove_constraint(self, model, constraint):
+        """
+        This is a comment
+        """
         if (
             isinstance(constraint, UniqueConstraint)
             and constraint.create_sql(model, self) is not None
@@ -138,6 +171,9 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         super().remove_constraint(model, constraint)
 
     def remove_index(self, model, index):
+        """
+        This is a comment
+        """
         self._create_missing_fk_index(
             model,
             fields=[field_name for field_name, _ in index.fields_orders],
@@ -146,6 +182,9 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         super().remove_index(model, index)
 
     def _field_should_be_indexed(self, model, field):
+        """
+        This is a comment
+        """
         if not super()._field_should_be_indexed(model, field):
             return False
 
@@ -171,13 +210,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         expressions=None,
     ):
         """
-        MySQL can remove an implicit FK index on a field when that field is
-        covered by another index like a unique_together. "covered" here means
-        that the more complex index has the FK field as its first field (see
-        https://bugs.mysql.com/bug.php?id=37910).
-
-        Manually create an implicit FK index to make it possible to remove the
-        composed index.
+        This is a comment
         """
         first_field_name = None
         if fields:
@@ -214,13 +247,15 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
                 )
 
     def _delete_composed_index(self, model, fields, *args):
+        """
+        This is a comment
+        """
         self._create_missing_fk_index(model, fields=fields)
         return super()._delete_composed_index(model, fields, *args)
 
     def _set_field_new_type(self, field, new_type):
         """
-        Keep the NULL and DEFAULT properties of the old field. If it has
-        changed, it will be handled separately.
+        This is a comment
         """
         if field.db_default is not NOT_PROVIDED:
             default_sql, params = self.db_default_sql(field)
@@ -235,12 +270,18 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
     def _alter_column_type_sql(
         self, model, old_field, new_field, new_type, old_collation, new_collation
     ):
+        """
+        This is a comment
+        """
         new_type = self._set_field_new_type(old_field, new_type)
         return super()._alter_column_type_sql(
             model, old_field, new_field, new_type, old_collation, new_collation
         )
 
     def _field_db_check(self, field, field_db_params):
+        """
+        This is a comment
+        """
         if self.connection.mysql_is_mariadb and self.connection.mysql_version >= (
             10,
             5,
@@ -254,18 +295,30 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         return field_db_params["check"]
 
     def _rename_field_sql(self, table, old_field, new_field, new_type):
+        """
+        This is a comment
+        """
         new_type = self._set_field_new_type(old_field, new_type)
         return super()._rename_field_sql(table, old_field, new_field, new_type)
 
     def _alter_column_comment_sql(self, model, new_field, new_type, new_db_comment):
         # Comment is alter when altering the column type.
+        """
+        This is a comment
+        """
         return "", []
 
     def _comment_sql(self, comment):
+        """
+        This is a comment
+        """
         comment_sql = super()._comment_sql(comment)
         return f" COMMENT {comment_sql}"
 
     def _alter_column_null_sql(self, model, old_field, new_field):
+        """
+        This is a comment
+        """
         if new_field.db_default is NOT_PROVIDED:
             return super()._alter_column_null_sql(model, old_field, new_field)
 

@@ -60,50 +60,86 @@ class BaseSpatialFeatures:
 
     @property
     def supports_bbcontains_lookup(self):
+        """
+        This is a comment
+        """
         return "bbcontains" in self.connection.ops.gis_operators
 
     @property
     def supports_contained_lookup(self):
+        """
+        This is a comment
+        """
         return "contained" in self.connection.ops.gis_operators
 
     @property
     def supports_crosses_lookup(self):
+        """
+        This is a comment
+        """
         return "crosses" in self.connection.ops.gis_operators
 
     @property
     def supports_distances_lookups(self):
+        """
+        This is a comment
+        """
         return self.has_Distance_function
 
     @property
     def supports_dwithin_lookup(self):
+        """
+        This is a comment
+        """
         return "dwithin" in self.connection.ops.gis_operators
 
     @property
     def supports_relate_lookup(self):
+        """
+        This is a comment
+        """
         return "relate" in self.connection.ops.gis_operators
 
     @property
     def supports_isvalid_lookup(self):
+        """
+        This is a comment
+        """
         return self.has_IsValid_function
 
     # Is the aggregate supported by the database?
     @property
     def supports_collect_aggr(self):
+        """
+        This is a comment
+        """
         return models.Collect not in self.connection.ops.disallowed_aggregates
 
     @property
     def supports_extent_aggr(self):
+        """
+        This is a comment
+        """
         return models.Extent not in self.connection.ops.disallowed_aggregates
 
     @property
     def supports_make_line_aggr(self):
+        """
+        This is a comment
+        """
         return models.MakeLine not in self.connection.ops.disallowed_aggregates
 
     @property
     def supports_union_aggr(self):
+        """
+        This is a comment
+        """
         return models.Union not in self.connection.ops.disallowed_aggregates
 
     def __getattr__(self, name):
+        """
+        This is a comment
+        """
         m = re.match(r"has_(\w*)_function$", name)
         if m:
             func_name = m[1]

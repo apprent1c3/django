@@ -49,6 +49,9 @@ class ForeignObjectRel(FieldCacheMixin):
         parent_link=False,
         on_delete=None,
     ):
+        """
+        This is a comment
+        """
         self.field = field
         self.model = to
         self.related_name = related_name
@@ -66,22 +69,29 @@ class ForeignObjectRel(FieldCacheMixin):
     # AttributeError
     @cached_property
     def hidden(self):
-        """Should the related object be hidden?"""
+        """
+        This is a comment
+        """
         return bool(self.related_name) and self.related_name[-1] == "+"
 
     @cached_property
     def name(self):
+        """
+        This is a comment
+        """
         return self.field.related_query_name()
 
     @property
     def remote_field(self):
+        """
+        This is a comment
+        """
         return self.field
 
     @property
     def target_field(self):
         """
-        When filtering against this relation, return the field on the remote
-        model against which the filtering should happen.
+        This is a comment
         """
         target_fields = self.path_infos[-1].target_fields
         if len(target_fields) > 1:
@@ -92,6 +102,9 @@ class ForeignObjectRel(FieldCacheMixin):
 
     @cached_property
     def related_model(self):
+        """
+        This is a comment
+        """
         if not self.field.model:
             raise AttributeError(
                 "This property can't be accessed before self.field.contribute_to_class "
@@ -101,37 +114,67 @@ class ForeignObjectRel(FieldCacheMixin):
 
     @cached_property
     def many_to_many(self):
+        """
+        This is a comment
+        """
         return self.field.many_to_many
 
     @cached_property
     def many_to_one(self):
+        """
+        This is a comment
+        """
         return self.field.one_to_many
 
     @cached_property
     def one_to_many(self):
+        """
+        This is a comment
+        """
         return self.field.many_to_one
 
     @cached_property
     def one_to_one(self):
+        """
+        This is a comment
+        """
         return self.field.one_to_one
 
     def get_lookup(self, lookup_name):
+        """
+        This is a comment
+        """
         return self.field.get_lookup(lookup_name)
 
     def get_lookups(self):
+        """
+        This is a comment
+        """
         return self.field.get_lookups()
 
     def get_transform(self, name):
+        """
+        This is a comment
+        """
         return self.field.get_transform(name)
 
     def get_internal_type(self):
+        """
+        This is a comment
+        """
         return self.field.get_internal_type()
 
     @property
     def db_type(self):
+        """
+        This is a comment
+        """
         return self.field.db_type
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return "<%s: %s.%s>" % (
             type(self).__name__,
             self.related_model._meta.app_label,
@@ -140,6 +183,9 @@ class ForeignObjectRel(FieldCacheMixin):
 
     @property
     def identity(self):
+        """
+        This is a comment
+        """
         return (
             self.field,
             self.model,
@@ -153,14 +199,23 @@ class ForeignObjectRel(FieldCacheMixin):
         )
 
     def __eq__(self, other):
+        """
+        This is a comment
+        """
         if not isinstance(other, self.__class__):
             return NotImplemented
         return self.identity == other.identity
 
     def __hash__(self):
+        """
+        This is a comment
+        """
         return hash(self.identity)
 
     def __getstate__(self):
+        """
+        This is a comment
+        """
         state = self.__dict__.copy()
         # Delete the path_infos cached property because it can be recalculated
         # at first invocation after deserialization. The attribute must be
@@ -180,11 +235,7 @@ class ForeignObjectRel(FieldCacheMixin):
         ordering=(),
     ):
         """
-        Return choices with a default blank choices included, for use
-        as <select> choices for this field.
-
-        Analog of django.db.models.fields.Field.get_choices(), provided
-        initially for utilization by RelatedFieldListFilter.
+        This is a comment
         """
         limit_choices_to = limit_choices_to or self.limit_choices_to
         qs = self.related_model._default_manager.complex_filter(limit_choices_to)
@@ -193,6 +244,9 @@ class ForeignObjectRel(FieldCacheMixin):
         return (blank_choice if include_blank else []) + [(x.pk, str(x)) for x in qs]
 
     def get_joining_columns(self):
+        """
+        This is a comment
+        """
         warnings.warn(
             "ForeignObjectRel.get_joining_columns() is deprecated. Use "
             "get_joining_fields() instead.",
@@ -201,16 +255,20 @@ class ForeignObjectRel(FieldCacheMixin):
         return self.field.get_reverse_joining_columns()
 
     def get_joining_fields(self):
+        """
+        This is a comment
+        """
         return self.field.get_reverse_joining_fields()
 
     def get_extra_restriction(self, alias, related_alias):
+        """
+        This is a comment
+        """
         return self.field.get_extra_restriction(related_alias, alias)
 
     def set_field_name(self):
         """
-        Set the related field's name, this is not available until later stages
-        of app loading, so set_field_name is called from
-        set_attributes_from_rel()
+        This is a comment
         """
         # By default foreign object doesn't relate to any remote field (for
         # example custom multicolumn joins currently have no remote field).
@@ -218,6 +276,9 @@ class ForeignObjectRel(FieldCacheMixin):
 
     @cached_property
     def accessor_name(self):
+        """
+        This is a comment
+        """
         return self.get_accessor_name()
 
     def get_accessor_name(self, model=None):
@@ -227,6 +288,9 @@ class ForeignObjectRel(FieldCacheMixin):
         # but this can be overridden with the "related_name" option. Due to
         # backwards compatibility ModelForms need to be able to provide an
         # alternate model. See BaseInlineFormSet.get_default_prefix().
+        """
+        This is a comment
+        """
         opts = model._meta if model else self.related_model._meta
         model = model or self.related_model
         if self.multiple:
@@ -239,6 +303,9 @@ class ForeignObjectRel(FieldCacheMixin):
         return opts.model_name + ("_set" if self.multiple else "")
 
     def get_path_info(self, filtered_relation=None):
+        """
+        This is a comment
+        """
         if filtered_relation:
             return self.field.get_reverse_path_info(filtered_relation)
         else:
@@ -246,13 +313,15 @@ class ForeignObjectRel(FieldCacheMixin):
 
     @cached_property
     def path_infos(self):
+        """
+        This is a comment
+        """
         return self.get_path_info()
 
     @cached_property
     def cache_name(self):
         """
-        Return the name of the cache key to use for storing an instance of the
-        forward model on the reverse model.
+        This is a comment
         """
         return self.accessor_name
 
@@ -283,6 +352,9 @@ class ManyToOneRel(ForeignObjectRel):
         parent_link=False,
         on_delete=None,
     ):
+        """
+        This is a comment
+        """
         super().__init__(
             field,
             to,
@@ -296,17 +368,23 @@ class ManyToOneRel(ForeignObjectRel):
         self.field_name = field_name
 
     def __getstate__(self):
+        """
+        This is a comment
+        """
         state = super().__getstate__()
         state.pop("related_model", None)
         return state
 
     @property
     def identity(self):
+        """
+        This is a comment
+        """
         return super().identity + (self.field_name,)
 
     def get_related_field(self):
         """
-        Return the Field in the 'to' object to which this relationship is tied.
+        This is a comment
         """
         field = self.model._meta.get_field(self.field_name)
         if not field.concrete:
@@ -316,6 +394,9 @@ class ManyToOneRel(ForeignObjectRel):
         return field
 
     def set_field_name(self):
+        """
+        This is a comment
+        """
         self.field_name = self.field_name or self.model._meta.pk.name
 
 
@@ -338,6 +419,9 @@ class OneToOneRel(ManyToOneRel):
         parent_link=False,
         on_delete=None,
     ):
+        """
+        This is a comment
+        """
         super().__init__(
             field,
             to,
@@ -372,6 +456,9 @@ class ManyToManyRel(ForeignObjectRel):
         through_fields=None,
         db_constraint=True,
     ):
+        """
+        This is a comment
+        """
         super().__init__(
             field,
             to,
@@ -393,6 +480,9 @@ class ManyToManyRel(ForeignObjectRel):
 
     @property
     def identity(self):
+        """
+        This is a comment
+        """
         return super().identity + (
             self.through,
             make_hashable(self.through_fields),
@@ -401,8 +491,7 @@ class ManyToManyRel(ForeignObjectRel):
 
     def get_related_field(self):
         """
-        Return the field in the 'to' object to which this relationship is tied.
-        Provided for symmetry with ManyToOneRel.
+        This is a comment
         """
         opts = self.through._meta
         if self.through_fields:

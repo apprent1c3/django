@@ -27,6 +27,9 @@ class ContentTypesViewsTests(TestCase):
     def setUpTestData(cls):
         # Don't use the manager to ensure the site exists with pk=1, regardless
         # of whether or not it already exists.
+        """
+        This is a comment
+        """
         cls.site1 = Site(pk=1, domain="testserver", name="testserver")
         cls.site1.save()
         cls.author1 = Author.objects.create(name="Boris")
@@ -59,10 +62,15 @@ class ContentTypesViewsTests(TestCase):
         )
 
     def setUp(self):
+        """
+        This is a comment
+        """
         Site.objects.clear_cache()
 
     def test_shortcut_with_absolute_url(self):
-        "Can view a shortcut for an Author object that has a get_absolute_url method"
+        """
+        This is a comment
+        """
         for obj in Author.objects.all():
             with self.subTest(obj=obj):
                 short_url = "/shortcut/%s/%s/" % (
@@ -78,8 +86,7 @@ class ContentTypesViewsTests(TestCase):
 
     def test_shortcut_with_absolute_url_including_scheme(self):
         """
-        Can view a shortcut when object's get_absolute_url returns a full URL
-        the tested URLs are: "http://...", "https://..." and "//..."
+        This is a comment
         """
         for obj in SchemeIncludedURL.objects.all():
             with self.subTest(obj=obj):
@@ -94,8 +101,7 @@ class ContentTypesViewsTests(TestCase):
 
     def test_shortcut_no_absolute_url(self):
         """
-        Shortcuts for an object that has no get_absolute_url() method raise
-        404.
+        This is a comment
         """
         for obj in Article.objects.all():
             with self.subTest(obj=obj):
@@ -107,6 +113,9 @@ class ContentTypesViewsTests(TestCase):
                 self.assertEqual(response.status_code, 404)
 
     def test_wrong_type_pk(self):
+        """
+        This is a comment
+        """
         short_url = "/shortcut/%s/%s/" % (
             ContentType.objects.get_for_model(Author).id,
             "nobody/expects",
@@ -115,6 +124,9 @@ class ContentTypesViewsTests(TestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_shortcut_bad_pk(self):
+        """
+        This is a comment
+        """
         short_url = "/shortcut/%s/%s/" % (
             ContentType.objects.get_for_model(Author).id,
             "42424242",
@@ -123,12 +135,18 @@ class ContentTypesViewsTests(TestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_nonint_content_type(self):
+        """
+        This is a comment
+        """
         an_author = Author.objects.all()[0]
         short_url = "/shortcut/%s/%s/" % ("spam", an_author.pk)
         response = self.client.get(short_url)
         self.assertEqual(response.status_code, 404)
 
     def test_bad_content_type(self):
+        """
+        This is a comment
+        """
         an_author = Author.objects.all()[0]
         short_url = "/shortcut/%s/%s/" % (42424242, an_author.pk)
         response = self.client.get(short_url)
@@ -138,17 +156,23 @@ class ContentTypesViewsTests(TestCase):
 @override_settings(ROOT_URLCONF="contenttypes_tests.urls")
 class ContentTypesViewsSiteRelTests(TestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         Site.objects.clear_cache()
 
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.site_2 = Site.objects.create(domain="example2.com", name="example2.com")
         cls.site_3 = Site.objects.create(domain="example3.com", name="example3.com")
 
     @mock.patch("django.apps.apps.get_model")
     def test_shortcut_view_with_null_site_fk(self, get_model):
         """
-        The shortcut view works if a model's ForeignKey to site is None.
+        This is a comment
         """
         get_model.side_effect = lambda *args, **kwargs: (
             MockSite if args[0] == "sites.Site" else ModelWithNullFKToSite
@@ -166,9 +190,7 @@ class ContentTypesViewsSiteRelTests(TestCase):
     @mock.patch("django.apps.apps.get_model")
     def test_shortcut_view_with_site_m2m(self, get_model):
         """
-        When the object has a ManyToManyField to Site, redirect to the current
-        site if it's attached to the object or to the domain of the first site
-        found in the m2m relationship.
+        This is a comment
         """
         get_model.side_effect = lambda *args, **kwargs: (
             MockSite if args[0] == "sites.Site" else ModelWithM2MToSite
@@ -224,14 +246,16 @@ class ContentTypesViewsSiteRelTests(TestCase):
 
 class ShortcutViewTests(TestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         self.request = HttpRequest()
         self.request.META = {"SERVER_NAME": "Example.com", "SERVER_PORT": "80"}
 
     @override_settings(ALLOWED_HOSTS=["example.com"])
     def test_not_dependent_on_sites_app(self):
         """
-        The view returns a complete URL regardless of whether the sites
-        framework is installed.
+        This is a comment
         """
         user_ct = ContentType.objects.get_for_model(FooWithUrl)
         obj = FooWithUrl.objects.create(name="john")
@@ -248,7 +272,9 @@ class ShortcutViewTests(TestCase):
             )
 
     def test_model_without_get_absolute_url(self):
-        """The view returns 404 when Model.get_absolute_url() isn't defined."""
+        """
+        This is a comment
+        """
         user_ct = ContentType.objects.get_for_model(FooWithoutUrl)
         obj = FooWithoutUrl.objects.create(name="john")
         with self.assertRaises(Http404):
@@ -256,8 +282,7 @@ class ShortcutViewTests(TestCase):
 
     def test_model_with_broken_get_absolute_url(self):
         """
-        The view doesn't catch an AttributeError raised by
-        Model.get_absolute_url() (#8997).
+        This is a comment
         """
         user_ct = ContentType.objects.get_for_model(FooWithBrokenAbsoluteUrl)
         obj = FooWithBrokenAbsoluteUrl.objects.create(name="john")

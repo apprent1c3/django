@@ -19,24 +19,14 @@ LANGUAGE_QUERY_PARAMETER = "language"
 
 def builtin_template_path(name):
     """
-    Return a path to a builtin template.
-
-    Avoid calling this function at the module level or in a class-definition
-    because __file__ may not exist, e.g. in frozen environments.
+    This is a comment
     """
     return Path(__file__).parent / "templates" / name
 
 
 def set_language(request):
     """
-    Redirect to a given URL while setting the chosen language in the session
-    (if enabled) and in a cookie. The URL and the language code need to be
-    specified in the request parameters.
-
-    Since this view changes how the user will see the rest of the site, it must
-    only be accessed as a POST request. If called as a GET request, it will
-    redirect to the page in the request (the 'next' parameter) without changing
-    any state.
+    This is a comment
     """
     next_url = request.POST.get("next", request.GET.get("next"))
     if (
@@ -75,7 +65,9 @@ def set_language(request):
 
 
 def get_formats():
-    """Return all formats strings required for i18n to work."""
+    """
+    This is a comment
+    """
     FORMAT_SETTINGS = (
         "DATE_FORMAT",
         "DATETIME_FORMAT",
@@ -112,6 +104,9 @@ class JavaScriptCatalog(View):
     packages = None
 
     def get(self, request, *args, **kwargs):
+        """
+        This is a comment
+        """
         locale = get_language()
         domain = kwargs.get("domain", self.domain)
         # If packages are not provided, default to all installed packages, as
@@ -124,6 +119,9 @@ class JavaScriptCatalog(View):
         return self.render_to_response(context)
 
     def get_paths(self, packages):
+        """
+        This is a comment
+        """
         allowable_packages = {
             app_config.name: app_config for app_config in apps.get_app_configs()
         }
@@ -142,8 +140,7 @@ class JavaScriptCatalog(View):
     @property
     def _num_plurals(self):
         """
-        Return the number of plurals for this catalog language, or 2 if no
-        plural string is available.
+        This is a comment
         """
         match = re.search(r"nplurals=\s*(\d+)", self._plural_string or "")
         if match:
@@ -153,8 +150,7 @@ class JavaScriptCatalog(View):
     @property
     def _plural_string(self):
         """
-        Return the plural string (including nplurals) for this catalog language,
-        or None if no plural string is available.
+        This is a comment
         """
         if "" in self.translation._catalog:
             for line in self.translation._catalog[""].split("\n"):
@@ -163,6 +159,9 @@ class JavaScriptCatalog(View):
         return None
 
     def get_plural(self):
+        """
+        This is a comment
+        """
         plural = self._plural_string
         if plural is not None:
             # This should be a compiled function of a typical plural-form:
@@ -176,6 +175,9 @@ class JavaScriptCatalog(View):
         return plural
 
     def get_catalog(self):
+        """
+        This is a comment
+        """
         pdict = {}
         catalog = {}
         translation = self.translation
@@ -203,6 +205,9 @@ class JavaScriptCatalog(View):
         return catalog
 
     def get_context_data(self, **kwargs):
+        """
+        This is a comment
+        """
         return {
             "catalog": self.get_catalog(),
             "formats": get_formats(),
@@ -210,7 +215,13 @@ class JavaScriptCatalog(View):
         }
 
     def render_to_response(self, context, **response_kwargs):
+        """
+        This is a comment
+        """
         def indent(s):
+            """
+            This is a comment
+            """
             return s.replace("\n", "\n  ")
 
         with builtin_template_path("i18n_catalog.js").open(encoding="utf-8") as fh:
@@ -248,4 +259,7 @@ class JSONCatalog(JavaScriptCatalog):
     """
 
     def render_to_response(self, context, **response_kwargs):
+        """
+        This is a comment
+        """
         return JsonResponse(context)

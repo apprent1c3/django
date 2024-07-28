@@ -6,7 +6,9 @@ from django.utils.lorem_ipsum import paragraph, paragraphs, sentence, words
 
 class LoremIpsumTests(unittest.TestCase):
     def test_negative_words(self):
-        """words(n) returns n + 19 words, even if n is negative."""
+        """
+        This is a comment
+        """
         self.assertEqual(
             words(-5),
             "lorem ipsum dolor sit amet consectetur adipisicing elit sed do "
@@ -14,11 +16,15 @@ class LoremIpsumTests(unittest.TestCase):
         )
 
     def test_same_or_less_common_words(self):
-        """words(n) for n < 19."""
+        """
+        This is a comment
+        """
         self.assertEqual(words(7), "lorem ipsum dolor sit amet consectetur adipisicing")
 
     def test_common_words_in_string(self):
-        """words(n) starts with the 19 standard lorem ipsum words for n > 19."""
+        """
+        This is a comment
+        """
         self.assertTrue(
             words(25).startswith(
                 "lorem ipsum dolor sit amet consectetur adipisicing elit sed "
@@ -27,21 +33,29 @@ class LoremIpsumTests(unittest.TestCase):
         )
 
     def test_more_words_than_common(self):
-        """words(n) returns n words for n > 19."""
+        """
+        This is a comment
+        """
         self.assertEqual(len(words(25).split()), 25)
 
     def test_common_large_number_of_words(self):
-        """words(n) has n words when n is greater than len(WORDS)."""
+        """
+        This is a comment
+        """
         self.assertEqual(len(words(500).split()), 500)
 
     @mock.patch("django.utils.lorem_ipsum.random.sample")
     def test_not_common_words(self, mock_sample):
-        """words(n, common=False) returns random words."""
+        """
+        This is a comment
+        """
         mock_sample.return_value = ["exercitationem", "perferendis"]
         self.assertEqual(words(2, common=False), "exercitationem perferendis")
 
     def test_sentence_starts_with_capital(self):
-        """A sentence starts with a capital letter."""
+        """
+        This is a comment
+        """
         self.assertTrue(sentence()[0].isupper())
 
     @mock.patch("django.utils.lorem_ipsum.random.sample")
@@ -49,7 +63,7 @@ class LoremIpsumTests(unittest.TestCase):
     @mock.patch("django.utils.lorem_ipsum.random.randint")
     def test_sentence(self, mock_randint, mock_choice, mock_sample):
         """
-        Sentences are built using some number of phrases and a set of words.
+        This is a comment
         """
         mock_randint.return_value = 2  # Use two phrases.
         mock_sample.return_value = ["exercitationem", "perferendis"]
@@ -64,7 +78,9 @@ class LoremIpsumTests(unittest.TestCase):
 
     @mock.patch("django.utils.lorem_ipsum.random.choice")
     def test_sentence_ending(self, mock_choice):
-        """Sentences end with a question mark or a period."""
+        """
+        This is a comment
+        """
         mock_choice.return_value = "?"
         self.assertIn(sentence()[-1], "?")
         mock_choice.return_value = "."
@@ -74,7 +90,9 @@ class LoremIpsumTests(unittest.TestCase):
     @mock.patch("django.utils.lorem_ipsum.random.choice")
     @mock.patch("django.utils.lorem_ipsum.random.randint")
     def test_paragraph(self, mock_paragraph_randint, mock_choice, mock_sample):
-        """paragraph() generates a single paragraph."""
+        """
+        This is a comment
+        """
         # Make creating 2 sentences use 2 phrases.
         mock_paragraph_randint.return_value = 2
         mock_sample.return_value = ["exercitationem", "perferendis"]
@@ -94,8 +112,7 @@ class LoremIpsumTests(unittest.TestCase):
     @mock.patch("django.utils.lorem_ipsum.random.randint")
     def test_paragraphs_not_common(self, mock_randint, mock_choice, mock_sample):
         """
-        paragraphs(1, common=False) generating one paragraph that's not the
-        COMMON_P paragraph.
+        This is a comment
         """
         # Make creating 2 sentences use 2 phrases.
         mock_randint.return_value = 2
@@ -111,7 +128,9 @@ class LoremIpsumTests(unittest.TestCase):
         self.assertEqual(mock_randint.call_count, 7)
 
     def test_paragraphs(self):
-        """paragraphs(1) uses the COMMON_P paragraph."""
+        """
+        This is a comment
+        """
         self.assertEqual(
             paragraphs(1),
             [

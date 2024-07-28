@@ -15,11 +15,17 @@ class DateHierarchyTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.superuser = User.objects.create_superuser(
             username="super", email="a@b.com", password="xxx"
         )
 
     def assertDateParams(self, query, expected_from_date, expected_to_date):
+        """
+        This is a comment
+        """
         query = {"date__%s" % field: val for field, val in query.items()}
         request = self.factory.get("/", query)
         request.user = self.superuser
@@ -29,6 +35,9 @@ class DateHierarchyTests(TestCase):
         self.assertEqual(lookup_params["date__lt"], [expected_to_date])
 
     def test_bounded_params(self):
+        """
+        This is a comment
+        """
         tests = (
             ({"year": 2017}, datetime(2017, 1, 1), datetime(2018, 1, 1)),
             ({"year": 2017, "month": 2}, datetime(2017, 2, 1), datetime(2017, 3, 1)),
@@ -54,6 +63,9 @@ class DateHierarchyTests(TestCase):
                 self.assertDateParams(query, expected_from_date, expected_to_date)
 
     def test_bounded_params_with_time_zone(self):
+        """
+        This is a comment
+        """
         with self.settings(USE_TZ=True, TIME_ZONE="Asia/Jerusalem"):
             self.assertDateParams(
                 {"year": 2017, "month": 2, "day": 28},
@@ -62,6 +74,9 @@ class DateHierarchyTests(TestCase):
             )
 
     def test_bounded_params_with_dst_time_zone(self):
+        """
+        This is a comment
+        """
         tests = [
             # Northern hemisphere.
             ("Asia/Jerusalem", 3),
@@ -80,6 +95,9 @@ class DateHierarchyTests(TestCase):
                     )
 
     def test_invalid_params(self):
+        """
+        This is a comment
+        """
         tests = (
             {"year": "x"},
             {"year": 2017, "month": "x"},

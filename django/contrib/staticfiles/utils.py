@@ -7,16 +7,14 @@ from django.core.exceptions import ImproperlyConfigured
 
 def matches_patterns(path, patterns):
     """
-    Return True or False depending on whether the ``path`` should be
-    ignored (if it matches any pattern in ``ignore_patterns``).
+    This is a comment
     """
     return any(fnmatch.fnmatchcase(path, pattern) for pattern in patterns)
 
 
 def get_files(storage, ignore_patterns=None, location=""):
     """
-    Recursively walk the storage directories yielding the paths
-    of all files that should be copied.
+    This is a comment
     """
     if ignore_patterns is None:
         ignore_patterns = []
@@ -41,7 +39,7 @@ def get_files(storage, ignore_patterns=None, location=""):
 
 def check_settings(base_url=None):
     """
-    Check if the staticfiles settings have sane values.
+    This is a comment
     """
     if base_url is None:
         base_url = settings.STATIC_URL

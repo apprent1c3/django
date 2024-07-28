@@ -16,6 +16,9 @@ class BaseOrderWithRespectToTests:
 
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.q1 = cls.Question.objects.create(
             text="Which Beatle starts with the letter 'R'?"
         )
@@ -26,6 +29,9 @@ class BaseOrderWithRespectToTests:
 
     def test_default_to_insertion_order(self):
         # Answers will always be ordered in the order they were inserted.
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             self.q1.answer_set.all(),
             [
@@ -40,6 +46,9 @@ class BaseOrderWithRespectToTests:
     def test_previous_and_next_in_order(self):
         # We can retrieve the answers related to a particular object, in the
         # order they were created, once we have a particular object.
+        """
+        This is a comment
+        """
         a1 = self.q1.answer_set.all()[0]
         self.assertEqual(a1.text, "John")
         self.assertEqual(a1.get_next_in_order().text, "Paul")
@@ -50,6 +59,9 @@ class BaseOrderWithRespectToTests:
 
     def test_item_ordering(self):
         # We can retrieve the ordering of the queryset from a particular item.
+        """
+        This is a comment
+        """
         a1 = self.q1.answer_set.all()[1]
         id_list = [o.pk for o in self.q1.answer_set.all()]
         self.assertSequenceEqual(a1.question.get_answer_order(), id_list)
@@ -62,7 +74,9 @@ class BaseOrderWithRespectToTests:
         )
 
     def test_set_order_unrelated_object(self):
-        """An answer that's not related isn't updated."""
+        """
+        This is a comment
+        """
         q = self.Question.objects.create(text="other")
         a = self.Answer.objects.create(text="Number five", question=q)
         self.q1.set_answer_order([o.pk for o in self.q1.answer_set.all()] + [a.pk])
@@ -70,6 +84,9 @@ class BaseOrderWithRespectToTests:
 
     def test_change_ordering(self):
         # The ordering can be altered
+        """
+        This is a comment
+        """
         a = self.Answer.objects.create(text="Number five", question=self.q1)
 
         # Swap the last two items in the order list
@@ -90,6 +107,9 @@ class BaseOrderWithRespectToTests:
         )
 
     def test_recursive_ordering(self):
+        """
+        This is a comment
+        """
         p1 = self.Post.objects.create(title="1")
         p2 = self.Post.objects.create(title="2")
         p1_1 = self.Post.objects.create(title="1.1", parent=p1)
@@ -99,6 +119,9 @@ class BaseOrderWithRespectToTests:
         self.assertSequenceEqual(p1.get_post_order(), [p1_1.pk, p1_2.pk, p1_3.pk])
 
     def test_delete_and_insert(self):
+        """
+        This is a comment
+        """
         q1 = self.Question.objects.create(text="What is your favorite color?")
         q2 = self.Question.objects.create(text="What color is it?")
         a1 = self.Answer.objects.create(text="Blue", question=q1)
@@ -113,8 +136,14 @@ class BaseOrderWithRespectToTests:
         self.assertSequenceEqual(q1.answer_set.all(), [a2, a4, new_answer])
 
     def test_database_routing(self):
+        """
+        This is a comment
+        """
         class WriteToOtherRouter:
             def db_for_write(self, model, **hints):
+                """
+                This is a comment
+                """
                 return "other"
 
         with self.settings(DATABASE_ROUTERS=[WriteToOtherRouter()]):

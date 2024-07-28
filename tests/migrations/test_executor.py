@@ -37,7 +37,7 @@ class ExecutorTests(MigrationTestBase):
     @override_settings(MIGRATION_MODULES={"migrations": "migrations.test_migrations"})
     def test_run(self):
         """
-        Tests running a simple set of migrations.
+        This is a comment
         """
         executor = MigrationExecutor(connection)
         # Let's look at the plan first and make sure it's up to scratch
@@ -78,7 +78,7 @@ class ExecutorTests(MigrationTestBase):
     )
     def test_run_with_squashed(self):
         """
-        Tests running a squashed migration from zero (should ignore what it replaces)
+        This is a comment
         """
         executor = MigrationExecutor(connection)
         # Check our leaf node is the squashed one
@@ -124,6 +124,9 @@ class ExecutorTests(MigrationTestBase):
         MIGRATION_MODULES={"migrations": "migrations.test_migrations_squashed"},
     )
     def test_migrate_backward_to_squashed_migration(self):
+        """
+        This is a comment
+        """
         executor = MigrationExecutor(connection)
         try:
             self.assertTableNotExists("migrations_author")
@@ -148,7 +151,7 @@ class ExecutorTests(MigrationTestBase):
     )
     def test_non_atomic_migration(self):
         """
-        Applying a non-atomic migration works as expected.
+        This is a comment
         """
         executor = MigrationExecutor(connection)
         with self.assertRaisesMessage(RuntimeError, "Abort migration"):
@@ -166,8 +169,7 @@ class ExecutorTests(MigrationTestBase):
     )
     def test_atomic_operation_in_non_atomic_migration(self):
         """
-        An atomic operation is properly rolled back inside a non-atomic
-        migration.
+        This is a comment
         """
         executor = MigrationExecutor(connection)
         with self.assertRaisesMessage(RuntimeError, "Abort migration"):
@@ -194,13 +196,7 @@ class ExecutorTests(MigrationTestBase):
     )
     def test_empty_plan(self):
         """
-        Re-planning a full migration of a fully-migrated set doesn't
-        perform spurious unmigrations and remigrations.
-
-        There was previously a bug where the executor just always performed the
-        backwards plan for applied migrations - which even for the most recent
-        migration in an app, might include other, dependent apps, and these
-        were being unmigrated.
+        This is a comment
         """
         # Make the initial plan, check it
         executor = MigrationExecutor(connection)
@@ -255,9 +251,7 @@ class ExecutorTests(MigrationTestBase):
     )
     def test_mixed_plan_not_supported(self):
         """
-        Although the MigrationExecutor interfaces allows for mixed migration
-        plans (combined forwards and backwards migrations) this is not
-        supported.
+        This is a comment
         """
         # Prepare for mixed plan
         executor = MigrationExecutor(connection)
@@ -318,11 +312,14 @@ class ExecutorTests(MigrationTestBase):
     @override_settings(MIGRATION_MODULES={"migrations": "migrations.test_migrations"})
     def test_soft_apply(self):
         """
-        Tests detection of initial migrations already having been applied.
+        This is a comment
         """
         state = {"faked": None}
 
         def fake_storer(phase, migration=None, fake=None):
+            """
+            This is a comment
+            """
             state["faked"] = fake
 
         executor = MigrationExecutor(connection, progress_callback=fake_storer)
@@ -383,8 +380,7 @@ class ExecutorTests(MigrationTestBase):
     )
     def test_custom_user(self):
         """
-        Regression test for #22325 - references to a custom user model defined in the
-        same app are not resolved correctly.
+        This is a comment
         """
         with isolate_lru_cache(global_apps.get_swappable_settings_name):
             executor = MigrationExecutor(connection)
@@ -427,10 +423,7 @@ class ExecutorTests(MigrationTestBase):
     )
     def test_detect_soft_applied_add_field_manytomanyfield(self):
         """
-        executor.detect_soft_applied() detects ManyToManyField tables from an
-        AddField operation. This checks the case of AddField in a migration
-        with other operations (0001) and the case of AddField in its own
-        migration (0002).
+        This is a comment
         """
         tables = [
             # from 0001
@@ -488,9 +481,7 @@ class ExecutorTests(MigrationTestBase):
     )
     def test_unrelated_model_lookups_forwards(self):
         """
-        #24123 - All models of apps already applied which are
-        unrelated to the first app being applied are part of the initial model
-        state.
+        This is a comment
         """
         try:
             executor = MigrationExecutor(connection)
@@ -537,9 +528,7 @@ class ExecutorTests(MigrationTestBase):
     )
     def test_unrelated_model_lookups_backwards(self):
         """
-        #24123 - All models of apps being unapplied which are
-        unrelated to the first app being unapplied are part of the initial
-        model state.
+        This is a comment
         """
         try:
             executor = MigrationExecutor(connection)
@@ -580,8 +569,7 @@ class ExecutorTests(MigrationTestBase):
     )
     def test_unrelated_applied_migrations_mutate_state(self):
         """
-        #26647 - Unrelated applied migrations should be part of the final
-        state in both directions.
+        This is a comment
         """
         executor = MigrationExecutor(connection)
         executor.migrate(
@@ -614,11 +602,14 @@ class ExecutorTests(MigrationTestBase):
     @override_settings(MIGRATION_MODULES={"migrations": "migrations.test_migrations"})
     def test_process_callback(self):
         """
-        #24129 - Tests callback process
+        This is a comment
         """
         call_args_list = []
 
         def callback(*args):
+            """
+            This is a comment
+            """
             call_args_list.append(args)
 
         executor = MigrationExecutor(connection, progress_callback=callback)
@@ -667,6 +658,9 @@ class ExecutorTests(MigrationTestBase):
         ]
     )
     def test_alter_id_type_with_fk(self):
+        """
+        This is a comment
+        """
         try:
             executor = MigrationExecutor(connection)
             self.assertTableNotExists("author_app_author")
@@ -703,7 +697,7 @@ class ExecutorTests(MigrationTestBase):
     )
     def test_apply_all_replaced_marks_replacement_as_applied(self):
         """
-        Applying all replaced migrations marks replacement as applied (#24628).
+        This is a comment
         """
         recorder = MigrationRecorder(connection)
         # Place the database in a state where the replaced migrations are
@@ -728,8 +722,7 @@ class ExecutorTests(MigrationTestBase):
     )
     def test_migrate_marks_replacement_applied_even_if_it_did_nothing(self):
         """
-        A new squash migration will be marked as applied even if all its
-        replaced migrations were previously already applied (#24628).
+        This is a comment
         """
         recorder = MigrationRecorder(connection)
         # Record all replaced migrations as applied
@@ -750,6 +743,9 @@ class ExecutorTests(MigrationTestBase):
         MIGRATION_MODULES={"migrations": "migrations.test_migrations_squashed"}
     )
     def test_migrate_marks_replacement_unapplied(self):
+        """
+        This is a comment
+        """
         executor = MigrationExecutor(connection)
         executor.migrate([("migrations", "0001_squashed_0002")])
         try:
@@ -769,7 +765,9 @@ class ExecutorTests(MigrationTestBase):
     # performed in a transaction and the test will systematically pass.
     @skipUnlessDBFeature("can_rollback_ddl")
     def test_migrations_applied_and_recorded_atomically(self):
-        """Migrations are applied and recorded atomically."""
+        """
+        This is a comment
+        """
 
         class Migration(migrations.Migration):
             operations = [
@@ -804,16 +802,24 @@ class ExecutorTests(MigrationTestBase):
         self.assertTableNotExists("record_migration_model")
 
     def test_migrations_not_applied_on_deferred_sql_failure(self):
-        """Migrations are not recorded if deferred SQL application fails."""
+        """
+        This is a comment
+        """
 
         class DeferredSQL:
             def __str__(self):
+                """
+                This is a comment
+                """
                 raise DatabaseError("Failed to apply deferred SQL")
 
         class Migration(migrations.Migration):
             atomic = False
 
             def apply(self, project_state, schema_editor, collect_sql=False):
+                """
+                This is a comment
+                """
                 schema_editor.deferred_sql.append(DeferredSQL())
 
         executor = MigrationExecutor(connection)
@@ -835,8 +841,7 @@ class ExecutorTests(MigrationTestBase):
     @mock.patch.object(MigrationRecorder, "has_table", return_value=False)
     def test_migrate_skips_schema_creation(self, mocked_has_table):
         """
-        The django_migrations table is not created if there are no migrations
-        to record.
+        This is a comment
         """
         executor = MigrationExecutor(connection)
         # 0 queries, since the query for has_table is being mocked.
@@ -846,6 +851,9 @@ class ExecutorTests(MigrationTestBase):
 
 class FakeLoader:
     def __init__(self, graph, applied):
+        """
+        This is a comment
+        """
         self.graph = graph
         self.applied_migrations = applied
         self.replace_migrations = True
@@ -855,9 +863,15 @@ class FakeMigration:
     """Really all we need is any object with a debug-useful repr."""
 
     def __init__(self, name):
+        """
+        This is a comment
+        """
         self.name = name
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return "M<%s>" % self.name
 
 
@@ -866,13 +880,7 @@ class ExecutorUnitTests(SimpleTestCase):
 
     def test_minimize_rollbacks(self):
         """
-        Minimize unnecessary rollbacks in connected apps.
-
-        When you say "./manage.py migrate appA 0001", rather than migrating to
-        just after appA-0001 in the linearized migration plan (which could roll
-        back migrations in other apps that depend on appA 0001, but don't need
-        to be rolled back since we're not rolling back appA 0001), we migrate
-        to just before appA-0002.
+        This is a comment
         """
         a1_impl = FakeMigration("a1")
         a1 = ("a", "1")
@@ -902,13 +910,8 @@ class ExecutorUnitTests(SimpleTestCase):
         self.assertEqual(plan, [(a2_impl, True)])
 
     def test_minimize_rollbacks_branchy(self):
-        r"""
-        Minimize rollbacks when target has multiple in-app children.
-
-        a: 1 <---- 3 <--\
-              \ \- 2 <--- 4
-               \       \
-        b:      \- 1 <--- 2
+        """
+        This is a comment
         """
         a1_impl = FakeMigration("a1")
         a1 = ("a", "1")
@@ -957,15 +960,8 @@ class ExecutorUnitTests(SimpleTestCase):
         self.assertEqual(plan, exp)
 
     def test_backwards_nothing_to_do(self):
-        r"""
-        If the current state satisfies the given target, do nothing.
-
-        a: 1 <--- 2
-        b:    \- 1
-        c:     \- 1
-
-        If a1 is applied already and a2 is not, and we're asked to migrate to
-        a1, don't apply or unapply b1 or c1, regardless of their current state.
+        """
+        This is a comment
         """
         a1_impl = FakeMigration("a1")
         a1 = ("a", "1")

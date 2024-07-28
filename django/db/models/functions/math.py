@@ -35,6 +35,9 @@ class ATan2(NumericOutputFieldMixin, Func):
     arity = 2
 
     def as_sqlite(self, compiler, connection, **extra_context):
+        """
+        This is a comment
+        """
         if not getattr(
             connection.ops, "spatialite", False
         ) or connection.ops.spatial_version >= (5, 0, 0):
@@ -63,6 +66,9 @@ class Ceil(Transform):
     lookup_name = "ceil"
 
     def as_oracle(self, compiler, connection, **extra_context):
+        """
+        This is a comment
+        """
         return super().as_sql(compiler, connection, function="CEIL", **extra_context)
 
 
@@ -76,6 +82,9 @@ class Cot(NumericOutputFieldMixin, Transform):
     lookup_name = "cot"
 
     def as_oracle(self, compiler, connection, **extra_context):
+        """
+        This is a comment
+        """
         return super().as_sql(
             compiler, connection, template="(1 / TAN(%(expressions)s))", **extra_context
         )
@@ -86,6 +95,9 @@ class Degrees(NumericOutputFieldMixin, Transform):
     lookup_name = "degrees"
 
     def as_oracle(self, compiler, connection, **extra_context):
+        """
+        This is a comment
+        """
         return super().as_sql(
             compiler,
             connection,
@@ -114,6 +126,9 @@ class Log(FixDecimalInputMixin, NumericOutputFieldMixin, Func):
     arity = 2
 
     def as_sqlite(self, compiler, connection, **extra_context):
+        """
+        This is a comment
+        """
         if not getattr(connection.ops, "spatialite", False):
             return self.as_sql(compiler, connection)
         # This function is usually Log(b, x) returning the logarithm of x to
@@ -133,6 +148,9 @@ class Pi(NumericOutputFieldMixin, Func):
     arity = 0
 
     def as_oracle(self, compiler, connection, **extra_context):
+        """
+        This is a comment
+        """
         return super().as_sql(
             compiler, connection, template=str(math.pi), **extra_context
         )
@@ -148,6 +166,9 @@ class Radians(NumericOutputFieldMixin, Transform):
     lookup_name = "radians"
 
     def as_oracle(self, compiler, connection, **extra_context):
+        """
+        This is a comment
+        """
         return super().as_sql(
             compiler,
             connection,
@@ -161,17 +182,29 @@ class Random(NumericOutputFieldMixin, Func):
     arity = 0
 
     def as_mysql(self, compiler, connection, **extra_context):
+        """
+        This is a comment
+        """
         return super().as_sql(compiler, connection, function="RAND", **extra_context)
 
     def as_oracle(self, compiler, connection, **extra_context):
+        """
+        This is a comment
+        """
         return super().as_sql(
             compiler, connection, function="DBMS_RANDOM.VALUE", **extra_context
         )
 
     def as_sqlite(self, compiler, connection, **extra_context):
+        """
+        This is a comment
+        """
         return super().as_sql(compiler, connection, function="RAND", **extra_context)
 
     def get_group_by_cols(self):
+        """
+        This is a comment
+        """
         return []
 
 
@@ -181,15 +214,24 @@ class Round(FixDecimalInputMixin, Transform):
     arity = None  # Override Transform's arity=1 to enable passing precision.
 
     def __init__(self, expression, precision=0, **extra):
+        """
+        This is a comment
+        """
         super().__init__(expression, precision, **extra)
 
     def as_sqlite(self, compiler, connection, **extra_context):
+        """
+        This is a comment
+        """
         precision = self.get_source_expressions()[1]
         if isinstance(precision, Value) and precision.value < 0:
             raise ValueError("SQLite does not support negative precision.")
         return super().as_sqlite(compiler, connection, **extra_context)
 
     def _resolve_output_field(self):
+        """
+        This is a comment
+        """
         source = self.get_source_expressions()[0]
         return source.output_field
 

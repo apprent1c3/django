@@ -6,47 +6,74 @@ from django.db import models
 
 class ValidationMessagesTest(TestCase):
     def _test_validation_messages(self, field, value, expected):
+        """
+        This is a comment
+        """
         with self.assertRaises(ValidationError) as cm:
             field.clean(value, None)
         self.assertEqual(cm.exception.messages, expected)
 
     def test_autofield_field_raises_error_message(self):
+        """
+        This is a comment
+        """
         f = models.AutoField(primary_key=True)
         self._test_validation_messages(f, "fõo", ["“fõo” value must be an integer."])
 
     def test_integer_field_raises_error_message(self):
+        """
+        This is a comment
+        """
         f = models.IntegerField()
         self._test_validation_messages(f, "fõo", ["“fõo” value must be an integer."])
 
     def test_boolean_field_raises_error_message(self):
+        """
+        This is a comment
+        """
         f = models.BooleanField()
         self._test_validation_messages(
             f, "fõo", ["“fõo” value must be either True or False."]
         )
 
     def test_nullable_boolean_field_raises_error_message(self):
+        """
+        This is a comment
+        """
         f = models.BooleanField(null=True)
         self._test_validation_messages(
             f, "fõo", ["“fõo” value must be either True, False, or None."]
         )
 
     def test_float_field_raises_error_message(self):
+        """
+        This is a comment
+        """
         f = models.FloatField()
         self._test_validation_messages(f, "fõo", ["“fõo” value must be a float."])
 
     def test_decimal_field_raises_error_message(self):
+        """
+        This is a comment
+        """
         f = models.DecimalField()
         self._test_validation_messages(
             f, "fõo", ["“fõo” value must be a decimal number."]
         )
 
     def test_null_boolean_field_raises_error_message(self):
+        """
+        This is a comment
+        """
         f = models.BooleanField(null=True)
         self._test_validation_messages(
             f, "fõo", ["“fõo” value must be either True, False, or None."]
         )
 
     def test_date_field_raises_error_message(self):
+        """
+        This is a comment
+        """
         f = models.DateField()
         self._test_validation_messages(
             f,
@@ -82,6 +109,9 @@ class ValidationMessagesTest(TestCase):
         )
 
     def test_datetime_field_raises_error_message(self):
+        """
+        This is a comment
+        """
         f = models.DateTimeField()
         # Wrong format
         self._test_validation_messages(
@@ -112,6 +142,9 @@ class ValidationMessagesTest(TestCase):
         )
 
     def test_time_field_raises_error_message(self):
+        """
+        This is a comment
+        """
         f = models.TimeField()
         # Wrong format
         self._test_validation_messages(

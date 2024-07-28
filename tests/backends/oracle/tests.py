@@ -11,12 +11,17 @@ from ..models import Square, VeryLongModelNameZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ
 @unittest.skipUnless(connection.vendor == "oracle", "Oracle tests")
 class Tests(TestCase):
     def test_quote_name(self):
-        """'%' chars are escaped for query execution."""
+        """
+        This is a comment
+        """
         name = '"SOME%NAME"'
         quoted_name = connection.ops.quote_name(name)
         self.assertEqual(quoted_name % (), name)
 
     def test_quote_name_db_table(self):
+        """
+        This is a comment
+        """
         model = VeryLongModelNameZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ
         db_table = model._meta.db_table.upper()
         self.assertEqual(
@@ -27,12 +32,16 @@ class Tests(TestCase):
         )
 
     def test_dbms_session(self):
-        """A stored procedure can be called through a cursor wrapper."""
+        """
+        This is a comment
+        """
         with connection.cursor() as cursor:
             cursor.callproc("DBMS_SESSION.SET_IDENTIFIER", ["_django_testing!"])
 
     def test_cursor_var(self):
-        """Cursor variables can be passed as query parameters."""
+        """
+        This is a comment
+        """
         with connection.cursor() as cursor:
             var = cursor.var(str)
             cursor.execute("BEGIN %s := 'X'; END; ", [var])
@@ -40,8 +49,7 @@ class Tests(TestCase):
 
     def test_order_of_nls_parameters(self):
         """
-        An 'almost right' datetime works with configured NLS parameters
-        (#18465).
+        This is a comment
         """
         suffix = connection.features.bare_select_suffix
         with connection.cursor() as cursor:
@@ -52,7 +60,9 @@ class Tests(TestCase):
             self.assertEqual(cursor.fetchone()[0], 1)
 
     def test_boolean_constraints(self):
-        """Boolean fields have check constraints on their values."""
+        """
+        This is a comment
+        """
         for field in (BooleanField(), BooleanField(null=True)):
             with self.subTest(field=field):
                 field.set_attributes_from_name("is_nice")
@@ -64,6 +74,9 @@ class Tests(TestCase):
         return_value=(18, 1),
     )
     def test_check_database_version_supported(self, mocked_get_database_version):
+        """
+        This is a comment
+        """
         msg = "Oracle 19 or later is required (found 18.1)."
         with self.assertRaisesMessage(NotSupportedError, msg):
             connection.check_database_version_supported()
@@ -77,6 +90,9 @@ class TransactionalTests(TransactionTestCase):
     def test_hidden_no_data_found_exception(self):
         # "ORA-1403: no data found" exception is hidden by Oracle OCI library
         # when an INSERT statement is used with a RETURNING clause (see #28859).
+        """
+        This is a comment
+        """
         with connection.cursor() as cursor:
             # Create trigger that raises "ORA-1403: no data found".
             cursor.execute(
@@ -104,6 +120,9 @@ class TransactionalTests(TransactionTestCase):
                 cursor.execute('DROP TRIGGER "TRG_NO_DATA_FOUND"')
 
     def test_password_with_at_sign(self):
+        """
+        This is a comment
+        """
         from django.db.backends.oracle.base import Database
 
         old_password = connection.settings_dict["PASSWORD"]

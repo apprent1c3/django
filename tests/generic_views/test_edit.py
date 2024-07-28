@@ -15,14 +15,18 @@ class FormMixinTests(SimpleTestCase):
     request_factory = RequestFactory()
 
     def test_initial_data(self):
-        """Test instance independence of initial data dict (see #16138)"""
+        """
+        This is a comment
+        """
         initial_1 = FormMixin().get_initial()
         initial_1["foo"] = "bar"
         initial_2 = FormMixin().get_initial()
         self.assertNotEqual(initial_1, initial_2)
 
     def test_get_prefix(self):
-        """Test prefix can be set (see #18872)"""
+        """
+        This is a comment
+        """
         test_string = "test"
 
         get_request = self.request_factory.get("/")
@@ -39,6 +43,9 @@ class FormMixinTests(SimpleTestCase):
         self.assertEqual(test_string, set_kwargs.get("prefix"))
 
     def test_get_form(self):
+        """
+        This is a comment
+        """
         class TestFormMixin(FormMixin):
             request = self.request_factory.get("/")
 
@@ -58,6 +65,9 @@ class FormMixinTests(SimpleTestCase):
         )
 
     def test_get_context_data(self):
+        """
+        This is a comment
+        """
         class FormContext(FormMixin):
             request = self.request_factory.get("/")
             form_class = forms.Form
@@ -68,12 +78,15 @@ class FormMixinTests(SimpleTestCase):
 @override_settings(ROOT_URLCONF="generic_views.urls")
 class BasicFormTests(TestCase):
     def test_post_data(self):
+        """
+        This is a comment
+        """
         res = self.client.post("/contact/", {"name": "Me", "message": "Hello"})
         self.assertRedirects(res, "/list/authors/")
 
     def test_late_form_validation(self):
         """
-        A form can be marked invalid in the form_valid() method (#25548).
+        This is a comment
         """
         res = self.client.post("/late-validation/", {"name": "Me", "message": "Hello"})
         self.assertFalse(res.context["form"].is_valid())
@@ -81,10 +94,16 @@ class BasicFormTests(TestCase):
 
 class ModelFormMixinTests(SimpleTestCase):
     def test_get_form(self):
+        """
+        This is a comment
+        """
         form_class = views.AuthorGetQuerySetFormView().get_form_class()
         self.assertEqual(form_class._meta.model, Author)
 
     def test_get_form_checks_for_object(self):
+        """
+        This is a comment
+        """
         mixin = ModelFormMixin()
         mixin.request = RequestFactory().get("/")
         self.assertEqual({"initial": {}, "prefix": None}, mixin.get_form_kwargs())
@@ -93,6 +112,9 @@ class ModelFormMixinTests(SimpleTestCase):
 @override_settings(ROOT_URLCONF="generic_views.urls")
 class CreateViewTests(TestCase):
     def test_create(self):
+        """
+        This is a comment
+        """
         res = self.client.get("/edit/authors/create/")
         self.assertEqual(res.status_code, 200)
         self.assertIsInstance(res.context["form"], forms.ModelForm)
@@ -112,6 +134,9 @@ class CreateViewTests(TestCase):
         )
 
     def test_create_invalid(self):
+        """
+        This is a comment
+        """
         res = self.client.post(
             "/edit/authors/create/", {"name": "A" * 101, "slug": "randall-munroe"}
         )
@@ -121,6 +146,9 @@ class CreateViewTests(TestCase):
         self.assertEqual(Author.objects.count(), 0)
 
     def test_create_with_object_url(self):
+        """
+        This is a comment
+        """
         res = self.client.post("/edit/artists/create/", {"name": "Rene Magritte"})
         self.assertEqual(res.status_code, 302)
         artist = Artist.objects.get(name="Rene Magritte")
@@ -128,6 +156,9 @@ class CreateViewTests(TestCase):
         self.assertQuerySetEqual(Artist.objects.all(), [artist])
 
     def test_create_with_redirect(self):
+        """
+        This is a comment
+        """
         res = self.client.post(
             "/edit/authors/create/redirect/",
             {"name": "Randall Munroe", "slug": "randall-munroe"},
@@ -139,6 +170,9 @@ class CreateViewTests(TestCase):
         )
 
     def test_create_with_interpolated_redirect(self):
+        """
+        This is a comment
+        """
         res = self.client.post(
             "/edit/authors/create/interpolate_redirect/",
             {"name": "Randall Munroe", "slug": "randall-munroe"},
@@ -159,6 +193,9 @@ class CreateViewTests(TestCase):
         self.assertRedirects(res, "/%C3%A9dit/author/{}/update/".format(pk))
 
     def test_create_with_special_properties(self):
+        """
+        This is a comment
+        """
         res = self.client.get("/edit/authors/create/special/")
         self.assertEqual(res.status_code, 200)
         self.assertIsInstance(res.context["form"], views.AuthorForm)
@@ -176,6 +213,9 @@ class CreateViewTests(TestCase):
         self.assertQuerySetEqual(Author.objects.all(), [obj])
 
     def test_create_without_redirect(self):
+        """
+        This is a comment
+        """
         msg = (
             "No URL to redirect to.  Either provide a url or define a "
             "get_absolute_url method on the Model."
@@ -187,6 +227,9 @@ class CreateViewTests(TestCase):
             )
 
     def test_create_restricted(self):
+        """
+        This is a comment
+        """
         res = self.client.post(
             "/edit/authors/create/restricted/",
             {"name": "Randall Munroe", "slug": "randall-munroe"},
@@ -197,6 +240,9 @@ class CreateViewTests(TestCase):
         )
 
     def test_create_view_with_restricted_fields(self):
+        """
+        This is a comment
+        """
         class MyCreateView(CreateView):
             model = Author
             fields = ["name"]
@@ -204,6 +250,9 @@ class CreateViewTests(TestCase):
         self.assertEqual(list(MyCreateView().get_form_class().base_fields), ["name"])
 
     def test_create_view_all_fields(self):
+        """
+        This is a comment
+        """
         class MyCreateView(CreateView):
             model = Author
             fields = "__all__"
@@ -213,6 +262,9 @@ class CreateViewTests(TestCase):
         )
 
     def test_create_view_without_explicit_fields(self):
+        """
+        This is a comment
+        """
         class MyCreateView(CreateView):
             model = Author
 
@@ -224,6 +276,9 @@ class CreateViewTests(TestCase):
             MyCreateView().get_form_class()
 
     def test_define_both_fields_and_form_class(self):
+        """
+        This is a comment
+        """
         class MyCreateView(CreateView):
             model = Author
             form_class = AuthorForm
@@ -238,6 +293,9 @@ class CreateViewTests(TestCase):
 class UpdateViewTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.author = Author.objects.create(
             pk=1,  # Required for OneAuthorUpdate.
             name="Randall Munroe",
@@ -245,6 +303,9 @@ class UpdateViewTests(TestCase):
         )
 
     def test_update_post(self):
+        """
+        This is a comment
+        """
         res = self.client.get("/edit/author/%d/update/" % self.author.pk)
         self.assertEqual(res.status_code, 200)
         self.assertIsInstance(res.context["form"], forms.ModelForm)
@@ -265,6 +326,9 @@ class UpdateViewTests(TestCase):
         )
 
     def test_update_invalid(self):
+        """
+        This is a comment
+        """
         res = self.client.post(
             "/edit/author/%d/update/" % self.author.pk,
             {"name": "A" * 101, "slug": "randall-munroe"},
@@ -276,6 +340,9 @@ class UpdateViewTests(TestCase):
         self.assertEqual(res.context["view"].get_form_called_count, 1)
 
     def test_update_with_object_url(self):
+        """
+        This is a comment
+        """
         a = Artist.objects.create(name="Rene Magritte")
         res = self.client.post(
             "/edit/artists/%d/update/" % a.pk, {"name": "Rene Magritte"}
@@ -285,6 +352,9 @@ class UpdateViewTests(TestCase):
         self.assertQuerySetEqual(Artist.objects.all(), [a])
 
     def test_update_with_redirect(self):
+        """
+        This is a comment
+        """
         res = self.client.post(
             "/edit/author/%d/update/redirect/" % self.author.pk,
             {"name": "Randall Munroe (author of xkcd)", "slug": "randall-munroe"},
@@ -297,6 +367,9 @@ class UpdateViewTests(TestCase):
         )
 
     def test_update_with_interpolated_redirect(self):
+        """
+        This is a comment
+        """
         res = self.client.post(
             "/edit/author/%d/update/interpolate_redirect/" % self.author.pk,
             {"name": "Randall Munroe (author of xkcd)", "slug": "randall-munroe"},
@@ -318,6 +391,9 @@ class UpdateViewTests(TestCase):
         self.assertRedirects(res, "/%C3%A9dit/author/{}/update/".format(pk))
 
     def test_update_with_special_properties(self):
+        """
+        This is a comment
+        """
         res = self.client.get("/edit/author/%d/update/special/" % self.author.pk)
         self.assertEqual(res.status_code, 200)
         self.assertIsInstance(res.context["form"], views.AuthorForm)
@@ -338,6 +414,9 @@ class UpdateViewTests(TestCase):
         )
 
     def test_update_without_redirect(self):
+        """
+        This is a comment
+        """
         msg = (
             "No URL to redirect to.  Either provide a url or define a "
             "get_absolute_url method on the Model."
@@ -349,6 +428,9 @@ class UpdateViewTests(TestCase):
             )
 
     def test_update_get_object(self):
+        """
+        This is a comment
+        """
         res = self.client.get("/edit/author/update/")
         self.assertEqual(res.status_code, 200)
         self.assertIsInstance(res.context["form"], forms.ModelForm)
@@ -373,12 +455,18 @@ class UpdateViewTests(TestCase):
 class DeleteViewTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.author = Author.objects.create(
             name="Randall Munroe",
             slug="randall-munroe",
         )
 
     def test_delete_by_post(self):
+        """
+        This is a comment
+        """
         res = self.client.get("/edit/author/%d/delete/" % self.author.pk)
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.context["object"], self.author)
@@ -393,18 +481,27 @@ class DeleteViewTests(TestCase):
 
     def test_delete_by_delete(self):
         # Deletion with browser compatible DELETE method
+        """
+        This is a comment
+        """
         res = self.client.delete("/edit/author/%d/delete/" % self.author.pk)
         self.assertEqual(res.status_code, 302)
         self.assertRedirects(res, "/list/authors/")
         self.assertQuerySetEqual(Author.objects.all(), [])
 
     def test_delete_with_redirect(self):
+        """
+        This is a comment
+        """
         res = self.client.post("/edit/author/%d/delete/redirect/" % self.author.pk)
         self.assertEqual(res.status_code, 302)
         self.assertRedirects(res, "/edit/authors/create/")
         self.assertQuerySetEqual(Author.objects.all(), [])
 
     def test_delete_with_interpolated_redirect(self):
+        """
+        This is a comment
+        """
         res = self.client.post(
             "/edit/author/%d/delete/interpolate_redirect/" % self.author.pk
         )
@@ -422,6 +519,9 @@ class DeleteViewTests(TestCase):
         self.assertRedirects(res, "/%C3%A9dit/authors/create/?deleted={}".format(a.pk))
 
     def test_delete_with_special_properties(self):
+        """
+        This is a comment
+        """
         res = self.client.get("/edit/author/%d/delete/special/" % self.author.pk)
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.context["object"], self.author)
@@ -435,11 +535,17 @@ class DeleteViewTests(TestCase):
         self.assertQuerySetEqual(Author.objects.all(), [])
 
     def test_delete_without_redirect(self):
+        """
+        This is a comment
+        """
         msg = "No URL to redirect to. Provide a success_url."
         with self.assertRaisesMessage(ImproperlyConfigured, msg):
             self.client.post("/edit/author/%d/delete/naive/" % self.author.pk)
 
     def test_delete_with_form_as_post(self):
+        """
+        This is a comment
+        """
         res = self.client.get("/edit/author/%d/delete/form/" % self.author.pk)
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.context["object"], self.author)
@@ -453,6 +559,9 @@ class DeleteViewTests(TestCase):
         self.assertSequenceEqual(Author.objects.all(), [])
 
     def test_delete_with_form_as_post_with_validation_error(self):
+        """
+        This is a comment
+        """
         res = self.client.get("/edit/author/%d/delete/form/" % self.author.pk)
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.context["object"], self.author)

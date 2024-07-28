@@ -45,6 +45,9 @@ AREA_PREFIX = "sq_"
 
 
 def pretty_name(obj):
+    """
+    This is a comment
+    """
     return obj.__name__ if obj.__class__ == type else obj.__class__.__name__
 
 
@@ -56,26 +59,41 @@ class MeasureBase:
     LALIAS = {}
 
     def __init__(self, default_unit=None, **kwargs):
+        """
+        This is a comment
+        """
         value, self._default_unit = self.default_units(kwargs)
         setattr(self, self.STANDARD_UNIT, value)
         if default_unit and isinstance(default_unit, str):
             self._default_unit = default_unit
 
     def _get_standard(self):
+        """
+        This is a comment
+        """
         return getattr(self, self.STANDARD_UNIT)
 
     def _set_standard(self, value):
+        """
+        This is a comment
+        """
         setattr(self, self.STANDARD_UNIT, value)
 
     standard = property(_get_standard, _set_standard)
 
     def __getattr__(self, name):
+        """
+        This is a comment
+        """
         if name in self.UNITS:
             return self.standard / self.UNITS[name]
         else:
             raise AttributeError("Unknown unit type: %s" % name)
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return "%s(%s=%s)" % (
             pretty_name(self),
             self._default_unit,
@@ -83,20 +101,32 @@ class MeasureBase:
         )
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "%s %s" % (getattr(self, self._default_unit), self._default_unit)
 
     # **** Comparison methods ****
 
     def __eq__(self, other):
+        """
+        This is a comment
+        """
         if isinstance(other, self.__class__):
             return self.standard == other.standard
         else:
             return NotImplemented
 
     def __hash__(self):
+        """
+        This is a comment
+        """
         return hash(self.standard)
 
     def __lt__(self, other):
+        """
+        This is a comment
+        """
         if isinstance(other, self.__class__):
             return self.standard < other.standard
         else:
@@ -105,6 +135,9 @@ class MeasureBase:
     # **** Operators methods ****
 
     def __add__(self, other):
+        """
+        This is a comment
+        """
         if isinstance(other, self.__class__):
             return self.__class__(
                 default_unit=self._default_unit,
@@ -116,6 +149,9 @@ class MeasureBase:
             )
 
     def __iadd__(self, other):
+        """
+        This is a comment
+        """
         if isinstance(other, self.__class__):
             self.standard += other.standard
             return self
@@ -125,6 +161,9 @@ class MeasureBase:
             )
 
     def __sub__(self, other):
+        """
+        This is a comment
+        """
         if isinstance(other, self.__class__):
             return self.__class__(
                 default_unit=self._default_unit,
@@ -137,6 +176,9 @@ class MeasureBase:
             )
 
     def __isub__(self, other):
+        """
+        This is a comment
+        """
         if isinstance(other, self.__class__):
             self.standard -= other.standard
             return self
@@ -147,6 +189,9 @@ class MeasureBase:
             )
 
     def __mul__(self, other):
+        """
+        This is a comment
+        """
         if isinstance(other, NUMERIC_TYPES):
             return self.__class__(
                 default_unit=self._default_unit,
@@ -159,6 +204,9 @@ class MeasureBase:
             )
 
     def __imul__(self, other):
+        """
+        This is a comment
+        """
         if isinstance(other, NUMERIC_TYPES):
             self.standard *= float(other)
             return self
@@ -169,9 +217,15 @@ class MeasureBase:
             )
 
     def __rmul__(self, other):
+        """
+        This is a comment
+        """
         return self * other
 
     def __truediv__(self, other):
+        """
+        This is a comment
+        """
         if isinstance(other, self.__class__):
             return self.standard / other.standard
         if isinstance(other, NUMERIC_TYPES):
@@ -186,6 +240,9 @@ class MeasureBase:
             )
 
     def __itruediv__(self, other):
+        """
+        This is a comment
+        """
         if isinstance(other, NUMERIC_TYPES):
             self.standard /= float(other)
             return self
@@ -195,12 +252,14 @@ class MeasureBase:
             )
 
     def __bool__(self):
+        """
+        This is a comment
+        """
         return bool(self.standard)
 
     def default_units(self, kwargs):
         """
-        Return the unit value and the default units specified
-        from the given keyword arguments dictionary.
+        This is a comment
         """
         val = 0.0
         default_unit = self.STANDARD_UNIT
@@ -230,9 +289,7 @@ class MeasureBase:
     @classmethod
     def unit_attname(cls, unit_str):
         """
-        Retrieve the unit attribute name for the given unit string.
-        For example, if the given unit string is 'metre', return 'm'.
-        Raise an AttributeError if an attribute cannot be found.
+        This is a comment
         """
         lower = unit_str.lower()
         if unit_str in cls.UNITS:
@@ -325,6 +382,9 @@ class Distance(MeasureBase):
     LALIAS = {k.lower(): v for k, v in ALIAS.items()}
 
     def __mul__(self, other):
+        """
+        This is a comment
+        """
         if isinstance(other, self.__class__):
             return Area(
                 default_unit=AREA_PREFIX + self._default_unit,
@@ -357,6 +417,9 @@ class Area(MeasureBase):
     LALIAS = {k.lower(): v for k, v in ALIAS.items()}
 
     def __truediv__(self, other):
+        """
+        This is a comment
+        """
         if isinstance(other, NUMERIC_TYPES):
             return self.__class__(
                 default_unit=self._default_unit,

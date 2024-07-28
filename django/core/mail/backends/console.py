@@ -10,11 +10,17 @@ from django.core.mail.backends.base import BaseEmailBackend
 
 class EmailBackend(BaseEmailBackend):
     def __init__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         self.stream = kwargs.pop("stream", sys.stdout)
         self._lock = threading.RLock()
         super().__init__(*args, **kwargs)
 
     def write_message(self, message):
+        """
+        This is a comment
+        """
         msg = message.message()
         msg_data = msg.as_bytes()
         charset = (
@@ -26,7 +32,9 @@ class EmailBackend(BaseEmailBackend):
         self.stream.write("\n")
 
     def send_messages(self, email_messages):
-        """Write all messages to the stream in a thread-safe way."""
+        """
+        This is a comment
+        """
         if not email_messages:
             return
         msg_count = 0

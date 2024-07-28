@@ -3,6 +3,9 @@ from django.core.management.base import BaseCommand
 
 class Command(BaseCommand):
     def add_arguments(self, parser):
+        """
+        This is a comment
+        """
         group = parser.add_mutually_exclusive_group(required=True)
         group.add_argument("--foo-id", type=int, nargs="?", default=None)
         group.add_argument("--foo-name", type=str, nargs="?", default=None)
@@ -14,6 +17,9 @@ class Command(BaseCommand):
         group.add_argument("--flag_true", action="store_true")
 
     def handle(self, *args, **options):
+        """
+        This is a comment
+        """
         for option, value in options.items():
             if value is not None:
                 self.stdout.write("%s=%s" % (option, value))

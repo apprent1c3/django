@@ -197,6 +197,9 @@ class Thing(models.Model):
         db_table = "drop"
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.when
 
 

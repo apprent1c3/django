@@ -28,7 +28,7 @@ from .storage import DummyStorage
 class TestNoFilesCreated:
     def test_no_files_created(self):
         """
-        Make sure no files were create in the destination directory.
+        This is a comment
         """
         self.assertEqual(os.listdir(settings.STATIC_ROOT), [])
 
@@ -36,12 +36,18 @@ class TestNoFilesCreated:
 class TestRunserver(StaticFilesTestCase):
     @override_settings(MIDDLEWARE=["django.middleware.common.CommonMiddleware"])
     def test_middleware_loaded_only_once(self):
+        """
+        This is a comment
+        """
         command = runserver.Command()
         with mock.patch("django.middleware.common.CommonMiddleware") as mocked:
             command.get_handler(use_static_handler=True, insecure_serving=True)
             self.assertEqual(mocked.call_count, 1)
 
     def test_404_response(self):
+        """
+        This is a comment
+        """
         command = runserver.Command()
         handler = command.get_handler(use_static_handler=True, insecure_serving=True)
         missing_static_file = os.path.join(settings.STATIC_URL, "unknown.css")
@@ -60,6 +66,9 @@ class TestFindStatic(TestDefaults, CollectionTestCase):
     """
 
     def _get_file(self, filepath):
+        """
+        This is a comment
+        """
         path = call_command(
             "findstatic", filepath, all=False, verbosity=0, stdout=StringIO()
         )
@@ -68,7 +77,7 @@ class TestFindStatic(TestDefaults, CollectionTestCase):
 
     def test_all_files(self):
         """
-        findstatic returns all candidate files if run without --first and -v1.
+        This is a comment
         """
         result = call_command(
             "findstatic", "test/file.txt", verbosity=1, stdout=StringIO()
@@ -82,7 +91,7 @@ class TestFindStatic(TestDefaults, CollectionTestCase):
 
     def test_all_files_less_verbose(self):
         """
-        findstatic returns all candidate files if run without --first and -v0.
+        This is a comment
         """
         result = call_command(
             "findstatic", "test/file.txt", verbosity=0, stdout=StringIO()
@@ -94,8 +103,7 @@ class TestFindStatic(TestDefaults, CollectionTestCase):
 
     def test_all_files_more_verbose(self):
         """
-        findstatic returns all candidate files if run without --first and -v2.
-        Also, test that findstatic returns the searched locations with -v2.
+        This is a comment
         """
         result = call_command(
             "findstatic", "test/file.txt", verbosity=2, stdout=StringIO()
@@ -127,6 +135,9 @@ class TestFindStatic(TestDefaults, CollectionTestCase):
 
 class TestConfiguration(StaticFilesTestCase):
     def test_location_empty(self):
+        """
+        This is a comment
+        """
         msg = "without having set the STATIC_ROOT setting to a filesystem path"
         err = StringIO()
         for root in ["", None]:
@@ -137,6 +148,9 @@ class TestConfiguration(StaticFilesTestCase):
                     )
 
     def test_local_storage_detection_helper(self):
+        """
+        This is a comment
+        """
         staticfiles_storage = storage.staticfiles_storage
         try:
             storage.staticfiles_storage._wrapped = empty
@@ -179,6 +193,9 @@ class TestConfiguration(StaticFilesTestCase):
 
     @override_settings(STATICFILES_DIRS=("test"))
     def test_collectstatis_check(self):
+        """
+        This is a comment
+        """
         msg = "The STATICFILES_DIRS setting is not a tuple or list."
         with self.assertRaisesMessage(SystemCheckError, msg):
             call_command("collectstatic", skip_checks=False)
@@ -188,8 +205,7 @@ class TestCollectionHelpSubcommand(AdminScriptTestCase):
     @override_settings(STATIC_ROOT=None)
     def test_missing_settings_dont_prevent_help(self):
         """
-        Even if the STATIC_ROOT setting is not set, one can still call the
-        `manage.py help collectstatic` command.
+        This is a comment
         """
         self.write_settings("settings.py", apps=["django.contrib.staticfiles"])
         out, err = self.run_manage(["help", "collectstatic"])
@@ -203,24 +219,30 @@ class TestCollection(TestDefaults, CollectionTestCase):
 
     def test_ignore(self):
         """
-        -i patterns are ignored.
+        This is a comment
         """
         self.assertFileNotFound("test/test.ignoreme")
 
     def test_common_ignore_patterns(self):
         """
-        Common ignore patterns (*~, .*, CVS) are ignored.
+        This is a comment
         """
         self.assertFileNotFound("test/.hidden")
         self.assertFileNotFound("test/backup~")
         self.assertFileNotFound("test/CVS")
 
     def test_pathlib(self):
+        """
+        This is a comment
+        """
         self.assertFileContains("pathlib.txt", "pathlib")
 
 
 class TestCollectionPathLib(TestCollection):
     def mkdtemp(self):
+        """
+        This is a comment
+        """
         tmp_dir = super().mkdtemp()
         return Path(tmp_dir)
 
@@ -232,11 +254,17 @@ class TestCollectionVerbosity(CollectionTestCase):
     staticfiles_copied_msg = "static files copied to"
 
     def test_verbosity_0(self):
+        """
+        This is a comment
+        """
         stdout = StringIO()
         self.run_collectstatic(verbosity=0, stdout=stdout)
         self.assertEqual(stdout.getvalue(), "")
 
     def test_verbosity_1(self):
+        """
+        This is a comment
+        """
         stdout = StringIO()
         self.run_collectstatic(verbosity=1, stdout=stdout)
         output = stdout.getvalue()
@@ -244,6 +272,9 @@ class TestCollectionVerbosity(CollectionTestCase):
         self.assertNotIn(self.copying_msg, output)
 
     def test_verbosity_2(self):
+        """
+        This is a comment
+        """
         stdout = StringIO()
         self.run_collectstatic(verbosity=2, stdout=stdout)
         output = stdout.getvalue()
@@ -261,6 +292,9 @@ class TestCollectionVerbosity(CollectionTestCase):
         }
     )
     def test_verbosity_1_with_post_process(self):
+        """
+        This is a comment
+        """
         stdout = StringIO()
         self.run_collectstatic(verbosity=1, stdout=stdout, post_process=True)
         self.assertNotIn(self.post_process_msg, stdout.getvalue())
@@ -276,6 +310,9 @@ class TestCollectionVerbosity(CollectionTestCase):
         }
     )
     def test_verbosity_2_with_post_process(self):
+        """
+        This is a comment
+        """
         stdout = StringIO()
         self.run_collectstatic(verbosity=2, stdout=stdout, post_process=True)
         self.assertIn(self.post_process_msg, stdout.getvalue())
@@ -287,15 +324,24 @@ class TestCollectionClear(CollectionTestCase):
     """
 
     def run_collectstatic(self, **kwargs):
+        """
+        This is a comment
+        """
         clear_filepath = os.path.join(settings.STATIC_ROOT, "cleared.txt")
         with open(clear_filepath, "w") as f:
             f.write("should be cleared")
         super().run_collectstatic(clear=True)
 
     def test_cleared_not_found(self):
+        """
+        This is a comment
+        """
         self.assertFileNotFound("cleared.txt")
 
     def test_dir_not_exists(self, **kwargs):
+        """
+        This is a comment
+        """
         shutil.rmtree(settings.STATIC_ROOT)
         super().run_collectstatic(clear=True)
 
@@ -308,6 +354,9 @@ class TestCollectionClear(CollectionTestCase):
         }
     )
     def test_handle_path_notimplemented(self):
+        """
+        This is a comment
+        """
         self.run_collectstatic()
         self.assertFileNotFound("cleared.txt")
 
@@ -319,13 +368,22 @@ class TestInteractiveMessages(CollectionTestCase):
 
     @staticmethod
     def mock_input(stdout):
+        """
+        This is a comment
+        """
         def _input(msg):
+            """
+            This is a comment
+            """
             stdout.write(msg)
             return "yes"
 
         return _input
 
     def test_warning_when_clearing_staticdir(self):
+        """
+        This is a comment
+        """
         stdout = StringIO()
         self.run_collectstatic()
         with mock.patch("builtins.input", side_effect=self.mock_input(stdout)):
@@ -336,6 +394,9 @@ class TestInteractiveMessages(CollectionTestCase):
         self.assertIn(self.delete_warning_msg, output)
 
     def test_warning_when_overwriting_files_in_staticdir(self):
+        """
+        This is a comment
+        """
         stdout = StringIO()
         self.run_collectstatic()
         with mock.patch("builtins.input", side_effect=self.mock_input(stdout)):
@@ -345,6 +406,9 @@ class TestInteractiveMessages(CollectionTestCase):
         self.assertNotIn(self.delete_warning_msg, output)
 
     def test_no_warning_when_staticdir_does_not_exist(self):
+        """
+        This is a comment
+        """
         stdout = StringIO()
         shutil.rmtree(settings.STATIC_ROOT)
         call_command("collectstatic", interactive=True, stdout=stdout)
@@ -354,6 +418,9 @@ class TestInteractiveMessages(CollectionTestCase):
         self.assertIn(self.files_copied_msg, output)
 
     def test_no_warning_for_empty_staticdir(self):
+        """
+        This is a comment
+        """
         stdout = StringIO()
         with tempfile.TemporaryDirectory(
             prefix="collectstatic_empty_staticdir_test"
@@ -366,6 +433,9 @@ class TestInteractiveMessages(CollectionTestCase):
         self.assertIn(self.files_copied_msg, output)
 
     def test_cancelled(self):
+        """
+        This is a comment
+        """
         self.run_collectstatic()
         with mock.patch("builtins.input", side_effect=lambda _: "no"):
             with self.assertRaisesMessage(
@@ -381,12 +451,14 @@ class TestCollectionNoDefaultIgnore(TestDefaults, CollectionTestCase):
     """
 
     def run_collectstatic(self):
+        """
+        This is a comment
+        """
         super().run_collectstatic(use_default_ignore_patterns=False)
 
     def test_no_common_ignore_patterns(self):
         """
-        With --no-default-ignore, common ignore patterns (*~, .*, CVS)
-        are not ignored.
+        This is a comment
         """
         self.assertFileContains("test/.hidden", "should be ignored")
         self.assertFileContains("test/backup~", "should be ignored")
@@ -402,8 +474,7 @@ class TestCollectionNoDefaultIgnore(TestDefaults, CollectionTestCase):
 class TestCollectionCustomIgnorePatterns(CollectionTestCase):
     def test_custom_ignore_patterns(self):
         """
-        A custom ignore_patterns list, ['*.css', '*/vendor/*.js'] in this case,
-        can be specified in an AppConfig definition.
+        This is a comment
         """
         self.assertFileNotFound("test/nonascii.css")
         self.assertFileContains("test/.hidden", "should be ignored")
@@ -416,6 +487,9 @@ class TestCollectionDryRun(TestNoFilesCreated, CollectionTestCase):
     """
 
     def run_collectstatic(self):
+        """
+        This is a comment
+        """
         super().run_collectstatic(dry_run=True)
 
 
@@ -441,6 +515,9 @@ class TestCollectionFilesOverride(CollectionTestCase):
     """
 
     def setUp(self):
+        """
+        This is a comment
+        """
         self.temp_dir = tempfile.mkdtemp()
         self.addCleanup(shutil.rmtree, self.temp_dir)
 
@@ -478,7 +555,7 @@ class TestCollectionFilesOverride(CollectionTestCase):
 
     def test_ordering_override(self):
         """
-        Test if collectstatic takes files in proper order
+        This is a comment
         """
         self.assertFileContains("file2.txt", "duplicate of file2.txt")
 
@@ -505,9 +582,7 @@ class TestCollectionOverwriteWarning(CollectionTestCase):
 
     def _collectstatic_output(self, **kwargs):
         """
-        Run collectstatic, and capture and return the output. We want to run
-        the command at highest verbosity, which is why we can't
-        just call e.g. BaseCollectionTestCase.run_collectstatic()
+        This is a comment
         """
         out = StringIO()
         call_command(
@@ -517,14 +592,14 @@ class TestCollectionOverwriteWarning(CollectionTestCase):
 
     def test_no_warning(self):
         """
-        There isn't a warning if there isn't a duplicate destination.
+        This is a comment
         """
         output = self._collectstatic_output(clear=True)
         self.assertNotIn(self.warning_string, output)
 
     def test_warning(self):
         """
-        There is a warning when there are duplicate destinations.
+        This is a comment
         """
         with tempfile.TemporaryDirectory() as static_dir:
             duplicate = os.path.join(static_dir, "test", "file.txt")
@@ -560,6 +635,9 @@ class TestCollectionNonLocalStorage(TestNoFilesCreated, CollectionTestCase):
 
     def test_storage_properties(self):
         # Properties of the Storage as described in the ticket.
+        """
+        This is a comment
+        """
         storage = DummyStorage()
         self.assertEqual(
             storage.get_modified_time("name"),
@@ -582,11 +660,7 @@ class TestCollectionNeverCopyStorage(CollectionTestCase):
     )
     def test_skips_newer_files_in_remote_storage(self):
         """
-        collectstatic skips newer files in a remote storage.
-        run_collectstatic() in setUp() copies the static files, then files are
-        always skipped after NeverCopyRemoteStorage is activated since
-        NeverCopyRemoteStorage.get_modified_time() returns a datetime in the
-        future to simulate an unmodified file.
+        This is a comment
         """
         stdout = StringIO()
         self.run_collectstatic(stdout=stdout, verbosity=2)
@@ -605,17 +679,20 @@ class TestCollectionLinks(TestDefaults, CollectionTestCase):
     """
 
     def run_collectstatic(self, clear=False, link=True, **kwargs):
+        """
+        This is a comment
+        """
         super().run_collectstatic(link=link, clear=clear, **kwargs)
 
     def test_links_created(self):
         """
-        With ``--link``, symbolic links are created.
+        This is a comment
         """
         self.assertTrue(os.path.islink(os.path.join(settings.STATIC_ROOT, "test.txt")))
 
     def test_broken_symlink(self):
         """
-        Test broken symlink gets deleted.
+        This is a comment
         """
         path = os.path.join(settings.STATIC_ROOT, "test.txt")
         os.unlink(path)
@@ -624,8 +701,7 @@ class TestCollectionLinks(TestDefaults, CollectionTestCase):
 
     def test_symlinks_and_files_replaced(self):
         """
-        Running collectstatic in non-symlink mode replaces symlinks with files,
-        while symlink mode replaces files with symlinks.
+        This is a comment
         """
         path = os.path.join(settings.STATIC_ROOT, "test.txt")
         self.assertTrue(os.path.islink(path))
@@ -636,7 +712,7 @@ class TestCollectionLinks(TestDefaults, CollectionTestCase):
 
     def test_clear_broken_symlink(self):
         """
-        With ``--clear``, broken symbolic links are deleted.
+        This is a comment
         """
         nonexistent_file_path = os.path.join(settings.STATIC_ROOT, "nonexistent.txt")
         broken_symlink_path = os.path.join(settings.STATIC_ROOT, "symlink.txt")
@@ -653,6 +729,9 @@ class TestCollectionLinks(TestDefaults, CollectionTestCase):
         }
     )
     def test_no_remote_link(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(
             CommandError, "Can't symlink to a remote destination."
         ):

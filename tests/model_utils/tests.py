@@ -4,6 +4,9 @@ from django.test import SimpleTestCase
 
 class NamedTupleClassTests(SimpleTestCase):
     def test_immutability(self):
+        """
+        This is a comment
+        """
         row_class = create_namedtuple_class("field1", "field2")
         row = row_class("value1", "value2")
         with self.assertRaises(AttributeError):

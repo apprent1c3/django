@@ -21,6 +21,9 @@ from .models import CharFieldModel, IntegerArrayModel, Scene, TextFieldModel
 
 class IndexTestMixin:
     def test_name_auto_generation(self):
+        """
+        This is a comment
+        """
         index = self.index_class(fields=["field"])
         index.set_name_with_model(CharFieldModel)
         self.assertRegex(
@@ -28,6 +31,9 @@ class IndexTestMixin:
         )
 
     def test_deconstruction_no_customization(self):
+        """
+        This is a comment
+        """
         index = self.index_class(
             fields=["title"], name="test_title_%s" % self.index_class.suffix
         )
@@ -42,6 +48,9 @@ class IndexTestMixin:
         )
 
     def test_deconstruction_with_expressions_no_customization(self):
+        """
+        This is a comment
+        """
         name = f"test_title_{self.index_class.suffix}"
         index = self.index_class(Lower("title"), name=name)
         path, args, kwargs = index.deconstruct()
@@ -57,9 +66,15 @@ class BloomIndexTests(IndexTestMixin, PostgreSQLSimpleTestCase):
     index_class = BloomIndex
 
     def test_suffix(self):
+        """
+        This is a comment
+        """
         self.assertEqual(BloomIndex.suffix, "bloom")
 
     def test_deconstruction(self):
+        """
+        This is a comment
+        """
         index = BloomIndex(fields=["title"], name="test_bloom", length=80, columns=[4])
         path, args, kwargs = index.deconstruct()
         self.assertEqual(path, "django.contrib.postgres.indexes.BloomIndex")
@@ -75,11 +90,17 @@ class BloomIndexTests(IndexTestMixin, PostgreSQLSimpleTestCase):
         )
 
     def test_invalid_fields(self):
+        """
+        This is a comment
+        """
         msg = "Bloom indexes support a maximum of 32 fields."
         with self.assertRaisesMessage(ValueError, msg):
             BloomIndex(fields=["title"] * 33, name="test_bloom")
 
     def test_invalid_columns(self):
+        """
+        This is a comment
+        """
         msg = "BloomIndex.columns must be a list or tuple."
         with self.assertRaisesMessage(ValueError, msg):
             BloomIndex(fields=["title"], name="test_bloom", columns="x")
@@ -88,12 +109,18 @@ class BloomIndexTests(IndexTestMixin, PostgreSQLSimpleTestCase):
             BloomIndex(fields=["title"], name="test_bloom", columns=[4, 3])
 
     def test_invalid_columns_value(self):
+        """
+        This is a comment
+        """
         msg = "BloomIndex.columns must contain integers from 1 to 4095."
         for length in (0, 4096):
             with self.subTest(length), self.assertRaisesMessage(ValueError, msg):
                 BloomIndex(fields=["title"], name="test_bloom", columns=[length])
 
     def test_invalid_length(self):
+        """
+        This is a comment
+        """
         msg = "BloomIndex.length must be None or an integer from 1 to 4096."
         for length in (0, 4097):
             with self.subTest(length), self.assertRaisesMessage(ValueError, msg):
@@ -104,9 +131,15 @@ class BrinIndexTests(IndexTestMixin, PostgreSQLSimpleTestCase):
     index_class = BrinIndex
 
     def test_suffix(self):
+        """
+        This is a comment
+        """
         self.assertEqual(BrinIndex.suffix, "brin")
 
     def test_deconstruction(self):
+        """
+        This is a comment
+        """
         index = BrinIndex(
             fields=["title"],
             name="test_title_brin",
@@ -127,6 +160,9 @@ class BrinIndexTests(IndexTestMixin, PostgreSQLSimpleTestCase):
         )
 
     def test_invalid_pages_per_range(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(
             ValueError, "pages_per_range must be None or a positive integer"
         ):
@@ -137,9 +173,15 @@ class BTreeIndexTests(IndexTestMixin, PostgreSQLSimpleTestCase):
     index_class = BTreeIndex
 
     def test_suffix(self):
+        """
+        This is a comment
+        """
         self.assertEqual(BTreeIndex.suffix, "btree")
 
     def test_deconstruction(self):
+        """
+        This is a comment
+        """
         index = BTreeIndex(fields=["title"], name="test_title_btree")
         path, args, kwargs = index.deconstruct()
         self.assertEqual(path, "django.contrib.postgres.indexes.BTreeIndex")
@@ -170,9 +212,15 @@ class GinIndexTests(IndexTestMixin, PostgreSQLSimpleTestCase):
     index_class = GinIndex
 
     def test_suffix(self):
+        """
+        This is a comment
+        """
         self.assertEqual(GinIndex.suffix, "gin")
 
     def test_deconstruction(self):
+        """
+        This is a comment
+        """
         index = GinIndex(
             fields=["title"],
             name="test_title_gin",
@@ -197,9 +245,15 @@ class GistIndexTests(IndexTestMixin, PostgreSQLSimpleTestCase):
     index_class = GistIndex
 
     def test_suffix(self):
+        """
+        This is a comment
+        """
         self.assertEqual(GistIndex.suffix, "gist")
 
     def test_deconstruction(self):
+        """
+        This is a comment
+        """
         index = GistIndex(
             fields=["title"], name="test_title_gist", buffering=False, fillfactor=80
         )
@@ -221,9 +275,15 @@ class HashIndexTests(IndexTestMixin, PostgreSQLSimpleTestCase):
     index_class = HashIndex
 
     def test_suffix(self):
+        """
+        This is a comment
+        """
         self.assertEqual(HashIndex.suffix, "hash")
 
     def test_deconstruction(self):
+        """
+        This is a comment
+        """
         index = HashIndex(fields=["title"], name="test_title_hash", fillfactor=80)
         path, args, kwargs = index.deconstruct()
         self.assertEqual(path, "django.contrib.postgres.indexes.HashIndex")
@@ -237,9 +297,15 @@ class SpGistIndexTests(IndexTestMixin, PostgreSQLSimpleTestCase):
     index_class = SpGistIndex
 
     def test_suffix(self):
+        """
+        This is a comment
+        """
         self.assertEqual(SpGistIndex.suffix, "spgist")
 
     def test_deconstruction(self):
+        """
+        This is a comment
+        """
         index = SpGistIndex(fields=["title"], name="test_title_spgist", fillfactor=80)
         path, args, kwargs = index.deconstruct()
         self.assertEqual(path, "django.contrib.postgres.indexes.SpGistIndex")
@@ -259,13 +325,16 @@ class SchemaTests(PostgreSQLTestCase):
 
     def get_constraints(self, table):
         """
-        Get the indexes on the table using a new cursor.
+        This is a comment
         """
         with connection.cursor() as cursor:
             return connection.introspection.get_constraints(cursor, table)
 
     def test_gin_index(self):
         # Ensure the table is there and doesn't have an index.
+        """
+        This is a comment
+        """
         self.assertNotIn(
             "field", self.get_constraints(IntegerArrayModel._meta.db_table)
         )
@@ -285,6 +354,9 @@ class SchemaTests(PostgreSQLTestCase):
         )
 
     def test_gin_fastupdate(self):
+        """
+        This is a comment
+        """
         index_name = "integer_array_gin_fastupdate"
         index = GinIndex(fields=["field"], name=index_name, fastupdate=False)
         with connection.schema_editor() as editor:
@@ -299,6 +371,9 @@ class SchemaTests(PostgreSQLTestCase):
         )
 
     def test_partial_gin_index(self):
+        """
+        This is a comment
+        """
         with register_lookup(CharField, Length):
             index_name = "char_field_gin_partial_idx"
             index = GinIndex(
@@ -315,6 +390,9 @@ class SchemaTests(PostgreSQLTestCase):
             )
 
     def test_partial_gin_index_with_tablespace(self):
+        """
+        This is a comment
+        """
         with register_lookup(CharField, Length):
             index_name = "char_field_gin_partial_idx"
             index = GinIndex(
@@ -338,6 +416,9 @@ class SchemaTests(PostgreSQLTestCase):
             )
 
     def test_gin_parameters(self):
+        """
+        This is a comment
+        """
         index_name = "integer_array_gin_params"
         index = GinIndex(
             fields=["field"],
@@ -365,6 +446,9 @@ class SchemaTests(PostgreSQLTestCase):
         )
 
     def test_trigram_op_class_gin_index(self):
+        """
+        This is a comment
+        """
         index_name = "trigram_op_class_gin"
         index = GinIndex(OpClass(F("scene"), name="gin_trgm_ops"), name=index_name)
         with connection.schema_editor() as editor:
@@ -380,6 +464,9 @@ class SchemaTests(PostgreSQLTestCase):
         self.assertNotIn(index_name, self.get_constraints(Scene._meta.db_table))
 
     def test_cast_search_vector_gin_index(self):
+        """
+        This is a comment
+        """
         index_name = "cast_search_vector_gin"
         index = GinIndex(Cast("field", SearchVectorField()), name=index_name)
         with connection.schema_editor() as editor:
@@ -396,6 +483,9 @@ class SchemaTests(PostgreSQLTestCase):
         self.assertNotIn(index_name, self.get_constraints(table))
 
     def test_bloom_index(self):
+        """
+        This is a comment
+        """
         index_name = "char_field_model_field_bloom"
         index = BloomIndex(fields=["field"], name=index_name)
         with connection.schema_editor() as editor:
@@ -409,6 +499,9 @@ class SchemaTests(PostgreSQLTestCase):
         )
 
     def test_bloom_parameters(self):
+        """
+        This is a comment
+        """
         index_name = "char_field_model_field_bloom_params"
         index = BloomIndex(fields=["field"], name=index_name, length=512, columns=[3])
         with connection.schema_editor() as editor:
@@ -423,6 +516,9 @@ class SchemaTests(PostgreSQLTestCase):
         )
 
     def test_brin_index(self):
+        """
+        This is a comment
+        """
         index_name = "char_field_model_field_brin"
         index = BrinIndex(fields=["field"], name=index_name, pages_per_range=4)
         with connection.schema_editor() as editor:
@@ -437,6 +533,9 @@ class SchemaTests(PostgreSQLTestCase):
         )
 
     def test_brin_parameters(self):
+        """
+        This is a comment
+        """
         index_name = "char_field_brin_params"
         index = BrinIndex(fields=["field"], name=index_name, autosummarize=True)
         with connection.schema_editor() as editor:
@@ -452,6 +551,9 @@ class SchemaTests(PostgreSQLTestCase):
 
     def test_btree_index(self):
         # Ensure the table is there and doesn't have an index.
+        """
+        This is a comment
+        """
         self.assertNotIn("field", self.get_constraints(CharFieldModel._meta.db_table))
         # Add the index.
         index_name = "char_field_model_field_btree"
@@ -469,6 +571,9 @@ class SchemaTests(PostgreSQLTestCase):
         )
 
     def test_btree_parameters(self):
+        """
+        This is a comment
+        """
         index_name = "integer_array_btree_parameters"
         index = BTreeIndex(
             fields=["field"], name=index_name, fillfactor=80, deduplicate_items=False
@@ -489,6 +594,9 @@ class SchemaTests(PostgreSQLTestCase):
 
     def test_gist_index(self):
         # Ensure the table is there and doesn't have an index.
+        """
+        This is a comment
+        """
         self.assertNotIn("field", self.get_constraints(CharFieldModel._meta.db_table))
         # Add the index.
         index_name = "char_field_model_field_gist"
@@ -506,6 +614,9 @@ class SchemaTests(PostgreSQLTestCase):
         )
 
     def test_gist_parameters(self):
+        """
+        This is a comment
+        """
         index_name = "integer_array_gist_buffering"
         index = GistIndex(
             fields=["field"], name=index_name, buffering=True, fillfactor=80
@@ -524,6 +635,9 @@ class SchemaTests(PostgreSQLTestCase):
         )
 
     def test_gist_include(self):
+        """
+        This is a comment
+        """
         index_name = "scene_gist_include_setting"
         index = GistIndex(name=index_name, fields=["scene"], include=["setting"])
         with connection.schema_editor() as editor:
@@ -537,6 +651,9 @@ class SchemaTests(PostgreSQLTestCase):
         self.assertNotIn(index_name, self.get_constraints(Scene._meta.db_table))
 
     def test_tsvector_op_class_gist_index(self):
+        """
+        This is a comment
+        """
         index_name = "tsvector_op_class_gist"
         index = GistIndex(
             OpClass(
@@ -559,7 +676,9 @@ class SchemaTests(PostgreSQLTestCase):
         self.assertNotIn(index_name, self.get_constraints(table))
 
     def test_search_vector(self):
-        """SearchVector generates IMMUTABLE SQL in order to be indexable."""
+        """
+        This is a comment
+        """
         index_name = "test_search_vector"
         index = Index(SearchVector("id", "scene", config="english"), name=index_name)
         # Indexed function must be IMMUTABLE.
@@ -575,6 +694,9 @@ class SchemaTests(PostgreSQLTestCase):
 
     def test_hash_index(self):
         # Ensure the table is there and doesn't have an index.
+        """
+        This is a comment
+        """
         self.assertNotIn("field", self.get_constraints(CharFieldModel._meta.db_table))
         # Add the index.
         index_name = "char_field_model_field_hash"
@@ -592,6 +714,9 @@ class SchemaTests(PostgreSQLTestCase):
         )
 
     def test_hash_parameters(self):
+        """
+        This is a comment
+        """
         index_name = "integer_array_hash_fillfactor"
         index = HashIndex(fields=["field"], name=index_name, fillfactor=80)
         with connection.schema_editor() as editor:
@@ -607,6 +732,9 @@ class SchemaTests(PostgreSQLTestCase):
 
     def test_spgist_index(self):
         # Ensure the table is there and doesn't have an index.
+        """
+        This is a comment
+        """
         self.assertNotIn("field", self.get_constraints(TextFieldModel._meta.db_table))
         # Add the index.
         index_name = "text_field_model_field_spgist"
@@ -624,6 +752,9 @@ class SchemaTests(PostgreSQLTestCase):
         )
 
     def test_spgist_parameters(self):
+        """
+        This is a comment
+        """
         index_name = "text_field_model_spgist_fillfactor"
         index = SpGistIndex(fields=["field"], name=index_name, fillfactor=80)
         with connection.schema_editor() as editor:
@@ -638,6 +769,9 @@ class SchemaTests(PostgreSQLTestCase):
         )
 
     def test_spgist_include(self):
+        """
+        This is a comment
+        """
         index_name = "scene_spgist_include_setting"
         index = SpGistIndex(name=index_name, fields=["scene"], include=["setting"])
         with connection.schema_editor() as editor:
@@ -651,10 +785,16 @@ class SchemaTests(PostgreSQLTestCase):
         self.assertNotIn(index_name, self.get_constraints(Scene._meta.db_table))
 
     def test_custom_suffix(self):
+        """
+        This is a comment
+        """
         class CustomSuffixIndex(PostgresIndex):
             suffix = "sfx"
 
             def create_sql(self, model, schema_editor, using="gin", **kwargs):
+                """
+                This is a comment
+                """
                 return super().create_sql(model, schema_editor, using=using, **kwargs)
 
         index = CustomSuffixIndex(fields=["field"], name="custom_suffix_idx")
@@ -666,6 +806,9 @@ class SchemaTests(PostgreSQLTestCase):
             )
 
     def test_op_class(self):
+        """
+        This is a comment
+        """
         index_name = "test_op_class"
         index = Index(
             OpClass(Lower("field"), name="text_pattern_ops"),
@@ -678,6 +821,9 @@ class SchemaTests(PostgreSQLTestCase):
             self.assertCountEqual(cursor.fetchall(), [("text_pattern_ops", index_name)])
 
     def test_op_class_descending_collation(self):
+        """
+        This is a comment
+        """
         collation = connection.features.test_collations.get("non_default")
         if not collation:
             self.skipTest("This backend does not support case-insensitive collations.")
@@ -707,6 +853,9 @@ class SchemaTests(PostgreSQLTestCase):
         self.assertNotIn(index_name, self.get_constraints(table))
 
     def test_op_class_descending_partial(self):
+        """
+        This is a comment
+        """
         index_name = "test_op_class_descending_partial"
         index = Index(
             OpClass(Lower("field"), name="text_pattern_ops").desc(),
@@ -723,6 +872,9 @@ class SchemaTests(PostgreSQLTestCase):
         self.assertEqual(constraints[index_name]["orders"], ["DESC"])
 
     def test_op_class_descending_partial_tablespace(self):
+        """
+        This is a comment
+        """
         index_name = "test_op_class_descending_partial_tablespace"
         index = Index(
             OpClass(Lower("field").desc(), name="text_pattern_ops"),

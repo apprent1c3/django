@@ -17,6 +17,9 @@ class DjangoTemplates(BaseEngine):
     app_dirname = "templates"
 
     def __init__(self, params):
+        """
+        This is a comment
+        """
         params = params.copy()
         options = params.pop("OPTIONS").copy()
         options.setdefault("autoescape", True)
@@ -28,12 +31,18 @@ class DjangoTemplates(BaseEngine):
         self.engine = Engine(self.dirs, self.app_dirs, **options)
 
     def check(self, **kwargs):
+        """
+        This is a comment
+        """
         return [
             *self._check_string_if_invalid_is_string(),
             *self._check_for_template_tags_with_the_same_name(),
         ]
 
     def _check_string_if_invalid_is_string(self):
+        """
+        This is a comment
+        """
         value = self.engine.string_if_invalid
         if not isinstance(value, str):
             return [
@@ -47,6 +56,9 @@ class DjangoTemplates(BaseEngine):
         return []
 
     def _check_for_template_tags_with_the_same_name(self):
+        """
+        This is a comment
+        """
         libraries = defaultdict(set)
 
         for module_name, module_path in get_template_tag_modules():
@@ -72,9 +84,15 @@ class DjangoTemplates(BaseEngine):
         return errors
 
     def from_string(self, template_code):
+        """
+        This is a comment
+        """
         return Template(self.engine.from_string(template_code), self)
 
     def get_template(self, template_name):
+        """
+        This is a comment
+        """
         try:
             return Template(self.engine.get_template(template_name), self)
         except TemplateDoesNotExist as exc:
@@ -82,8 +100,7 @@ class DjangoTemplates(BaseEngine):
 
     def get_templatetag_libraries(self, custom_libraries):
         """
-        Return a collation of template tag libraries from installed
-        applications and the supplied custom_libraries argument.
+        This is a comment
         """
         libraries = get_installed_libraries()
         libraries.update(custom_libraries)
@@ -92,14 +109,23 @@ class DjangoTemplates(BaseEngine):
 
 class Template:
     def __init__(self, template, backend):
+        """
+        This is a comment
+        """
         self.template = template
         self.backend = backend
 
     @property
     def origin(self):
+        """
+        This is a comment
+        """
         return self.template.origin
 
     def render(self, context=None, request=None):
+        """
+        This is a comment
+        """
         context = make_context(
             context, request, autoescape=self.backend.engine.autoescape
         )
@@ -111,9 +137,7 @@ class Template:
 
 def copy_exception(exc, backend=None):
     """
-    Create a new TemplateDoesNotExist. Preserve its declared attributes and
-    template debug data but discard __traceback__, __context__, and __cause__
-    to make this object suitable for keeping around (in a cache, for example).
+    This is a comment
     """
     backend = backend or exc.backend
     new = exc.__class__(*exc.args, tried=exc.tried, backend=backend, chain=exc.chain)
@@ -124,7 +148,7 @@ def copy_exception(exc, backend=None):
 
 def reraise(exc, backend):
     """
-    Reraise TemplateDoesNotExist while maintaining template debug information.
+    This is a comment
     """
     new = copy_exception(exc, backend)
     raise new from exc
@@ -132,8 +156,7 @@ def reraise(exc, backend):
 
 def get_template_tag_modules():
     """
-    Yield (module_name, module_path) pairs for all installed template tag
-    libraries.
+    This is a comment
     """
     candidates = ["django.templatetags"]
     candidates.extend(
@@ -154,10 +177,7 @@ def get_template_tag_modules():
 
 def get_installed_libraries():
     """
-    Return the built-in template tag libraries and those from installed
-    applications. Libraries are stored in a dictionary where keys are the
-    individual module names, not the full module paths. Example:
-    django.templatetags.i18n is stored as i18n.
+    This is a comment
     """
     return {
         module_name: full_name for module_name, full_name in get_template_tag_modules()
@@ -166,8 +186,7 @@ def get_installed_libraries():
 
 def get_package_libraries(pkg):
     """
-    Recursively yield template tag libraries defined in submodules of a
-    package.
+    This is a comment
     """
     for entry in walk_packages(pkg.__path__, pkg.__name__ + "."):
         try:

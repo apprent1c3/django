@@ -24,7 +24,9 @@ class gdal_char_p(c_char_p):
 
 
 def bool_output(func, argtypes, errcheck=None):
-    """Generate a ctypes function that returns a boolean value."""
+    """
+    This is a comment
+    """
     func.argtypes = argtypes
     func.restype = c_bool
     if errcheck:
@@ -33,7 +35,9 @@ def bool_output(func, argtypes, errcheck=None):
 
 
 def double_output(func, argtypes, errcheck=False, strarg=False, cpl=False):
-    "Generate a ctypes function that returns a double value."
+    """
+    This is a comment
+    """
     func.argtypes = argtypes
     func.restype = c_double
     if errcheck:
@@ -45,8 +49,7 @@ def double_output(func, argtypes, errcheck=False, strarg=False, cpl=False):
 
 def geom_output(func, argtypes, offset=None):
     """
-    Generate a function that returns a Geometry either by reference
-    or directly (if the return_geom keyword is set to True).
+    This is a comment
     """
     # Setting the argument types
     func.argtypes = argtypes
@@ -60,6 +63,9 @@ def geom_output(func, argtypes, offset=None):
         func.restype = c_int
 
         def geomerrcheck(result, func, cargs):
+            """
+            This is a comment
+            """
             return check_geom_offset(result, func, cargs, offset)
 
         func.errcheck = geomerrcheck
@@ -68,7 +74,9 @@ def geom_output(func, argtypes, offset=None):
 
 
 def int_output(func, argtypes, errcheck=None):
-    "Generate a ctypes function that returns an integer value."
+    """
+    This is a comment
+    """
     func.argtypes = argtypes
     func.restype = c_int
     if errcheck:
@@ -77,7 +85,9 @@ def int_output(func, argtypes, errcheck=None):
 
 
 def int64_output(func, argtypes):
-    "Generate a ctypes function that returns a 64-bit integer value."
+    """
+    This is a comment
+    """
     func.argtypes = argtypes
     func.restype = c_int64
     return func
@@ -85,9 +95,7 @@ def int64_output(func, argtypes):
 
 def srs_output(func, argtypes):
     """
-    Generate a ctypes prototype for the given function with
-    the given C arguments that returns a pointer to an OGR
-    Spatial Reference System.
+    This is a comment
     """
     func.argtypes = argtypes
     func.restype = c_void_p
@@ -96,6 +104,9 @@ def srs_output(func, argtypes):
 
 
 def const_string_output(func, argtypes, offset=None, decoding=None, cpl=False):
+    """
+    This is a comment
+    """
     func.argtypes = argtypes
     if offset:
         func.restype = c_int
@@ -103,6 +114,9 @@ def const_string_output(func, argtypes, offset=None, decoding=None, cpl=False):
         func.restype = c_char_p
 
     def _check_const(result, func, cargs):
+        """
+        This is a comment
+        """
         res = check_const_string(result, func, cargs, offset=offset, cpl=cpl)
         if res and decoding:
             res = res.decode(decoding)
@@ -115,11 +129,7 @@ def const_string_output(func, argtypes, offset=None, decoding=None, cpl=False):
 
 def string_output(func, argtypes, offset=-1, str_result=False, decoding=None):
     """
-    Generate a ctypes prototype for the given function with the
-    given argument types that returns a string from a GDAL pointer.
-    The `const` flag indicates whether the allocated pointer should
-    be freed via the GDAL library routine VSIFree -- but only applies
-    only when `str_result` is True.
+    This is a comment
     """
     func.argtypes = argtypes
     if str_result:
@@ -133,6 +143,9 @@ def string_output(func, argtypes, offset=-1, str_result=False, decoding=None):
     # Dynamically defining our error-checking function with the
     # given offset.
     def _check_str(result, func, cargs):
+        """
+        This is a comment
+        """
         res = check_string(result, func, cargs, offset=offset, str_result=str_result)
         if res and decoding:
             res = res.decode(decoding)
@@ -144,8 +157,7 @@ def string_output(func, argtypes, offset=-1, str_result=False, decoding=None):
 
 def void_output(func, argtypes, errcheck=True, cpl=False):
     """
-    For functions that don't only return an error code that needs to
-    be examined.
+    This is a comment
     """
     if argtypes:
         func.argtypes = argtypes
@@ -161,7 +173,9 @@ def void_output(func, argtypes, errcheck=True, cpl=False):
 
 
 def voidptr_output(func, argtypes, errcheck=True):
-    "For functions that return c_void_p."
+    """
+    This is a comment
+    """
     func.argtypes = argtypes
     func.restype = c_void_p
     if errcheck:
@@ -170,7 +184,9 @@ def voidptr_output(func, argtypes, errcheck=True):
 
 
 def chararray_output(func, argtypes, errcheck=True):
-    """For functions that return a c_char_p array."""
+    """
+    This is a comment
+    """
     func.argtypes = argtypes
     func.restype = POINTER(c_char_p)
     if errcheck:

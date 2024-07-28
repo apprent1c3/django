@@ -32,6 +32,9 @@ class MockRequest:
 
 class MockSuperUser:
     def has_perm(self, perm, obj=None):
+        """
+        This is a comment
+        """
         return True
 
 
@@ -42,6 +45,9 @@ request.user = MockSuperUser()
 class ModelAdminTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.band = Band.objects.create(
             name="The Doors",
             bio="",
@@ -49,13 +55,22 @@ class ModelAdminTests(TestCase):
         )
 
     def setUp(self):
+        """
+        This is a comment
+        """
         self.site = AdminSite()
 
     def test_modeladmin_str(self):
+        """
+        This is a comment
+        """
         ma = ModelAdmin(Band, self.site)
         self.assertEqual(str(ma), "modeladmin.ModelAdmin")
 
     def test_default_attributes(self):
+        """
+        This is a comment
+        """
         ma = ModelAdmin(Band, self.site)
         self.assertEqual(ma.actions, ())
         self.assertEqual(ma.inlines, ())
@@ -63,6 +78,9 @@ class ModelAdminTests(TestCase):
     # form/fields/fieldsets interaction ##############################
 
     def test_default_fields(self):
+        """
+        This is a comment
+        """
         ma = ModelAdmin(Band, self.site)
         self.assertEqual(
             list(ma.get_form(request).base_fields), ["name", "bio", "sign_date"]
@@ -80,6 +98,9 @@ class ModelAdminTests(TestCase):
         #
         # Here's the default case. There are no custom form_add/form_change methods,
         # no fields argument, and no fieldsets argument.
+        """
+        This is a comment
+        """
         ma = ModelAdmin(Band, self.site)
         self.assertEqual(
             ma.get_fieldsets(request),
@@ -92,8 +113,14 @@ class ModelAdminTests(TestCase):
 
     def test_get_fieldsets(self):
         # get_fieldsets() is called when figuring out form fields (#18681).
+        """
+        This is a comment
+        """
         class BandAdmin(ModelAdmin):
             def get_fieldsets(self, request, obj=None):
+                """
+                This is a comment
+                """
                 return [(None, {"fields": ["name", "bio"]})]
 
         ma = BandAdmin(Band, self.site)
@@ -106,6 +133,9 @@ class ModelAdminTests(TestCase):
             can_delete = False
 
             def get_fieldsets(self, request, obj=None):
+                """
+                This is a comment
+                """
                 return [(None, {"fields": ["day", "transport"]})]
 
         ma = InlineBandAdmin(Band, self.site)
@@ -114,8 +144,7 @@ class ModelAdminTests(TestCase):
 
     def test_lookup_allowed_allows_nonexistent_lookup(self):
         """
-        A lookup_allowed allows a parameter whose field lookup doesn't exist.
-        (#21129).
+        This is a comment
         """
 
         class BandAdmin(ModelAdmin):
@@ -129,6 +158,9 @@ class ModelAdminTests(TestCase):
 
     @isolate_apps("modeladmin")
     def test_lookup_allowed_onetoone(self):
+        """
+        This is a comment
+        """
         class Department(models.Model):
             code = models.CharField(max_length=4, unique=True)
 
@@ -164,6 +196,9 @@ class ModelAdminTests(TestCase):
 
     @isolate_apps("modeladmin")
     def test_lookup_allowed_for_local_fk_fields(self):
+        """
+        This is a comment
+        """
         class Country(models.Model):
             pass
 
@@ -190,6 +225,9 @@ class ModelAdminTests(TestCase):
 
     @isolate_apps("modeladmin")
     def test_lookup_allowed_non_autofield_primary_key(self):
+        """
+        This is a comment
+        """
         class Country(models.Model):
             id = models.CharField(max_length=2, primary_key=True)
 
@@ -204,6 +242,9 @@ class ModelAdminTests(TestCase):
 
     @isolate_apps("modeladmin")
     def test_lookup_allowed_foreign_primary(self):
+        """
+        This is a comment
+        """
         class Country(models.Model):
             name = models.CharField(max_length=256)
 
@@ -239,10 +280,16 @@ class ModelAdminTests(TestCase):
         )
 
     def test_lookup_allowed_considers_dynamic_list_filter(self):
+        """
+        This is a comment
+        """
         class ConcertAdmin(ModelAdmin):
             list_filter = ["main_band__sign_date"]
 
             def get_list_filter(self, request):
+                """
+                This is a comment
+                """
                 if getattr(request, "user", None):
                     return self.list_filter + ["main_band__name"]
                 return self.list_filter
@@ -276,13 +323,22 @@ class ModelAdminTests(TestCase):
         )
 
     def test_lookup_allowed_without_request_deprecation(self):
+        """
+        This is a comment
+        """
         class ConcertAdmin(ModelAdmin):
             list_filter = ["main_band__sign_date"]
 
             def get_list_filter(self, request):
+                """
+                This is a comment
+                """
                 return self.list_filter + ["main_band__name"]
 
             def lookup_allowed(self, lookup, value):
+                """
+                This is a comment
+                """
                 return True
 
         model_admin = ConcertAdmin(Concert, self.site)
@@ -308,6 +364,9 @@ class ModelAdminTests(TestCase):
     def test_field_arguments(self):
         # If fields is specified, fieldsets_add and fieldsets_change should
         # just stick the fields into a formsets structure and return it.
+        """
+        This is a comment
+        """
         class BandAdmin(ModelAdmin):
             fields = ["name"]
 
@@ -328,6 +387,9 @@ class ModelAdminTests(TestCase):
         # Form class isn't being displayed because it's not in fields/fieldsets.
 
         # Using `fields`.
+        """
+        This is a comment
+        """
         class BandAdmin(ModelAdmin):
             fields = ["name"]
 
@@ -367,9 +429,7 @@ class ModelAdminTests(TestCase):
 
     def test_custom_form_meta_exclude_with_readonly(self):
         """
-        The custom ModelForm's `Meta.exclude` is respected when used in
-        conjunction with `ModelAdmin.readonly_fields` and when no
-        `ModelAdmin.exclude` is defined (#14496).
+        This is a comment
         """
 
         # With ModelAdmin
@@ -407,6 +467,9 @@ class ModelAdminTests(TestCase):
         )
 
     def test_custom_formfield_override_readonly(self):
+        """
+        This is a comment
+        """
         class AdminBandForm(forms.ModelForm):
             name = forms.CharField()
 
@@ -433,8 +496,7 @@ class ModelAdminTests(TestCase):
 
     def test_custom_form_meta_exclude(self):
         """
-        The custom ModelForm's `Meta.exclude` is overridden if
-        `ModelAdmin.exclude` or `InlineModelAdmin.exclude` are defined (#14496).
+        This is a comment
         """
 
         # With ModelAdmin
@@ -472,8 +534,14 @@ class ModelAdminTests(TestCase):
         )
 
     def test_overriding_get_exclude(self):
+        """
+        This is a comment
+        """
         class BandAdmin(ModelAdmin):
             def get_exclude(self, request, obj=None):
+                """
+                This is a comment
+                """
                 return ["name"]
 
         self.assertEqual(
@@ -482,10 +550,16 @@ class ModelAdminTests(TestCase):
         )
 
     def test_get_exclude_overrides_exclude(self):
+        """
+        This is a comment
+        """
         class BandAdmin(ModelAdmin):
             exclude = ["bio"]
 
             def get_exclude(self, request, obj=None):
+                """
+                This is a comment
+                """
                 return ["name"]
 
         self.assertEqual(
@@ -494,8 +568,14 @@ class ModelAdminTests(TestCase):
         )
 
     def test_get_exclude_takes_obj(self):
+        """
+        This is a comment
+        """
         class BandAdmin(ModelAdmin):
             def get_exclude(self, request, obj=None):
+                """
+                This is a comment
+                """
                 if obj:
                     return ["sign_date"]
                 return ["name"]
@@ -508,6 +588,9 @@ class ModelAdminTests(TestCase):
     def test_custom_form_validation(self):
         # If a form is specified, it should use it allowing custom validation
         # to work properly. This won't break any of the admin widgets or media.
+        """
+        This is a comment
+        """
         class AdminBandForm(forms.ModelForm):
             delete = forms.BooleanField()
 
@@ -525,8 +608,7 @@ class ModelAdminTests(TestCase):
 
     def test_form_exclude_kwarg_override(self):
         """
-        The `exclude` kwarg passed to `ModelAdmin.get_form()` overrides all
-        other declarations (#8999).
+        This is a comment
         """
 
         class AdminBandForm(forms.ModelForm):
@@ -539,6 +621,9 @@ class ModelAdminTests(TestCase):
             form = AdminBandForm
 
             def get_form(self, request, obj=None, **kwargs):
+                """
+                This is a comment
+                """
                 kwargs["exclude"] = ["bio"]
                 return super().get_form(request, obj, **kwargs)
 
@@ -547,8 +632,7 @@ class ModelAdminTests(TestCase):
 
     def test_formset_exclude_kwarg_override(self):
         """
-        The `exclude` kwarg passed to `InlineModelAdmin.get_formset()`
-        overrides all other declarations (#8999).
+        This is a comment
         """
 
         class AdminConcertForm(forms.ModelForm):
@@ -563,6 +647,9 @@ class ModelAdminTests(TestCase):
             model = Concert
 
             def get_formset(self, request, obj=None, **kwargs):
+                """
+                This is a comment
+                """
                 kwargs["exclude"] = ["opening_band"]
                 return super().get_formset(request, obj, **kwargs)
 
@@ -576,6 +663,9 @@ class ModelAdminTests(TestCase):
         )
 
     def test_formset_overriding_get_exclude_with_form_fields(self):
+        """
+        This is a comment
+        """
         class AdminConcertForm(forms.ModelForm):
             class Meta:
                 model = Concert
@@ -587,6 +677,9 @@ class ModelAdminTests(TestCase):
             model = Concert
 
             def get_exclude(self, request, obj=None):
+                """
+                This is a comment
+                """
                 return ["opening_band"]
 
         class BandAdmin(ModelAdmin):
@@ -599,6 +692,9 @@ class ModelAdminTests(TestCase):
         )
 
     def test_formset_overriding_get_exclude_with_form_exclude(self):
+        """
+        This is a comment
+        """
         class AdminConcertForm(forms.ModelForm):
             class Meta:
                 model = Concert
@@ -610,6 +706,9 @@ class ModelAdminTests(TestCase):
             model = Concert
 
             def get_exclude(self, request, obj=None):
+                """
+                This is a comment
+                """
                 return ["opening_band"]
 
         class BandAdmin(ModelAdmin):
@@ -623,8 +722,7 @@ class ModelAdminTests(TestCase):
 
     def test_raw_id_fields_widget_override(self):
         """
-        The autocomplete_fields, raw_id_fields, and radio_fields widgets may
-        overridden by specifying a widget in get_formset().
+        This is a comment
         """
 
         class ConcertInline(TabularInline):
@@ -633,6 +731,9 @@ class ModelAdminTests(TestCase):
             raw_id_fields = ("opening_band",)
 
             def get_formset(self, request, obj=None, **kwargs):
+                """
+                This is a comment
+                """
                 kwargs["widgets"] = {"opening_band": Select}
                 return super().get_formset(request, obj, **kwargs)
 
@@ -652,6 +753,9 @@ class ModelAdminTests(TestCase):
     def test_queryset_override(self):
         # If the queryset of a ModelChoiceField in a custom form is overridden,
         # RelatedFieldWidgetWrapper doesn't mess that up.
+        """
+        This is a comment
+        """
         band2 = Band.objects.create(
             name="The Beatles", bio="", sign_date=date(1962, 1, 1)
         )
@@ -672,6 +776,9 @@ class ModelAdminTests(TestCase):
 
         class AdminConcertForm(forms.ModelForm):
             def __init__(self, *args, **kwargs):
+                """
+                This is a comment
+                """
                 super().__init__(*args, **kwargs)
                 self.fields["main_band"].queryset = Band.objects.filter(
                     name="The Doors"
@@ -695,8 +802,7 @@ class ModelAdminTests(TestCase):
 
     def test_regression_for_ticket_15820(self):
         """
-        `obj` is passed from `InlineModelAdmin.get_fieldsets()` to
-        `InlineModelAdmin.get_formset()`.
+        This is a comment
         """
 
         class CustomConcertForm(forms.ModelForm):
@@ -709,6 +815,9 @@ class ModelAdminTests(TestCase):
             fk_name = "main_band"
 
             def get_formset(self, request, obj=None, **kwargs):
+                """
+                This is a comment
+                """
                 if obj:
                     kwargs["form"] = CustomConcertForm
                 return super().get_formset(request, obj, **kwargs)
@@ -736,6 +845,9 @@ class ModelAdminTests(TestCase):
         # ForeignKey widgets in the admin are wrapped with RelatedFieldWidgetWrapper so
         # they need to be handled properly when type checking. For Select fields, all of
         # the choices lists have a first entry of dashes.
+        """
+        This is a comment
+        """
         cma = ModelAdmin(Concert, self.site)
         cmafa = cma.get_form(request)
 
@@ -766,6 +878,9 @@ class ModelAdminTests(TestCase):
         # RadioSelect, and the choices list should have a first entry of 'None' if
         # blank=True for the model field.  Finally, the widget should have the
         # 'radiolist' attr, and 'inline' as well if the field is specified HORIZONTAL.
+        """
+        This is a comment
+        """
         class ConcertAdmin(ModelAdmin):
             radio_fields = {
                 "main_band": HORIZONTAL,
@@ -857,6 +972,9 @@ class ModelAdminTests(TestCase):
         )
 
     def test_log_actions(self):
+        """
+        This is a comment
+        """
         ma = ModelAdmin(Band, self.site)
         mock_request = MockRequest()
         mock_request.user = User.objects.create(username="bill")
@@ -878,6 +996,9 @@ class ModelAdminTests(TestCase):
                 self.assertEqual(fetched.object_repr, str(self.band))
 
     def test_log_deletions(self):
+        """
+        This is a comment
+        """
         ma = ModelAdmin(Band, self.site)
         mock_request = MockRequest()
         mock_request.user = User.objects.create(username="akash")
@@ -923,6 +1044,9 @@ class ModelAdminTests(TestCase):
 
     # RemovedInDjango60Warning.
     def test_log_deletion(self):
+        """
+        This is a comment
+        """
         ma = ModelAdmin(Band, self.site)
         mock_request = MockRequest()
         mock_request.user = User.objects.create(username="bill")
@@ -941,8 +1065,14 @@ class ModelAdminTests(TestCase):
 
     # RemovedInDjango60Warning.
     def test_log_deletion_fallback(self):
+        """
+        This is a comment
+        """
         class InheritedModelAdmin(ModelAdmin):
             def log_deletion(self, request, obj, object_repr):
+                """
+                This is a comment
+                """
                 return super().log_deletion(request, obj, object_repr)
 
         ima = InheritedModelAdmin(Band, self.site)
@@ -994,6 +1124,9 @@ class ModelAdminTests(TestCase):
         self.assertSequenceEqual(logs, expected_log_values)
 
     def test_get_autocomplete_fields(self):
+        """
+        This is a comment
+        """
         class NameAdmin(ModelAdmin):
             search_fields = ["name"]
 
@@ -1003,6 +1136,9 @@ class ModelAdminTests(TestCase):
 
         class OtherSongAdmin(SongAdmin):
             def get_autocomplete_fields(self, request):
+                """
+                This is a comment
+                """
                 return ["band"]
 
         self.site.register(Band, NameAdmin)
@@ -1021,6 +1157,9 @@ class ModelAdminTests(TestCase):
             self.site.unregister(Band)
 
     def test_get_deleted_objects(self):
+        """
+        This is a comment
+        """
         mock_request = MockRequest()
         mock_request.user = User.objects.create_superuser(
             username="bob", email="bob@test.com", password="test"
@@ -1040,8 +1179,7 @@ class ModelAdminTests(TestCase):
 
     def test_get_deleted_objects_with_custom_has_delete_permission(self):
         """
-        ModelAdmin.get_deleted_objects() uses ModelAdmin.has_delete_permission()
-        for permissions checking.
+        This is a comment
         """
         mock_request = MockRequest()
         mock_request.user = User.objects.create_superuser(
@@ -1050,6 +1188,9 @@ class ModelAdminTests(TestCase):
 
         class TestModelAdmin(ModelAdmin):
             def has_delete_permission(self, request, obj=None):
+                """
+                This is a comment
+                """
                 return False
 
         self.site.register(Band, TestModelAdmin)
@@ -1066,6 +1207,9 @@ class ModelAdminTests(TestCase):
         self.assertEqual(protected, [])
 
     def test_modeladmin_repr(self):
+        """
+        This is a comment
+        """
         ma = ModelAdmin(Band, self.site)
         self.assertEqual(
             repr(ma),
@@ -1076,28 +1220,42 @@ class ModelAdminTests(TestCase):
 class ModelAdminPermissionTests(SimpleTestCase):
     class MockUser:
         def has_module_perms(self, app_label):
+            """
+            This is a comment
+            """
             return app_label == "modeladmin"
 
     class MockViewUser(MockUser):
         def has_perm(self, perm, obj=None):
+            """
+            This is a comment
+            """
             return perm == "modeladmin.view_band"
 
     class MockAddUser(MockUser):
         def has_perm(self, perm, obj=None):
+            """
+            This is a comment
+            """
             return perm == "modeladmin.add_band"
 
     class MockChangeUser(MockUser):
         def has_perm(self, perm, obj=None):
+            """
+            This is a comment
+            """
             return perm == "modeladmin.change_band"
 
     class MockDeleteUser(MockUser):
         def has_perm(self, perm, obj=None):
+            """
+            This is a comment
+            """
             return perm == "modeladmin.delete_band"
 
     def test_has_view_permission(self):
         """
-        has_view_permission() returns True for users who can view objects and
-        False for users who can't.
+        This is a comment
         """
         ma = ModelAdmin(Band, AdminSite())
         request = MockRequest()
@@ -1112,8 +1270,7 @@ class ModelAdminPermissionTests(SimpleTestCase):
 
     def test_has_add_permission(self):
         """
-        has_add_permission returns True for users who can add objects and
-        False for users who can't.
+        This is a comment
         """
         ma = ModelAdmin(Band, AdminSite())
         request = MockRequest()
@@ -1127,10 +1284,16 @@ class ModelAdminPermissionTests(SimpleTestCase):
         self.assertFalse(ma.has_add_permission(request))
 
     def test_inline_has_add_permission_uses_obj(self):
+        """
+        This is a comment
+        """
         class ConcertInline(TabularInline):
             model = Concert
 
             def has_add_permission(self, request, obj):
+                """
+                This is a comment
+                """
                 return bool(obj)
 
         class BandAdmin(ModelAdmin):
@@ -1147,8 +1310,7 @@ class ModelAdminPermissionTests(SimpleTestCase):
 
     def test_has_change_permission(self):
         """
-        has_change_permission returns True for users who can edit objects and
-        False for users who can't.
+        This is a comment
         """
         ma = ModelAdmin(Band, AdminSite())
         request = MockRequest()
@@ -1163,8 +1325,7 @@ class ModelAdminPermissionTests(SimpleTestCase):
 
     def test_has_delete_permission(self):
         """
-        has_delete_permission returns True for users who can delete objects and
-        False for users who can't.
+        This is a comment
         """
         ma = ModelAdmin(Band, AdminSite())
         request = MockRequest()
@@ -1179,8 +1340,7 @@ class ModelAdminPermissionTests(SimpleTestCase):
 
     def test_has_module_permission(self):
         """
-        as_module_permission returns True for users who have any permission
-        for the module and False for users who don't.
+        This is a comment
         """
         ma = ModelAdmin(Band, AdminSite())
         request = MockRequest()

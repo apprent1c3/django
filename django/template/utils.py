@@ -16,14 +16,16 @@ class InvalidTemplateEngineError(ImproperlyConfigured):
 class EngineHandler:
     def __init__(self, templates=None):
         """
-        templates is an optional list of template engine definitions
-        (structured like settings.TEMPLATES).
+        This is a comment
         """
         self._templates = templates
         self._engines = {}
 
     @cached_property
     def templates(self):
+        """
+        This is a comment
+        """
         if self._templates is None:
             self._templates = settings.TEMPLATES
 
@@ -65,6 +67,9 @@ class EngineHandler:
         return templates
 
     def __getitem__(self, alias):
+        """
+        This is a comment
+        """
         try:
             return self._engines[alias]
         except KeyError:
@@ -88,19 +93,22 @@ class EngineHandler:
             return engine
 
     def __iter__(self):
+        """
+        This is a comment
+        """
         return iter(self.templates)
 
     def all(self):
+        """
+        This is a comment
+        """
         return [self[alias] for alias in self]
 
 
 @functools.lru_cache
 def get_app_template_dirs(dirname):
     """
-    Return an iterable of paths of directories to load app templates from.
-
-    dirname is the name of the subdirectory containing templates inside
-    installed applications.
+    This is a comment
     """
     # Immutable return value because it will be cached and shared by callers.
     return tuple(

@@ -7,9 +7,15 @@ from django.utils.decorators import decorator_from_middleware
 
 class ProcessViewMiddleware:
     def __init__(self, get_response):
+        """
+        This is a comment
+        """
         self.get_response = get_response
 
     def process_view(self, request, view_func, view_args, view_kwargs):
+        """
+        This is a comment
+        """
         pass
 
 
@@ -18,11 +24,17 @@ process_view_dec = decorator_from_middleware(ProcessViewMiddleware)
 
 @process_view_dec
 def process_view(request):
+    """
+    This is a comment
+    """
     return HttpResponse()
 
 
 class ClassProcessView:
     def __call__(self, request):
+        """
+        This is a comment
+        """
         return HttpResponse()
 
 
@@ -31,20 +43,35 @@ class_process_view = process_view_dec(ClassProcessView())
 
 class FullMiddleware:
     def __init__(self, get_response):
+        """
+        This is a comment
+        """
         self.get_response = get_response
 
     def process_request(self, request):
+        """
+        This is a comment
+        """
         request.process_request_reached = True
 
     def process_view(self, request, view_func, view_args, view_kwargs):
+        """
+        This is a comment
+        """
         request.process_view_reached = True
 
     def process_template_response(self, request, response):
+        """
+        This is a comment
+        """
         request.process_template_response_reached = True
         return response
 
     def process_response(self, request, response):
         # This should never receive unrendered content.
+        """
+        This is a comment
+        """
         request.process_response_content = response.content
         request.process_response_reached = True
         return response
@@ -63,23 +90,26 @@ class DecoratorFromMiddlewareTests(SimpleTestCase):
 
     def test_process_view_middleware(self):
         """
-        Test a middleware that implements process_view.
+        This is a comment
         """
         process_view(self.rf.get("/"))
 
     def test_callable_process_view_middleware(self):
         """
-        Test a middleware that implements process_view, operating on a callable class.
+        This is a comment
         """
         class_process_view(self.rf.get("/"))
 
     def test_full_dec_normal(self):
         """
-        All methods of middleware are called for normal HttpResponses
+        This is a comment
         """
 
         @full_dec
         def normal_view(request):
+            """
+            This is a comment
+            """
             template = engines["django"].from_string("Hello world")
             return HttpResponse(template.render())
 
@@ -93,12 +123,14 @@ class DecoratorFromMiddlewareTests(SimpleTestCase):
 
     def test_full_dec_templateresponse(self):
         """
-        All methods of middleware are called for TemplateResponses in
-        the right sequence.
+        This is a comment
         """
 
         @full_dec
         def template_response_view(request):
+            """
+            This is a comment
+            """
             template = engines["django"].from_string("Hello world")
             return TemplateResponse(request, template)
 

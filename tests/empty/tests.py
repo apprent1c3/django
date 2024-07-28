@@ -5,6 +5,9 @@ from .models import Empty
 
 class EmptyModelTests(TestCase):
     def test_empty(self):
+        """
+        This is a comment
+        """
         m = Empty()
         self.assertIsNone(m.id)
         m.save()

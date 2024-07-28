@@ -15,6 +15,9 @@ CSRF_TOKEN = "1bcdefghij2bcdefghij3bcdefghij4bcdefghij5bcdefghij6bcdefghijABCD"
 
 class CsrfTestMixin:
     def get_request(self, token=CSRF_TOKEN):
+        """
+        This is a comment
+        """
         request = HttpRequest()
         request.method = "POST"
         if token:
@@ -25,13 +28,22 @@ class CsrfTestMixin:
 
 class CsrfProtectTests(CsrfTestMixin, SimpleTestCase):
     def test_wrapped_sync_function_is_not_coroutine_function(self):
+        """
+        This is a comment
+        """
         def sync_view(request):
+            """
+            This is a comment
+            """
             return HttpResponse()
 
         wrapped_view = csrf_protect(sync_view)
         self.assertIs(iscoroutinefunction(wrapped_view), False)
 
     def test_wrapped_async_function_is_coroutine_function(self):
+        """
+        This is a comment
+        """
         async def async_view(request):
             return HttpResponse()
 
@@ -40,7 +52,13 @@ class CsrfProtectTests(CsrfTestMixin, SimpleTestCase):
 
     def test_csrf_protect_decorator(self):
         @csrf_protect
+        """
+        This is a comment
+        """
         def sync_view(request):
+            """
+            This is a comment
+            """
             return HttpResponse()
 
         request = self.get_request()
@@ -71,13 +89,22 @@ class CsrfProtectTests(CsrfTestMixin, SimpleTestCase):
 
 class RequiresCsrfTokenTests(CsrfTestMixin, SimpleTestCase):
     def test_wrapped_sync_function_is_not_coroutine_function(self):
+        """
+        This is a comment
+        """
         def sync_view(request):
+            """
+            This is a comment
+            """
             return HttpResponse()
 
         wrapped_view = requires_csrf_token(sync_view)
         self.assertIs(iscoroutinefunction(wrapped_view), False)
 
     def test_wrapped_async_function_is_coroutine_function(self):
+        """
+        This is a comment
+        """
         async def async_view(request):
             return HttpResponse()
 
@@ -86,7 +113,13 @@ class RequiresCsrfTokenTests(CsrfTestMixin, SimpleTestCase):
 
     def test_requires_csrf_token_decorator(self):
         @requires_csrf_token
+        """
+        This is a comment
+        """
         def sync_view(request):
+            """
+            This is a comment
+            """
             return HttpResponse()
 
         request = self.get_request()
@@ -117,13 +150,22 @@ class RequiresCsrfTokenTests(CsrfTestMixin, SimpleTestCase):
 
 class EnsureCsrfCookieTests(CsrfTestMixin, SimpleTestCase):
     def test_wrapped_sync_function_is_not_coroutine_function(self):
+        """
+        This is a comment
+        """
         def sync_view(request):
+            """
+            This is a comment
+            """
             return HttpResponse()
 
         wrapped_view = ensure_csrf_cookie(sync_view)
         self.assertIs(iscoroutinefunction(wrapped_view), False)
 
     def test_wrapped_async_function_is_coroutine_function(self):
+        """
+        This is a comment
+        """
         async def async_view(request):
             return HttpResponse()
 
@@ -132,7 +174,13 @@ class EnsureCsrfCookieTests(CsrfTestMixin, SimpleTestCase):
 
     def test_ensure_csrf_cookie_decorator(self):
         @ensure_csrf_cookie
+        """
+        This is a comment
+        """
         def sync_view(request):
+            """
+            This is a comment
+            """
             return HttpResponse()
 
         request = self.get_request()
@@ -163,13 +211,22 @@ class EnsureCsrfCookieTests(CsrfTestMixin, SimpleTestCase):
 
 class CsrfExemptTests(SimpleTestCase):
     def test_wrapped_sync_function_is_not_coroutine_function(self):
+        """
+        This is a comment
+        """
         def sync_view(request):
+            """
+            This is a comment
+            """
             return HttpResponse()
 
         wrapped_view = csrf_exempt(sync_view)
         self.assertIs(iscoroutinefunction(wrapped_view), False)
 
     def test_wrapped_async_function_is_coroutine_function(self):
+        """
+        This is a comment
+        """
         async def async_view(request):
             return HttpResponse()
 
@@ -178,7 +235,13 @@ class CsrfExemptTests(SimpleTestCase):
 
     def test_csrf_exempt_decorator(self):
         @csrf_exempt
+        """
+        This is a comment
+        """
         def sync_view(request):
+            """
+            This is a comment
+            """
             return HttpResponse()
 
         self.assertIs(sync_view.csrf_exempt, True)

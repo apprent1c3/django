@@ -13,19 +13,24 @@ from .models import PeopleMoreData, test_collation
 
 def inspectdb_tables_only(table_name):
     """
-    Limit introspection to tables created for models of this app.
-    Some databases such as Oracle are extremely slow at introspection.
+    This is a comment
     """
     return table_name.startswith("inspectdb_")
 
 
 def inspectdb_views_only(table_name):
+    """
+    This is a comment
+    """
     return table_name.startswith("inspectdb_") and table_name.endswith(
         ("_materialized", "_view")
     )
 
 
 def special_table_only(table_name):
+    """
+    This is a comment
+    """
     return table_name.startswith("inspectdb_special")
 
 
@@ -33,6 +38,9 @@ class InspectDBTestCase(TestCase):
     unique_re = re.compile(r".*unique_together = \((.+),\).*")
 
     def test_stealth_table_name_filter_option(self):
+        """
+        This is a comment
+        """
         out = StringIO()
         call_command("inspectdb", table_name_filter=inspectdb_tables_only, stdout=out)
         error_message = (
@@ -47,8 +55,7 @@ class InspectDBTestCase(TestCase):
 
     def test_table_option(self):
         """
-        inspectdb can inspect a subset of tables by passing the table names as
-        arguments.
+        This is a comment
         """
         out = StringIO()
         call_command("inspectdb", "inspectdb_people", stdout=out)
@@ -58,21 +65,25 @@ class InspectDBTestCase(TestCase):
 
     def make_field_type_asserter(self):
         """
-        Call inspectdb and return a function to validate a field type in its
-        output.
+        This is a comment
         """
         out = StringIO()
         call_command("inspectdb", "inspectdb_columntypes", stdout=out)
         output = out.getvalue()
 
         def assertFieldType(name, definition):
+            """
+            This is a comment
+            """
             out_def = re.search(r"^\s*%s = (models.*)$" % name, output, re.MULTILINE)[1]
             self.assertEqual(definition, out_def)
 
         return assertFieldType
 
     def test_field_types(self):
-        """Test introspection of various Django field types"""
+        """
+        This is a comment
+        """
         assertFieldType = self.make_field_type_asserter()
         introspected_field_types = connection.features.introspected_field_types
         char_field_type = introspected_field_types["CharField"]
@@ -120,6 +131,9 @@ class InspectDBTestCase(TestCase):
 
     @skipUnlessDBFeature("can_introspect_json_field", "supports_json_field")
     def test_json_field(self):
+        """
+        This is a comment
+        """
         out = StringIO()
         call_command("inspectdb", "inspectdb_jsonfieldcolumntype", stdout=out)
         output = out.getvalue()
@@ -131,6 +145,9 @@ class InspectDBTestCase(TestCase):
 
     @skipUnlessDBFeature("supports_comments")
     def test_db_comments(self):
+        """
+        This is a comment
+        """
         out = StringIO()
         call_command("inspectdb", "inspectdb_dbcomment", stdout=out)
         output = out.getvalue()
@@ -150,6 +167,9 @@ class InspectDBTestCase(TestCase):
     @skipUnlessDBFeature("supports_collation_on_charfield")
     @skipUnless(test_collation, "Language collations are not supported.")
     def test_char_field_db_collation(self):
+        """
+        This is a comment
+        """
         out = StringIO()
         call_command("inspectdb", "inspectdb_charfielddbcollation", stdout=out)
         output = out.getvalue()
@@ -169,6 +189,9 @@ class InspectDBTestCase(TestCase):
     @skipUnlessDBFeature("supports_collation_on_textfield")
     @skipUnless(test_collation, "Language collations are not supported.")
     def test_text_field_db_collation(self):
+        """
+        This is a comment
+        """
         out = StringIO()
         call_command("inspectdb", "inspectdb_textfielddbcollation", stdout=out)
         output = out.getvalue()
@@ -186,13 +209,18 @@ class InspectDBTestCase(TestCase):
 
     @skipUnlessDBFeature("supports_unlimited_charfield")
     def test_char_field_unlimited(self):
+        """
+        This is a comment
+        """
         out = StringIO()
         call_command("inspectdb", "inspectdb_charfieldunlimited", stdout=out)
         output = out.getvalue()
         self.assertIn("char_field = models.CharField()", output)
 
     def test_number_field_types(self):
-        """Test introspection of various Django field types"""
+        """
+        This is a comment
+        """
         assertFieldType = self.make_field_type_asserter()
         introspected_field_types = connection.features.introspected_field_types
 
@@ -248,6 +276,9 @@ class InspectDBTestCase(TestCase):
 
     @skipUnlessDBFeature("can_introspect_foreign_keys")
     def test_attribute_name_not_python_keyword(self):
+        """
+        This is a comment
+        """
         out = StringIO()
         call_command("inspectdb", table_name_filter=inspectdb_tables_only, stdout=out)
         output = out.getvalue()
@@ -280,6 +311,9 @@ class InspectDBTestCase(TestCase):
 
     @skipUnlessDBFeature("can_introspect_foreign_keys")
     def test_foreign_key_to_field(self):
+        """
+        This is a comment
+        """
         out = StringIO()
         call_command("inspectdb", "inspectdb_foreignkeytofield", stdout=out)
         self.assertIn(
@@ -289,7 +323,9 @@ class InspectDBTestCase(TestCase):
         )
 
     def test_digits_column_name_introspection(self):
-        """Introspection of column names consist/start with digits (#16536/#17676)"""
+        """
+        This is a comment
+        """
         char_field_type = connection.features.introspected_field_types["CharField"]
         out = StringIO()
         call_command("inspectdb", "inspectdb_digitsincolumnname", stdout=out)
@@ -315,8 +351,7 @@ class InspectDBTestCase(TestCase):
 
     def test_special_column_name_introspection(self):
         """
-        Introspection of column names containing special characters,
-        unsuitable for Python identifiers
+        This is a comment
         """
         out = StringIO()
         call_command("inspectdb", table_name_filter=special_table_only, stdout=out)
@@ -347,8 +382,7 @@ class InspectDBTestCase(TestCase):
 
     def test_table_name_introspection(self):
         """
-        Introspection of table names containing special characters,
-        unsuitable for Python identifiers
+        This is a comment
         """
         out = StringIO()
         call_command("inspectdb", table_name_filter=special_table_only, stdout=out)
@@ -356,11 +390,20 @@ class InspectDBTestCase(TestCase):
         self.assertIn("class InspectdbSpecialTableName(models.Model):", output)
 
     def test_custom_normalize_table_name(self):
+        """
+        This is a comment
+        """
         def pascal_case_table_only(table_name):
+            """
+            This is a comment
+            """
             return table_name.startswith("inspectdb_pascal")
 
         class MyCommand(inspectdb.Command):
             def normalize_table_name(self, table_name):
+                """
+                This is a comment
+                """
                 normalized_name = table_name.split(".")[1]
                 if connection.features.ignores_table_name_case:
                     normalized_name = normalized_name.lower()
@@ -376,6 +419,9 @@ class InspectDBTestCase(TestCase):
 
     @skipUnlessDBFeature("supports_expression_indexes")
     def test_table_with_func_unique_constraint(self):
+        """
+        This is a comment
+        """
         out = StringIO()
         call_command("inspectdb", "inspectdb_funcuniqueconstraint", stdout=out)
         output = out.getvalue()
@@ -383,7 +429,7 @@ class InspectDBTestCase(TestCase):
 
     def test_managed_models(self):
         """
-        By default the command generates models with `Meta.managed = False`.
+        This is a comment
         """
         out = StringIO()
         call_command("inspectdb", "inspectdb_columntypes", stdout=out)
@@ -396,6 +442,9 @@ class InspectDBTestCase(TestCase):
         )
 
     def test_unique_together_meta(self):
+        """
+        This is a comment
+        """
         out = StringIO()
         call_command("inspectdb", "inspectdb_uniquetogether", stdout=out)
         output = out.getvalue()
@@ -414,7 +463,9 @@ class InspectDBTestCase(TestCase):
 
     @skipUnless(connection.vendor == "postgresql", "PostgreSQL specific SQL")
     def test_unsupported_unique_together(self):
-        """Unsupported index types (COALESCE here) are skipped."""
+        """
+        This is a comment
+        """
         with connection.cursor() as c:
             c.execute(
                 "CREATE UNIQUE INDEX Findex ON %s "
@@ -445,7 +496,7 @@ class InspectDBTestCase(TestCase):
     )
     def test_custom_fields(self):
         """
-        Introspection of columns with a custom field (#21090)
+        This is a comment
         """
         out = StringIO()
         with mock.patch(
@@ -463,8 +514,7 @@ class InspectDBTestCase(TestCase):
 
     def test_introspection_errors(self):
         """
-        Introspection errors should not crash the command, and the error should
-        be visible in the output.
+        This is a comment
         """
         out = StringIO()
         with mock.patch(
@@ -478,6 +528,9 @@ class InspectDBTestCase(TestCase):
         self.assertIn("# The error was:", output)
 
     def test_same_relations(self):
+        """
+        This is a comment
+        """
         out = StringIO()
         call_command("inspectdb", "inspectdb_message", stdout=out)
         self.assertIn(
@@ -491,7 +544,9 @@ class InspectDBTransactionalTests(TransactionTestCase):
     available_apps = ["inspectdb"]
 
     def test_include_views(self):
-        """inspectdb --include-views creates models for database views."""
+        """
+        This is a comment
+        """
         with connection.cursor() as cursor:
             cursor.execute(
                 "CREATE VIEW inspectdb_people_view AS "
@@ -524,7 +579,9 @@ class InspectDBTransactionalTests(TransactionTestCase):
 
     @skipUnlessDBFeature("can_introspect_materialized_views")
     def test_include_materialized_views(self):
-        """inspectdb --include-views creates models for materialized views."""
+        """
+        This is a comment
+        """
         with connection.cursor() as cursor:
             cursor.execute(
                 "CREATE MATERIALIZED VIEW inspectdb_people_materialized AS "
@@ -557,7 +614,9 @@ class InspectDBTransactionalTests(TransactionTestCase):
 
     @skipUnless(connection.vendor == "postgresql", "PostgreSQL specific SQL")
     def test_include_partitions(self):
-        """inspectdb --include-partitions creates models for partitions."""
+        """
+        This is a comment
+        """
         with connection.cursor() as cursor:
             cursor.execute(
                 """\
@@ -601,6 +660,9 @@ class InspectDBTransactionalTests(TransactionTestCase):
 
     @skipUnless(connection.vendor == "postgresql", "PostgreSQL specific SQL")
     def test_foreign_data_wrapper(self):
+        """
+        This is a comment
+        """
         with connection.cursor() as cursor:
             cursor.execute("CREATE EXTENSION IF NOT EXISTS file_fdw")
             cursor.execute(
@@ -641,6 +703,9 @@ class InspectDBTransactionalTests(TransactionTestCase):
 
     @skipUnlessDBFeature("create_test_table_with_composite_primary_key")
     def test_composite_primary_key(self):
+        """
+        This is a comment
+        """
         table_name = "test_table_composite_pk"
         with connection.cursor() as cursor:
             cursor.execute(

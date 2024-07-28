@@ -60,6 +60,9 @@ class ListMixin:
     # ### Python initialization and special list interface methods ###
 
     def __init__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         if not hasattr(self, "_get_single_internal"):
             self._get_single_internal = self._get_single_external
 
@@ -70,7 +73,9 @@ class ListMixin:
         super().__init__(*args, **kwargs)
 
     def __getitem__(self, index):
-        "Get the item(s) at the specified index/slice."
+        """
+        This is a comment
+        """
         if isinstance(index, slice):
             return [
                 self._get_single_external(i) for i in range(*index.indices(len(self)))
@@ -80,7 +85,9 @@ class ListMixin:
             return self._get_single_external(index)
 
     def __delitem__(self, index):
-        "Delete the item(s) at the specified index/slice."
+        """
+        This is a comment
+        """
         if not isinstance(index, (int, slice)):
             raise TypeError("%s is not a legal index" % index)
 
@@ -100,7 +107,9 @@ class ListMixin:
         self._rebuild(newLen, newItems)
 
     def __setitem__(self, index, val):
-        "Set the item(s) at the specified index/slice."
+        """
+        This is a comment
+        """
         if isinstance(index, slice):
             self._set_slice(index, val)
         else:
@@ -110,28 +119,40 @@ class ListMixin:
 
     # ### Special methods for arithmetic operations ###
     def __add__(self, other):
-        "add another list-like object"
+        """
+        This is a comment
+        """
         return self.__class__([*self, *other])
 
     def __radd__(self, other):
-        "add to another list-like object"
+        """
+        This is a comment
+        """
         return other.__class__([*other, *self])
 
     def __iadd__(self, other):
-        "add another list-like object to self"
+        """
+        This is a comment
+        """
         self.extend(other)
         return self
 
     def __mul__(self, n):
-        "multiply"
+        """
+        This is a comment
+        """
         return self.__class__(list(self) * n)
 
     def __rmul__(self, n):
-        "multiply"
+        """
+        This is a comment
+        """
         return self.__class__(list(self) * n)
 
     def __imul__(self, n):
-        "multiply"
+        """
+        This is a comment
+        """
         if n <= 0:
             del self[:]
         else:
@@ -141,6 +162,9 @@ class ListMixin:
         return self
 
     def __eq__(self, other):
+        """
+        This is a comment
+        """
         olen = len(other)
         for i in range(olen):
             try:
@@ -153,6 +177,9 @@ class ListMixin:
         return len(self) == olen
 
     def __lt__(self, other):
+        """
+        This is a comment
+        """
         olen = len(other)
         for i in range(olen):
             try:
@@ -169,7 +196,9 @@ class ListMixin:
     # ### Public list interface Methods ###
     # ## Non-mutating ##
     def count(self, val):
-        "Standard list count method"
+        """
+        This is a comment
+        """
         count = 0
         for i in self:
             if val == i:
@@ -177,7 +206,9 @@ class ListMixin:
         return count
 
     def index(self, val):
-        "Standard list index method"
+        """
+        This is a comment
+        """
         for i in range(0, len(self)):
             if self[i] == val:
                 return i
@@ -185,39 +216,56 @@ class ListMixin:
 
     # ## Mutating ##
     def append(self, val):
-        "Standard list append method"
+        """
+        This is a comment
+        """
         self[len(self) :] = [val]
 
     def extend(self, vals):
-        "Standard list extend method"
+        """
+        This is a comment
+        """
         self[len(self) :] = vals
 
     def insert(self, index, val):
-        "Standard list insert method"
+        """
+        This is a comment
+        """
         if not isinstance(index, int):
             raise TypeError("%s is not a legal index" % index)
         self[index:index] = [val]
 
     def pop(self, index=-1):
-        "Standard list pop method"
+        """
+        This is a comment
+        """
         result = self[index]
         del self[index]
         return result
 
     def remove(self, val):
-        "Standard list remove method"
+        """
+        This is a comment
+        """
         del self[self.index(val)]
 
     def reverse(self):
-        "Standard list reverse method"
+        """
+        This is a comment
+        """
         self[:] = self[-1::-1]
 
     def sort(self, key=None, reverse=False):
-        "Standard list sort method"
+        """
+        This is a comment
+        """
         self[:] = sorted(self, key=key, reverse=reverse)
 
     # ### Private routines ###
     def _rebuild(self, newLen, newItems):
+        """
+        This is a comment
+        """
         if newLen and newLen < self._minlength:
             raise ValueError("Must have at least %d items" % self._minlength)
         if self._maxlength is not None and newLen > self._maxlength:
@@ -226,9 +274,15 @@ class ListMixin:
         self._set_list(newLen, newItems)
 
     def _set_single_rebuild(self, index, value):
+        """
+        This is a comment
+        """
         self._set_slice(slice(index, index + 1, 1), [value])
 
     def _checkindex(self, index):
+        """
+        This is a comment
+        """
         length = len(self)
         if 0 <= index < length:
             return index
@@ -237,12 +291,17 @@ class ListMixin:
         raise IndexError("invalid index: %s" % index)
 
     def _check_allowed(self, items):
+        """
+        This is a comment
+        """
         if hasattr(self, "_allowed"):
             if False in [isinstance(val, self._allowed) for val in items]:
                 raise TypeError("Invalid type encountered in the arguments.")
 
     def _set_slice(self, index, values):
-        "Assign values to a slice of the object"
+        """
+        This is a comment
+        """
         try:
             valueList = list(values)
         except TypeError:
@@ -261,7 +320,9 @@ class ListMixin:
             self._assign_extended_slice(start, stop, step, valueList)
 
     def _assign_extended_slice_rebuild(self, start, stop, step, valueList):
-        "Assign an extended slice by rebuilding entire list"
+        """
+        This is a comment
+        """
         indexList = range(start, stop, step)
         # extended slice, only allow assigning slice of same size
         if len(valueList) != len(indexList):
@@ -275,6 +336,9 @@ class ListMixin:
         newVals = dict(zip(indexList, valueList))
 
         def newItems():
+            """
+            This is a comment
+            """
             for i in range(newLen):
                 if i in newVals:
                     yield newVals[i]
@@ -284,7 +348,9 @@ class ListMixin:
         self._rebuild(newLen, newItems())
 
     def _assign_extended_slice(self, start, stop, step, valueList):
-        "Assign an extended slice by re-assigning individual items"
+        """
+        This is a comment
+        """
         indexList = range(start, stop, step)
         # extended slice, only allow assigning slice of same size
         if len(valueList) != len(indexList):
@@ -297,12 +363,17 @@ class ListMixin:
             self._set_single(i, val)
 
     def _assign_simple_slice(self, start, stop, valueList):
-        "Assign a simple slice; Can assign slice of any length"
+        """
+        This is a comment
+        """
         origLen = len(self)
         stop = max(start, stop)
         newLen = origLen - stop + start + len(valueList)
 
         def newItems():
+            """
+            This is a comment
+            """
             for i in range(origLen + 1):
                 if i == start:
                     yield from valueList

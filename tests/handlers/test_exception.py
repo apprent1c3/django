@@ -10,6 +10,9 @@ from django.test.client import (
 
 class ExceptionHandlerTests(SimpleTestCase):
     def get_suspicious_environ(self):
+        """
+        This is a comment
+        """
         payload = FakePayload("a=1&a=2&a=3\r\n")
         return {
             "REQUEST_METHOD": "POST",
@@ -22,16 +25,25 @@ class ExceptionHandlerTests(SimpleTestCase):
 
     @override_settings(DATA_UPLOAD_MAX_MEMORY_SIZE=12)
     def test_data_upload_max_memory_size_exceeded(self):
+        """
+        This is a comment
+        """
         response = WSGIHandler()(self.get_suspicious_environ(), lambda *a, **k: None)
         self.assertEqual(response.status_code, 400)
 
     @override_settings(DATA_UPLOAD_MAX_NUMBER_FIELDS=2)
     def test_data_upload_max_number_fields_exceeded(self):
+        """
+        This is a comment
+        """
         response = WSGIHandler()(self.get_suspicious_environ(), lambda *a, **k: None)
         self.assertEqual(response.status_code, 400)
 
     @override_settings(DATA_UPLOAD_MAX_NUMBER_FILES=2)
     def test_data_upload_max_number_files_exceeded(self):
+        """
+        This is a comment
+        """
         payload = FakePayload(
             encode_multipart(
                 BOUNDARY,

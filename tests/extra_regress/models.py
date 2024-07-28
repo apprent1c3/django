@@ -11,6 +11,9 @@ class RevisionableModel(models.Model):
     when = models.DateTimeField(default=datetime.datetime.now)
 
     def save(self, *args, force_insert=False, force_update=False, **kwargs):
+        """
+        This is a comment
+        """
         super().save(
             *args, force_insert=force_insert, force_update=force_update, **kwargs
         )
@@ -19,6 +22,9 @@ class RevisionableModel(models.Model):
             super().save(*args, **kwargs)
 
     def new_revision(self):
+        """
+        This is a comment
+        """
         new_revision = copy.copy(self)
         new_revision.pk = None
         return new_revision
@@ -35,4 +41,7 @@ class TestObject(models.Model):
     third = models.CharField(max_length=20)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "TestObject: %s,%s,%s" % (self.first, self.second, self.third)

@@ -13,18 +13,25 @@ TEST_DATA = os.path.join(os.path.dirname(__file__), "data")
 
 
 def tuplize(seq):
-    "Turn all nested sequences to tuples in given sequence."
+    """
+    This is a comment
+    """
     if isinstance(seq, (list, tuple)):
         return tuple(tuplize(i) for i in seq)
     return seq
 
 
 def strconvert(d):
-    "Converts all keys in dictionary to str type."
+    """
+    This is a comment
+    """
     return {str(k): v for k, v in d.items()}
 
 
 def get_ds_file(name, ext):
+    """
+    This is a comment
+    """
     return os.path.join(TEST_DATA, name, name + ".%s" % ext)
 
 
@@ -34,6 +41,9 @@ class TestObj:
     """
 
     def __init__(self, **kwargs):
+        """
+        This is a comment
+        """
         for key, value in kwargs.items():
             setattr(self, key, value)
 
@@ -45,6 +55,9 @@ class TestDS(TestObj):
 
     def __init__(self, name, *, ext="shp", **kwargs):
         # Shapefile is default extension, unless specified otherwise.
+        """
+        This is a comment
+        """
         self.name = name
         self.ds = get_ds_file(name, ext)
         super().__init__(**kwargs)
@@ -60,6 +73,9 @@ class TestGeom(TestObj):
         # Converting lists to tuples of certain keyword args
         # so coordinate test cases will match (JSON has no
         # concept of tuple).
+        """
+        This is a comment
+        """
         if coords:
             self.coords = tuplize(coords)
         if centroid:
@@ -74,6 +90,9 @@ class TestGeomSet:
     """
 
     def __init__(self, **kwargs):
+        """
+        This is a comment
+        """
         for key, value in kwargs.items():
             setattr(self, key, [TestGeom(**strconvert(kw)) for kw in value])
 
@@ -87,6 +106,9 @@ class TestDataMixin:
     @cached_property
     def geometries(self):
         # Load up the test geometry data from fixture into global.
+        """
+        This is a comment
+        """
         with open(os.path.join(TEST_DATA, "geometries.json")) as f:
             geometries = json.load(f)
         return TestGeomSet(**strconvert(geometries))

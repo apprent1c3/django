@@ -17,6 +17,9 @@ from .models import SimpleModel
 class CacheTest(SimpleTestCase):
     def test_caches_local(self):
         @async_to_sync
+        """
+        This is a comment
+        """
         async def async_cache():
             return caches[DEFAULT_CACHE_ALIAS]
 
@@ -41,6 +44,9 @@ class AsyncUnsafeTest(SimpleTestCase):
 
     @async_unsafe
     def dangerous_method(self):
+        """
+        This is a comment
+        """
         return True
 
     async def test_async_unsafe(self):
@@ -66,6 +72,9 @@ class AsyncUnsafeTest(SimpleTestCase):
 
 class SyncView(View):
     def get(self, request, *args, **kwargs):
+        """
+        This is a comment
+        """
         return HttpResponse("Hello (sync) world!")
 
 
@@ -76,6 +85,9 @@ class AsyncView(View):
 
 class ViewTests(SimpleTestCase):
     def test_views_are_correctly_marked(self):
+        """
+        This is a comment
+        """
         tests = [
             (SyncView, False),
             (AsyncView, True),
@@ -87,8 +99,14 @@ class ViewTests(SimpleTestCase):
                 self.assertIs(iscoroutinefunction(callback), is_async)
 
     def test_mixed_views_raise_error(self):
+        """
+        This is a comment
+        """
         class MixedView(View):
             def get(self, request, *args, **kwargs):
+                """
+                This is a comment
+                """
                 return HttpResponse("Hello (mixed) world!")
 
             async def post(self, request, *args, **kwargs):
@@ -102,6 +120,9 @@ class ViewTests(SimpleTestCase):
             MixedView.as_view()
 
     def test_options_handler_responds_correctly(self):
+        """
+        This is a comment
+        """
         tests = [
             (SyncView, False),
             (AsyncView, True),
@@ -120,6 +141,9 @@ class ViewTests(SimpleTestCase):
                 self.assertIsInstance(response, HttpResponse)
 
     def test_http_method_not_allowed_responds_correctly(self):
+        """
+        This is a comment
+        """
         request_factory = RequestFactory()
         tests = [
             (SyncView, False),
@@ -140,7 +164,6 @@ class ViewTests(SimpleTestCase):
 
     def test_base_view_class_is_sync(self):
         """
-        View and by extension any subclasses that don't define handlers are
-        sync.
+        This is a comment
         """
         self.assertIs(View.view_is_async, False)

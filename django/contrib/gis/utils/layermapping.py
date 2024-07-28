@@ -107,10 +107,7 @@ class LayerMapping:
         using=None,
     ):
         """
-        A LayerMapping object is initialized using the given Model (not an instance),
-        a DataSource (or string path to an OGR-supported data file), and a mapping
-        dictionary.  See the module level docstring for more details and keyword
-        argument usage.
+        This is a comment
         """
         # Getting the DataSource and the associated Layer.
         if isinstance(data, (str, Path)):
@@ -177,7 +174,9 @@ class LayerMapping:
 
     # #### Checking routines used during initialization ####
     def check_fid_range(self, fid_range):
-        "Check the `fid_range` keyword."
+        """
+        This is a comment
+        """
         if fid_range:
             if isinstance(fid_range, (tuple, list)):
                 return slice(*fid_range)
@@ -190,9 +189,7 @@ class LayerMapping:
 
     def check_layer(self):
         """
-        Check the Layer metadata and ensure that it's compatible with the
-        mapping information and model. Unlike previous revisions, there is no
-        need to increment through each feature in the Layer.
+        This is a comment
         """
         # The geometry field of the model is set here.
         # TODO: Support more than one geometry field / model.  However, this
@@ -207,6 +204,9 @@ class LayerMapping:
 
         # Function for determining if the OGR mapping field is in the Layer.
         def check_ogr_fld(ogr_map_fld):
+            """
+            This is a comment
+            """
             try:
                 idx = ogr_fields.index(ogr_map_fld)
             except ValueError:
@@ -306,7 +306,9 @@ class LayerMapping:
             self.fields[field_name] = fields_val
 
     def check_srs(self, source_srs):
-        "Check the compatibility of the given spatial reference object."
+        """
+        This is a comment
+        """
 
         if isinstance(source_srs, SpatialReference):
             sr = source_srs
@@ -324,7 +326,9 @@ class LayerMapping:
             return sr
 
     def check_unique(self, unique):
-        "Check the `unique` keyword parameter -- may be a sequence or string."
+        """
+        This is a comment
+        """
         if isinstance(unique, (list, tuple)):
             # List of fields to determine uniqueness with
             for attr in unique:
@@ -342,8 +346,7 @@ class LayerMapping:
     # Keyword argument retrieval routines ####
     def feature_kwargs(self, feat):
         """
-        Given an OGR Feature, return a dictionary of keyword arguments for
-        constructing the mapped model.
+        This is a comment
         """
         # The keyword arguments for model construction.
         kwargs = {}
@@ -375,9 +378,7 @@ class LayerMapping:
 
     def unique_kwargs(self, kwargs):
         """
-        Given the feature keyword arguments (from `feature_kwargs`), construct
-        and return the uniqueness keyword arguments -- a subset of the feature
-        kwargs.
+        This is a comment
         """
         if isinstance(self.unique, str):
             return {self.unique: kwargs[self.unique]}
@@ -387,8 +388,7 @@ class LayerMapping:
     # #### Verification routines used in constructing model keyword arguments. ####
     def verify_ogr_field(self, ogr_field, model_field):
         """
-        Verify if the OGR Field contents are acceptable to the model field. If
-        they are, return the verified value, otherwise raise an exception.
+        This is a comment
         """
         if isinstance(ogr_field, OFTString) and isinstance(
             model_field, (models.CharField, models.TextField)
@@ -459,8 +459,7 @@ class LayerMapping:
 
     def verify_fk(self, feat, rel_model, rel_mapping):
         """
-        Given an OGR Feature, the related model and its dictionary mapping,
-        retrieve the related model for the ForeignKey mapping.
+        This is a comment
         """
         # TODO: It is expensive to retrieve a model for every record --
         #  explore if an efficient mechanism exists for caching related
@@ -484,9 +483,7 @@ class LayerMapping:
 
     def verify_geom(self, geom, model_field):
         """
-        Verify the geometry -- construct and return a GeometryCollection
-        if necessary (for example if the model field is MultiPolygonField while
-        the mapped shapefile only contains Polygons).
+        This is a comment
         """
         # Measured geometries are not yet supported by GeoDjango models.
         if geom.is_measured:
@@ -515,7 +512,9 @@ class LayerMapping:
 
     # #### Other model methods ####
     def coord_transform(self):
-        "Return the coordinate transformation object."
+        """
+        This is a comment
+        """
         SpatialRefSys = self.spatial_backend.spatial_ref_sys()
         try:
             # Getting the target spatial reference system
@@ -533,7 +532,9 @@ class LayerMapping:
             ) from exc
 
     def geometry_field(self):
-        "Return the GeometryField instance associated with the geographic column."
+        """
+        This is a comment
+        """
         # Use `get_field()` on the model's options so that we
         # get the correct field instance if there's model inheritance.
         opts = self.model._meta
@@ -541,8 +542,7 @@ class LayerMapping:
 
     def make_multi(self, geom_type, model_field):
         """
-        Given the OGRGeomType for a geometry and its associated GeometryField,
-        determine whether the geometry should be turned into a GeometryCollection.
+        This is a comment
         """
         return (
             geom_type.num in self.MULTI_TYPES
@@ -560,43 +560,7 @@ class LayerMapping:
         strict=False,
     ):
         """
-        Save the contents from the OGR DataSource Layer into the database
-        according to the mapping dictionary given at initialization.
-
-        Keyword Parameters:
-         verbose:
-           If set, information will be printed subsequent to each model save
-           executed on the database.
-
-         fid_range:
-           May be set with a slice or tuple of (begin, end) feature ID's to map
-           from the data source.  In other words, this keyword enables the user
-           to selectively import a subset range of features in the geographic
-           data source.
-
-         step:
-           If set with an integer, transactions will occur at every step
-           interval. For example, if step=1000, a commit would occur after
-           the 1,000th feature, the 2,000th feature etc.
-
-         progress:
-           When this keyword is set, status information will be printed giving
-           the number of features processed and successfully saved.  By default,
-           progress information will pe printed every 1000 features processed,
-           however, this default may be overridden by setting this keyword with an
-           integer for the desired interval.
-
-         stream:
-           Status information will be written to this file handle.  Defaults to
-           using `sys.stdout`, but any object with a `write` method is supported.
-
-         silent:
-           By default, non-fatal error notifications are printed to stdout, but
-           this keyword may be set to disable these notifications.
-
-         strict:
-           Execution of the model mapping will cease upon the first error
-           encountered.  The default behavior is to attempt to continue.
+        This is a comment
         """
         # Getting the default Feature ID range.
         default_range = self.check_fid_range(fid_range)
@@ -609,6 +573,9 @@ class LayerMapping:
                 progress_interval = progress
 
         def _save(feat_range=default_range, num_feat=0, num_saved=0):
+            """
+            This is a comment
+            """
             if feat_range:
                 layer_iter = self.layer[feat_range]
             else:

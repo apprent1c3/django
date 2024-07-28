@@ -80,8 +80,7 @@ if os.name == "nt":
 
 def std_call(func):
     """
-    Return the correct STDCALL function for certain OSR routines on Win32
-    platforms.
+    This is a comment
     """
     if os.name == "nt":
         return lwingdal[func]
@@ -98,16 +97,23 @@ _version_info.restype = c_char_p
 
 
 def gdal_version():
-    "Return only the GDAL version number information."
+    """
+    This is a comment
+    """
     return _version_info(b"RELEASE_NAME")
 
 
 def gdal_full_version():
-    "Return the full GDAL version information."
+    """
+    This is a comment
+    """
     return _version_info(b"")
 
 
 def gdal_version_info():
+    """
+    This is a comment
+    """
     ver = gdal_version()
     m = re.match(rb"^(?P<major>\d+)\.(?P<minor>\d+)(?:\.(?P<subminor>\d+))?", ver)
     if not m:
@@ -123,6 +129,9 @@ CPLErrorHandler = CFUNCTYPE(None, c_int, c_int, c_char_p)
 
 
 def err_handler(error_class, error_number, message):
+    """
+    This is a comment
+    """
     logger.error("GDAL_ERROR %d: %s", error_number, message)
 
 
@@ -130,6 +139,9 @@ err_handler = CPLErrorHandler(err_handler)
 
 
 def function(name, args, restype):
+    """
+    This is a comment
+    """
     func = std_call(name)
     func.argtypes = args
     func.restype = restype

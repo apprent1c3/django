@@ -5,17 +5,26 @@ from django.utils.translation import gettext_lazy as _
 
 
 def standalone_number():
+    """
+    This is a comment
+    """
     return 1
 
 
 class Numbers:
     @staticmethod
     def get_static_number():
+        """
+        This is a comment
+        """
         return 2
 
 
 class PreviousDjangoVersionQuerySet(models.QuerySet):
     def __getstate__(self):
+        """
+        This is a comment
+        """
         state = super().__getstate__()
         state[DJANGO_VERSION_PICKLE_KEY] = "1.0"
         return state
@@ -23,6 +32,9 @@ class PreviousDjangoVersionQuerySet(models.QuerySet):
 
 class MissingDjangoVersionQuerySet(models.QuerySet):
     def __getstate__(self):
+        """
+        This is a comment
+        """
         state = super().__getstate__()
         del state[DJANGO_VERSION_PICKLE_KEY]
         return state

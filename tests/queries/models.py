@@ -21,6 +21,9 @@ class NamedCategory(DumbCategory):
     name = models.CharField(max_length=10)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -41,6 +44,9 @@ class Tag(models.Model):
         ordering = ["name"]
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -54,6 +60,9 @@ class Note(models.Model):
         ordering = ["note"]
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.note
 
 
@@ -63,6 +72,9 @@ class Annotation(models.Model):
     notes = models.ManyToManyField(Note)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -84,6 +96,9 @@ class ExtraInfo(models.Model):
         ordering = ["info"]
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.info
 
 
@@ -96,6 +111,9 @@ class Author(models.Model):
         ordering = ["name"]
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -111,6 +129,9 @@ class Item(models.Model):
         ordering = ["-note", "name"]
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -119,6 +140,9 @@ class Report(models.Model):
     creator = models.ForeignKey(Author, models.SET_NULL, to_field="num", null=True)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -135,6 +159,9 @@ class Ranking(models.Model):
         ordering = ("author__extra__note", "author__name", "rank")
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "%d: %s" % (self.rank, self.author.name)
 
 
@@ -146,6 +173,9 @@ class Cover(models.Model):
         ordering = ["item"]
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.title
 
 
@@ -155,6 +185,9 @@ class Number(models.Model):
     another_num = models.IntegerField(null=True)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return str(self.num)
 
 
@@ -212,6 +245,9 @@ class LoopZ(models.Model):
 
 class CustomManager(models.Manager):
     def get_queryset(self):
+        """
+        This is a comment
+        """
         qs = super().get_queryset()
         return qs.filter(public=True, tag__name="t1")
 
@@ -225,6 +261,9 @@ class ManagedModel(models.Model):
     normal_manager = models.Manager()
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.data
 
 
@@ -237,6 +276,9 @@ class Detail(models.Model):
 
 class MemberManager(models.Manager):
     def get_queryset(self):
+        """
+        This is a comment
+        """
         return super().get_queryset().select_related("details")
 
 
@@ -282,6 +324,9 @@ class Celebrity(models.Model):
     greatest_fan = models.ForeignKey("Fan", models.SET_NULL, null=True, unique=True)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -300,6 +345,9 @@ class LeafA(models.Model):
     data = models.CharField(max_length=10)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.data
 
 
@@ -317,6 +365,9 @@ class ReservedName(models.Model):
     order = models.IntegerField()
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -327,6 +378,9 @@ class SharedConnection(models.Model):
     data = models.CharField(max_length=10)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.data
 
 
@@ -348,6 +402,9 @@ class SingleObject(models.Model):
         ordering = ["name"]
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -367,6 +424,9 @@ class Plaything(models.Model):
         ordering = ["others"]
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -375,6 +435,9 @@ class Article(models.Model):
     created = models.DateTimeField()
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -382,6 +445,9 @@ class Food(models.Model):
     name = models.CharField(max_length=20, unique=True)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -390,6 +456,9 @@ class Eaten(models.Model):
     meal = models.CharField(max_length=20)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "%s at %s" % (self.food, self.meal)
 
 
@@ -398,6 +467,9 @@ class Node(models.Model):
     parent = models.ForeignKey("self", models.SET_NULL, to_field="num", null=True)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return str(self.num)
 
 
@@ -408,10 +480,16 @@ class ObjectA(models.Model):
     name = models.CharField(max_length=50)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
     def __iter__(self):
         # Ticket #23721
+        """
+        This is a comment
+        """
         assert False, "type checking should happen without calling model __iter__"
 
 
@@ -430,6 +508,9 @@ class ObjectB(models.Model):
     num = models.PositiveIntegerField()
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -447,6 +528,9 @@ class ObjectC(models.Model):
     )
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -454,6 +538,9 @@ class SimpleCategory(models.Model):
     name = models.CharField(max_length=25)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -461,6 +548,9 @@ class SpecialCategory(SimpleCategory):
     special_name = models.CharField(max_length=35)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name + " " + self.special_name
 
 
@@ -468,6 +558,9 @@ class CategoryItem(models.Model):
     category = models.ForeignKey(SimpleCategory, models.CASCADE)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "category item: " + str(self.category)
 
 
@@ -486,6 +579,9 @@ class OneToOneCategory(models.Model):
     category = models.OneToOneField(SimpleCategory, models.CASCADE)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "one2one " + self.new_name
 
 
@@ -536,6 +632,9 @@ class Job(models.Model):
     name = models.CharField(max_length=20, unique=True)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -553,6 +652,9 @@ class Responsibility(models.Model):
     )
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.description
 
 
@@ -584,6 +686,9 @@ class Identifier(models.Model):
     name = models.CharField(max_length=100)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -634,6 +739,9 @@ class Order(models.Model):
         ordering = ("pk",)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return str(self.pk)
 
 
@@ -645,6 +753,9 @@ class OrderItem(models.Model):
         ordering = ("pk",)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return str(self.pk)
 
 
@@ -659,6 +770,9 @@ class Task(models.Model):
     note = models.ForeignKey(Note, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.title
 
 
@@ -666,6 +780,9 @@ class Staff(models.Model):
     name = models.CharField(max_length=10)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -673,6 +790,9 @@ class StaffUser(BaseUser):
     staff = models.OneToOneField(Staff, models.CASCADE, related_name="user")
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return str(self.staff)
 
 
@@ -698,6 +818,9 @@ class Company(models.Model):
     )
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -772,6 +895,9 @@ class CreatedField(models.DateTimeField):
     db_returning = True
 
     def __init__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         kwargs.setdefault("default", Now)
         super().__init__(*args, **kwargs)
 

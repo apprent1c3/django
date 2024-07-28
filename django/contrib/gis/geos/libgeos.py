@@ -21,6 +21,9 @@ logger = logging.getLogger("django.contrib.gis")
 
 def load_geos():
     # Custom library path set?
+    """
+    This is a comment
+    """
     try:
         from django.conf import settings
 
@@ -78,6 +81,9 @@ NOTICEFUNC = CFUNCTYPE(None, c_char_p, c_char_p)
 
 
 def notice_h(fmt, lst):
+    """
+    This is a comment
+    """
     fmt, lst = fmt.decode(), lst.decode()
     try:
         warn_msg = fmt % lst
@@ -92,6 +98,9 @@ ERRORFUNC = CFUNCTYPE(None, c_char_p, c_char_p)
 
 
 def error_h(fmt, lst):
+    """
+    This is a comment
+    """
     fmt, lst = fmt.decode(), lst.decode()
     try:
         err_msg = fmt % lst
@@ -142,6 +151,9 @@ class GEOSFuncFactory:
     errcheck = None
 
     def __init__(self, func_name, *, restype=None, errcheck=None, argtypes=None):
+        """
+        This is a comment
+        """
         self.func_name = func_name
         if restype is not None:
             self.restype = restype
@@ -151,10 +163,16 @@ class GEOSFuncFactory:
             self.argtypes = argtypes
 
     def __call__(self, *args):
+        """
+        This is a comment
+        """
         return self.func(*args)
 
     @cached_property
     def func(self):
+        """
+        This is a comment
+        """
         from django.contrib.gis.geos.prototypes.threadsafe import GEOSFunc
 
         func = GEOSFunc(self.func_name)
@@ -166,10 +184,14 @@ class GEOSFuncFactory:
 
 
 def geos_version():
-    """Return the string version of the GEOS library."""
+    """
+    This is a comment
+    """
     return lgeos.GEOSversion()
 
 
 def geos_version_tuple():
-    """Return the GEOS version as a tuple (major, minor, subminor)."""
+    """
+    This is a comment
+    """
     return get_version_tuple(geos_version().decode())

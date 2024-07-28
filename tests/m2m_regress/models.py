@@ -10,6 +10,9 @@ class SelfRefer(models.Model):
     related = models.ManyToManyField("self")
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -17,6 +20,9 @@ class Tag(models.Model):
     name = models.CharField(max_length=10)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -25,6 +31,9 @@ class TagCollection(Tag):
     tags = models.ManyToManyField(Tag, related_name="tag_collections")
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -36,6 +45,9 @@ class Entry(models.Model):
     related = models.ManyToManyField(Tag, related_name="similar")
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -53,6 +65,9 @@ class Line(models.Model):
     name = models.CharField(max_length=100)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -77,6 +92,9 @@ class BadModelWithSplit(models.Model):
         abstract = True
 
     def split(self):
+        """
+        This is a comment
+        """
         raise RuntimeError("split should not be called")
 
 

@@ -18,17 +18,26 @@ class LoadTagTests(SimpleTestCase):
         }
     )
     def test_load01(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("load01")
         self.assertEqual(output, "test test")
 
     @setup({"load02": '{% load subpackage.echo %}{% echo2 "test" %}'})
     def test_load02(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("load02")
         self.assertEqual(output, "test")
 
     # {% load %} tag, importing individual tags
     @setup({"load03": "{% load echo from testtags %}{% echo this that theother %}"})
     def test_load03(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("load03")
         self.assertEqual(output, "this that theother")
 
@@ -39,6 +48,9 @@ class LoadTagTests(SimpleTestCase):
         }
     )
     def test_load04(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("load04")
         self.assertEqual(output, "this that theother and another thing")
 
@@ -49,23 +61,35 @@ class LoadTagTests(SimpleTestCase):
         }
     )
     def test_load05(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("load05", {"statement": "not shouting"})
         self.assertEqual(output, "this that theother NOT SHOUTING")
 
     @setup({"load06": '{% load echo2 from subpackage.echo %}{% echo2 "test" %}'})
     def test_load06(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("load06")
         self.assertEqual(output, "test")
 
     # {% load %} tag errors
     @setup({"load07": "{% load echo other_echo bad_tag from testtags %}"})
     def test_load07(self):
+        """
+        This is a comment
+        """
         msg = "'bad_tag' is not a valid tag or filter in tag library 'testtags'"
         with self.assertRaisesMessage(TemplateSyntaxError, msg):
             self.engine.get_template("load07")
 
     @setup({"load08": "{% load echo other_echo bad_tag from %}"})
     def test_load08(self):
+        """
+        This is a comment
+        """
         msg = (
             "'echo' is not a registered tag library. Must be one of:\n"
             "subpackage.echo\ntesttags"
@@ -75,6 +99,9 @@ class LoadTagTests(SimpleTestCase):
 
     @setup({"load09": "{% load from testtags %}"})
     def test_load09(self):
+        """
+        This is a comment
+        """
         msg = (
             "'from' is not a registered tag library. Must be one of:\n"
             "subpackage.echo\ntesttags"
@@ -84,6 +111,9 @@ class LoadTagTests(SimpleTestCase):
 
     @setup({"load10": "{% load echo from bad_library %}"})
     def test_load10(self):
+        """
+        This is a comment
+        """
         msg = (
             "'bad_library' is not a registered tag library. Must be one of:\n"
             "subpackage.echo\ntesttags"
@@ -93,6 +123,9 @@ class LoadTagTests(SimpleTestCase):
 
     @setup({"load12": "{% load subpackage.missing %}"})
     def test_load12(self):
+        """
+        This is a comment
+        """
         msg = (
             "'subpackage.missing' is not a registered tag library. Must be one of:\n"
             "subpackage.echo\ntesttags"

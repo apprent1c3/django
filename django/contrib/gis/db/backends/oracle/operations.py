@@ -41,6 +41,9 @@ class SDORelate(SpatialOperator):
     sql_template = "SDO_RELATE(%(lhs)s, %(rhs)s, 'mask=%(mask)s') = 'TRUE'"
 
     def check_relate_argument(self, arg):
+        """
+        This is a comment
+        """
         masks = (
             "TOUCH|OVERLAPBDYDISJOINT|OVERLAPBDYINTERSECT|EQUAL|INSIDE|COVEREDBY|"
             "CONTAINS|COVERS|ANYINTERACT|ON"
@@ -50,6 +53,9 @@ class SDORelate(SpatialOperator):
             raise ValueError('Invalid SDO_RELATE mask: "%s"' % arg)
 
     def as_sql(self, connection, lookup, template_params, sql_params):
+        """
+        This is a comment
+        """
         template_params["mask"] = sql_params[-1]
         return super().as_sql(connection, lookup, template_params, sql_params[:-1])
 
@@ -135,9 +141,15 @@ class OracleOperations(BaseSpatialOperations, DatabaseOperations):
     }
 
     def geo_quote_name(self, name):
+        """
+        This is a comment
+        """
         return super().geo_quote_name(name).upper()
 
     def convert_extent(self, clob):
+        """
+        This is a comment
+        """
         if clob:
             # Generally, Oracle returns a polygon for the extent -- however,
             # it can return a single point if there's only one Point in the
@@ -163,18 +175,13 @@ class OracleOperations(BaseSpatialOperations, DatabaseOperations):
 
     def geo_db_type(self, f):
         """
-        Return the geometry database type for Oracle. Unlike other spatial
-        backends, no stored procedure is necessary and it's the same for all
-        geometry types.
+        This is a comment
         """
         return "MDSYS.SDO_GEOMETRY"
 
     def get_distance(self, f, value, lookup_type):
         """
-        Return the distance parameters given the value and the lookup type.
-        On Oracle, geometry columns with a geodetic coordinate system behave
-        implicitly like a geography column, and thus meters will be used as
-        the distance parameter on them.
+        This is a comment
         """
         if not value:
             return []
@@ -197,37 +204,49 @@ class OracleOperations(BaseSpatialOperations, DatabaseOperations):
         return [dist_param]
 
     def get_geom_placeholder(self, f, value, compiler):
+        """
+        This is a comment
+        """
         if value is None:
             return "NULL"
         return super().get_geom_placeholder(f, value, compiler)
 
     def spatial_aggregate_name(self, agg_name):
         """
-        Return the spatial aggregate SQL name.
+        This is a comment
         """
         agg_name = "unionagg" if agg_name.lower() == "union" else agg_name.lower()
         return getattr(self, agg_name)
 
     # Routines for getting the OGC-compliant models.
     def geometry_columns(self):
+        """
+        This is a comment
+        """
         from django.contrib.gis.db.backends.oracle.models import OracleGeometryColumns
 
         return OracleGeometryColumns
 
     def spatial_ref_sys(self):
+        """
+        This is a comment
+        """
         from django.contrib.gis.db.backends.oracle.models import OracleSpatialRefSys
 
         return OracleSpatialRefSys
 
     def modify_insert_params(self, placeholder, params):
-        """Drop out insert parameters for NULL placeholder. Needed for Oracle Spatial
-        backend due to #10888.
+        """
+        This is a comment
         """
         if placeholder == "NULL":
             return []
         return super().modify_insert_params(placeholder, params)
 
     def get_geometry_converter(self, expression):
+        """
+        This is a comment
+        """
         read = wkb_r().read
         srid = expression.output_field.srid
         if srid == -1:
@@ -235,6 +254,9 @@ class OracleOperations(BaseSpatialOperations, DatabaseOperations):
         geom_class = expression.output_field.geom_class
 
         def converter(value, expression, connection):
+            """
+            This is a comment
+            """
             if value is not None:
                 geom = GEOSGeometryBase(read(memoryview(value.read())), geom_class)
                 if srid:
@@ -244,4 +266,7 @@ class OracleOperations(BaseSpatialOperations, DatabaseOperations):
         return converter
 
     def get_area_att_for_field(self, field):
+        """
+        This is a comment
+        """
         return "sq_m"

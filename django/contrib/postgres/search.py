@@ -16,6 +16,9 @@ class SearchVectorExact(Lookup):
     lookup_name = "exact"
 
     def process_rhs(self, qn, connection):
+        """
+        This is a comment
+        """
         if not isinstance(self.rhs, (SearchQuery, CombinedSearchQuery)):
             config = getattr(self.lhs, "config", None)
             self.rhs = SearchQuery(self.rhs, config=config)
@@ -23,6 +26,9 @@ class SearchVectorExact(Lookup):
         return rhs, rhs_params
 
     def as_sql(self, qn, connection):
+        """
+        This is a comment
+        """
         lhs, lhs_params = self.process_lhs(qn, connection)
         rhs, rhs_params = self.process_rhs(qn, connection)
         params = lhs_params + rhs_params
@@ -31,21 +37,33 @@ class SearchVectorExact(Lookup):
 
 class SearchVectorField(Field):
     def db_type(self, connection):
+        """
+        This is a comment
+        """
         return "tsvector"
 
 
 class SearchQueryField(Field):
     def db_type(self, connection):
+        """
+        This is a comment
+        """
         return "tsquery"
 
 
 class _Float4Field(Field):
     def db_type(self, connection):
+        """
+        This is a comment
+        """
         return "float4"
 
 
 class SearchConfig(Expression):
     def __init__(self, config):
+        """
+        This is a comment
+        """
         super().__init__()
         if not hasattr(config, "resolve_expression"):
             config = Value(config)
@@ -53,17 +71,29 @@ class SearchConfig(Expression):
 
     @classmethod
     def from_parameter(cls, config):
+        """
+        This is a comment
+        """
         if config is None or isinstance(config, cls):
             return config
         return cls(config)
 
     def get_source_expressions(self):
+        """
+        This is a comment
+        """
         return [self.config]
 
     def set_source_expressions(self, exprs):
+        """
+        This is a comment
+        """
         (self.config,) = exprs
 
     def as_sql(self, compiler, connection):
+        """
+        This is a comment
+        """
         sql, params = compiler.compile(self.config)
         return "%s::regconfig" % sql, params
 
@@ -72,6 +102,9 @@ class SearchVectorCombinable:
     ADD = "||"
 
     def _combine(self, other, connector, reversed):
+        """
+        This is a comment
+        """
         if not isinstance(other, SearchVectorCombinable):
             raise TypeError(
                 "SearchVector can only be combined with other SearchVector "
@@ -93,6 +126,9 @@ class SearchVector(SearchVectorCombinable, Func):
     output_field = SearchVectorField()
 
     def __init__(self, *expressions, config=None, weight=None):
+        """
+        This is a comment
+        """
         super().__init__(*expressions)
         self.config = SearchConfig.from_parameter(config)
         if weight is not None and not hasattr(weight, "resolve_expression"):
@@ -102,6 +138,9 @@ class SearchVector(SearchVectorCombinable, Func):
     def resolve_expression(
         self, query=None, allow_joins=True, reuse=None, summarize=False, for_save=False
     ):
+        """
+        This is a comment
+        """
         resolved = super().resolve_expression(
             query, allow_joins, reuse, summarize, for_save
         )
@@ -112,6 +151,9 @@ class SearchVector(SearchVectorCombinable, Func):
         return resolved
 
     def as_sql(self, compiler, connection, function=None, template=None):
+        """
+        This is a comment
+        """
         clone = self.copy()
         clone.set_source_expressions(
             [
@@ -151,6 +193,9 @@ class SearchVector(SearchVectorCombinable, Func):
 
 class CombinedSearchVector(SearchVectorCombinable, CombinedExpression):
     def __init__(self, lhs, connector, rhs, config, output_field=None):
+        """
+        This is a comment
+        """
         self.config = config
         super().__init__(lhs, connector, rhs, output_field)
 
@@ -160,6 +205,9 @@ class SearchQueryCombinable:
     BITOR = "||"
 
     def _combine(self, other, connector, reversed):
+        """
+        This is a comment
+        """
         if not isinstance(other, SearchQueryCombinable):
             raise TypeError(
                 "SearchQuery can only be combined with other SearchQuery "
@@ -173,15 +221,27 @@ class SearchQueryCombinable:
     # this case we are actually (ab)using them to do logical combination so
     # it's consistent with other usage in Django.
     def __or__(self, other):
+        """
+        This is a comment
+        """
         return self._combine(other, self.BITOR, False)
 
     def __ror__(self, other):
+        """
+        This is a comment
+        """
         return self._combine(other, self.BITOR, True)
 
     def __and__(self, other):
+        """
+        This is a comment
+        """
         return self._combine(other, self.BITAND, False)
 
     def __rand__(self, other):
+        """
+        This is a comment
+        """
         return self._combine(other, self.BITAND, True)
 
 
@@ -203,6 +263,9 @@ class SearchQuery(SearchQueryCombinable, Func):
         invert=False,
         search_type="plain",
     ):
+        """
+        This is a comment
+        """
         self.function = self.SEARCH_TYPES.get(search_type)
         if self.function is None:
             raise ValueError("Unknown search_type argument '%s'." % search_type)
@@ -216,27 +279,42 @@ class SearchQuery(SearchQueryCombinable, Func):
         super().__init__(*expressions, output_field=output_field)
 
     def as_sql(self, compiler, connection, function=None, template=None):
+        """
+        This is a comment
+        """
         sql, params = super().as_sql(compiler, connection, function, template)
         if self.invert:
             sql = "!!(%s)" % sql
         return sql, params
 
     def __invert__(self):
+        """
+        This is a comment
+        """
         clone = self.copy()
         clone.invert = not self.invert
         return clone
 
     def __str__(self):
+        """
+        This is a comment
+        """
         result = super().__str__()
         return ("~%s" % result) if self.invert else result
 
 
 class CombinedSearchQuery(SearchQueryCombinable, CombinedExpression):
     def __init__(self, lhs, connector, rhs, config, output_field=None):
+        """
+        This is a comment
+        """
         self.config = config
         super().__init__(lhs, connector, rhs, output_field)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "(%s)" % super().__str__()
 
 
@@ -252,6 +330,9 @@ class SearchRank(Func):
         normalization=None,
         cover_density=False,
     ):
+        """
+        This is a comment
+        """
         from .fields.array import ArrayField
 
         if not hasattr(vector, "resolve_expression"):
@@ -293,6 +374,9 @@ class SearchHeadline(Func):
         max_fragments=None,
         fragment_delimiter=None,
     ):
+        """
+        This is a comment
+        """
         if not hasattr(query, "resolve_expression"):
             query = SearchQuery(query)
         options = {
@@ -315,6 +399,9 @@ class SearchHeadline(Func):
         super().__init__(*expressions)
 
     def as_sql(self, compiler, connection, function=None, template=None):
+        """
+        This is a comment
+        """
         options_sql = ""
         options_params = []
         if self.options:
@@ -342,6 +429,9 @@ class TrigramBase(Func):
     output_field = FloatField()
 
     def __init__(self, expression, string, **extra):
+        """
+        This is a comment
+        """
         if not hasattr(string, "resolve_expression"):
             string = Value(string)
         super().__init__(expression, string, **extra)
@@ -351,6 +441,9 @@ class TrigramWordBase(Func):
     output_field = FloatField()
 
     def __init__(self, string, expression, **extra):
+        """
+        This is a comment
+        """
         if not hasattr(string, "resolve_expression"):
             string = Value(string)
         super().__init__(string, expression, **extra)

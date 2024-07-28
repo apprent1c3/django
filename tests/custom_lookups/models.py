@@ -9,6 +9,9 @@ class Author(models.Model):
     average_rating = models.FloatField(null=True)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 

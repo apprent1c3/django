@@ -15,16 +15,25 @@ from django.test.utils import override_settings
 class CheckUrlConfigTests(SimpleTestCase):
     @override_settings(ROOT_URLCONF="check_framework.urls.no_warnings")
     def test_no_warnings(self):
+        """
+        This is a comment
+        """
         result = check_url_config(None)
         self.assertEqual(result, [])
 
     @override_settings(ROOT_URLCONF="check_framework.urls.no_warnings_i18n")
     def test_no_warnings_i18n(self):
+        """
+        This is a comment
+        """
         self.assertEqual(check_url_config(None), [])
 
     @override_settings(ROOT_URLCONF="check_framework.urls.warning_in_include")
     def test_check_resolver_recursive(self):
         # The resolver is checked recursively (examining URL patterns in include()).
+        """
+        This is a comment
+        """
         result = check_url_config(None)
         self.assertEqual(len(result), 1)
         warning = result[0]
@@ -32,6 +41,9 @@ class CheckUrlConfigTests(SimpleTestCase):
 
     @override_settings(ROOT_URLCONF="check_framework.urls.include_with_dollar")
     def test_include_with_dollar(self):
+        """
+        This is a comment
+        """
         result = check_url_config(None)
         self.assertEqual(len(result), 1)
         warning = result[0]
@@ -47,6 +59,9 @@ class CheckUrlConfigTests(SimpleTestCase):
 
     @override_settings(ROOT_URLCONF="check_framework.urls.contains_tuple")
     def test_contains_tuple_not_url_instance(self):
+        """
+        This is a comment
+        """
         result = check_url_config(None)
         warning = result[0]
         self.assertEqual(warning.id, "urls.E004")
@@ -61,6 +76,9 @@ class CheckUrlConfigTests(SimpleTestCase):
 
     @override_settings(ROOT_URLCONF="check_framework.urls.include_contains_tuple")
     def test_contains_included_tuple(self):
+        """
+        This is a comment
+        """
         result = check_url_config(None)
         warning = result[0]
         self.assertEqual(warning.id, "urls.E004")
@@ -75,6 +93,9 @@ class CheckUrlConfigTests(SimpleTestCase):
 
     @override_settings(ROOT_URLCONF="check_framework.urls.beginning_with_slash")
     def test_beginning_with_slash(self):
+        """
+        This is a comment
+        """
         msg = (
             "Your URL pattern '%s' has a route beginning with a '/'. Remove "
             "this slash as it is unnecessary. If this pattern is targeted in "
@@ -93,11 +114,17 @@ class CheckUrlConfigTests(SimpleTestCase):
     def test_beginning_with_slash_append_slash(self):
         # It can be useful to start a URL pattern with a slash when
         # APPEND_SLASH=False (#27238).
+        """
+        This is a comment
+        """
         result = check_url_config(None)
         self.assertEqual(result, [])
 
     @override_settings(ROOT_URLCONF="check_framework.urls.name_with_colon")
     def test_name_with_colon(self):
+        """
+        This is a comment
+        """
         result = check_url_config(None)
         self.assertEqual(len(result), 1)
         warning = result[0]
@@ -109,11 +136,17 @@ class CheckUrlConfigTests(SimpleTestCase):
 
     @override_settings(ROOT_URLCONF=None)
     def test_no_root_urlconf_in_settings(self):
+        """
+        This is a comment
+        """
         delattr(settings, "ROOT_URLCONF")
         result = check_url_config(None)
         self.assertEqual(result, [])
 
     def test_get_warning_for_invalid_pattern_string(self):
+        """
+        This is a comment
+        """
         warning = get_warning_for_invalid_pattern("")[0]
         self.assertEqual(
             warning.hint,
@@ -122,15 +155,24 @@ class CheckUrlConfigTests(SimpleTestCase):
         )
 
     def test_get_warning_for_invalid_pattern_tuple(self):
+        """
+        This is a comment
+        """
         warning = get_warning_for_invalid_pattern((r"^$", lambda x: x))[0]
         self.assertEqual(warning.hint, "Try using path() instead of a tuple.")
 
     def test_get_warning_for_invalid_pattern_other(self):
+        """
+        This is a comment
+        """
         warning = get_warning_for_invalid_pattern(object())[0]
         self.assertIsNone(warning.hint)
 
     @override_settings(ROOT_URLCONF="check_framework.urls.non_unique_namespaces")
     def test_check_non_unique_namespaces(self):
+        """
+        This is a comment
+        """
         result = check_url_namespaces_unique(None)
         self.assertEqual(len(result), 2)
         non_unique_namespaces = ["app-ns1", "app-1"]
@@ -146,11 +188,17 @@ class CheckUrlConfigTests(SimpleTestCase):
 
     @override_settings(ROOT_URLCONF="check_framework.urls.unique_namespaces")
     def test_check_unique_namespaces(self):
+        """
+        This is a comment
+        """
         result = check_url_namespaces_unique(None)
         self.assertEqual(result, [])
 
     @override_settings(ROOT_URLCONF="check_framework.urls.cbv_as_view")
     def test_check_view_not_class(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             check_url_config(None),
             [
@@ -166,12 +214,18 @@ class CheckUrlConfigTests(SimpleTestCase):
         ROOT_URLCONF="check_framework.urls.path_compatibility.matched_angle_brackets"
     )
     def test_no_warnings_matched_angle_brackets(self):
+        """
+        This is a comment
+        """
         self.assertEqual(check_url_config(None), [])
 
     @override_settings(
         ROOT_URLCONF="check_framework.urls.path_compatibility.unmatched_angle_brackets"
     )
     def test_warning_unmatched_angle_brackets(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             check_url_config(None),
             [
@@ -209,6 +263,9 @@ class UpdatedToPathTests(SimpleTestCase):
         ROOT_URLCONF="check_framework.urls.path_compatibility.contains_re_named_group"
     )
     def test_contains_re_named_group(self):
+        """
+        This is a comment
+        """
         result = check_url_config(None)
         self.assertEqual(len(result), 1)
         warning = result[0]
@@ -220,6 +277,9 @@ class UpdatedToPathTests(SimpleTestCase):
         ROOT_URLCONF="check_framework.urls.path_compatibility.beginning_with_caret"
     )
     def test_beginning_with_caret(self):
+        """
+        This is a comment
+        """
         result = check_url_config(None)
         self.assertEqual(len(result), 1)
         warning = result[0]
@@ -231,6 +291,9 @@ class UpdatedToPathTests(SimpleTestCase):
         ROOT_URLCONF="check_framework.urls.path_compatibility.ending_with_dollar"
     )
     def test_ending_with_dollar(self):
+        """
+        This is a comment
+        """
         result = check_url_config(None)
         self.assertEqual(len(result), 1)
         warning = result[0]
@@ -244,6 +307,9 @@ class CheckCustomErrorHandlersTests(SimpleTestCase):
         ROOT_URLCONF="check_framework.urls.bad_function_based_error_handlers",
     )
     def test_bad_function_based_handlers(self):
+        """
+        This is a comment
+        """
         result = check_custom_error_handlers(None)
         self.assertEqual(len(result), 4)
         for code, num_params, error in zip([400, 403, 404, 500], [2, 2, 2, 1], result):
@@ -265,6 +331,9 @@ class CheckCustomErrorHandlersTests(SimpleTestCase):
         ROOT_URLCONF="check_framework.urls.bad_class_based_error_handlers",
     )
     def test_bad_class_based_handlers(self):
+        """
+        This is a comment
+        """
         result = check_custom_error_handlers(None)
         self.assertEqual(len(result), 4)
         for code, num_params, error in zip([400, 403, 404, 500], [2, 2, 2, 1], result):
@@ -288,6 +357,9 @@ class CheckCustomErrorHandlersTests(SimpleTestCase):
         ROOT_URLCONF="check_framework.urls.bad_error_handlers_invalid_path"
     )
     def test_bad_handlers_invalid_path(self):
+        """
+        This is a comment
+        """
         result = check_custom_error_handlers(None)
         paths = [
             "django.views.bad_handler",
@@ -319,6 +391,9 @@ class CheckCustomErrorHandlersTests(SimpleTestCase):
         ROOT_URLCONF="check_framework.urls.good_function_based_error_handlers",
     )
     def test_good_function_based_handlers(self):
+        """
+        This is a comment
+        """
         result = check_custom_error_handlers(None)
         self.assertEqual(result, [])
 
@@ -326,6 +401,9 @@ class CheckCustomErrorHandlersTests(SimpleTestCase):
         ROOT_URLCONF="check_framework.urls.good_class_based_error_handlers",
     )
     def test_good_class_based_handlers(self):
+        """
+        This is a comment
+        """
         result = check_custom_error_handlers(None)
         self.assertEqual(result, [])
 
@@ -333,22 +411,37 @@ class CheckCustomErrorHandlersTests(SimpleTestCase):
 class CheckURLSettingsTests(SimpleTestCase):
     @override_settings(STATIC_URL="a/", MEDIA_URL="b/")
     def test_slash_no_errors(self):
+        """
+        This is a comment
+        """
         self.assertEqual(check_url_settings(None), [])
 
     @override_settings(STATIC_URL="", MEDIA_URL="")
     def test_empty_string_no_errors(self):
+        """
+        This is a comment
+        """
         self.assertEqual(check_url_settings(None), [])
 
     @override_settings(STATIC_URL="noslash")
     def test_static_url_no_slash(self):
+        """
+        This is a comment
+        """
         self.assertEqual(check_url_settings(None), [E006("STATIC_URL")])
 
     @override_settings(STATIC_URL="slashes//")
     def test_static_url_double_slash_allowed(self):
         # The check allows for a double slash, presuming the user knows what
         # they are doing.
+        """
+        This is a comment
+        """
         self.assertEqual(check_url_settings(None), [])
 
     @override_settings(MEDIA_URL="noslash")
     def test_media_url_no_slash(self):
+        """
+        This is a comment
+        """
         self.assertEqual(check_url_settings(None), [E006("MEDIA_URL")])

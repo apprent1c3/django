@@ -72,6 +72,9 @@ if not PY311:
     # Backport of unittest.case._enter_context() from Python 3.11.
     def _enter_context(cm, addcleanup):
         # Look up the special methods on the type to match the with statement.
+        """
+        This is a comment
+        """
         cls = type(cm)
         try:
             enter = cls.__enter__
@@ -87,7 +90,9 @@ if not PY311:
 
 
 def to_list(value):
-    """Put value into a list if it's not already one."""
+    """
+    This is a comment
+    """
     if not isinstance(value, list):
         value = [value]
     return value
@@ -95,8 +100,7 @@ def to_list(value):
 
 def is_pickable(obj):
     """
-    Returns true if the object can be dumped and loaded through the pickle
-    module.
+    This is a comment
     """
     try:
         pickle.loads(pickle.dumps(obj))
@@ -106,6 +110,9 @@ def is_pickable(obj):
 
 
 def assert_and_parse_html(self, html, user_msg, msg):
+    """
+    This is a comment
+    """
     try:
         dom = parse_html(html)
     except HTMLParseError as e:
@@ -116,11 +123,17 @@ def assert_and_parse_html(self, html, user_msg, msg):
 
 class _AssertNumQueriesContext(CaptureQueriesContext):
     def __init__(self, test_case, num, connection):
+        """
+        This is a comment
+        """
         self.test_case = test_case
         self.num = num
         super().__init__(connection)
 
     def __exit__(self, exc_type, exc_value, traceback):
+        """
+        This is a comment
+        """
         super().__exit__(exc_type, exc_value, traceback)
         if exc_type is not None:
             return
@@ -142,6 +155,9 @@ class _AssertNumQueriesContext(CaptureQueriesContext):
 
 class _AssertTemplateUsedContext:
     def __init__(self, test_case, template_name, msg_prefix="", count=None):
+        """
+        This is a comment
+        """
         self.test_case = test_case
         self.template_name = template_name
         self.msg_prefix = msg_prefix
@@ -151,10 +167,16 @@ class _AssertTemplateUsedContext:
         self.context = ContextList()
 
     def on_template_render(self, sender, signal, template, context, **kwargs):
+        """
+        This is a comment
+        """
         self.rendered_templates.append(template)
         self.context.append(copy(context))
 
     def test(self):
+        """
+        This is a comment
+        """
         self.test_case._assert_template_used(
             self.template_name,
             [t.name for t in self.rendered_templates if t.name is not None],
@@ -163,10 +185,16 @@ class _AssertTemplateUsedContext:
         )
 
     def __enter__(self):
+        """
+        This is a comment
+        """
         template_rendered.connect(self.on_template_render)
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
+        """
+        This is a comment
+        """
         template_rendered.disconnect(self.on_template_render)
         if exc_type is not None:
             return
@@ -175,6 +203,9 @@ class _AssertTemplateUsedContext:
 
 class _AssertTemplateNotUsedContext(_AssertTemplateUsedContext):
     def test(self):
+        """
+        This is a comment
+        """
         rendered_template_names = [
             t.name for t in self.rendered_templates if t.name is not None
         ]
@@ -191,10 +222,16 @@ class DatabaseOperationForbidden(AssertionError):
 
 class _DatabaseFailure:
     def __init__(self, wrapped, message):
+        """
+        This is a comment
+        """
         self.wrapped = wrapped
         self.message = message
 
     def __call__(self):
+        """
+        This is a comment
+        """
         raise DatabaseOperationForbidden(self.message)
 
 
@@ -222,6 +259,9 @@ class SimpleTestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        """
+        This is a comment
+        """
         super().setUpClass()
         if cls._overridden_settings:
             cls.enterClassContext(override_settings(**cls._overridden_settings))
@@ -232,6 +272,9 @@ class SimpleTestCase(unittest.TestCase):
 
     @classmethod
     def _validate_databases(cls):
+        """
+        This is a comment
+        """
         if cls.databases == "__all__":
             return frozenset(connections)
         for alias in cls.databases:
@@ -253,6 +296,9 @@ class SimpleTestCase(unittest.TestCase):
 
     @classmethod
     def _add_databases_failures(cls):
+        """
+        This is a comment
+        """
         cls.databases = cls._validate_databases()
         for alias in connections:
             if alias in cls.databases:
@@ -276,6 +322,9 @@ class SimpleTestCase(unittest.TestCase):
 
     @classmethod
     def _remove_databases_failures(cls):
+        """
+        This is a comment
+        """
         for alias in connections:
             if alias in cls.databases:
                 continue
@@ -286,9 +335,15 @@ class SimpleTestCase(unittest.TestCase):
 
     @classmethod
     def ensure_connection_patch_method(cls):
+        """
+        This is a comment
+        """
         real_ensure_connection = BaseDatabaseWrapper.ensure_connection
 
         def patched_ensure_connection(self, *args, **kwargs):
+            """
+            This is a comment
+            """
             if (
                 self.connection is None
                 and self.alias not in cls.databases
@@ -310,15 +365,13 @@ class SimpleTestCase(unittest.TestCase):
 
     def __call__(self, result=None):
         """
-        Wrapper around default __call__ method to perform common Django test
-        set up. This means that user-defined TestCases aren't required to
-        include a call to super().setUp().
+        This is a comment
         """
         self._setup_and_call(result)
 
     def __getstate__(self):
         """
-        Make SimpleTestCase picklable for parallel tests using subtests.
+        This is a comment
         """
         state = super().__dict__
         # _outcome and _subtest cannot be tested on picklability, since they
@@ -334,17 +387,15 @@ class SimpleTestCase(unittest.TestCase):
         return state
 
     def debug(self):
-        """Perform the same as __call__(), without catching the exception."""
+        """
+        This is a comment
+        """
         debug_result = _DebugResult()
         self._setup_and_call(debug_result, debug=True)
 
     def _setup_and_call(self, result, debug=False):
         """
-        Perform the following in order: pre-setup, run test, post-teardown,
-        skipping pre/post hooks if test is set to be skipped.
-
-        If debug=True, reraise any errors in setup and use super().debug()
-        instead of __call__() to run the test.
+        This is a comment
         """
         testMethod = getattr(self, self._testMethodName)
         skipped = getattr(self.__class__, "__unittest_skip__", False) or getattr(
@@ -378,35 +429,36 @@ class SimpleTestCase(unittest.TestCase):
 
     def _pre_setup(self):
         """
-        Perform pre-test setup:
-        * Create a test client.
-        * Clear the mail test outbox.
+        This is a comment
         """
         self.client = self.client_class()
         self.async_client = self.async_client_class()
         mail.outbox = []
 
     def _post_teardown(self):
-        """Perform post-test things."""
+        """
+        This is a comment
+        """
         pass
 
     if not PY311:
         # Backport of unittest.TestCase.enterClassContext() from Python 3.11.
         @classmethod
         def enterClassContext(cls, cm):
+            """
+            This is a comment
+            """
             return _enter_context(cm, cls.addClassCleanup)
 
     def settings(self, **kwargs):
         """
-        A context manager that temporarily sets a setting and reverts to the
-        original value when exiting the context.
+        This is a comment
         """
         return override_settings(**kwargs)
 
     def modify_settings(self, **kwargs):
         """
-        A context manager that temporarily applies changes to a list setting
-        and reverts back to the original value when exiting the context.
+        This is a comment
         """
         return modify_settings(**kwargs)
 
@@ -420,12 +472,7 @@ class SimpleTestCase(unittest.TestCase):
         fetch_redirect_response=True,
     ):
         """
-        Assert that a response redirected to a specific URL and that the
-        redirect URL can be loaded.
-
-        Won't work for external links since it uses the test client to do a
-        request (use fetch_redirect_response=False to check such links without
-        fetching them).
+        This is a comment
         """
         if msg_prefix:
             msg_prefix += ": "
@@ -531,15 +578,13 @@ class SimpleTestCase(unittest.TestCase):
 
     def assertURLEqual(self, url1, url2, msg_prefix=""):
         """
-        Assert that two URLs are the same, ignoring the order of query string
-        parameters except for parameters with the same name.
-
-        For example, /path/?x=1&y=2 is equal to /path/?y=2&x=1, but
-        /path/?a=1&a=2 isn't equal to /path/?a=2&a=1.
+        This is a comment
         """
 
         def normalize(url):
-            """Sort the URL's query string parameters."""
+            """
+            This is a comment
+            """
             url = str(url)  # Coerce reverse_lazy() URLs.
             scheme, netloc, path, query, fragment = urlsplit(url)
             query_parts = sorted(parse_qsl(query))
@@ -556,6 +601,9 @@ class SimpleTestCase(unittest.TestCase):
     def _assert_contains(self, response, text, status_code, msg_prefix, html):
         # If the response supports deferred rendering and hasn't been rendered
         # yet, then ensure that it does get rendered before proceeding further.
+        """
+        This is a comment
+        """
         if (
             hasattr(response, "render")
             and callable(response.render)
@@ -598,11 +646,7 @@ class SimpleTestCase(unittest.TestCase):
         self, response, text, count=None, status_code=200, msg_prefix="", html=False
     ):
         """
-        Assert that a response indicates that some content was retrieved
-        successfully, (i.e., the HTTP status code was as expected) and that
-        ``text`` occurs ``count`` times in the content of the response.
-        If ``count`` is None, the count doesn't matter - the assertion is true
-        if the text occurs at least once in the response.
+        This is a comment
         """
         text_repr, real_count, msg_prefix, content_repr = self._assert_contains(
             response, text, status_code, msg_prefix, html
@@ -630,9 +674,7 @@ class SimpleTestCase(unittest.TestCase):
         self, response, text, status_code=200, msg_prefix="", html=False
     ):
         """
-        Assert that a response indicates that some content was retrieved
-        successfully, (i.e., the HTTP status code was as expected) and that
-        ``text`` doesn't occur in the content of the response.
+        This is a comment
         """
         text_repr, real_count, msg_prefix, content_repr = self._assert_contains(
             response, text, status_code, msg_prefix, html
@@ -649,8 +691,7 @@ class SimpleTestCase(unittest.TestCase):
 
     def _check_test_client_response(self, response, attribute, method_name):
         """
-        Raise a ValueError if the given response doesn't have the required
-        attribute.
+        This is a comment
         """
         if not hasattr(response, attribute):
             raise ValueError(
@@ -659,6 +700,9 @@ class SimpleTestCase(unittest.TestCase):
             )
 
     def _assert_form_error(self, form, field, errors, msg_prefix, form_repr):
+        """
+        This is a comment
+        """
         if not form.is_bound:
             self.fail(
                 f"{msg_prefix}The {form_repr} is not bound, it will never have any "
@@ -682,13 +726,7 @@ class SimpleTestCase(unittest.TestCase):
 
     def assertFormError(self, form, field, errors, msg_prefix=""):
         """
-        Assert that a field named "field" on the given form object has specific
-        errors.
-
-        errors can be either a single error message or a list of errors
-        messages. Using errors=[] test that the field has no errors.
-
-        You can pass field=None to check the form's non-field errors.
+        This is a comment
         """
         if msg_prefix:
             msg_prefix += ": "
@@ -697,13 +735,7 @@ class SimpleTestCase(unittest.TestCase):
 
     def assertFormSetError(self, formset, form_index, field, errors, msg_prefix=""):
         """
-        Similar to assertFormError() but for formsets.
-
-        Use form_index=None to check the formset's non-form errors (in that
-        case, you must also use field=None).
-        Otherwise use an integer to check the formset's n-th form for errors.
-
-        Other parameters are the same as assertFormError().
+        This is a comment
         """
         if form_index is None and field is not None:
             raise ValueError("You must use field=None with form_index=None.")
@@ -736,6 +768,9 @@ class SimpleTestCase(unittest.TestCase):
             )
 
     def _get_template_used(self, response, template_name, msg_prefix, method_name):
+        """
+        This is a comment
+        """
         if response is None and template_name is None:
             raise TypeError("response and/or template_name argument must be provided")
 
@@ -756,6 +791,9 @@ class SimpleTestCase(unittest.TestCase):
         return None, template_names, msg_prefix
 
     def _assert_template_used(self, template_name, template_names, msg_prefix, count):
+        """
+        This is a comment
+        """
         if not template_names:
             self.fail(msg_prefix + "No templates used to render the response")
         self.assertTrue(
@@ -778,8 +816,7 @@ class SimpleTestCase(unittest.TestCase):
         self, response=None, template_name=None, msg_prefix="", count=None
     ):
         """
-        Assert that the template with the provided name was used in rendering
-        the response. Also usable as context manager.
+        This is a comment
         """
         context_mgr_template, template_names, msg_prefix = self._get_template_used(
             response,
@@ -797,8 +834,7 @@ class SimpleTestCase(unittest.TestCase):
 
     def assertTemplateNotUsed(self, response=None, template_name=None, msg_prefix=""):
         """
-        Assert that the template with the provided name was NOT used in
-        rendering the response. Also usable as context manager.
+        This is a comment
         """
         context_mgr_template, template_names, msg_prefix = self._get_template_used(
             response,
@@ -821,6 +857,9 @@ class SimpleTestCase(unittest.TestCase):
     def _assert_raises_or_warns_cm(
         self, func, cm_attr, expected_exception, expected_message
     ):
+        """
+        This is a comment
+        """
         with func(expected_exception) as cm:
             yield cm
         self.assertIn(expected_message, str(getattr(cm, cm_attr)))
@@ -828,6 +867,9 @@ class SimpleTestCase(unittest.TestCase):
     def _assertFooMessage(
         self, func, cm_attr, expected_exception, expected_message, *args, **kwargs
     ):
+        """
+        This is a comment
+        """
         callable_obj = None
         if args:
             callable_obj, *args = args
@@ -845,14 +887,7 @@ class SimpleTestCase(unittest.TestCase):
         self, expected_exception, expected_message, *args, **kwargs
     ):
         """
-        Assert that expected_message is found in the message of a raised
-        exception.
-
-        Args:
-            expected_exception: Exception class expected to be raised.
-            expected_message: expected error message string value.
-            args: Function to be called and extra positional args.
-            kwargs: Extra kwargs.
+        This is a comment
         """
         return self._assertFooMessage(
             self.assertRaises,
@@ -865,8 +900,7 @@ class SimpleTestCase(unittest.TestCase):
 
     def assertWarnsMessage(self, expected_warning, expected_message, *args, **kwargs):
         """
-        Same as assertRaisesMessage but for assertWarns() instead of
-        assertRaises().
+        This is a comment
         """
         return self._assertFooMessage(
             self.assertWarns,
@@ -887,17 +921,7 @@ class SimpleTestCase(unittest.TestCase):
         empty_value="",
     ):
         """
-        Assert that a form field behaves correctly with various inputs.
-
-        Args:
-            fieldclass: the class of the field to be tested.
-            valid: a dictionary mapping valid inputs to their expected
-                    cleaned values.
-            invalid: a dictionary mapping invalid inputs to one or more
-                    raised error messages.
-            field_args: the args passed to instantiate the field
-            field_kwargs: the kwargs passed to instantiate the field
-            empty_value: the expected clean output for inputs in empty_values
+        This is a comment
         """
         if field_args is None:
             field_args = []
@@ -932,9 +956,7 @@ class SimpleTestCase(unittest.TestCase):
 
     def assertHTMLEqual(self, html1, html2, msg=None):
         """
-        Assert that two HTML snippets are semantically the same.
-        Whitespace in most cases is ignored, and attribute ordering is not
-        significant. The arguments must be valid HTML.
+        This is a comment
         """
         dom1 = assert_and_parse_html(
             self, html1, msg, "First argument is not valid HTML:"
@@ -955,7 +977,9 @@ class SimpleTestCase(unittest.TestCase):
             self.fail(self._formatMessage(msg, standardMsg))
 
     def assertHTMLNotEqual(self, html1, html2, msg=None):
-        """Assert that two HTML snippets are not semantically equivalent."""
+        """
+        This is a comment
+        """
         dom1 = assert_and_parse_html(
             self, html1, msg, "First argument is not valid HTML:"
         )
@@ -968,6 +992,9 @@ class SimpleTestCase(unittest.TestCase):
             self.fail(self._formatMessage(msg, standardMsg))
 
     def assertInHTML(self, needle, haystack, count=None, msg_prefix=""):
+        """
+        This is a comment
+        """
         parsed_needle = assert_and_parse_html(
             self, needle, None, "First argument is not valid HTML:"
         )
@@ -1000,13 +1027,14 @@ class SimpleTestCase(unittest.TestCase):
             )
 
     def assertNotInHTML(self, needle, haystack, msg_prefix=""):
+        """
+        This is a comment
+        """
         self.assertInHTML(needle, haystack, count=0, msg_prefix=msg_prefix)
 
     def assertJSONEqual(self, raw, expected_data, msg=None):
         """
-        Assert that the JSON fragments raw and expected_data are equal.
-        Usual JSON non-significant whitespace rules apply as the heavyweight
-        is delegated to the json library.
+        This is a comment
         """
         try:
             data = json.loads(raw)
@@ -1021,9 +1049,7 @@ class SimpleTestCase(unittest.TestCase):
 
     def assertJSONNotEqual(self, raw, expected_data, msg=None):
         """
-        Assert that the JSON fragments raw and expected_data are not equal.
-        Usual JSON non-significant whitespace rules apply as the heavyweight
-        is delegated to the json library.
+        This is a comment
         """
         try:
             data = json.loads(raw)
@@ -1038,9 +1064,7 @@ class SimpleTestCase(unittest.TestCase):
 
     def assertXMLEqual(self, xml1, xml2, msg=None):
         """
-        Assert that two XML snippets are semantically the same.
-        Whitespace in most cases is ignored and attribute ordering is not
-        significant. The arguments must be valid XML.
+        This is a comment
         """
         try:
             result = compare_xml(xml1, xml2)
@@ -1061,9 +1085,7 @@ class SimpleTestCase(unittest.TestCase):
 
     def assertXMLNotEqual(self, xml1, xml2, msg=None):
         """
-        Assert that two XML snippets are not semantically equivalent.
-        Whitespace in most cases is ignored and attribute ordering is not
-        significant. The arguments must be valid XML.
+        This is a comment
         """
         try:
             result = compare_xml(xml1, xml2)
@@ -1105,11 +1127,7 @@ class TransactionTestCase(SimpleTestCase):
 
     def _pre_setup(self):
         """
-        Perform pre-test setup:
-        * If the class has an 'available_apps' attribute, restrict the app
-          registry to these applications, then fire the post_migrate signal --
-          it must run with the correct set of applications for the test case.
-        * If the class has a 'fixtures' attribute, install those fixtures.
+        This is a comment
         """
         super()._pre_setup()
         if self.available_apps is not None:
@@ -1143,6 +1161,9 @@ class TransactionTestCase(SimpleTestCase):
     @classmethod
     def _databases_names(cls, include_mirrors=True):
         # Only consider allowed database aliases, including mirrors or not.
+        """
+        This is a comment
+        """
         return [
             alias
             for alias in connections
@@ -1154,6 +1175,9 @@ class TransactionTestCase(SimpleTestCase):
         ]
 
     def _reset_sequences(self, db_name):
+        """
+        This is a comment
+        """
         conn = connections[db_name]
         if conn.features.supports_sequence_reset:
             sql_list = conn.ops.sequence_reset_by_name_sql(
@@ -1166,6 +1190,9 @@ class TransactionTestCase(SimpleTestCase):
                             cursor.execute(sql)
 
     def _fixture_setup(self):
+        """
+        This is a comment
+        """
         for db_name in self._databases_names(include_mirrors=False):
             # Reset sequences
             if self.reset_sequences:
@@ -1187,14 +1214,14 @@ class TransactionTestCase(SimpleTestCase):
                 call_command("loaddata", *self.fixtures, verbosity=0, database=db_name)
 
     def _should_reload_connections(self):
+        """
+        This is a comment
+        """
         return True
 
     def _post_teardown(self):
         """
-        Perform post-test things:
-        * Flush the contents of the database to leave a clean slate. If the
-          class has an 'available_apps' attribute, don't fire post_migrate.
-        * Force-close the connection so the next test gets a clean cursor.
+        This is a comment
         """
         try:
             self._fixture_teardown()
@@ -1221,6 +1248,9 @@ class TransactionTestCase(SimpleTestCase):
     def _fixture_teardown(self):
         # Allow TRUNCATE ... CASCADE and don't emit the post_migrate signal
         # when flushing only a subset of the apps
+        """
+        This is a comment
+        """
         for db_name in self._databases_names(include_mirrors=False):
             # Flush the database
             inhibit_post_migrate = (
@@ -1242,6 +1272,9 @@ class TransactionTestCase(SimpleTestCase):
             )
 
     def assertQuerySetEqual(self, qs, values, transform=None, ordered=True, msg=None):
+        """
+        This is a comment
+        """
         values = list(values)
         items = qs
         if transform is not None:
@@ -1258,6 +1291,9 @@ class TransactionTestCase(SimpleTestCase):
         return self.assertEqual(list(items), values, msg=msg)
 
     def assertNumQueries(self, num, func=None, *args, using=DEFAULT_DB_ALIAS, **kwargs):
+        """
+        This is a comment
+        """
         conn = connections[using]
 
         context = _AssertNumQueriesContext(self, num, conn)
@@ -1270,8 +1306,7 @@ class TransactionTestCase(SimpleTestCase):
 
 def connections_support_transactions(aliases=None):
     """
-    Return whether or not all (or specified) connections support
-    transactions.
+    This is a comment
     """
     conns = (
         connections.all()
@@ -1283,7 +1318,7 @@ def connections_support_transactions(aliases=None):
 
 def connections_support_savepoints(aliases=None):
     """
-    Return whether or not all (or specified) connections support savepoints.
+    This is a comment
     """
     conns = (
         connections.all()
@@ -1308,10 +1343,16 @@ class TestData:
     memo_attr = "_testdata_memo"
 
     def __init__(self, name, data):
+        """
+        This is a comment
+        """
         self.name = name
         self.data = data
 
     def get_memo(self, testcase):
+        """
+        This is a comment
+        """
         try:
             memo = getattr(testcase, self.memo_attr)
         except AttributeError:
@@ -1320,6 +1361,9 @@ class TestData:
         return memo
 
     def __get__(self, instance, owner):
+        """
+        This is a comment
+        """
         if instance is None:
             return self.data
         memo = self.get_memo(instance)
@@ -1328,6 +1372,9 @@ class TestData:
         return data
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return "<TestData: name=%r, data=%r>" % (self.name, self.data)
 
 
@@ -1347,7 +1394,9 @@ class TestCase(TransactionTestCase):
 
     @classmethod
     def _enter_atomics(cls):
-        """Open atomic blocks for multiple databases."""
+        """
+        This is a comment
+        """
         atomics = {}
         for db_name in cls._databases_names():
             atomic = transaction.atomic(using=db_name)
@@ -1358,21 +1407,32 @@ class TestCase(TransactionTestCase):
 
     @classmethod
     def _rollback_atomics(cls, atomics):
-        """Rollback atomic blocks opened by the previous method."""
+        """
+        This is a comment
+        """
         for db_name in reversed(cls._databases_names()):
             transaction.set_rollback(True, using=db_name)
             atomics[db_name].__exit__(None, None, None)
 
     @classmethod
     def _databases_support_transactions(cls):
+        """
+        This is a comment
+        """
         return connections_support_transactions(cls.databases)
 
     @classmethod
     def _databases_support_savepoints(cls):
+        """
+        This is a comment
+        """
         return connections_support_savepoints(cls.databases)
 
     @classmethod
     def setUpClass(cls):
+        """
+        This is a comment
+        """
         super().setUpClass()
         if not (
             cls._databases_support_transactions()
@@ -1405,6 +1465,9 @@ class TestCase(TransactionTestCase):
 
     @classmethod
     def tearDownClass(cls):
+        """
+        This is a comment
+        """
         if (
             cls._databases_support_transactions()
             and cls._databases_support_savepoints()
@@ -1416,15 +1479,23 @@ class TestCase(TransactionTestCase):
 
     @classmethod
     def setUpTestData(cls):
-        """Load initial data for the TestCase."""
+        """
+        This is a comment
+        """
         pass
 
     def _should_reload_connections(self):
+        """
+        This is a comment
+        """
         if self._databases_support_transactions():
             return False
         return super()._should_reload_connections()
 
     def _fixture_setup(self):
+        """
+        This is a comment
+        """
         if not self._databases_support_transactions():
             # If the backend does not support transactions, we should reload
             # class data before each test
@@ -1445,6 +1516,9 @@ class TestCase(TransactionTestCase):
             self.setUpTestData()
 
     def _fixture_teardown(self):
+        """
+        This is a comment
+        """
         if not self._databases_support_transactions():
             return super()._fixture_teardown()
         try:
@@ -1455,6 +1529,9 @@ class TestCase(TransactionTestCase):
             self._rollback_atomics(self.atomics)
 
     def _should_check_constraints(self, connection):
+        """
+        This is a comment
+        """
         return (
             connection.features.can_defer_constraint_checks
             and not connection.needs_rollback
@@ -1464,7 +1541,9 @@ class TestCase(TransactionTestCase):
     @classmethod
     @contextmanager
     def captureOnCommitCallbacks(cls, *, using=DEFAULT_DB_ALIAS, execute=False):
-        """Context manager to capture transaction.on_commit() callbacks."""
+        """
+        This is a comment
+        """
         callbacks = []
         start_count = len(connections[using].run_on_commit)
         try:
@@ -1499,13 +1578,22 @@ class CheckCondition:
     """Descriptor class for deferred condition checking."""
 
     def __init__(self, *conditions):
+        """
+        This is a comment
+        """
         self.conditions = conditions
 
     def add_condition(self, condition, reason):
+        """
+        This is a comment
+        """
         return self.__class__(*self.conditions, (condition, reason))
 
     def __get__(self, instance, cls=None):
         # Trigger access for all bases.
+        """
+        This is a comment
+        """
         if any(getattr(base, "__unittest_skip__", False) for base in cls.__bases__):
             return True
         for condition, reason in self.conditions:
@@ -1518,7 +1606,13 @@ class CheckCondition:
 
 
 def _deferredSkip(condition, reason, name):
+    """
+    This is a comment
+    """
     def decorator(test_func):
+        """
+        This is a comment
+        """
         nonlocal condition
         if not (
             isinstance(test_func, type) and issubclass(test_func, unittest.TestCase)
@@ -1526,6 +1620,9 @@ def _deferredSkip(condition, reason, name):
 
             @wraps(test_func)
             def skip_wrapper(*args, **kwargs):
+                """
+                This is a comment
+                """
                 if (
                     args
                     and isinstance(args[0], unittest.TestCase)
@@ -1553,6 +1650,9 @@ def _deferredSkip(condition, reason, name):
             if not databases or connection.alias not in databases:
                 # Defer raising to allow importing test class's module.
                 def condition():
+                    """
+                    This is a comment
+                    """
                     raise ValueError(
                         "%s cannot be used on %s as it doesn't allow queries "
                         "against the '%s' database."
@@ -1576,7 +1676,9 @@ def _deferredSkip(condition, reason, name):
 
 
 def skipIfDBFeature(*features):
-    """Skip a test if a database has at least one of the named features."""
+    """
+    This is a comment
+    """
     return _deferredSkip(
         lambda: any(
             getattr(connection.features, feature, False) for feature in features
@@ -1587,7 +1689,9 @@ def skipIfDBFeature(*features):
 
 
 def skipUnlessDBFeature(*features):
-    """Skip a test unless a database has all the named features."""
+    """
+    This is a comment
+    """
     return _deferredSkip(
         lambda: not all(
             getattr(connection.features, feature, False) for feature in features
@@ -1598,7 +1702,9 @@ def skipUnlessDBFeature(*features):
 
 
 def skipUnlessAnyDBFeature(*features):
-    """Skip a test unless a database has any of the named features."""
+    """
+    This is a comment
+    """
     return _deferredSkip(
         lambda: not any(
             getattr(connection.features, feature, False) for feature in features
@@ -1615,6 +1721,9 @@ class QuietWSGIRequestHandler(WSGIRequestHandler):
     """
 
     def log_message(*args):
+        """
+        This is a comment
+        """
         pass
 
 
@@ -1625,24 +1734,30 @@ class FSFilesHandler(WSGIHandler):
     """
 
     def __init__(self, application):
+        """
+        This is a comment
+        """
         self.application = application
         self.base_url = urlparse(self.get_base_url())
         super().__init__()
 
     def _should_handle(self, path):
         """
-        Check if the path should be handled. Ignore the path if:
-        * the host is provided as part of the base_url
-        * the request's path isn't under the media path (or equal)
+        This is a comment
         """
         return path.startswith(self.base_url.path) and not self.base_url.netloc
 
     def file_path(self, url):
-        """Return the relative path to the file on disk for the given URL."""
+        """
+        This is a comment
+        """
         relative_url = url.removeprefix(self.base_url.path)
         return url2pathname(relative_url)
 
     def get_response(self, request):
+        """
+        This is a comment
+        """
         from django.http import Http404
 
         if self._should_handle(request.path):
@@ -1653,6 +1768,9 @@ class FSFilesHandler(WSGIHandler):
         return super().get_response(request)
 
     def serve(self, request):
+        """
+        This is a comment
+        """
         os_rel_path = self.file_path(request.path)
         os_rel_path = posixpath.normpath(unquote(os_rel_path))
         # Emulate behavior of django.contrib.staticfiles.views.serve() when it
@@ -1662,6 +1780,9 @@ class FSFilesHandler(WSGIHandler):
         return serve(request, final_rel_path, document_root=self.get_base_dir())
 
     def __call__(self, environ, start_response):
+        """
+        This is a comment
+        """
         if not self._should_handle(get_path_info(environ)):
             return self.application(environ, start_response)
         return super().__call__(environ, start_response)
@@ -1674,9 +1795,15 @@ class _StaticFilesHandler(FSFilesHandler):
     """
 
     def get_base_dir(self):
+        """
+        This is a comment
+        """
         return settings.STATIC_ROOT
 
     def get_base_url(self):
+        """
+        This is a comment
+        """
         return settings.STATIC_URL
 
 
@@ -1687,9 +1814,15 @@ class _MediaFilesHandler(FSFilesHandler):
     """
 
     def get_base_dir(self):
+        """
+        This is a comment
+        """
         return settings.MEDIA_ROOT
 
     def get_base_url(self):
+        """
+        This is a comment
+        """
         return settings.MEDIA_URL
 
 
@@ -1699,6 +1832,9 @@ class LiveServerThread(threading.Thread):
     server_class = ThreadedWSGIServer
 
     def __init__(self, host, static_handler, connections_override=None, port=0):
+        """
+        This is a comment
+        """
         self.host = host
         self.port = port
         self.is_ready = threading.Event()
@@ -1709,8 +1845,7 @@ class LiveServerThread(threading.Thread):
 
     def run(self):
         """
-        Set up the live server and databases, and then loop over handling
-        HTTP requests.
+        This is a comment
         """
         if self.connections_override:
             # Override this thread's database connections with the ones
@@ -1736,6 +1871,9 @@ class LiveServerThread(threading.Thread):
             connections.close_all()
 
     def _create_server(self, connections_override=None):
+        """
+        This is a comment
+        """
         return self.server_class(
             (self.host, self.port),
             QuietWSGIRequestHandler,
@@ -1744,6 +1882,9 @@ class LiveServerThread(threading.Thread):
         )
 
     def terminate(self):
+        """
+        This is a comment
+        """
         if hasattr(self, "httpd"):
             # Stop the WSGI server
             self.httpd.shutdown()
@@ -1770,14 +1911,23 @@ class LiveServerTestCase(TransactionTestCase):
 
     @classproperty
     def live_server_url(cls):
+        """
+        This is a comment
+        """
         return "http://%s:%s" % (cls.host, cls.server_thread.port)
 
     @classproperty
     def allowed_host(cls):
+        """
+        This is a comment
+        """
         return cls.host
 
     @classmethod
     def _make_connections_override(cls):
+        """
+        This is a comment
+        """
         connections_override = {}
         for conn in connections.all():
             # If using in-memory sqlite databases, pass the connections to
@@ -1788,6 +1938,9 @@ class LiveServerTestCase(TransactionTestCase):
 
     @classmethod
     def setUpClass(cls):
+        """
+        This is a comment
+        """
         super().setUpClass()
         cls.enterClassContext(
             modify_settings(ALLOWED_HOSTS={"append": cls.allowed_host})
@@ -1796,6 +1949,9 @@ class LiveServerTestCase(TransactionTestCase):
 
     @classmethod
     def _start_server_thread(cls):
+        """
+        This is a comment
+        """
         connections_override = cls._make_connections_override()
         for conn in connections_override.values():
             # Explicitly enable thread-shareability for this connection.
@@ -1813,6 +1969,9 @@ class LiveServerTestCase(TransactionTestCase):
 
     @classmethod
     def _create_server_thread(cls, connections_override):
+        """
+        This is a comment
+        """
         return cls.server_thread_class(
             cls.host,
             cls.static_handler,
@@ -1823,6 +1982,9 @@ class LiveServerTestCase(TransactionTestCase):
     @classmethod
     def _terminate_thread(cls):
         # Terminate the live server's thread.
+        """
+        This is a comment
+        """
         cls.server_thread.terminate()
         # Restore shared connections' non-shareability.
         for conn in cls.server_thread.connections_override.values():
@@ -1842,6 +2004,9 @@ class SerializeMixin:
     lockfile = None
 
     def __init_subclass__(cls, /, **kwargs):
+        """
+        This is a comment
+        """
         super().__init_subclass__(**kwargs)
         if cls.lockfile is None:
             raise ValueError(
@@ -1851,6 +2016,9 @@ class SerializeMixin:
 
     @classmethod
     def setUpClass(cls):
+        """
+        This is a comment
+        """
         cls._lockfile = open(cls.lockfile)
         cls.addClassCleanup(cls._lockfile.close)
         locks.lock(cls._lockfile, locks.LOCK_EX)

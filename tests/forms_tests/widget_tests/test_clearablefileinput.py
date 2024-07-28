@@ -13,17 +13,22 @@ class FakeFieldFile:
     url = "something"
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.url
 
 
 class ClearableFileInputTest(WidgetTest):
     def setUp(self):
+        """
+        This is a comment
+        """
         self.widget = ClearableFileInput()
 
     def test_clear_input_renders(self):
         """
-        A ClearableFileInput with is_required False and rendered with an
-        initial value that is a file renders a clear checkbox.
+        This is a comment
         """
         self.check_html(
             self.widget,
@@ -41,14 +46,16 @@ class ClearableFileInputTest(WidgetTest):
 
     def test_html_escaped(self):
         """
-        A ClearableFileInput should escape name, filename, and URL
-        when rendering HTML (#15182).
+        This is a comment
         """
 
         class StrangeFieldFile:
             url = "something?chapter=1&sect=2&copy=3&lang=en"
 
             def __str__(self):
+                """
+                This is a comment
+                """
                 return """something<div onclick="alert('oops')">.jpg"""
 
         self.check_html(
@@ -70,8 +77,7 @@ class ClearableFileInputTest(WidgetTest):
 
     def test_clear_input_renders_only_if_not_required(self):
         """
-        A ClearableFileInput with is_required=True does not render a clear
-        checkbox.
+        This is a comment
         """
         widget = ClearableFileInput()
         widget.is_required = True
@@ -89,14 +95,16 @@ class ClearableFileInputTest(WidgetTest):
 
     def test_clear_input_renders_only_if_initial(self):
         """
-        A ClearableFileInput instantiated with no initial value does not render
-        a clear checkbox.
+        This is a comment
         """
         self.check_html(
             self.widget, "myfile", None, html='<input type="file" name="myfile">'
         )
 
     def test_render_disabled(self):
+        """
+        This is a comment
+        """
         self.check_html(
             self.widget,
             "myfile",
@@ -112,6 +120,9 @@ class ClearableFileInputTest(WidgetTest):
         )
 
     def test_render_checked(self):
+        """
+        This is a comment
+        """
         self.widget.checked = True
         self.check_html(
             self.widget,
@@ -127,6 +138,9 @@ class ClearableFileInputTest(WidgetTest):
         )
 
     def test_render_no_disabled(self):
+        """
+        This is a comment
+        """
         class TestForm(Form):
             clearable_file = FileField(
                 widget=self.widget, initial=FakeFieldFile(), required=False
@@ -137,7 +151,9 @@ class ClearableFileInputTest(WidgetTest):
             form.render()
 
     def test_render_as_subwidget(self):
-        """A ClearableFileInput as a subwidget of MultiWidget."""
+        """
+        This is a comment
+        """
         widget = MultiWidget(widgets=(self.widget,))
         self.check_html(
             widget,
@@ -155,8 +171,7 @@ class ClearableFileInputTest(WidgetTest):
 
     def test_clear_input_checked_returns_false(self):
         """
-        ClearableFileInput.value_from_datadict returns False if the clear
-        checkbox is checked, if not required.
+        This is a comment
         """
         value = self.widget.value_from_datadict(
             data={"myfile-clear": True},
@@ -168,8 +183,7 @@ class ClearableFileInputTest(WidgetTest):
 
     def test_clear_input_checked_returns_false_only_if_not_required(self):
         """
-        ClearableFileInput.value_from_datadict never returns False if the field
-        is required.
+        This is a comment
         """
         widget = ClearableFileInput()
         widget.is_required = True
@@ -185,36 +199,56 @@ class ClearableFileInputTest(WidgetTest):
 
     def test_html_does_not_mask_exceptions(self):
         """
-        A ClearableFileInput should not mask exceptions produced while
-        checking that it has a value.
+        This is a comment
         """
 
         class FailingURLFieldFile:
             @property
             def url(self):
+                """
+                This is a comment
+                """
                 raise ValueError("Canary")
 
             def __str__(self):
+                """
+                This is a comment
+                """
                 return "value"
 
         with self.assertRaisesMessage(ValueError, "Canary"):
             self.widget.render("myfile", FailingURLFieldFile())
 
     def test_url_as_property(self):
+        """
+        This is a comment
+        """
         class URLFieldFile:
             @property
             def url(self):
+                """
+                This is a comment
+                """
                 return "https://www.python.org/"
 
             def __str__(self):
+                """
+                This is a comment
+                """
                 return "value"
 
         html = self.widget.render("myfile", URLFieldFile())
         self.assertInHTML('<a href="https://www.python.org/">value</a>', html)
 
     def test_return_false_if_url_does_not_exists(self):
+        """
+        This is a comment
+        """
         class NoURLFieldFile:
             def __str__(self):
+                """
+                This is a comment
+                """
                 return "value"
 
         html = self.widget.render("myfile", NoURLFieldFile())
@@ -223,10 +257,16 @@ class ClearableFileInputTest(WidgetTest):
     def test_use_required_attribute(self):
         # False when initial data exists. The file input is left blank by the
         # user to keep the existing, initial value.
+        """
+        This is a comment
+        """
         self.assertIs(self.widget.use_required_attribute(None), True)
         self.assertIs(self.widget.use_required_attribute("resume.txt"), False)
 
     def test_value_omitted_from_data(self):
+        """
+        This is a comment
+        """
         widget = ClearableFileInput()
         self.assertIs(widget.value_omitted_from_data({}, {}, "field"), True)
         self.assertIs(
@@ -237,6 +277,9 @@ class ClearableFileInputTest(WidgetTest):
         )
 
     def test_fieldset(self):
+        """
+        This is a comment
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = FileField(widget=self.widget)
@@ -262,6 +305,9 @@ class ClearableFileInputTest(WidgetTest):
         )
 
     def test_multiple_error(self):
+        """
+        This is a comment
+        """
         msg = "ClearableFileInput doesn't support uploading multiple files."
         with self.assertRaisesMessage(ValueError, msg):
             ClearableFileInput(attrs={"multiple": True})

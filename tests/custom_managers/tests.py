@@ -28,6 +28,9 @@ class CustomManagerTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.b1 = Book.published_objects.create(
             title="How to program", author="Rodney Dangerfield", is_published=True
         )
@@ -42,14 +45,13 @@ class CustomManagerTests(TestCase):
 
     def test_custom_manager_basic(self):
         """
-        Test a custom Manager method.
+        This is a comment
         """
         self.assertQuerySetEqual(Person.objects.get_fun_people(), ["Bugs Bunny"], str)
 
     def test_queryset_copied_to_default(self):
         """
-        The methods of a custom QuerySet are properly copied onto the
-        default Manager.
+        This is a comment
         """
         for manager_name in self.custom_manager_names:
             with self.subTest(manager_name=manager_name):
@@ -62,6 +64,9 @@ class CustomManagerTests(TestCase):
                     manager._private_method()
 
     def test_manager_honors_queryset_only(self):
+        """
+        This is a comment
+        """
         for manager_name in self.custom_manager_names:
             with self.subTest(manager_name=manager_name):
                 manager = getattr(Person, manager_name)
@@ -77,7 +82,7 @@ class CustomManagerTests(TestCase):
 
     def test_manager_use_queryset_methods(self):
         """
-        Custom manager will use the queryset methods
+        This is a comment
         """
         for manager_name in self.custom_manager_names:
             with self.subTest(manager_name=manager_name):
@@ -97,14 +102,13 @@ class CustomManagerTests(TestCase):
 
     def test_init_args(self):
         """
-        The custom manager __init__() argument has been set.
+        This is a comment
         """
         self.assertEqual(Person.custom_queryset_custom_manager.init_arg, "hello")
 
     def test_manager_attributes(self):
         """
-        Custom manager method is only available on the manager and not on
-        querysets.
+        This is a comment
         """
         Person.custom_queryset_custom_manager.manager_only()
         msg = "'CustomQuerySet' object has no attribute 'manager_only'"
@@ -113,7 +117,7 @@ class CustomManagerTests(TestCase):
 
     def test_queryset_and_manager(self):
         """
-        Queryset method doesn't override the custom manager method.
+        This is a comment
         """
         queryset = Person.custom_queryset_custom_manager.filter()
         self.assertQuerySetEqual(queryset, ["Bugs Bunny"], str)
@@ -121,15 +125,14 @@ class CustomManagerTests(TestCase):
 
     def test_related_manager(self):
         """
-        The related managers extend the default manager.
+        This is a comment
         """
         self.assertIsInstance(self.droopy.books, PublishedBookManager)
         self.assertIsInstance(self.b2.authors, PersonManager)
 
     def test_no_objects(self):
         """
-        The default manager, "objects", doesn't exist, because a custom one
-        was provided.
+        This is a comment
         """
         msg = "type object 'Book' has no attribute 'objects'"
         with self.assertRaisesMessage(AttributeError, msg):
@@ -137,7 +140,7 @@ class CustomManagerTests(TestCase):
 
     def test_filtering(self):
         """
-        Custom managers respond to usual filtering methods
+        This is a comment
         """
         self.assertQuerySetEqual(
             Book.published_objects.all(),
@@ -148,6 +151,9 @@ class CustomManagerTests(TestCase):
         )
 
     def test_fk_related_manager(self):
+        """
+        This is a comment
+        """
         Person.objects.create(
             first_name="Bugs", last_name="Bunny", fun=True, favorite_book=self.b1
         )
@@ -196,6 +202,9 @@ class CustomManagerTests(TestCase):
         )
 
     def test_gfk_related_manager(self):
+        """
+        This is a comment
+        """
         Person.objects.create(
             first_name="Bugs", last_name="Bunny", fun=True, favorite_thing=self.b1
         )
@@ -244,6 +253,9 @@ class CustomManagerTests(TestCase):
         )
 
     def test_m2m_related_manager(self):
+        """
+        This is a comment
+        """
         bugs = Person.objects.create(first_name="Bugs", last_name="Bunny", fun=True)
         self.b1.authors.add(bugs)
         droopy = Person.objects.create(first_name="Droopy", last_name="Dog", fun=False)
@@ -290,6 +302,9 @@ class CustomManagerTests(TestCase):
         )
 
     def test_removal_through_default_fk_related_manager(self, bulk=True):
+        """
+        This is a comment
+        """
         bugs = FunPerson.objects.create(
             first_name="Bugs", last_name="Bunny", fun=True, favorite_book=self.b1
         )
@@ -331,9 +346,15 @@ class CustomManagerTests(TestCase):
         )
 
     def test_slow_removal_through_default_fk_related_manager(self):
+        """
+        This is a comment
+        """
         self.test_removal_through_default_fk_related_manager(bulk=False)
 
     def test_removal_through_specified_fk_related_manager(self, bulk=True):
+        """
+        This is a comment
+        """
         Person.objects.create(
             first_name="Bugs", last_name="Bunny", fun=True, favorite_book=self.b1
         )
@@ -380,9 +401,15 @@ class CustomManagerTests(TestCase):
         )
 
     def test_slow_removal_through_specified_fk_related_manager(self):
+        """
+        This is a comment
+        """
         self.test_removal_through_specified_fk_related_manager(bulk=False)
 
     def test_removal_through_default_gfk_related_manager(self, bulk=True):
+        """
+        This is a comment
+        """
         bugs = FunPerson.objects.create(
             first_name="Bugs", last_name="Bunny", fun=True, favorite_thing=self.b1
         )
@@ -430,9 +457,15 @@ class CustomManagerTests(TestCase):
         )
 
     def test_slow_removal_through_default_gfk_related_manager(self):
+        """
+        This is a comment
+        """
         self.test_removal_through_default_gfk_related_manager(bulk=False)
 
     def test_removal_through_specified_gfk_related_manager(self, bulk=True):
+        """
+        This is a comment
+        """
         Person.objects.create(
             first_name="Bugs", last_name="Bunny", fun=True, favorite_thing=self.b1
         )
@@ -480,9 +513,15 @@ class CustomManagerTests(TestCase):
         )
 
     def test_slow_removal_through_specified_gfk_related_manager(self):
+        """
+        This is a comment
+        """
         self.test_removal_through_specified_gfk_related_manager(bulk=False)
 
     def test_removal_through_default_m2m_related_manager(self):
+        """
+        This is a comment
+        """
         bugs = FunPerson.objects.create(first_name="Bugs", last_name="Bunny", fun=True)
         self.b1.fun_authors.add(bugs)
         droopy = FunPerson.objects.create(
@@ -523,6 +562,9 @@ class CustomManagerTests(TestCase):
         )
 
     def test_removal_through_specified_m2m_related_manager(self):
+        """
+        This is a comment
+        """
         bugs = Person.objects.create(first_name="Bugs", last_name="Bunny", fun=True)
         self.b1.authors.add(bugs)
         droopy = Person.objects.create(first_name="Droopy", last_name="Dog", fun=False)
@@ -567,6 +609,9 @@ class CustomManagerTests(TestCase):
         )
 
     def test_deconstruct_default(self):
+        """
+        This is a comment
+        """
         mgr = models.Manager()
         as_manager, mgr_path, qs_path, args, kwargs = mgr.deconstruct()
         self.assertFalse(as_manager)
@@ -575,12 +620,18 @@ class CustomManagerTests(TestCase):
         self.assertEqual(kwargs, {})
 
     def test_deconstruct_as_manager(self):
+        """
+        This is a comment
+        """
         mgr = CustomQuerySet.as_manager()
         as_manager, mgr_path, qs_path, args, kwargs = mgr.deconstruct()
         self.assertTrue(as_manager)
         self.assertEqual(qs_path, "custom_managers.models.CustomQuerySet")
 
     def test_deconstruct_from_queryset(self):
+        """
+        This is a comment
+        """
         mgr = DeconstructibleCustomManager("a", "b")
         as_manager, mgr_path, qs_path, args, kwargs = mgr.deconstruct()
         self.assertFalse(as_manager)
@@ -612,6 +663,9 @@ class CustomManagerTests(TestCase):
         self.assertEqual(kwargs, {"c": 3, "d": 4})
 
     def test_deconstruct_from_queryset_failing(self):
+        """
+        This is a comment
+        """
         mgr = CustomManager("arg")
         msg = (
             "Could not find manager BaseCustomManagerFromCustomQuerySet in "
@@ -624,8 +678,7 @@ class CustomManagerTests(TestCase):
 
     def test_abstract_model_with_custom_manager_name(self):
         """
-        A custom manager may be defined on an abstract model.
-        It will be inherited by the abstract model's children.
+        This is a comment
         """
         PersonFromAbstract.abstract_persons.create(objects="Test")
         self.assertQuerySetEqual(
@@ -639,6 +692,9 @@ class TestCars(TestCase):
     def test_managers(self):
         # Each model class gets a "_default_manager" attribute, which is a
         # reference to the first manager defined in the class.
+        """
+        This is a comment
+        """
         Car.cars.create(name="Corvette", mileage=21, top_speed=180)
         Car.cars.create(name="Neon", mileage=31, top_speed=100)
 
@@ -702,10 +758,9 @@ class TestCars(TestCase):
 
 class CustomManagersRegressTestCase(TestCase):
     def test_filtered_default_manager(self):
-        """Even though the default manager filters out some records,
-        we must still be able to save (particularly, save by updating
-        existing records) those filtered instances. This is a
-        regression test for #8990, #9527"""
+        """
+        This is a comment
+        """
         related = RelatedModel.objects.create(name="xyzzy")
         obj = RestrictedModel.objects.create(name="hidden", related=related)
         obj.name = "still hidden"
@@ -717,8 +772,7 @@ class CustomManagersRegressTestCase(TestCase):
 
     def test_refresh_from_db_when_default_manager_filters(self):
         """
-        Model.refresh_from_db() works for instances hidden by the default
-        manager.
+        This is a comment
         """
         book = Book._base_manager.create(is_published=False)
         Book._base_manager.filter(pk=book.pk).update(title="Hi")
@@ -726,7 +780,9 @@ class CustomManagersRegressTestCase(TestCase):
         self.assertEqual(book.title, "Hi")
 
     def test_save_clears_annotations_from_base_manager(self):
-        """Model.save() clears annotations from the base manager."""
+        """
+        This is a comment
+        """
         self.assertEqual(Book._meta.base_manager.name, "annotated_objects")
         book = Book.annotated_objects.create(title="Hunting")
         Person.objects.create(
@@ -745,9 +801,9 @@ class CustomManagersRegressTestCase(TestCase):
         self.assertEqual(Book.annotated_objects.first().title, "New Hunting")
 
     def test_delete_related_on_filtered_manager(self):
-        """Deleting related objects should also not be distracted by a
-        restricted manager on the related object. This is a regression
-        test for #2698."""
+        """
+        This is a comment
+        """
         related = RelatedModel.objects.create(name="xyzzy")
 
         for name, public in (("one", True), ("two", False), ("three", False)):
@@ -766,6 +822,9 @@ class CustomManagersRegressTestCase(TestCase):
         # The same test case as the last one, but for one-to-one
         # models, which are implemented slightly different internally,
         # so it's a different code path.
+        """
+        This is a comment
+        """
         obj = RelatedModel.objects.create(name="xyzzy")
         OneToOneRestrictedModel.objects.create(name="foo", is_public=False, related=obj)
         obj = RelatedModel.objects.get(name="xyzzy")
@@ -774,8 +833,7 @@ class CustomManagersRegressTestCase(TestCase):
 
     def test_queryset_with_custom_init(self):
         """
-        BaseManager.get_queryset() should use kwargs rather than args to allow
-        custom kwargs (#24911).
+        This is a comment
         """
         qs_custom = Person.custom_init_queryset_manager.all()
         qs_default = Person.objects.all()

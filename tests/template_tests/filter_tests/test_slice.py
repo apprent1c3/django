@@ -8,6 +8,9 @@ from ..utils import setup
 class SliceTests(SimpleTestCase):
     @setup({"slice01": '{{ a|slice:"1:3" }} {{ b|slice:"1:3" }}'})
     def test_slice01(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "slice01", {"a": "a&b", "b": mark_safe("a&b")}
         )
@@ -22,6 +25,9 @@ class SliceTests(SimpleTestCase):
         }
     )
     def test_slice02(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "slice02", {"a": "a&b", "b": mark_safe("a&b")}
         )
@@ -30,29 +36,56 @@ class SliceTests(SimpleTestCase):
 
 class FunctionTests(SimpleTestCase):
     def test_zero_length(self):
+        """
+        This is a comment
+        """
         self.assertEqual(slice_filter("abcdefg", "0"), "")
 
     def test_index(self):
+        """
+        This is a comment
+        """
         self.assertEqual(slice_filter("abcdefg", "1"), "a")
 
     def test_index_integer(self):
+        """
+        This is a comment
+        """
         self.assertEqual(slice_filter("abcdefg", 1), "a")
 
     def test_negative_index(self):
+        """
+        This is a comment
+        """
         self.assertEqual(slice_filter("abcdefg", "-1"), "abcdef")
 
     def test_range(self):
+        """
+        This is a comment
+        """
         self.assertEqual(slice_filter("abcdefg", "1:2"), "b")
 
     def test_range_multiple(self):
+        """
+        This is a comment
+        """
         self.assertEqual(slice_filter("abcdefg", "1:3"), "bc")
 
     def test_range_step(self):
+        """
+        This is a comment
+        """
         self.assertEqual(slice_filter("abcdefg", "0::2"), "aceg")
 
     def test_fail_silently(self):
+        """
+        This is a comment
+        """
         obj = object()
         self.assertEqual(slice_filter(obj, "0::2"), obj)
 
     def test_empty_dict(self):
+        """
+        This is a comment
+        """
         self.assertEqual(slice_filter({}, "1"), {})

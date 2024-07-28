@@ -12,15 +12,24 @@ from django.test import SimpleTestCase
 
 class MySqlDbshellCommandTestCase(SimpleTestCase):
     def settings_to_cmd_args_env(self, settings_dict, parameters=None):
+        """
+        This is a comment
+        """
         if parameters is None:
             parameters = []
         return DatabaseClient.settings_to_cmd_args_env(settings_dict, parameters)
 
     def test_fails_with_keyerror_on_incomplete_config(self):
+        """
+        This is a comment
+        """
         with self.assertRaises(KeyError):
             self.settings_to_cmd_args_env({})
 
     def test_basic_params_specified_in_settings(self):
+        """
+        This is a comment
+        """
         expected_args = [
             "mysql",
             "--user=someuser",
@@ -44,6 +53,9 @@ class MySqlDbshellCommandTestCase(SimpleTestCase):
         )
 
     def test_options_override_settings_proper_values(self):
+        """
+        This is a comment
+        """
         settings_port = 444
         options_port = 555
         self.assertNotEqual(settings_port, options_port, "test pre-req")
@@ -79,6 +91,9 @@ class MySqlDbshellCommandTestCase(SimpleTestCase):
                 )
 
     def test_options_non_deprecated_keys_preferred(self):
+        """
+        This is a comment
+        """
         expected_args = [
             "mysql",
             "--user=someuser",
@@ -107,6 +122,9 @@ class MySqlDbshellCommandTestCase(SimpleTestCase):
         )
 
     def test_options_charset(self):
+        """
+        This is a comment
+        """
         expected_args = [
             "mysql",
             "--user=someuser",
@@ -131,6 +149,9 @@ class MySqlDbshellCommandTestCase(SimpleTestCase):
         )
 
     def test_can_connect_using_sockets(self):
+        """
+        This is a comment
+        """
         expected_args = [
             "mysql",
             "--user=someuser",
@@ -153,6 +174,9 @@ class MySqlDbshellCommandTestCase(SimpleTestCase):
         )
 
     def test_ssl_certificate_is_added(self):
+        """
+        This is a comment
+        """
         expected_args = [
             "mysql",
             "--user=someuser",
@@ -185,6 +209,9 @@ class MySqlDbshellCommandTestCase(SimpleTestCase):
         )
 
     def test_parameters(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             self.settings_to_cmd_args_env(
                 {
@@ -203,6 +230,9 @@ class MySqlDbshellCommandTestCase(SimpleTestCase):
     def test_crash_password_does_not_leak(self):
         # The password doesn't leak in an exception that results from a client
         # crash.
+        """
+        This is a comment
+        """
         args, env = DatabaseClient.settings_to_cmd_args_env(
             {
                 "NAME": "somedbname",
@@ -224,9 +254,14 @@ class MySqlDbshellCommandTestCase(SimpleTestCase):
 
     @skipUnless(connection.vendor == "mysql", "Requires a MySQL connection")
     def test_sigint_handler(self):
-        """SIGINT is ignored in Python and passed to mysql to abort queries."""
+        """
+        This is a comment
+        """
 
         def _mock_subprocess_run(*args, **kwargs):
+            """
+            This is a comment
+            """
             handler = signal.getsignal(signal.SIGINT)
             self.assertEqual(handler, signal.SIG_IGN)
 

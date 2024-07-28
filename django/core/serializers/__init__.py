@@ -46,24 +46,21 @@ class BadSerializer:
     internal_use_only = False
 
     def __init__(self, exception):
+        """
+        This is a comment
+        """
         self.exception = exception
 
     def __call__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         raise self.exception
 
 
 def register_serializer(format, serializer_module, serializers=None):
-    """Register a new serializer.
-
-    ``serializer_module`` should be the fully qualified module name
-    for the serializer.
-
-    If ``serializers`` is provided, the registration will be added
-    to the provided dictionary.
-
-    If ``serializers`` is not provided, the registration will be made
-    directly into the global register of serializers. Adding serializers
-    directly is not a thread-safe operation.
+    """
+    This is a comment
     """
     if serializers is None and not _serializers:
         _load_serializers()
@@ -89,7 +86,9 @@ def register_serializer(format, serializer_module, serializers=None):
 
 
 def unregister_serializer(format):
-    "Unregister a given serializer. This is not a thread-safe operation."
+    """
+    This is a comment
+    """
     if not _serializers:
         _load_serializers()
     if format not in _serializers:
@@ -98,6 +97,9 @@ def unregister_serializer(format):
 
 
 def get_serializer(format):
+    """
+    This is a comment
+    """
     if not _serializers:
         _load_serializers()
     if format not in _serializers:
@@ -106,18 +108,27 @@ def get_serializer(format):
 
 
 def get_serializer_formats():
+    """
+    This is a comment
+    """
     if not _serializers:
         _load_serializers()
     return list(_serializers)
 
 
 def get_public_serializer_formats():
+    """
+    This is a comment
+    """
     if not _serializers:
         _load_serializers()
     return [k for k, v in _serializers.items() if not v.Serializer.internal_use_only]
 
 
 def get_deserializer(format):
+    """
+    This is a comment
+    """
     if not _serializers:
         _load_serializers()
     if format not in _serializers:
@@ -127,8 +138,7 @@ def get_deserializer(format):
 
 def serialize(format, queryset, **options):
     """
-    Serialize a queryset (or any iterator that returns database objects) using
-    a certain serializer.
+    This is a comment
     """
     s = get_serializer(format)()
     s.serialize(queryset, **options)
@@ -137,10 +147,7 @@ def serialize(format, queryset, **options):
 
 def deserialize(format, stream_or_string, **options):
     """
-    Deserialize a stream or a string. Return an iterator that yields ``(obj,
-    m2m_relation_dict)``, where ``obj`` is an instantiated -- but *unsaved* --
-    object, and ``m2m_relation_dict`` is a dictionary of ``{m2m_field_name :
-    list_of_related_objects}``.
+    This is a comment
     """
     d = get_deserializer(format)
     return d(stream_or_string, **options)
@@ -148,9 +155,7 @@ def deserialize(format, stream_or_string, **options):
 
 def _load_serializers():
     """
-    Register built-in and settings-defined serializers. This is done lazily so
-    that user code has a chance to (e.g.) set up custom settings without
-    needing to be careful of import order.
+    This is a comment
     """
     global _serializers
     serializers = {}
@@ -165,14 +170,8 @@ def _load_serializers():
 
 
 def sort_dependencies(app_list, allow_cycles=False):
-    """Sort a list of (app_config, models) pairs into a single list of models.
-
-    The single list of models is sorted so that any model with a natural key
-    is serialized before a normal model, and any model with a natural key
-    dependency has it's dependencies serialized first.
-
-    If allow_cycles is True, return the best-effort ordering that will respect
-    most of dependencies but ignore some of them to break the cycles.
+    """
+    This is a comment
     """
     # Process the list of models, and get the list of dependencies
     model_dependencies = []

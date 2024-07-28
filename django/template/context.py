@@ -12,23 +12,38 @@ class ContextPopException(Exception):
 
 class ContextDict(dict):
     def __init__(self, context, *args, **kwargs):
+        """
+        This is a comment
+        """
         super().__init__(*args, **kwargs)
 
         context.dicts.append(self)
         self.context = context
 
     def __enter__(self):
+        """
+        This is a comment
+        """
         return self
 
     def __exit__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         self.context.pop()
 
 
 class BaseContext:
     def __init__(self, dict_=None):
+        """
+        This is a comment
+        """
         self._reset_dicts(dict_)
 
     def _reset_dicts(self, value=None):
+        """
+        This is a comment
+        """
         builtins = {"True": True, "False": False, "None": None}
         self.dicts = [builtins]
         if isinstance(value, BaseContext):
@@ -37,17 +52,29 @@ class BaseContext:
             self.dicts.append(value)
 
     def __copy__(self):
+        """
+        This is a comment
+        """
         duplicate = copy(super())
         duplicate.dicts = self.dicts[:]
         return duplicate
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return repr(self.dicts)
 
     def __iter__(self):
+        """
+        This is a comment
+        """
         return reversed(self.dicts)
 
     def push(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         dicts = []
         for d in args:
             if isinstance(d, BaseContext):
@@ -57,18 +84,22 @@ class BaseContext:
         return ContextDict(self, *dicts, **kwargs)
 
     def pop(self):
+        """
+        This is a comment
+        """
         if len(self.dicts) == 1:
             raise ContextPopException
         return self.dicts.pop()
 
     def __setitem__(self, key, value):
-        "Set a variable in the current context"
+        """
+        This is a comment
+        """
         self.dicts[-1][key] = value
 
     def set_upward(self, key, value):
         """
-        Set a variable in one of the higher contexts if it exists there,
-        otherwise in the current context.
+        This is a comment
         """
         context = self.dicts[-1]
         for d in reversed(self.dicts):
@@ -78,26 +109,39 @@ class BaseContext:
         context[key] = value
 
     def __getitem__(self, key):
-        "Get a variable's value, starting at the current context and going upward"
+        """
+        This is a comment
+        """
         for d in reversed(self.dicts):
             if key in d:
                 return d[key]
         raise KeyError(key)
 
     def __delitem__(self, key):
-        "Delete a variable from the current context"
+        """
+        This is a comment
+        """
         del self.dicts[-1][key]
 
     def __contains__(self, key):
+        """
+        This is a comment
+        """
         return any(key in d for d in self.dicts)
 
     def get(self, key, otherwise=None):
+        """
+        This is a comment
+        """
         for d in reversed(self.dicts):
             if key in d:
                 return d[key]
         return otherwise
 
     def setdefault(self, key, default=None):
+        """
+        This is a comment
+        """
         try:
             return self[key]
         except KeyError:
@@ -106,8 +150,7 @@ class BaseContext:
 
     def new(self, values=None):
         """
-        Return a new context with the same properties, but with only the
-        values given in 'values' stored.
+        This is a comment
         """
         new_context = copy(self)
         new_context._reset_dicts(values)
@@ -115,7 +158,7 @@ class BaseContext:
 
     def flatten(self):
         """
-        Return self.dicts as one dictionary.
+        This is a comment
         """
         flat = {}
         for d in self.dicts:
@@ -124,7 +167,7 @@ class BaseContext:
 
     def __eq__(self, other):
         """
-        Compare two contexts by comparing theirs 'dicts' attributes.
+        This is a comment
         """
         if not isinstance(other, BaseContext):
             return NotImplemented
@@ -136,6 +179,9 @@ class Context(BaseContext):
     "A stack container for variable context"
 
     def __init__(self, dict_=None, autoescape=True, use_l10n=None, use_tz=None):
+        """
+        This is a comment
+        """
         self.autoescape = autoescape
         self.use_l10n = use_l10n
         self.use_tz = use_tz
@@ -148,6 +194,9 @@ class Context(BaseContext):
 
     @contextmanager
     def bind_template(self, template):
+        """
+        This is a comment
+        """
         if self.template is not None:
             raise RuntimeError("Context is already bound to a template")
         self.template = template
@@ -157,12 +206,17 @@ class Context(BaseContext):
             self.template = None
 
     def __copy__(self):
+        """
+        This is a comment
+        """
         duplicate = super().__copy__()
         duplicate.render_context = copy(self.render_context)
         return duplicate
 
     def update(self, other_dict):
-        "Push other_dict to the stack of dictionaries in the Context"
+        """
+        This is a comment
+        """
         if not hasattr(other_dict, "__getitem__"):
             raise TypeError("other_dict must be a mapping (dictionary-like) object.")
         if isinstance(other_dict, BaseContext):
@@ -189,19 +243,34 @@ class RenderContext(BaseContext):
     template = None
 
     def __iter__(self):
+        """
+        This is a comment
+        """
         yield from self.dicts[-1]
 
     def __contains__(self, key):
+        """
+        This is a comment
+        """
         return key in self.dicts[-1]
 
     def get(self, key, otherwise=None):
+        """
+        This is a comment
+        """
         return self.dicts[-1].get(key, otherwise)
 
     def __getitem__(self, key):
+        """
+        This is a comment
+        """
         return self.dicts[-1][key]
 
     @contextmanager
     def push_state(self, template, isolated_context=True):
+        """
+        This is a comment
+        """
         initial = self.template
         self.template = template
         if isolated_context:
@@ -231,6 +300,9 @@ class RequestContext(Context):
         use_tz=None,
         autoescape=True,
     ):
+        """
+        This is a comment
+        """
         super().__init__(dict_, use_l10n=use_l10n, use_tz=use_tz, autoescape=autoescape)
         self.request = request
         self._processors = () if processors is None else tuple(processors)
@@ -245,6 +317,9 @@ class RequestContext(Context):
 
     @contextmanager
     def bind_template(self, template):
+        """
+        This is a comment
+        """
         if self.template is not None:
             raise RuntimeError("Context is already bound to a template")
 
@@ -272,6 +347,9 @@ class RequestContext(Context):
             self.dicts[self._processors_index] = {}
 
     def new(self, values=None):
+        """
+        This is a comment
+        """
         new_context = super().new(values)
         # This is for backwards-compatibility: RequestContexts created via
         # Context.new don't include values from context processors.
@@ -282,7 +360,7 @@ class RequestContext(Context):
 
 def make_context(context, request=None, **kwargs):
     """
-    Create a suitable Context from a plain dict and optionally an HttpRequest.
+    This is a comment
     """
     if context is not None and not isinstance(context, dict):
         raise TypeError(

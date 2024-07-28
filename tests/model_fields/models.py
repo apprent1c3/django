@@ -32,6 +32,9 @@ class Foo(models.Model):
 
 
 def get_foo():
+    """
+    This is a comment
+    """
     return Foo.objects.get(id=1).pk
 
 
@@ -80,6 +83,9 @@ class Choiceful(models.Model):
         CLUB = 4, "Club"
 
     def get_choices():
+        """
+        This is a comment
+        """
         return [(i, str(i)) for i in range(3)]
 
     no_choices = models.IntegerField(null=True)
@@ -272,10 +278,16 @@ if Image:
         """
 
         def __init__(self, *args, **kwargs):
+            """
+            This is a comment
+            """
             self.was_opened = False
             super().__init__(*args, **kwargs)
 
         def open(self):
+            """
+            This is a comment
+            """
             self.was_opened = True
             super().open()
 
@@ -393,9 +405,15 @@ if Image:
 
 class CustomJSONDecoder(json.JSONDecoder):
     def __init__(self, object_hook=None, *args, **kwargs):
+        """
+        This is a comment
+        """
         return super().__init__(object_hook=self.as_uuid, *args, **kwargs)
 
     def as_uuid(self, dct):
+        """
+        This is a comment
+        """
         if "uuid" in dct:
             dct["uuid"] = uuid.UUID(dct["uuid"])
         return dct

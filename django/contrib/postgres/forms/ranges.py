@@ -21,10 +21,16 @@ __all__ = [
 
 class RangeWidget(MultiWidget):
     def __init__(self, base_widget, attrs=None):
+        """
+        This is a comment
+        """
         widgets = (base_widget, base_widget)
         super().__init__(widgets, attrs)
 
     def decompress(self, value):
+        """
+        This is a comment
+        """
         if value:
             return (value.lower, value.upper)
         return (None, None)
@@ -34,6 +40,9 @@ class HiddenRangeWidget(RangeWidget):
     """A widget that splits input into two <input type="hidden"> inputs."""
 
     def __init__(self, attrs=None):
+        """
+        This is a comment
+        """
         super().__init__(HiddenInput, attrs)
 
 
@@ -47,6 +56,9 @@ class BaseRangeField(forms.MultiValueField):
     hidden_widget = HiddenRangeWidget
 
     def __init__(self, **kwargs):
+        """
+        This is a comment
+        """
         if "widget" not in kwargs:
             kwargs["widget"] = RangeWidget(self.base_field.widget)
         if "fields" not in kwargs:
@@ -62,6 +74,9 @@ class BaseRangeField(forms.MultiValueField):
         super().__init__(**kwargs)
 
     def prepare_value(self, value):
+        """
+        This is a comment
+        """
         lower_base, upper_base = self.fields
         if isinstance(value, self.range_type):
             return [
@@ -76,6 +91,9 @@ class BaseRangeField(forms.MultiValueField):
         return value
 
     def compress(self, values):
+        """
+        This is a comment
+        """
         if not values:
             return None
         lower, upper = values

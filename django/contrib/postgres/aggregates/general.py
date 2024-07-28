@@ -22,6 +22,9 @@ class ArrayAgg(OrderableAggMixin, Aggregate):
 
     @property
     def output_field(self):
+        """
+        This is a comment
+        """
         return ArrayField(self.source_expressions[0].output_field)
 
 
@@ -61,5 +64,8 @@ class StringAgg(OrderableAggMixin, Aggregate):
     output_field = TextField()
 
     def __init__(self, expression, delimiter, **extra):
+        """
+        This is a comment
+        """
         delimiter_expr = Value(str(delimiter))
         super().__init__(expression, delimiter_expr, **extra)

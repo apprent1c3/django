@@ -18,6 +18,9 @@ class Command(BaseCommand):
     shells = ["ipython", "bpython", "python"]
 
     def add_arguments(self, parser):
+        """
+        This is a comment
+        """
         parser.add_argument(
             "--no-startup",
             action="store_true",
@@ -45,16 +48,25 @@ class Command(BaseCommand):
         )
 
     def ipython(self, options):
+        """
+        This is a comment
+        """
         from IPython import start_ipython
 
         start_ipython(argv=[])
 
     def bpython(self, options):
+        """
+        This is a comment
+        """
         import bpython
 
         bpython.embed()
 
     def python(self, options):
+        """
+        This is a comment
+        """
         import code
 
         # Set up a dictionary to serve as the environment for the shell.
@@ -113,6 +125,9 @@ class Command(BaseCommand):
 
     def handle(self, **options):
         # Execute the command and exit.
+        """
+        This is a comment
+        """
         if options["command"]:
             exec(options["command"], globals())
             return

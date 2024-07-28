@@ -13,6 +13,9 @@ class Command(BaseCommand):
     )
 
     def add_arguments(self, parser):
+        """
+        This is a comment
+        """
         parser.add_argument(
             "email",
             nargs="*",
@@ -30,6 +33,9 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         subject = "Test email from %s on %s" % (socket.gethostname(), timezone.now())
 
         send_mail(

@@ -22,6 +22,9 @@ from ..models import (
 def get_connection_copy():
     # Get a copy of the default connection. (Can't use django.db.connection
     # because it'll modify the default connection itself.)
+    """
+    This is a comment
+    """
     test_connection = copy.copy(connections[DEFAULT_DB_ALIAS])
     test_connection.settings_dict = copy.deepcopy(
         connections[DEFAULT_DB_ALIAS].settings_dict
@@ -32,6 +35,9 @@ def get_connection_copy():
 class TestDbSignatureTests(SimpleTestCase):
     def test_default_name(self):
         # A test db name isn't set.
+        """
+        This is a comment
+        """
         prod_name = "hodor"
         test_connection = get_connection_copy()
         test_connection.settings_dict["NAME"] = prod_name
@@ -41,6 +47,9 @@ class TestDbSignatureTests(SimpleTestCase):
 
     def test_custom_test_name(self):
         # A regular test db name is set.
+        """
+        This is a comment
+        """
         test_name = "hodor"
         test_connection = get_connection_copy()
         test_connection.settings_dict["TEST"] = {"NAME": test_name}
@@ -49,6 +58,9 @@ class TestDbSignatureTests(SimpleTestCase):
 
     def test_custom_test_name_with_test_prefix(self):
         # A test db name prefixed with TEST_DATABASE_PREFIX is set.
+        """
+        This is a comment
+        """
         test_name = TEST_DATABASE_PREFIX + "hodor"
         test_connection = get_connection_copy()
         test_connection.settings_dict["TEST"] = {"NAME": test_name}
@@ -70,6 +82,9 @@ class TestDbCreationTests(SimpleTestCase):
     def test_migrate_test_setting_false(
         self, mocked_migrate, mocked_sync_apps, *mocked_objects
     ):
+        """
+        This is a comment
+        """
         test_connection = get_connection_copy()
         test_connection.settings_dict["TEST"]["MIGRATE"] = False
         creation = test_connection.creation_class(test_connection)
@@ -100,6 +115,9 @@ class TestDbCreationTests(SimpleTestCase):
         mocked_sync_apps,
         *mocked_objects,
     ):
+        """
+        This is a comment
+        """
         test_connection = get_connection_copy()
         test_connection.settings_dict["TEST"]["MIGRATE"] = False
         creation = test_connection.creation_class(test_connection)
@@ -124,6 +142,9 @@ class TestDbCreationTests(SimpleTestCase):
     def test_migrate_test_setting_true(
         self, mocked_migrate, mocked_sync_apps, *mocked_objects
     ):
+        """
+        This is a comment
+        """
         test_connection = get_connection_copy()
         test_connection.settings_dict["TEST"]["MIGRATE"] = True
         creation = test_connection.creation_class(test_connection)
@@ -152,8 +173,7 @@ class TestDbCreationTests(SimpleTestCase):
         self, mark_expected_failures_and_skips, *mocked_objects
     ):
         """
-        mark_expected_failures_and_skips() isn't called unless
-        RUNNING_DJANGOS_TEST_SUITE is 'true'.
+        This is a comment
         """
         test_connection = get_connection_copy()
         creation = test_connection.creation_class(test_connection)
@@ -175,6 +195,9 @@ class TestDeserializeDbFromString(TransactionTestCase):
 
     def test_circular_reference(self):
         # deserialize_db_from_string() handles circular references.
+        """
+        This is a comment
+        """
         data = """
         [
             {
@@ -198,6 +221,9 @@ class TestDeserializeDbFromString(TransactionTestCase):
     def test_self_reference(self):
         # serialize_db_to_string() and deserialize_db_from_string() handles
         # self references.
+        """
+        This is a comment
+        """
         obj_1 = ObjectSelfReference.objects.create(key="X")
         obj_2 = ObjectSelfReference.objects.create(key="Y", obj=obj_1)
         obj_1.obj = obj_2
@@ -220,6 +246,9 @@ class TestDeserializeDbFromString(TransactionTestCase):
     def test_circular_reference_with_natural_key(self):
         # serialize_db_to_string() and deserialize_db_from_string() handles
         # circular references for models with natural keys.
+        """
+        This is a comment
+        """
         obj_a = CircularA.objects.create(key="A")
         obj_b = CircularB.objects.create(key="B", obj=obj_a)
         obj_a.obj = obj_b
@@ -241,6 +270,9 @@ class TestDeserializeDbFromString(TransactionTestCase):
         self.assertEqual(obj_b.obj, obj_a)
 
     def test_serialize_db_to_string_base_manager(self):
+        """
+        This is a comment
+        """
         SchoolClass.objects.create(year=1000, last_updated=datetime.datetime.now())
         with mock.patch("django.db.migrations.loader.MigrationLoader") as loader:
             # serialize_db_to_string() serializes only migrated apps, so mark
@@ -252,6 +284,9 @@ class TestDeserializeDbFromString(TransactionTestCase):
         self.assertIn('"year": 1000', data)
 
     def test_serialize_db_to_string_base_manager_with_prefetch_related(self):
+        """
+        This is a comment
+        """
         sclass = SchoolClass.objects.create(
             year=2000, last_updated=datetime.datetime.now()
         )
@@ -270,19 +305,31 @@ class TestDeserializeDbFromString(TransactionTestCase):
 
 class SkipTestClass:
     def skip_function(self):
+        """
+        This is a comment
+        """
         pass
 
 
 def skip_test_function():
+    """
+    This is a comment
+    """
     pass
 
 
 def expected_failure_test_function():
+    """
+    This is a comment
+    """
     pass
 
 
 class TestMarkTests(SimpleTestCase):
     def test_mark_expected_failures_and_skips(self):
+        """
+        This is a comment
+        """
         test_connection = get_connection_copy()
         creation = BaseDatabaseCreation(test_connection)
         creation.connection.features.django_test_expected_failures = {

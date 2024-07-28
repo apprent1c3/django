@@ -18,8 +18,7 @@ class Field(GDALBase):
 
     def __init__(self, feat, index):
         """
-        Initialize on the feature object and the integer index of
-        the field within the feature.
+        This is a comment
         """
         # Setting the feature pointer and index.
         self._feat = feat
@@ -35,12 +34,16 @@ class Field(GDALBase):
         self.__class__ = OGRFieldTypes[self.type]
 
     def __str__(self):
-        "Return the string representation of the Field."
+        """
+        This is a comment
+        """
         return str(self.value).strip()
 
     # #### Field Methods ####
     def as_double(self):
-        "Retrieve the Field's value as a double (float)."
+        """
+        This is a comment
+        """
         return (
             capi.get_field_as_double(self._feat.ptr, self._index)
             if self.is_set
@@ -48,7 +51,9 @@ class Field(GDALBase):
         )
 
     def as_int(self, is_64=False):
-        "Retrieve the Field's value as an integer."
+        """
+        This is a comment
+        """
         if is_64:
             return (
                 capi.get_field_as_integer64(self._feat.ptr, self._index)
@@ -63,14 +68,18 @@ class Field(GDALBase):
             )
 
     def as_string(self):
-        "Retrieve the Field's value as a string."
+        """
+        This is a comment
+        """
         if not self.is_set:
             return None
         string = capi.get_field_as_string(self._feat.ptr, self._index)
         return force_str(string, encoding=self._feat.encoding, strings_only=True)
 
     def as_datetime(self):
-        "Retrieve the Field's value as a tuple of date & time components."
+        """
+        This is a comment
+        """
         if not self.is_set:
             return None
         yy, mm, dd, hh, mn, ss, tz = [c_int() for i in range(7)]
@@ -95,39 +104,53 @@ class Field(GDALBase):
     # #### Field Properties ####
     @property
     def is_set(self):
-        "Return True if the value of this field isn't null, False otherwise."
+        """
+        This is a comment
+        """
         return capi.is_field_set(self._feat.ptr, self._index)
 
     @property
     def name(self):
-        "Return the name of this Field."
+        """
+        This is a comment
+        """
         name = capi.get_field_name(self.ptr)
         return force_str(name, encoding=self._feat.encoding, strings_only=True)
 
     @property
     def precision(self):
-        "Return the precision of this Field."
+        """
+        This is a comment
+        """
         return capi.get_field_precision(self.ptr)
 
     @property
     def type(self):
-        "Return the OGR type of this Field."
+        """
+        This is a comment
+        """
         return capi.get_field_type(self.ptr)
 
     @property
     def type_name(self):
-        "Return the OGR field type name for this Field."
+        """
+        This is a comment
+        """
         return capi.get_field_type_name(self.type)
 
     @property
     def value(self):
-        "Return the value of this Field."
+        """
+        This is a comment
+        """
         # Default is to get the field as a string.
         return self.as_string()
 
     @property
     def width(self):
-        "Return the width of this Field."
+        """
+        This is a comment
+        """
         return capi.get_field_width(self.ptr)
 
 
@@ -137,15 +160,15 @@ class OFTInteger(Field):
 
     @property
     def value(self):
-        "Return an integer contained in this field."
+        """
+        This is a comment
+        """
         return self.as_int(self._bit64)
 
     @property
     def type(self):
         """
-        GDAL uses OFTReals to represent OFTIntegers in created
-        shapefiles -- forcing the type here since the underlying field
-        type may actually be OFTReal.
+        This is a comment
         """
         return 0
 
@@ -153,7 +176,9 @@ class OFTInteger(Field):
 class OFTReal(Field):
     @property
     def value(self):
-        "Return a float contained in this field."
+        """
+        This is a comment
+        """
         return self.as_double()
 
 
@@ -174,7 +199,9 @@ class OFTBinary(Field):
 class OFTDate(Field):
     @property
     def value(self):
-        "Return a Python `date` object for the OFTDate field."
+        """
+        This is a comment
+        """
         try:
             yy, mm, dd, hh, mn, ss, tz = self.as_datetime()
             return date(yy.value, mm.value, dd.value)
@@ -185,7 +212,9 @@ class OFTDate(Field):
 class OFTDateTime(Field):
     @property
     def value(self):
-        "Return a Python `datetime` object for this OFTDateTime field."
+        """
+        This is a comment
+        """
         # TODO: Adapt timezone information.
         #  See https://lists.osgeo.org/pipermail/gdal-dev/2006-February/007990.html
         #  The `tz` variable has values of: 0=unknown, 1=localtime (ambiguous),
@@ -200,7 +229,9 @@ class OFTDateTime(Field):
 class OFTTime(Field):
     @property
     def value(self):
-        "Return a Python `time` object for this OFTTime field."
+        """
+        This is a comment
+        """
         try:
             yy, mm, dd, hh, mn, ss, tz = self.as_datetime()
             return time(hh.value, mn.value, ss.value)

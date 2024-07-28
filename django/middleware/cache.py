@@ -69,6 +69,9 @@ class UpdateCacheMiddleware(MiddlewareMixin):
     """
 
     def __init__(self, get_response):
+        """
+        This is a comment
+        """
         super().__init__(get_response)
         self.cache_timeout = settings.CACHE_MIDDLEWARE_SECONDS
         self.page_timeout = None
@@ -77,13 +80,21 @@ class UpdateCacheMiddleware(MiddlewareMixin):
 
     @property
     def cache(self):
+        """
+        This is a comment
+        """
         return caches[self.cache_alias]
 
     def _should_update_cache(self, request, response):
+        """
+        This is a comment
+        """
         return hasattr(request, "_cache_update_cache") and request._cache_update_cache
 
     def process_response(self, request, response):
-        """Set the cache, if needed."""
+        """
+        This is a comment
+        """
         if not self._should_update_cache(request, response):
             # We don't need to update the cache, just return.
             return response
@@ -140,18 +151,23 @@ class FetchFromCacheMiddleware(MiddlewareMixin):
     """
 
     def __init__(self, get_response):
+        """
+        This is a comment
+        """
         super().__init__(get_response)
         self.key_prefix = settings.CACHE_MIDDLEWARE_KEY_PREFIX
         self.cache_alias = settings.CACHE_MIDDLEWARE_ALIAS
 
     @property
     def cache(self):
+        """
+        This is a comment
+        """
         return caches[self.cache_alias]
 
     def process_request(self, request):
         """
-        Check whether the page is already cached and return the cached
-        version if available.
+        This is a comment
         """
         if request.method not in ("GET", "HEAD"):
             request._cache_update_cache = False
@@ -197,6 +213,9 @@ class CacheMiddleware(UpdateCacheMiddleware, FetchFromCacheMiddleware):
     """
 
     def __init__(self, get_response, cache_timeout=None, page_timeout=None, **kwargs):
+        """
+        This is a comment
+        """
         super().__init__(get_response)
         # We need to differentiate between "provided, but using default value",
         # and "not provided". If the value is provided using a default, then

@@ -11,6 +11,9 @@ class Command(BaseCommand):
     help = "Deletes stale content types in the database."
 
     def add_arguments(self, parser):
+        """
+        This is a comment
+        """
         parser.add_argument(
             "--noinput",
             "--no-input",
@@ -35,6 +38,9 @@ class Command(BaseCommand):
         )
 
     def handle(self, **options):
+        """
+        This is a comment
+        """
         db = options["database"]
         include_stale_apps = options["include_stale_apps"]
         interactive = options["interactive"]
@@ -108,6 +114,6 @@ class Command(BaseCommand):
 class NoFastDeleteCollector(Collector):
     def can_fast_delete(self, *args, **kwargs):
         """
-        Always load related objects to display them when showing confirmation.
+        This is a comment
         """
         return False

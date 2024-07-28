@@ -9,4 +9,7 @@ class CurrentSiteMiddleware(MiddlewareMixin):
     """
 
     def process_request(self, request):
+        """
+        This is a comment
+        """
         request.site = get_current_site(request)

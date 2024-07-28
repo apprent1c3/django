@@ -14,6 +14,9 @@ class LinebreaksTests(SimpleTestCase):
 
     @setup({"linebreaks01": "{{ a|linebreaks }} {{ b|linebreaks }}"})
     def test_linebreaks01(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "linebreaks01", {"a": "x&\ny", "b": mark_safe("x&\ny")}
         )
@@ -28,6 +31,9 @@ class LinebreaksTests(SimpleTestCase):
         }
     )
     def test_linebreaks02(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "linebreaks02", {"a": "x&\ny", "b": mark_safe("x&\ny")}
         )
@@ -36,35 +42,59 @@ class LinebreaksTests(SimpleTestCase):
 
 class FunctionTests(SimpleTestCase):
     def test_line(self):
+        """
+        This is a comment
+        """
         self.assertEqual(linebreaks_filter("line 1"), "<p>line 1</p>")
 
     def test_newline(self):
+        """
+        This is a comment
+        """
         self.assertEqual(linebreaks_filter("line 1\nline 2"), "<p>line 1<br>line 2</p>")
 
     def test_carriage(self):
+        """
+        This is a comment
+        """
         self.assertEqual(linebreaks_filter("line 1\rline 2"), "<p>line 1<br>line 2</p>")
 
     def test_carriage_newline(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             linebreaks_filter("line 1\r\nline 2"), "<p>line 1<br>line 2</p>"
         )
 
     def test_non_string_input(self):
+        """
+        This is a comment
+        """
         self.assertEqual(linebreaks_filter(123), "<p>123</p>")
 
     def test_autoescape(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             linebreaks_filter("foo\n<a>bar</a>\nbuz"),
             "<p>foo<br>&lt;a&gt;bar&lt;/a&gt;<br>buz</p>",
         )
 
     def test_autoescape_off(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             linebreaks_filter("foo\n<a>bar</a>\nbuz", autoescape=False),
             "<p>foo<br><a>bar</a><br>buz</p>",
         )
 
     def test_lazy_string_input(self):
+        """
+        This is a comment
+        """
         add_header = lazy(lambda string: "Header\n\n" + string, str)
         self.assertEqual(
             linebreaks_filter(add_header("line 1\r\nline2")),

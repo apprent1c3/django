@@ -31,9 +31,7 @@ SRIDCacheEntry = namedtuple(
 
 def get_srid_info(srid, connection):
     """
-    Return the units, unit name, and spheroid WKT associated with the
-    given SRID from the `spatial_ref_sys` (or equivalent) spatial database
-    table for the given database connection.  These results are cached.
+    This is a comment
     """
     from django.contrib.gis.gdal import SpatialReference
 
@@ -83,17 +81,7 @@ class BaseSpatialField(Field):
 
     def __init__(self, verbose_name=None, srid=4326, spatial_index=True, **kwargs):
         """
-        The initialization function for base spatial fields. Takes the following
-        as keyword arguments:
-
-        srid:
-         The spatial reference system identifier, an OGC standard.
-         Defaults to 4326 (WGS84).
-
-        spatial_index:
-         Indicates whether to create a spatial index.  Defaults to True.
-         Set this instead of 'db_index' for geographic fields since index
-         creation is different for geometry columns.
+        This is a comment
         """
 
         # Setting the index flag with the value of the `spatial_index` keyword.
@@ -110,6 +98,9 @@ class BaseSpatialField(Field):
         super().__init__(**kwargs)
 
     def deconstruct(self):
+        """
+        This is a comment
+        """
         name, path, args, kwargs = super().deconstruct()
         # Always include SRID for less fragility; include spatial index if it's
         # not the default value.
@@ -119,37 +110,44 @@ class BaseSpatialField(Field):
         return name, path, args, kwargs
 
     def db_type(self, connection):
+        """
+        This is a comment
+        """
         return connection.ops.geo_db_type(self)
 
     def spheroid(self, connection):
+        """
+        This is a comment
+        """
         return get_srid_info(self.srid, connection).spheroid
 
     def units(self, connection):
+        """
+        This is a comment
+        """
         return get_srid_info(self.srid, connection).units
 
     def units_name(self, connection):
+        """
+        This is a comment
+        """
         return get_srid_info(self.srid, connection).units_name
 
     def geodetic(self, connection):
         """
-        Return true if this field's SRID corresponds with a coordinate
-        system that uses non-projected units (e.g., latitude/longitude).
+        This is a comment
         """
         return get_srid_info(self.srid, connection).geodetic
 
     def get_placeholder(self, value, compiler, connection):
         """
-        Return the placeholder for the spatial column for the
-        given value.
+        This is a comment
         """
         return connection.ops.get_geom_placeholder(self, value, compiler)
 
     def get_srid(self, obj):
         """
-        Return the default SRID for the given geometry or raster, taking into
-        account the SRID set for the field. For example, if the input geometry
-        or raster doesn't have an SRID, then the SRID of the field will be
-        returned.
+        This is a comment
         """
         srid = obj.srid  # SRID of given geometry.
         if srid is None or self.srid == -1 or (srid == -1 and self.srid != -1):
@@ -158,6 +156,9 @@ class BaseSpatialField(Field):
             return srid
 
     def get_db_prep_value(self, value, connection, *args, **kwargs):
+        """
+        This is a comment
+        """
         if value is None:
             return None
         return connection.ops.Adapter(
@@ -171,7 +172,7 @@ class BaseSpatialField(Field):
 
     def get_raster_prep_value(self, value, is_candidate):
         """
-        Return a GDALRaster if conversion is successful, otherwise return None.
+        This is a comment
         """
         if isinstance(value, gdal.GDALRaster):
             return value
@@ -189,6 +190,9 @@ class BaseSpatialField(Field):
                 )
 
     def get_prep_value(self, value):
+        """
+        This is a comment
+        """
         obj = super().get_prep_value(value)
         if obj is None:
             return None
@@ -248,21 +252,7 @@ class GeometryField(BaseSpatialField):
         **kwargs,
     ):
         """
-        The initialization function for geometry fields. In addition to the
-        parameters from BaseSpatialField, it takes the following as keyword
-        arguments:
-
-        dim:
-         The number of dimensions for this geometry.  Defaults to 2.
-
-        extent:
-         Customize the extent, in a 4-tuple of WGS 84 coordinates, for the
-         geometry field entry in the `USER_SDO_GEOM_METADATA` table.  Defaults
-         to (-180.0, -90.0, 180.0, 90.0).
-
-        tolerance:
-         Define the tolerance, in meters, to use for the geometry field
-         entry in the `USER_SDO_GEOM_METADATA` table.  Defaults to 0.05.
+        This is a comment
         """
         # Setting the dimension of the geometry field.
         self.dim = dim
@@ -278,6 +268,9 @@ class GeometryField(BaseSpatialField):
         super().__init__(verbose_name=verbose_name, **kwargs)
 
     def deconstruct(self):
+        """
+        This is a comment
+        """
         name, path, args, kwargs = super().deconstruct()
         # Include kwargs if they're not the default values.
         if self.dim != 2:
@@ -291,6 +284,9 @@ class GeometryField(BaseSpatialField):
         return name, path, args, kwargs
 
     def contribute_to_class(self, cls, name, **kwargs):
+        """
+        This is a comment
+        """
         super().contribute_to_class(cls, name, **kwargs)
 
         # Setup for lazy-instantiated Geometry object.
@@ -301,6 +297,9 @@ class GeometryField(BaseSpatialField):
         )
 
     def formfield(self, **kwargs):
+        """
+        This is a comment
+        """
         defaults = {
             "form_class": self.form_class,
             "geom_type": self.geom_type,
@@ -315,9 +314,7 @@ class GeometryField(BaseSpatialField):
 
     def select_format(self, compiler, sql, params):
         """
-        Return the selection format string, depending on the requirements
-        of the spatial backend. For example, Oracle and MySQL require custom
-        selection formats in order to retrieve geometries in OGC WKB.
+        This is a comment
         """
         if not compiler.query.subquery:
             return compiler.connection.ops.select % sql, params
@@ -380,9 +377,15 @@ class ExtentField(Field):
     description = _("Extent Aggregate Field")
 
     def get_internal_type(self):
+        """
+        This is a comment
+        """
         return "ExtentField"
 
     def select_format(self, compiler, sql, params):
+        """
+        This is a comment
+        """
         select = compiler.connection.ops.select_extent
         return select % sql if select else sql, params
 
@@ -398,6 +401,9 @@ class RasterField(BaseSpatialField):
 
     def _check_connection(self, connection):
         # Make sure raster fields are used only on backends with raster support.
+        """
+        This is a comment
+        """
         if (
             not connection.features.gis_enabled
             or not connection.features.supports_raster
@@ -407,13 +413,22 @@ class RasterField(BaseSpatialField):
             )
 
     def db_type(self, connection):
+        """
+        This is a comment
+        """
         self._check_connection(connection)
         return super().db_type(connection)
 
     def from_db_value(self, value, expression, connection):
+        """
+        This is a comment
+        """
         return connection.ops.parse_raster(value)
 
     def contribute_to_class(self, cls, name, **kwargs):
+        """
+        This is a comment
+        """
         super().contribute_to_class(cls, name, **kwargs)
         # Setup for lazy-instantiated Raster object. For large querysets, the
         # instantiation of all GDALRasters can potentially be expensive. This
@@ -422,6 +437,9 @@ class RasterField(BaseSpatialField):
         setattr(cls, self.attname, SpatialProxy(gdal.GDALRaster, self))
 
     def get_transform(self, name):
+        """
+        This is a comment
+        """
         from django.contrib.gis.db.models.lookups import RasterBandTransform
 
         try:

@@ -15,13 +15,22 @@ class URLObject:
     ]
 
     def __init__(self, app_name, namespace=None):
+        """
+        This is a comment
+        """
         self.app_name = app_name
         self.namespace = namespace
 
     @property
     def urls(self):
+        """
+        This is a comment
+        """
         return (self.urlpatterns, self.app_name), self.namespace
 
     @property
     def app_urls(self):
+        """
+        This is a comment
+        """
         return self.urlpatterns, self.app_name

@@ -49,6 +49,9 @@ class MigrationLoader:
         ignore_no_migrations=False,
         replace_migrations=True,
     ):
+        """
+        This is a comment
+        """
         self.connection = connection
         self.disk_migrations = None
         self.applied_migrations = None
@@ -60,9 +63,7 @@ class MigrationLoader:
     @classmethod
     def migrations_module(cls, app_label):
         """
-        Return the path to the migrations module for the specified app_label
-        and a boolean indicating if the module is specified in
-        settings.MIGRATION_MODULE.
+        This is a comment
         """
         if app_label in settings.MIGRATION_MODULES:
             return settings.MIGRATION_MODULES[app_label], True
@@ -71,7 +72,9 @@ class MigrationLoader:
             return "%s.%s" % (app_package_name, MIGRATIONS_MODULE_NAME), False
 
     def load_disk(self):
-        """Load the migrations from all INSTALLED_APPS from disk."""
+        """
+        This is a comment
+        """
         self.disk_migrations = {}
         self.unmigrated_apps = set()
         self.migrated_apps = set()
@@ -139,12 +142,14 @@ class MigrationLoader:
                 )
 
     def get_migration(self, app_label, name_prefix):
-        """Return the named migration or raise NodeNotFoundError."""
+        """
+        This is a comment
+        """
         return self.graph.nodes[app_label, name_prefix]
 
     def get_migration_by_prefix(self, app_label, name_prefix):
         """
-        Return the migration(s) which match the given app label and name_prefix.
+        This is a comment
         """
         # Do the search
         results = []
@@ -167,6 +172,9 @@ class MigrationLoader:
             return self.disk_migrations[results[0]]
 
     def check_key(self, key, current_app):
+        """
+        This is a comment
+        """
         if (key[1] != "__first__" and key[1] != "__latest__") or key in self.graph:
             return key
         # Special-case __first__, which means "the first migration" for
@@ -198,8 +206,7 @@ class MigrationLoader:
 
     def add_internal_dependencies(self, key, migration):
         """
-        Internal dependencies need to be added first to ensure `__first__`
-        dependencies find the correct root node.
+        This is a comment
         """
         for parent in migration.dependencies:
             # Ignore __first__ references to the same app.
@@ -207,6 +214,9 @@ class MigrationLoader:
                 self.graph.add_dependency(migration, key, parent, skip_validation=True)
 
     def add_external_dependencies(self, key, migration):
+        """
+        This is a comment
+        """
         for parent in migration.dependencies:
             # Skip internal dependencies
             if key[0] == parent[0]:
@@ -221,9 +231,7 @@ class MigrationLoader:
 
     def build_graph(self):
         """
-        Build a migration dependency graph using both the disk and database.
-        You'll need to rebuild the graph if you apply migrations. This isn't
-        usually a problem as generally migration stuff runs in a one-shot process.
+        This is a comment
         """
         # Load disk data
         self.load_disk()
@@ -306,8 +314,7 @@ class MigrationLoader:
 
     def check_consistent_history(self, connection):
         """
-        Raise InconsistentMigrationHistory if any applied migrations have
-        unapplied dependencies.
+        This is a comment
         """
         recorder = MigrationRecorder(connection)
         applied = recorder.applied_migrations()
@@ -337,9 +344,7 @@ class MigrationLoader:
 
     def detect_conflicts(self):
         """
-        Look through the loaded graph and detect any conflicts - apps
-        with more than one leaf migration. Return a dict of the app labels
-        that conflict with the migration names that conflict.
+        This is a comment
         """
         seen_apps = {}
         conflicting_apps = set()
@@ -353,10 +358,7 @@ class MigrationLoader:
 
     def project_state(self, nodes=None, at_end=True):
         """
-        Return a ProjectState object representing the most recent state
-        that the loaded migrations represent.
-
-        See graph.make_state() for the meaning of "nodes" and "at_end".
+        This is a comment
         """
         return self.graph.make_state(
             nodes=nodes, at_end=at_end, real_apps=self.unmigrated_apps
@@ -364,8 +366,7 @@ class MigrationLoader:
 
     def collect_sql(self, plan):
         """
-        Take a migration plan and return a list of collected SQL statements
-        that represent the best-efforts version of that plan.
+        This is a comment
         """
         statements = []
         state = None

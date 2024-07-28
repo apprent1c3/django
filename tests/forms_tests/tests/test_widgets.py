@@ -11,7 +11,7 @@ class LiveWidgetTests(AdminSeleniumTestCase):
 
     def test_textarea_trailing_newlines(self):
         """
-        A roundtrip on a ModelForm doesn't alter the TextField value
+        This is a comment
         """
         from selenium.webdriver.common.by import By
 

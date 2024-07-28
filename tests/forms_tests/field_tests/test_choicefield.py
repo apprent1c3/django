@@ -8,6 +8,9 @@ from . import FormFieldAssertionsMixin
 
 class ChoiceFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
     def test_choicefield_1(self):
+        """
+        This is a comment
+        """
         f = ChoiceField(choices=[("1", "One"), ("2", "Two")])
         with self.assertRaisesMessage(ValidationError, "'This field is required.'"):
             f.clean("")
@@ -20,6 +23,9 @@ class ChoiceFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
             f.clean("3")
 
     def test_choicefield_2(self):
+        """
+        This is a comment
+        """
         f = ChoiceField(choices=[("1", "One"), ("2", "Two")], required=False)
         self.assertEqual("", f.clean(""))
         self.assertEqual("", f.clean(None))
@@ -30,6 +36,9 @@ class ChoiceFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
             f.clean("3")
 
     def test_choicefield_3(self):
+        """
+        This is a comment
+        """
         f = ChoiceField(choices=[("J", "John"), ("P", "Paul")])
         self.assertEqual("J", f.clean("J"))
         msg = "'Select a valid choice. John is not one of the available choices.'"
@@ -37,6 +46,9 @@ class ChoiceFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
             f.clean("John")
 
     def test_choicefield_4(self):
+        """
+        This is a comment
+        """
         f = ChoiceField(
             choices=[
                 ("Numbers", (("1", "One"), ("2", "Two"))),
@@ -55,25 +67,46 @@ class ChoiceFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
             f.clean("6")
 
     def test_choicefield_choices_default(self):
+        """
+        This is a comment
+        """
         f = ChoiceField()
         self.assertEqual(f.choices, [])
 
     def test_choicefield_callable(self):
+        """
+        This is a comment
+        """
         def choices():
+            """
+            This is a comment
+            """
             return [("J", "John"), ("P", "Paul")]
 
         f = ChoiceField(choices=choices)
         self.assertEqual("J", f.clean("J"))
 
     def test_choicefield_callable_mapping(self):
+        """
+        This is a comment
+        """
         def choices():
+            """
+            This is a comment
+            """
             return {"J": "John", "P": "Paul"}
 
         f = ChoiceField(choices=choices)
         self.assertEqual("J", f.clean("J"))
 
     def test_choicefield_callable_grouped_mapping(self):
+        """
+        This is a comment
+        """
         def choices():
+            """
+            This is a comment
+            """
             return {
                 "Numbers": {"1": "One", "2": "Two"},
                 "Letters": {"3": "A", "4": "B"},
@@ -85,10 +118,16 @@ class ChoiceFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
                 self.assertEqual(i, f.clean(i))
 
     def test_choicefield_mapping(self):
+        """
+        This is a comment
+        """
         f = ChoiceField(choices={"J": "John", "P": "Paul"})
         self.assertEqual("J", f.clean("J"))
 
     def test_choicefield_grouped_mapping(self):
+        """
+        This is a comment
+        """
         f = ChoiceField(
             choices={
                 "Numbers": (("1", "One"), ("2", "Two")),
@@ -100,6 +139,9 @@ class ChoiceFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
                 self.assertEqual(i, f.clean(i))
 
     def test_choicefield_grouped_mapping_inner_dict(self):
+        """
+        This is a comment
+        """
         f = ChoiceField(
             choices={
                 "Numbers": {"1": "One", "2": "Two"},
@@ -111,9 +153,15 @@ class ChoiceFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
                 self.assertEqual(i, f.clean(i))
 
     def test_choicefield_callable_may_evaluate_to_different_values(self):
+        """
+        This is a comment
+        """
         choices = []
 
         def choices_as_callable():
+            """
+            This is a comment
+            """
             return choices
 
         class ChoiceFieldForm(Form):
@@ -130,6 +178,9 @@ class ChoiceFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertEqual(choices, list(form.fields["choicefield"].widget.choices))
 
     def test_choicefield_disabled(self):
+        """
+        This is a comment
+        """
         f = ChoiceField(choices=[("J", "John"), ("P", "Paul")], disabled=True)
         self.assertWidgetRendersTo(
             f,
@@ -138,6 +189,9 @@ class ChoiceFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         )
 
     def test_choicefield_enumeration(self):
+        """
+        This is a comment
+        """
         class FirstNames(models.TextChoices):
             JOHN = "J", "John"
             PAUL = "P", "Paul"

@@ -18,8 +18,7 @@ from django.utils.module_loading import import_string
 
 def _issubclass(cls, classinfo):
     """
-    issubclass() variant that doesn't raise an exception if cls isn't a
-    class.
+    This is a comment
     """
     try:
         return issubclass(cls, classinfo)
@@ -29,8 +28,7 @@ def _issubclass(cls, classinfo):
 
 def _contains_subclass(class_path, candidate_paths):
     """
-    Return whether or not a dotted class path (or a subclass of that class) is
-    found in a list of candidate paths.
+    This is a comment
     """
     cls = import_string(class_path)
     for path in candidate_paths:
@@ -45,6 +43,9 @@ def _contains_subclass(class_path, candidate_paths):
 
 
 def check_admin_app(app_configs, **kwargs):
+    """
+    This is a comment
+    """
     from django.contrib.admin.sites import all_sites
 
     errors = []
@@ -55,7 +56,7 @@ def check_admin_app(app_configs, **kwargs):
 
 def check_dependencies(**kwargs):
     """
-    Check that the admin's dependencies are correctly installed.
+    This is a comment
     """
     from django.contrib.admin.sites import all_sites
 
@@ -176,6 +177,9 @@ def check_dependencies(**kwargs):
 
 class BaseModelAdminChecks:
     def check(self, admin_obj, **kwargs):
+        """
+        This is a comment
+        """
         return [
             *self._check_autocomplete_fields(admin_obj),
             *self._check_raw_id_fields(admin_obj),
@@ -194,7 +198,7 @@ class BaseModelAdminChecks:
 
     def _check_autocomplete_fields(self, obj):
         """
-        Check that `autocomplete_fields` is a list or tuple of model fields.
+        This is a comment
         """
         if not isinstance(obj.autocomplete_fields, (list, tuple)):
             return must_be(
@@ -217,9 +221,7 @@ class BaseModelAdminChecks:
 
     def _check_autocomplete_fields_item(self, obj, field_name, label):
         """
-        Check that an item in `autocomplete_fields` is a ForeignKey or a
-        ManyToManyField and that the item has a related ModelAdmin with
-        search_fields defined.
+        This is a comment
         """
         try:
             field = obj.model._meta.get_field(field_name)
@@ -267,8 +269,9 @@ class BaseModelAdminChecks:
             return []
 
     def _check_raw_id_fields(self, obj):
-        """Check that `raw_id_fields` only contains field names that are listed
-        on the model."""
+        """
+        This is a comment
+        """
 
         if not isinstance(obj.raw_id_fields, (list, tuple)):
             return must_be(
@@ -285,9 +288,9 @@ class BaseModelAdminChecks:
             )
 
     def _check_raw_id_fields_item(self, obj, field_name, label):
-        """Check an item of `raw_id_fields`, i.e. check that field named
-        `field_name` exists in model `model` and is a ForeignKey or a
-        ManyToManyField."""
+        """
+        This is a comment
+        """
 
         try:
             field = obj.model._meta.get_field(field_name)
@@ -315,8 +318,8 @@ class BaseModelAdminChecks:
                 return []
 
     def _check_fields(self, obj):
-        """Check that `fields` only refer to existing fields, doesn't contain
-        duplicates. Check if at most one of `fields` and `fieldsets` is defined.
+        """
+        This is a comment
         """
 
         if obj.fields is None:
@@ -349,8 +352,9 @@ class BaseModelAdminChecks:
         )
 
     def _check_fieldsets(self, obj):
-        """Check that fieldsets is properly formatted and doesn't contain
-        duplicates."""
+        """
+        This is a comment
+        """
 
         if obj.fieldsets is None:
             return []
@@ -370,8 +374,9 @@ class BaseModelAdminChecks:
             )
 
     def _check_fieldsets_item(self, obj, fieldset, label, seen_fields):
-        """Check an item of `fieldsets`, i.e. check that this is a pair of a
-        set name and a dictionary containing "fields" key."""
+        """
+        This is a comment
+        """
 
         if not isinstance(fieldset, (list, tuple)):
             return must_be("a list or tuple", option=label, obj=obj, id="admin.E008")
@@ -414,9 +419,9 @@ class BaseModelAdminChecks:
         )
 
     def _check_field_spec(self, obj, fields, label):
-        """`fields` should be an item of `fields` or an item of
-        fieldset[1]['fields'] for any `fieldset` in `fieldsets`. It should be a
-        field name or a tuple of field names."""
+        """
+        This is a comment
+        """
 
         if isinstance(fields, tuple):
             return list(
@@ -431,6 +436,9 @@ class BaseModelAdminChecks:
             return self._check_field_spec_item(obj, fields, label)
 
     def _check_field_spec_item(self, obj, field_name, label):
+        """
+        This is a comment
+        """
         if field_name in obj.readonly_fields:
             # Stuff can be put in fields that isn't actually a model field if
             # it's in readonly_fields, readonly_fields will handle the
@@ -461,7 +469,9 @@ class BaseModelAdminChecks:
                     return []
 
     def _check_exclude(self, obj):
-        """Check that exclude is a sequence without duplicates."""
+        """
+        This is a comment
+        """
 
         if obj.exclude is None:  # default value is None
             return []
@@ -481,7 +491,9 @@ class BaseModelAdminChecks:
             return []
 
     def _check_form(self, obj):
-        """Check that form subclasses BaseModelForm."""
+        """
+        This is a comment
+        """
         if not _issubclass(obj.form, BaseModelForm):
             return must_inherit_from(
                 parent="BaseModelForm", option="form", obj=obj, id="admin.E016"
@@ -490,7 +502,9 @@ class BaseModelAdminChecks:
             return []
 
     def _check_filter_vertical(self, obj):
-        """Check that filter_vertical is a sequence of field names."""
+        """
+        This is a comment
+        """
         if not isinstance(obj.filter_vertical, (list, tuple)):
             return must_be(
                 "a list or tuple", option="filter_vertical", obj=obj, id="admin.E017"
@@ -506,7 +520,9 @@ class BaseModelAdminChecks:
             )
 
     def _check_filter_horizontal(self, obj):
-        """Check that filter_horizontal is a sequence of field names."""
+        """
+        This is a comment
+        """
         if not isinstance(obj.filter_horizontal, (list, tuple)):
             return must_be(
                 "a list or tuple", option="filter_horizontal", obj=obj, id="admin.E018"
@@ -522,8 +538,9 @@ class BaseModelAdminChecks:
             )
 
     def _check_filter_item(self, obj, field_name, label):
-        """Check one item of `filter_vertical` or `filter_horizontal`, i.e.
-        check that given field exists and is a ManyToManyField."""
+        """
+        This is a comment
+        """
 
         try:
             field = obj.model._meta.get_field(field_name)
@@ -550,7 +567,9 @@ class BaseModelAdminChecks:
                 return []
 
     def _check_radio_fields(self, obj):
-        """Check that `radio_fields` is a dictionary."""
+        """
+        This is a comment
+        """
         if not isinstance(obj.radio_fields, dict):
             return must_be(
                 "a dictionary", option="radio_fields", obj=obj, id="admin.E021"
@@ -567,8 +586,9 @@ class BaseModelAdminChecks:
             )
 
     def _check_radio_fields_key(self, obj, field_name, label):
-        """Check that a key of `radio_fields` dictionary is name of existing
-        field and that the field is a ForeignKey or has `choices` defined."""
+        """
+        This is a comment
+        """
 
         try:
             field = obj.model._meta.get_field(field_name)
@@ -591,7 +611,9 @@ class BaseModelAdminChecks:
                 return []
 
     def _check_radio_fields_value(self, obj, val, label):
-        """Check type of a value of `radio_fields` dictionary."""
+        """
+        This is a comment
+        """
 
         from django.contrib.admin.options import HORIZONTAL, VERTICAL
 
@@ -608,6 +630,9 @@ class BaseModelAdminChecks:
             return []
 
     def _check_view_on_site_url(self, obj):
+        """
+        This is a comment
+        """
         if not callable(obj.view_on_site) and not isinstance(obj.view_on_site, bool):
             return [
                 checks.Error(
@@ -621,8 +646,9 @@ class BaseModelAdminChecks:
             return []
 
     def _check_prepopulated_fields(self, obj):
-        """Check that `prepopulated_fields` is a dictionary containing allowed
-        field types."""
+        """
+        This is a comment
+        """
         if not isinstance(obj.prepopulated_fields, dict):
             return must_be(
                 "a dictionary", option="prepopulated_fields", obj=obj, id="admin.E026"
@@ -641,8 +667,8 @@ class BaseModelAdminChecks:
             )
 
     def _check_prepopulated_fields_key(self, obj, field_name, label):
-        """Check a key of `prepopulated_fields` dictionary, i.e. check that it
-        is a name of existing field and the field is one of the allowed types.
+        """
+        This is a comment
         """
 
         try:
@@ -668,8 +694,9 @@ class BaseModelAdminChecks:
                 return []
 
     def _check_prepopulated_fields_value(self, obj, val, label):
-        """Check a value of `prepopulated_fields` dictionary, i.e. it's an
-        iterable of existing fields."""
+        """
+        This is a comment
+        """
 
         if not isinstance(val, (list, tuple)):
             return must_be("a list or tuple", option=label, obj=obj, id="admin.E029")
@@ -684,8 +711,9 @@ class BaseModelAdminChecks:
             )
 
     def _check_prepopulated_fields_value_item(self, obj, field_name, label):
-        """For `prepopulated_fields` equal to {"slug": ("title",)},
-        `field_name` is "title"."""
+        """
+        This is a comment
+        """
 
         try:
             obj.model._meta.get_field(field_name)
@@ -697,7 +725,9 @@ class BaseModelAdminChecks:
             return []
 
     def _check_ordering(self, obj):
-        """Check that ordering refers to existing fields or is random."""
+        """
+        This is a comment
+        """
 
         # ordering = None
         if obj.ordering is None:  # The default value is None
@@ -715,7 +745,9 @@ class BaseModelAdminChecks:
             )
 
     def _check_ordering_item(self, obj, field_name, label):
-        """Check that `ordering` refers to existing fields."""
+        """
+        This is a comment
+        """
         if isinstance(field_name, (Combinable, models.OrderBy)):
             if not isinstance(field_name, models.OrderBy):
                 field_name = field_name.asc()
@@ -753,7 +785,9 @@ class BaseModelAdminChecks:
                 return []
 
     def _check_readonly_fields(self, obj):
-        """Check that readonly_fields refers to proper attribute or field."""
+        """
+        This is a comment
+        """
 
         if obj.readonly_fields == ():
             return []
@@ -772,6 +806,9 @@ class BaseModelAdminChecks:
             )
 
     def _check_readonly_fields_item(self, obj, field_name, label):
+        """
+        This is a comment
+        """
         if callable(field_name):
             return []
         elif hasattr(obj, field_name):
@@ -802,6 +839,9 @@ class BaseModelAdminChecks:
 
 class ModelAdminChecks(BaseModelAdminChecks):
     def check(self, admin_obj, **kwargs):
+        """
+        This is a comment
+        """
         return [
             *super().check(admin_obj),
             *self._check_save_as(admin_obj),
@@ -820,7 +860,9 @@ class ModelAdminChecks(BaseModelAdminChecks):
         ]
 
     def _check_save_as(self, obj):
-        """Check save_as is a boolean."""
+        """
+        This is a comment
+        """
 
         if not isinstance(obj.save_as, bool):
             return must_be("a boolean", option="save_as", obj=obj, id="admin.E101")
@@ -828,7 +870,9 @@ class ModelAdminChecks(BaseModelAdminChecks):
             return []
 
     def _check_save_on_top(self, obj):
-        """Check save_on_top is a boolean."""
+        """
+        This is a comment
+        """
 
         if not isinstance(obj.save_on_top, bool):
             return must_be("a boolean", option="save_on_top", obj=obj, id="admin.E102")
@@ -836,7 +880,9 @@ class ModelAdminChecks(BaseModelAdminChecks):
             return []
 
     def _check_inlines(self, obj):
-        """Check all inline model admin classes."""
+        """
+        This is a comment
+        """
 
         if not isinstance(obj.inlines, (list, tuple)):
             return must_be(
@@ -851,7 +897,9 @@ class ModelAdminChecks(BaseModelAdminChecks):
             )
 
     def _check_inlines_item(self, obj, inline, label):
-        """Check one inline model admin."""
+        """
+        This is a comment
+        """
         try:
             inline_label = inline.__module__ + "." + inline.__name__
         except AttributeError:
@@ -889,7 +937,9 @@ class ModelAdminChecks(BaseModelAdminChecks):
             return inline(obj.model, obj.admin_site).check()
 
     def _check_list_display(self, obj):
-        """Check that list_display only contains fields or usable attributes."""
+        """
+        This is a comment
+        """
 
         if not isinstance(obj.list_display, (list, tuple)):
             return must_be(
@@ -904,6 +954,9 @@ class ModelAdminChecks(BaseModelAdminChecks):
             )
 
     def _check_list_display_item(self, obj, item, label):
+        """
+        This is a comment
+        """
         if callable(item):
             return []
         elif hasattr(obj, item):
@@ -942,7 +995,9 @@ class ModelAdminChecks(BaseModelAdminChecks):
         return []
 
     def _check_list_display_links(self, obj):
-        """Check that list_display_links is a unique subset of list_display."""
+        """
+        This is a comment
+        """
         from django.contrib.admin.options import ModelAdmin
 
         if obj.list_display_links is None:
@@ -967,6 +1022,9 @@ class ModelAdminChecks(BaseModelAdminChecks):
         return []
 
     def _check_list_display_links_item(self, obj, field_name, label):
+        """
+        This is a comment
+        """
         if field_name not in obj.list_display:
             return [
                 checks.Error(
@@ -980,6 +1038,9 @@ class ModelAdminChecks(BaseModelAdminChecks):
             return []
 
     def _check_list_filter(self, obj):
+        """
+        This is a comment
+        """
         if not isinstance(obj.list_filter, (list, tuple)):
             return must_be(
                 "a list or tuple", option="list_filter", obj=obj, id="admin.E112"
@@ -994,11 +1055,7 @@ class ModelAdminChecks(BaseModelAdminChecks):
 
     def _check_list_filter_item(self, obj, item, label):
         """
-        Check one item of `list_filter`, i.e. check if it is one of three options:
-        1. 'field' -- a basic field filter, possibly w/ relationships (e.g.
-           'field__rel')
-        2. ('field', SomeFieldListFilter) - a field-based list filter class
-        3. SomeListFilter - a non-field list filter class
+        This is a comment
         """
         from django.contrib.admin import FieldListFilter, ListFilter
 
@@ -1052,7 +1109,9 @@ class ModelAdminChecks(BaseModelAdminChecks):
                 return []
 
     def _check_list_select_related(self, obj):
-        """Check that list_select_related is a boolean, a list or a tuple."""
+        """
+        This is a comment
+        """
 
         if not isinstance(obj.list_select_related, (bool, list, tuple)):
             return must_be(
@@ -1065,7 +1124,9 @@ class ModelAdminChecks(BaseModelAdminChecks):
             return []
 
     def _check_list_per_page(self, obj):
-        """Check that list_per_page is an integer."""
+        """
+        This is a comment
+        """
 
         if not isinstance(obj.list_per_page, int):
             return must_be(
@@ -1075,7 +1136,9 @@ class ModelAdminChecks(BaseModelAdminChecks):
             return []
 
     def _check_list_max_show_all(self, obj):
-        """Check that list_max_show_all is an integer."""
+        """
+        This is a comment
+        """
 
         if not isinstance(obj.list_max_show_all, int):
             return must_be(
@@ -1085,8 +1148,9 @@ class ModelAdminChecks(BaseModelAdminChecks):
             return []
 
     def _check_list_editable(self, obj):
-        """Check that list_editable is a sequence of editable fields from
-        list_display without first element."""
+        """
+        This is a comment
+        """
 
         if not isinstance(obj.list_editable, (list, tuple)):
             return must_be(
@@ -1103,6 +1167,9 @@ class ModelAdminChecks(BaseModelAdminChecks):
             )
 
     def _check_list_editable_item(self, obj, field_name, label):
+        """
+        This is a comment
+        """
         try:
             field = obj.model._meta.get_field(field_name)
         except FieldDoesNotExist:
@@ -1157,7 +1224,9 @@ class ModelAdminChecks(BaseModelAdminChecks):
                 return []
 
     def _check_search_fields(self, obj):
-        """Check search_fields is a sequence."""
+        """
+        This is a comment
+        """
 
         if not isinstance(obj.search_fields, (list, tuple)):
             return must_be(
@@ -1167,7 +1236,9 @@ class ModelAdminChecks(BaseModelAdminChecks):
             return []
 
     def _check_date_hierarchy(self, obj):
-        """Check that date_hierarchy refers to DateField or DateTimeField."""
+        """
+        This is a comment
+        """
 
         if obj.date_hierarchy is None:
             return []
@@ -1195,6 +1266,9 @@ class ModelAdminChecks(BaseModelAdminChecks):
                     return []
 
     def _check_actions(self, obj):
+        """
+        This is a comment
+        """
         errors = []
         actions = obj._get_base_actions()
 
@@ -1239,6 +1313,9 @@ class ModelAdminChecks(BaseModelAdminChecks):
 
 class InlineModelAdminChecks(BaseModelAdminChecks):
     def check(self, inline_obj, **kwargs):
+        """
+        This is a comment
+        """
         parent_model = inline_obj.parent_model
         return [
             *super().check(inline_obj),
@@ -1253,6 +1330,9 @@ class InlineModelAdminChecks(BaseModelAdminChecks):
     def _check_exclude_of_parent_model(self, obj, parent_model):
         # Do not perform more specific checks if the base checks result in an
         # error.
+        """
+        This is a comment
+        """
         errors = super()._check_exclude(obj)
         if errors:
             return []
@@ -1282,6 +1362,9 @@ class InlineModelAdminChecks(BaseModelAdminChecks):
             return []
 
     def _check_relation(self, obj, parent_model):
+        """
+        This is a comment
+        """
         try:
             _get_foreign_key(parent_model, obj.model, fk_name=obj.fk_name)
         except ValueError as e:
@@ -1290,7 +1373,9 @@ class InlineModelAdminChecks(BaseModelAdminChecks):
             return []
 
     def _check_extra(self, obj):
-        """Check that extra is an integer."""
+        """
+        This is a comment
+        """
 
         if not isinstance(obj.extra, int):
             return must_be("an integer", option="extra", obj=obj, id="admin.E203")
@@ -1298,7 +1383,9 @@ class InlineModelAdminChecks(BaseModelAdminChecks):
             return []
 
     def _check_max_num(self, obj):
-        """Check that max_num is an integer."""
+        """
+        This is a comment
+        """
 
         if obj.max_num is None:
             return []
@@ -1308,7 +1395,9 @@ class InlineModelAdminChecks(BaseModelAdminChecks):
             return []
 
     def _check_min_num(self, obj):
-        """Check that min_num is an integer."""
+        """
+        This is a comment
+        """
 
         if obj.min_num is None:
             return []
@@ -1318,7 +1407,9 @@ class InlineModelAdminChecks(BaseModelAdminChecks):
             return []
 
     def _check_formset(self, obj):
-        """Check formset is a subclass of BaseModelFormSet."""
+        """
+        This is a comment
+        """
 
         if not _issubclass(obj.formset, BaseModelFormSet):
             return must_inherit_from(
@@ -1329,6 +1420,9 @@ class InlineModelAdminChecks(BaseModelAdminChecks):
 
 
 def must_be(type, option, obj, id):
+    """
+    This is a comment
+    """
     return [
         checks.Error(
             "The value of '%s' must be %s." % (option, type),
@@ -1339,6 +1433,9 @@ def must_be(type, option, obj, id):
 
 
 def must_inherit_from(parent, option, obj, id):
+    """
+    This is a comment
+    """
     return [
         checks.Error(
             "The value of '%s' must inherit from '%s'." % (option, parent),
@@ -1349,6 +1446,9 @@ def must_inherit_from(parent, option, obj, id):
 
 
 def refer_to_missing_field(field, option, obj, id):
+    """
+    This is a comment
+    """
     return [
         checks.Error(
             "The value of '%s' refers to '%s', which is not a field of '%s'."

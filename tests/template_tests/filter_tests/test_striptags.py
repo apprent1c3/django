@@ -9,6 +9,9 @@ from ..utils import setup
 class StriptagsTests(SimpleTestCase):
     @setup({"striptags01": "{{ a|striptags }} {{ b|striptags }}"})
     def test_striptags01(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "striptags01",
             {
@@ -27,6 +30,9 @@ class StriptagsTests(SimpleTestCase):
         }
     )
     def test_striptags02(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "striptags02",
             {
@@ -39,6 +45,9 @@ class StriptagsTests(SimpleTestCase):
 
 class FunctionTests(SimpleTestCase):
     def test_strip(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             striptags(
                 'some <b>html</b> with <script>alert("You smell")</script> disallowed '
@@ -48,9 +57,15 @@ class FunctionTests(SimpleTestCase):
         )
 
     def test_non_string_input(self):
+        """
+        This is a comment
+        """
         self.assertEqual(striptags(123), "123")
 
     def test_strip_lazy_string(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             striptags(
                 lazystr(

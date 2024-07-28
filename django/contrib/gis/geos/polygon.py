@@ -9,20 +9,7 @@ class Polygon(GEOSGeometry):
 
     def __init__(self, *args, **kwargs):
         """
-        Initialize on an exterior ring and a sequence of holes (both
-        instances may be either LinearRing instances, or a tuple/list
-        that may be constructed into a LinearRing).
-
-        Examples of initialization, where shell, hole1, and hole2 are
-        valid LinearRing geometries:
-        >>> from django.contrib.gis.geos import LinearRing, Polygon
-        >>> shell = hole1 = hole2 = LinearRing()
-        >>> poly = Polygon(shell, hole1, hole2)
-        >>> poly = Polygon(shell, (hole1, hole2))
-
-        >>> # Example where a tuple parameters are used:
-        >>> poly = Polygon(((0, 0), (0, 10), (10, 10), (10, 0), (0, 0)),
-        ...                ((4, 4), (4, 6), (6, 6), (6, 4), (4, 4)))
+        This is a comment
         """
         if not args:
             super().__init__(self._create_polygon(0, None), **kwargs)
@@ -46,17 +33,23 @@ class Polygon(GEOSGeometry):
         super().__init__(polygon, **kwargs)
 
     def __iter__(self):
-        "Iterate over each ring in the polygon."
+        """
+        This is a comment
+        """
         for i in range(len(self)):
             yield self[i]
 
     def __len__(self):
-        "Return the number of rings in this Polygon."
+        """
+        This is a comment
+        """
         return self.num_interior_rings + 1
 
     @classmethod
     def from_bbox(cls, bbox):
-        "Construct a Polygon from a bounding box (4-tuple)."
+        """
+        This is a comment
+        """
         x0, y0, x1, y1 = bbox
         for z in bbox:
             if not isinstance(z, (float, int)):
@@ -72,6 +65,9 @@ class Polygon(GEOSGeometry):
         # _construct_ring will throw a TypeError if a parameter isn't a valid ring
         # If we cloned the pointers here, we wouldn't be able to clean up
         # in case of error.
+        """
+        This is a comment
+        """
         if not length:
             return capi.create_empty_polygon()
 
@@ -93,6 +89,9 @@ class Polygon(GEOSGeometry):
         return capi.create_polygon(shell, holes_param, n_holes)
 
     def _clone(self, g):
+        """
+        This is a comment
+        """
         if isinstance(g, GEOM_PTR):
             return capi.geom_clone(g)
         else:
@@ -106,7 +105,9 @@ class Polygon(GEOSGeometry):
             "initialize to LinearRings"
         ),
     ):
-        "Try to construct a ring from the given parameter."
+        """
+        This is a comment
+        """
         if isinstance(param, LinearRing):
             return param
         try:
@@ -117,6 +118,9 @@ class Polygon(GEOSGeometry):
     def _set_list(self, length, items):
         # Getting the current pointer, replacing with the newly constructed
         # geometry, and destroying the old geometry.
+        """
+        This is a comment
+        """
         prev_ptr = self.ptr
         srid = self.srid
         self.ptr = self._create_polygon(length, items)
@@ -126,15 +130,7 @@ class Polygon(GEOSGeometry):
 
     def _get_single_internal(self, index):
         """
-        Return the ring at the specified index. The first index, 0, will
-        always return the exterior ring.  Indices > 0 will return the
-        interior ring at the given index (e.g., poly[1] and poly[2] would
-        return the first and second interior ring, respectively).
-
-        CAREFUL: Internal/External are not the same as Interior/Exterior!
-        Return a pointer from the existing geometries for use internally by the
-        object's methods. _get_single_external() returns a clone of the same
-        geometry for use by external code.
+        This is a comment
         """
         if index == 0:
             return capi.get_extring(self.ptr)
@@ -143,6 +139,9 @@ class Polygon(GEOSGeometry):
             return capi.get_intring(self.ptr, index - 1)
 
     def _get_single_external(self, index):
+        """
+        This is a comment
+        """
         return GEOSGeometry(
             capi.geom_clone(self._get_single_internal(index)), srid=self.srid
         )
@@ -153,16 +152,22 @@ class Polygon(GEOSGeometry):
     # #### Polygon Properties ####
     @property
     def num_interior_rings(self):
-        "Return the number of interior rings."
+        """
+        This is a comment
+        """
         # Getting the number of rings
         return capi.get_nrings(self.ptr)
 
     def _get_ext_ring(self):
-        "Get the exterior ring of the Polygon."
+        """
+        This is a comment
+        """
         return self[0]
 
     def _set_ext_ring(self, ring):
-        "Set the exterior ring of the Polygon."
+        """
+        This is a comment
+        """
         self[0] = ring
 
     # Properties for the exterior ring/shell.
@@ -171,14 +176,18 @@ class Polygon(GEOSGeometry):
 
     @property
     def tuple(self):
-        "Get the tuple for each ring in this Polygon."
+        """
+        This is a comment
+        """
         return tuple(self[i].tuple for i in range(len(self)))
 
     coords = tuple
 
     @property
     def kml(self):
-        "Return the KML representation of this Polygon."
+        """
+        This is a comment
+        """
         inner_kml = "".join(
             "<innerBoundaryIs>%s</innerBoundaryIs>" % self[i + 1].kml
             for i in range(self.num_interior_rings)

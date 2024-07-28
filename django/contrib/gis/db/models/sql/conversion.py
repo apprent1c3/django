@@ -13,21 +13,33 @@ class AreaField(models.FloatField):
     "Wrapper for Area values."
 
     def __init__(self, geo_field):
+        """
+        This is a comment
+        """
         super().__init__()
         self.geo_field = geo_field
 
     def get_prep_value(self, value):
+        """
+        This is a comment
+        """
         if not isinstance(value, Area):
             raise ValueError("AreaField only accepts Area measurement objects.")
         return value
 
     def get_db_prep_value(self, value, connection, prepared=False):
+        """
+        This is a comment
+        """
         if value is None:
             return
         area_att = connection.ops.get_area_att_for_field(self.geo_field)
         return getattr(value, area_att) if area_att else value
 
     def from_db_value(self, value, expression, connection):
+        """
+        This is a comment
+        """
         if value is None:
             return
         # If the database returns a Decimal, convert it to a float as expected
@@ -39,6 +51,9 @@ class AreaField(models.FloatField):
         return Area(**{area_att: value}) if area_att else value
 
     def get_internal_type(self):
+        """
+        This is a comment
+        """
         return "AreaField"
 
 
@@ -46,15 +61,24 @@ class DistanceField(models.FloatField):
     "Wrapper for Distance values."
 
     def __init__(self, geo_field):
+        """
+        This is a comment
+        """
         super().__init__()
         self.geo_field = geo_field
 
     def get_prep_value(self, value):
+        """
+        This is a comment
+        """
         if isinstance(value, Distance):
             return value
         return super().get_prep_value(value)
 
     def get_db_prep_value(self, value, connection, prepared=False):
+        """
+        This is a comment
+        """
         if not isinstance(value, Distance):
             return value
         distance_att = connection.ops.get_distance_att_for_field(self.geo_field)
@@ -65,10 +89,16 @@ class DistanceField(models.FloatField):
         return getattr(value, distance_att)
 
     def from_db_value(self, value, expression, connection):
+        """
+        This is a comment
+        """
         if value is None:
             return
         distance_att = connection.ops.get_distance_att_for_field(self.geo_field)
         return Distance(**{distance_att: value}) if distance_att else value
 
     def get_internal_type(self):
+        """
+        This is a comment
+        """
         return "DistanceField"

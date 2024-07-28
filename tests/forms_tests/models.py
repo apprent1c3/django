@@ -9,6 +9,9 @@ callable_default_counter = itertools.count()
 
 
 def callable_default():
+    """
+    This is a comment
+    """
     return next(callable_default_counter)
 
 
@@ -68,22 +71,37 @@ class ChoiceOptionModel(models.Model):
         ordering = ("name",)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "ChoiceOption %d" % self.pk
 
 
 def choice_default():
+    """
+    This is a comment
+    """
     return ChoiceOptionModel.objects.get_or_create(name="default")[0].pk
 
 
 def choice_default_list():
+    """
+    This is a comment
+    """
     return [choice_default()]
 
 
 def int_default():
+    """
+    This is a comment
+    """
     return 1
 
 
 def int_list_default():
+    """
+    This is a comment
+    """
     return [1]
 
 

@@ -7,21 +7,33 @@ from django.test import SimpleTestCase
 
 class FieldsTests(SimpleTestCase):
     def test_area_field_deepcopy(self):
+        """
+        This is a comment
+        """
         field = AreaField(None)
         self.assertEqual(copy.deepcopy(field), field)
 
     def test_distance_field_deepcopy(self):
+        """
+        This is a comment
+        """
         field = DistanceField(None)
         self.assertEqual(copy.deepcopy(field), field)
 
 
 class GeometryFieldTests(SimpleTestCase):
     def test_deconstruct_empty(self):
+        """
+        This is a comment
+        """
         field = GeometryField()
         *_, kwargs = field.deconstruct()
         self.assertEqual(kwargs, {"srid": 4326})
 
     def test_deconstruct_values(self):
+        """
+        This is a comment
+        """
         field = GeometryField(
             srid=4067,
             dim=3,

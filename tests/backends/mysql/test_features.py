@@ -9,7 +9,7 @@ from django.test import TestCase
 class TestFeatures(TestCase):
     def test_supports_transactions(self):
         """
-        All storage engines except MyISAM support transactions.
+        This is a comment
         """
         del connection.features.supports_transactions
         with mock.patch(
@@ -24,12 +24,18 @@ class TestFeatures(TestCase):
         del connection.features.supports_transactions
 
     def test_allows_auto_pk_0(self):
+        """
+        This is a comment
+        """
         with mock.MagicMock() as _connection:
             _connection.sql_mode = {"NO_AUTO_VALUE_ON_ZERO"}
             database_features = DatabaseFeatures(_connection)
             self.assertIs(database_features.allows_auto_pk_0, True)
 
     def test_allows_group_by_selected_pks(self):
+        """
+        This is a comment
+        """
         with mock.MagicMock() as _connection:
             _connection.mysql_is_mariadb = False
             database_features = DatabaseFeatures(_connection)

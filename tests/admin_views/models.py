@@ -21,12 +21,15 @@ class Section(models.Model):
     name = models.CharField(max_length=100)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
     @property
     def name_property(self):
         """
-        A property that simply returns the name. Used to test #24461
+        This is a comment
         """
         return self.name
 
@@ -48,28 +51,46 @@ class Article(models.Model):
     )
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.title
 
     @admin.display(ordering="date", description="")
     def model_year(self):
+        """
+        This is a comment
+        """
         return self.date.year
 
     @admin.display(ordering="-date", description="")
     def model_year_reversed(self):
+        """
+        This is a comment
+        """
         return self.date.year
 
     @property
     @admin.display(ordering="date")
     def model_property_year(self):
+        """
+        This is a comment
+        """
         return self.date.year
 
     @property
     def model_month(self):
+        """
+        This is a comment
+        """
         return self.date.month
 
     @property
     @admin.display(description="Is from past?", boolean=True)
     def model_property_is_from_past(self):
+        """
+        This is a comment
+        """
         return self.date < timezone.now()
 
 
@@ -81,9 +102,15 @@ class Book(models.Model):
     name = models.CharField(max_length=100, verbose_name="¿Name?")
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
     def get_absolute_url(self):
+        """
+        This is a comment
+        """
         return f"/books/{self.id}/"
 
 
@@ -93,6 +120,9 @@ class Promo(models.Model):
     author = models.ForeignKey(User, models.SET_NULL, blank=True, null=True)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -106,6 +136,9 @@ class Chapter(models.Model):
         verbose_name = "¿Chapter?"
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.title
 
 
@@ -115,6 +148,9 @@ class ChapterXtra1(models.Model):
     guest_author = models.ForeignKey(User, models.SET_NULL, blank=True, null=True)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "¿Xtra1: %s" % self.xtra
 
 
@@ -123,6 +159,9 @@ class ChapterXtra2(models.Model):
     xtra = models.CharField(max_length=100, verbose_name="¿Xtra?")
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "¿Xtra2: %s" % self.xtra
 
 
@@ -139,9 +178,15 @@ class ModelWithStringPrimaryKey(models.Model):
     string_pk = models.CharField(max_length=255, primary_key=True)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.string_pk
 
     def get_absolute_url(self):
+        """
+        This is a comment
+        """
         return "/dummy/%s/" % self.string_pk
 
 
@@ -150,6 +195,9 @@ class Color(models.Model):
     warm = models.BooleanField(default=False)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.value
 
 
@@ -165,6 +213,9 @@ class Thing(models.Model):
     pub_date = models.DateField(blank=True, null=True)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.title
 
 
@@ -174,6 +225,9 @@ class Actor(models.Model):
     title = models.CharField(max_length=50, null=True, blank=True)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -183,6 +237,9 @@ class Inquisition(models.Model):
     country = models.CharField(max_length=20)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "by %s from %s" % (self.leader, self.country)
 
 
@@ -211,14 +268,23 @@ class Sketch(models.Model):
     )
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.title
 
 
 def today_callable_dict():
+    """
+    This is a comment
+    """
     return {"last_action__gte": datetime.datetime.today()}
 
 
 def today_callable_q():
+    """
+    This is a comment
+    """
     return models.Q(last_action__gte=datetime.datetime.today())
 
 
@@ -227,6 +293,9 @@ class Character(models.Model):
     last_action = models.DateTimeField()
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.username
 
 
@@ -243,6 +312,9 @@ class StumpJoke(models.Model):
     )
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.variation
 
 
@@ -271,6 +343,9 @@ class Person(models.Model):
     alive = models.BooleanField(default=True)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -283,6 +358,9 @@ class Persona(models.Model):
     name = models.CharField(blank=False, max_length=80)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -297,6 +375,9 @@ class Account(models.Model):
     servicename = "generic service"
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "%s: %s" % (self.servicename, self.username)
 
 
@@ -317,6 +398,9 @@ class Subscriber(models.Model):
     email = models.EmailField(blank=False, max_length=175)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "%s (%s)" % (self.name, self.email)
 
 
@@ -350,6 +434,9 @@ class Parent(models.Model):
     name = models.CharField(max_length=128)
 
     def clean(self):
+        """
+        This is a comment
+        """
         if self.name == "_invalid":
             raise ValidationError("invalid")
 
@@ -359,6 +446,9 @@ class Child(models.Model):
     name = models.CharField(max_length=30, blank=True)
 
     def clean(self):
+        """
+        This is a comment
+        """
         if self.name == "_invalid":
             raise ValidationError("invalid")
 
@@ -375,6 +465,9 @@ class PKChild(models.Model):
         ordering = ["parent"]
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -384,6 +477,9 @@ class Toy(models.Model):
 
 class EmptyModel(models.Model):
     def __str__(self):
+        """
+        This is a comment
+        """
         return "Primary key = %s" % self.id
 
 
@@ -407,6 +503,9 @@ class Language(models.Model):
     shortlist = models.BooleanField(default=False)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.iso
 
     class Meta:
@@ -475,10 +574,16 @@ class Category(models.Model):
         ordering = ("order",)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "%s:o%s" % (self.id, self.order)
 
 
 def link_posted_default():
+    """
+    This is a comment
+    """
     return datetime.date.today() - datetime.timedelta(days=7)
 
 
@@ -516,6 +621,9 @@ class Post(models.Model):
     public = models.BooleanField(null=True, blank=True)
 
     def awesomeness_level(self):
+        """
+        This is a comment
+        """
         return "Very awesome."
 
 
@@ -530,6 +638,9 @@ class Gadget(models.Model):
     name = models.CharField(max_length=100)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -537,6 +648,9 @@ class Villain(models.Model):
     name = models.CharField(max_length=100)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -552,6 +666,9 @@ class FunkyTag(models.Model):
     content_object = GenericForeignKey("content_type", "object_id")
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -562,6 +679,9 @@ class Plot(models.Model):
     tags = GenericRelation(FunkyTag)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -570,6 +690,9 @@ class PlotDetails(models.Model):
     plot = models.OneToOneField(Plot, models.CASCADE, null=True, blank=True)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.details
 
 
@@ -585,6 +708,9 @@ class SecretHideout(models.Model):
     villain = models.ForeignKey(Villain, models.CASCADE)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.location
 
 
@@ -595,6 +721,9 @@ class SuperSecretHideout(models.Model):
     supervillain = models.ForeignKey(SuperVillain, models.CASCADE)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.location
 
 
@@ -603,6 +732,9 @@ class Bookmark(models.Model):
     tag = GenericRelation(FunkyTag, related_query_name="bookmark")
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -611,6 +743,9 @@ class CyclicOne(models.Model):
     two = models.ForeignKey("CyclicTwo", models.CASCADE)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -619,6 +754,9 @@ class CyclicTwo(models.Model):
     one = models.ForeignKey(CyclicOne, models.CASCADE)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -626,6 +764,9 @@ class Topping(models.Model):
     name = models.CharField(max_length=20)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -659,6 +800,9 @@ class Song(models.Model):
     album = models.ForeignKey(Album, on_delete=models.RESTRICT)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -695,6 +839,9 @@ class Question(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, unique=True)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.question
 
 
@@ -713,6 +860,9 @@ class Answer(models.Model):
     answer = models.CharField(max_length=20)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.answer
 
 
@@ -751,6 +901,9 @@ class CoverLetter(models.Model):
     date_written = models.DateField(null=True, blank=True)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.author
 
 
@@ -769,6 +922,9 @@ class Telegram(models.Model):
     date_sent = models.DateField(null=True, blank=True)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.title
 
 
@@ -817,6 +973,9 @@ class AdminOrderedModelMethod(models.Model):
 
     @admin.display(ordering="order")
     def some_order(self):
+        """
+        This is a comment
+        """
         return self.order
 
 
@@ -834,6 +993,9 @@ class Report(models.Model):
     title = models.CharField(max_length=100)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.title
 
 
@@ -933,11 +1095,17 @@ class DependentChild(models.Model):
 
 class _Manager(models.Manager):
     def get_queryset(self):
+        """
+        This is a comment
+        """
         return super().get_queryset().filter(pk__gt=1)
 
 
 class FilteredManager(models.Model):
     def __str__(self):
+        """
+        This is a comment
+        """
         return "PK=%d" % self.pk
 
     pk_gt_1 = _Manager()
@@ -965,6 +1133,9 @@ class City(models.Model):
     name = models.CharField(max_length=100, verbose_name="City verbose_name")
 
     def get_absolute_url(self):
+        """
+        This is a comment
+        """
         return "/dummy/%s/" % self.pk
 
 
@@ -973,6 +1144,9 @@ class Restaurant(models.Model):
     name = models.CharField(max_length=100)
 
     def get_absolute_url(self):
+        """
+        This is a comment
+        """
         return "/dummy/%s/" % self.pk
 
 
@@ -1064,6 +1238,9 @@ class ParentWithUUIDPK(models.Model):
     title = models.CharField(max_length=100)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return str(self.id)
 
 
@@ -1129,6 +1306,9 @@ class Country(models.Model):
     continent = models.CharField(max_length=13, choices=CONTINENT_CHOICES)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -1161,6 +1341,9 @@ class CamelCaseModel(models.Model):
     interesting_name = models.CharField(max_length=100)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.interesting_name
 
 

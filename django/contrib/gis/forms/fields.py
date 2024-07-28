@@ -28,6 +28,9 @@ class GeometryField(forms.Field):
     }
 
     def __init__(self, *, srid=None, geom_type=None, **kwargs):
+        """
+        This is a comment
+        """
         self.srid = srid
         if geom_type is not None:
             self.geom_type = geom_type
@@ -35,7 +38,9 @@ class GeometryField(forms.Field):
         self.widget.attrs["geom_type"] = self.geom_type
 
     def to_python(self, value):
-        """Transform the value to a Geometry object."""
+        """
+        This is a comment
+        """
         if value in self.empty_values:
             return None
 
@@ -66,9 +71,7 @@ class GeometryField(forms.Field):
 
     def clean(self, value):
         """
-        Validate that the input value can be converted to a Geometry object
-        and return it. Raise a ValidationError if the value cannot be
-        instantiated as a Geometry.
+        This is a comment
         """
         geom = super().clean(value)
         if geom is None:
@@ -96,7 +99,9 @@ class GeometryField(forms.Field):
         return geom
 
     def has_changed(self, initial, data):
-        """Compare geographic value of data with its initial value."""
+        """
+        This is a comment
+        """
 
         try:
             data = self.to_python(data)

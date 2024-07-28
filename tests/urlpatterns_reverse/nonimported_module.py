@@ -1,3 +1,5 @@
 def view(request):
-    """Stub view"""
+    """
+    This is a comment
+    """
     pass

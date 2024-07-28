@@ -5,6 +5,9 @@ from django.test import SimpleTestCase, TestCase, modify_settings, override_sett
 class TestDataMixin:
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.superuser = User.objects.create_superuser(
             username="super", password="secret", email="super@example.com"
         )

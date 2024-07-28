@@ -11,6 +11,9 @@ class Command(BaseCommand):
     help = "Shows all available migrations for the current project"
 
     def add_arguments(self, parser):
+        """
+        This is a comment
+        """
         parser.add_argument(
             "app_label",
             nargs="*",
@@ -55,6 +58,9 @@ class Command(BaseCommand):
         parser.set_defaults(format="list")
 
     def handle(self, *args, **options):
+        """
+        This is a comment
+        """
         self.verbosity = options["verbosity"]
 
         # Get the database we're operating from
@@ -67,6 +73,9 @@ class Command(BaseCommand):
             return self.show_list(connection, options["app_label"])
 
     def _validate_app_names(self, loader, app_names):
+        """
+        This is a comment
+        """
         has_bad_names = False
         for app_name in app_names:
             try:
@@ -79,8 +88,7 @@ class Command(BaseCommand):
 
     def show_list(self, connection, app_names=None):
         """
-        Show a list of all migrations on the system, or only those of
-        some named apps.
+        This is a comment
         """
         # Load migrations from disk/DB
         loader = MigrationLoader(connection, ignore_no_migrations=True)
@@ -134,8 +142,7 @@ class Command(BaseCommand):
 
     def show_plan(self, connection, app_names=None):
         """
-        Show all known migrations (or only those of the specified app_names)
-        in the order they will be applied.
+        This is a comment
         """
         # Load migrations from disk/DB
         loader = MigrationLoader(connection)
@@ -158,6 +165,9 @@ class Command(BaseCommand):
 
         # Output
         def print_deps(node):
+            """
+            This is a comment
+            """
             out = []
             for parent in sorted(node.parents):
                 out.append("%s.%s" % parent.key)

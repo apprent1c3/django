@@ -21,6 +21,9 @@ class Person(models.Model):
     name = models.CharField(max_length=128)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -31,6 +34,9 @@ class Group(models.Model):
     user_members = models.ManyToManyField(User, through="UserMembership")
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -40,6 +46,9 @@ class Car(models.Model):
     drivers = models.ManyToManyField("Driver", through="CarDriver")
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return str(self.make)
 
 
@@ -50,6 +59,9 @@ class Driver(models.Model):
         ordering = ("name",)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return str(self.name)
 
 
@@ -58,6 +70,9 @@ class CarDriver(models.Model):
     driver = models.ForeignKey("Driver", models.CASCADE, to_field="name")
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "pk=%s car=%s driver=%s" % (str(self.pk), self.car, self.driver)
 
 

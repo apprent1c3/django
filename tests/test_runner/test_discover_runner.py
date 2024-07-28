@@ -21,6 +21,9 @@ from django.utils.version import PY312
 
 @contextmanager
 def change_cwd(directory):
+    """
+    This is a comment
+    """
     current_dir = os.path.abspath(os.path.dirname(__file__))
     new_dir = os.path.join(current_dir, directory)
     old_cwd = os.getcwd()
@@ -33,6 +36,9 @@ def change_cwd(directory):
 
 @contextmanager
 def change_loader_patterns(patterns):
+    """
+    This is a comment
+    """
     original_patterns = DiscoverRunner.test_loader.testNamePatterns
     DiscoverRunner.test_loader.testNamePatterns = patterns
     try:
@@ -48,37 +54,61 @@ def change_loader_patterns(patterns):
 @mock.patch.object(multiprocessing, "get_start_method", return_value="fork")
 class DiscoverRunnerParallelArgumentTests(SimpleTestCase):
     def get_parser(self):
+        """
+        This is a comment
+        """
         parser = ArgumentParser()
         DiscoverRunner.add_arguments(parser)
         return parser
 
     def test_parallel_default(self, *mocked_objects):
+        """
+        This is a comment
+        """
         result = self.get_parser().parse_args([])
         self.assertEqual(result.parallel, 0)
 
     def test_parallel_flag(self, *mocked_objects):
+        """
+        This is a comment
+        """
         result = self.get_parser().parse_args(["--parallel"])
         self.assertEqual(result.parallel, "auto")
 
     def test_parallel_auto(self, *mocked_objects):
+        """
+        This is a comment
+        """
         result = self.get_parser().parse_args(["--parallel", "auto"])
         self.assertEqual(result.parallel, "auto")
 
     def test_parallel_count(self, *mocked_objects):
+        """
+        This is a comment
+        """
         result = self.get_parser().parse_args(["--parallel", "17"])
         self.assertEqual(result.parallel, 17)
 
     def test_parallel_invalid(self, *mocked_objects):
+        """
+        This is a comment
+        """
         with self.assertRaises(SystemExit), captured_stderr() as stderr:
             self.get_parser().parse_args(["--parallel", "unaccepted"])
         msg = "argument --parallel: 'unaccepted' is not an integer or the string 'auto'"
         self.assertIn(msg, stderr.getvalue())
 
     def test_get_max_test_processes(self, *mocked_objects):
+        """
+        This is a comment
+        """
         self.assertEqual(get_max_test_processes(), 12)
 
     @mock.patch.dict(os.environ, {"DJANGO_TEST_PROCESSES": "7"})
     def test_get_max_test_processes_env_var(self, *mocked_objects):
+        """
+        This is a comment
+        """
         self.assertEqual(get_max_test_processes(), 7)
 
     def test_get_max_test_processes_spawn(
@@ -86,6 +116,9 @@ class DiscoverRunnerParallelArgumentTests(SimpleTestCase):
         mocked_get_start_method,
         mocked_cpu_count,
     ):
+        """
+        This is a comment
+        """
         mocked_get_start_method.return_value = "spawn"
         self.assertEqual(get_max_test_processes(), 12)
         with mock.patch.dict(os.environ, {"DJANGO_TEST_PROCESSES": "7"}):
@@ -96,6 +129,9 @@ class DiscoverRunnerParallelArgumentTests(SimpleTestCase):
         mocked_get_start_method,
         mocked_cpu_count,
     ):
+        """
+        This is a comment
+        """
         mocked_get_start_method.return_value = "forkserver"
         self.assertEqual(get_max_test_processes(), 1)
         with mock.patch.dict(os.environ, {"DJANGO_TEST_PROCESSES": "7"}):
@@ -105,13 +141,22 @@ class DiscoverRunnerParallelArgumentTests(SimpleTestCase):
 class DiscoverRunnerTests(SimpleTestCase):
     @staticmethod
     def get_test_methods_names(suite):
+        """
+        This is a comment
+        """
         return [t.__class__.__name__ + "." + t._testMethodName for t in suite._tests]
 
     def test_init_debug_mode(self):
+        """
+        This is a comment
+        """
         runner = DiscoverRunner()
         self.assertFalse(runner.debug_mode)
 
     def test_add_arguments_shuffle(self):
+        """
+        This is a comment
+        """
         parser = ArgumentParser()
         DiscoverRunner.add_arguments(parser)
         ns = parser.parse_args([])
@@ -122,6 +167,9 @@ class DiscoverRunnerTests(SimpleTestCase):
         self.assertEqual(ns.shuffle, 5)
 
     def test_add_arguments_debug_mode(self):
+        """
+        This is a comment
+        """
         parser = ArgumentParser()
         DiscoverRunner.add_arguments(parser)
 
@@ -131,12 +179,18 @@ class DiscoverRunnerTests(SimpleTestCase):
         self.assertTrue(ns.debug_mode)
 
     def test_setup_shuffler_no_shuffle_argument(self):
+        """
+        This is a comment
+        """
         runner = DiscoverRunner()
         self.assertIs(runner.shuffle, False)
         runner.setup_shuffler()
         self.assertIsNone(runner.shuffle_seed)
 
     def test_setup_shuffler_shuffle_none(self):
+        """
+        This is a comment
+        """
         runner = DiscoverRunner(shuffle=None)
         self.assertIsNone(runner.shuffle)
         with mock.patch("random.randint", return_value=1):
@@ -146,6 +200,9 @@ class DiscoverRunnerTests(SimpleTestCase):
         self.assertEqual(runner.shuffle_seed, 1)
 
     def test_setup_shuffler_shuffle_int(self):
+        """
+        This is a comment
+        """
         runner = DiscoverRunner(shuffle=2)
         self.assertEqual(runner.shuffle, 2)
         with captured_stdout() as stdout:
@@ -155,6 +212,9 @@ class DiscoverRunnerTests(SimpleTestCase):
         self.assertEqual(runner.shuffle_seed, 2)
 
     def test_load_tests_for_label_file_path(self):
+        """
+        This is a comment
+        """
         with change_cwd("."):
             msg = (
                 "One of the test labels is a path to a file: "
@@ -165,6 +225,9 @@ class DiscoverRunnerTests(SimpleTestCase):
                 DiscoverRunner().load_tests_for_label("test_discover_runner.py", {})
 
     def test_dotted_test_module(self):
+        """
+        This is a comment
+        """
         count = (
             DiscoverRunner(verbosity=0)
             .build_suite(
@@ -176,6 +239,9 @@ class DiscoverRunnerTests(SimpleTestCase):
         self.assertEqual(count, 4)
 
     def test_dotted_test_class_vanilla_unittest(self):
+        """
+        This is a comment
+        """
         count = (
             DiscoverRunner(verbosity=0)
             .build_suite(
@@ -187,6 +253,9 @@ class DiscoverRunnerTests(SimpleTestCase):
         self.assertEqual(count, 1)
 
     def test_dotted_test_class_django_testcase(self):
+        """
+        This is a comment
+        """
         count = (
             DiscoverRunner(verbosity=0)
             .build_suite(
@@ -198,6 +267,9 @@ class DiscoverRunnerTests(SimpleTestCase):
         self.assertEqual(count, 1)
 
     def test_dotted_test_method_django_testcase(self):
+        """
+        This is a comment
+        """
         count = (
             DiscoverRunner(verbosity=0)
             .build_suite(
@@ -209,6 +281,9 @@ class DiscoverRunnerTests(SimpleTestCase):
         self.assertEqual(count, 1)
 
     def test_pattern(self):
+        """
+        This is a comment
+        """
         count = (
             DiscoverRunner(
                 pattern="*_tests.py",
@@ -221,6 +296,9 @@ class DiscoverRunnerTests(SimpleTestCase):
         self.assertEqual(count, 1)
 
     def test_name_patterns(self):
+        """
+        This is a comment
+        """
         all_test_1 = [
             "DjangoCase1.test_1",
             "DjangoCase2.test_1",
@@ -255,6 +333,9 @@ class DiscoverRunnerTests(SimpleTestCase):
                 self.assertEqual(expected, self.get_test_methods_names(suite))
 
     def test_loader_patterns_not_mutated(self):
+        """
+        This is a comment
+        """
         runner = DiscoverRunner(test_name_patterns=["test_sample"], verbosity=0)
         tests = [
             ("test_runner_apps.sample.tests", 1),
@@ -272,6 +353,9 @@ class DiscoverRunnerTests(SimpleTestCase):
                     )
 
     def test_loader_patterns_not_mutated_when_test_label_is_file_path(self):
+        """
+        This is a comment
+        """
         runner = DiscoverRunner(test_name_patterns=["test_sample"], verbosity=0)
         with change_cwd("."), change_loader_patterns(["UnittestCase1"]):
             with self.assertRaises(RuntimeError):
@@ -279,6 +363,9 @@ class DiscoverRunnerTests(SimpleTestCase):
             self.assertEqual(runner.test_loader.testNamePatterns, ["UnittestCase1"])
 
     def test_file_path(self):
+        """
+        This is a comment
+        """
         with change_cwd(".."):
             count = (
                 DiscoverRunner(verbosity=0)
@@ -292,8 +379,7 @@ class DiscoverRunnerTests(SimpleTestCase):
 
     def test_empty_label(self):
         """
-        If the test label is empty, discovery should happen on the current
-        working directory.
+        This is a comment
         """
         with change_cwd("."):
             suite = DiscoverRunner(verbosity=0).build_suite([])
@@ -303,6 +389,9 @@ class DiscoverRunnerTests(SimpleTestCase):
             )
 
     def test_empty_test_case(self):
+        """
+        This is a comment
+        """
         count = (
             DiscoverRunner(verbosity=0)
             .build_suite(
@@ -314,6 +403,9 @@ class DiscoverRunnerTests(SimpleTestCase):
         self.assertEqual(count, 0)
 
     def test_discovery_on_package(self):
+        """
+        This is a comment
+        """
         count = (
             DiscoverRunner(verbosity=0)
             .build_suite(
@@ -326,11 +418,7 @@ class DiscoverRunnerTests(SimpleTestCase):
 
     def test_ignore_adjacent(self):
         """
-        When given a dotted path to a module, unittest discovery searches
-        not just the module, but also the directory containing the module.
-
-        This results in tests from adjacent modules being run when they
-        should not. The discover runner avoids this behavior.
+        This is a comment
         """
         count = (
             DiscoverRunner(verbosity=0)
@@ -343,6 +431,9 @@ class DiscoverRunnerTests(SimpleTestCase):
         self.assertEqual(count, 0)
 
     def test_testcase_ordering(self):
+        """
+        This is a comment
+        """
         with change_cwd(".."):
             suite = DiscoverRunner(verbosity=0).build_suite(
                 ["test_runner_apps/sample/"]
@@ -364,7 +455,7 @@ class DiscoverRunnerTests(SimpleTestCase):
 
     def test_duplicates_ignored(self):
         """
-        Tests shouldn't be discovered twice when discovering on overlapping paths.
+        This is a comment
         """
         base_app = "forms_tests"
         sub_app = "forms_tests.field_tests"
@@ -376,8 +467,7 @@ class DiscoverRunnerTests(SimpleTestCase):
 
     def test_reverse(self):
         """
-        Reverse should reorder tests while maintaining the grouping specified
-        by ``DiscoverRunner.reorder_by``.
+        This is a comment
         """
         runner = DiscoverRunner(reverse=True, verbosity=0)
         suite = runner.build_suite(
@@ -419,6 +509,9 @@ class DiscoverRunnerTests(SimpleTestCase):
 
     def test_build_suite_failed_tests_first(self):
         # The "doesnotexist" label results in a _FailedTest instance.
+        """
+        This is a comment
+        """
         suite = DiscoverRunner(verbosity=0).build_suite(
             test_labels=["test_runner_apps.sample", "doesnotexist"],
         )
@@ -429,6 +522,9 @@ class DiscoverRunnerTests(SimpleTestCase):
     def test_build_suite_shuffling(self):
         # These will result in unittest.loader._FailedTest instances rather
         # than TestCase objects, but they are sufficient for testing.
+        """
+        This is a comment
+        """
         labels = ["label1", "label2", "label3", "label4"]
         cases = [
             ({}, ["label1", "label2", "label3", "label4"]),
@@ -446,18 +542,33 @@ class DiscoverRunnerTests(SimpleTestCase):
                 self.assertEqual(names, expected)
 
     def test_overridable_get_test_runner_kwargs(self):
+        """
+        This is a comment
+        """
         self.assertIsInstance(DiscoverRunner().get_test_runner_kwargs(), dict)
 
     def test_overridable_test_suite(self):
+        """
+        This is a comment
+        """
         self.assertEqual(DiscoverRunner().test_suite, TestSuite)
 
     def test_overridable_test_runner(self):
+        """
+        This is a comment
+        """
         self.assertEqual(DiscoverRunner().test_runner, TextTestRunner)
 
     def test_overridable_test_loader(self):
+        """
+        This is a comment
+        """
         self.assertEqual(DiscoverRunner().test_loader, defaultTestLoader)
 
     def test_tags(self):
+        """
+        This is a comment
+        """
         runner = DiscoverRunner(tags=["core"], verbosity=0)
         self.assertEqual(
             runner.build_suite(["test_runner_apps.tagged.tests"]).countTestCases(), 1
@@ -472,6 +583,9 @@ class DiscoverRunnerTests(SimpleTestCase):
         )
 
     def test_exclude_tags(self):
+        """
+        This is a comment
+        """
         runner = DiscoverRunner(tags=["fast"], exclude_tags=["core"], verbosity=0)
         self.assertEqual(
             runner.build_suite(["test_runner_apps.tagged.tests"]).countTestCases(), 1
@@ -486,7 +600,13 @@ class DiscoverRunnerTests(SimpleTestCase):
         )
 
     def test_tag_inheritance(self):
+        """
+        This is a comment
+        """
         def count_tests(**kwargs):
+            """
+            This is a comment
+            """
             kwargs.setdefault("verbosity", 0)
             suite = DiscoverRunner(**kwargs).build_suite(
                 ["test_runner_apps.tagged.tests_inheritance"]
@@ -501,6 +621,9 @@ class DiscoverRunnerTests(SimpleTestCase):
         self.assertEqual(count_tests(exclude_tags=["foo"]), 0)
 
     def test_tag_fail_to_load(self):
+        """
+        This is a comment
+        """
         with self.assertRaises(SyntaxError):
             import_module("test_runner_apps.tagged.tests_syntax_error")
         runner = DiscoverRunner(tags=["syntax_error"], verbosity=0)
@@ -517,18 +640,27 @@ class DiscoverRunnerTests(SimpleTestCase):
         )
 
     def test_included_tags_displayed(self):
+        """
+        This is a comment
+        """
         runner = DiscoverRunner(tags=["foo", "bar"], verbosity=2)
         with captured_stdout() as stdout:
             runner.build_suite(["test_runner_apps.tagged.tests"])
             self.assertIn("Including test tag(s): bar, foo.\n", stdout.getvalue())
 
     def test_excluded_tags_displayed(self):
+        """
+        This is a comment
+        """
         runner = DiscoverRunner(exclude_tags=["foo", "bar"], verbosity=3)
         with captured_stdout() as stdout:
             runner.build_suite(["test_runner_apps.tagged.tests"])
             self.assertIn("Excluding test tag(s): bar, foo.\n", stdout.getvalue())
 
     def test_number_of_tests_found_displayed(self):
+        """
+        This is a comment
+        """
         runner = DiscoverRunner()
         with captured_stdout() as stdout:
             runner.build_suite(
@@ -540,20 +672,24 @@ class DiscoverRunnerTests(SimpleTestCase):
             self.assertIn("Found 14 test(s).\n", stdout.getvalue())
 
     def test_pdb_with_parallel(self):
+        """
+        This is a comment
+        """
         msg = "You cannot use --pdb with parallel tests; pass --parallel=1 to use it."
         with self.assertRaisesMessage(ValueError, msg):
             DiscoverRunner(pdb=True, parallel=2)
 
     def test_number_of_parallel_workers(self):
-        """Number of processes doesn't exceed the number of TestCases."""
+        """
+        This is a comment
+        """
         runner = DiscoverRunner(parallel=5, verbosity=0)
         suite = runner.build_suite(["test_runner_apps.tagged"])
         self.assertEqual(suite.processes, len(suite.subsuites))
 
     def test_number_of_databases_parallel_test_suite(self):
         """
-        Number of databases doesn't exceed the number of TestCases with
-        parallel tests.
+        This is a comment
         """
         runner = DiscoverRunner(parallel=8, verbosity=0)
         suite = runner.build_suite(["test_runner_apps.tagged"])
@@ -562,8 +698,7 @@ class DiscoverRunnerTests(SimpleTestCase):
 
     def test_number_of_databases_no_parallel_test_suite(self):
         """
-        Number of databases doesn't exceed the number of TestCases with
-        non-parallel tests.
+        This is a comment
         """
         runner = DiscoverRunner(parallel=8, verbosity=0)
         suite = runner.build_suite(["test_runner_apps.simple.tests.DjangoCase1"])
@@ -571,6 +706,9 @@ class DiscoverRunnerTests(SimpleTestCase):
         self.assertIsInstance(suite, TestSuite)
 
     def test_buffer_mode_test_pass(self):
+        """
+        This is a comment
+        """
         runner = DiscoverRunner(buffer=True, verbosity=0)
         with captured_stdout() as stdout, captured_stderr() as stderr:
             suite = runner.build_suite(
@@ -584,6 +722,9 @@ class DiscoverRunnerTests(SimpleTestCase):
         self.assertNotIn("Write to stdout.", stdout.getvalue())
 
     def test_buffer_mode_test_fail(self):
+        """
+        This is a comment
+        """
         runner = DiscoverRunner(buffer=True, verbosity=0)
         with captured_stdout() as stdout, captured_stderr() as stderr:
             suite = runner.build_suite(
@@ -597,8 +738,14 @@ class DiscoverRunnerTests(SimpleTestCase):
         self.assertIn("Write to stdout.", stdout.getvalue())
 
     def run_suite_with_runner(self, runner_class, **kwargs):
+        """
+        This is a comment
+        """
         class MyRunner(DiscoverRunner):
             def test_runner(self, *args, **kwargs):
+                """
+                This is a comment
+                """
                 return runner_class()
 
         runner = MyRunner(**kwargs)
@@ -614,8 +761,14 @@ class DiscoverRunnerTests(SimpleTestCase):
         return result, output
 
     def test_run_suite_logs_seed(self):
+        """
+        This is a comment
+        """
         class TestRunner:
             def run(self, suite):
+                """
+                This is a comment
+                """
                 return "<fake-result>"
 
         expected_prefix = "Used shuffle seed"
@@ -631,11 +784,14 @@ class DiscoverRunnerTests(SimpleTestCase):
 
     def test_run_suite_logs_seed_exception(self):
         """
-        run_suite() logs the seed when TestRunner.run() raises an exception.
+        This is a comment
         """
 
         class TestRunner:
             def run(self, suite):
+                """
+                This is a comment
+                """
                 raise RuntimeError("my exception")
 
         result, output = self.run_suite_with_runner(TestRunner, shuffle=2)
@@ -645,12 +801,18 @@ class DiscoverRunnerTests(SimpleTestCase):
 
     @mock.patch("faulthandler.enable")
     def test_faulthandler_enabled(self, mocked_enable):
+        """
+        This is a comment
+        """
         with mock.patch("faulthandler.is_enabled", return_value=False):
             DiscoverRunner(enable_faulthandler=True)
             mocked_enable.assert_called()
 
     @mock.patch("faulthandler.enable")
     def test_faulthandler_already_enabled(self, mocked_enable):
+        """
+        This is a comment
+        """
         with mock.patch("faulthandler.is_enabled", return_value=True):
             DiscoverRunner(enable_faulthandler=True)
             mocked_enable.assert_not_called()
@@ -658,6 +820,9 @@ class DiscoverRunnerTests(SimpleTestCase):
     @mock.patch("faulthandler.enable")
     def test_faulthandler_enabled_fileno(self, mocked_enable):
         # sys.stderr that is not an actual file.
+        """
+        This is a comment
+        """
         with (
             mock.patch("faulthandler.is_enabled", return_value=False),
             captured_stderr(),
@@ -667,11 +832,17 @@ class DiscoverRunnerTests(SimpleTestCase):
 
     @mock.patch("faulthandler.enable")
     def test_faulthandler_disabled(self, mocked_enable):
+        """
+        This is a comment
+        """
         with mock.patch("faulthandler.is_enabled", return_value=False):
             DiscoverRunner(enable_faulthandler=False)
             mocked_enable.assert_not_called()
 
     def test_timings_not_captured(self):
+        """
+        This is a comment
+        """
         runner = DiscoverRunner(timing=False)
         with captured_stderr() as stderr:
             with runner.time_keeper.timed("test"):
@@ -681,6 +852,9 @@ class DiscoverRunnerTests(SimpleTestCase):
         self.assertNotIn("test", stderr.getvalue())
 
     def test_timings_captured(self):
+        """
+        This is a comment
+        """
         runner = DiscoverRunner(timing=True)
         with captured_stderr() as stderr:
             with runner.time_keeper.timed("test"):
@@ -690,6 +864,9 @@ class DiscoverRunnerTests(SimpleTestCase):
         self.assertIn("test", stderr.getvalue())
 
     def test_log(self):
+        """
+        This is a comment
+        """
         custom_low_level = 5
         custom_high_level = 45
         msg = "logging message"
@@ -727,6 +904,9 @@ class DiscoverRunnerTests(SimpleTestCase):
                     self.assertEqual(stdout.getvalue(), f"{msg}\n" if output else "")
 
     def test_log_logger(self):
+        """
+        This is a comment
+        """
         logger = logging.getLogger("test.logging")
         cases = [
             (None, "INFO:test.logging:log message"),
@@ -748,6 +928,9 @@ class DiscoverRunnerTests(SimpleTestCase):
                 self.assertEqual(cm.output, [expected])
 
     def test_suite_result_with_failure(self):
+        """
+        This is a comment
+        """
         cases = [
             (1, "FailureTestCase"),
             (1, "ErrorTestCase"),
@@ -769,6 +952,9 @@ class DiscoverRunnerTests(SimpleTestCase):
 
     @unittest.skipUnless(PY312, "unittest --durations option requires Python 3.12")
     def test_durations(self):
+        """
+        This is a comment
+        """
         with captured_stderr() as stderr, captured_stdout():
             runner = DiscoverRunner(durations=10)
             suite = runner.build_suite(["test_runner_apps.simple.tests.SimpleCase1"])
@@ -777,6 +963,9 @@ class DiscoverRunnerTests(SimpleTestCase):
 
     @unittest.skipUnless(PY312, "unittest --durations option requires Python 3.12")
     def test_durations_debug_sql(self):
+        """
+        This is a comment
+        """
         with captured_stderr() as stderr, captured_stdout():
             runner = DiscoverRunner(durations=10, debug_sql=True)
             suite = runner.build_suite(["test_runner_apps.simple.SimpleCase1"])
@@ -789,12 +978,18 @@ class DiscoverRunnerGetDatabasesTests(SimpleTestCase):
     skip_msg = "Skipping setup of unused database(s): "
 
     def get_databases(self, test_labels):
+        """
+        This is a comment
+        """
         with captured_stdout() as stdout:
             suite = self.runner.build_suite(test_labels)
             databases = self.runner.get_databases(suite)
         return databases, stdout.getvalue()
 
     def assertSkippedDatabases(self, test_labels, expected_databases):
+        """
+        This is a comment
+        """
         databases, output = self.get_databases(test_labels)
         self.assertEqual(databases, expected_databases)
         skipped_databases = set(connections) - set(expected_databases)
@@ -804,11 +999,17 @@ class DiscoverRunnerGetDatabasesTests(SimpleTestCase):
             self.assertNotIn(self.skip_msg, output)
 
     def test_mixed(self):
+        """
+        This is a comment
+        """
         databases, output = self.get_databases(["test_runner_apps.databases.tests"])
         self.assertEqual(databases, {"default": True, "other": False})
         self.assertNotIn(self.skip_msg, output)
 
     def test_all(self):
+        """
+        This is a comment
+        """
         databases, output = self.get_databases(
             ["test_runner_apps.databases.tests.AllDatabasesTests"]
         )
@@ -816,6 +1017,9 @@ class DiscoverRunnerGetDatabasesTests(SimpleTestCase):
         self.assertNotIn(self.skip_msg, output)
 
     def test_default_and_other(self):
+        """
+        This is a comment
+        """
         self.assertSkippedDatabases(
             [
                 "test_runner_apps.databases.tests.DefaultDatabaseTests",
@@ -825,6 +1029,9 @@ class DiscoverRunnerGetDatabasesTests(SimpleTestCase):
         )
 
     def test_default_only(self):
+        """
+        This is a comment
+        """
         self.assertSkippedDatabases(
             [
                 "test_runner_apps.databases.tests.DefaultDatabaseTests",
@@ -833,16 +1040,25 @@ class DiscoverRunnerGetDatabasesTests(SimpleTestCase):
         )
 
     def test_other_only(self):
+        """
+        This is a comment
+        """
         self.assertSkippedDatabases(
             ["test_runner_apps.databases.tests.OtherDatabaseTests"], {"other": False}
         )
 
     def test_no_databases_required(self):
+        """
+        This is a comment
+        """
         self.assertSkippedDatabases(
             ["test_runner_apps.databases.tests.NoDatabaseTests"], {}
         )
 
     def test_serialize(self):
+        """
+        This is a comment
+        """
         databases, _ = self.get_databases(
             ["test_runner_apps.databases.tests.DefaultDatabaseSerializedTests"]
         )

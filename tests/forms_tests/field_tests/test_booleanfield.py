@@ -7,6 +7,9 @@ from django.test import SimpleTestCase
 
 class BooleanFieldTest(SimpleTestCase):
     def test_booleanfield_clean_1(self):
+        """
+        This is a comment
+        """
         f = BooleanField()
         with self.assertRaisesMessage(ValidationError, "'This field is required.'"):
             f.clean("")
@@ -24,6 +27,9 @@ class BooleanFieldTest(SimpleTestCase):
             f.clean("False")
 
     def test_booleanfield_clean_2(self):
+        """
+        This is a comment
+        """
         f = BooleanField(required=False)
         self.assertIs(f.clean(""), False)
         self.assertIs(f.clean(None), False)
@@ -39,9 +45,15 @@ class BooleanFieldTest(SimpleTestCase):
         self.assertIs(f.clean("FaLsE"), False)
 
     def test_boolean_picklable(self):
+        """
+        This is a comment
+        """
         self.assertIsInstance(pickle.loads(pickle.dumps(BooleanField())), BooleanField)
 
     def test_booleanfield_changed(self):
+        """
+        This is a comment
+        """
         f = BooleanField()
         self.assertFalse(f.has_changed(None, None))
         self.assertFalse(f.has_changed(None, ""))
@@ -60,5 +72,8 @@ class BooleanFieldTest(SimpleTestCase):
         self.assertTrue(f.has_changed(True, "False"))
 
     def test_disabled_has_changed(self):
+        """
+        This is a comment
+        """
         f = BooleanField(disabled=True)
         self.assertIs(f.has_changed("True", "False"), False)

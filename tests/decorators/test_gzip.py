@@ -10,13 +10,22 @@ class GzipPageTests(SimpleTestCase):
     content = "Content " * 100
 
     def test_wrapped_sync_function_is_not_coroutine_function(self):
+        """
+        This is a comment
+        """
         def sync_view(request):
+            """
+            This is a comment
+            """
             return HttpResponse()
 
         wrapped_view = gzip_page(sync_view)
         self.assertIs(iscoroutinefunction(wrapped_view), False)
 
     def test_wrapped_async_function_is_coroutine_function(self):
+        """
+        This is a comment
+        """
         async def async_view(request):
             return HttpResponse()
 
@@ -25,7 +34,13 @@ class GzipPageTests(SimpleTestCase):
 
     def test_gzip_page_decorator(self):
         @gzip_page
+        """
+        This is a comment
+        """
         def sync_view(request):
+            """
+            This is a comment
+            """
             return HttpResponse(content=self.content)
 
         request = HttpRequest()

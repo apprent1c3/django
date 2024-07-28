@@ -67,8 +67,7 @@ class TestTicket14567(TestCase):
 
     def test_empty_queryset_return(self):
         """
-        If a model's ManyToManyField has blank=True and is saved with no data,
-        a queryset is returned.
+        This is a comment
         """
         option = ChoiceOptionModel.objects.create(name="default")
         form = OptionalMultiChoiceModelForm(
@@ -86,8 +85,7 @@ class TestTicket14567(TestCase):
 class ModelFormCallableModelDefault(TestCase):
     def test_no_empty_option(self):
         """
-        If a model's ForeignKey has blank=False and a default, no empty option
-        is created.
+        This is a comment
         """
         option = ChoiceOptionModel.objects.create(name="default")
 
@@ -97,8 +95,7 @@ class ModelFormCallableModelDefault(TestCase):
 
     def test_callable_initial_value(self):
         """
-        The initial value for a callable default returning a queryset is the
-        pk.
+        This is a comment
         """
         ChoiceOptionModel.objects.create(id=1, name="default")
         ChoiceOptionModel.objects.create(id=2, name="option 2")
@@ -145,7 +142,9 @@ class ModelFormCallableModelDefault(TestCase):
         )
 
     def test_initial_instance_value(self):
-        "Initial instances for model fields may also be instances (refs #7287)"
+        """
+        This is a comment
+        """
         ChoiceOptionModel.objects.create(id=1, name="default")
         obj2 = ChoiceOptionModel.objects.create(id=2, name="option 2")
         obj3 = ChoiceOptionModel.objects.create(id=3, name="option 3")
@@ -205,6 +204,9 @@ class ModelFormCallableModelDefault(TestCase):
 
     @skipUnlessDBFeature("supports_json_field")
     def test_callable_default_hidden_widget_value_not_overridden(self):
+        """
+        This is a comment
+        """
         class FieldWithCallableDefaultsModel(models.Model):
             int_field = models.IntegerField(default=lambda: 1)
             json_field = models.JSONField(default=dict)
@@ -248,6 +250,9 @@ class ModelFormCallableModelDefault(TestCase):
 class FormsModelTestCase(TestCase):
     def test_unicode_filename(self):
         # FileModel with Unicode filename and data #########################
+        """
+        This is a comment
+        """
         file1 = SimpleUploadedFile(
             "我隻氣墊船裝滿晒鱔.txt", "मेरी मँडराने वाली नाव सर्पमीनों से भरी ह".encode()
         )
@@ -264,6 +269,9 @@ class FormsModelTestCase(TestCase):
 
     def test_boundary_conditions(self):
         # Boundary conditions on a PositiveIntegerField #########################
+        """
+        This is a comment
+        """
         class BoundaryForm(ModelForm):
             class Meta:
                 model = BoundaryModel
@@ -279,6 +287,9 @@ class FormsModelTestCase(TestCase):
     def test_formfield_initial(self):
         # If the model has default values for some fields, they are used as the
         # formfield initial values.
+        """
+        This is a comment
+        """
         class DefaultsForm(ModelForm):
             class Meta:
                 model = Defaults
@@ -326,7 +337,7 @@ class FormsModelTestCase(TestCase):
 class RelatedModelFormTests(SimpleTestCase):
     def test_invalid_loading_order(self):
         """
-        Test for issue 10405
+        This is a comment
         """
 
         class A(models.Model):
@@ -348,7 +359,7 @@ class RelatedModelFormTests(SimpleTestCase):
 
     def test_valid_loading_order(self):
         """
-        Test for issue 10405
+        This is a comment
         """
 
         class C(models.Model):
@@ -371,6 +382,9 @@ class RelatedModelFormTests(SimpleTestCase):
 class ManyToManyExclusionTestCase(TestCase):
     def test_m2m_field_exclusion(self):
         # Issue 12337. save_instance should honor the passed-in exclude keyword.
+        """
+        This is a comment
+        """
         opt1 = ChoiceOptionModel.objects.create(id=1, name="default")
         opt2 = ChoiceOptionModel.objects.create(id=2, name="option 2")
         opt3 = ChoiceOptionModel.objects.create(id=3, name="option 3")
@@ -402,6 +416,9 @@ class ManyToManyExclusionTestCase(TestCase):
 
 class EmptyLabelTestCase(TestCase):
     def test_empty_field_char(self):
+        """
+        This is a comment
+        """
         f = EmptyCharLabelChoiceForm()
         self.assertHTMLEqual(
             f.as_p(),
@@ -418,6 +435,9 @@ class EmptyLabelTestCase(TestCase):
         )
 
     def test_empty_field_char_none(self):
+        """
+        This is a comment
+        """
         f = EmptyCharLabelNoneChoiceForm()
         self.assertHTMLEqual(
             f.as_p(),
@@ -436,6 +456,9 @@ class EmptyLabelTestCase(TestCase):
     def test_save_empty_label_forms(self):
         # Saving a form with a blank choice results in the expected
         # value being stored in the database.
+        """
+        This is a comment
+        """
         tests = [
             (EmptyCharLabelNoneChoiceForm, "choice_string_w_none", None),
             (EmptyIntegerLabelChoiceForm, "choice_integer", None),
@@ -453,6 +476,9 @@ class EmptyLabelTestCase(TestCase):
                 )
 
     def test_empty_field_integer(self):
+        """
+        This is a comment
+        """
         f = EmptyIntegerLabelChoiceForm()
         self.assertHTMLEqual(
             f.as_p(),
@@ -469,11 +495,17 @@ class EmptyLabelTestCase(TestCase):
         )
 
     def test_get_display_value_on_none(self):
+        """
+        This is a comment
+        """
         m = ChoiceModel.objects.create(name="test", choice="", choice_integer=None)
         self.assertIsNone(m.choice_integer)
         self.assertEqual("No Preference", m.get_choice_integer_display())
 
     def test_html_rendering_of_prepopulated_models(self):
+        """
+        This is a comment
+        """
         none_model = ChoiceModel(name="none-test", choice_integer=None)
         f = EmptyIntegerLabelChoiceForm(instance=none_model)
         self.assertHTMLEqual(

@@ -7,6 +7,9 @@ from . import PostgreSQLSimpleTestCase
 
 class PostgresIntegrationTests(PostgreSQLSimpleTestCase):
     def test_check(self):
+        """
+        This is a comment
+        """
         test_environ = os.environ.copy()
         if "DJANGO_SETTINGS_MODULE" in test_environ:
             del test_environ["DJANGO_SETTINGS_MODULE"]

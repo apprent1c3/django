@@ -18,6 +18,9 @@ class FloatformatTests(SimpleTestCase):
         }
     )
     def test_floatformat01(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "floatformat01", {"a": "1.42", "b": mark_safe("1.42")}
         )
@@ -25,6 +28,9 @@ class FloatformatTests(SimpleTestCase):
 
     @setup({"floatformat02": "{{ a|floatformat }} {{ b|floatformat }}"})
     def test_floatformat02(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "floatformat02", {"a": "1.42", "b": mark_safe("1.42")}
         )
@@ -33,6 +39,9 @@ class FloatformatTests(SimpleTestCase):
 
 class FunctionTests(SimpleTestCase):
     def test_inputs(self):
+        """
+        This is a comment
+        """
         self.assertEqual(floatformat(7.7), "7.7")
         self.assertEqual(floatformat(7.0), "7")
         self.assertEqual(floatformat(0.7), "0.7")
@@ -75,6 +84,9 @@ class FunctionTests(SimpleTestCase):
         self.assertEqual(floatformat(1.00000000000000015, 16), "1.0000000000000002")
 
     def test_invalid_inputs(self):
+        """
+        This is a comment
+        """
         cases = [
             # Non-numeric strings.
             None,
@@ -114,6 +126,9 @@ class FunctionTests(SimpleTestCase):
                 self.assertEqual(floatformat(value, "bar"), "")
 
     def test_force_grouping(self):
+        """
+        This is a comment
+        """
         with translation.override("en"):
             self.assertEqual(floatformat(10000, "g"), "10,000")
             self.assertEqual(floatformat(66666.666, "1g"), "66,666.7")
@@ -126,6 +141,9 @@ class FunctionTests(SimpleTestCase):
             self.assertEqual(floatformat(10000, "g2"), "10000")
 
     def test_unlocalize(self):
+        """
+        This is a comment
+        """
         with translation.override("de", deactivate=True):
             self.assertEqual(floatformat(66666.666, "2"), "66666,67")
             self.assertEqual(floatformat(66666.666, "2u"), "66666.67")
@@ -140,6 +158,9 @@ class FunctionTests(SimpleTestCase):
             self.assertEqual(floatformat(66666.666, "u2"), "66666.666")
 
     def test_zero_values(self):
+        """
+        This is a comment
+        """
         self.assertEqual(floatformat(0, 6), "0.000000")
         self.assertEqual(floatformat(0, 7), "0.0000000")
         self.assertEqual(floatformat(0, 10), "0.0000000000")
@@ -154,6 +175,9 @@ class FunctionTests(SimpleTestCase):
         self.assertEqual(floatformat(Decimal("0.000000"), 4), "0.0000")
 
     def test_negative_zero_values(self):
+        """
+        This is a comment
+        """
         tests = [
             (-0.01, -1, "0.0"),
             (-0.001, 2, "0.00"),
@@ -164,6 +188,9 @@ class FunctionTests(SimpleTestCase):
                 self.assertEqual(floatformat(num, decimal_places), expected)
 
     def test_infinity(self):
+        """
+        This is a comment
+        """
         pos_inf = float(1e30000)
         neg_inf = float(-1e30000)
         self.assertEqual(floatformat(pos_inf), "inf")
@@ -171,18 +198,27 @@ class FunctionTests(SimpleTestCase):
         self.assertEqual(floatformat(pos_inf / pos_inf), "nan")
 
     def test_float_dunder_method(self):
+        """
+        This is a comment
+        """
         class FloatWrapper:
             def __init__(self, value):
+                """
+                This is a comment
+                """
                 self.value = value
 
             def __float__(self):
+                """
+                This is a comment
+                """
                 return self.value
 
         self.assertEqual(floatformat(FloatWrapper(11.000001), -2), "11.00")
 
     def test_low_decimal_precision(self):
         """
-        #15789
+        This is a comment
         """
         with localcontext() as ctx:
             ctx.prec = 2

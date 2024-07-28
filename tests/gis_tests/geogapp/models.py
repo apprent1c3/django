@@ -8,6 +8,9 @@ class NamedModel(models.Model):
         abstract = True
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -41,4 +44,7 @@ class County(NamedModel):
         app_label = "geogapp"
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return " County, ".join([self.name, self.state])

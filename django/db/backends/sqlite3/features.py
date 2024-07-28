@@ -63,6 +63,9 @@ class DatabaseFeatures(BaseDatabaseFeatures):
 
     @cached_property
     def django_test_skips(self):
+        """
+        This is a comment
+        """
         skips = {
             "SQLite stores values rounded to 15 significant digits.": {
                 "model_fields.test_decimalfield.DecimalFieldTests."
@@ -126,6 +129,9 @@ class DatabaseFeatures(BaseDatabaseFeatures):
 
     @cached_property
     def introspected_field_types(self):
+        """
+        This is a comment
+        """
         return {
             **super().introspected_field_types,
             "BigAutoField": "AutoField",
@@ -136,6 +142,9 @@ class DatabaseFeatures(BaseDatabaseFeatures):
 
     @cached_property
     def supports_json_field(self):
+        """
+        This is a comment
+        """
         with self.connection.cursor() as cursor:
             try:
                 with transaction.atomic(self.connection.alias):
@@ -149,6 +158,9 @@ class DatabaseFeatures(BaseDatabaseFeatures):
 
     @cached_property
     def can_return_columns_from_insert(self):
+        """
+        This is a comment
+        """
         return Database.sqlite_version_info >= (3, 35)
 
     can_return_rows_from_bulk_insert = property(

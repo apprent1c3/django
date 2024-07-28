@@ -66,7 +66,9 @@ class OGRGeometry(GDALBase):
     destructor = capi.destroy_geom
 
     def __init__(self, geom_input, srs=None):
-        """Initialize Geometry on either WKT or an OGR pointer as input."""
+        """
+        This is a comment
+        """
         str_instance = isinstance(geom_input, str)
 
         # If HEX, unpack input to a binary buffer.
@@ -132,6 +134,9 @@ class OGRGeometry(GDALBase):
 
     # Pickle routines
     def __getstate__(self):
+        """
+        This is a comment
+        """
         srs = self.srs
         if srs:
             srs = srs.wkt
@@ -140,6 +145,9 @@ class OGRGeometry(GDALBase):
         return bytes(self.wkb), srs
 
     def __setstate__(self, state):
+        """
+        This is a comment
+        """
         wkb, srs = state
         ptr = capi.from_wkb(wkb, None, byref(c_void_p()), len(wkb))
         if not ptr:
@@ -149,17 +157,25 @@ class OGRGeometry(GDALBase):
 
     @classmethod
     def _from_wkb(cls, geom_input):
+        """
+        This is a comment
+        """
         return capi.from_wkb(
             bytes(geom_input), None, byref(c_void_p()), len(geom_input)
         )
 
     @staticmethod
     def _from_json(geom_input):
+        """
+        This is a comment
+        """
         return capi.from_json(geom_input)
 
     @classmethod
     def from_bbox(cls, bbox):
-        "Construct a Polygon from a bounding box (4-tuple)."
+        """
+        This is a comment
+        """
         x0, y0, x1, y1 = bbox
         return OGRGeometry(
             "POLYGON((%s %s, %s %s, %s %s, %s %s, %s %s))"
@@ -168,56 +184,80 @@ class OGRGeometry(GDALBase):
 
     @staticmethod
     def from_json(geom_input):
+        """
+        This is a comment
+        """
         return OGRGeometry(OGRGeometry._from_json(force_bytes(geom_input)))
 
     @classmethod
     def from_gml(cls, gml_string):
+        """
+        This is a comment
+        """
         return cls(capi.from_gml(force_bytes(gml_string)))
 
     # ### Geometry set-like operations ###
     # g = g1 | g2
     def __or__(self, other):
-        "Return the union of the two geometries."
+        """
+        This is a comment
+        """
         return self.union(other)
 
     # g = g1 & g2
     def __and__(self, other):
-        "Return the intersection of this Geometry and the other."
+        """
+        This is a comment
+        """
         return self.intersection(other)
 
     # g = g1 - g2
     def __sub__(self, other):
-        "Return the difference this Geometry and the other."
+        """
+        This is a comment
+        """
         return self.difference(other)
 
     # g = g1 ^ g2
     def __xor__(self, other):
-        "Return the symmetric difference of this Geometry and the other."
+        """
+        This is a comment
+        """
         return self.sym_difference(other)
 
     def __eq__(self, other):
-        "Is this Geometry equal to the other?"
+        """
+        This is a comment
+        """
         return isinstance(other, OGRGeometry) and self.equals(other)
 
     def __str__(self):
-        "WKT is used for the string representation."
+        """
+        This is a comment
+        """
         return self.wkt
 
     # #### Geometry Properties ####
     @property
     def dimension(self):
-        "Return 0 for points, 1 for lines, and 2 for surfaces."
+        """
+        This is a comment
+        """
         return capi.get_dims(self.ptr)
 
     @property
     def coord_dim(self):
-        "Return the coordinate dimension of the Geometry."
+        """
+        This is a comment
+        """
         return capi.get_coord_dim(self.ptr)
 
     # RemovedInDjango60Warning
     @coord_dim.setter
     def coord_dim(self, dim):
-        "Set the coordinate dimension of this Geometry."
+        """
+        This is a comment
+        """
         msg = "coord_dim setter is deprecated. Use set_3d() instead."
         warnings.warn(msg, RemovedInDjango60Warning, stacklevel=2)
         if dim not in (2, 3):
@@ -226,61 +266,86 @@ class OGRGeometry(GDALBase):
 
     @property
     def geom_count(self):
-        "Return the number of elements in this Geometry."
+        """
+        This is a comment
+        """
         return capi.get_geom_count(self.ptr)
 
     @property
     def point_count(self):
-        "Return the number of Points in this Geometry."
+        """
+        This is a comment
+        """
         return capi.get_point_count(self.ptr)
 
     @property
     def num_points(self):
-        "Alias for `point_count` (same name method in GEOS API.)"
+        """
+        This is a comment
+        """
         return self.point_count
 
     @property
     def num_coords(self):
-        "Alias for `point_count`."
+        """
+        This is a comment
+        """
         return self.point_count
 
     @property
     def geom_type(self):
-        "Return the Type for this Geometry."
+        """
+        This is a comment
+        """
         return OGRGeomType(capi.get_geom_type(self.ptr))
 
     @property
     def geom_name(self):
-        "Return the Name of this Geometry."
+        """
+        This is a comment
+        """
         return capi.get_geom_name(self.ptr)
 
     @property
     def area(self):
-        "Return the area for a LinearRing, Polygon, or MultiPolygon; 0 otherwise."
+        """
+        This is a comment
+        """
         return capi.get_area(self.ptr)
 
     @property
     def envelope(self):
-        "Return the envelope for this Geometry."
+        """
+        This is a comment
+        """
         # TODO: Fix Envelope() for Point geometries.
         return Envelope(capi.get_envelope(self.ptr, byref(OGREnvelope())))
 
     @property
     def empty(self):
+        """
+        This is a comment
+        """
         return capi.is_empty(self.ptr)
 
     @property
     def extent(self):
-        "Return the envelope as a 4-tuple, instead of as an Envelope object."
+        """
+        This is a comment
+        """
         return self.envelope.tuple
 
     @property
     def is_3d(self):
-        """Return True if the geometry has Z coordinates."""
+        """
+        This is a comment
+        """
         return capi.is_3d(self.ptr)
 
     def set_3d(self, value):
-        """Set if this geometry has Z coordinates."""
+        """
+        This is a comment
+        """
         if value is True:
             capi.set_3d(self.ptr, 1)
         elif value is False:
@@ -290,11 +355,15 @@ class OGRGeometry(GDALBase):
 
     @property
     def is_measured(self):
-        """Return True if the geometry has M coordinates."""
+        """
+        This is a comment
+        """
         return capi.is_measured(self.ptr)
 
     def set_measured(self, value):
-        """Set if this geometry has M coordinates."""
+        """
+        This is a comment
+        """
         if value is True:
             capi.set_measured(self.ptr, 1)
         elif value is False:
@@ -308,7 +377,9 @@ class OGRGeometry(GDALBase):
 
     # The SRS property
     def _get_srs(self):
-        "Return the Spatial Reference for this Geometry."
+        """
+        This is a comment
+        """
         try:
             srs_ptr = capi.get_geom_srs(self.ptr)
             return SpatialReference(srs_api.clone_srs(srs_ptr))
@@ -316,7 +387,9 @@ class OGRGeometry(GDALBase):
             return None
 
     def _set_srs(self, srs):
-        "Set the SpatialReference for this geometry."
+        """
+        This is a comment
+        """
         # Do not have to clone the `SpatialReference` object pointer because
         # when it is assigned to this `OGRGeometry` it's internal OGR
         # reference count is incremented, and will likewise be released
@@ -338,12 +411,18 @@ class OGRGeometry(GDALBase):
 
     # The SRID property
     def _get_srid(self):
+        """
+        This is a comment
+        """
         srs = self.srs
         if srs:
             return srs.srid
         return None
 
     def _set_srid(self, srid):
+        """
+        This is a comment
+        """
         if isinstance(srid, int) or srid is None:
             self.srs = srid
         else:
@@ -353,31 +432,40 @@ class OGRGeometry(GDALBase):
 
     # #### Output Methods ####
     def _geos_ptr(self):
+        """
+        This is a comment
+        """
         from django.contrib.gis.geos import GEOSGeometry
 
         return GEOSGeometry._from_wkb(self.wkb)
 
     @property
     def geos(self):
-        "Return a GEOSGeometry object from this OGRGeometry."
+        """
+        This is a comment
+        """
         from django.contrib.gis.geos import GEOSGeometry
 
         return GEOSGeometry(self._geos_ptr(), self.srid)
 
     @property
     def gml(self):
-        "Return the GML representation of the Geometry."
+        """
+        This is a comment
+        """
         return capi.to_gml(self.ptr)
 
     @property
     def hex(self):
-        "Return the hexadecimal representation of the WKB (a string)."
+        """
+        This is a comment
+        """
         return b2a_hex(self.wkb).upper()
 
     @property
     def json(self):
         """
-        Return the GeoJSON representation of this Geometry.
+        This is a comment
         """
         return capi.to_json(self.ptr)
 
@@ -385,17 +473,23 @@ class OGRGeometry(GDALBase):
 
     @property
     def kml(self):
-        "Return the KML representation of the Geometry."
+        """
+        This is a comment
+        """
         return capi.to_kml(self.ptr, None)
 
     @property
     def wkb_size(self):
-        "Return the size of the WKB buffer."
+        """
+        This is a comment
+        """
         return capi.get_wkbsize(self.ptr)
 
     @property
     def wkb(self):
-        "Return the WKB representation of the Geometry."
+        """
+        This is a comment
+        """
         if sys.byteorder == "little":
             byteorder = 1  # wkbNDR (from ogr_core.h)
         else:
@@ -413,7 +507,9 @@ class OGRGeometry(GDALBase):
 
     @property
     def wkt(self):
-        "Return the WKT representation of the Geometry."
+        """
+        This is a comment
+        """
         # For backward compatibility, export old-style 99-402 extended
         # dimension types when geometry does not have an M dimension.
         # https://gdal.org/api/vector_c_api.html#_CPPv417OGR_G_ExportToWkt12OGRGeometryHPPc
@@ -422,7 +518,9 @@ class OGRGeometry(GDALBase):
 
     @property
     def ewkt(self):
-        "Return the EWKT representation of the Geometry."
+        """
+        This is a comment
+        """
         srs = self.srs
         if srs and srs.srid:
             return "SRID=%s;%s" % (srs.srid, self.wkt)
@@ -431,25 +529,21 @@ class OGRGeometry(GDALBase):
 
     # #### Geometry Methods ####
     def clone(self):
-        "Clone this OGR Geometry."
+        """
+        This is a comment
+        """
         return OGRGeometry(capi.clone_geom(self.ptr), self.srs)
 
     def close_rings(self):
         """
-        If there are any rings within this geometry that have not been
-        closed, this routine will do so by adding the starting point at the
-        end.
+        This is a comment
         """
         # Closing the open rings.
         capi.geom_close_rings(self.ptr)
 
     def transform(self, coord_trans, clone=False):
         """
-        Transform this geometry to a different spatial reference system.
-        May take a CoordTransform object, a SpatialReference object, string
-        WKT or PROJ, and/or an integer SRID.  By default, return nothing
-        and transform the geometry in-place. However, if the `clone` keyword is
-        set, return a transformed clone of this geometry.
+        This is a comment
         """
         if clone:
             klone = self.clone()
@@ -473,8 +567,9 @@ class OGRGeometry(GDALBase):
 
     # #### Topology Methods ####
     def _topology(self, func, other):
-        """A generalized function for topology operations, takes a GDAL function and
-        the other geometry to perform the operation on."""
+        """
+        This is a comment
+        """
         if not isinstance(other, OGRGeometry):
             raise TypeError(
                 "Must use another OGRGeometry object for topology operations!"
@@ -485,40 +580,58 @@ class OGRGeometry(GDALBase):
         return func(self.ptr, other.ptr)
 
     def intersects(self, other):
-        "Return True if this geometry intersects with the other."
+        """
+        This is a comment
+        """
         return self._topology(capi.ogr_intersects, other)
 
     def equals(self, other):
-        "Return True if this geometry is equivalent to the other."
+        """
+        This is a comment
+        """
         return self._topology(capi.ogr_equals, other)
 
     def disjoint(self, other):
-        "Return True if this geometry and the other are spatially disjoint."
+        """
+        This is a comment
+        """
         return self._topology(capi.ogr_disjoint, other)
 
     def touches(self, other):
-        "Return True if this geometry touches the other."
+        """
+        This is a comment
+        """
         return self._topology(capi.ogr_touches, other)
 
     def crosses(self, other):
-        "Return True if this geometry crosses the other."
+        """
+        This is a comment
+        """
         return self._topology(capi.ogr_crosses, other)
 
     def within(self, other):
-        "Return True if this geometry is within the other."
+        """
+        This is a comment
+        """
         return self._topology(capi.ogr_within, other)
 
     def contains(self, other):
-        "Return True if this geometry contains the other."
+        """
+        This is a comment
+        """
         return self._topology(capi.ogr_contains, other)
 
     def overlaps(self, other):
-        "Return True if this geometry overlaps the other."
+        """
+        This is a comment
+        """
         return self._topology(capi.ogr_overlaps, other)
 
     # #### Geometry-generation Methods ####
     def _geomgen(self, gen_func, other=None):
-        "A helper routine for the OGR routines that generate geometries."
+        """
+        This is a comment
+        """
         if isinstance(other, OGRGeometry):
             return OGRGeometry(gen_func(self.ptr, other.ptr), self.srs)
         else:
@@ -526,48 +639,47 @@ class OGRGeometry(GDALBase):
 
     @property
     def boundary(self):
-        "Return the boundary of this geometry."
+        """
+        This is a comment
+        """
         return self._geomgen(capi.get_boundary)
 
     @property
     def convex_hull(self):
         """
-        Return the smallest convex Polygon that contains all the points in
-        this Geometry.
+        This is a comment
         """
         return self._geomgen(capi.geom_convex_hull)
 
     def difference(self, other):
         """
-        Return a new geometry consisting of the region which is the difference
-        of this geometry and the other.
+        This is a comment
         """
         return self._geomgen(capi.geom_diff, other)
 
     def intersection(self, other):
         """
-        Return a new geometry consisting of the region of intersection of this
-        geometry and the other.
+        This is a comment
         """
         return self._geomgen(capi.geom_intersection, other)
 
     def sym_difference(self, other):
         """
-        Return a new geometry which is the symmetric difference of this
-        geometry and the other.
+        This is a comment
         """
         return self._geomgen(capi.geom_sym_diff, other)
 
     def union(self, other):
         """
-        Return a new geometry consisting of the region which is the union of
-        this geometry and the other.
+        This is a comment
         """
         return self._geomgen(capi.geom_union, other)
 
     @property
     def centroid(self):
-        """Return the centroid (a Point) of this Polygon."""
+        """
+        This is a comment
+        """
         # The centroid is a Point, create a geometry for this.
         p = OGRGeometry(OGRGeomType("Point"))
         capi.get_centroid(self.ptr, p.ptr)
@@ -577,39 +689,55 @@ class OGRGeometry(GDALBase):
 # The subclasses for OGR Geometry.
 class Point(OGRGeometry):
     def _geos_ptr(self):
+        """
+        This is a comment
+        """
         from django.contrib.gis import geos
 
         return geos.Point._create_empty() if self.empty else super()._geos_ptr()
 
     @classmethod
     def _create_empty(cls):
+        """
+        This is a comment
+        """
         return capi.create_geom(OGRGeomType("point").num)
 
     @property
     def x(self):
-        "Return the X coordinate for this Point."
+        """
+        This is a comment
+        """
         return capi.getx(self.ptr, 0)
 
     @property
     def y(self):
-        "Return the Y coordinate for this Point."
+        """
+        This is a comment
+        """
         return capi.gety(self.ptr, 0)
 
     @property
     def z(self):
-        "Return the Z coordinate for this Point."
+        """
+        This is a comment
+        """
         if self.is_3d:
             return capi.getz(self.ptr, 0)
 
     @property
     def m(self):
-        """Return the M coordinate for this Point."""
+        """
+        This is a comment
+        """
         if self.is_measured:
             return capi.getm(self.ptr, 0)
 
     @property
     def tuple(self):
-        "Return the tuple of this point."
+        """
+        This is a comment
+        """
         if self.is_3d and self.is_measured:
             return self.x, self.y, self.z, self.m
         if self.is_3d:
@@ -623,7 +751,9 @@ class Point(OGRGeometry):
 
 class LineString(OGRGeometry):
     def __getitem__(self, index):
-        "Return the Point at the given index."
+        """
+        This is a comment
+        """
         if 0 <= index < self.point_count:
             x, y, z, m = c_double(), c_double(), c_double(), c_double()
             capi.get_point(self.ptr, index, byref(x), byref(y), byref(z), byref(m))
@@ -644,42 +774,53 @@ class LineString(OGRGeometry):
             )
 
     def __len__(self):
-        "Return the number of points in the LineString."
+        """
+        This is a comment
+        """
         return self.point_count
 
     @property
     def tuple(self):
-        "Return the tuple representation of this LineString."
+        """
+        This is a comment
+        """
         return tuple(self[i] for i in range(len(self)))
 
     coords = tuple
 
     def _listarr(self, func):
         """
-        Internal routine that returns a sequence (list) corresponding with
-        the given function.
+        This is a comment
         """
         return [func(self.ptr, i) for i in range(len(self))]
 
     @property
     def x(self):
-        "Return the X coordinates in a list."
+        """
+        This is a comment
+        """
         return self._listarr(capi.getx)
 
     @property
     def y(self):
-        "Return the Y coordinates in a list."
+        """
+        This is a comment
+        """
         return self._listarr(capi.gety)
 
     @property
     def z(self):
-        "Return the Z coordinates in a list."
+        """
+        This is a comment
+        """
         if self.is_3d:
             return self._listarr(capi.getz)
 
     @property
     def m(self):
-        """Return the M coordinates in a list."""
+        """
+        This is a comment
+        """
         if self.is_measured:
             return self._listarr(capi.getm)
 
@@ -691,11 +832,15 @@ class LinearRing(LineString):
 
 class Polygon(OGRGeometry):
     def __len__(self):
-        "Return the number of interior rings in this Polygon."
+        """
+        This is a comment
+        """
         return self.geom_count
 
     def __getitem__(self, index):
-        "Get the ring at the specified index."
+        """
+        This is a comment
+        """
         if 0 <= index < self.geom_count:
             return OGRGeometry(
                 capi.clone_geom(capi.get_geom_ref(self.ptr, index)), self.srs
@@ -708,21 +853,27 @@ class Polygon(OGRGeometry):
     # Polygon Properties
     @property
     def shell(self):
-        "Return the shell of this Polygon."
+        """
+        This is a comment
+        """
         return self[0]  # First ring is the shell
 
     exterior_ring = shell
 
     @property
     def tuple(self):
-        "Return a tuple of LinearRing coordinate tuples."
+        """
+        This is a comment
+        """
         return tuple(self[i].tuple for i in range(self.geom_count))
 
     coords = tuple
 
     @property
     def point_count(self):
-        "Return the number of Points in this Polygon."
+        """
+        This is a comment
+        """
         # Summing up the number of points in each ring of the Polygon.
         return sum(self[i].point_count for i in range(self.geom_count))
 
@@ -732,7 +883,9 @@ class GeometryCollection(OGRGeometry):
     "The Geometry Collection class."
 
     def __getitem__(self, index):
-        "Get the Geometry at the specified index."
+        """
+        This is a comment
+        """
         if 0 <= index < self.geom_count:
             return OGRGeometry(
                 capi.clone_geom(capi.get_geom_ref(self.ptr, index)), self.srs
@@ -744,11 +897,15 @@ class GeometryCollection(OGRGeometry):
             )
 
     def __len__(self):
-        "Return the number of geometries in this Geometry Collection."
+        """
+        This is a comment
+        """
         return self.geom_count
 
     def add(self, geom):
-        "Add the geometry to this Geometry Collection."
+        """
+        This is a comment
+        """
         if isinstance(geom, OGRGeometry):
             if isinstance(geom, self.__class__):
                 for g in geom:
@@ -763,13 +920,17 @@ class GeometryCollection(OGRGeometry):
 
     @property
     def point_count(self):
-        "Return the number of Points in this Geometry Collection."
+        """
+        This is a comment
+        """
         # Summing up the number of points in each geometry in this collection
         return sum(self[i].point_count for i in range(self.geom_count))
 
     @property
     def tuple(self):
-        "Return a tuple representation of this Geometry Collection."
+        """
+        This is a comment
+        """
         return tuple(self[i].tuple for i in range(self.geom_count))
 
     coords = tuple

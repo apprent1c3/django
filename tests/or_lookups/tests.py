@@ -10,6 +10,9 @@ from .models import Article
 class OrLookupsTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.a1 = Article.objects.create(
             headline="Hello", pub_date=datetime(2005, 11, 27)
         ).pk
@@ -21,6 +24,9 @@ class OrLookupsTests(TestCase):
         ).pk
 
     def test_filter_or(self):
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             (
                 Article.objects.filter(headline__startswith="Hello")
@@ -55,6 +61,9 @@ class OrLookupsTests(TestCase):
     def test_stages(self):
         # You can shorten this syntax with code like the following,  which is
         # especially useful if building the query in stages:
+        """
+        This is a comment
+        """
         articles = Article.objects.all()
         self.assertQuerySetEqual(
             articles.filter(headline__startswith="Hello")
@@ -69,6 +78,9 @@ class OrLookupsTests(TestCase):
         )
 
     def test_pk_q(self):
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             Article.objects.filter(Q(pk=self.a1) | Q(pk=self.a2)),
             ["Hello", "Goodbye"],
@@ -82,6 +94,9 @@ class OrLookupsTests(TestCase):
         )
 
     def test_pk_in(self):
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             Article.objects.filter(pk__in=[self.a1, self.a2, self.a3]),
             ["Hello", "Goodbye", "Hello and goodbye"],
@@ -101,6 +116,9 @@ class OrLookupsTests(TestCase):
         )
 
     def test_q_repr(self):
+        """
+        This is a comment
+        """
         or_expr = Q(baz=Article(headline="Foö"))
         self.assertEqual(repr(or_expr), "<Q: (AND: ('baz', <Article: Foö>))>")
         negated_or = ~Q(baz=Article(headline="Foö"))
@@ -108,6 +126,9 @@ class OrLookupsTests(TestCase):
 
     def test_q_negated(self):
         # Q objects can be negated
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             Article.objects.filter(Q(pk=self.a1) | ~Q(pk=self.a2)),
             ["Hello", "Hello and goodbye"],
@@ -131,6 +152,9 @@ class OrLookupsTests(TestCase):
         # The 'complex_filter' method supports framework features such as
         # 'limit_choices_to' which normally take a single dictionary of lookup
         # arguments but need to support arbitrary queries via Q objects too.
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             Article.objects.complex_filter({"pk": self.a1}),
             ["Hello"],
@@ -145,6 +169,9 @@ class OrLookupsTests(TestCase):
 
     def test_empty_in(self):
         # Passing "in" an empty list returns no results ...
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(Article.objects.filter(pk__in=[]), [])
         # ... but can return results if we OR it with another query.
         self.assertQuerySetEqual(
@@ -155,6 +182,9 @@ class OrLookupsTests(TestCase):
 
     def test_q_and(self):
         # Q arg objects are ANDed
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             Article.objects.filter(
                 Q(headline__startswith="Hello"), Q(headline__contains="bye")
@@ -179,6 +209,9 @@ class OrLookupsTests(TestCase):
         )
 
     def test_q_exclude(self):
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             Article.objects.exclude(Q(headline__startswith="Hello")),
             ["Goodbye"],
@@ -187,6 +220,9 @@ class OrLookupsTests(TestCase):
 
     def test_other_arg_queries(self):
         # Try some arg queries with operations other than filter.
+        """
+        This is a comment
+        """
         self.assertEqual(
             Article.objects.get(
                 Q(headline__startswith="Hello"), Q(headline__contains="bye")

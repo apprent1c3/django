@@ -23,16 +23,7 @@ from django.views import debug
 
 def convert_exception_to_response(get_response):
     """
-    Wrap the given get_response callable in exception-to-response conversion.
-
-    All exceptions will be converted. All known 4xx exceptions (Http404,
-    PermissionDenied, MultiPartParserError, SuspiciousOperation) will be
-    converted to the appropriate response, and all other exceptions will be
-    converted to 500 responses.
-
-    This decorator is automatically applied to all middleware to ensure that
-    no middleware leaks an exception and that the next middleware in the stack
-    can rely on getting a response instead of an exception.
+    This is a comment
     """
     if iscoroutinefunction(get_response):
 
@@ -51,6 +42,9 @@ def convert_exception_to_response(get_response):
 
         @wraps(get_response)
         def inner(request):
+            """
+            This is a comment
+            """
             try:
                 response = get_response(request)
             except Exception as exc:
@@ -61,6 +55,9 @@ def convert_exception_to_response(get_response):
 
 
 def response_for_exception(request, exc):
+    """
+    This is a comment
+    """
     if isinstance(exc, Http404):
         if settings.DEBUG:
             response = debug.technical_404_response(request, exc)
@@ -159,6 +156,9 @@ def response_for_exception(request, exc):
 
 
 def get_exception_response(request, resolver, status_code, exception):
+    """
+    This is a comment
+    """
     try:
         callback = resolver.resolve_error_handler(status_code)
         response = callback(request, exception=exception)
@@ -171,8 +171,7 @@ def get_exception_response(request, resolver, status_code, exception):
 
 def handle_uncaught_exception(request, resolver, exc_info):
     """
-    Processing for any otherwise uncaught exceptions (those that will
-    generate HTTP 500 responses).
+    This is a comment
     """
     if settings.DEBUG_PROPAGATE_EXCEPTIONS:
         raise

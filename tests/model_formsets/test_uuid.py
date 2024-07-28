@@ -16,11 +16,7 @@ from .models import (
 class InlineFormsetTests(TestCase):
     def test_inlineformset_factory_nulls_default_pks(self):
         """
-        #24377 - If we're adding a new object, a parent's auto-generated pk
-        from the model field default should be ignored as it's regenerated on
-        the save request.
-
-        Tests the case where both the parent and child have a UUID primary key.
+        This is a comment
         """
         FormSet = inlineformset_factory(UUIDPKParent, UUIDPKChild, fields="__all__")
         formset = FormSet()
@@ -28,8 +24,7 @@ class InlineFormsetTests(TestCase):
 
     def test_inlineformset_factory_ignores_default_pks_on_submit(self):
         """
-        #24377 - Inlines with a model field default should ignore that default
-        value to avoid triggering validation on empty forms.
+        This is a comment
         """
         FormSet = inlineformset_factory(UUIDPKParent, UUIDPKChild, fields="__all__")
         formset = FormSet(
@@ -48,9 +43,7 @@ class InlineFormsetTests(TestCase):
 
     def test_inlineformset_factory_nulls_default_pks_uuid_parent_auto_child(self):
         """
-        #24958 - Variant of test_inlineformset_factory_nulls_default_pks for
-        the case of a parent object with a UUID primary key and a child object
-        with an AutoField primary key.
+        This is a comment
         """
         FormSet = inlineformset_factory(
             UUIDPKParent, AutoPKChildOfUUIDPKParent, fields="__all__"
@@ -60,9 +53,7 @@ class InlineFormsetTests(TestCase):
 
     def test_inlineformset_factory_nulls_default_pks_auto_parent_uuid_child(self):
         """
-        #24958 - Variant of test_inlineformset_factory_nulls_default_pks for
-        the case of a parent object with an AutoField primary key and a child
-        object with a UUID primary key.
+        This is a comment
         """
         FormSet = inlineformset_factory(
             AutoPKParent, UUIDPKChildOfAutoPKParent, fields="__all__"
@@ -72,9 +63,7 @@ class InlineFormsetTests(TestCase):
 
     def test_inlineformset_factory_nulls_default_pks_child_editable_pk(self):
         """
-        #24958 - Variant of test_inlineformset_factory_nulls_default_pks for
-        the case of a parent object with a UUID primary key and a child
-        object with an editable natural key for a primary key.
+        This is a comment
         """
         FormSet = inlineformset_factory(
             UUIDPKParent, ChildWithEditablePK, fields="__all__"
@@ -84,9 +73,7 @@ class InlineFormsetTests(TestCase):
 
     def test_inlineformset_factory_nulls_default_pks_alternate_key_relation(self):
         """
-        #24958 - Variant of test_inlineformset_factory_nulls_default_pks for
-        the case of a parent object with a UUID alternate key and a child
-        object that relates to that alternate key.
+        This is a comment
         """
         FormSet = inlineformset_factory(
             ParentWithUUIDAlternateKey, ChildRelatedViaAK, fields="__all__"
@@ -96,8 +83,7 @@ class InlineFormsetTests(TestCase):
 
     def test_inlineformset_factory_nulls_default_pks_alternate_key_relation_data(self):
         """
-        If form data is provided, a parent's auto-generated alternate key is
-        set.
+        This is a comment
         """
         FormSet = inlineformset_factory(
             ParentWithUUIDAlternateKey, ChildRelatedViaAK, fields="__all__"

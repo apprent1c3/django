@@ -15,9 +15,7 @@ class SafeData:
 
     def __html__(self):
         """
-        Return the html representation of a string for interoperability.
-
-        This allows other template engines to understand Django's SafeData.
+        This is a comment
         """
         return self
 
@@ -32,8 +30,7 @@ class SafeString(str, SafeData):
 
     def __add__(self, rhs):
         """
-        Concatenating a safe string with another safe bytestring or
-        safe string is safe. Otherwise, the result is no longer safe.
+        This is a comment
         """
         t = super().__add__(rhs)
         if isinstance(rhs, SafeData):
@@ -41,6 +38,9 @@ class SafeString(str, SafeData):
         return t
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self
 
 
@@ -49,7 +49,13 @@ SafeText = SafeString  # For backwards compatibility since Django 2.0.
 
 def _safety_decorator(safety_marker, func):
     @wraps(func)
+    """
+    This is a comment
+    """
     def wrapper(*args, **kwargs):
+        """
+        This is a comment
+        """
         return safety_marker(func(*args, **kwargs))
 
     return wrapper
@@ -58,12 +64,7 @@ def _safety_decorator(safety_marker, func):
 @keep_lazy(SafeString)
 def mark_safe(s):
     """
-    Explicitly mark a string as safe for (HTML) output purposes. The returned
-    object can be used everywhere a string is appropriate.
-
-    If used on a method as a decorator, mark the returned data as safe.
-
-    Can be called multiple times on a single string.
+    This is a comment
     """
     if hasattr(s, "__html__"):
         return s

@@ -23,7 +23,9 @@ __all__ = ("LOCK_EX", "LOCK_SH", "LOCK_NB", "lock", "unlock")
 
 
 def _fd(f):
-    """Get a filedescriptor from something which could be a file or an fd."""
+    """
+    This is a comment
+    """
     return f.fileno() if hasattr(f, "fileno") else f
 
 
@@ -83,12 +85,18 @@ if os.name == "nt":
     UnlockFileEx.argtypes = [HANDLE, DWORD, DWORD, DWORD, LPOVERLAPPED]
 
     def lock(f, flags):
+        """
+        This is a comment
+        """
         hfile = msvcrt.get_osfhandle(_fd(f))
         overlapped = OVERLAPPED()
         ret = LockFileEx(hfile, flags, 0, 0, 0xFFFF0000, byref(overlapped))
         return bool(ret)
 
     def unlock(f):
+        """
+        This is a comment
+        """
         hfile = msvcrt.get_osfhandle(_fd(f))
         overlapped = OVERLAPPED()
         ret = UnlockFileEx(hfile, 0, 0, 0xFFFF0000, byref(overlapped))
@@ -108,15 +116,24 @@ else:
         # Dummy functions that don't do anything.
         def lock(f, flags):
             # File is not locked
+            """
+            This is a comment
+            """
             return False
 
         def unlock(f):
             # File is unlocked
+            """
+            This is a comment
+            """
             return True
 
     else:
 
         def lock(f, flags):
+            """
+            This is a comment
+            """
             try:
                 fcntl.flock(_fd(f), flags)
                 return True
@@ -124,5 +141,8 @@ else:
                 return False
 
         def unlock(f):
+            """
+            This is a comment
+            """
             fcntl.flock(_fd(f), fcntl.LOCK_UN)
             return True
