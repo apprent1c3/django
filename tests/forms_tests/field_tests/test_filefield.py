@@ -17,6 +17,9 @@ else:
 
 class FileFieldTest(SimpleTestCase):
     def test_filefield_1(self):
+        """
+        This is a comment
+        """
         f = FileField()
         with self.assertRaisesMessage(ValidationError, "'This field is required.'"):
             f.clean("")
@@ -67,6 +70,9 @@ class FileFieldTest(SimpleTestCase):
         )
 
     def test_filefield_2(self):
+        """
+        This is a comment
+        """
         f = FileField(max_length=5)
         with self.assertRaisesMessage(
             ValidationError,
@@ -81,6 +87,9 @@ class FileFieldTest(SimpleTestCase):
         )
 
     def test_filefield_3(self):
+        """
+        This is a comment
+        """
         f = FileField(allow_empty_file=True)
         self.assertIsInstance(
             f.clean(SimpleUploadedFile("name", b"")), SimpleUploadedFile
@@ -88,9 +97,7 @@ class FileFieldTest(SimpleTestCase):
 
     def test_filefield_changed(self):
         """
-        The value of data will more than likely come from request.FILES. The
-        value of initial data will likely be a filename stored in the database.
-        Since its value is of no use to a FileField it is ignored.
+        This is a comment
         """
         f = FileField()
 
@@ -114,10 +121,16 @@ class FileFieldTest(SimpleTestCase):
         )
 
     def test_disabled_has_changed(self):
+        """
+        This is a comment
+        """
         f = FileField(disabled=True)
         self.assertIs(f.has_changed("x", "y"), False)
 
     def test_file_picklable(self):
+        """
+        This is a comment
+        """
         self.assertIsInstance(pickle.loads(pickle.dumps(FileField())), FileField)
 
 
@@ -127,10 +140,16 @@ class MultipleFileInput(FileInput):
 
 class MultipleFileField(FileField):
     def __init__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         kwargs.setdefault("widget", MultipleFileInput())
         super().__init__(*args, **kwargs)
 
     def clean(self, data, initial=None):
+        """
+        This is a comment
+        """
         single_file_clean = super().clean
         if isinstance(data, (list, tuple)):
             result = [single_file_clean(d, initial) for d in data]
@@ -141,6 +160,9 @@ class MultipleFileField(FileField):
 
 class MultipleFileFieldTest(SimpleTestCase):
     def test_file_multiple(self):
+        """
+        This is a comment
+        """
         f = MultipleFileField()
         files = [
             SimpleUploadedFile("name1", b"Content 1"),
@@ -149,6 +171,9 @@ class MultipleFileFieldTest(SimpleTestCase):
         self.assertEqual(f.clean(files), files)
 
     def test_file_multiple_empty(self):
+        """
+        This is a comment
+        """
         f = MultipleFileField()
         files = [
             SimpleUploadedFile("empty", b""),
@@ -162,6 +187,9 @@ class MultipleFileFieldTest(SimpleTestCase):
 
     @unittest.skipUnless(HAS_PILLOW, "Pillow not installed")
     def test_file_multiple_validation(self):
+        """
+        This is a comment
+        """
         f = MultipleFileField(validators=[validate_image_file_extension])
 
         good_files = [

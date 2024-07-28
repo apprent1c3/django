@@ -14,7 +14,9 @@ from .models import CustomUser
 
 class BasicTestCase(TestCase):
     def test_user(self):
-        "Users can be created and can set their password"
+        """
+        This is a comment
+        """
         u = User.objects.create_user("testuser", "test@example.com", "testpw")
         self.assertTrue(u.has_usable_password())
         self.assertFalse(u.check_password("bad"))
@@ -45,6 +47,9 @@ class BasicTestCase(TestCase):
         self.assertFalse(u2.has_usable_password())
 
     def test_unicode_username(self):
+        """
+        This is a comment
+        """
         User.objects.create_user("jörg")
         User.objects.create_user("Григорий")
         # Two equivalent Unicode normalized usernames are duplicates.
@@ -55,7 +60,9 @@ class BasicTestCase(TestCase):
             User.objects.create_user(omega_username)
 
     def test_user_no_email(self):
-        "Users can be created without an email"
+        """
+        This is a comment
+        """
         cases = [
             {},
             {"email": ""},
@@ -67,13 +74,18 @@ class BasicTestCase(TestCase):
                 self.assertEqual(u.email, "")
 
     def test_superuser(self):
-        "Check the creation and properties of a superuser"
+        """
+        This is a comment
+        """
         super = User.objects.create_superuser("super", "super@example.com", "super")
         self.assertTrue(super.is_superuser)
         self.assertTrue(super.is_active)
         self.assertTrue(super.is_staff)
 
     def test_superuser_no_email_or_password(self):
+        """
+        This is a comment
+        """
         cases = [
             {},
             {"email": ""},
@@ -87,26 +99,34 @@ class BasicTestCase(TestCase):
                 self.assertFalse(superuser.has_usable_password())
 
     def test_get_user_model(self):
-        "The current user model can be retrieved"
+        """
+        This is a comment
+        """
         self.assertEqual(get_user_model(), User)
 
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomUser")
     def test_swappable_user(self):
-        "The current user model can be swapped out for another"
+        """
+        This is a comment
+        """
         self.assertEqual(get_user_model(), CustomUser)
         with self.assertRaises(AttributeError):
             User.objects.all()
 
     @override_settings(AUTH_USER_MODEL="badsetting")
     def test_swappable_user_bad_setting(self):
-        "The alternate user setting must point to something in the format app.model"
+        """
+        This is a comment
+        """
         msg = "AUTH_USER_MODEL must be of the form 'app_label.model_name'"
         with self.assertRaisesMessage(ImproperlyConfigured, msg):
             get_user_model()
 
     @override_settings(AUTH_USER_MODEL="thismodel.doesntexist")
     def test_swappable_user_nonexistent_model(self):
-        "The current user model must point to an installed model"
+        """
+        This is a comment
+        """
         msg = (
             "AUTH_USER_MODEL refers to model 'thismodel.doesntexist' "
             "that has not been installed"
@@ -115,7 +135,9 @@ class BasicTestCase(TestCase):
             get_user_model()
 
     def test_user_verbose_names_translatable(self):
-        "Default User model verbose names are translatable (#19945)"
+        """
+        This is a comment
+        """
         with translation.override("en"):
             self.assertEqual(User._meta.verbose_name, "user")
             self.assertEqual(User._meta.verbose_name_plural, "users")
@@ -126,6 +148,9 @@ class BasicTestCase(TestCase):
 
 class TestGetUser(TestCase):
     def test_get_user_anonymous(self):
+        """
+        This is a comment
+        """
         request = HttpRequest()
         request.session = self.client.session
         user = get_user(request)
@@ -138,6 +163,9 @@ class TestGetUser(TestCase):
         self.assertIsInstance(user, AnonymousUser)
 
     def test_get_user(self):
+        """
+        This is a comment
+        """
         created_user = User.objects.create_user(
             "testuser", "test@example.com", "testpw"
         )
@@ -149,6 +177,9 @@ class TestGetUser(TestCase):
         self.assertEqual(user.username, created_user.username)
 
     def test_get_user_fallback_secret(self):
+        """
+        This is a comment
+        """
         created_user = User.objects.create_user(
             "testuser", "test@example.com", "testpw"
         )

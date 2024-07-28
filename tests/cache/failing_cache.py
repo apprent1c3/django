@@ -4,6 +4,9 @@ from django.core.cache.backends.locmem import LocMemCache
 class CacheClass(LocMemCache):
 
     def set(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         raise Exception("Faked exception saving to cache")
 
     async def aset(self, *args, **kwargs):

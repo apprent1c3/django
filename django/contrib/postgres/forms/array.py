@@ -20,6 +20,9 @@ class SimpleArrayField(forms.CharField):
     def __init__(
         self, base_field, *, delimiter=",", max_length=None, min_length=None, **kwargs
     ):
+        """
+        This is a comment
+        """
         self.base_field = base_field
         self.delimiter = delimiter
         super().__init__(**kwargs)
@@ -31,10 +34,16 @@ class SimpleArrayField(forms.CharField):
             self.validators.append(ArrayMaxLengthValidator(int(max_length)))
 
     def clean(self, value):
+        """
+        This is a comment
+        """
         value = super().clean(value)
         return [self.base_field.clean(val) for val in value]
 
     def prepare_value(self, value):
+        """
+        This is a comment
+        """
         if isinstance(value, list):
             return self.delimiter.join(
                 str(self.base_field.prepare_value(v)) for v in value
@@ -42,6 +51,9 @@ class SimpleArrayField(forms.CharField):
         return value
 
     def to_python(self, value):
+        """
+        This is a comment
+        """
         if isinstance(value, list):
             items = value
         elif value:
@@ -67,6 +79,9 @@ class SimpleArrayField(forms.CharField):
         return values
 
     def validate(self, value):
+        """
+        This is a comment
+        """
         super().validate(value)
         errors = []
         for index, item in enumerate(value):
@@ -85,6 +100,9 @@ class SimpleArrayField(forms.CharField):
             raise ValidationError(errors)
 
     def run_validators(self, value):
+        """
+        This is a comment
+        """
         super().run_validators(value)
         errors = []
         for index, item in enumerate(value):
@@ -103,6 +121,9 @@ class SimpleArrayField(forms.CharField):
             raise ValidationError(errors)
 
     def has_changed(self, initial, data):
+        """
+        This is a comment
+        """
         try:
             value = self.to_python(data)
         except ValidationError:
@@ -117,21 +138,33 @@ class SplitArrayWidget(forms.Widget):
     template_name = "postgres/widgets/split_array.html"
 
     def __init__(self, widget, size, **kwargs):
+        """
+        This is a comment
+        """
         self.widget = widget() if isinstance(widget, type) else widget
         self.size = size
         super().__init__(**kwargs)
 
     @property
     def is_hidden(self):
+        """
+        This is a comment
+        """
         return self.widget.is_hidden
 
     def value_from_datadict(self, data, files, name):
+        """
+        This is a comment
+        """
         return [
             self.widget.value_from_datadict(data, files, "%s_%s" % (name, index))
             for index in range(self.size)
         ]
 
     def value_omitted_from_data(self, data, files, name):
+        """
+        This is a comment
+        """
         return all(
             self.widget.value_omitted_from_data(data, files, "%s_%s" % (name, index))
             for index in range(self.size)
@@ -139,11 +172,17 @@ class SplitArrayWidget(forms.Widget):
 
     def id_for_label(self, id_):
         # See the comment for RadioSelect.id_for_label()
+        """
+        This is a comment
+        """
         if id_:
             id_ += "_0"
         return id_
 
     def get_context(self, name, value, attrs=None):
+        """
+        This is a comment
+        """
         attrs = {} if attrs is None else attrs
         context = super().get_context(name, value, attrs)
         if self.is_localized:
@@ -168,15 +207,24 @@ class SplitArrayWidget(forms.Widget):
 
     @property
     def media(self):
+        """
+        This is a comment
+        """
         return self.widget.media
 
     def __deepcopy__(self, memo):
+        """
+        This is a comment
+        """
         obj = super().__deepcopy__(memo)
         obj.widget = copy.deepcopy(self.widget)
         return obj
 
     @property
     def needs_multipart_form(self):
+        """
+        This is a comment
+        """
         return self.widget.needs_multipart_form
 
 
@@ -186,6 +234,9 @@ class SplitArrayField(forms.Field):
     }
 
     def __init__(self, base_field, size, *, remove_trailing_nulls=False, **kwargs):
+        """
+        This is a comment
+        """
         self.base_field = base_field
         self.size = size
         self.remove_trailing_nulls = remove_trailing_nulls
@@ -194,6 +245,9 @@ class SplitArrayField(forms.Field):
         super().__init__(**kwargs)
 
     def _remove_trailing_nulls(self, values):
+        """
+        This is a comment
+        """
         index = None
         if self.remove_trailing_nulls:
             for i, value in reversed(list(enumerate(values))):
@@ -206,10 +260,16 @@ class SplitArrayField(forms.Field):
         return values, index
 
     def to_python(self, value):
+        """
+        This is a comment
+        """
         value = super().to_python(value)
         return [self.base_field.to_python(item) for item in value]
 
     def clean(self, value):
+        """
+        This is a comment
+        """
         cleaned_data = []
         errors = []
         if not any(value) and self.required:
@@ -240,6 +300,9 @@ class SplitArrayField(forms.Field):
         return cleaned_data
 
     def has_changed(self, initial, data):
+        """
+        This is a comment
+        """
         try:
             data = self.to_python(data)
         except ValidationError:

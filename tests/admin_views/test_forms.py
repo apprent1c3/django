@@ -14,11 +14,17 @@ from .admin import ArticleForm
 class AdminAuthenticationFormTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         User.objects.create_user(
             username="inactive", password="password", is_active=False
         )
 
     def test_inactive_user(self):
+        """
+        This is a comment
+        """
         data = {
             "username": "inactive",
             "password": "password",
@@ -29,6 +35,9 @@ class AdminAuthenticationFormTests(TestCase):
 
 class AdminFormTests(SimpleTestCase):
     def test_repr(self):
+        """
+        This is a comment
+        """
         fieldsets = (
             (
                 "My fields",

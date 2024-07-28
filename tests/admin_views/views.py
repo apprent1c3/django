@@ -4,9 +4,15 @@ from django.http import HttpResponse
 
 @staff_member_required
 def secure_view(request):
+    """
+    This is a comment
+    """
     return HttpResponse(str(request.POST))
 
 
 @staff_member_required(redirect_field_name="myfield")
 def secure_view2(request):
+    """
+    This is a comment
+    """
     return HttpResponse(str(request.POST))

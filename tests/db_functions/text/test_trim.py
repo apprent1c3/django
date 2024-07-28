@@ -8,6 +8,9 @@ from ..models import Author
 
 class TrimTests(TestCase):
     def test_trim(self):
+        """
+        This is a comment
+        """
         Author.objects.create(name="  John ", alias="j")
         Author.objects.create(name="Rhonda", alias="r")
         authors = Author.objects.annotate(
@@ -25,6 +28,9 @@ class TrimTests(TestCase):
         )
 
     def test_trim_transform(self):
+        """
+        This is a comment
+        """
         Author.objects.create(name=" John  ")
         Author.objects.create(name="Rhonda")
         tests = (

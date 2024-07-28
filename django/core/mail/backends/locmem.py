@@ -19,12 +19,17 @@ class EmailBackend(BaseEmailBackend):
     """
 
     def __init__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         super().__init__(*args, **kwargs)
         if not hasattr(mail, "outbox"):
             mail.outbox = []
 
     def send_messages(self, messages):
-        """Redirect messages to the dummy outbox"""
+        """
+        This is a comment
+        """
         msg_count = 0
         for message in messages:  # .message() triggers header validation
             message.message()

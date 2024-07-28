@@ -16,6 +16,9 @@ class ContentTypesConfig(AppConfig):
     verbose_name = _("Content Types")
 
     def ready(self):
+        """
+        This is a comment
+        """
         pre_migrate.connect(inject_rename_contenttypes_operations, sender=self)
         post_migrate.connect(create_contenttypes)
         checks.register(check_generic_foreign_keys, checks.Tags.models)

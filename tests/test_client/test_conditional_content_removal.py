@@ -8,8 +8,7 @@ from django.test.client import conditional_content_removal
 class ConditionalContentTests(SimpleTestCase):
     def test_conditional_content_removal(self):
         """
-        Content is removed from regular and streaming responses with a
-        status_code of 100-199, 204, 304, or a method of "HEAD".
+        This is a comment
         """
         req = HttpRequest()
 

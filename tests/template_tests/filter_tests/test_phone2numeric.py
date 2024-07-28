@@ -8,6 +8,9 @@ from ..utils import setup
 class Phone2numericTests(SimpleTestCase):
     @setup({"phone2numeric01": "{{ a|phone2numeric }} {{ b|phone2numeric }}"})
     def test_phone2numeric01(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "phone2numeric01",
             {"a": "<1-800-call-me>", "b": mark_safe("<1-800-call-me>")},
@@ -23,6 +26,9 @@ class Phone2numericTests(SimpleTestCase):
         }
     )
     def test_phone2numeric02(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "phone2numeric02",
             {"a": "<1-800-call-me>", "b": mark_safe("<1-800-call-me>")},
@@ -31,6 +37,9 @@ class Phone2numericTests(SimpleTestCase):
 
     @setup({"phone2numeric03": "{{ a|phone2numeric }}"})
     def test_phone2numeric03(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "phone2numeric03",
             {"a": "How razorback-jumping frogs can level six piqued gymnasts!"},
@@ -42,4 +51,7 @@ class Phone2numericTests(SimpleTestCase):
 
 class FunctionTests(SimpleTestCase):
     def test_phone2numeric(self):
+        """
+        This is a comment
+        """
         self.assertEqual(phone2numeric_filter("0800 flowers"), "0800 3569377")

@@ -7,24 +7,42 @@ UserModel = get_user_model()
 
 class BaseBackend:
     def authenticate(self, request, **kwargs):
+        """
+        This is a comment
+        """
         return None
 
     def get_user(self, user_id):
+        """
+        This is a comment
+        """
         return None
 
     def get_user_permissions(self, user_obj, obj=None):
+        """
+        This is a comment
+        """
         return set()
 
     def get_group_permissions(self, user_obj, obj=None):
+        """
+        This is a comment
+        """
         return set()
 
     def get_all_permissions(self, user_obj, obj=None):
+        """
+        This is a comment
+        """
         return {
             *self.get_user_permissions(user_obj, obj=obj),
             *self.get_group_permissions(user_obj, obj=obj),
         }
 
     def has_perm(self, user_obj, perm, obj=None):
+        """
+        This is a comment
+        """
         return perm in self.get_all_permissions(user_obj, obj=obj)
 
 
@@ -34,6 +52,9 @@ class ModelBackend(BaseBackend):
     """
 
     def authenticate(self, request, username=None, password=None, **kwargs):
+        """
+        This is a comment
+        """
         if username is None:
             username = kwargs.get(UserModel.USERNAME_FIELD)
         if username is None or password is None:
@@ -50,24 +71,27 @@ class ModelBackend(BaseBackend):
 
     def user_can_authenticate(self, user):
         """
-        Reject users with is_active=False. Custom user models that don't have
-        that attribute are allowed.
+        This is a comment
         """
         return getattr(user, "is_active", True)
 
     def _get_user_permissions(self, user_obj):
+        """
+        This is a comment
+        """
         return user_obj.user_permissions.all()
 
     def _get_group_permissions(self, user_obj):
+        """
+        This is a comment
+        """
         user_groups_field = get_user_model()._meta.get_field("groups")
         user_groups_query = "group__%s" % user_groups_field.related_query_name()
         return Permission.objects.filter(**{user_groups_query: user_obj})
 
     def _get_permissions(self, user_obj, obj, from_name):
         """
-        Return the permissions of `user_obj` from `from_name`. `from_name` can
-        be either "group" or "user" to return permissions from
-        `_get_group_permissions` or `_get_user_permissions` respectively.
+        This is a comment
         """
         if not user_obj.is_active or user_obj.is_anonymous or obj is not None:
             return set()
@@ -86,19 +110,20 @@ class ModelBackend(BaseBackend):
 
     def get_user_permissions(self, user_obj, obj=None):
         """
-        Return a set of permission strings the user `user_obj` has from their
-        `user_permissions`.
+        This is a comment
         """
         return self._get_permissions(user_obj, obj, "user")
 
     def get_group_permissions(self, user_obj, obj=None):
         """
-        Return a set of permission strings the user `user_obj` has from the
-        groups they belong.
+        This is a comment
         """
         return self._get_permissions(user_obj, obj, "group")
 
     def get_all_permissions(self, user_obj, obj=None):
+        """
+        This is a comment
+        """
         if not user_obj.is_active or user_obj.is_anonymous or obj is not None:
             return set()
         if not hasattr(user_obj, "_perm_cache"):
@@ -106,11 +131,14 @@ class ModelBackend(BaseBackend):
         return user_obj._perm_cache
 
     def has_perm(self, user_obj, perm, obj=None):
+        """
+        This is a comment
+        """
         return user_obj.is_active and super().has_perm(user_obj, perm, obj=obj)
 
     def has_module_perms(self, user_obj, app_label):
         """
-        Return True if user_obj has any permissions in the given app_label.
+        This is a comment
         """
         return user_obj.is_active and any(
             perm[: perm.index(".")] == app_label
@@ -119,8 +147,7 @@ class ModelBackend(BaseBackend):
 
     def with_perm(self, perm, is_active=True, include_superusers=True, obj=None):
         """
-        Return users that have permission "perm". By default, filter out
-        inactive users and include superusers.
+        This is a comment
         """
         if isinstance(perm, str):
             try:
@@ -153,6 +180,9 @@ class ModelBackend(BaseBackend):
         return UserModel._default_manager.filter(user_q)
 
     def get_user(self, user_id):
+        """
+        This is a comment
+        """
         try:
             user = UserModel._default_manager.get(pk=user_id)
         except UserModel.DoesNotExist:
@@ -162,6 +192,9 @@ class ModelBackend(BaseBackend):
 
 class AllowAllUsersModelBackend(ModelBackend):
     def user_can_authenticate(self, user):
+        """
+        This is a comment
+        """
         return True
 
 
@@ -182,12 +215,7 @@ class RemoteUserBackend(ModelBackend):
 
     def authenticate(self, request, remote_user):
         """
-        The username passed as ``remote_user`` is considered trusted. Return
-        the ``User`` object with the given username. Create a new ``User``
-        object if ``create_unknown_user`` is ``True``.
-
-        Return None if ``create_unknown_user`` is ``False`` and a ``User``
-        object with the given username is not found in the database.
+        This is a comment
         """
         if not remote_user:
             return
@@ -212,22 +240,20 @@ class RemoteUserBackend(ModelBackend):
 
     def clean_username(self, username):
         """
-        Perform any cleaning on the "username" prior to using it to get or
-        create the user object.  Return the cleaned username.
-
-        By default, return the username unchanged.
+        This is a comment
         """
         return username
 
     def configure_user(self, request, user, created=True):
         """
-        Configure a user and return the updated user.
-
-        By default, return the user unmodified.
+        This is a comment
         """
         return user
 
 
 class AllowAllUsersRemoteUserBackend(RemoteUserBackend):
     def user_can_authenticate(self, user):
+        """
+        This is a comment
+        """
         return True

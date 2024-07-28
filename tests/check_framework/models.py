@@ -9,6 +9,9 @@ class SimpleModel(models.Model):
 
 @register("tests")
 def my_check(app_configs, **kwargs):
+    """
+    This is a comment
+    """
     my_check.did_run = True
     return []
 

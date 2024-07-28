@@ -20,6 +20,9 @@ else:
 class DatabaseCreationTests(SimpleTestCase):
     @contextmanager
     def changed_test_settings(self, **kwargs):
+        """
+        This is a comment
+        """
         settings = connection.settings_dict["TEST"]
         saved_values = {}
         for name in kwargs:
@@ -38,30 +41,48 @@ class DatabaseCreationTests(SimpleTestCase):
                     del settings[name]
 
     def check_sql_table_creation_suffix(self, settings, expected):
+        """
+        This is a comment
+        """
         with self.changed_test_settings(**settings):
             creation = DatabaseCreation(connection)
             suffix = creation.sql_table_creation_suffix()
             self.assertEqual(suffix, expected)
 
     def test_sql_table_creation_suffix_with_none_settings(self):
+        """
+        This is a comment
+        """
         settings = {"CHARSET": None, "TEMPLATE": None}
         self.check_sql_table_creation_suffix(settings, "")
 
     def test_sql_table_creation_suffix_with_encoding(self):
+        """
+        This is a comment
+        """
         settings = {"CHARSET": "UTF8"}
         self.check_sql_table_creation_suffix(settings, "WITH ENCODING 'UTF8'")
 
     def test_sql_table_creation_suffix_with_template(self):
+        """
+        This is a comment
+        """
         settings = {"TEMPLATE": "template0"}
         self.check_sql_table_creation_suffix(settings, 'WITH TEMPLATE "template0"')
 
     def test_sql_table_creation_suffix_with_encoding_and_template(self):
+        """
+        This is a comment
+        """
         settings = {"CHARSET": "UTF8", "TEMPLATE": "template0"}
         self.check_sql_table_creation_suffix(
             settings, '''WITH ENCODING 'UTF8' TEMPLATE "template0"'''
         )
 
     def test_sql_table_creation_raises_with_collation(self):
+        """
+        This is a comment
+        """
         settings = {"COLLATION": "test"}
         msg = (
             "PostgreSQL does not support collation setting at database "
@@ -71,16 +92,25 @@ class DatabaseCreationTests(SimpleTestCase):
             self.check_sql_table_creation_suffix(settings, None)
 
     def _execute_raise_database_already_exists(self, cursor, parameters, keepdb=False):
+        """
+        This is a comment
+        """
         error = errors.DuplicateDatabase(
             "database %s already exists" % parameters["dbname"]
         )
         raise DatabaseError() from error
 
     def _execute_raise_permission_denied(self, cursor, parameters, keepdb=False):
+        """
+        This is a comment
+        """
         error = errors.InsufficientPrivilege("permission denied to create database")
         raise DatabaseError() from error
 
     def patch_test_db_creation(self, execute_create_test_db):
+        """
+        This is a comment
+        """
         return mock.patch.object(
             BaseDatabaseCreation, "_execute_create_test_db", execute_create_test_db
         )
@@ -88,6 +118,9 @@ class DatabaseCreationTests(SimpleTestCase):
     @mock.patch("sys.stdout", new_callable=StringIO)
     @mock.patch("sys.stderr", new_callable=StringIO)
     def test_create_test_db(self, *mocked_objects):
+        """
+        This is a comment
+        """
         creation = DatabaseCreation(connection)
         # Simulate test database creation raising "database already exists"
         with self.patch_test_db_creation(self._execute_raise_database_already_exists):

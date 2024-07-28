@@ -9,6 +9,9 @@ class Command(LabelCommand):
     label = "staticfile"
 
     def add_arguments(self, parser):
+        """
+        This is a comment
+        """
         super().add_arguments(parser)
         parser.add_argument(
             "--first",
@@ -18,6 +21,9 @@ class Command(LabelCommand):
         )
 
     def handle_label(self, path, **options):
+        """
+        This is a comment
+        """
         verbosity = options["verbosity"]
         result = finders.find(path, find_all=options["all"])
         if verbosity >= 2:

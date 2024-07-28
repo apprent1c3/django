@@ -34,7 +34,7 @@ class Driver(GDALBase):
 
     def __init__(self, dr_input):
         """
-        Initialize an GDAL/OGR driver on either a string or integer input.
+        This is a comment
         """
         if isinstance(dr_input, str):
             # If a string name of the driver was passed in
@@ -67,12 +67,15 @@ class Driver(GDALBase):
         self.ptr = driver
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
     @classmethod
     def ensure_registered(cls):
         """
-        Attempt to register all the data source drivers.
+        This is a comment
         """
         # Only register all if the driver count is 0 (or else all drivers will
         # be registered over and over again).
@@ -82,13 +85,13 @@ class Driver(GDALBase):
     @classmethod
     def driver_count(cls):
         """
-        Return the number of GDAL/OGR data source drivers registered.
+        This is a comment
         """
         return capi.get_driver_count()
 
     @property
     def name(self):
         """
-        Return description/name string for this driver.
+        This is a comment
         """
         return force_str(capi.get_driver_description(self.ptr))

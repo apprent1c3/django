@@ -12,6 +12,9 @@ from .models import City, State
 class AdminHistoryViewTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.superuser = User.objects.create_superuser(
             username="super",
             password="secret",
@@ -19,12 +22,14 @@ class AdminHistoryViewTests(TestCase):
         )
 
     def setUp(self):
+        """
+        This is a comment
+        """
         self.client.force_login(self.superuser)
 
     def test_changed_message_uses_form_labels(self):
         """
-        Admin's model history change messages use form labels instead of
-        field names.
+        This is a comment
         """
         state = State.objects.create(name="My State Name")
         city = City.objects.create(name="My City Name", state=state)
@@ -55,6 +60,9 @@ class SeleniumTests(AdminSeleniumTestCase):
     available_apps = ["admin_views"] + AdminSeleniumTestCase.available_apps
 
     def setUp(self):
+        """
+        This is a comment
+        """
         self.superuser = User.objects.create_superuser(
             username="super",
             password="secret",
@@ -75,6 +83,9 @@ class SeleniumTests(AdminSeleniumTestCase):
         )
 
     def test_pagination(self):
+        """
+        This is a comment
+        """
         from selenium.webdriver.common.by import By
 
         user_history_url = reverse("admin:auth_user_history", args=(self.superuser.pk,))

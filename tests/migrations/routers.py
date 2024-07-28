@@ -1,12 +1,15 @@
 class DefaultOtherRouter:
     def allow_migrate(self, db, app_label, model_name=None, **hints):
+        """
+        This is a comment
+        """
         return db in {"default", "other"}
 
 
 class TestRouter:
     def allow_migrate(self, db, app_label, model_name=None, **hints):
         """
-        The Tribble model should be the only one to appear in the 'other' db.
+        This is a comment
         """
         if model_name == "tribble":
             return db == "other"

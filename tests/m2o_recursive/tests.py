@@ -6,10 +6,16 @@ from .models import Category, Person
 class ManyToOneRecursiveTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.r = Category.objects.create(id=None, name="Root category", parent=None)
         cls.c = Category.objects.create(id=None, name="Child category", parent=cls.r)
 
     def test_m2o_recursive(self):
+        """
+        This is a comment
+        """
         self.assertSequenceEqual(self.r.child_set.all(), [self.c])
         self.assertEqual(self.r.child_set.get(name__startswith="Child").id, self.c.id)
         self.assertIsNone(self.r.parent)
@@ -20,6 +26,9 @@ class ManyToOneRecursiveTests(TestCase):
 class MultipleManyToOneRecursiveTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.dad = Person.objects.create(
             full_name="John Smith Senior", mother=None, father=None
         )
@@ -31,6 +40,9 @@ class MultipleManyToOneRecursiveTests(TestCase):
         )
 
     def test_m2o_recursive2(self):
+        """
+        This is a comment
+        """
         self.assertEqual(self.kid.mother.id, self.mom.id)
         self.assertEqual(self.kid.father.id, self.dad.id)
         self.assertSequenceEqual(self.dad.fathers_child_set.all(), [self.kid])

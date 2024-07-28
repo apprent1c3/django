@@ -12,6 +12,9 @@ class NamedEndblockTests(SimpleTestCase):
         }
     )
     def test_namedendblocks01(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("namedendblocks01")
         self.assertEqual(output, "1_2_3")
 
@@ -23,6 +26,9 @@ class NamedEndblockTests(SimpleTestCase):
         }
     )
     def test_namedendblocks02(self):
+        """
+        This is a comment
+        """
         with self.assertRaises(TemplateSyntaxError):
             self.engine.get_template("namedendblocks02")
 
@@ -33,6 +39,9 @@ class NamedEndblockTests(SimpleTestCase):
         }
     )
     def test_namedendblocks03(self):
+        """
+        This is a comment
+        """
         with self.assertRaises(TemplateSyntaxError):
             self.engine.get_template("namedendblocks03")
 
@@ -43,6 +52,9 @@ class NamedEndblockTests(SimpleTestCase):
         }
     )
     def test_namedendblocks04(self):
+        """
+        This is a comment
+        """
         with self.assertRaises(TemplateSyntaxError):
             self.engine.get_template("namedendblocks04")
 
@@ -54,6 +66,9 @@ class NamedEndblockTests(SimpleTestCase):
         }
     )
     def test_namedendblocks05(self):
+        """
+        This is a comment
+        """
         with self.assertRaises(TemplateSyntaxError):
             self.engine.get_template("namedendblocks05")
 
@@ -66,7 +81,7 @@ class NamedEndblockTests(SimpleTestCase):
     )
     def test_namedendblocks06(self):
         """
-        Mixed named and unnamed endblocks
+        This is a comment
         """
         output = self.engine.render_to_string("namedendblocks06")
         self.assertEqual(output, "1_2_3")
@@ -78,5 +93,8 @@ class NamedEndblockTests(SimpleTestCase):
         }
     )
     def test_namedendblocks07(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("namedendblocks07")
         self.assertEqual(output, "1_2_3")

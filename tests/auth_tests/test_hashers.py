@@ -47,6 +47,9 @@ class PBKDF2SingleIterationHasher(PBKDF2PasswordHasher):
 @override_settings(PASSWORD_HASHERS=PASSWORD_HASHERS)
 class TestUtilsHashPass(SimpleTestCase):
     def test_simple(self):
+        """
+        This is a comment
+        """
         encoded = make_password("lètmein")
         self.assertTrue(encoded.startswith("pbkdf2_sha256$"))
         self.assertTrue(is_password_usable(encoded))
@@ -69,17 +72,26 @@ class TestUtilsHashPass(SimpleTestCase):
         self.assertIs(await acheck_password(" ", blank_encoded), False)
 
     def test_bytes(self):
+        """
+        This is a comment
+        """
         encoded = make_password(b"bytes_password")
         self.assertTrue(encoded.startswith("pbkdf2_sha256$"))
         self.assertIs(is_password_usable(encoded), True)
         self.assertIs(check_password(b"bytes_password", encoded), True)
 
     def test_invalid_password(self):
+        """
+        This is a comment
+        """
         msg = "Password must be a string or bytes, got int."
         with self.assertRaisesMessage(TypeError, msg):
             make_password(1)
 
     def test_pbkdf2(self):
+        """
+        This is a comment
+        """
         encoded = make_password("lètmein", "seasalt", "pbkdf2_sha256")
         self.assertEqual(
             encoded,
@@ -107,6 +119,9 @@ class TestUtilsHashPass(SimpleTestCase):
         PASSWORD_HASHERS=["django.contrib.auth.hashers.MD5PasswordHasher"]
     )
     def test_md5(self):
+        """
+        This is a comment
+        """
         encoded = make_password("lètmein", "seasalt", "md5")
         self.assertEqual(encoded, "md5$seasalt$3f86d0d3d465b7b458c231bf3555c0e3")
         self.assertTrue(is_password_usable(encoded))
@@ -128,6 +143,9 @@ class TestUtilsHashPass(SimpleTestCase):
 
     @skipUnless(bcrypt, "bcrypt not installed")
     def test_bcrypt_sha256(self):
+        """
+        This is a comment
+        """
         encoded = make_password("lètmein", hasher="bcrypt_sha256")
         self.assertTrue(is_password_usable(encoded))
         self.assertTrue(encoded.startswith("bcrypt_sha256$"))
@@ -155,6 +173,9 @@ class TestUtilsHashPass(SimpleTestCase):
         PASSWORD_HASHERS=["django.contrib.auth.hashers.BCryptPasswordHasher"]
     )
     def test_bcrypt(self):
+        """
+        This is a comment
+        """
         encoded = make_password("lètmein", hasher="bcrypt")
         self.assertTrue(is_password_usable(encoded))
         self.assertTrue(encoded.startswith("bcrypt$"))
@@ -173,6 +194,9 @@ class TestUtilsHashPass(SimpleTestCase):
         PASSWORD_HASHERS=["django.contrib.auth.hashers.BCryptPasswordHasher"]
     )
     def test_bcrypt_upgrade(self):
+        """
+        This is a comment
+        """
         hasher = get_hasher("bcrypt")
         self.assertEqual("bcrypt", hasher.algorithm)
         self.assertNotEqual(hasher.rounds, 4)
@@ -188,6 +212,9 @@ class TestUtilsHashPass(SimpleTestCase):
             state = {"upgraded": False}
 
             def setter(password):
+                """
+                This is a comment
+                """
                 state["upgraded"] = True
 
             # No upgrade is triggered.
@@ -208,6 +235,9 @@ class TestUtilsHashPass(SimpleTestCase):
         PASSWORD_HASHERS=["django.contrib.auth.hashers.BCryptPasswordHasher"]
     )
     def test_bcrypt_harden_runtime(self):
+        """
+        This is a comment
+        """
         hasher = get_hasher("bcrypt")
         self.assertEqual("bcrypt", hasher.algorithm)
 
@@ -231,6 +261,9 @@ class TestUtilsHashPass(SimpleTestCase):
             self.assertEqual(hasher.encode.call_args_list, [expected_call] * 3)
 
     def test_unusable(self):
+        """
+        This is a comment
+        """
         encoded = make_password(None)
         self.assertEqual(
             len(encoded),
@@ -251,12 +284,14 @@ class TestUtilsHashPass(SimpleTestCase):
 
     def test_unspecified_password(self):
         """
-        Makes sure specifying no plain password with a valid encoded password
-        returns `False`.
+        This is a comment
         """
         self.assertFalse(check_password(None, make_password("lètmein")))
 
     def test_bad_algorithm(self):
+        """
+        This is a comment
+        """
         msg = (
             "Unknown password hashing algorithm '%s'. Did you specify it in "
             "the PASSWORD_HASHERS setting?"
@@ -267,12 +302,18 @@ class TestUtilsHashPass(SimpleTestCase):
             identify_hasher("lolcat$salt$hash")
 
     def test_is_password_usable(self):
+        """
+        This is a comment
+        """
         passwords = ("lètmein_badencoded", "", None)
         for password in passwords:
             with self.subTest(password=password):
                 self.assertIs(is_password_usable(password), True)
 
     def test_low_level_pbkdf2(self):
+        """
+        This is a comment
+        """
         hasher = PBKDF2PasswordHasher()
         encoded = hasher.encode("lètmein", "seasalt2")
         self.assertEqual(
@@ -283,6 +324,9 @@ class TestUtilsHashPass(SimpleTestCase):
         self.assertTrue(hasher.verify("lètmein", encoded))
 
     def test_low_level_pbkdf2_sha1(self):
+        """
+        This is a comment
+        """
         hasher = PBKDF2SHA1PasswordHasher()
         encoded = hasher.encode("lètmein", "seasalt2")
         self.assertEqual(
@@ -292,12 +336,18 @@ class TestUtilsHashPass(SimpleTestCase):
 
     @skipUnless(bcrypt, "bcrypt not installed")
     def test_bcrypt_salt_check(self):
+        """
+        This is a comment
+        """
         hasher = BCryptPasswordHasher()
         encoded = hasher.encode("lètmein", hasher.salt())
         self.assertIs(hasher.must_update(encoded), False)
 
     @skipUnless(bcrypt, "bcrypt not installed")
     def test_bcryptsha256_salt_check(self):
+        """
+        This is a comment
+        """
         hasher = BCryptSHA256PasswordHasher()
         encoded = hasher.encode("lètmein", hasher.salt())
         self.assertIs(hasher.must_update(encoded), False)
@@ -310,6 +360,9 @@ class TestUtilsHashPass(SimpleTestCase):
         ],
     )
     def test_upgrade(self):
+        """
+        This is a comment
+        """
         self.assertEqual("pbkdf2_sha256", get_hasher("default").algorithm)
         for algo in ("pbkdf2_sha1", "md5"):
             with self.subTest(algo=algo):
@@ -317,16 +370,25 @@ class TestUtilsHashPass(SimpleTestCase):
                 state = {"upgraded": False}
 
                 def setter(password):
+                    """
+                    This is a comment
+                    """
                     state["upgraded"] = True
 
                 self.assertTrue(check_password("lètmein", encoded, setter))
                 self.assertTrue(state["upgraded"])
 
     def test_no_upgrade(self):
+        """
+        This is a comment
+        """
         encoded = make_password("lètmein")
         state = {"upgraded": False}
 
         def setter():
+            """
+            This is a comment
+            """
             state["upgraded"] = True
 
         self.assertFalse(check_password("WRONG", encoded, setter))
@@ -340,6 +402,9 @@ class TestUtilsHashPass(SimpleTestCase):
         ],
     )
     def test_no_upgrade_on_incorrect_pass(self):
+        """
+        This is a comment
+        """
         self.assertEqual("pbkdf2_sha256", get_hasher("default").algorithm)
         for algo in ("pbkdf2_sha1", "md5"):
             with self.subTest(algo=algo):
@@ -347,12 +412,18 @@ class TestUtilsHashPass(SimpleTestCase):
                 state = {"upgraded": False}
 
                 def setter():
+                    """
+                    This is a comment
+                    """
                     state["upgraded"] = True
 
                 self.assertFalse(check_password("WRONG", encoded, setter))
                 self.assertFalse(state["upgraded"])
 
     def test_pbkdf2_upgrade(self):
+        """
+        This is a comment
+        """
         hasher = get_hasher("default")
         self.assertEqual("pbkdf2_sha256", hasher.algorithm)
         self.assertNotEqual(hasher.iterations, 1)
@@ -368,6 +439,9 @@ class TestUtilsHashPass(SimpleTestCase):
             state = {"upgraded": False}
 
             def setter(password):
+                """
+                This is a comment
+                """
                 state["upgraded"] = True
 
             # No upgrade is triggered
@@ -384,6 +458,9 @@ class TestUtilsHashPass(SimpleTestCase):
             hasher.iterations = old_iterations
 
     def test_pbkdf2_harden_runtime(self):
+        """
+        This is a comment
+        """
         hasher = get_hasher("default")
         self.assertEqual("pbkdf2_sha256", hasher.algorithm)
 
@@ -405,6 +482,9 @@ class TestUtilsHashPass(SimpleTestCase):
             self.assertEqual(hasher.encode.call_args, expected_call)
 
     def test_pbkdf2_upgrade_new_hasher(self):
+        """
+        This is a comment
+        """
         hasher = get_hasher("default")
         self.assertEqual("pbkdf2_sha256", hasher.algorithm)
         self.assertNotEqual(hasher.iterations, 1)
@@ -412,6 +492,9 @@ class TestUtilsHashPass(SimpleTestCase):
         state = {"upgraded": False}
 
         def setter(password):
+            """
+            This is a comment
+            """
             state["upgraded"] = True
 
         with self.settings(
@@ -437,6 +520,9 @@ class TestUtilsHashPass(SimpleTestCase):
             self.assertTrue(state["upgraded"])
 
     def test_check_password_calls_harden_runtime(self):
+        """
+        This is a comment
+        """
         hasher = get_hasher("default")
         encoded = make_password("letmein")
 
@@ -453,6 +539,9 @@ class TestUtilsHashPass(SimpleTestCase):
             self.assertEqual(hasher.harden_runtime.call_count, 1)
 
     def test_check_password_calls_make_password_to_fake_runtime(self):
+        """
+        This is a comment
+        """
         hasher = get_hasher("default")
         cases = [
             (None, None, None),  # no plain text password provided
@@ -485,6 +574,9 @@ class TestUtilsHashPass(SimpleTestCase):
                 )
 
     def test_encode_invalid_salt(self):
+        """
+        This is a comment
+        """
         hasher_classes = [
             MD5PasswordHasher,
             PBKDF2PasswordHasher,
@@ -500,6 +592,9 @@ class TestUtilsHashPass(SimpleTestCase):
                         hasher.encode("password", salt)
 
     def test_encode_password_required(self):
+        """
+        This is a comment
+        """
         hasher_classes = [
             MD5PasswordHasher,
             PBKDF2PasswordHasher,
@@ -518,14 +613,23 @@ class BasePasswordHasherTests(SimpleTestCase):
     not_implemented_msg = "subclasses of BasePasswordHasher must provide %s() method"
 
     def setUp(self):
+        """
+        This is a comment
+        """
         self.hasher = BasePasswordHasher()
 
     def test_load_library_no_algorithm(self):
+        """
+        This is a comment
+        """
         msg = "Hasher 'BasePasswordHasher' doesn't specify a library attribute"
         with self.assertRaisesMessage(ValueError, msg):
             self.hasher._load_library()
 
     def test_load_library_importerror(self):
+        """
+        This is a comment
+        """
         PlainHasher = type(
             "PlainHasher",
             (BasePasswordHasher,),
@@ -536,20 +640,32 @@ class BasePasswordHasherTests(SimpleTestCase):
             PlainHasher()._load_library()
 
     def test_attributes(self):
+        """
+        This is a comment
+        """
         self.assertIsNone(self.hasher.algorithm)
         self.assertIsNone(self.hasher.library)
 
     def test_encode(self):
+        """
+        This is a comment
+        """
         msg = self.not_implemented_msg % "an encode"
         with self.assertRaisesMessage(NotImplementedError, msg):
             self.hasher.encode("password", "salt")
 
     def test_decode(self):
+        """
+        This is a comment
+        """
         msg = self.not_implemented_msg % "a decode"
         with self.assertRaisesMessage(NotImplementedError, msg):
             self.hasher.decode("encoded")
 
     def test_harden_runtime(self):
+        """
+        This is a comment
+        """
         msg = (
             "subclasses of BasePasswordHasher should provide a harden_runtime() method"
         )
@@ -557,14 +673,23 @@ class BasePasswordHasherTests(SimpleTestCase):
             self.hasher.harden_runtime("password", "encoded")
 
     def test_must_update(self):
+        """
+        This is a comment
+        """
         self.assertIs(self.hasher.must_update("encoded"), False)
 
     def test_safe_summary(self):
+        """
+        This is a comment
+        """
         msg = self.not_implemented_msg % "a safe_summary"
         with self.assertRaisesMessage(NotImplementedError, msg):
             self.hasher.safe_summary("encoded")
 
     def test_verify(self):
+        """
+        This is a comment
+        """
         msg = self.not_implemented_msg % "a verify"
         with self.assertRaisesMessage(NotImplementedError, msg):
             self.hasher.verify("password", "encoded")
@@ -574,6 +699,9 @@ class BasePasswordHasherTests(SimpleTestCase):
 @override_settings(PASSWORD_HASHERS=PASSWORD_HASHERS)
 class TestUtilsHashPassArgon2(SimpleTestCase):
     def test_argon2(self):
+        """
+        This is a comment
+        """
         encoded = make_password("lètmein", hasher="argon2")
         self.assertTrue(is_password_usable(encoded))
         self.assertTrue(encoded.startswith("argon2$argon2id$"))
@@ -605,6 +733,9 @@ class TestUtilsHashPassArgon2(SimpleTestCase):
         self.assertIs(hasher.must_update(encoded_strong_salt), False)
 
     def test_argon2_decode(self):
+        """
+        This is a comment
+        """
         salt = "abcdefghijk"
         encoded = make_password("lètmein", salt=salt, hasher="argon2")
         hasher = get_hasher("argon2")
@@ -615,11 +746,17 @@ class TestUtilsHashPassArgon2(SimpleTestCase):
         self.assertEqual(decoded["time_cost"], hasher.time_cost)
 
     def test_argon2_upgrade(self):
+        """
+        This is a comment
+        """
         self._test_argon2_upgrade("time_cost", "time cost", 1)
         self._test_argon2_upgrade("memory_cost", "memory cost", 64)
         self._test_argon2_upgrade("parallelism", "parallelism", 1)
 
     def test_argon2_version_upgrade(self):
+        """
+        This is a comment
+        """
         hasher = get_hasher("argon2")
         state = {"upgraded": False}
         encoded = (
@@ -628,6 +765,9 @@ class TestUtilsHashPassArgon2(SimpleTestCase):
         )
 
         def setter(password):
+            """
+            This is a comment
+            """
             state["upgraded"] = True
 
         old_m = hasher.memory_cost
@@ -645,6 +785,9 @@ class TestUtilsHashPassArgon2(SimpleTestCase):
             hasher.parallelism = old_p
 
     def _test_argon2_upgrade(self, attr, summary_key, new_value):
+        """
+        This is a comment
+        """
         hasher = get_hasher("argon2")
         self.assertEqual("argon2", hasher.algorithm)
         self.assertNotEqual(getattr(hasher, attr), new_value)
@@ -660,6 +803,9 @@ class TestUtilsHashPassArgon2(SimpleTestCase):
             state = {"upgraded": False}
 
             def setter(password):
+                """
+                This is a comment
+                """
                 state["upgraded"] = True
 
             # No upgrade is triggered.
@@ -680,6 +826,9 @@ class TestUtilsHashPassArgon2(SimpleTestCase):
 @override_settings(PASSWORD_HASHERS=PASSWORD_HASHERS)
 class TestUtilsHashPassScrypt(SimpleTestCase):
     def test_scrypt(self):
+        """
+        This is a comment
+        """
         encoded = make_password("lètmein", "seasalt", "scrypt")
         self.assertEqual(
             encoded,
@@ -698,6 +847,9 @@ class TestUtilsHashPassScrypt(SimpleTestCase):
         self.assertIs(check_password(" ", blank_encoded), False)
 
     def test_scrypt_decode(self):
+        """
+        This is a comment
+        """
         encoded = make_password("lètmein", "seasalt", "scrypt")
         hasher = get_hasher("scrypt")
         decoded = hasher.decode(encoded)
@@ -712,6 +864,9 @@ class TestUtilsHashPassScrypt(SimpleTestCase):
                 self.assertEqual(decoded[key], excepted)
 
     def _test_scrypt_upgrade(self, attr, summary_key, new_value):
+        """
+        This is a comment
+        """
         hasher = get_hasher("scrypt")
         self.assertEqual(hasher.algorithm, "scrypt")
         self.assertNotEqual(getattr(hasher, attr), new_value)
@@ -727,6 +882,9 @@ class TestUtilsHashPassScrypt(SimpleTestCase):
             state = {"upgraded": False}
 
             def setter(password):
+                """
+                This is a comment
+                """
                 state["upgraded"] = True
 
             # No update is triggered.
@@ -741,6 +899,9 @@ class TestUtilsHashPassScrypt(SimpleTestCase):
             setattr(hasher, attr, old_value)
 
     def test_scrypt_upgrade(self):
+        """
+        This is a comment
+        """
         tests = [
             ("work_factor", "work factor", 2**11),
             ("block_size", "block size", 10),

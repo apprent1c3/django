@@ -17,6 +17,9 @@ LIBRARIES = {
 
 class CustomFilterTests(SimpleTestCase):
     def test_filter(self):
+        """
+        This is a comment
+        """
         engine = Engine(libraries=LIBRARIES)
         t = engine.from_string("{% load custom %}{{ string|trim:5 }}")
         self.assertEqual(
@@ -24,6 +27,9 @@ class CustomFilterTests(SimpleTestCase):
         )
 
     def test_decorated_filter(self):
+        """
+        This is a comment
+        """
         engine = Engine(libraries=LIBRARIES)
         t = engine.from_string("{% load custom %}{{ name|make_data_div }}")
         self.assertEqual(
@@ -34,10 +40,16 @@ class CustomFilterTests(SimpleTestCase):
 class TagTestCase(SimpleTestCase):
     @classmethod
     def setUpClass(cls):
+        """
+        This is a comment
+        """
         cls.engine = Engine(app_dirs=True, libraries=LIBRARIES)
         super().setUpClass()
 
     def verify_tag(self, tag, name):
+        """
+        This is a comment
+        """
         self.assertEqual(tag.__name__, name)
         self.assertEqual(tag.__doc__, "Expected %s __doc__" % name)
         self.assertEqual(tag.__dict__["anything"], "Expected %s __dict__" % name)
@@ -45,6 +57,9 @@ class TagTestCase(SimpleTestCase):
 
 class SimpleTagTests(TagTestCase):
     def test_simple_tags(self):
+        """
+        This is a comment
+        """
         c = Context({"value": 42})
 
         templates = [
@@ -130,6 +145,9 @@ class SimpleTagTests(TagTestCase):
             self.assertEqual(t.render(c), "Result: %s" % entry[1])
 
     def test_simple_tag_errors(self):
+        """
+        This is a comment
+        """
         errors = [
             (
                 "'simple_one_default' received unexpected keyword argument 'three'",
@@ -184,23 +202,35 @@ class SimpleTagTests(TagTestCase):
                 self.engine.from_string("%s as var %%}" % entry[1][0:-2])
 
     def test_simple_tag_escaping_autoescape_off(self):
+        """
+        This is a comment
+        """
         c = Context({"name": "Jack & Jill"}, autoescape=False)
         t = self.engine.from_string("{% load custom %}{% escape_naive %}")
         self.assertEqual(t.render(c), "Hello Jack & Jill!")
 
     def test_simple_tag_naive_escaping(self):
+        """
+        This is a comment
+        """
         c = Context({"name": "Jack & Jill"})
         t = self.engine.from_string("{% load custom %}{% escape_naive %}")
         self.assertEqual(t.render(c), "Hello Jack &amp; Jill!")
 
     def test_simple_tag_explicit_escaping(self):
         # Check we don't double escape
+        """
+        This is a comment
+        """
         c = Context({"name": "Jack & Jill"})
         t = self.engine.from_string("{% load custom %}{% escape_explicit %}")
         self.assertEqual(t.render(c), "Hello Jack &amp; Jill!")
 
     def test_simple_tag_format_html_escaping(self):
         # Check we don't double escape
+        """
+        This is a comment
+        """
         c = Context({"name": "Jack & Jill"})
         t = self.engine.from_string("{% load custom %}{% escape_format_html %}")
         self.assertEqual(t.render(c), "Hello Jack &amp; Jill!")
@@ -208,6 +238,9 @@ class SimpleTagTests(TagTestCase):
     def test_simple_tag_registration(self):
         # The decorators preserve the decorated function's docstring, name,
         # and attributes.
+        """
+        This is a comment
+        """
         self.verify_tag(custom.no_params, "no_params")
         self.verify_tag(custom.one_param, "one_param")
         self.verify_tag(custom.explicit_no_context, "explicit_no_context")
@@ -223,6 +256,9 @@ class SimpleTagTests(TagTestCase):
 
     def test_simple_tag_missing_context(self):
         # The 'context' parameter must be present when takes_context is True
+        """
+        This is a comment
+        """
         msg = (
             "'simple_tag_without_context_parameter' is decorated with "
             "takes_context=True so it must have a first argument of 'context'"
@@ -233,6 +269,9 @@ class SimpleTagTests(TagTestCase):
             )
 
     def test_simple_tag_missing_context_no_params(self):
+        """
+        This is a comment
+        """
         msg = (
             "'simple_tag_takes_context_without_params' is decorated with "
             "takes_context=True so it must have a first argument of 'context'"
@@ -245,6 +284,9 @@ class SimpleTagTests(TagTestCase):
 
 class InclusionTagTests(TagTestCase):
     def test_inclusion_tags(self):
+        """
+        This is a comment
+        """
         c = Context({"value": 42})
 
         templates = [
@@ -324,6 +366,9 @@ class InclusionTagTests(TagTestCase):
             self.assertEqual(t.render(c), entry[1])
 
     def test_inclusion_tag_errors(self):
+        """
+        This is a comment
+        """
         errors = [
             (
                 "'inclusion_one_default' received unexpected keyword argument 'three'",
@@ -376,6 +421,9 @@ class InclusionTagTests(TagTestCase):
 
     def test_include_tag_missing_context(self):
         # The 'context' parameter must be present when takes_context is True
+        """
+        This is a comment
+        """
         msg = (
             "'inclusion_tag_without_context_parameter' is decorated with "
             "takes_context=True so it must have a first argument of 'context'"
@@ -386,6 +434,9 @@ class InclusionTagTests(TagTestCase):
             )
 
     def test_include_tag_missing_context_no_params(self):
+        """
+        This is a comment
+        """
         msg = (
             "'inclusion_tag_takes_context_without_params' is decorated with "
             "takes_context=True so it must have a first argument of 'context'"
@@ -396,6 +447,9 @@ class InclusionTagTests(TagTestCase):
             )
 
     def test_inclusion_tags_from_template(self):
+        """
+        This is a comment
+        """
         c = Context({"value": 42})
 
         templates = [
@@ -465,6 +519,9 @@ class InclusionTagTests(TagTestCase):
     def test_inclusion_tag_registration(self):
         # The decorators preserve the decorated function's docstring, name,
         # and attributes.
+        """
+        This is a comment
+        """
         self.verify_tag(inclusion.inclusion_no_params, "inclusion_no_params")
         self.verify_tag(inclusion.inclusion_one_param, "inclusion_one_param")
         self.verify_tag(
@@ -494,8 +551,7 @@ class InclusionTagTests(TagTestCase):
 
     def test_15070_use_l10n(self):
         """
-        Inclusion tag passes down `use_l10n` of context to the
-        Context of the included/rendered template as well.
+        This is a comment
         """
         c = Context({})
         t = self.engine.from_string("{% load inclusion %}{% inclusion_tag_use_l10n %}")
@@ -506,7 +562,7 @@ class InclusionTagTests(TagTestCase):
 
     def test_no_render_side_effect(self):
         """
-        #23441 -- InclusionNode shouldn't modify its nodelist at render time.
+        This is a comment
         """
         engine = Engine(app_dirs=True, libraries=LIBRARIES)
         template = engine.from_string("{% load inclusion %}{% inclusion_no_params %}")
@@ -516,9 +572,7 @@ class InclusionTagTests(TagTestCase):
 
     def test_render_context_is_cleared(self):
         """
-        #24555 -- InclusionNode should push and pop the render_context stack
-        when rendering. Otherwise, leftover values such as blocks from
-        extending can interfere with subsequent rendering.
+        This is a comment
         """
         engine = Engine(app_dirs=True, libraries=LIBRARIES)
         template = engine.from_string(
@@ -530,10 +584,16 @@ class InclusionTagTests(TagTestCase):
 class TemplateTagLoadingTests(SimpleTestCase):
     @classmethod
     def setUpClass(cls):
+        """
+        This is a comment
+        """
         cls.egg_dir = os.path.join(ROOT, "eggs")
         super().setUpClass()
 
     def test_load_error(self):
+        """
+        This is a comment
+        """
         msg = (
             "Invalid template library specified. ImportError raised when "
             "trying to load 'template_tests.broken_tag': cannot import name "
@@ -543,6 +603,9 @@ class TemplateTagLoadingTests(SimpleTestCase):
             Engine(libraries={"broken_tag": "template_tests.broken_tag"})
 
     def test_load_error_egg(self):
+        """
+        This is a comment
+        """
         egg_name = "%s/tagsegg.egg" % self.egg_dir
         msg = (
             "Invalid template library specified. ImportError raised when "
@@ -554,6 +617,9 @@ class TemplateTagLoadingTests(SimpleTestCase):
                 Engine(libraries={"broken_egg": "tagsegg.templatetags.broken_egg"})
 
     def test_load_working_egg(self):
+        """
+        This is a comment
+        """
         ttext = "{% load working_egg %}"
         egg_name = "%s/tagsegg.egg" % self.egg_dir
         with extend_sys_path(egg_name):
@@ -565,6 +631,9 @@ class TemplateTagLoadingTests(SimpleTestCase):
             engine.from_string(ttext)
 
     def test_load_annotated_function(self):
+        """
+        This is a comment
+        """
         Engine(
             libraries={
                 "annotated_tag_function": "template_tests.annotated_tag_function",

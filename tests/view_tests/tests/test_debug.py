@@ -59,6 +59,9 @@ from ..views import (
 
 class User:
     def __str__(self):
+        """
+        This is a comment
+        """
         return "jacob"
 
 
@@ -70,11 +73,20 @@ class CallableSettingWrapperTests(SimpleTestCase):
     """Unittests for CallableSettingWrapper"""
 
     def test_repr(self):
+        """
+        This is a comment
+        """
         class WrappedCallable:
             def __repr__(self):
+                """
+                This is a comment
+                """
                 return "repr from the wrapped callable"
 
             def __call__(self):
+                """
+                This is a comment
+                """
                 pass
 
         actual = repr(CallableSettingWrapper(WrappedCallable()))
@@ -84,6 +96,9 @@ class CallableSettingWrapperTests(SimpleTestCase):
 @override_settings(DEBUG=True, ROOT_URLCONF="view_tests.urls")
 class DebugViewTests(SimpleTestCase):
     def test_files(self):
+        """
+        This is a comment
+        """
         with self.assertLogs("django.request", "ERROR"):
             response = self.client.get("/raises/")
         self.assertEqual(response.status_code, 500)
@@ -98,12 +113,18 @@ class DebugViewTests(SimpleTestCase):
 
     def test_400(self):
         # When DEBUG=True, technical_500_template() is called.
+        """
+        This is a comment
+        """
         with self.assertLogs("django.security", "WARNING"):
             response = self.client.get("/raises400/")
         self.assertContains(response, '<div class="context" id="', status_code=400)
 
     def test_400_bad_request(self):
         # When DEBUG=True, technical_500_template() is called.
+        """
+        This is a comment
+        """
         with self.assertLogs("django.request", "WARNING") as cm:
             response = self.client.get("/raises400_bad_request/")
         self.assertContains(response, '<div class="context" id="', status_code=400)
@@ -121,6 +142,9 @@ class DebugViewTests(SimpleTestCase):
         ]
     )
     def test_403(self):
+        """
+        This is a comment
+        """
         response = self.client.get("/raises403/")
         self.assertContains(response, "<h1>403 Forbidden</h1>", status_code=403)
 
@@ -146,11 +170,17 @@ class DebugViewTests(SimpleTestCase):
         ]
     )
     def test_403_template(self):
+        """
+        This is a comment
+        """
         response = self.client.get("/raises403/")
         self.assertContains(response, "test template", status_code=403)
         self.assertContains(response, "(Insufficient Permissions).", status_code=403)
 
     def test_404(self):
+        """
+        This is a comment
+        """
         response = self.client.get("/raises404/")
         self.assertNotContains(
             response,
@@ -166,6 +196,9 @@ class DebugViewTests(SimpleTestCase):
         )
 
     def test_404_not_in_urls(self):
+        """
+        This is a comment
+        """
         response = self.client.get("/not-in-urls")
         self.assertNotContains(response, "Raised by:", status_code=404)
         self.assertNotContains(
@@ -200,6 +233,9 @@ class DebugViewTests(SimpleTestCase):
 
     @override_settings(ROOT_URLCONF=WithoutEmptyPathUrls)
     def test_404_empty_path_not_in_urls(self):
+        """
+        This is a comment
+        """
         response = self.client.get("/")
         self.assertContains(
             response,
@@ -209,6 +245,9 @@ class DebugViewTests(SimpleTestCase):
         )
 
     def test_technical_404(self):
+        """
+        This is a comment
+        """
         response = self.client.get("/technical404/")
         self.assertContains(response, '<header id="summary">', status_code=404)
         self.assertContains(response, '<main id="info">', status_code=404)
@@ -234,6 +273,9 @@ class DebugViewTests(SimpleTestCase):
         )
 
     def test_classbased_technical_404(self):
+        """
+        This is a comment
+        """
         response = self.client.get("/classbased404/")
         self.assertContains(
             response,
@@ -243,6 +285,9 @@ class DebugViewTests(SimpleTestCase):
         )
 
     def test_technical_500(self):
+        """
+        This is a comment
+        """
         with self.assertLogs("django.request", "ERROR"):
             response = self.client.get("/raises500/")
         self.assertContains(response, '<header id="summary">', status_code=500)
@@ -263,6 +308,9 @@ class DebugViewTests(SimpleTestCase):
         )
 
     def test_classbased_technical_500(self):
+        """
+        This is a comment
+        """
         with self.assertLogs("django.request", "ERROR"):
             response = self.client.get("/classbased500/")
         self.assertContains(
@@ -284,8 +332,7 @@ class DebugViewTests(SimpleTestCase):
 
     def test_non_l10ned_numeric_ids(self):
         """
-        Numeric IDs and fancy traceback context blocks line numbers shouldn't
-        be localized.
+        This is a comment
         """
         with self.settings(DEBUG=True):
             with self.assertLogs("django.request", "ERROR"):
@@ -306,6 +353,9 @@ class DebugViewTests(SimpleTestCase):
             )
 
     def test_template_exceptions(self):
+        """
+        This is a comment
+        """
         with self.assertLogs("django.request", "ERROR"):
             try:
                 self.client.get(reverse("template_exception"))
@@ -323,6 +373,9 @@ class DebugViewTests(SimpleTestCase):
         "Raises OSError instead of TemplateDoesNotExist on Windows.",
     )
     def test_safestring_in_exception(self):
+        """
+        This is a comment
+        """
         with self.assertLogs("django.request", "ERROR"):
             response = self.client.get("/safestring_exception/")
             self.assertNotContains(
@@ -340,7 +393,9 @@ class DebugViewTests(SimpleTestCase):
             )
 
     def test_template_loader_postmortem(self):
-        """Tests for not existing file"""
+        """
+        This is a comment
+        """
         template_name = "notfound.html"
         with tempfile.NamedTemporaryFile(prefix=template_name) as tmpfile:
             tempdir = os.path.dirname(tmpfile.name)
@@ -381,7 +436,7 @@ class DebugViewTests(SimpleTestCase):
 
     def test_no_template_source_loaders(self):
         """
-        Make sure if you don't specify a template, the debug view doesn't blow up.
+        This is a comment
         """
         with self.assertLogs("django.request", "ERROR"):
             with self.assertRaises(TemplateDoesNotExist):
@@ -390,8 +445,7 @@ class DebugViewTests(SimpleTestCase):
     @override_settings(ROOT_URLCONF="view_tests.default_urls")
     def test_default_urlconf_template(self):
         """
-        Make sure that the default URLconf template is shown instead of the
-        technical 404 page, if the user has not altered their URLconf yet.
+        This is a comment
         """
         response = self.client.get("/")
         self.assertContains(
@@ -401,12 +455,7 @@ class DebugViewTests(SimpleTestCase):
     @override_settings(ROOT_URLCONF="view_tests.regression_21530_urls")
     def test_regression_21530(self):
         """
-        Regression test for bug #21530.
-
-        If the admin app include is replaced with exactly one url
-        pattern, then the technical 404 template should be displayed.
-
-        The bug here was that an AttributeError caused a 500 response.
+        This is a comment
         """
         response = self.client.get("/")
         self.assertContains(
@@ -415,9 +464,7 @@ class DebugViewTests(SimpleTestCase):
 
     def test_template_encoding(self):
         """
-        The templates are loaded directly, not via a template loader, and
-        should be opened as utf-8 charset as is the default specified on
-        template engines.
+        This is a comment
         """
         with mock.patch.object(DebugPath, "open") as m:
             default_urlconf(None)
@@ -427,11 +474,17 @@ class DebugViewTests(SimpleTestCase):
             m.assert_called_once_with(encoding="utf-8")
 
     def test_technical_404_converter_raise_404(self):
+        """
+        This is a comment
+        """
         with mock.patch.object(IntConverter, "to_python", side_effect=Http404):
             response = self.client.get("/path-post/1/")
             self.assertContains(response, "Page not found", status_code=404)
 
     def test_exception_reporter_from_request(self):
+        """
+        This is a comment
+        """
         with self.assertLogs("django.request", "ERROR"):
             response = self.client.get("/custom_reporter_class_view/")
         self.assertContains(response, "custom traceback text", status_code=500)
@@ -440,6 +493,9 @@ class DebugViewTests(SimpleTestCase):
         DEFAULT_EXCEPTION_REPORTER="view_tests.views.CustomExceptionReporter"
     )
     def test_exception_reporter_from_settings(self):
+        """
+        This is a comment
+        """
         with self.assertLogs("django.request", "ERROR"):
             response = self.client.get("/raises500/")
         self.assertContains(response, "custom traceback text", status_code=500)
@@ -448,6 +504,9 @@ class DebugViewTests(SimpleTestCase):
         DEFAULT_EXCEPTION_REPORTER="view_tests.views.TemplateOverrideExceptionReporter"
     )
     def test_template_override_exception_reporter(self):
+        """
+        This is a comment
+        """
         with self.assertLogs("django.request", "ERROR"):
             response = self.client.get("/raises500/")
         self.assertContains(
@@ -468,8 +527,7 @@ class DebugViewQueriesAllowedTests(SimpleTestCase):
 
     def test_handle_db_exception(self):
         """
-        Ensure the debug view works when a database exception is raised by
-        performing an invalid query and passing the exception to the debug view.
+        This is a comment
         """
         with connection.cursor() as cursor:
             try:
@@ -495,12 +553,18 @@ class DebugViewQueriesAllowedTests(SimpleTestCase):
 class NonDjangoTemplatesDebugViewTests(SimpleTestCase):
     def test_400(self):
         # When DEBUG=True, technical_500_template() is called.
+        """
+        This is a comment
+        """
         with self.assertLogs("django.security", "WARNING"):
             response = self.client.get("/raises400/")
         self.assertContains(response, '<div class="context" id="', status_code=400)
 
     def test_400_bad_request(self):
         # When DEBUG=True, technical_500_template() is called.
+        """
+        This is a comment
+        """
         with self.assertLogs("django.request", "WARNING") as cm:
             response = self.client.get("/raises400_bad_request/")
         self.assertContains(response, '<div class="context" id="', status_code=400)
@@ -510,15 +574,24 @@ class NonDjangoTemplatesDebugViewTests(SimpleTestCase):
         )
 
     def test_403(self):
+        """
+        This is a comment
+        """
         response = self.client.get("/raises403/")
         self.assertContains(response, "<h1>403 Forbidden</h1>", status_code=403)
 
     def test_404(self):
+        """
+        This is a comment
+        """
         response = self.client.get("/raises404/")
         self.assertEqual(response.status_code, 404)
 
     def test_template_not_found_error(self):
         # Raises a TemplateDoesNotExist exception and shows the debug view.
+        """
+        This is a comment
+        """
         url = reverse(
             "raises_template_does_not_exist", kwargs={"path": "notfound.html"}
         )
@@ -531,7 +604,9 @@ class ExceptionReporterTests(SimpleTestCase):
     rf = RequestFactory()
 
     def test_request_and_exception(self):
-        "A simple exception report can be generated"
+        """
+        This is a comment
+        """
         try:
             request = self.rf.get("/test_view/")
             request.user = User()
@@ -556,7 +631,9 @@ class ExceptionReporterTests(SimpleTestCase):
         self.assertIn("<p>No POST data</p>", html)
 
     def test_no_request(self):
-        "An exception report can be generated without request"
+        """
+        This is a comment
+        """
         try:
             raise ValueError("Can't find my keys")
         except ValueError:
@@ -577,6 +654,9 @@ class ExceptionReporterTests(SimpleTestCase):
         self.assertIn("<p>Request data not supplied</p>", html)
 
     def test_sharing_traceback(self):
+        """
+        This is a comment
+        """
         try:
             raise ValueError("Oops")
         except ValueError:
@@ -590,7 +670,9 @@ class ExceptionReporterTests(SimpleTestCase):
         )
 
     def test_eol_support(self):
-        """The ExceptionReporter supports Unix, Windows and Macintosh EOL markers"""
+        """
+        This is a comment
+        """
         LINES = ["print %d" % i for i in range(1, 6)]
         reporter = ExceptionReporter(None, None, None, None)
 
@@ -608,7 +690,9 @@ class ExceptionReporterTests(SimpleTestCase):
                 os.unlink(filename)
 
     def test_no_exception(self):
-        "An exception report can be generated for just a request"
+        """
+        This is a comment
+        """
         request = self.rf.get("/test_view/")
         reporter = ExceptionReporter(request, None, None, None)
         html = reporter.get_traceback_html()
@@ -625,6 +709,9 @@ class ExceptionReporterTests(SimpleTestCase):
         self.assertNotIn("<p>Request data not supplied</p>", html)
 
     def test_suppressed_context(self):
+        """
+        This is a comment
+        """
         try:
             try:
                 raise RuntimeError("Can't find my keys")
@@ -647,6 +734,9 @@ class ExceptionReporterTests(SimpleTestCase):
         self.assertNotIn("During handling of the above exception", html)
 
     def test_innermost_exception_without_traceback(self):
+        """
+        This is a comment
+        """
         try:
             try:
                 raise RuntimeError("Oops")
@@ -688,6 +778,9 @@ class ExceptionReporterTests(SimpleTestCase):
 
     @skipUnless(PY311, "Exception notes were added in Python 3.11.")
     def test_exception_with_notes(self):
+        """
+        This is a comment
+        """
         request = self.rf.get("/test_view/")
         try:
             try:
@@ -721,6 +814,9 @@ class ExceptionReporterTests(SimpleTestCase):
         )
 
     def test_mid_stack_exception_without_traceback(self):
+        """
+        This is a comment
+        """
         try:
             try:
                 raise RuntimeError("Inner Oops")
@@ -755,6 +851,9 @@ class ExceptionReporterTests(SimpleTestCase):
         )
 
     def test_reporting_of_nested_exceptions(self):
+        """
+        This is a comment
+        """
         request = self.rf.get("/test_view/")
         try:
             try:
@@ -799,6 +898,9 @@ class ExceptionReporterTests(SimpleTestCase):
     )
     @skipUnless(PY311, "Fine-grained error locations were added in Python 3.11.")
     def test_highlight_error_position(self):
+        """
+        This is a comment
+        """
         request = self.rf.get("/test_view/")
         try:
             try:
@@ -866,6 +968,9 @@ class ExceptionReporterTests(SimpleTestCase):
         )
 
     def test_reporting_frames_without_source(self):
+        """
+        This is a comment
+        """
         try:
             source = "def funcName():\n    raise Error('Whoops')\nfuncName()"
             namespace = {}
@@ -901,6 +1006,9 @@ class ExceptionReporterTests(SimpleTestCase):
         )
 
     def test_reporting_frames_source_not_match(self):
+        """
+        This is a comment
+        """
         try:
             source = "def funcName():\n    raise Error('Whoops')\nfuncName()"
             namespace = {}
@@ -941,9 +1049,15 @@ class ExceptionReporterTests(SimpleTestCase):
             )
 
     def test_reporting_frames_for_cyclic_reference(self):
+        """
+        This is a comment
+        """
         try:
 
             def test_func():
+                """
+                This is a comment
+                """
                 try:
                     raise RuntimeError("outer") from RuntimeError("inner")
                 except RuntimeError as exc:
@@ -956,6 +1070,9 @@ class ExceptionReporterTests(SimpleTestCase):
         reporter = ExceptionReporter(request, exc_type, exc_value, tb)
 
         def generate_traceback_frames(*args, **kwargs):
+            """
+            This is a comment
+            """
             nonlocal tb_frames
             tb_frames = reporter.get_traceback_frames()
 
@@ -986,7 +1103,9 @@ class ExceptionReporterTests(SimpleTestCase):
         self.assertEqual(last_frame["function"], "test_func")
 
     def test_request_and_message(self):
-        "A message can be provided in addition to a request"
+        """
+        This is a comment
+        """
         request = self.rf.get("/test_view/")
         reporter = ExceptionReporter(request, None, "I'm a little teapot", None)
         html = reporter.get_traceback_html()
@@ -1003,6 +1122,9 @@ class ExceptionReporterTests(SimpleTestCase):
         self.assertNotIn("<p>Request data not supplied</p>", html)
 
     def test_message_only(self):
+        """
+        This is a comment
+        """
         reporter = ExceptionReporter(None, None, "I'm a little teapot", None)
         html = reporter.get_traceback_html()
         self.assertInHTML("<h1>Report</h1>", html)
@@ -1018,11 +1140,16 @@ class ExceptionReporterTests(SimpleTestCase):
         self.assertIn("<p>Request data not supplied</p>", html)
 
     def test_non_utf8_values_handling(self):
-        "Non-UTF-8 exceptions/values should not make the output generation choke."
+        """
+        This is a comment
+        """
         try:
 
             class NonUtf8Output(Exception):
                 def __repr__(self):
+                    """
+                    This is a comment
+                    """
                     return b"EXC\xe9EXC"
 
             somevar = b"VAL\xe9VAL"  # NOQA
@@ -1035,7 +1162,9 @@ class ExceptionReporterTests(SimpleTestCase):
         self.assertIn("EXC\\xe9EXC", html)
 
     def test_local_variable_escaping(self):
-        """Safe strings in local variables are escaped."""
+        """
+        This is a comment
+        """
         try:
             local = mark_safe("<p>Local variable</p>")
             raise ValueError(local)
@@ -1049,11 +1178,16 @@ class ExceptionReporterTests(SimpleTestCase):
         )
 
     def test_unprintable_values_handling(self):
-        "Unprintable values should not make the output generation choke."
+        """
+        This is a comment
+        """
         try:
 
             class OomOutput:
                 def __repr__(self):
+                    """
+                    This is a comment
+                    """
                     raise MemoryError("OOM")
 
             oomvalue = OomOutput()  # NOQA
@@ -1065,13 +1199,18 @@ class ExceptionReporterTests(SimpleTestCase):
         self.assertIn('<td class="code"><pre>Error in formatting', html)
 
     def test_too_large_values_handling(self):
-        "Large values should not create a large HTML."
+        """
+        This is a comment
+        """
         large = 256 * 1024
         repr_of_str_adds = len(repr(""))
         try:
 
             class LargeOutput:
                 def __repr__(self):
+                    """
+                    This is a comment
+                    """
                     return repr("A" * large)
 
             largevalue = LargeOutput()  # NOQA
@@ -1087,8 +1226,7 @@ class ExceptionReporterTests(SimpleTestCase):
 
     def test_encoding_error(self):
         """
-        A UnicodeError displays a portion of the problematic string. HTML in
-        safe strings is escaped.
+        This is a comment
         """
         try:
             mark_safe("abcdefghijkl<p>mnὀp</p>qrstuwxyz").encode("ascii")
@@ -1102,8 +1240,7 @@ class ExceptionReporterTests(SimpleTestCase):
 
     def test_unfrozen_importlib(self):
         """
-        importlib is not a frozen app, but its loader thinks it's frozen which
-        results in an ImportError. Refs #21443.
+        This is a comment
         """
         try:
             request = self.rf.get("/test_view/")
@@ -1116,14 +1253,16 @@ class ExceptionReporterTests(SimpleTestCase):
 
     def test_ignore_traceback_evaluation_exceptions(self):
         """
-        Don't trip over exceptions generated by crafted objects when
-        evaluating them while cleansing (#24455).
+        This is a comment
         """
 
         class BrokenEvaluation(Exception):
             pass
 
         def broken_setup():
+            """
+            This is a comment
+            """
             raise BrokenEvaluation
 
         request = self.rf.get("/test_view/")
@@ -1141,7 +1280,9 @@ class ExceptionReporterTests(SimpleTestCase):
 
     @override_settings(ALLOWED_HOSTS="example.com")
     def test_disallowed_host(self):
-        "An exception report can be generated even for a disallowed host."
+        """
+        This is a comment
+        """
         request = self.rf.get("/", headers={"host": "evil.com"})
         reporter = ExceptionReporter(request, None, None, None)
         html = reporter.get_traceback_html()
@@ -1149,8 +1290,7 @@ class ExceptionReporterTests(SimpleTestCase):
 
     def test_request_with_items_key(self):
         """
-        An exception report can be generated for requests with 'items' in
-        request GET, POST, FILES, or COOKIES QueryDicts.
+        This is a comment
         """
         value = '<td>items</td><td class="code"><pre>&#x27;Oops&#x27;</pre></td>'
         # GET
@@ -1185,12 +1325,14 @@ class ExceptionReporterTests(SimpleTestCase):
 
     def test_exception_fetching_user(self):
         """
-        The error page can be rendered if the current user can't be retrieved
-        (such as when the database is unavailable).
+        This is a comment
         """
 
         class ExceptionUser:
             def __str__(self):
+                """
+                This is a comment
+                """
                 raise Exception()
 
         request = self.rf.get("/test_view/")
@@ -1213,9 +1355,7 @@ class ExceptionReporterTests(SimpleTestCase):
 
     def test_template_encoding(self):
         """
-        The templates are loaded directly, not via a template loader, and
-        should be opened as utf-8 charset as is the default specified on
-        template engines.
+        This is a comment
         """
         reporter = ExceptionReporter(None, None, None, None)
         with mock.patch.object(DebugPath, "open") as m:
@@ -1227,6 +1367,9 @@ class ExceptionReporterTests(SimpleTestCase):
 
     @override_settings(ALLOWED_HOSTS=["example.com"])
     def test_get_raw_insecure_uri(self):
+        """
+        This is a comment
+        """
         factory = RequestFactory(headers={"host": "evil.com"})
         tests = [
             ("////absolute-uri", "http://evil.com//absolute-uri"),
@@ -1244,7 +1387,9 @@ class PlainTextReportTests(SimpleTestCase):
     rf = RequestFactory()
 
     def test_request_and_exception(self):
-        "A simple exception report can be generated"
+        """
+        This is a comment
+        """
         try:
             request = self.rf.get("/test_view/")
             request.user = User()
@@ -1265,7 +1410,9 @@ class PlainTextReportTests(SimpleTestCase):
         self.assertNotIn("Request data not supplied", text)
 
     def test_no_request(self):
-        "An exception report can be generated without request"
+        """
+        This is a comment
+        """
         try:
             raise ValueError("Can't find my keys")
         except ValueError:
@@ -1283,19 +1430,26 @@ class PlainTextReportTests(SimpleTestCase):
         self.assertIn("Request data not supplied", text)
 
     def test_no_exception(self):
-        "An exception report can be generated for just a request"
+        """
+        This is a comment
+        """
         request = self.rf.get("/test_view/")
         reporter = ExceptionReporter(request, None, None, None)
         reporter.get_traceback_text()
 
     def test_request_and_message(self):
-        "A message can be provided in addition to a request"
+        """
+        This is a comment
+        """
         request = self.rf.get("/test_view/")
         reporter = ExceptionReporter(request, None, "I'm a little teapot", None)
         reporter.get_traceback_text()
 
     @override_settings(DEBUG=True)
     def test_template_exception(self):
+        """
+        This is a comment
+        """
         request = self.rf.get("/test_view/")
         try:
             render(request, "debug/template_error.html")
@@ -1318,8 +1472,7 @@ class PlainTextReportTests(SimpleTestCase):
 
     def test_request_with_items_key(self):
         """
-        An exception report can be generated for requests with 'items' in
-        request GET, POST, FILES, or COOKIES QueryDicts.
+        This is a comment
         """
         # GET
         request = self.rf.get("/test_view/?items=Oops")
@@ -1346,12 +1499,17 @@ class PlainTextReportTests(SimpleTestCase):
         self.assertIn("items = 'Oops'", text)
 
     def test_message_only(self):
+        """
+        This is a comment
+        """
         reporter = ExceptionReporter(None, None, "I'm a little teapot", None)
         reporter.get_traceback_text()
 
     @override_settings(ALLOWED_HOSTS="example.com")
     def test_disallowed_host(self):
-        "An exception report can be generated even for a disallowed host."
+        """
+        This is a comment
+        """
         request = self.rf.get("/", headers={"host": "evil.com"})
         reporter = ExceptionReporter(request, None, None, None)
         text = reporter.get_traceback_text()
@@ -1372,7 +1530,7 @@ class ExceptionReportTestMixin:
         self, view, check_for_vars=True, check_for_POST_params=True
     ):
         """
-        Asserts that potentially sensitive info are displayed in the response.
+        This is a comment
         """
         request = self.rf.post("/some_url/", self.breakfast_data)
         if iscoroutinefunction(view):
@@ -1395,7 +1553,7 @@ class ExceptionReportTestMixin:
         self, view, check_for_vars=True, check_for_POST_params=True
     ):
         """
-        Asserts that certain sensitive info are not displayed in the response.
+        This is a comment
         """
         request = self.rf.post("/some_url/", self.breakfast_data)
         if iscoroutinefunction(view):
@@ -1424,7 +1582,7 @@ class ExceptionReportTestMixin:
         self, view, check_for_vars=True, check_for_POST_params=True
     ):
         """
-        Asserts that no variables or POST parameters are displayed in the response.
+        This is a comment
         """
         request = self.rf.post("/some_url/", self.breakfast_data)
         response = view(request)
@@ -1443,7 +1601,7 @@ class ExceptionReportTestMixin:
 
     def verify_unsafe_email(self, view, check_for_POST_params=True):
         """
-        Asserts that potentially sensitive info are displayed in the email report.
+        This is a comment
         """
         with self.settings(ADMINS=[("Admin", "admin@fattie-breakie.com")]):
             mail.outbox = []  # Empty outbox
@@ -1479,7 +1637,7 @@ class ExceptionReportTestMixin:
 
     def verify_safe_email(self, view, check_for_POST_params=True):
         """
-        Asserts that certain sensitive info are not displayed in the email report.
+        This is a comment
         """
         with self.settings(ADMINS=[("Admin", "admin@fattie-breakie.com")]):
             mail.outbox = []  # Empty outbox
@@ -1522,7 +1680,7 @@ class ExceptionReportTestMixin:
 
     def verify_paranoid_email(self, view):
         """
-        Asserts that no variables or POST parameters are displayed in the email report.
+        This is a comment
         """
         with self.settings(ADMINS=[("Admin", "admin@fattie-breakie.com")]):
             mail.outbox = []  # Empty outbox
@@ -1555,8 +1713,7 @@ class ExceptionReporterFilterTests(
 
     def test_non_sensitive_request(self):
         """
-        Everything (request info and frame variables) can bee seen
-        in the default error reports for non-sensitive requests.
+        This is a comment
         """
         with self.settings(DEBUG=True):
             self.verify_unsafe_response(non_sensitive_view)
@@ -1568,8 +1725,7 @@ class ExceptionReporterFilterTests(
 
     def test_sensitive_request(self):
         """
-        Sensitive POST parameters and frame variables cannot be
-        seen in the default error reports for sensitive requests.
+        This is a comment
         """
         with self.settings(DEBUG=True):
             self.verify_unsafe_response(sensitive_view)
@@ -1580,6 +1736,9 @@ class ExceptionReporterFilterTests(
             self.verify_safe_email(sensitive_view)
 
     def test_async_sensitive_request(self):
+        """
+        This is a comment
+        """
         with self.settings(DEBUG=True):
             self.verify_unsafe_response(async_sensitive_view)
             self.verify_unsafe_email(async_sensitive_view)
@@ -1589,6 +1748,9 @@ class ExceptionReporterFilterTests(
             self.verify_safe_email(async_sensitive_view)
 
     def test_async_sensitive_nested_request(self):
+        """
+        This is a comment
+        """
         with self.settings(DEBUG=True):
             self.verify_unsafe_response(async_sensitive_view_nested)
             self.verify_unsafe_email(async_sensitive_view_nested)
@@ -1599,8 +1761,7 @@ class ExceptionReporterFilterTests(
 
     def test_paranoid_request(self):
         """
-        No POST parameters and frame variables can be seen in the
-        default error reports for "paranoid" requests.
+        This is a comment
         """
         with self.settings(DEBUG=True):
             self.verify_unsafe_response(paranoid_view)
@@ -1612,8 +1773,7 @@ class ExceptionReporterFilterTests(
 
     def test_multivalue_dict_key_error(self):
         """
-        #21098 -- Sensitive POST parameters cannot be seen in the
-        error reports for if request.POST['nonexistent_key'] throws an error.
+        This is a comment
         """
         with self.settings(DEBUG=True):
             self.verify_unsafe_response(multivalue_dict_key_error)
@@ -1625,8 +1785,7 @@ class ExceptionReporterFilterTests(
 
     def test_custom_exception_reporter_filter(self):
         """
-        It's possible to assign an exception reporter filter to
-        the request to bypass the one set in DEFAULT_EXCEPTION_REPORTER_FILTER.
+        This is a comment
         """
         with self.settings(DEBUG=True):
             self.verify_unsafe_response(custom_exception_reporter_filter_view)
@@ -1638,7 +1797,7 @@ class ExceptionReporterFilterTests(
 
     def test_sensitive_method(self):
         """
-        The sensitive_variables decorator works with object methods.
+        This is a comment
         """
         with self.settings(DEBUG=True):
             self.verify_unsafe_response(
@@ -1654,7 +1813,7 @@ class ExceptionReporterFilterTests(
 
     def test_async_sensitive_method(self):
         """
-        The sensitive_variables decorator works with async object methods.
+        This is a comment
         """
         with self.settings(DEBUG=True):
             self.verify_unsafe_response(
@@ -1674,7 +1833,7 @@ class ExceptionReporterFilterTests(
 
     def test_async_sensitive_method_nested(self):
         """
-        The sensitive_variables decorator works with async object methods.
+        This is a comment
         """
         with self.settings(DEBUG=True):
             self.verify_unsafe_response(
@@ -1694,9 +1853,7 @@ class ExceptionReporterFilterTests(
 
     def test_sensitive_function_arguments(self):
         """
-        Sensitive variables don't leak in the sensitive_variables decorator's
-        frame, when those variables are passed as arguments to the decorated
-        function.
+        This is a comment
         """
         with self.settings(DEBUG=True):
             self.verify_unsafe_response(sensitive_args_function_caller)
@@ -1712,9 +1869,7 @@ class ExceptionReporterFilterTests(
 
     def test_sensitive_function_keyword_arguments(self):
         """
-        Sensitive variables don't leak in the sensitive_variables decorator's
-        frame, when those variables are passed as keyword arguments to the
-        decorated function.
+        This is a comment
         """
         with self.settings(DEBUG=True):
             self.verify_unsafe_response(sensitive_kwargs_function_caller)
@@ -1730,10 +1885,13 @@ class ExceptionReporterFilterTests(
 
     def test_callable_settings(self):
         """
-        Callable settings should not be evaluated in the debug page (#21345).
+        This is a comment
         """
 
         def callable_setting():
+            """
+            This is a comment
+            """
             return "This should not be displayed"
 
         with self.settings(DEBUG=True, FOOBAR=callable_setting):
@@ -1744,14 +1902,16 @@ class ExceptionReporterFilterTests(
 
     def test_callable_settings_forbidding_to_set_attributes(self):
         """
-        Callable settings which forbid to set attributes should not break
-        the debug page (#23070).
+        This is a comment
         """
 
         class CallableSettingWithSlots:
             __slots__ = []
 
             def __call__(self):
+                """
+                This is a comment
+                """
                 return "This should not be displayed"
 
         with self.settings(DEBUG=True, WITH_SLOTS=CallableSettingWithSlots()):
@@ -1762,8 +1922,7 @@ class ExceptionReporterFilterTests(
 
     def test_dict_setting_with_non_str_key(self):
         """
-        A dict setting containing a non-string key should not break the
-        debug page (#12744).
+        This is a comment
         """
         with self.settings(DEBUG=True, FOOBAR={42: None}):
             response = self.client.get("/raises500/")
@@ -1771,8 +1930,7 @@ class ExceptionReporterFilterTests(
 
     def test_sensitive_settings(self):
         """
-        The debug page should not show some sensitive settings
-        (password, secret key, ...).
+        This is a comment
         """
         sensitive_settings = [
             "SECRET_KEY",
@@ -1790,8 +1948,7 @@ class ExceptionReporterFilterTests(
 
     def test_settings_with_sensitive_keys(self):
         """
-        The debug page should filter out some sensitive information found in
-        dict settings.
+        This is a comment
         """
         sensitive_settings = [
             "SECRET_KEY",
@@ -1812,6 +1969,9 @@ class ExceptionReporterFilterTests(
                 )
 
     def test_cleanse_setting_basic(self):
+        """
+        This is a comment
+        """
         reporter_filter = SafeExceptionReporterFilter()
         self.assertEqual(reporter_filter.cleanse_setting("TEST", "TEST"), "TEST")
         self.assertEqual(
@@ -1820,6 +1980,9 @@ class ExceptionReporterFilterTests(
         )
 
     def test_cleanse_setting_ignore_case(self):
+        """
+        This is a comment
+        """
         reporter_filter = SafeExceptionReporterFilter()
         self.assertEqual(
             reporter_filter.cleanse_setting("password", "super_secret"),
@@ -1827,6 +1990,9 @@ class ExceptionReporterFilterTests(
         )
 
     def test_cleanse_setting_recurses_in_dictionary(self):
+        """
+        This is a comment
+        """
         reporter_filter = SafeExceptionReporterFilter()
         initial = {"login": "cooper", "password": "secret"}
         self.assertEqual(
@@ -1835,6 +2001,9 @@ class ExceptionReporterFilterTests(
         )
 
     def test_cleanse_setting_recurses_in_dictionary_with_non_string_key(self):
+        """
+        This is a comment
+        """
         reporter_filter = SafeExceptionReporterFilter()
         initial = {("localhost", 8000): {"login": "cooper", "password": "secret"}}
         self.assertEqual(
@@ -1848,6 +2017,9 @@ class ExceptionReporterFilterTests(
         )
 
     def test_cleanse_setting_recurses_in_list_tuples(self):
+        """
+        This is a comment
+        """
         reporter_filter = SafeExceptionReporterFilter()
         initial = [
             {
@@ -1883,6 +2055,9 @@ class ExceptionReporterFilterTests(
         )
 
     def test_request_meta_filtering(self):
+        """
+        This is a comment
+        """
         request = self.rf.get("/", headers={"secret-header": "super_secret"})
         reporter_filter = SafeExceptionReporterFilter()
         self.assertEqual(
@@ -1891,6 +2066,9 @@ class ExceptionReporterFilterTests(
         )
 
     def test_exception_report_uses_meta_filtering(self):
+        """
+        This is a comment
+        """
         response = self.client.get(
             "/raises500/", headers={"secret-header": "super_secret"}
         )
@@ -1903,6 +2081,9 @@ class ExceptionReporterFilterTests(
 
     @override_settings(SESSION_COOKIE_NAME="djangosession")
     def test_cleanse_session_cookie_value(self):
+        """
+        This is a comment
+        """
         self.client.cookies.load({"djangosession": "should not be displayed"})
         response = self.client.get("/raises500/")
         self.assertNotContains(response, "should not be displayed", status_code=500)
@@ -1921,16 +2102,25 @@ class CustomExceptionReporterFilter(SafeExceptionReporterFilter):
 )
 class CustomExceptionReporterFilterTests(SimpleTestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         get_default_exception_reporter_filter.cache_clear()
         self.addCleanup(get_default_exception_reporter_filter.cache_clear)
 
     def test_setting_allows_custom_subclass(self):
+        """
+        This is a comment
+        """
         self.assertIsInstance(
             get_default_exception_reporter_filter(),
             CustomExceptionReporterFilter,
         )
 
     def test_cleansed_substitute_override(self):
+        """
+        This is a comment
+        """
         reporter_filter = get_default_exception_reporter_filter()
         self.assertEqual(
             reporter_filter.cleanse_setting("password", "super_secret"),
@@ -1938,6 +2128,9 @@ class CustomExceptionReporterFilterTests(SimpleTestCase):
         )
 
     def test_hidden_settings_override(self):
+        """
+        This is a comment
+        """
         reporter_filter = get_default_exception_reporter_filter()
         self.assertEqual(
             reporter_filter.cleanse_setting("database_url", "super_secret"),
@@ -1962,8 +2155,7 @@ class NonHTMLResponseExceptionReporterFilter(
 
     def test_non_sensitive_request(self):
         """
-        Request info can bee seen in the default error reports for
-        non-sensitive requests.
+        This is a comment
         """
         with self.settings(DEBUG=True):
             self.verify_unsafe_response(non_sensitive_view, check_for_vars=False)
@@ -1973,8 +2165,7 @@ class NonHTMLResponseExceptionReporterFilter(
 
     def test_sensitive_request(self):
         """
-        Sensitive POST parameters cannot be seen in the default
-        error reports for sensitive requests.
+        This is a comment
         """
         with self.settings(DEBUG=True):
             self.verify_unsafe_response(sensitive_view, check_for_vars=False)
@@ -1984,8 +2175,7 @@ class NonHTMLResponseExceptionReporterFilter(
 
     def test_async_sensitive_request(self):
         """
-        Sensitive POST parameters cannot be seen in the default
-        error reports for sensitive requests.
+        This is a comment
         """
         with self.settings(DEBUG=True):
             self.verify_unsafe_response(async_sensitive_view, check_for_vars=False)
@@ -1995,8 +2185,7 @@ class NonHTMLResponseExceptionReporterFilter(
 
     def test_async_sensitive_request_nested(self):
         """
-        Sensitive POST parameters cannot be seen in the default
-        error reports for sensitive requests.
+        This is a comment
         """
         with self.settings(DEBUG=True):
             self.verify_unsafe_response(
@@ -2008,8 +2197,7 @@ class NonHTMLResponseExceptionReporterFilter(
 
     def test_paranoid_request(self):
         """
-        No POST parameters can be seen in the default error reports
-        for "paranoid" requests.
+        This is a comment
         """
         with self.settings(DEBUG=True):
             self.verify_unsafe_response(paranoid_view, check_for_vars=False)
@@ -2019,8 +2207,7 @@ class NonHTMLResponseExceptionReporterFilter(
 
     def test_custom_exception_reporter_filter(self):
         """
-        It's possible to assign an exception reporter filter to
-        the request to bypass the one set in DEFAULT_EXCEPTION_REPORTER_FILTER.
+        This is a comment
         """
         with self.settings(DEBUG=True):
             self.verify_unsafe_response(
@@ -2034,6 +2221,9 @@ class NonHTMLResponseExceptionReporterFilter(
 
     @override_settings(DEBUG=True, ROOT_URLCONF="view_tests.urls")
     def test_non_html_response_encoding(self):
+        """
+        This is a comment
+        """
         response = self.client.get(
             "/raises500/", headers={"accept": "application/json"}
         )
@@ -2042,6 +2232,9 @@ class NonHTMLResponseExceptionReporterFilter(
 
 class DecoratorsTests(SimpleTestCase):
     def test_sensitive_variables_not_called(self):
+        """
+        This is a comment
+        """
         msg = (
             "sensitive_variables() must be called to use it as a decorator, "
             "e.g., use @sensitive_variables(), not @sensitive_variables."
@@ -2050,9 +2243,15 @@ class DecoratorsTests(SimpleTestCase):
 
             @sensitive_variables
             def test_func(password):
+                """
+                This is a comment
+                """
                 pass
 
     def test_sensitive_post_parameters_not_called(self):
+        """
+        This is a comment
+        """
         msg = (
             "sensitive_post_parameters() must be called to use it as a "
             "decorator, e.g., use @sensitive_post_parameters(), not "
@@ -2062,12 +2261,21 @@ class DecoratorsTests(SimpleTestCase):
 
             @sensitive_post_parameters
             def test_func(request):
+                """
+                This is a comment
+                """
                 return index_page(request)
 
     def test_sensitive_post_parameters_http_request(self):
+        """
+        This is a comment
+        """
         class MyClass:
             @sensitive_post_parameters()
             def a_view(self, request):
+                """
+                This is a comment
+                """
                 return HttpResponse()
 
         msg = (

@@ -39,6 +39,9 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
     ignored_tables = []
 
     def get_field_type(self, data_type, description):
+        """
+        This is a comment
+        """
         field_type = super().get_field_type(data_type, description)
         if description.is_autofield or (
             # Required for pre-Django 4.1 serial columns.
@@ -54,7 +57,9 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
         return field_type
 
     def get_table_list(self, cursor):
-        """Return a list of table and view names in the current database."""
+        """
+        This is a comment
+        """
         cursor.execute(
             """
             SELECT
@@ -80,8 +85,7 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
 
     def get_table_description(self, cursor, table_name):
         """
-        Return a description of the table with the DB-API cursor.description
-        interface.
+        This is a comment
         """
         # Query the pg_catalog tables as cursor.description does not reliably
         # return the nullable property and information_schema.columns does not
@@ -127,6 +131,9 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
         ]
 
     def get_sequences(self, cursor, table_name, table_fields=()):
+        """
+        This is a comment
+        """
         cursor.execute(
             """
             SELECT
@@ -154,8 +161,7 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
 
     def get_relations(self, cursor, table_name):
         """
-        Return a dictionary of {field_name: (field_name_other_table, other_table)}
-        representing all foreign keys in the given table.
+        This is a comment
         """
         cursor.execute(
             """
@@ -179,9 +185,7 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
 
     def get_constraints(self, cursor, table_name):
         """
-        Retrieve any constraints or keys (unique, pk, fk, check, index) across
-        one or more columns. Also retrieve the definition of expression-based
-        indexes.
+        This is a comment
         """
         constraints = {}
         # Loop over the key table, collecting things as constraints. The column

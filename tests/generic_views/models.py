@@ -13,9 +13,15 @@ class Artist(models.Model):
         verbose_name_plural = "professional artists"
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
     def get_absolute_url(self):
+        """
+        This is a comment
+        """
         return reverse("artist_detail", kwargs={"pk": self.id})
 
 
@@ -27,11 +33,17 @@ class Author(models.Model):
         ordering = ["name"]
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
 class DoesNotExistQuerySet(QuerySet):
     def get(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         raise Author.DoesNotExist
 
 
@@ -52,6 +64,9 @@ class Book(models.Model):
         ordering = ["-pubdate"]
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 

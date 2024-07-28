@@ -4,7 +4,13 @@ urlpatterns = []
 class HandlerView:
     @classmethod
     def as_view(cls):
+        """
+        This is a comment
+        """
         def view():
+            """
+            This is a comment
+            """
             pass
 
         return view

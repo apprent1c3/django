@@ -11,9 +11,15 @@ from .models import Book, ChildModel1, ChildModel2
 
 class SimpleIndexesTests(SimpleTestCase):
     def test_suffix(self):
+        """
+        This is a comment
+        """
         self.assertEqual(models.Index.suffix, "idx")
 
     def test_repr(self):
+        """
+        This is a comment
+        """
         index = models.Index(fields=["title"])
         named_index = models.Index(fields=["title"], name="title_idx")
         multi_col_index = models.Index(fields=["title", "author"])
@@ -69,6 +75,9 @@ class SimpleIndexesTests(SimpleTestCase):
         )
 
     def test_eq(self):
+        """
+        This is a comment
+        """
         index = models.Index(fields=["title"])
         same_index = models.Index(fields=["title"])
         another_index = models.Index(fields=["title", "author"])
@@ -80,6 +89,9 @@ class SimpleIndexesTests(SimpleTestCase):
         self.assertNotEqual(index, another_index)
 
     def test_eq_func(self):
+        """
+        This is a comment
+        """
         index = models.Index(Lower("title"), models.F("author"), name="book_func_idx")
         same_index = models.Index(Lower("title"), "author", name="book_func_idx")
         another_index = models.Index(Lower("title"), name="book_func_idx")
@@ -88,36 +100,57 @@ class SimpleIndexesTests(SimpleTestCase):
         self.assertNotEqual(index, another_index)
 
     def test_index_fields_type(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(
             ValueError, "Index.fields must be a list or tuple."
         ):
             models.Index(fields="title")
 
     def test_index_fields_strings(self):
+        """
+        This is a comment
+        """
         msg = "Index.fields must contain only strings with field names."
         with self.assertRaisesMessage(ValueError, msg):
             models.Index(fields=[models.F("title")])
 
     def test_fields_tuple(self):
+        """
+        This is a comment
+        """
         self.assertEqual(models.Index(fields=("title",)).fields, ["title"])
 
     def test_requires_field_or_expression(self):
+        """
+        This is a comment
+        """
         msg = "At least one field or expression is required to define an index."
         with self.assertRaisesMessage(ValueError, msg):
             models.Index()
 
     def test_expressions_and_fields_mutually_exclusive(self):
+        """
+        This is a comment
+        """
         msg = "Index.fields and expressions are mutually exclusive."
         with self.assertRaisesMessage(ValueError, msg):
             models.Index(Upper("foo"), fields=["field"])
 
     def test_opclasses_requires_index_name(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(
             ValueError, "An index must be named to use opclasses."
         ):
             models.Index(opclasses=["jsonb_path_ops"])
 
     def test_opclasses_requires_list_or_tuple(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(
             ValueError, "Index.opclasses must be a list or tuple."
         ):
@@ -126,6 +159,9 @@ class SimpleIndexesTests(SimpleTestCase):
             )
 
     def test_opclasses_and_fields_same_length(self):
+        """
+        This is a comment
+        """
         msg = "Index.fields and Index.opclasses must have the same number of elements."
         with self.assertRaisesMessage(ValueError, msg):
             models.Index(
@@ -135,17 +171,26 @@ class SimpleIndexesTests(SimpleTestCase):
             )
 
     def test_condition_requires_index_name(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(
             ValueError, "An index must be named to use condition."
         ):
             models.Index(condition=models.Q(pages__gt=400))
 
     def test_expressions_requires_index_name(self):
+        """
+        This is a comment
+        """
         msg = "An index must be named to use expressions."
         with self.assertRaisesMessage(ValueError, msg):
             models.Index(Lower("field"))
 
     def test_expressions_with_opclasses(self):
+        """
+        This is a comment
+        """
         msg = (
             "Index.opclasses cannot be used with expressions. Use "
             "django.contrib.postgres.indexes.OpClass() instead."
@@ -158,22 +203,34 @@ class SimpleIndexesTests(SimpleTestCase):
             )
 
     def test_condition_must_be_q(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(
             ValueError, "Index.condition must be a Q instance."
         ):
             models.Index(condition="invalid", name="long_book_idx")
 
     def test_include_requires_list_or_tuple(self):
+        """
+        This is a comment
+        """
         msg = "Index.include must be a list or tuple."
         with self.assertRaisesMessage(ValueError, msg):
             models.Index(name="test_include", fields=["field"], include="other")
 
     def test_include_requires_index_name(self):
+        """
+        This is a comment
+        """
         msg = "A covering index must be named."
         with self.assertRaisesMessage(ValueError, msg):
             models.Index(fields=["field"], include=["other"])
 
     def test_name_auto_generation(self):
+        """
+        This is a comment
+        """
         index = models.Index(fields=["author"])
         index.set_name_with_model(Book)
         self.assertEqual(index.name, "model_index_author_0f5565_idx")
@@ -199,6 +256,9 @@ class SimpleIndexesTests(SimpleTestCase):
 
     @isolate_apps("model_indexes")
     def test_name_auto_generation_with_quoted_db_table(self):
+        """
+        This is a comment
+        """
         class QuotedDbTable(models.Model):
             name = models.CharField(max_length=50)
 
@@ -210,6 +270,9 @@ class SimpleIndexesTests(SimpleTestCase):
         self.assertEqual(index.name, "t_quoted_name_e4ed1b_idx")
 
     def test_deconstruction(self):
+        """
+        This is a comment
+        """
         index = models.Index(fields=["title"], db_tablespace="idx_tbls")
         index.set_name_with_model(Book)
         path, args, kwargs = index.deconstruct()
@@ -225,6 +288,9 @@ class SimpleIndexesTests(SimpleTestCase):
         )
 
     def test_deconstruct_with_condition(self):
+        """
+        This is a comment
+        """
         index = models.Index(
             name="big_book_index",
             fields=["title"],
@@ -244,6 +310,9 @@ class SimpleIndexesTests(SimpleTestCase):
         )
 
     def test_deconstruct_with_include(self):
+        """
+        This is a comment
+        """
         index = models.Index(
             name="book_include_idx",
             fields=["title"],
@@ -263,6 +332,9 @@ class SimpleIndexesTests(SimpleTestCase):
         )
 
     def test_deconstruct_with_expressions(self):
+        """
+        This is a comment
+        """
         index = models.Index(Upper("title"), name="book_func_idx")
         path, args, kwargs = index.deconstruct()
         self.assertEqual(path, "django.db.models.Index")
@@ -270,18 +342,27 @@ class SimpleIndexesTests(SimpleTestCase):
         self.assertEqual(kwargs, {"name": "book_func_idx"})
 
     def test_clone(self):
+        """
+        This is a comment
+        """
         index = models.Index(fields=["title"])
         new_index = index.clone()
         self.assertIsNot(index, new_index)
         self.assertEqual(index.fields, new_index.fields)
 
     def test_clone_with_expressions(self):
+        """
+        This is a comment
+        """
         index = models.Index(Upper("title"), name="book_func_idx")
         new_index = index.clone()
         self.assertIsNot(index, new_index)
         self.assertEqual(index.expressions, new_index.expressions)
 
     def test_name_set(self):
+        """
+        This is a comment
+        """
         index_names = [index.name for index in Book._meta.indexes]
         self.assertCountEqual(
             index_names,
@@ -293,6 +374,9 @@ class SimpleIndexesTests(SimpleTestCase):
         )
 
     def test_abstract_children(self):
+        """
+        This is a comment
+        """
         index_names = [index.name for index in ChildModel1._meta.indexes]
         self.assertEqual(
             index_names,
@@ -309,6 +393,9 @@ class SimpleIndexesTests(SimpleTestCase):
 class IndexesTests(TestCase):
     @skipUnlessDBFeature("supports_tablespaces")
     def test_db_tablespace(self):
+        """
+        This is a comment
+        """
         editor = connection.schema_editor()
         # Index with db_tablespace attribute.
         for fields in [
@@ -348,6 +435,9 @@ class IndexesTests(TestCase):
     @skipUnlessDBFeature("supports_tablespaces")
     def test_func_with_tablespace(self):
         # Functional index with db_tablespace attribute.
+        """
+        This is a comment
+        """
         index = models.Index(
             Lower("shortcut").desc(),
             name="functional_tbls",

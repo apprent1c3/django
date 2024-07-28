@@ -26,6 +26,9 @@ class Person(models.Model):
     idols = models.ManyToManyField("self", symmetrical=False, related_name="stalkers")
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 

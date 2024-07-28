@@ -27,6 +27,9 @@ class Session(AbstractBaseSession):
 
     @classmethod
     def get_session_store_class(cls):
+        """
+        This is a comment
+        """
         from django.contrib.sessions.backends.db import SessionStore
 
         return SessionStore

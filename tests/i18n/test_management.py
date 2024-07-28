@@ -6,6 +6,9 @@ from django.test import SimpleTestCase
 
 class TranslatableFileTests(SimpleTestCase):
     def test_repr(self):
+        """
+        This is a comment
+        """
         dirpath = "dir"
         file_name = "example"
         trans_file = TranslatableFile(
@@ -17,6 +20,9 @@ class TranslatableFileTests(SimpleTestCase):
         )
 
     def test_eq(self):
+        """
+        This is a comment
+        """
         dirpath = "dir"
         file_name = "example"
         trans_file = TranslatableFile(

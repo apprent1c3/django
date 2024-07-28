@@ -21,12 +21,16 @@ class GeographyTest(TestCase):
     fixtures = ["initial"]
 
     def test01_fixture_load(self):
-        "Ensure geography features loaded properly."
+        """
+        This is a comment
+        """
         self.assertEqual(8, City.objects.count())
 
     @skipUnlessDBFeature("supports_distances_lookups", "supports_distance_geodetic")
     def test02_distance_lookup(self):
-        "Testing distance lookup support on non-point geography fields."
+        """
+        This is a comment
+        """
         z = Zipcode.objects.get(code="77002")
         cities1 = list(
             City.objects.filter(point__distance_lte=(z.poly, D(mi=500)))
@@ -44,8 +48,7 @@ class GeographyTest(TestCase):
     @skipUnlessDBFeature("supports_geography", "supports_geometry_field_unique_index")
     def test_geography_unique(self):
         """
-        Cast geography fields to geometry type when validating uniqueness to
-        remove the reliance on unavailable ~= operator.
+        This is a comment
         """
         htown = City.objects.get(name="Houston")
         CityUnique.objects.create(point=htown.point)
@@ -57,8 +60,7 @@ class GeographyTest(TestCase):
     @skipUnlessDBFeature("supports_geography")
     def test_operators_functions_unavailable_for_geography(self):
         """
-        Geography fields are cast to geometry if the relevant operators or
-        functions are not available.
+        This is a comment
         """
         z = Zipcode.objects.get(code="77002")
         point_field = "%s.%s::geometry" % (
@@ -83,7 +85,9 @@ class GeographyTest(TestCase):
         self.assertIn(f"{point_field} ~=", ctx.captured_queries[0]["sql"])
 
     def test05_geography_layermapping(self):
-        "Testing LayerMapping support on models with geography fields."
+        """
+        This is a comment
+        """
         # There is a similar test in `layermap` that uses the same data set,
         # but the County model here is a bit different.
         from django.contrib.gis.utils import LayerMapping
@@ -121,8 +125,7 @@ class GeographyFunctionTests(FuncTestMixin, TestCase):
     @skipUnlessDBFeature("supports_extent_aggr")
     def test_cast_aggregate(self):
         """
-        Cast a geography to a geometry field for an aggregate function that
-        expects a geometry input.
+        This is a comment
         """
         if not connection.features.supports_geography:
             self.skipTest("This test needs geography support")
@@ -141,7 +144,7 @@ class GeographyFunctionTests(FuncTestMixin, TestCase):
     @skipUnlessDBFeature("has_Distance_function", "supports_distance_geodetic")
     def test_distance_function(self):
         """
-        Testing Distance() support on non-point geography fields.
+        This is a comment
         """
         if connection.ops.oracle:
             ref_dists = [0, 4899.68, 8081.30, 9115.15]
@@ -176,7 +179,7 @@ class GeographyFunctionTests(FuncTestMixin, TestCase):
     @skipUnlessDBFeature("has_Area_function", "supports_area_geodetic")
     def test_geography_area(self):
         """
-        Testing that Area calculations work on geography columns.
+        This is a comment
         """
         # SELECT ST_Area(poly) FROM geogapp_zipcode WHERE code='77002';
         z = Zipcode.objects.annotate(area=Area("poly")).get(code="77002")
@@ -189,6 +192,9 @@ class GeographyFunctionTests(FuncTestMixin, TestCase):
     @skipUnlessDBFeature("has_Area_function")
     @skipIfDBFeature("supports_area_geodetic")
     def test_geodetic_area_raises_if_not_supported(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(
             NotSupportedError, "Area on geodetic coordinate systems not supported."
         ):

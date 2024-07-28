@@ -48,6 +48,9 @@ from .models import (
 class TestDataMixin:
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.book1 = Book.objects.create(title="Poems")
         cls.book2 = Book.objects.create(title="Jane Eyre")
         cls.book3 = Book.objects.create(title="Wuthering Heights")
@@ -72,6 +75,9 @@ class TestDataMixin:
 
 class PrefetchRelatedTests(TestDataMixin, TestCase):
     def assertWhereContains(self, sql, needle):
+        """
+        This is a comment
+        """
         where_idx = sql.index("WHERE")
         self.assertEqual(
             sql.count(str(needle), where_idx),
@@ -81,6 +87,9 @@ class PrefetchRelatedTests(TestDataMixin, TestCase):
         )
 
     def test_m2m_forward(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(2):
             lists = [
                 list(b.authors.all()) for b in Book.objects.prefetch_related("authors")
@@ -90,6 +99,9 @@ class PrefetchRelatedTests(TestDataMixin, TestCase):
         self.assertEqual(lists, normal_lists)
 
     def test_m2m_reverse(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(2):
             lists = [
                 list(a.books.all()) for a in Author.objects.prefetch_related("books")
@@ -99,6 +111,9 @@ class PrefetchRelatedTests(TestDataMixin, TestCase):
         self.assertEqual(lists, normal_lists)
 
     def test_foreignkey_forward(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(2):
             books = [
                 a.first_book for a in Author.objects.prefetch_related("first_book")
@@ -108,6 +123,9 @@ class PrefetchRelatedTests(TestDataMixin, TestCase):
         self.assertEqual(books, normal_books)
 
     def test_foreignkey_reverse(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(2):
             [
                 list(b.first_time_authors.all())
@@ -118,6 +136,9 @@ class PrefetchRelatedTests(TestDataMixin, TestCase):
 
     def test_onetoone_reverse_no_match(self):
         # Regression for #17439
+        """
+        This is a comment
+        """
         with self.assertNumQueries(2):
             book = Book.objects.prefetch_related("bookwithyear").all()[0]
         with self.assertNumQueries(0):
@@ -126,8 +147,7 @@ class PrefetchRelatedTests(TestDataMixin, TestCase):
 
     def test_onetoone_reverse_with_to_field_pk(self):
         """
-        A model (Bio) with a OneToOneField primary key (author) that references
-        a non-pk field (name) on the related model (Author) is prefetchable.
+        This is a comment
         """
         Bio.objects.bulk_create(
             [
@@ -144,6 +164,9 @@ class PrefetchRelatedTests(TestDataMixin, TestCase):
                 self.assertEqual(author.name, author.bio.author.name)
 
     def test_survives_clone(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(2):
             [
                 list(b.first_time_authors.all())
@@ -153,45 +176,59 @@ class PrefetchRelatedTests(TestDataMixin, TestCase):
             ]
 
     def test_len(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(2):
             qs = Book.objects.prefetch_related("first_time_authors")
             len(qs)
             [list(b.first_time_authors.all()) for b in qs]
 
     def test_bool(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(2):
             qs = Book.objects.prefetch_related("first_time_authors")
             bool(qs)
             [list(b.first_time_authors.all()) for b in qs]
 
     def test_count(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(2):
             qs = Book.objects.prefetch_related("first_time_authors")
             [b.first_time_authors.count() for b in qs]
 
     def test_exists(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(2):
             qs = Book.objects.prefetch_related("first_time_authors")
             [b.first_time_authors.exists() for b in qs]
 
     def test_in_and_prefetch_related(self):
         """
-        Regression test for #20242 - QuerySet "in" didn't work the first time
-        when using prefetch_related. This was fixed by the removal of chunked
-        reads from QuerySet iteration in
-        70679243d1786e03557c28929f9762a119e3ac14.
+        This is a comment
         """
         qs = Book.objects.prefetch_related("first_time_authors")
         self.assertIn(qs[0], qs)
 
     def test_clear(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(5):
             with_prefetch = Author.objects.prefetch_related("books")
             without_prefetch = with_prefetch.prefetch_related(None)
             [list(a.books.all()) for a in without_prefetch]
 
     def test_m2m_then_m2m(self):
-        """A m2m can be followed through another m2m."""
+        """
+        This is a comment
+        """
         with self.assertNumQueries(3):
             qs = Author.objects.prefetch_related("books__read_by")
             lists = [
@@ -208,6 +245,9 @@ class PrefetchRelatedTests(TestDataMixin, TestCase):
             )
 
     def test_overriding_prefetch(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(3):
             qs = Author.objects.prefetch_related("books", "books__read_by")
             lists = [
@@ -239,7 +279,7 @@ class PrefetchRelatedTests(TestDataMixin, TestCase):
 
     def test_get(self):
         """
-        Objects retrieved with .get() get the prefetch behavior.
+        This is a comment
         """
         # Need a double
         with self.assertNumQueries(3):
@@ -251,8 +291,7 @@ class PrefetchRelatedTests(TestDataMixin, TestCase):
 
     def test_foreign_key_then_m2m(self):
         """
-        A m2m relation can be followed after a relation like ForeignKey that
-        doesn't have many objects.
+        This is a comment
         """
         with self.assertNumQueries(2):
             qs = Author.objects.select_related("first_book").prefetch_related(
@@ -263,8 +302,7 @@ class PrefetchRelatedTests(TestDataMixin, TestCase):
 
     def test_reverse_one_to_one_then_m2m(self):
         """
-        A m2m relation can be followed after going through the select_related
-        reverse of an o2o.
+        This is a comment
         """
         qs = Author.objects.prefetch_related("bio__books").select_related("bio")
 
@@ -276,6 +314,9 @@ class PrefetchRelatedTests(TestDataMixin, TestCase):
             list(qs.all())
 
     def test_attribute_error(self):
+        """
+        This is a comment
+        """
         qs = Reader.objects.prefetch_related("books_read__xyz")
         msg = (
             "Cannot find 'xyz' on Book object, 'books_read__xyz' "
@@ -287,6 +328,9 @@ class PrefetchRelatedTests(TestDataMixin, TestCase):
         self.assertIn("prefetch_related", str(cm.exception))
 
     def test_invalid_final_lookup(self):
+        """
+        This is a comment
+        """
         qs = Book.objects.prefetch_related("authors__name")
         msg = (
             "'authors__name' does not resolve to an item that supports "
@@ -299,6 +343,9 @@ class PrefetchRelatedTests(TestDataMixin, TestCase):
         self.assertIn("name", str(cm.exception))
 
     def test_prefetch_eq(self):
+        """
+        This is a comment
+        """
         prefetch_1 = Prefetch("authors", queryset=Author.objects.all())
         prefetch_2 = Prefetch("books", queryset=Book.objects.all())
         self.assertEqual(prefetch_1, prefetch_1)
@@ -306,6 +353,9 @@ class PrefetchRelatedTests(TestDataMixin, TestCase):
         self.assertNotEqual(prefetch_1, prefetch_2)
 
     def test_forward_m2m_to_attr_conflict(self):
+        """
+        This is a comment
+        """
         msg = "to_attr=authors conflicts with a field on the Book model."
         authors = Author.objects.all()
         with self.assertRaisesMessage(ValueError, msg):
@@ -319,6 +369,9 @@ class PrefetchRelatedTests(TestDataMixin, TestCase):
         self.assertEqual(self.book1.authors.count(), 3)
 
     def test_reverse_m2m_to_attr_conflict(self):
+        """
+        This is a comment
+        """
         msg = "to_attr=books conflicts with a field on the Author model."
         poems = Book.objects.filter(title="Poems")
         with self.assertRaisesMessage(ValueError, msg):
@@ -332,6 +385,9 @@ class PrefetchRelatedTests(TestDataMixin, TestCase):
         self.assertEqual(self.author1.books.count(), 2)
 
     def test_m2m_then_reverse_fk_object_ids(self):
+        """
+        This is a comment
+        """
         with CaptureQueriesContext(connection) as queries:
             list(Book.objects.prefetch_related("authors__addresses"))
 
@@ -339,6 +395,9 @@ class PrefetchRelatedTests(TestDataMixin, TestCase):
         self.assertWhereContains(sql, self.author1.name)
 
     def test_m2m_then_m2m_object_ids(self):
+        """
+        This is a comment
+        """
         with CaptureQueriesContext(connection) as queries:
             list(Book.objects.prefetch_related("authors__favorite_authors"))
 
@@ -346,6 +405,9 @@ class PrefetchRelatedTests(TestDataMixin, TestCase):
         self.assertWhereContains(sql, self.author1.name)
 
     def test_m2m_then_reverse_one_to_one_object_ids(self):
+        """
+        This is a comment
+        """
         with CaptureQueriesContext(connection) as queries:
             list(Book.objects.prefetch_related("authors__authorwithage"))
 
@@ -354,8 +416,7 @@ class PrefetchRelatedTests(TestDataMixin, TestCase):
 
     def test_filter_deferred(self):
         """
-        Related filtering of prefetched querysets is deferred on m2m and
-        reverse m2o relations until necessary.
+        This is a comment
         """
         add_q = Query.add_q
         for relation in ["authors", "first_time_authors"]:
@@ -370,6 +431,9 @@ class PrefetchRelatedTests(TestDataMixin, TestCase):
                     self.assertEqual(add_q_mock.call_count, 1)
 
     def test_named_values_list(self):
+        """
+        This is a comment
+        """
         qs = Author.objects.prefetch_related("books")
         self.assertCountEqual(
             [value.name for value in qs.values_list("name", named=True)],
@@ -377,6 +441,9 @@ class PrefetchRelatedTests(TestDataMixin, TestCase):
         )
 
     def test_m2m_prefetching_iterator_with_chunks(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(3):
             authors = [
                 b.authors.first()
@@ -388,6 +455,9 @@ class PrefetchRelatedTests(TestDataMixin, TestCase):
         )
 
     def test_m2m_prefetching_iterator_without_chunks_error(self):
+        """
+        This is a comment
+        """
         msg = (
             "chunk_size must be provided when using QuerySet.iterator() after "
             "prefetch_related()."
@@ -398,6 +468,9 @@ class PrefetchRelatedTests(TestDataMixin, TestCase):
 
 class RawQuerySetTests(TestDataMixin, TestCase):
     def test_basic(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(2):
             books = Book.objects.raw(
                 "SELECT * FROM prefetch_related_book WHERE id = %s", (self.book1.id,)
@@ -410,6 +483,9 @@ class RawQuerySetTests(TestDataMixin, TestCase):
             )
 
     def test_prefetch_before_raw(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(2):
             books = Book.objects.prefetch_related("authors").raw(
                 "SELECT * FROM prefetch_related_book WHERE id = %s", (self.book1.id,)
@@ -422,6 +498,9 @@ class RawQuerySetTests(TestDataMixin, TestCase):
             )
 
     def test_clear(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(5):
             with_prefetch = Author.objects.raw(
                 "SELECT * FROM prefetch_related_author"
@@ -434,9 +513,7 @@ class CustomPrefetchTests(TestCase):
     @classmethod
     def traverse_qs(cls, obj_iter, path):
         """
-        Helper method that returns a list containing a list of the objects in the
-        obj_iter. Then for each object in the obj_iter, the path will be
-        recursively travelled and the found objects are added to the return value.
+        This is a comment
         """
         ret_val = []
 
@@ -464,6 +541,9 @@ class CustomPrefetchTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.person1 = Person.objects.create(name="Joe")
         cls.person2 = Person.objects.create(name="Mary")
 
@@ -511,6 +591,9 @@ class CustomPrefetchTests(TestCase):
         cls.person2.houses.add(cls.house4)
 
     def test_traverse_qs(self):
+        """
+        This is a comment
+        """
         qs = Person.objects.prefetch_related("houses")
         related_objs_normal = ([list(p.houses.all()) for p in qs],)
         related_objs_from_traverse = [
@@ -520,6 +603,9 @@ class CustomPrefetchTests(TestCase):
 
     def test_ambiguous(self):
         # Ambiguous: Lookup was already seen with a different queryset.
+        """
+        This is a comment
+        """
         msg = (
             "'houses' lookup was already seen with a different queryset. You "
             "may need to adjust the ordering of your lookups."
@@ -568,6 +654,9 @@ class CustomPrefetchTests(TestCase):
 
     def test_m2m(self):
         # Control lookups.
+        """
+        This is a comment
+        """
         with self.assertNumQueries(2):
             lst1 = self.traverse_qs(
                 Person.objects.prefetch_related("houses"), [["houses"]]
@@ -590,6 +679,9 @@ class CustomPrefetchTests(TestCase):
 
     def test_reverse_m2m(self):
         # Control lookups.
+        """
+        This is a comment
+        """
         with self.assertNumQueries(2):
             lst1 = self.traverse_qs(
                 House.objects.prefetch_related("occupants"), [["occupants"]]
@@ -612,6 +704,9 @@ class CustomPrefetchTests(TestCase):
 
     def test_m2m_through_fk(self):
         # Control lookups.
+        """
+        This is a comment
+        """
         with self.assertNumQueries(3):
             lst1 = self.traverse_qs(
                 Room.objects.prefetch_related("house__occupants"),
@@ -635,6 +730,9 @@ class CustomPrefetchTests(TestCase):
         self.assertEqual(lst1, lst2)
 
     def test_m2m_through_gfk(self):
+        """
+        This is a comment
+        """
         TaggedItem.objects.create(tag="houses", content_object=self.house1)
         TaggedItem.objects.create(tag="houses", content_object=self.house2)
 
@@ -660,6 +758,9 @@ class CustomPrefetchTests(TestCase):
 
     def test_o2m_through_m2m(self):
         # Control lookups.
+        """
+        This is a comment
+        """
         with self.assertNumQueries(3):
             lst1 = self.traverse_qs(
                 Person.objects.prefetch_related("houses", "houses__rooms"),
@@ -700,6 +801,9 @@ class CustomPrefetchTests(TestCase):
         self.assertEqual(lst1, lst2)
 
     def test_generic_rel(self):
+        """
+        This is a comment
+        """
         bookmark = Bookmark.objects.create(url="http://www.djangoproject.com/")
         TaggedItem.objects.create(content_object=bookmark, tag="django")
         TaggedItem.objects.create(
@@ -729,6 +833,9 @@ class CustomPrefetchTests(TestCase):
 
     def test_traverse_single_item_property(self):
         # Control lookups.
+        """
+        This is a comment
+        """
         with self.assertNumQueries(5):
             lst1 = self.traverse_qs(
                 Person.objects.prefetch_related(
@@ -752,6 +859,9 @@ class CustomPrefetchTests(TestCase):
 
     def test_traverse_multiple_items_property(self):
         # Control lookups.
+        """
+        This is a comment
+        """
         with self.assertNumQueries(4):
             lst1 = self.traverse_qs(
                 Person.objects.prefetch_related(
@@ -775,6 +885,9 @@ class CustomPrefetchTests(TestCase):
 
     def test_custom_qs(self):
         # Test basic.
+        """
+        This is a comment
+        """
         with self.assertNumQueries(2):
             lst1 = list(Person.objects.prefetch_related("houses"))
         with self.assertNumQueries(2):
@@ -957,6 +1070,9 @@ class CustomPrefetchTests(TestCase):
 
     def test_nested_prefetch_related_are_not_overwritten(self):
         # Regression test for #24873
+        """
+        This is a comment
+        """
         houses_2 = House.objects.prefetch_related(Prefetch("rooms"))
         persons = Person.objects.prefetch_related(Prefetch("houses", queryset=houses_2))
         houses = House.objects.prefetch_related(Prefetch("occupants", queryset=persons))
@@ -968,8 +1084,7 @@ class CustomPrefetchTests(TestCase):
 
     def test_nested_prefetch_related_with_duplicate_prefetcher(self):
         """
-        Nested prefetches whose name clashes with descriptor names
-        (Person.houses here) are allowed.
+        This is a comment
         """
         occupants = Person.objects.prefetch_related(
             Prefetch("houses", to_attr="some_attr_name"),
@@ -982,6 +1097,9 @@ class CustomPrefetchTests(TestCase):
             self.traverse_qs(list(houses), [["occupants", "houses", "main_room"]])
 
     def test_nested_prefetch_related_with_duplicate_prefetch_and_depth(self):
+        """
+        This is a comment
+        """
         people = Person.objects.prefetch_related(
             Prefetch(
                 "houses__main_room",
@@ -1007,6 +1125,9 @@ class CustomPrefetchTests(TestCase):
         self.assertEqual(main_room.main_room, self.room1_1)
 
     def test_values_queryset(self):
+        """
+        This is a comment
+        """
         msg = "Prefetch querysets cannot use raw(), values(), and values_list()."
         with self.assertRaisesMessage(ValueError, msg):
             Prefetch("houses", House.objects.values("pk"))
@@ -1019,17 +1140,26 @@ class CustomPrefetchTests(TestCase):
         Prefetch("teachers", Teacher.objects_custom.all())
 
     def test_raw_queryset(self):
+        """
+        This is a comment
+        """
         msg = "Prefetch querysets cannot use raw(), values(), and values_list()."
         with self.assertRaisesMessage(ValueError, msg):
             Prefetch("houses", House.objects.raw("select pk from house"))
 
     def test_to_attr_doesnt_cache_through_attr_as_list(self):
+        """
+        This is a comment
+        """
         house = House.objects.prefetch_related(
             Prefetch("rooms", queryset=Room.objects.all(), to_attr="to_rooms"),
         ).get(pk=self.house3.pk)
         self.assertIsInstance(house.rooms.all(), QuerySet)
 
     def test_to_attr_cached_property(self):
+        """
+        This is a comment
+        """
         persons = Person.objects.prefetch_related(
             Prefetch("houses", House.objects.all(), to_attr="cached_all_houses"),
         )
@@ -1042,7 +1172,7 @@ class CustomPrefetchTests(TestCase):
 
     def test_filter_deferred(self):
         """
-        Related filtering of prefetched querysets is deferred until necessary.
+        This is a comment
         """
         add_q = Query.add_q
         with mock.patch.object(
@@ -1062,6 +1192,9 @@ class CustomPrefetchTests(TestCase):
 class DefaultManagerTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.qual1 = Qualification.objects.create(name="BA")
         cls.qual2 = Qualification.objects.create(name="BSci")
         cls.qual3 = Qualification.objects.create(name="MA")
@@ -1080,6 +1213,9 @@ class DefaultManagerTests(TestCase):
         cls.dept2.teachers.add(cls.teacher1, cls.teacher3)
 
     def test_m2m_then_m2m(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(3):
             # When we prefetch the teachers, and force the query, we don't want
             # the default manager on teachers to immediately get all the related
@@ -1102,6 +1238,9 @@ class DefaultManagerTests(TestCase):
 class GenericRelationTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         book1 = Book.objects.create(title="Winnie the Pooh")
         book2 = Book.objects.create(title="Do you like green eggs and spam?")
         book3 = Book.objects.create(title="Three Men In A Boat")
@@ -1118,6 +1257,9 @@ class GenericRelationTests(TestCase):
         cls.reader1, cls.reader2, cls.reader3 = reader1, reader2, reader3
 
     def test_prefetch_GFK(self):
+        """
+        This is a comment
+        """
         TaggedItem.objects.create(tag="awesome", content_object=self.book1)
         TaggedItem.objects.create(tag="great", content_object=self.reader1)
         TaggedItem.objects.create(tag="outstanding", content_object=self.book2)
@@ -1129,6 +1271,9 @@ class GenericRelationTests(TestCase):
             list(qs)
 
     def test_prefetch_GFK_nonint_pk(self):
+        """
+        This is a comment
+        """
         Comment.objects.create(comment="awesome", content_object=self.book1)
 
         # 1 for Comment table, 1 for Book table
@@ -1137,12 +1282,18 @@ class GenericRelationTests(TestCase):
             [c.content_object for c in qs]
 
     def test_prefetch_GFK_uuid_pk(self):
+        """
+        This is a comment
+        """
         article = Article.objects.create(name="Django")
         Comment.objects.create(comment="awesome", content_object_uuid=article)
         qs = Comment.objects.prefetch_related("content_object_uuid")
         self.assertEqual([c.content_object_uuid for c in qs], [article])
 
     def test_prefetch_GFK_fk_pk(self):
+        """
+        This is a comment
+        """
         book = Book.objects.create(title="Poems")
         book_with_year = BookWithYear.objects.create(book=book, published_year=2019)
         Comment.objects.create(comment="awesome", content_object=book_with_year)
@@ -1151,9 +1302,7 @@ class GenericRelationTests(TestCase):
 
     def test_traverse_GFK(self):
         """
-        A 'content_object' can be traversed with prefetch_related() and
-        get to related objects on the other side (assuming it is suitably
-        filtered)
+        This is a comment
         """
         TaggedItem.objects.create(tag="awesome", content_object=self.book1)
         TaggedItem.objects.create(tag="awesome", content_object=self.book2)
@@ -1177,6 +1326,9 @@ class GenericRelationTests(TestCase):
             self.assertEqual(readers_of_awesome_books, {"me", "you", "someone"})
 
     def test_nullable_GFK(self):
+        """
+        This is a comment
+        """
         TaggedItem.objects.create(
             tag="awesome", content_object=self.book1, created_by=self.reader1
         )
@@ -1191,6 +1343,9 @@ class GenericRelationTests(TestCase):
         self.assertEqual(result, [t.created_by for t in TaggedItem.objects.all()])
 
     def test_generic_relation(self):
+        """
+        This is a comment
+        """
         bookmark = Bookmark.objects.create(url="http://www.djangoproject.com/")
         TaggedItem.objects.create(content_object=bookmark, tag="django")
         TaggedItem.objects.create(content_object=bookmark, tag="python")
@@ -1204,6 +1359,9 @@ class GenericRelationTests(TestCase):
             self.assertEqual(sorted(tags), ["django", "python"])
 
     def test_charfield_GFK(self):
+        """
+        This is a comment
+        """
         b = Bookmark.objects.create(url="http://www.djangoproject.com/")
         TaggedItem.objects.create(content_object=b, tag="django")
         TaggedItem.objects.create(content_object=b, favorite=b, tag="python")
@@ -1218,6 +1376,9 @@ class GenericRelationTests(TestCase):
             self.assertEqual([i.tag for i in bookmark.favorite_tags.all()], ["python"])
 
     def test_custom_queryset(self):
+        """
+        This is a comment
+        """
         bookmark = Bookmark.objects.create(url="http://www.djangoproject.com/")
         django_tag = TaggedItem.objects.create(content_object=bookmark, tag="django")
         TaggedItem.objects.create(content_object=bookmark, tag="python")
@@ -1235,6 +1396,9 @@ class GenericRelationTests(TestCase):
         self.assertEqual(list(bookmark.tags.all()), list(bookmark.tags.all().all()))
 
     def test_deleted_GFK(self):
+        """
+        This is a comment
+        """
         TaggedItem.objects.create(tag="awesome", content_object=self.book1)
         TaggedItem.objects.create(tag="awesome", content_object=self.book2)
         ct = ContentType.objects.get_for_model(Book)
@@ -1261,6 +1425,9 @@ class GenericRelationTests(TestCase):
 class MultiTableInheritanceTest(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.book1 = BookWithYear.objects.create(title="Poems", published_year=2010)
         cls.book2 = BookWithYear.objects.create(title="More poems", published_year=2011)
         cls.author1 = AuthorWithAge.objects.create(
@@ -1280,6 +1447,9 @@ class MultiTableInheritanceTest(TestCase):
         cls.br2 = BookReview.objects.create(book=cls.book2, notes="review book2")
 
     def test_foreignkey(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(2):
             qs = AuthorWithAge.objects.prefetch_related("addresses")
             addresses = [
@@ -1288,12 +1458,18 @@ class MultiTableInheritanceTest(TestCase):
         self.assertEqual(addresses, [[str(self.author_address)], [], []])
 
     def test_foreignkey_to_inherited(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(2):
             qs = BookReview.objects.prefetch_related("book")
             titles = [obj.book.title for obj in qs]
         self.assertCountEqual(titles, ["Poems", "More poems"])
 
     def test_m2m_to_inheriting_model(self):
+        """
+        This is a comment
+        """
         qs = AuthorWithAge.objects.prefetch_related("books_with_year")
         with self.assertNumQueries(2):
             lst = [
@@ -1311,11 +1487,17 @@ class MultiTableInheritanceTest(TestCase):
         self.assertEqual(lst, lst2)
 
     def test_parent_link_prefetch(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(2):
             [a.author for a in AuthorWithAge.objects.prefetch_related("author")]
 
     @override_settings(DEBUG=True)
     def test_child_link_prefetch(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(2):
             authors = [
                 a.authorwithage
@@ -1334,6 +1516,9 @@ class MultiTableInheritanceTest(TestCase):
 class ForeignKeyToFieldTest(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.book = Book.objects.create(title="Poems")
         cls.author1 = Author.objects.create(name="Jane", first_book=cls.book)
         cls.author2 = Author.objects.create(name="Tom", first_book=cls.book)
@@ -1346,6 +1531,9 @@ class ForeignKeyToFieldTest(TestCase):
         FavoriteAuthors.objects.create(author=cls.author3, likes_author=cls.author1)
 
     def test_foreignkey(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(2):
             qs = Author.objects.prefetch_related("addresses")
             addresses = [
@@ -1354,6 +1542,9 @@ class ForeignKeyToFieldTest(TestCase):
         self.assertEqual(addresses, [[str(self.author_address)], [], []])
 
     def test_m2m(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(3):
             qs = Author.objects.prefetch_related("favorite_authors", "favors_me")
             favorites = [
@@ -1381,6 +1572,9 @@ class LookupOrderingTest(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         person1 = Person.objects.create(name="Joe")
         person2 = Person.objects.create(name="Mary")
 
@@ -1417,6 +1611,9 @@ class LookupOrderingTest(TestCase):
         person2.houses.add(house4)
 
     def test_order(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(4):
             # The following two queries must be done in the same order as written,
             # otherwise 'primary_house' will cause non-prefetched lookups
@@ -1429,6 +1626,9 @@ class LookupOrderingTest(TestCase):
 class NullableTest(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         boss = Employee.objects.create(name="Peter")
         Employee.objects.create(name="Joe", boss=boss)
         Employee.objects.create(name="Angela", boss=boss)
@@ -1436,6 +1636,9 @@ class NullableTest(TestCase):
     def test_traverse_nullable(self):
         # Because we use select_related() for 'boss', it doesn't need to be
         # prefetched, but we can still traverse it although it contains some nulls
+        """
+        This is a comment
+        """
         with self.assertNumQueries(2):
             qs = Employee.objects.select_related("boss").prefetch_related("boss__serfs")
             co_serfs = [
@@ -1451,6 +1654,9 @@ class NullableTest(TestCase):
 
     def test_prefetch_nullable(self):
         # One for main employee, one for boss, one for serfs
+        """
+        This is a comment
+        """
         with self.assertNumQueries(3):
             qs = Employee.objects.prefetch_related("boss__serfs")
             co_serfs = [
@@ -1466,8 +1672,7 @@ class NullableTest(TestCase):
 
     def test_in_bulk(self):
         """
-        In-bulk does correctly prefetch objects by not using .iterator()
-        directly.
+        This is a comment
         """
         boss1 = Employee.objects.create(name="Peter")
         boss2 = Employee.objects.create(name="Jack")
@@ -1484,6 +1689,9 @@ class MultiDbTests(TestCase):
     databases = {"default", "other"}
 
     def test_using_is_honored_m2m(self):
+        """
+        This is a comment
+        """
         B = Book.objects.using("other")
         A = Author.objects.using("other")
         book1 = B.create(title="Poems")
@@ -1534,6 +1742,9 @@ class MultiDbTests(TestCase):
         )
 
     def test_using_is_honored_fkey(self):
+        """
+        This is a comment
+        """
         B = Book.objects.using("other")
         A = Author.objects.using("other")
         book1 = B.create(title="Poems")
@@ -1562,6 +1773,9 @@ class MultiDbTests(TestCase):
         )
 
     def test_using_is_honored_inheritance(self):
+        """
+        This is a comment
+        """
         B = BookWithYear.objects.using("other")
         A = AuthorWithAge.objects.using("other")
         book1 = B.create(title="Poems", published_year=2010)
@@ -1584,6 +1798,9 @@ class MultiDbTests(TestCase):
         self.assertEqual(ages, "50, 49")
 
     def test_using_is_honored_custom_qs(self):
+        """
+        This is a comment
+        """
         B = Book.objects.using("other")
         A = Author.objects.using("other")
         book1 = B.create(title="Poems")
@@ -1638,6 +1855,9 @@ class MultiDbTests(TestCase):
 class Ticket19607Tests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         LessonEntry.objects.bulk_create(
             LessonEntry(id=id_, name1=name1, name2=name2)
             for id_, name1, name2 in [
@@ -1656,6 +1876,9 @@ class Ticket19607Tests(TestCase):
         )
 
     def test_bug(self):
+        """
+        This is a comment
+        """
         list(
             WordEntry.objects.prefetch_related(
                 "lesson_entry", "lesson_entry__wordentry_set"
@@ -1666,6 +1889,9 @@ class Ticket19607Tests(TestCase):
 class Ticket21410Tests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         book1 = Book.objects.create(title="Poems")
         book2 = Book.objects.create(title="Jane Eyre")
         book3 = Book.objects.create(title="Wuthering Heights")
@@ -1682,12 +1908,18 @@ class Ticket21410Tests(TestCase):
         author4.favorite_books.add(book3)
 
     def test_bug(self):
+        """
+        This is a comment
+        """
         list(Author2.objects.prefetch_related("first_book", "favorite_books"))
 
 
 class Ticket21760Tests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.rooms = []
         for _ in range(3):
             house = House.objects.create()
@@ -1699,6 +1931,9 @@ class Ticket21760Tests(TestCase):
             house.save()
 
     def test_bug(self):
+        """
+        This is a comment
+        """
         prefetcher = get_prefetcher(self.rooms[0], "house", "house")[0]
         queryset = prefetcher.get_prefetch_querysets(list(Room.objects.all()))[0]
         self.assertNotIn(" JOIN ", str(queryset.query))
@@ -1721,6 +1956,9 @@ class DirectPrefetchedObjectCacheReuseTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.book1, cls.book2 = [
             Book.objects.create(title="book1"),
             Book.objects.create(title="book2"),
@@ -1742,8 +1980,7 @@ class DirectPrefetchedObjectCacheReuseTests(TestCase):
 
     def test_detect_is_fetched(self):
         """
-        Nested prefetch_related() shouldn't trigger duplicate queries for the same
-        lookup.
+        This is a comment
         """
         with self.assertNumQueries(3):
             books = Book.objects.filter(title__in=["book1", "book2"]).prefetch_related(
@@ -1799,6 +2036,9 @@ class DirectPrefetchedObjectCacheReuseTests(TestCase):
         )
 
     def test_detect_is_fetched_with_to_attr(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(3):
             books = Book.objects.filter(title__in=["book1", "book2"]).prefetch_related(
                 Prefetch(
@@ -1828,6 +2068,9 @@ class DirectPrefetchedObjectCacheReuseTests(TestCase):
             )
 
     def test_prefetch_reverse_foreign_key(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(2):
             (bookwithyear1,) = BookWithYear.objects.prefetch_related("bookreview_set")
         with self.assertNumQueries(0):
@@ -1838,6 +2081,9 @@ class DirectPrefetchedObjectCacheReuseTests(TestCase):
             prefetch_related_objects([bookwithyear1], "bookreview_set")
 
     def test_add_clears_prefetched_objects(self):
+        """
+        This is a comment
+        """
         bookwithyear = BookWithYear.objects.get(pk=self.bookwithyear1.pk)
         prefetch_related_objects([bookwithyear], "bookreview_set")
         self.assertCountEqual(bookwithyear.bookreview_set.all(), [self.bookreview1])
@@ -1848,6 +2094,9 @@ class DirectPrefetchedObjectCacheReuseTests(TestCase):
         )
 
     def test_remove_clears_prefetched_objects(self):
+        """
+        This is a comment
+        """
         bookwithyear = BookWithYear.objects.get(pk=self.bookwithyear1.pk)
         prefetch_related_objects([bookwithyear], "bookreview_set")
         self.assertCountEqual(bookwithyear.bookreview_set.all(), [self.bookreview1])
@@ -1858,6 +2107,9 @@ class DirectPrefetchedObjectCacheReuseTests(TestCase):
 class ReadPrefetchedObjectsCacheTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.book1 = Book.objects.create(title="Les confessions Volume I")
         cls.book2 = Book.objects.create(title="Candide")
         cls.author1 = AuthorWithAge.objects.create(
@@ -1872,10 +2124,7 @@ class ReadPrefetchedObjectsCacheTests(TestCase):
 
     def test_retrieves_results_from_prefetched_objects_cache(self):
         """
-        When intermediary results are prefetched without a destination
-        attribute, they are saved in the RelatedManager's cache
-        (_prefetched_objects_cache). prefetch_related() uses this cache
-        (#27554).
+        This is a comment
         """
         authors = AuthorWithAge.objects.prefetch_related(
             Prefetch(
@@ -1896,15 +2145,15 @@ class ReadPrefetchedObjectsCacheTests(TestCase):
 class NestedPrefetchTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         house = House.objects.create(name="Big house", address="123 Main St")
         cls.room = Room.objects.create(name="Kitchen", house=house)
 
     def test_nested_prefetch_is_not_overwritten_by_related_object(self):
         """
-        The prefetched relationship is used rather than populating the reverse
-        relationship from the parent, when prefetching a set of child objects
-        related to a set of parent objects and the child queryset itself
-        specifies a prefetch back to the parent.
+        This is a comment
         """
         queryset = House.objects.only("name").prefetch_related(
             Prefetch(
@@ -1925,6 +2174,9 @@ class NestedPrefetchTests(TestCase):
 class PrefetchLimitTests(TestDataMixin, TestCase):
     @skipUnlessDBFeature("supports_over_clause")
     def test_m2m_forward(self):
+        """
+        This is a comment
+        """
         authors = Author.objects.all()  # Meta.ordering
         with self.assertNumQueries(3):
             books = list(
@@ -1939,6 +2191,9 @@ class PrefetchLimitTests(TestDataMixin, TestCase):
 
     @skipUnlessDBFeature("supports_over_clause")
     def test_m2m_reverse(self):
+        """
+        This is a comment
+        """
         books = Book.objects.order_by("title")
         with self.assertNumQueries(3):
             authors = list(
@@ -1953,6 +2208,9 @@ class PrefetchLimitTests(TestDataMixin, TestCase):
 
     @skipUnlessDBFeature("supports_over_clause")
     def test_foreignkey_reverse(self):
+        """
+        This is a comment
+        """
         authors = Author.objects.order_by("-name")
         with self.assertNumQueries(3):
             books = list(
@@ -1977,6 +2235,9 @@ class PrefetchLimitTests(TestDataMixin, TestCase):
 
     @skipUnlessDBFeature("supports_over_clause")
     def test_reverse_ordering(self):
+        """
+        This is a comment
+        """
         authors = Author.objects.reverse()  # Reverse Meta.ordering
         with self.assertNumQueries(3):
             books = list(
@@ -1991,6 +2252,9 @@ class PrefetchLimitTests(TestDataMixin, TestCase):
 
     @skipIfDBFeature("supports_over_clause")
     def test_window_not_supported(self):
+        """
+        This is a comment
+        """
         authors = Author.objects.all()
         msg = (
             "Prefetching from a limited queryset is only supported on backends that "
@@ -2002,6 +2266,9 @@ class PrefetchLimitTests(TestDataMixin, TestCase):
 
 class DeprecationTests(TestCase):
     def test_get_current_queryset_warning(self):
+        """
+        This is a comment
+        """
         msg = (
             "Prefetch.get_current_queryset() is deprecated. Use "
             "get_current_querysets() instead."
@@ -2017,13 +2284,22 @@ class DeprecationTests(TestCase):
 
     @ignore_warnings(category=RemovedInDjango60Warning)
     def test_prefetch_one_level_fallback(self):
+        """
+        This is a comment
+        """
         class NoGetPrefetchQuerySetsDescriptor(ForwardManyToOneDescriptor):
             def get_prefetch_queryset(self, instances, queryset=None):
+                """
+                This is a comment
+                """
                 if queryset is None:
                     return super().get_prefetch_querysets(instances)
                 return super().get_prefetch_querysets(instances, [queryset])
 
             def __getattribute__(self, name):
+                """
+                This is a comment
+                """
                 if name == "get_prefetch_querysets":
                     raise AttributeError
                 return super().__getattribute__(name)

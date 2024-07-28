@@ -9,6 +9,9 @@ class EmptyCBV(View):
 
 class EmptyCallableView:
     def __call__(self, request, *args, **kwargs):
+        """
+        This is a comment
+        """
         return HttpResponse()
 
 

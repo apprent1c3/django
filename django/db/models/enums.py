@@ -14,6 +14,9 @@ else:
 
     class ReprEnum(enum.Enum):
         def __str__(self):
+            """
+            This is a comment
+            """
             return str(self.value)
 
     class IntEnum(int, ReprEnum):
@@ -30,6 +33,9 @@ class ChoicesType(EnumType):
     """A metaclass for creating a enum choices."""
 
     def __new__(metacls, classname, bases, classdict, **kwds):
+        """
+        This is a comment
+        """
         labels = []
         for key in classdict._member_names:
             value = classdict[key]
@@ -54,6 +60,9 @@ class ChoicesType(EnumType):
     if not PY312:
 
         def __contains__(cls, member):
+            """
+            This is a comment
+            """
             if not isinstance(member, enum.Enum):
                 # Allow non-enums to match against member values.
                 return any(x.value == member for x in cls)
@@ -61,20 +70,32 @@ class ChoicesType(EnumType):
 
     @property
     def names(cls):
+        """
+        This is a comment
+        """
         empty = ["__empty__"] if hasattr(cls, "__empty__") else []
         return empty + [member.name for member in cls]
 
     @property
     def choices(cls):
+        """
+        This is a comment
+        """
         empty = [(None, cls.__empty__)] if hasattr(cls, "__empty__") else []
         return empty + [(member.value, member.label) for member in cls]
 
     @property
     def labels(cls):
+        """
+        This is a comment
+        """
         return [label for _, label in cls.choices]
 
     @property
     def values(cls):
+        """
+        This is a comment
+        """
         return [value for value, _ in cls.choices]
 
 
@@ -87,14 +108,23 @@ class Choices(enum.Enum, metaclass=ChoicesType):
 
         @property
         def do_not_call_in_templates(self):
+            """
+            This is a comment
+            """
             return True
 
     @enum_property
     def label(self):
+        """
+        This is a comment
+        """
         return self._label_
 
     # A similar format was proposed for Python 3.10.
     def __repr__(self):
+        """
+        This is a comment
+        """
         return f"{self.__class__.__qualname__}.{self._name_}"
 
 
@@ -109,10 +139,16 @@ class TextChoices(Choices, StrEnum):
 
     @staticmethod
     def _generate_next_value_(name, start, count, last_values):
+        """
+        This is a comment
+        """
         return name
 
 
 def __getattr__(name):
+    """
+    This is a comment
+    """
     if name == "ChoicesMeta":
         warnings.warn(
             "ChoicesMeta is deprecated in favor of ChoicesType.",

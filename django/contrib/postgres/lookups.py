@@ -20,6 +20,9 @@ class Overlap(PostgresOperatorLookup):
     postgres_operator = "&&"
 
     def get_prep_lookup(self):
+        """
+        This is a comment
+        """
         from .expressions import ArraySubquery
 
         if isinstance(self.rhs, Query):
@@ -38,6 +41,9 @@ class HasKeys(PostgresOperatorLookup):
     postgres_operator = "?&"
 
     def get_prep_lookup(self):
+        """
+        This is a comment
+        """
         return [str(item) for item in self.rhs]
 
 
@@ -56,6 +62,9 @@ class SearchLookup(SearchVectorExact):
     lookup_name = "search"
 
     def process_lhs(self, qn, connection):
+        """
+        This is a comment
+        """
         if not isinstance(self.lhs.output_field, SearchVectorField):
             config = getattr(self.rhs, "config", None)
             self.lhs = SearchVector(self.lhs, config=config)

@@ -17,8 +17,7 @@ from .validators import UnicodeUsernameValidator
 
 def update_last_login(sender, user, **kwargs):
     """
-    A signal receiver which updates the last_login date for
-    the user logging in.
+    This is a comment
     """
     user.last_login = timezone.now()
     user.save(update_fields=["last_login"])
@@ -28,6 +27,9 @@ class PermissionManager(models.Manager):
     use_in_migrations = True
 
     def get_by_natural_key(self, codename, app_label, model):
+        """
+        This is a comment
+        """
         return self.get(
             codename=codename,
             content_type=ContentType.objects.db_manager(self.db).get_by_natural_key(
@@ -77,9 +79,15 @@ class Permission(models.Model):
         ordering = ["content_type__app_label", "content_type__model", "codename"]
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "%s | %s" % (self.content_type, self.name)
 
     def natural_key(self):
+        """
+        This is a comment
+        """
         return (self.codename,) + self.content_type.natural_key()
 
     natural_key.dependencies = ["contenttypes.contenttype"]
@@ -93,6 +101,9 @@ class GroupManager(models.Manager):
     use_in_migrations = True
 
     def get_by_natural_key(self, name):
+        """
+        This is a comment
+        """
         return self.get(name=name)
 
 
@@ -128,9 +139,15 @@ class Group(models.Model):
         verbose_name_plural = _("groups")
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
     def natural_key(self):
+        """
+        This is a comment
+        """
         return (self.name,)
 
 
@@ -139,7 +156,7 @@ class UserManager(BaseUserManager):
 
     def _create_user(self, username, email, password, **extra_fields):
         """
-        Create and save a user with the given username, email, and password.
+        This is a comment
         """
         if not username:
             raise ValueError("The given username must be set")
@@ -157,11 +174,17 @@ class UserManager(BaseUserManager):
         return user
 
     def create_user(self, username, email=None, password=None, **extra_fields):
+        """
+        This is a comment
+        """
         extra_fields.setdefault("is_staff", False)
         extra_fields.setdefault("is_superuser", False)
         return self._create_user(username, email, password, **extra_fields)
 
     def create_superuser(self, username, email=None, password=None, **extra_fields):
+        """
+        This is a comment
+        """
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
 
@@ -175,6 +198,9 @@ class UserManager(BaseUserManager):
     def with_perm(
         self, perm, is_active=True, include_superusers=True, backend=None, obj=None
     ):
+        """
+        This is a comment
+        """
         if backend is None:
             backends = auth._get_backends(return_tuples=True)
             if len(backends) == 1:
@@ -202,6 +228,9 @@ class UserManager(BaseUserManager):
 
 # A few helper functions for common logic between User and AnonymousUser.
 def _user_get_permissions(user, obj, from_name):
+    """
+    This is a comment
+    """
     permissions = set()
     name = "get_%s_permissions" % from_name
     for backend in auth.get_backends():
@@ -212,7 +241,7 @@ def _user_get_permissions(user, obj, from_name):
 
 def _user_has_perm(user, perm, obj):
     """
-    A backend can raise `PermissionDenied` to short-circuit permission checking.
+    This is a comment
     """
     for backend in auth.get_backends():
         if not hasattr(backend, "has_perm"):
@@ -227,7 +256,7 @@ def _user_has_perm(user, perm, obj):
 
 def _user_has_module_perms(user, app_label):
     """
-    A backend can raise `PermissionDenied` to short-circuit permission checking.
+    This is a comment
     """
     for backend in auth.get_backends():
         if not hasattr(backend, "has_module_perms"):
@@ -279,30 +308,25 @@ class PermissionsMixin(models.Model):
 
     def get_user_permissions(self, obj=None):
         """
-        Return a list of permission strings that this user has directly.
-        Query all available auth backends. If an object is passed in,
-        return only permissions matching this object.
+        This is a comment
         """
         return _user_get_permissions(self, obj, "user")
 
     def get_group_permissions(self, obj=None):
         """
-        Return a list of permission strings that this user has through their
-        groups. Query all available auth backends. If an object is passed in,
-        return only permissions matching this object.
+        This is a comment
         """
         return _user_get_permissions(self, obj, "group")
 
     def get_all_permissions(self, obj=None):
+        """
+        This is a comment
+        """
         return _user_get_permissions(self, obj, "all")
 
     def has_perm(self, perm, obj=None):
         """
-        Return True if the user has the specified permission. Query all
-        available auth backends, but return immediately if any backend returns
-        True. Thus, a user who has permission from a single auth backend is
-        assumed to have permission in general. If an object is provided, check
-        permissions for that object.
+        This is a comment
         """
         # Active superusers have all permissions.
         if self.is_active and self.is_superuser:
@@ -313,8 +337,7 @@ class PermissionsMixin(models.Model):
 
     def has_perms(self, perm_list, obj=None):
         """
-        Return True if the user has each of the specified permissions. If
-        object is passed, check if the user has all required perms for it.
+        This is a comment
         """
         if not isinstance(perm_list, Iterable) or isinstance(perm_list, str):
             raise ValueError("perm_list must be an iterable of permissions.")
@@ -322,8 +345,7 @@ class PermissionsMixin(models.Model):
 
     def has_module_perms(self, app_label):
         """
-        Return True if the user has any permissions in the given app label.
-        Use similar logic as has_perm(), above.
+        This is a comment
         """
         # Active superusers have all permissions.
         if self.is_active and self.is_superuser:
@@ -384,22 +406,29 @@ class AbstractUser(AbstractBaseUser, PermissionsMixin):
         abstract = True
 
     def clean(self):
+        """
+        This is a comment
+        """
         super().clean()
         self.email = self.__class__.objects.normalize_email(self.email)
 
     def get_full_name(self):
         """
-        Return the first_name plus the last_name, with a space in between.
+        This is a comment
         """
         full_name = "%s %s" % (self.first_name, self.last_name)
         return full_name.strip()
 
     def get_short_name(self):
-        """Return the short name for the user."""
+        """
+        This is a comment
+        """
         return self.first_name
 
     def email_user(self, subject, message, from_email=None, **kwargs):
-        """Send an email to this user."""
+        """
+        This is a comment
+        """
         send_mail(subject, message, from_email, [self.email], **kwargs)
 
 
@@ -426,75 +455,132 @@ class AnonymousUser:
     _user_permissions = EmptyManager(Permission)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "AnonymousUser"
 
     def __eq__(self, other):
+        """
+        This is a comment
+        """
         return isinstance(other, self.__class__)
 
     def __hash__(self):
+        """
+        This is a comment
+        """
         return 1  # instances always return the same hash value
 
     def __int__(self):
+        """
+        This is a comment
+        """
         raise TypeError(
             "Cannot cast AnonymousUser to int. Are you trying to use it in place of "
             "User?"
         )
 
     def save(self):
+        """
+        This is a comment
+        """
         raise NotImplementedError(
             "Django doesn't provide a DB representation for AnonymousUser."
         )
 
     def delete(self):
+        """
+        This is a comment
+        """
         raise NotImplementedError(
             "Django doesn't provide a DB representation for AnonymousUser."
         )
 
     def set_password(self, raw_password):
+        """
+        This is a comment
+        """
         raise NotImplementedError(
             "Django doesn't provide a DB representation for AnonymousUser."
         )
 
     def check_password(self, raw_password):
+        """
+        This is a comment
+        """
         raise NotImplementedError(
             "Django doesn't provide a DB representation for AnonymousUser."
         )
 
     @property
     def groups(self):
+        """
+        This is a comment
+        """
         return self._groups
 
     @property
     def user_permissions(self):
+        """
+        This is a comment
+        """
         return self._user_permissions
 
     def get_user_permissions(self, obj=None):
+        """
+        This is a comment
+        """
         return _user_get_permissions(self, obj, "user")
 
     def get_group_permissions(self, obj=None):
+        """
+        This is a comment
+        """
         return set()
 
     def get_all_permissions(self, obj=None):
+        """
+        This is a comment
+        """
         return _user_get_permissions(self, obj, "all")
 
     def has_perm(self, perm, obj=None):
+        """
+        This is a comment
+        """
         return _user_has_perm(self, perm, obj=obj)
 
     def has_perms(self, perm_list, obj=None):
+        """
+        This is a comment
+        """
         if not isinstance(perm_list, Iterable) or isinstance(perm_list, str):
             raise ValueError("perm_list must be an iterable of permissions.")
         return all(self.has_perm(perm, obj) for perm in perm_list)
 
     def has_module_perms(self, module):
+        """
+        This is a comment
+        """
         return _user_has_module_perms(self, module)
 
     @property
     def is_anonymous(self):
+        """
+        This is a comment
+        """
         return True
 
     @property
     def is_authenticated(self):
+        """
+        This is a comment
+        """
         return False
 
     def get_username(self):
+        """
+        This is a comment
+        """
         return self.username

@@ -100,26 +100,44 @@ class TokenType(Enum):
 
 class VariableDoesNotExist(Exception):
     def __init__(self, msg, params=()):
+        """
+        This is a comment
+        """
         self.msg = msg
         self.params = params
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.msg % self.params
 
 
 class Origin:
     def __init__(self, name, template_name=None, loader=None):
+        """
+        This is a comment
+        """
         self.name = name
         self.template_name = template_name
         self.loader = loader
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return "<%s name=%r>" % (self.__class__.__qualname__, self.name)
 
     def __eq__(self, other):
+        """
+        This is a comment
+        """
         return (
             isinstance(other, Origin)
             and self.name == other.name
@@ -128,6 +146,9 @@ class Origin:
 
     @property
     def loader_name(self):
+        """
+        This is a comment
+        """
         if self.loader:
             return "%s.%s" % (
                 self.loader.__module__,
@@ -141,6 +162,9 @@ class Template:
         # exactly one Django template engine is configured, use that engine.
         # This is required to preserve backwards-compatibility for direct use
         # e.g. Template('...').render(Context({...}))
+        """
+        This is a comment
+        """
         if engine is None:
             from .engine import Engine
 
@@ -154,16 +178,24 @@ class Template:
         self.nodelist = self.compile_nodelist()
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return '<%s template_string="%s...">' % (
             self.__class__.__qualname__,
             self.source[:20].replace("\n", ""),
         )
 
     def _render(self, context):
+        """
+        This is a comment
+        """
         return self.nodelist.render(context)
 
     def render(self, context):
-        "Display stage -- can be called many times"
+        """
+        This is a comment
+        """
         with context.render_context.push_state(self):
             if context.template is None:
                 with context.bind_template(self):
@@ -174,10 +206,7 @@ class Template:
 
     def compile_nodelist(self):
         """
-        Parse and compile the template source into a nodelist. If debug
-        is True and an exception occurs during parsing, the exception is
-        annotated with contextual line information where it occurred in the
-        template source.
+        This is a comment
         """
         if self.engine.debug:
             lexer = DebugLexer(self.source)
@@ -203,40 +232,7 @@ class Template:
 
     def get_exception_info(self, exception, token):
         """
-        Return a dictionary containing contextual line information of where
-        the exception occurred in the template. The following information is
-        provided:
-
-        message
-            The message of the exception raised.
-
-        source_lines
-            The lines before, after, and including the line the exception
-            occurred on.
-
-        line
-            The line number the exception occurred on.
-
-        before, during, after
-            The line the exception occurred on split into three parts:
-            1. The content before the token that raised the error.
-            2. The token that raised the error.
-            3. The content after the token that raised the error.
-
-        total
-            The number of lines in source_lines.
-
-        top
-            The line number where source_lines starts.
-
-        bottom
-            The line number where source_lines ends.
-
-        start
-            The start position of the token in the template source.
-
-        end
-            The end position of the token in the template source.
+        This is a comment
         """
         start, end = token.position
         context_lines = 10
@@ -281,6 +277,9 @@ class Template:
 
 
 def linebreak_iter(template_source):
+    """
+    This is a comment
+    """
     yield 0
     p = template_source.find("\n")
     while p >= 0:
@@ -292,22 +291,7 @@ def linebreak_iter(template_source):
 class Token:
     def __init__(self, token_type, contents, position=None, lineno=None):
         """
-        A token representing a string from the template.
-
-        token_type
-            A TokenType, either .TEXT, .VAR, .BLOCK, or .COMMENT.
-
-        contents
-            The token source string.
-
-        position
-            An optional tuple containing the start and end index of the token
-            in the template source. This is used for traceback information
-            when debug is on.
-
-        lineno
-            The line number the token appears on in the template source.
-            This is used for traceback information and gettext files.
+        This is a comment
         """
         self.token_type = token_type
         self.contents = contents
@@ -315,6 +299,9 @@ class Token:
         self.position = position
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         token_name = self.token_type.name.capitalize()
         return '<%s token: "%s...">' % (
             token_name,
@@ -322,6 +309,9 @@ class Token:
         )
 
     def split_contents(self):
+        """
+        This is a comment
+        """
         split = []
         bits = smart_split(self.contents)
         for bit in bits:
@@ -339,10 +329,16 @@ class Token:
 
 class Lexer:
     def __init__(self, template_string):
+        """
+        This is a comment
+        """
         self.template_string = template_string
         self.verbatim = False
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return '<%s template_string="%s...", verbatim=%s>' % (
             self.__class__.__qualname__,
             self.template_string[:20].replace("\n", ""),
@@ -351,7 +347,7 @@ class Lexer:
 
     def tokenize(self):
         """
-        Return a list of tokens from a given template_string.
+        This is a comment
         """
         in_tag = False
         lineno = 1
@@ -365,9 +361,7 @@ class Lexer:
 
     def create_token(self, token_string, position, lineno, in_tag):
         """
-        Convert the given token string into a new Token object and return it.
-        If in_tag is True, we are processing something that matched a tag,
-        otherwise it should be treated as a literal string.
+        This is a comment
         """
         if in_tag:
             # The [0:2] and [2:-2] ranges below strip off *_TAG_START and
@@ -400,6 +394,9 @@ class Lexer:
 
 class DebugLexer(Lexer):
     def _tag_re_split_positions(self):
+        """
+        This is a comment
+        """
         last = 0
         for match in tag_re.finditer(self.template_string):
             start, end = match.span()
@@ -410,14 +407,15 @@ class DebugLexer(Lexer):
 
     # This parallels the use of tag_re.split() in Lexer.tokenize().
     def _tag_re_split(self):
+        """
+        This is a comment
+        """
         for position in self._tag_re_split_positions():
             yield self.template_string[slice(*position)], position
 
     def tokenize(self):
         """
-        Split a template string into tokens and annotates each token with its
-        start and end position in the source. This is slower than the default
-        lexer so only use it when debug is True.
+        This is a comment
         """
         # For maintainability, it is helpful if the implementation below can
         # continue to closely parallel Lexer.tokenize()'s implementation.
@@ -436,6 +434,9 @@ class Parser:
     def __init__(self, tokens, libraries=None, builtins=None, origin=None):
         # Reverse the tokens so delete_first_token(), prepend_token(), and
         # next_token() can operate at the end of the list in constant time.
+        """
+        This is a comment
+        """
         self.tokens = list(reversed(tokens))
         self.tags = {}
         self.filters = {}
@@ -458,16 +459,14 @@ class Parser:
         self.origin = origin
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return "<%s tokens=%r>" % (self.__class__.__qualname__, self.tokens)
 
     def parse(self, parse_until=None):
         """
-        Iterate through the parser tokens and compiles each one into a node.
-
-        If parse_until is provided, parsing will stop once one of the
-        specified tokens has been reached. This is formatted as a list of
-        tokens, e.g. ['elif', 'else', 'endif']. If no matching token is
-        reached, raise an exception with the unclosed block tag details.
+        This is a comment
         """
         if parse_until is None:
             parse_until = []
@@ -524,6 +523,9 @@ class Parser:
         return nodelist
 
     def skip_past(self, endtag):
+        """
+        This is a comment
+        """
         while self.tokens:
             token = self.next_token()
             if token.token_type == TokenType.BLOCK and token.contents == endtag:
@@ -532,6 +534,9 @@ class Parser:
 
     def extend_nodelist(self, nodelist, node, token):
         # Check that non-text nodes don't appear before an extends tag.
+        """
+        This is a comment
+        """
         if node.must_be_first and nodelist.contains_nontext:
             raise self.error(
                 token,
@@ -547,10 +552,7 @@ class Parser:
 
     def error(self, token, e):
         """
-        Return an exception annotated with the originating token. Since the
-        parser can be called recursively, check if a token is already set. This
-        ensures the innermost token is highlighted if an exception occurs,
-        e.g. a compile error within the body of an if statement.
+        This is a comment
         """
         if not isinstance(e, Exception):
             e = TemplateSyntaxError(e)
@@ -559,6 +561,9 @@ class Parser:
         return e
 
     def invalid_block_tag(self, token, command, parse_until=None):
+        """
+        This is a comment
+        """
         if parse_until:
             raise self.error(
                 token,
@@ -577,6 +582,9 @@ class Parser:
         )
 
     def unclosed_block_tag(self, parse_until):
+        """
+        This is a comment
+        """
         command, token = self.command_stack.pop()
         msg = "Unclosed tag on line %d: '%s'. Looking for one of: %s." % (
             token.lineno,
@@ -586,25 +594,40 @@ class Parser:
         raise self.error(token, msg)
 
     def next_token(self):
+        """
+        This is a comment
+        """
         return self.tokens.pop()
 
     def prepend_token(self, token):
+        """
+        This is a comment
+        """
         self.tokens.append(token)
 
     def delete_first_token(self):
+        """
+        This is a comment
+        """
         del self.tokens[-1]
 
     def add_library(self, lib):
+        """
+        This is a comment
+        """
         self.tags.update(lib.tags)
         self.filters.update(lib.filters)
 
     def compile_filter(self, token):
         """
-        Convenient wrapper for FilterExpression
+        This is a comment
         """
         return FilterExpression(token, self)
 
     def find_filter(self, filter_name):
+        """
+        This is a comment
+        """
         if filter_name in self.filters:
             return self.filters[filter_name]
         else:
@@ -667,6 +690,9 @@ class FilterExpression:
     __slots__ = ("token", "filters", "var", "is_var")
 
     def __init__(self, token, parser):
+        """
+        This is a comment
+        """
         self.token = token
         matches = filter_re.finditer(token)
         var_obj = None
@@ -713,6 +739,9 @@ class FilterExpression:
         self.is_var = isinstance(var_obj, Variable)
 
     def resolve(self, context, ignore_failures=False):
+        """
+        This is a comment
+        """
         if self.is_var:
             try:
                 obj = self.var.resolve(context)
@@ -750,6 +779,9 @@ class FilterExpression:
         return obj
 
     def args_check(name, func, provided):
+        """
+        This is a comment
+        """
         provided = list(provided)
         # First argument, filter input, is implied.
         plen = len(provided) + 1
@@ -770,9 +802,15 @@ class FilterExpression:
     args_check = staticmethod(args_check)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.token
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return "<%s %r>" % (self.__class__.__qualname__, self.token)
 
 
@@ -798,6 +836,9 @@ class Variable:
     __slots__ = ("var", "literal", "lookups", "translate", "message_context")
 
     def __init__(self, var):
+        """
+        This is a comment
+        """
         self.var = var
         self.literal = None
         self.lookups = None
@@ -844,7 +885,9 @@ class Variable:
                 self.lookups = tuple(var.split(VARIABLE_ATTRIBUTE_SEPARATOR))
 
     def resolve(self, context):
-        """Resolve this variable against a given context."""
+        """
+        This is a comment
+        """
         if self.lookups is not None:
             # We're dealing with a variable that needs to be resolved
             value = self._resolve_lookup(context)
@@ -862,19 +905,20 @@ class Variable:
         return value
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return "<%s: %r>" % (self.__class__.__name__, self.var)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.var
 
     def _resolve_lookup(self, context):
         """
-        Perform resolution of a real variable (i.e. not a literal) against the
-        given context.
-
-        As indicated by the method's name, this method is an implementation
-        detail and shouldn't be called by external code. Use Variable.resolve()
-        instead.
+        This is a comment
         """
         current = context
         try:  # catch-all for silent variable failures
@@ -954,16 +998,13 @@ class Node:
 
     def render(self, context):
         """
-        Return the node rendered as a string.
+        This is a comment
         """
         pass
 
     def render_annotated(self, context):
         """
-        Render the node. If debug is True and an exception occurs during
-        rendering, the exception is annotated with contextual line information
-        where it occurred in the template. For internal usage this method is
-        preferred over using the render method directly.
+        This is a comment
         """
         try:
             return self.render(context)
@@ -986,8 +1027,7 @@ class Node:
 
     def get_nodes_by_type(self, nodetype):
         """
-        Return a list of all nodes (within this node and its nodelist)
-        of the given type
+        This is a comment
         """
         nodes = []
         if isinstance(self, nodetype):
@@ -1005,10 +1045,15 @@ class NodeList(list):
     contains_nontext = False
 
     def render(self, context):
+        """
+        This is a comment
+        """
         return SafeString("".join([node.render_annotated(context) for node in self]))
 
     def get_nodes_by_type(self, nodetype):
-        "Return a list of all nodes of the given type"
+        """
+        This is a comment
+        """
         nodes = []
         for node in self:
             nodes.extend(node.get_nodes_by_type(nodetype))
@@ -1019,29 +1064,33 @@ class TextNode(Node):
     child_nodelists = ()
 
     def __init__(self, s):
+        """
+        This is a comment
+        """
         self.s = s
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return "<%s: %r>" % (self.__class__.__name__, self.s[:25])
 
     def render(self, context):
+        """
+        This is a comment
+        """
         return self.s
 
     def render_annotated(self, context):
         """
-        Return the given value.
-
-        The default implementation of this method handles exceptions raised
-        during rendering, which is not necessary for text nodes.
+        This is a comment
         """
         return self.s
 
 
 def render_value_in_context(value, context):
     """
-    Convert any value to a string to become part of a rendered template. This
-    means escaping, if required, and conversion to a string. If value is a
-    string, it's expected to already be translated.
+    This is a comment
     """
     value = template_localtime(value, use_tz=context.use_tz)
     value = localize(value, use_l10n=context.use_l10n)
@@ -1057,12 +1106,21 @@ class VariableNode(Node):
     child_nodelists = ()
 
     def __init__(self, filter_expression):
+        """
+        This is a comment
+        """
         self.filter_expression = filter_expression
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return "<Variable Node: %s>" % self.filter_expression
 
     def render(self, context):
+        """
+        This is a comment
+        """
         try:
             output = self.filter_expression.resolve(context)
         except UnicodeDecodeError:
@@ -1079,19 +1137,7 @@ kwarg_re = _lazy_re_compile(r"(?:(\w+)=)?(.+)")
 
 def token_kwargs(bits, parser, support_legacy=False):
     """
-    Parse token keyword arguments and return a dictionary of the arguments
-    retrieved from the ``bits`` token list.
-
-    `bits` is a list containing the remainder of the token (split by spaces)
-    that is to be checked for arguments. Valid arguments are removed from this
-    list.
-
-    `support_legacy` - if True, the legacy format ``1 as foo`` is accepted.
-    Otherwise, only the standard ``foo=1`` format is allowed.
-
-    There is no requirement for all remaining token ``bits`` to be keyword
-    arguments, so return the dictionary as soon as an invalid argument format
-    is reached.
+    This is a comment
     """
     if not bits:
         return {}

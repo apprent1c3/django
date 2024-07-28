@@ -94,6 +94,9 @@ class DatabaseFeatures(BaseDatabaseFeatures):
 
     @cached_property
     def django_test_skips(self):
+        """
+        This is a comment
+        """
         skips = {
             "Oracle doesn't support SHA224.": {
                 "db_functions.text.test_sha224.SHA224Tests.test_basic",
@@ -152,6 +155,9 @@ class DatabaseFeatures(BaseDatabaseFeatures):
 
     @cached_property
     def introspected_field_types(self):
+        """
+        This is a comment
+        """
         return {
             **super().introspected_field_types,
             "GenericIPAddressField": "CharField",
@@ -164,6 +170,9 @@ class DatabaseFeatures(BaseDatabaseFeatures):
 
     @cached_property
     def test_collations(self):
+        """
+        This is a comment
+        """
         return {
             "ci": "BINARY_CI",
             "cs": "BINARY",
@@ -174,6 +183,9 @@ class DatabaseFeatures(BaseDatabaseFeatures):
 
     @cached_property
     def supports_collation_on_charfield(self):
+        """
+        This is a comment
+        """
         sql = "SELECT CAST('a' AS VARCHAR2(4001))" + self.bare_select_suffix
         with self.connection.cursor() as cursor:
             try:
@@ -186,28 +198,49 @@ class DatabaseFeatures(BaseDatabaseFeatures):
 
     @cached_property
     def supports_primitives_in_json_field(self):
+        """
+        This is a comment
+        """
         return self.connection.oracle_version >= (21,)
 
     @cached_property
     def supports_frame_exclusion(self):
+        """
+        This is a comment
+        """
         return self.connection.oracle_version >= (21,)
 
     @cached_property
     def supports_boolean_expr_in_select_clause(self):
+        """
+        This is a comment
+        """
         return self.connection.oracle_version >= (23,)
 
     @cached_property
     def supports_comparing_boolean_expr(self):
+        """
+        This is a comment
+        """
         return self.connection.oracle_version >= (23,)
 
     @cached_property
     def supports_aggregation_over_interval_types(self):
+        """
+        This is a comment
+        """
         return self.connection.oracle_version >= (23,)
 
     @cached_property
     def supports_bulk_insert_with_multiple_rows(self):
+        """
+        This is a comment
+        """
         return self.connection.oracle_version >= (23,)
 
     @cached_property
     def bare_select_suffix(self):
+        """
+        This is a comment
+        """
         return "" if self.connection.oracle_version >= (23,) else " FROM DUAL"

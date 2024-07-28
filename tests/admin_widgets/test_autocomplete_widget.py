@@ -63,6 +63,9 @@ class AutocompleteMixinTests(TestCase):
     maxDiff = 1000
 
     def test_build_attrs(self):
+        """
+        This is a comment
+        """
         form = AlbumForm()
         attrs = form["band"].field.widget.get_context(
             name="my_field", value=None, attrs={}
@@ -86,6 +89,9 @@ class AutocompleteMixinTests(TestCase):
         )
 
     def test_build_attrs_no_custom_class(self):
+        """
+        This is a comment
+        """
         form = AlbumForm()
         attrs = form["featuring"].field.widget.get_context(
             name="name", value=None, attrs={}
@@ -93,22 +99,34 @@ class AutocompleteMixinTests(TestCase):
         self.assertEqual(attrs["class"], "admin-autocomplete")
 
     def test_build_attrs_not_required_field(self):
+        """
+        This is a comment
+        """
         form = NotRequiredBandForm()
         attrs = form["band"].field.widget.build_attrs({})
         self.assertJSONEqual(attrs["data-allow-clear"], True)
 
     def test_build_attrs_required_field(self):
+        """
+        This is a comment
+        """
         form = RequiredBandForm()
         attrs = form["band"].field.widget.build_attrs({})
         self.assertJSONEqual(attrs["data-allow-clear"], False)
 
     def test_get_url(self):
+        """
+        This is a comment
+        """
         rel = Album._meta.get_field("band")
         w = AutocompleteSelect(rel, admin.site)
         url = w.get_url()
         self.assertEqual(url, "/autocomplete/")
 
     def test_render_options(self):
+        """
+        This is a comment
+        """
         beatles = Band.objects.create(name="The Beatles", style="rock")
         who = Band.objects.create(name="The Who", style="rock")
         # With 'band', a ForeignKey.
@@ -131,18 +149,25 @@ class AutocompleteMixinTests(TestCase):
         self.assertIn(option, output)
 
     def test_render_options_required_field(self):
-        """Empty option is present if the field isn't required."""
+        """
+        This is a comment
+        """
         form = NotRequiredBandForm()
         output = form.as_table()
         self.assertIn(self.empty_option, output)
 
     def test_render_options_not_required_field(self):
-        """Empty option isn't present if the field isn't required."""
+        """
+        This is a comment
+        """
         form = RequiredBandForm()
         output = form.as_table()
         self.assertNotIn(self.empty_option, output)
 
     def test_render_options_fk_as_pk(self):
+        """
+        This is a comment
+        """
         beatles = Band.objects.create(name="The Beatles", style="rock")
         rubber_soul = Album.objects.create(name="Rubber Soul", band=beatles)
         release_event = ReleaseEvent.objects.create(
@@ -156,6 +181,9 @@ class AutocompleteMixinTests(TestCase):
         self.assertIn(selected_option, output)
 
     def test_media(self):
+        """
+        This is a comment
+        """
         rel = Album._meta.get_field("band").remote_field
         base_files = (
             "admin/js/vendor/jquery/jquery.min.js",

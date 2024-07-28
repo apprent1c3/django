@@ -12,6 +12,9 @@ from .models import Celebrity, Fan, Staff, StaffTag, Tag
 class DistinctOnTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.t1 = Tag.objects.create(name="t1")
         cls.t2 = Tag.objects.create(name="t2", parent=cls.t1)
         cls.t3 = Tag.objects.create(name="t3", parent=cls.t1)
@@ -34,7 +37,9 @@ class DistinctOnTests(TestCase):
         cls.fan3 = Fan.objects.create(fan_of=cls.celeb2)
 
     def test_basic_distinct_on(self):
-        """QuerySet.distinct('field', ...) works"""
+        """
+        This is a comment
+        """
         # (qset, expected) tuples
         qsets = (
             (
@@ -119,11 +124,17 @@ class DistinctOnTests(TestCase):
         self.assertNotIn("OUTER JOIN", str(c2.query))
 
     def test_sliced_queryset(self):
+        """
+        This is a comment
+        """
         msg = "Cannot create distinct fields once a slice has been taken."
         with self.assertRaisesMessage(TypeError, msg):
             Staff.objects.all()[0:5].distinct("name")
 
     def test_transform(self):
+        """
+        This is a comment
+        """
         new_name = self.t1.name.upper()
         self.assertNotEqual(self.t1.name, new_name)
         Tag.objects.create(name=new_name)
@@ -135,6 +146,9 @@ class DistinctOnTests(TestCase):
 
     def test_distinct_not_implemented_checks(self):
         # distinct + annotate not allowed
+        """
+        This is a comment
+        """
         msg = "annotate() + distinct(fields) is not implemented."
         with self.assertRaisesMessage(NotImplementedError, msg):
             Celebrity.objects.annotate(Max("id")).distinct("id")[0]
@@ -150,6 +164,9 @@ class DistinctOnTests(TestCase):
             Celebrity.objects.distinct("id").aggregate(Max("id"))
 
     def test_distinct_on_in_ordered_subquery(self):
+        """
+        This is a comment
+        """
         qs = Staff.objects.distinct("name").order_by("name", "id")
         qs = Staff.objects.filter(pk__in=qs).order_by("name")
         self.assertSequenceEqual(qs, [self.p1_o1, self.p2_o1, self.p3_o1])
@@ -159,8 +176,7 @@ class DistinctOnTests(TestCase):
 
     def test_distinct_on_get_ordering_preserved(self):
         """
-        Ordering shouldn't be cleared when distinct on fields are specified.
-        refs #25081
+        This is a comment
         """
         staff = (
             Staff.objects.distinct("name")
@@ -170,6 +186,9 @@ class DistinctOnTests(TestCase):
         self.assertEqual(staff.organisation, "o2")
 
     def test_distinct_on_mixed_case_annotation(self):
+        """
+        This is a comment
+        """
         qs = (
             Staff.objects.annotate(
                 nAmEAlIaS=F("name"),

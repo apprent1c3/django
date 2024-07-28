@@ -6,6 +6,9 @@ from .models import ModelToValidate
 
 class TestModelsWithValidators(ValidationAssertions, SimpleTestCase):
     def test_custom_validator_passes_for_correct_value(self):
+        """
+        This is a comment
+        """
         mtv = ModelToValidate(
             number=10,
             name="Some Name",
@@ -15,6 +18,9 @@ class TestModelsWithValidators(ValidationAssertions, SimpleTestCase):
         self.assertIsNone(mtv.full_clean())
 
     def test_custom_validator_raises_error_for_incorrect_value(self):
+        """
+        This is a comment
+        """
         mtv = ModelToValidate(
             number=10,
             name="Some Name",
@@ -29,6 +35,9 @@ class TestModelsWithValidators(ValidationAssertions, SimpleTestCase):
         )
 
     def test_field_validators_can_be_any_iterable(self):
+        """
+        This is a comment
+        """
         mtv = ModelToValidate(
             number=10,
             name="Some Name",

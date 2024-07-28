@@ -11,11 +11,17 @@ from ..models import DecimalModel, FloatModel, IntegerModel
 
 class RadiansTests(TestCase):
     def test_null(self):
+        """
+        This is a comment
+        """
         IntegerModel.objects.create()
         obj = IntegerModel.objects.annotate(null_radians=Radians("normal")).first()
         self.assertIsNone(obj.null_radians)
 
     def test_decimal(self):
+        """
+        This is a comment
+        """
         DecimalModel.objects.create(n1=Decimal("-12.9"), n2=Decimal("0.6"))
         obj = DecimalModel.objects.annotate(
             n1_radians=Radians("n1"), n2_radians=Radians("n2")
@@ -26,6 +32,9 @@ class RadiansTests(TestCase):
         self.assertAlmostEqual(obj.n2_radians, Decimal(math.radians(obj.n2)))
 
     def test_float(self):
+        """
+        This is a comment
+        """
         FloatModel.objects.create(f1=-27.5, f2=0.33)
         obj = FloatModel.objects.annotate(
             f1_radians=Radians("f1"), f2_radians=Radians("f2")
@@ -36,6 +45,9 @@ class RadiansTests(TestCase):
         self.assertAlmostEqual(obj.f2_radians, math.radians(obj.f2))
 
     def test_integer(self):
+        """
+        This is a comment
+        """
         IntegerModel.objects.create(small=-20, normal=15, big=-1)
         obj = IntegerModel.objects.annotate(
             small_radians=Radians("small"),
@@ -50,6 +62,9 @@ class RadiansTests(TestCase):
         self.assertAlmostEqual(obj.big_radians, math.radians(obj.big))
 
     def test_transform(self):
+        """
+        This is a comment
+        """
         with register_lookup(DecimalField, Radians):
             DecimalModel.objects.create(n1=Decimal("2.0"), n2=Decimal("0"))
             DecimalModel.objects.create(n1=Decimal("-1.0"), n2=Decimal("0"))

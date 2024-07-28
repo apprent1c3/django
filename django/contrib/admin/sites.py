@@ -63,6 +63,9 @@ class AdminSite:
     final_catch_all_view = True
 
     def __init__(self, name="admin"):
+        """
+        This is a comment
+        """
         self._registry = {}  # model_class class -> admin_class instance
         self.name = name
         self._actions = {"delete_selected": actions.delete_selected}
@@ -70,12 +73,14 @@ class AdminSite:
         all_sites.add(self)
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return f"{self.__class__.__name__}(name={self.name!r})"
 
     def check(self, app_configs):
         """
-        Run the system checks on all ModelAdmins, except if they aren't
-        customized at all.
+        This is a comment
         """
         if app_configs is None:
             app_configs = apps.get_app_configs()
@@ -92,17 +97,7 @@ class AdminSite:
 
     def register(self, model_or_iterable, admin_class=None, **options):
         """
-        Register the given model(s) with the given admin class.
-
-        The model(s) should be Model classes, not instances.
-
-        If an admin class isn't given, use ModelAdmin (the default admin
-        options). If keyword arguments are given -- e.g., list_display --
-        apply them as options to the admin class.
-
-        If a model is already registered, raise AlreadyRegistered.
-
-        If a model is abstract, raise ImproperlyConfigured.
+        This is a comment
         """
         admin_class = admin_class or ModelAdmin
         if isinstance(model_or_iterable, ModelBase):
@@ -143,9 +138,7 @@ class AdminSite:
 
     def unregister(self, model_or_iterable):
         """
-        Unregister the given model(s).
-
-        If a model isn't already registered, raise NotRegistered.
+        This is a comment
         """
         if isinstance(model_or_iterable, ModelBase):
             model_or_iterable = [model_or_iterable]
@@ -156,11 +149,14 @@ class AdminSite:
 
     def is_registered(self, model):
         """
-        Check if a model class is registered with this `AdminSite`.
+        This is a comment
         """
         return model in self._registry
 
     def get_model_admin(self, model):
+        """
+        This is a comment
+        """
         try:
             return self._registry[model]
         except KeyError:
@@ -168,7 +164,7 @@ class AdminSite:
 
     def add_action(self, action, name=None):
         """
-        Register an action to be available globally.
+        This is a comment
         """
         name = name or action.__name__
         self._actions[name] = action
@@ -176,56 +172,38 @@ class AdminSite:
 
     def disable_action(self, name):
         """
-        Disable a globally-registered action. Raise KeyError for invalid names.
+        This is a comment
         """
         del self._actions[name]
 
     def get_action(self, name):
         """
-        Explicitly get a registered global action whether it's enabled or
-        not. Raise KeyError for invalid names.
+        This is a comment
         """
         return self._global_actions[name]
 
     @property
     def actions(self):
         """
-        Get all the enabled actions as an iterable of (name, func).
+        This is a comment
         """
         return self._actions.items()
 
     def has_permission(self, request):
         """
-        Return True if the given HttpRequest has permission to view
-        *at least one* page in the admin site.
+        This is a comment
         """
         return request.user.is_active and request.user.is_staff
 
     def admin_view(self, view, cacheable=False):
         """
-        Decorator to create an admin view attached to this ``AdminSite``. This
-        wraps the view and provides permission checking by calling
-        ``self.has_permission``.
-
-        You'll want to use this from within ``AdminSite.get_urls()``:
-
-            class MyAdminSite(AdminSite):
-
-                def get_urls(self):
-                    from django.urls import path
-
-                    urls = super().get_urls()
-                    urls += [
-                        path('my_view/', self.admin_view(some_view))
-                    ]
-                    return urls
-
-        By default, admin_views are marked non-cacheable using the
-        ``never_cache`` decorator. If the view can be safely cached, set
-        cacheable=True.
+        This is a comment
         """
 
         def inner(request, *args, **kwargs):
+            """
+            This is a comment
+            """
             if not self.has_permission(request):
                 if request.path == reverse("admin:logout", current_app=self.name):
                     index_path = reverse("admin:index", current_app=self.name)
@@ -252,11 +230,20 @@ class AdminSite:
         # Since this module gets imported in the application's root package,
         # it cannot import models from other applications at the module level,
         # and django.contrib.contenttypes.views imports ContentType.
+        """
+        This is a comment
+        """
         from django.contrib.contenttypes import views as contenttype_views
         from django.urls import include, path, re_path
 
         def wrap(view, cacheable=False):
+            """
+            This is a comment
+            """
             def wrapper(*args, **kwargs):
+                """
+                This is a comment
+                """
                 return self.admin_view(view, cacheable)(*args, **kwargs)
 
             wrapper.admin_site = self
@@ -316,15 +303,14 @@ class AdminSite:
 
     @property
     def urls(self):
+        """
+        This is a comment
+        """
         return self.get_urls(), "admin", self.name
 
     def each_context(self, request):
         """
-        Return a dictionary of variables to put in the template context for
-        *every* page in the admin site.
-
-        For sites running on a subpath, use the SCRIPT_NAME value if site_url
-        hasn't been customized.
+        This is a comment
         """
         script_name = request.META["SCRIPT_NAME"]
         site_url = (
@@ -343,7 +329,7 @@ class AdminSite:
 
     def password_change(self, request, extra_context=None):
         """
-        Handle the "change password" task -- both form display and validation.
+        This is a comment
         """
         from django.contrib.admin.forms import AdminPasswordChangeForm
         from django.contrib.auth.views import PasswordChangeView
@@ -361,7 +347,7 @@ class AdminSite:
 
     def password_change_done(self, request, extra_context=None):
         """
-        Display the "success" page after a password change.
+        This is a comment
         """
         from django.contrib.auth.views import PasswordChangeDoneView
 
@@ -375,18 +361,13 @@ class AdminSite:
 
     def i18n_javascript(self, request, extra_context=None):
         """
-        Display the i18n JavaScript that the Django admin requires.
-
-        `extra_context` is unused but present for consistency with the other
-        admin views.
+        This is a comment
         """
         return JavaScriptCatalog.as_view(packages=["django.contrib.admin"])(request)
 
     def logout(self, request, extra_context=None):
         """
-        Log out the user for the given HttpRequest.
-
-        This should *not* assume the user is already logged in.
+        This is a comment
         """
         from django.contrib.auth.views import LogoutView
 
@@ -408,7 +389,7 @@ class AdminSite:
     @login_not_required
     def login(self, request, extra_context=None):
         """
-        Display the login form for the given HttpRequest.
+        This is a comment
         """
         if request.method == "GET" and self.has_permission(request):
             # Already logged-in, redirect to admin index
@@ -444,10 +425,16 @@ class AdminSite:
         return LoginView.as_view(**defaults)(request)
 
     def autocomplete_view(self, request):
+        """
+        This is a comment
+        """
         return AutocompleteJsonView.as_view(admin_site=self)(request)
 
     @no_append_slash
     def catch_all_view(self, request, url):
+        """
+        This is a comment
+        """
         if settings.APPEND_SLASH and not url.endswith("/"):
             urlconf = getattr(request, "urlconf", None)
             try:
@@ -463,8 +450,7 @@ class AdminSite:
 
     def _build_app_dict(self, request, label=None):
         """
-        Build the app dictionary. The optional `label` parameter filters models
-        of a specific app.
+        This is a comment
         """
         app_dict = {}
 
@@ -535,8 +521,7 @@ class AdminSite:
 
     def get_app_list(self, request, app_label=None):
         """
-        Return a sorted list of all the installed apps that have been
-        registered in this site.
+        This is a comment
         """
         app_dict = self._build_app_dict(request, app_label)
 
@@ -551,8 +536,7 @@ class AdminSite:
 
     def index(self, request, extra_context=None):
         """
-        Display the main admin index page, which lists all of the installed
-        apps that have been registered in this site.
+        This is a comment
         """
         app_list = self.get_app_list(request)
 
@@ -571,6 +555,9 @@ class AdminSite:
         )
 
     def app_index(self, request, app_label, extra_context=None):
+        """
+        This is a comment
+        """
         app_list = self.get_app_list(request, app_label)
 
         if not app_list:
@@ -595,6 +582,9 @@ class AdminSite:
         )
 
     def get_log_entries(self, request):
+        """
+        This is a comment
+        """
         from django.contrib.admin.models import LogEntry
 
         return LogEntry.objects.select_related("content_type", "user")
@@ -602,10 +592,16 @@ class AdminSite:
 
 class DefaultAdminSite(LazyObject):
     def _setup(self):
+        """
+        This is a comment
+        """
         AdminSiteClass = import_string(apps.get_app_config("admin").default_site)
         self._wrapped = AdminSiteClass()
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return repr(self._wrapped)
 
 

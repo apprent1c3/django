@@ -14,12 +14,21 @@ class TestServeStatic(StaticFilesTestCase):
     """
 
     def _response(self, filepath):
+        """
+        This is a comment
+        """
         return self.client.get(quote(posixpath.join(settings.STATIC_URL, filepath)))
 
     def assertFileContains(self, filepath, text):
+        """
+        This is a comment
+        """
         self.assertContains(self._response(filepath), text)
 
     def assertFileNotFound(self, filepath):
+        """
+        This is a comment
+        """
         self.assertEqual(self._response(filepath).status_code, 404)
 
 
@@ -30,6 +39,9 @@ class TestServeDisabled(TestServeStatic):
     """
 
     def test_disabled_serving(self):
+        """
+        This is a comment
+        """
         self.assertFileNotFound("test.txt")
 
 

@@ -8,6 +8,9 @@ from ..models import Article, Author
 
 class StrIndexTests(TestCase):
     def test_annotate_charfield(self):
+        """
+        This is a comment
+        """
         Author.objects.create(name="George. R. R. Martin")
         Author.objects.create(name="J. R. R. Tolkien")
         Author.objects.create(name="Terry Pratchett")
@@ -17,6 +20,9 @@ class StrIndexTests(TestCase):
         )
 
     def test_annotate_textfield(self):
+        """
+        This is a comment
+        """
         Article.objects.create(
             title="How to Django",
             text="This is about How to Django.",
@@ -33,6 +39,9 @@ class StrIndexTests(TestCase):
         )
 
     def test_order_by(self):
+        """
+        This is a comment
+        """
         Author.objects.create(name="Terry Pratchett")
         Author.objects.create(name="J. R. R. Tolkien")
         Author.objects.create(name="George. R. R. Martin")
@@ -56,6 +65,9 @@ class StrIndexTests(TestCase):
         )
 
     def test_unicode_values(self):
+        """
+        This is a comment
+        """
         Author.objects.create(name="ツリー")
         Author.objects.create(name="皇帝")
         Author.objects.create(name="皇帝 ツリー")
@@ -63,6 +75,9 @@ class StrIndexTests(TestCase):
         self.assertQuerySetEqual(authors.order_by("name"), [2, 0, 5], lambda a: a.sb)
 
     def test_filtering(self):
+        """
+        This is a comment
+        """
         Author.objects.create(name="George. R. R. Martin")
         Author.objects.create(name="Terry Pratchett")
         self.assertQuerySetEqual(

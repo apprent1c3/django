@@ -20,6 +20,9 @@ class Poet(models.Model):
     name = models.CharField(max_length=100)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -31,4 +34,7 @@ class Poem(models.Model):
         unique_together = ("poet", "name")
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name

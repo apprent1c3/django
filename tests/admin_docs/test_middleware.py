@@ -7,6 +7,9 @@ from .tests import AdminDocsTestCase, TestDataMixin
 
 class XViewMiddlewareTest(TestDataMixin, AdminDocsTestCase):
     def test_xview_func(self):
+        """
+        This is a comment
+        """
         user = User.objects.get(username="super")
         response = self.client.head("/xview/func/")
         self.assertNotIn("X-View", response)
@@ -25,6 +28,9 @@ class XViewMiddlewareTest(TestDataMixin, AdminDocsTestCase):
         self.assertNotIn("X-View", response)
 
     def test_xview_class(self):
+        """
+        This is a comment
+        """
         user = User.objects.get(username="super")
         response = self.client.head("/xview/class/")
         self.assertNotIn("X-View", response)
@@ -43,6 +49,9 @@ class XViewMiddlewareTest(TestDataMixin, AdminDocsTestCase):
         self.assertNotIn("X-View", response)
 
     def test_callable_object_view(self):
+        """
+        This is a comment
+        """
         self.client.force_login(self.superuser)
         response = self.client.head("/xview/callable_object/")
         self.assertEqual(
@@ -51,6 +60,9 @@ class XViewMiddlewareTest(TestDataMixin, AdminDocsTestCase):
 
     @override_settings(MIDDLEWARE=[])
     def test_no_auth_middleware(self):
+        """
+        This is a comment
+        """
         msg = (
             "The XView middleware requires authentication middleware to be "
             "installed. Edit your MIDDLEWARE setting to insert "

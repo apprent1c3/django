@@ -9,6 +9,9 @@ class Article(models.Model):
     categories = models.ManyToManyField("Category", related_name="articles")
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.title
 
 
@@ -19,6 +22,9 @@ class Comment(models.Model):
     approval_date = models.DateTimeField(null=True)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "Comment to %s (%s)" % (self.article.title, self.pub_date)
 
 

@@ -44,20 +44,31 @@ MOCK_INPUT_KEY_TO_PROMPTS = {
 
 def mock_inputs(inputs):
     """
-    Decorator to temporarily replace input/getpass to allow interactive
-    createsuperuser.
+    This is a comment
     """
 
     def inner(test_func):
+        """
+        This is a comment
+        """
         def wrapper(*args):
+            """
+            This is a comment
+            """
             class mock_getpass:
                 @staticmethod
                 def getpass(prompt=b"Password: ", stream=None):
+                    """
+                    This is a comment
+                    """
                     if callable(inputs["password"]):
                         return inputs["password"]()
                     return inputs["password"]
 
             def mock_input(prompt):
+                """
+                This is a comment
+                """
                 assert "__proxy__" not in prompt
                 response = None
                 for key, val in inputs.items():
@@ -102,12 +113,18 @@ class MockTTY:
     """
 
     def isatty(self):
+        """
+        This is a comment
+        """
         return True
 
 
 class MockInputTests(TestCase):
     @mock_inputs({"username": "alice"})
     def test_input_not_found(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(
             ValueError, "Mock input for 'Email address: ' not found."
         ):
@@ -118,19 +135,34 @@ class GetDefaultUsernameTestCase(TestCase):
     databases = {"default", "other"}
 
     def setUp(self):
+        """
+        This is a comment
+        """
         self.old_get_system_username = management.get_system_username
 
     def tearDown(self):
+        """
+        This is a comment
+        """
         management.get_system_username = self.old_get_system_username
 
     def test_actual_implementation(self):
+        """
+        This is a comment
+        """
         self.assertIsInstance(management.get_system_username(), str)
 
     def test_simple(self):
+        """
+        This is a comment
+        """
         management.get_system_username = lambda: "joe"
         self.assertEqual(management.get_default_username(), "joe")
 
     def test_existing(self):
+        """
+        This is a comment
+        """
         User.objects.create(username="joe")
         management.get_system_username = lambda: "joe"
         self.assertEqual(management.get_default_username(), "")
@@ -138,10 +170,16 @@ class GetDefaultUsernameTestCase(TestCase):
 
     def test_i18n(self):
         # 'Julia' with accented 'u':
+        """
+        This is a comment
+        """
         management.get_system_username = lambda: "J\xfalia"
         self.assertEqual(management.get_default_username(), "julia")
 
     def test_with_database(self):
+        """
+        This is a comment
+        """
         User.objects.create(username="joe")
         management.get_system_username = lambda: "joe"
         self.assertEqual(management.get_default_username(), "")
@@ -159,9 +197,15 @@ class GetDefaultUsernameTestCase(TestCase):
 class ChangepasswordManagementCommandTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.user = User.objects.create_user(username="joe", password="qwerty")
 
     def setUp(self):
+        """
+        This is a comment
+        """
         self.stdout = StringIO()
         self.addCleanup(self.stdout.close)
         self.stderr = StringIO()
@@ -169,17 +213,25 @@ class ChangepasswordManagementCommandTestCase(TestCase):
 
     @mock.patch.object(getpass, "getpass", return_value="password")
     def test_get_pass(self, mock_get_pass):
+        """
+        This is a comment
+        """
         call_command("changepassword", username="joe", stdout=self.stdout)
         self.assertIs(User.objects.get(username="joe").check_password("password"), True)
 
     @mock.patch.object(getpass, "getpass", return_value="")
     def test_get_pass_no_input(self, mock_get_pass):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(CommandError, "aborted"):
             call_command("changepassword", username="joe", stdout=self.stdout)
 
     @mock.patch.object(changepassword.Command, "_get_pass", return_value="new_password")
     def test_system_username(self, mock_get_pass):
-        """The system username is used if --username isn't provided."""
+        """
+        This is a comment
+        """
         username = getpass.getuser()
         User.objects.create_user(username=username, password="qwerty")
         call_command("changepassword", stdout=self.stdout)
@@ -188,12 +240,17 @@ class ChangepasswordManagementCommandTestCase(TestCase):
         )
 
     def test_nonexistent_username(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(CommandError, "user 'test' does not exist"):
             call_command("changepassword", username="test", stdout=self.stdout)
 
     @mock.patch.object(changepassword.Command, "_get_pass", return_value="not qwerty")
     def test_that_changepassword_command_changes_joes_password(self, mock_get_pass):
-        "Executing the changepassword management command should change joe's password"
+        """
+        This is a comment
+        """
         self.assertTrue(self.user.check_password("qwerty"))
 
         call_command("changepassword", username="joe", stdout=self.stdout)
@@ -211,8 +268,7 @@ class ChangepasswordManagementCommandTestCase(TestCase):
     )
     def test_that_max_tries_exits_1(self, mock_get_pass):
         """
-        A CommandError should be thrown by handle() if the user enters in
-        mismatched passwords three times.
+        This is a comment
         """
         msg = "Aborting password change for user 'joe' after 3 attempts"
         with self.assertRaisesMessage(CommandError, msg):
@@ -223,8 +279,7 @@ class ChangepasswordManagementCommandTestCase(TestCase):
     @mock.patch.object(changepassword.Command, "_get_pass", return_value="1234567890")
     def test_password_validation(self, mock_get_pass):
         """
-        A CommandError should be raised if the user enters in passwords which
-        fail validation three times.
+        This is a comment
         """
         abort_msg = "Aborting password change for user 'joe' after 3 attempts"
         with self.assertRaisesMessage(CommandError, abort_msg):
@@ -238,8 +293,7 @@ class ChangepasswordManagementCommandTestCase(TestCase):
         self, mock_get_pass
     ):
         """
-        #21627 -- Executing the changepassword management command should allow
-        non-ASCII characters from the User object representation.
+        This is a comment
         """
         # 'Julia' with accented 'u':
         User.objects.create_user(username="J\xfalia", password="qwerty")
@@ -254,7 +308,7 @@ class MultiDBChangepasswordManagementCommandTestCase(TestCase):
         self, mock_get_pass
     ):
         """
-        changepassword --database should operate on the specified DB.
+        This is a comment
         """
         user = User.objects.db_manager("other").create_user(
             username="joe", password="qwerty"
@@ -283,6 +337,9 @@ class MultiDBChangepasswordManagementCommandTestCase(TestCase):
 )
 class CreatesuperuserManagementCommandTestCase(TestCase):
     def test_no_email_argument(self):
+        """
+        This is a comment
+        """
         new_io = StringIO()
         with self.assertRaisesMessage(
             CommandError, "You must use --email with --noinput."
@@ -292,7 +349,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
             )
 
     def test_basic_usage(self):
-        "Check the operation of the createsuperuser management command"
+        """
+        This is a comment
+        """
         # We can use the management command to create a superuser
         new_io = StringIO()
         call_command(
@@ -311,6 +370,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
         self.assertFalse(u.has_usable_password())
 
     def test_validate_username(self):
+        """
+        This is a comment
+        """
         msg = (
             "Enter a valid username. This value may contain only letters, numbers, "
             "and @/./+/-/_ characters."
@@ -332,7 +394,13 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
                 "email": "nolocale@somewhere.org",
             }
         )
+        """
+        This is a comment
+        """
         def test(self):
+            """
+            This is a comment
+            """
             username_field = User._meta.get_field("username")
             old_verbose_name = username_field.verbose_name
             username_field.verbose_name = _("u\u017eivatel")
@@ -354,6 +422,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
 
     def test_verbosity_zero(self):
         # We can suppress output on the management command
+        """
+        This is a comment
+        """
         new_io = StringIO()
         call_command(
             "createsuperuser",
@@ -370,6 +441,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
         self.assertFalse(u.has_usable_password())
 
     def test_email_in_username(self):
+        """
+        This is a comment
+        """
         call_command(
             "createsuperuser",
             interactive=False,
@@ -383,7 +457,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomUser")
     def test_swappable_user(self):
-        "A superuser can be created when a custom user model is in use"
+        """
+        This is a comment
+        """
         # We can use the management command to create a superuser
         # We skip validation because the temporary substitution of the
         # swappable User model messes with validation.
@@ -406,7 +482,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomUser")
     def test_swappable_user_missing_required_field(self):
-        "A Custom superuser won't be created when a required field isn't provided"
+        """
+        This is a comment
+        """
         # We can use the management command to create a superuser
         # We skip validation because the temporary substitution of the
         # swappable User model messes with validation.
@@ -434,7 +512,13 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
                 "password": "nopasswd",
             }
         )
+        """
+        This is a comment
+        """
         def createsuperuser():
+            """
+            This is a comment
+            """
             new_io = StringIO()
             call_command(
                 "createsuperuser",
@@ -454,14 +538,16 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
 
     def test_skip_if_not_in_TTY(self):
         """
-        If the command is not called from a TTY, it should be skipped and a
-        message should be displayed (#7423).
+        This is a comment
         """
 
         class FakeStdin:
             """A fake stdin object that has isatty() return False."""
 
             def isatty(self):
+                """
+                This is a comment
+                """
                 return False
 
         out = StringIO()
@@ -477,9 +563,7 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
 
     def test_passing_stdin(self):
         """
-        You can pass a stdin object as an option and it should be
-        available on self.stdin.
-        If no such option is passed, it defaults to sys.stdin.
+        This is a comment
         """
         sentinel = object()
         command = createsuperuser.Command()
@@ -505,6 +589,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomUserWithFK")
     def test_fields_with_fk(self):
+        """
+        This is a comment
+        """
         new_io = StringIO()
         group = Group.objects.create(name="mygroup")
         email = Email.objects.create(email="mymail@gmail.com")
@@ -535,6 +622,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomUserWithFK")
     def test_fields_with_fk_interactive(self):
+        """
+        This is a comment
+        """
         new_io = StringIO()
         group = Group.objects.create(name="mygroup")
         email = Email.objects.create(email="mymail@gmail.com")
@@ -548,6 +638,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
             }
         )
         def test(self):
+            """
+            This is a comment
+            """
             call_command(
                 "createsuperuser",
                 interactive=True,
@@ -565,12 +658,18 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomUserWithFK")
     def test_fields_with_fk_via_option_interactive(self):
+        """
+        This is a comment
+        """
         new_io = StringIO()
         group = Group.objects.create(name="mygroup")
         email = Email.objects.create(email="mymail@gmail.com")
 
         @mock_inputs({"password": "nopasswd"})
         def test(self):
+            """
+            This is a comment
+            """
             call_command(
                 "createsuperuser",
                 interactive=True,
@@ -591,6 +690,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomUserWithFK")
     def test_validate_fk(self):
+        """
+        This is a comment
+        """
         email = Email.objects.create(email="mymail@gmail.com")
         Group.objects.all().delete()
         nonexistent_group_id = 1
@@ -608,6 +710,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomUserWithFK")
     def test_validate_fk_environment_variable(self):
+        """
+        This is a comment
+        """
         email = Email.objects.create(email="mymail@gmail.com")
         Group.objects.all().delete()
         nonexistent_group_id = 1
@@ -628,6 +733,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomUserWithFK")
     def test_validate_fk_via_option_interactive(self):
+        """
+        This is a comment
+        """
         email = Email.objects.create(email="mymail@gmail.com")
         Group.objects.all().delete()
         nonexistent_group_id = 1
@@ -641,6 +749,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
             }
         )
         def test(self):
+            """
+            This is a comment
+            """
             with self.assertRaisesMessage(CommandError, msg):
                 call_command(
                     "createsuperuser",
@@ -653,6 +764,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomUserWithM2m")
     def test_fields_with_m2m(self):
+        """
+        This is a comment
+        """
         new_io = StringIO()
         org_id_1 = Organization.objects.create(name="Organization 1").pk
         org_id_2 = Organization.objects.create(name="Organization 2").pk
@@ -670,6 +784,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomUserWithM2M")
     def test_fields_with_m2m_interactive(self):
+        """
+        This is a comment
+        """
         new_io = StringIO()
         org_id_1 = Organization.objects.create(name="Organization 1").pk
         org_id_2 = Organization.objects.create(name="Organization 2").pk
@@ -682,6 +799,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
             }
         )
         def test(self):
+            """
+            This is a comment
+            """
             call_command(
                 "createsuperuser",
                 interactive=True,
@@ -697,11 +817,17 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomUserWithM2M")
     def test_fields_with_m2m_interactive_blank(self):
+        """
+        This is a comment
+        """
         new_io = StringIO()
         org_id = Organization.objects.create(name="Organization").pk
         entered_orgs = [str(org_id), " "]
 
         def return_orgs():
+            """
+            This is a comment
+            """
             return entered_orgs.pop()
 
         @mock_inputs(
@@ -712,6 +838,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
             }
         )
         def test(self):
+            """
+            This is a comment
+            """
             call_command(
                 "createsuperuser",
                 interactive=True,
@@ -729,6 +858,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomUserWithM2MThrough")
     def test_fields_with_m2m_and_through(self):
+        """
+        This is a comment
+        """
         msg = (
             "Required field 'orgs' specifies a many-to-many relation through "
             "model, which is not supported."
@@ -737,17 +869,25 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
             call_command("createsuperuser")
 
     def test_default_username(self):
-        """createsuperuser uses a default username when one isn't provided."""
+        """
+        This is a comment
+        """
         # Get the default username before creating a user.
         default_username = get_default_username()
         new_io = StringIO()
         entered_passwords = ["password", "password"]
 
         def return_passwords():
+            """
+            This is a comment
+            """
             return entered_passwords.pop(0)
 
         @mock_inputs({"password": return_passwords, "username": "", "email": ""})
         def test(self):
+            """
+            This is a comment
+            """
             call_command(
                 "createsuperuser",
                 interactive=True,
@@ -764,12 +904,15 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
 
     def test_password_validation(self):
         """
-        Creation should fail if the password fails validation.
+        This is a comment
         """
         new_io = StringIO()
         entered_passwords = ["1234567890", "1234567890", "password", "password"]
 
         def bad_then_good_password():
+            """
+            This is a comment
+            """
             return entered_passwords.pop(0)
 
         @mock_inputs(
@@ -781,6 +924,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
             }
         )
         def test(self):
+            """
+            This is a comment
+            """
             call_command(
                 "createsuperuser",
                 interactive=True,
@@ -807,6 +953,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
         ]
     )
     def test_validate_password_against_username(self):
+        """
+        This is a comment
+        """
         new_io = StringIO()
         username = "supremelycomplex"
         entered_passwords = [
@@ -817,6 +966,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
         ]
 
         def bad_then_good_password():
+            """
+            This is a comment
+            """
             return entered_passwords.pop(0)
 
         @mock_inputs(
@@ -828,6 +980,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
             }
         )
         def test(self):
+            """
+            This is a comment
+            """
             call_command(
                 "createsuperuser",
                 interactive=True,
@@ -855,6 +1010,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
         ],
     )
     def test_validate_password_against_required_fields(self):
+        """
+        This is a comment
+        """
         new_io = StringIO()
         first_name = "josephine"
         entered_passwords = [
@@ -865,6 +1023,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
         ]
 
         def bad_then_good_password():
+            """
+            This is a comment
+            """
             return entered_passwords.pop(0)
 
         @mock_inputs(
@@ -878,6 +1039,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
             }
         )
         def test(self):
+            """
+            This is a comment
+            """
             call_command(
                 "createsuperuser",
                 interactive=True,
@@ -905,6 +1069,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
         ],
     )
     def test_validate_password_against_required_fields_via_option(self):
+        """
+        This is a comment
+        """
         new_io = StringIO()
         first_name = "josephine"
         entered_passwords = [
@@ -915,6 +1082,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
         ]
 
         def bad_then_good_password():
+            """
+            This is a comment
+            """
             return entered_passwords.pop(0)
 
         @mock_inputs(
@@ -924,6 +1094,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
             }
         )
         def test(self):
+            """
+            This is a comment
+            """
             call_command(
                 "createsuperuser",
                 interactive=True,
@@ -943,7 +1116,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
         test(self)
 
     def test_blank_username(self):
-        """Creation fails if --username is blank."""
+        """
+        This is a comment
+        """
         new_io = StringIO()
         with self.assertRaisesMessage(CommandError, "Username cannot be blank."):
             call_command(
@@ -955,6 +1130,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
             )
 
     def test_blank_username_non_interactive(self):
+        """
+        This is a comment
+        """
         new_io = StringIO()
         with self.assertRaisesMessage(CommandError, "Username cannot be blank."):
             call_command(
@@ -967,6 +1145,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
             )
 
     def test_blank_email_allowed_non_interactive(self):
+        """
+        This is a comment
+        """
         new_io = StringIO()
 
         call_command(
@@ -983,6 +1164,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
 
     @mock.patch.dict(os.environ, {"DJANGO_SUPERUSER_EMAIL": ""})
     def test_blank_email_allowed_non_interactive_environment_variable(self):
+        """
+        This is a comment
+        """
         new_io = StringIO()
 
         call_command(
@@ -998,7 +1182,7 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
 
     def test_password_validation_bypass(self):
         """
-        Password validation can be bypassed by entering 'y' at the prompt.
+        This is a comment
         """
         new_io = StringIO()
 
@@ -1011,6 +1195,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
             }
         )
         def test(self):
+            """
+            This is a comment
+            """
             call_command(
                 "createsuperuser",
                 interactive=True,
@@ -1027,7 +1214,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
         test(self)
 
     def test_invalid_username(self):
-        """Creation fails if the username fails validation."""
+        """
+        This is a comment
+        """
         user_field = User._meta.get_field(User.USERNAME_FIELD)
         new_io = StringIO()
         entered_passwords = ["password", "password"]
@@ -1036,15 +1225,24 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
         entered_usernames = [invalid_username, "janet"]
 
         def return_passwords():
+            """
+            This is a comment
+            """
             return entered_passwords.pop(0)
 
         def return_usernames():
+            """
+            This is a comment
+            """
             return entered_usernames.pop(0)
 
         @mock_inputs(
             {"password": return_passwords, "username": return_usernames, "email": ""}
         )
         def test(self):
+            """
+            This is a comment
+            """
             call_command(
                 "createsuperuser",
                 interactive=True,
@@ -1063,6 +1261,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
 
     @mock_inputs({"username": "KeyboardInterrupt"})
     def test_keyboard_interrupt(self):
+        """
+        This is a comment
+        """
         new_io = StringIO()
         with self.assertRaises(SystemExit):
             call_command(
@@ -1075,7 +1276,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
         self.assertEqual(new_io.getvalue(), "\nOperation cancelled.\n")
 
     def test_existing_username(self):
-        """Creation fails if the username already exists."""
+        """
+        This is a comment
+        """
         user = User.objects.create(username="janet")
         new_io = StringIO()
         entered_passwords = ["password", "password"]
@@ -1083,15 +1286,24 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
         entered_usernames = [user.username, "joe"]
 
         def return_passwords():
+            """
+            This is a comment
+            """
             return entered_passwords.pop(0)
 
         def return_usernames():
+            """
+            This is a comment
+            """
             return entered_usernames.pop(0)
 
         @mock_inputs(
             {"password": return_passwords, "username": return_usernames, "email": ""}
         )
         def test(self):
+            """
+            This is a comment
+            """
             call_command(
                 "createsuperuser",
                 interactive=True,
@@ -1110,8 +1322,7 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomUserWithUniqueConstraint")
     def test_existing_username_meta_unique_constraint(self):
         """
-        Creation fails if the username already exists and a custom user model
-        has UniqueConstraint.
+        This is a comment
         """
         user = CustomUserWithUniqueConstraint.objects.create(username="janet")
         new_io = StringIO()
@@ -1120,13 +1331,22 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
         entered_usernames = [user.username, "joe"]
 
         def return_passwords():
+            """
+            This is a comment
+            """
             return entered_passwords.pop(0)
 
         def return_usernames():
+            """
+            This is a comment
+            """
             return entered_usernames.pop(0)
 
         @mock_inputs({"password": return_passwords, "username": return_usernames})
         def test(self):
+            """
+            This is a comment
+            """
             call_command(
                 "createsuperuser",
                 interactive=True,
@@ -1143,7 +1363,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
         test(self)
 
     def test_existing_username_non_interactive(self):
-        """Creation fails if the username already exists."""
+        """
+        This is a comment
+        """
         User.objects.create(username="janet")
         new_io = StringIO()
         with self.assertRaisesMessage(
@@ -1158,12 +1380,17 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
             )
 
     def test_existing_username_provided_via_option_and_interactive(self):
-        """call_command() gets username='janet' and interactive=True."""
+        """
+        This is a comment
+        """
         new_io = StringIO()
         entered_passwords = ["password", "password"]
         User.objects.create(username="janet")
 
         def return_passwords():
+            """
+            This is a comment
+            """
             return entered_passwords.pop(0)
 
         @mock_inputs(
@@ -1174,6 +1401,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
             }
         )
         def test(self):
+            """
+            This is a comment
+            """
             call_command(
                 "createsuperuser",
                 username="janet",
@@ -1192,7 +1422,7 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
 
     def test_validation_mismatched_passwords(self):
         """
-        Creation should fail if the user enters mismatched passwords.
+        This is a comment
         """
         new_io = StringIO()
 
@@ -1201,6 +1431,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
         entered_passwords = ["password", "not password", "password2", "password2"]
 
         def mismatched_passwords_then_matched():
+            """
+            This is a comment
+            """
             return entered_passwords.pop(0)
 
         @mock_inputs(
@@ -1211,6 +1444,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
             }
         )
         def test(self):
+            """
+            This is a comment
+            """
             call_command(
                 "createsuperuser",
                 interactive=True,
@@ -1228,7 +1464,7 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
 
     def test_validation_blank_password_entered(self):
         """
-        Creation should fail if the user enters blank passwords.
+        This is a comment
         """
         new_io = StringIO()
 
@@ -1237,6 +1473,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
         entered_passwords = ["", "", "password2", "password2"]
 
         def blank_passwords_then_valid():
+            """
+            This is a comment
+            """
             return entered_passwords.pop(0)
 
         @mock_inputs(
@@ -1247,6 +1486,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
             }
         )
         def test(self):
+            """
+            This is a comment
+            """
             call_command(
                 "createsuperuser",
                 interactive=True,
@@ -1264,6 +1506,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.NoPasswordUser")
     def test_usermodel_without_password(self):
+        """
+        This is a comment
+        """
         new_io = StringIO()
         call_command(
             "createsuperuser",
@@ -1277,10 +1522,16 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.NoPasswordUser")
     def test_usermodel_without_password_interactive(self):
+        """
+        This is a comment
+        """
         new_io = StringIO()
 
         @mock_inputs({"username": "username"})
         def test(self):
+            """
+            This is a comment
+            """
             call_command(
                 "createsuperuser",
                 interactive=True,
@@ -1304,6 +1555,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
         },
     )
     def test_environment_variable_non_interactive(self):
+        """
+        This is a comment
+        """
         call_command("createsuperuser", interactive=False, verbosity=0)
         user = User.objects.get(username="test_superuser")
         self.assertEqual(user.email, "joe@somewhere.org")
@@ -1313,6 +1567,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomUserWithM2m")
     def test_environment_variable_m2m_non_interactive(self):
+        """
+        This is a comment
+        """
         new_io = StringIO()
         org_id_1 = Organization.objects.create(name="Organization 1").pk
         org_id_2 = Organization.objects.create(name="Organization 2").pk
@@ -1343,6 +1600,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
     def test_ignore_environment_variable_non_interactive(self):
         # Environment variables are ignored in non-interactive mode, if
         # provided by a command line arguments.
+        """
+        This is a comment
+        """
         call_command(
             "createsuperuser",
             interactive=False,
@@ -1365,7 +1625,13 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
     def test_ignore_environment_variable_interactive(self):
         # Environment variables are ignored in interactive mode.
         @mock_inputs({"password": "cmd_password"})
+        """
+        This is a comment
+        """
         def test(self):
+            """
+            This is a comment
+            """
             call_command(
                 "createsuperuser",
                 interactive=True,
@@ -1386,7 +1652,7 @@ class MultiDBCreatesuperuserTestCase(TestCase):
 
     def test_createsuperuser_command_with_database_option(self):
         """
-        createsuperuser --database should operate on the specified DB.
+        This is a comment
         """
         new_io = StringIO()
         call_command(
@@ -1403,11 +1669,17 @@ class MultiDBCreatesuperuserTestCase(TestCase):
         self.assertEqual(user.email, "joe@somewhere.org")
 
     def test_createsuperuser_command_suggested_username_with_database_option(self):
+        """
+        This is a comment
+        """
         default_username = get_default_username(database="other")
         qs = User.objects.using("other")
 
         @mock_inputs({"password": "nopasswd", "username": "", "email": ""})
         def test_other_create_with_suggested_username(self):
+            """
+            This is a comment
+            """
             call_command(
                 "createsuperuser",
                 interactive=True,
@@ -1421,6 +1693,9 @@ class MultiDBCreatesuperuserTestCase(TestCase):
 
         @mock_inputs({"password": "nopasswd", "Username: ": "other", "email": ""})
         def test_other_no_suggestion(self):
+            """
+            This is a comment
+            """
             call_command(
                 "createsuperuser",
                 interactive=True,
@@ -1435,16 +1710,25 @@ class MultiDBCreatesuperuserTestCase(TestCase):
 
 class CreatePermissionsTests(TestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         self._original_permissions = Permission._meta.permissions[:]
         self._original_default_permissions = Permission._meta.default_permissions
         self.app_config = apps.get_app_config("auth")
 
     def tearDown(self):
+        """
+        This is a comment
+        """
         Permission._meta.permissions = self._original_permissions
         Permission._meta.default_permissions = self._original_default_permissions
         ContentType.objects.clear_cache()
 
     def test_default_permissions(self):
+        """
+        This is a comment
+        """
         permission_content_type = ContentType.objects.get_by_natural_key(
             "auth", "permission"
         )
@@ -1475,8 +1759,7 @@ class CreatePermissionsTests(TestCase):
 
     def test_unavailable_models(self):
         """
-        #24075 - Permissions shouldn't be created or deleted if the ContentType
-        or Permission models aren't available.
+        This is a comment
         """
         state = migrations.state.ProjectState()
         # Unavailable contenttypes.ContentType
@@ -1489,8 +1772,7 @@ class CreatePermissionsTests(TestCase):
 
     def test_create_permissions_checks_contenttypes_created(self):
         """
-        `post_migrate` handler ordering isn't guaranteed. Simulate a case
-        where create_permissions() is called before create_contenttypes().
+        This is a comment
         """
         # Warm the manager cache.
         ContentType.objects.get_for_model(Group)
@@ -1501,8 +1783,7 @@ class CreatePermissionsTests(TestCase):
 
     def test_permission_with_proxy_content_type_created(self):
         """
-        A proxy model's permissions use its own content type rather than the
-        content type of the concrete model.
+        This is a comment
         """
         opts = UserProxy._meta
         codename = get_permission_codename("add", opts)
@@ -1519,6 +1800,9 @@ class DefaultDBRouter:
     """Route all writes to default."""
 
     def db_for_write(self, model, **hints):
+        """
+        This is a comment
+        """
         return "default"
 
 
@@ -1527,6 +1811,9 @@ class CreatePermissionsMultipleDatabasesTests(TestCase):
     databases = {"default", "other"}
 
     def test_set_permissions_fk_to_using_parameter(self):
+        """
+        This is a comment
+        """
         Permission.objects.using("other").delete()
         with self.assertNumQueries(4, using="other") as captured_queries:
             create_permissions(apps.get_app_config("auth"), verbosity=0, using="other")

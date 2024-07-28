@@ -15,6 +15,9 @@ class UrlizetruncTests(SimpleTestCase):
         }
     )
     def test_urlizetrunc01(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "urlizetrunc01",
             {
@@ -32,6 +35,9 @@ class UrlizetruncTests(SimpleTestCase):
 
     @setup({"urlizetrunc02": '{{ a|urlizetrunc:"8" }} {{ b|urlizetrunc:"8" }}'})
     def test_urlizetrunc02(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "urlizetrunc02",
             {
@@ -50,6 +56,9 @@ class UrlizetruncTests(SimpleTestCase):
 
 class FunctionTests(SimpleTestCase):
     def test_truncate(self):
+        """
+        This is a comment
+        """
         uri = "http://31characteruri.com/test/"
         self.assertEqual(len(uri), 31)
 
@@ -71,12 +80,18 @@ class FunctionTests(SimpleTestCase):
         )
 
     def test_overtruncate(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             urlizetrunc("http://short.com/", 20),
             '<a href="http://short.com/" rel="nofollow">http://short.com/</a>',
         )
 
     def test_query_string(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             urlizetrunc(
                 "http://www.google.co.uk/search?hl=en&q=some+long+url&btnG=Search"
@@ -88,9 +103,15 @@ class FunctionTests(SimpleTestCase):
         )
 
     def test_non_string_input(self):
+        """
+        This is a comment
+        """
         self.assertEqual(urlizetrunc(123, 1), "123")
 
     def test_autoescape(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             urlizetrunc('foo<a href=" google.com ">bar</a>buz', 10),
             'foo&lt;a href=&quot; <a href="http://google.com" rel="nofollow">google.com'
@@ -98,6 +119,9 @@ class FunctionTests(SimpleTestCase):
         )
 
     def test_autoescape_off(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             urlizetrunc('foo<a href=" google.com ">bar</a>buz', 9, autoescape=False),
             'foo<a href=" <a href="http://google.com" rel="nofollow">google.c…</a> ">'

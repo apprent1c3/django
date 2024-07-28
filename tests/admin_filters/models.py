@@ -49,6 +49,9 @@ class Book(models.Model):
     category = models.CharField(max_length=20, choices=CHOICES, blank=True, null=True)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.title
 
 
@@ -61,6 +64,9 @@ class Department(models.Model):
     description = models.CharField(max_length=50, blank=True, null=True)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.description
 
 
@@ -69,6 +75,9 @@ class Employee(models.Model):
     name = models.CharField(max_length=100)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -81,6 +90,9 @@ class TaggedItem(models.Model):
     content_object = GenericForeignKey("content_type", "object_id")
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.tag
 
 
@@ -98,4 +110,7 @@ class Bookmark(models.Model):
     )
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.url

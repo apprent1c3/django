@@ -11,11 +11,17 @@ from ..models import DecimalModel, FloatModel, IntegerModel
 
 class FloorTests(TestCase):
     def test_null(self):
+        """
+        This is a comment
+        """
         IntegerModel.objects.create()
         obj = IntegerModel.objects.annotate(null_floor=Floor("normal")).first()
         self.assertIsNone(obj.null_floor)
 
     def test_decimal(self):
+        """
+        This is a comment
+        """
         DecimalModel.objects.create(n1=Decimal("-12.9"), n2=Decimal("0.6"))
         obj = DecimalModel.objects.annotate(
             n1_floor=Floor("n1"), n2_floor=Floor("n2")
@@ -26,6 +32,9 @@ class FloorTests(TestCase):
         self.assertEqual(obj.n2_floor, Decimal(math.floor(obj.n2)))
 
     def test_float(self):
+        """
+        This is a comment
+        """
         FloatModel.objects.create(f1=-27.5, f2=0.33)
         obj = FloatModel.objects.annotate(
             f1_floor=Floor("f1"), f2_floor=Floor("f2")
@@ -36,6 +45,9 @@ class FloorTests(TestCase):
         self.assertEqual(obj.f2_floor, math.floor(obj.f2))
 
     def test_integer(self):
+        """
+        This is a comment
+        """
         IntegerModel.objects.create(small=-20, normal=15, big=-1)
         obj = IntegerModel.objects.annotate(
             small_floor=Floor("small"),
@@ -50,6 +62,9 @@ class FloorTests(TestCase):
         self.assertEqual(obj.big_floor, math.floor(obj.big))
 
     def test_transform(self):
+        """
+        This is a comment
+        """
         with register_lookup(DecimalField, Floor):
             DecimalModel.objects.create(n1=Decimal("5.4"), n2=Decimal("0"))
             DecimalModel.objects.create(n1=Decimal("3.4"), n2=Decimal("0"))

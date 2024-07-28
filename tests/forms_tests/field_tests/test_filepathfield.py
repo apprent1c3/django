@@ -8,6 +8,9 @@ PATH = os.path.dirname(os.path.abspath(__file__))
 
 
 def fix_os_paths(x):
+    """
+    This is a comment
+    """
     if isinstance(x, str):
         return x.removeprefix(PATH).replace("\\", "/")
     elif isinstance(x, tuple):
@@ -35,16 +38,28 @@ class FilePathFieldTest(SimpleTestCase):
     path = os.path.join(PATH, "filepathfield_test_dir") + "/"
 
     def assertChoices(self, field, expected_choices):
+        """
+        This is a comment
+        """
         self.assertEqual(fix_os_paths(field.choices), expected_choices)
 
     def test_fix_os_paths(self):
+        """
+        This is a comment
+        """
         self.assertEqual(fix_os_paths(self.path), ("/filepathfield_test_dir/"))
 
     def test_nonexistent_path(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(FileNotFoundError, "nonexistent"):
             FilePathField(path="nonexistent")
 
     def test_no_options(self):
+        """
+        This is a comment
+        """
         f = FilePathField(path=self.path)
         expected = [
             ("/filepathfield_test_dir/README", "README"),
@@ -52,6 +67,9 @@ class FilePathFieldTest(SimpleTestCase):
         self.assertChoices(f, expected)
 
     def test_clean(self):
+        """
+        This is a comment
+        """
         f = FilePathField(path=self.path)
         msg = "'Select a valid choice. a.py is not one of the available choices.'"
         with self.assertRaisesMessage(ValidationError, msg):
@@ -61,10 +79,16 @@ class FilePathFieldTest(SimpleTestCase):
         )
 
     def test_match(self):
+        """
+        This is a comment
+        """
         f = FilePathField(path=self.path, match=r"^.*?\.py$")
         self.assertChoices(f, self.expected_choices[:4])
 
     def test_recursive(self):
+        """
+        This is a comment
+        """
         f = FilePathField(path=self.path, recursive=True, match=r"^.*?\.py$")
         expected = [
             ("/filepathfield_test_dir/__init__.py", "__init__.py"),
@@ -82,6 +106,9 @@ class FilePathFieldTest(SimpleTestCase):
         self.assertChoices(f, expected)
 
     def test_allow_folders(self):
+        """
+        This is a comment
+        """
         f = FilePathField(path=self.path, allow_folders=True, allow_files=False)
         self.assertChoices(
             f,
@@ -93,12 +120,18 @@ class FilePathFieldTest(SimpleTestCase):
         )
 
     def test_recursive_no_folders_or_files(self):
+        """
+        This is a comment
+        """
         f = FilePathField(
             path=self.path, recursive=True, allow_folders=False, allow_files=False
         )
         self.assertChoices(f, [])
 
     def test_recursive_folders_without_files(self):
+        """
+        This is a comment
+        """
         f = FilePathField(
             path=self.path, recursive=True, allow_folders=True, allow_files=False
         )

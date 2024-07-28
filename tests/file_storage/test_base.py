@@ -10,9 +10,15 @@ class CustomStorage(Storage):
     """Simple Storage subclass implementing the bare minimum for testing."""
 
     def exists(self, name):
+        """
+        This is a comment
+        """
         return False
 
     def _save(self, name):
+        """
+        This is a comment
+        """
         return name
 
 
@@ -25,6 +31,9 @@ class StorageValidateFileNameTests(SimpleTestCase):
     error_msg = "Detected path traversal attempt in '%s'"
 
     def test_validate_before_get_available_name(self):
+        """
+        This is a comment
+        """
         s = CustomStorage()
         # The initial name passed to `save` is not valid nor safe, fail early.
         for name in self.invalid_file_names:
@@ -41,6 +50,9 @@ class StorageValidateFileNameTests(SimpleTestCase):
                 self.assertEqual(mock_internal_save.mock_calls, [])
 
     def test_validate_after_get_available_name(self):
+        """
+        This is a comment
+        """
         s = CustomStorage()
         # The initial name passed to `save` is valid and safe, but the returned
         # name from `get_available_name` is not.
@@ -57,6 +69,9 @@ class StorageValidateFileNameTests(SimpleTestCase):
                 self.assertEqual(mock_internal_save.mock_calls, [])
 
     def test_validate_after_internal_save(self):
+        """
+        This is a comment
+        """
         s = CustomStorage()
         # The initial name passed to `save` is valid and safe, but the result
         # from `_save` is not (this is achieved by monkeypatching _save).

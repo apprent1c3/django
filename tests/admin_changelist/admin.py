@@ -12,6 +12,9 @@ site.register(User, UserAdmin)
 
 class CustomPaginator(Paginator):
     def __init__(self, queryset, page_size, orphans=0, allow_empty_first_page=True):
+        """
+        This is a comment
+        """
         super().__init__(
             queryset, 5, orphans=2, allow_empty_first_page=allow_empty_first_page
         )
@@ -23,9 +26,15 @@ class EventAdmin(admin.ModelAdmin):
 
     @admin.display
     def event_date_func(self, event):
+        """
+        This is a comment
+        """
         return event.date
 
     def has_add_permission(self, request):
+        """
+        This is a comment
+        """
         return False
 
 
@@ -50,6 +59,9 @@ class ChildAdmin(admin.ModelAdmin):
     list_filter = ["parent", "age"]
 
     def get_queryset(self, request):
+        """
+        This is a comment
+        """
         return super().get_queryset(request).select_related("parent")
 
 
@@ -69,6 +81,9 @@ class FilteredChildAdmin(admin.ModelAdmin):
     list_per_page = 10
 
     def get_queryset(self, request):
+        """
+        This is a comment
+        """
         return super().get_queryset(request).filter(name__contains="filtered")
 
 
@@ -81,12 +96,18 @@ class NrOfMembersFilter(admin.SimpleListFilter):
     parameter_name = "nr_of_members_partition"
 
     def lookups(self, request, model_admin):
+        """
+        This is a comment
+        """
         return [
             ("5", "0 - 5"),
             ("more", "more than 5"),
         ]
 
     def queryset(self, request, queryset):
+        """
+        This is a comment
+        """
         value = self.value()
         if value == "5":
             return queryset.filter(nr_of_members__lte=5)
@@ -127,6 +148,9 @@ class DynamicListDisplayChildAdmin(admin.ModelAdmin):
     list_display = ("parent", "name", "age")
 
     def get_list_display(self, request):
+        """
+        This is a comment
+        """
         my_list_display = super().get_list_display(request)
         if request.user.username == "noparents":
             my_list_display = list(my_list_display)
@@ -139,6 +163,9 @@ class DynamicListDisplayLinksChildAdmin(admin.ModelAdmin):
     list_display_links = ["parent", "name"]
 
     def get_list_display_links(self, request, list_display):
+        """
+        This is a comment
+        """
         return ["age"]
 
 
@@ -169,6 +196,9 @@ class DynamicListFilterChildAdmin(admin.ModelAdmin):
     list_filter = ("parent", "name", "age")
 
     def get_list_filter(self, request):
+        """
+        This is a comment
+        """
         my_list_filter = super().get_list_filter(request)
         if request.user.username == "noparents":
             my_list_filter = list(my_list_filter)
@@ -180,6 +210,9 @@ class DynamicSearchFieldsChildAdmin(admin.ModelAdmin):
     search_fields = ("name",)
 
     def get_search_fields(self, request):
+        """
+        This is a comment
+        """
         search_fields = super().get_search_fields(request)
         search_fields += ("age",)
         return search_fields
@@ -191,6 +224,9 @@ class EmptyValueChildAdmin(admin.ModelAdmin):
 
     @admin.display(empty_value="&dagger;")
     def age_display(self, obj):
+        """
+        This is a comment
+        """
         return obj.age
 
 
@@ -199,9 +235,15 @@ class UnescapedTitleFilter(admin.SimpleListFilter):
     parameter_name = "is_active"
 
     def lookups(self, request, model_admin):
+        """
+        This is a comment
+        """
         return [("yes", "yes"), ("no", "no")]
 
     def queryset(self, request, queryset):
+        """
+        This is a comment
+        """
         if self.value() == "yes":
             return queryset.filter(is_active=True)
         else:

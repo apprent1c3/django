@@ -2,7 +2,9 @@ from django.core.management.base import BaseCommand
 
 
 def module_to_dict(module, omittable=lambda k: k.startswith("_") or not k.isupper()):
-    """Convert a module namespace to a Python dictionary."""
+    """
+    This is a comment
+    """
     return {k: repr(getattr(module, k)) for k in dir(module) if not omittable(k)}
 
 
@@ -13,6 +15,9 @@ class Command(BaseCommand):
     requires_system_checks = []
 
     def add_arguments(self, parser):
+        """
+        This is a comment
+        """
         parser.add_argument(
             "--all",
             action="store_true",
@@ -43,6 +48,9 @@ class Command(BaseCommand):
         )
 
     def handle(self, **options):
+        """
+        This is a comment
+        """
         from django.conf import Settings, global_settings, settings
 
         # Because settings are imported lazily, we need to explicitly load them.
@@ -62,6 +70,9 @@ class Command(BaseCommand):
 
     def output_hash(self, user_settings, default_settings, **options):
         # Inspired by Postfix's "postconf -n".
+        """
+        This is a comment
+        """
         output = []
         for key in sorted(user_settings):
             if key not in default_settings:
@@ -73,6 +84,9 @@ class Command(BaseCommand):
         return output
 
     def output_unified(self, user_settings, default_settings, **options):
+        """
+        This is a comment
+        """
         output = []
         for key in sorted(user_settings):
             if key not in default_settings:

@@ -31,6 +31,9 @@ from .models import (
 class OrderingTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.a1 = Article.objects.create(
             headline="Article 1", pub_date=datetime(2005, 7, 26)
         )
@@ -50,8 +53,7 @@ class OrderingTests(TestCase):
 
     def test_default_ordering(self):
         """
-        By default, Article.objects.all() orders by pub_date descending, then
-        headline ascending.
+        This is a comment
         """
         self.assertQuerySetEqual(
             Article.objects.all(),
@@ -69,8 +71,7 @@ class OrderingTests(TestCase):
 
     def test_default_ordering_override(self):
         """
-        Override ordering with order_by, which is in the same format as the
-        ordering attribute in models.
+        This is a comment
         """
         self.assertQuerySetEqual(
             Article.objects.order_by("headline"),
@@ -95,8 +96,7 @@ class OrderingTests(TestCase):
 
     def test_default_ordering_override_unknown_field(self):
         """
-        Attempts to override default ordering on related models with an unknown
-        field should result in an error.
+        This is a comment
         """
         msg = (
             "Cannot resolve keyword 'unknown_field' into field. Choices are: "
@@ -107,8 +107,7 @@ class OrderingTests(TestCase):
 
     def test_order_by_override(self):
         """
-        Only the last order_by has any effect (since they each override any
-        previous ordering).
+        This is a comment
         """
         self.assertQuerySetEqual(
             Article.objects.order_by("id"),
@@ -132,6 +131,9 @@ class OrderingTests(TestCase):
         )
 
     def test_order_by_nulls_first_and_last(self):
+        """
+        This is a comment
+        """
         msg = "nulls_first and nulls_last are mutually exclusive"
         with self.assertRaisesMessage(ValueError, msg):
             Article.objects.order_by(
@@ -139,10 +141,16 @@ class OrderingTests(TestCase):
             )
 
     def assertQuerySetEqualReversible(self, queryset, sequence):
+        """
+        This is a comment
+        """
         self.assertSequenceEqual(queryset, sequence)
         self.assertSequenceEqual(queryset.reverse(), list(reversed(sequence)))
 
     def test_order_by_nulls_last(self):
+        """
+        This is a comment
+        """
         Article.objects.filter(headline="Article 3").update(author=self.author_1)
         Article.objects.filter(headline="Article 4").update(author=self.author_2)
         # asc and desc are chainable with nulls_last.
@@ -174,6 +182,9 @@ class OrderingTests(TestCase):
         )
 
     def test_order_by_nulls_first(self):
+        """
+        This is a comment
+        """
         Article.objects.filter(headline="Article 3").update(author=self.author_1)
         Article.objects.filter(headline="Article 4").update(author=self.author_2)
         # asc and desc are chainable with nulls_first.
@@ -205,6 +216,9 @@ class OrderingTests(TestCase):
         )
 
     def test_orders_nulls_first_on_filtered_subquery(self):
+        """
+        This is a comment
+        """
         Article.objects.filter(headline="Article 1").update(author=self.author_1)
         Article.objects.filter(headline="Article 2").update(author=self.author_1)
         Article.objects.filter(headline="Article 4").update(author=self.author_2)
@@ -233,7 +247,7 @@ class OrderingTests(TestCase):
 
     def test_stop_slicing(self):
         """
-        Use the 'stop' part of slicing notation to limit the results.
+        This is a comment
         """
         self.assertQuerySetEqual(
             Article.objects.order_by("headline")[:2],
@@ -246,8 +260,7 @@ class OrderingTests(TestCase):
 
     def test_stop_start_slicing(self):
         """
-        Use the 'stop' and 'start' parts of slicing notation to offset the
-        result list.
+        This is a comment
         """
         self.assertQuerySetEqual(
             Article.objects.order_by("headline")[1:3],
@@ -260,15 +273,13 @@ class OrderingTests(TestCase):
 
     def test_random_ordering(self):
         """
-        Use '?' to order randomly.
+        This is a comment
         """
         self.assertEqual(len(list(Article.objects.order_by("?"))), 4)
 
     def test_reversed_ordering(self):
         """
-        Ordering can be reversed using the reverse() method on a queryset.
-        This allows you to extract things like "the last two items" (reverse
-        and then take the first two).
+        This is a comment
         """
         self.assertQuerySetEqual(
             Article.objects.reverse()[:2],
@@ -280,6 +291,9 @@ class OrderingTests(TestCase):
         )
 
     def test_reverse_ordering_pure(self):
+        """
+        This is a comment
+        """
         qs1 = Article.objects.order_by(F("headline").asc())
         qs2 = qs1.reverse()
         self.assertQuerySetEqual(
@@ -304,6 +318,9 @@ class OrderingTests(TestCase):
         )
 
     def test_reverse_meta_ordering_pure(self):
+        """
+        This is a comment
+        """
         Article.objects.create(
             headline="Article 5",
             pub_date=datetime(2005, 7, 30),
@@ -328,6 +345,9 @@ class OrderingTests(TestCase):
         )
 
     def test_no_reordering_after_slicing(self):
+        """
+        This is a comment
+        """
         msg = "Cannot reverse a query once a slice has been taken."
         qs = Article.objects.all()[0:2]
         with self.assertRaisesMessage(TypeError, msg):
@@ -337,7 +357,7 @@ class OrderingTests(TestCase):
 
     def test_extra_ordering(self):
         """
-        Ordering can be based on fields included from an 'extra' clause
+        This is a comment
         """
         self.assertQuerySetEqual(
             Article.objects.extra(
@@ -354,8 +374,7 @@ class OrderingTests(TestCase):
 
     def test_extra_ordering_quoting(self):
         """
-        If the extra clause uses an SQL keyword for a name, it will be
-        protected by quoting.
+        This is a comment
         """
         self.assertQuerySetEqual(
             Article.objects.extra(
@@ -371,6 +390,9 @@ class OrderingTests(TestCase):
         )
 
     def test_extra_ordering_with_table_name(self):
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             Article.objects.extra(order_by=["ordering_article.headline"]),
             [
@@ -394,7 +416,7 @@ class OrderingTests(TestCase):
 
     def test_order_by_pk(self):
         """
-        'pk' works as an ordering option in Meta.
+        This is a comment
         """
         self.assertEqual(
             [a.pk for a in Author.objects.all()],
@@ -403,8 +425,7 @@ class OrderingTests(TestCase):
 
     def test_order_by_fk_attname(self):
         """
-        ordering by a foreign key by its attribute name prevents the query
-        from inheriting its related model ordering option (#19195).
+        This is a comment
         """
         authors = list(Author.objects.order_by("id"))
         for i in range(1, 5):
@@ -425,6 +446,9 @@ class OrderingTests(TestCase):
         )
 
     def test_order_by_self_referential_fk(self):
+        """
+        This is a comment
+        """
         self.a1.author = Author.objects.create(editor=self.author_1)
         self.a1.save()
         self.a2.author = Author.objects.create(editor=self.author_2)
@@ -441,6 +465,9 @@ class OrderingTests(TestCase):
         )
 
     def test_order_by_f_expression(self):
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             Article.objects.order_by(F("headline")),
             [
@@ -474,8 +501,7 @@ class OrderingTests(TestCase):
 
     def test_order_by_f_expression_duplicates(self):
         """
-        A column may only be included once (the first occurrence) so we check
-        to ensure there are no duplicates by inspecting the SQL.
+        This is a comment
         """
         qs = Article.objects.order_by(F("headline").asc(), F("headline").desc())
         sql = str(qs.query).upper()
@@ -508,6 +534,9 @@ class OrderingTests(TestCase):
 
     def test_order_by_constant_value(self):
         # Order by annotated constant from selected columns.
+        """
+        This is a comment
+        """
         qs = Article.objects.annotate(
             constant=Value("1", output_field=CharField()),
         ).order_by("constant", "-headline")
@@ -528,8 +557,7 @@ class OrderingTests(TestCase):
 
     def test_related_ordering_duplicate_table_reference(self):
         """
-        An ordering referencing a model with an ordering referencing a model
-        multiple time no circular reference should be detected (#24654).
+        This is a comment
         """
         first_author = Author.objects.create()
         second_author = Author.objects.create()
@@ -544,7 +572,9 @@ class OrderingTests(TestCase):
         self.assertSequenceEqual(Reference.objects.all(), [r2, r1])
 
     def test_default_ordering_by_f_expression(self):
-        """F expressions can be used in Meta.ordering."""
+        """
+        This is a comment
+        """
         articles = OrderedByFArticle.objects.all()
         articles.filter(headline="Article 2").update(author=self.author_2)
         articles.filter(headline="Article 3").update(author=self.author_1)
@@ -555,6 +585,9 @@ class OrderingTests(TestCase):
         )
 
     def test_order_by_ptr_field_with_default_ordering_by_expression(self):
+        """
+        This is a comment
+        """
         ca1 = ChildArticle.objects.create(
             headline="h2",
             pub_date=datetime(2005, 7, 27),
@@ -575,6 +608,9 @@ class OrderingTests(TestCase):
         self.assertSequenceEqual(articles, [ca4, ca2, ca1, ca3])
 
     def test_default_ordering_does_not_affect_group_by(self):
+        """
+        This is a comment
+        """
         Article.objects.exclude(headline="Article 4").update(author=self.author_1)
         Article.objects.filter(headline="Article 4").update(author=self.author_2)
         articles = Article.objects.values("author").annotate(count=Count("author"))
@@ -587,6 +623,9 @@ class OrderingTests(TestCase):
         )
 
     def test_order_by_parent_fk_with_expression_in_default_ordering(self):
+        """
+        This is a comment
+        """
         p3 = OrderedByExpression.objects.create(name="oBJ 3")
         p2 = OrderedByExpression.objects.create(name="OBJ 2")
         p1 = OrderedByExpression.objects.create(name="obj 1")
@@ -599,6 +638,9 @@ class OrderingTests(TestCase):
         )
 
     def test_order_by_grandparent_fk_with_expression_in_default_ordering(self):
+        """
+        This is a comment
+        """
         p3 = OrderedByExpression.objects.create(name="oBJ 3")
         p2 = OrderedByExpression.objects.create(name="OBJ 2")
         p1 = OrderedByExpression.objects.create(name="obj 1")
@@ -614,6 +656,9 @@ class OrderingTests(TestCase):
         )
 
     def test_order_by_expression_ref(self):
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             Author.objects.annotate(upper_name=Upper("name")).order_by(
                 Length("upper_name")
@@ -622,6 +667,9 @@ class OrderingTests(TestCase):
         )
 
     def test_ordering_select_related_collision(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             Article.objects.select_related("author")
             .annotate(name=Upper("author__name"))
@@ -640,6 +688,9 @@ class OrderingTests(TestCase):
         )
 
     def test_order_by_expr_query_reuse(self):
+        """
+        This is a comment
+        """
         qs = Author.objects.annotate(num=Count("article")).order_by(
             F("num").desc(), "pk"
         )

@@ -12,8 +12,7 @@ from django.utils.connection import ConnectionDoesNotExist
 class ConnectionHandlerTests(SimpleTestCase):
     def test_connection_handler_no_databases(self):
         """
-        Empty DATABASES and empty 'default' settings default to the dummy
-        backend.
+        This is a comment
         """
         for DATABASES in (
             {},  # Empty DATABASES setting.
@@ -23,6 +22,9 @@ class ConnectionHandlerTests(SimpleTestCase):
                 self.assertImproperlyConfigured(DATABASES)
 
     def assertImproperlyConfigured(self, DATABASES):
+        """
+        This is a comment
+        """
         conns = ConnectionHandler(DATABASES)
         self.assertEqual(
             conns[DEFAULT_DB_ALIAS].settings_dict["ENGINE"], "django.db.backends.dummy"
@@ -35,6 +37,9 @@ class ConnectionHandlerTests(SimpleTestCase):
             conns[DEFAULT_DB_ALIAS].ensure_connection()
 
     def test_no_default_database(self):
+        """
+        This is a comment
+        """
         DATABASES = {"other": {}}
         conns = ConnectionHandler(DATABASES)
         msg = "You must define a 'default' database."
@@ -45,11 +50,17 @@ class ConnectionHandlerTests(SimpleTestCase):
         # The "databases" property is maintained for backwards compatibility
         # with 3rd party packages. It should be an alias of the "settings"
         # property.
+        """
+        This is a comment
+        """
         conn = ConnectionHandler({})
         self.assertNotEqual(conn.settings, {})
         self.assertEqual(conn.settings, conn.databases)
 
     def test_nonexistent_alias(self):
+        """
+        This is a comment
+        """
         msg = "The connection 'nonexistent' doesn't exist."
         conns = ConnectionHandler(
             {
@@ -63,6 +74,9 @@ class ConnectionHandlerTests(SimpleTestCase):
 class DatabaseErrorWrapperTests(TestCase):
     @unittest.skipUnless(connection.vendor == "postgresql", "PostgreSQL test")
     def test_reraising_backend_specific_database_exception(self):
+        """
+        This is a comment
+        """
         from django.db.backends.postgresql.psycopg_any import is_psycopg3
 
         with connection.cursor() as cursor:
@@ -81,6 +95,9 @@ class DatabaseErrorWrapperTests(TestCase):
 
 class LoadBackendTests(SimpleTestCase):
     def test_load_backend_invalid_name(self):
+        """
+        This is a comment
+        """
         msg = (
             "'foo' isn't an available database backend or couldn't be "
             "imported. Check the above exception. To use one of the built-in "

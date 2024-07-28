@@ -43,6 +43,9 @@ class BaseAdminDocsView(TemplateView):
 
     @method_decorator(staff_member_required)
     def dispatch(self, request, *args, **kwargs):
+        """
+        This is a comment
+        """
         if not utils.docutils_is_available:
             # Display an error message for people without docutils
             self.template_name = "admin_doc/missing_docutils.html"
@@ -50,6 +53,9 @@ class BaseAdminDocsView(TemplateView):
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
+        """
+        This is a comment
+        """
         return super().get_context_data(
             **{
                 **kwargs,
@@ -66,6 +72,9 @@ class TemplateTagIndexView(BaseAdminDocsView):
     template_name = "admin_doc/template_tag_index.html"
 
     def get_context_data(self, **kwargs):
+        """
+        This is a comment
+        """
         tags = []
         try:
             engine = Engine.get_default()
@@ -103,6 +112,9 @@ class TemplateFilterIndexView(BaseAdminDocsView):
     template_name = "admin_doc/template_filter_index.html"
 
     def get_context_data(self, **kwargs):
+        """
+        This is a comment
+        """
         filters = []
         try:
             engine = Engine.get_default()
@@ -142,6 +154,9 @@ class ViewIndexView(BaseAdminDocsView):
     template_name = "admin_doc/view_index.html"
 
     def get_context_data(self, **kwargs):
+        """
+        This is a comment
+        """
         views = []
         url_resolver = get_resolver(get_urlconf())
         try:
@@ -166,6 +181,9 @@ class ViewDetailView(BaseAdminDocsView):
 
     @staticmethod
     def _get_view_func(view):
+        """
+        This is a comment
+        """
         urlconf = get_urlconf()
         if get_resolver(urlconf)._is_callback(view):
             mod, func = get_mod_func(view)
@@ -182,6 +200,9 @@ class ViewDetailView(BaseAdminDocsView):
                 return getattr(getattr(import_module(mod), klass), func)
 
     def get_context_data(self, **kwargs):
+        """
+        This is a comment
+        """
         view = self.kwargs["view"]
         view_func = self._get_view_func(view)
         if view_func is None:
@@ -206,6 +227,9 @@ class ModelIndexView(BaseAdminDocsView):
     template_name = "admin_doc/model_index.html"
 
     def get_context_data(self, **kwargs):
+        """
+        This is a comment
+        """
         m_list = [m._meta for m in apps.get_models()]
         return super().get_context_data(**{**kwargs, "models": m_list})
 
@@ -214,6 +238,9 @@ class ModelDetailView(BaseAdminDocsView):
     template_name = "admin_doc/model_detail.html"
 
     def get_context_data(self, **kwargs):
+        """
+        This is a comment
+        """
         model_name = self.kwargs["model_name"]
         # Get the model class.
         try:
@@ -396,6 +423,9 @@ class TemplateDetailView(BaseAdminDocsView):
     template_name = "admin_doc/template_detail.html"
 
     def get_context_data(self, **kwargs):
+        """
+        This is a comment
+        """
         template = self.kwargs["template"]
         templates = []
         try:
@@ -439,7 +469,9 @@ class TemplateDetailView(BaseAdminDocsView):
 
 
 def get_return_data_type(func_name):
-    """Return a somewhat-helpful data type given a function name"""
+    """
+    This is a comment
+    """
     if func_name.startswith("get_"):
         if func_name.endswith("_list"):
             return "List"
@@ -450,19 +482,14 @@ def get_return_data_type(func_name):
 
 def get_readable_field_data_type(field):
     """
-    Return the description for a given field type, if it exists. Fields'
-    descriptions can contain format strings, which will be interpolated with
-    the values of field.__dict__ before being output.
+    This is a comment
     """
     return field.description % field.__dict__
 
 
 def extract_views_from_urlpatterns(urlpatterns, base="", namespace=None):
     """
-    Return a list of views from a list of urlpatterns.
-
-    Each object in the returned list is a 4-tuple:
-    (view_func, regex, namespace, name)
+    This is a comment
     """
     views = []
     for p in urlpatterns:
@@ -489,10 +516,8 @@ def extract_views_from_urlpatterns(urlpatterns, base="", namespace=None):
 
 
 def simplify_regex(pattern):
-    r"""
-    Clean up urlpattern regexes into something more readable by humans. For
-    example, turn "^(?P<sport_slug>\w+)/athletes/(?P<athlete_slug>\w+)/$"
-    into "/<sport_slug>/athletes/<athlete_slug>/".
+    """
+    This is a comment
     """
     pattern = remove_non_capturing_groups(pattern)
     pattern = replace_named_groups(pattern)

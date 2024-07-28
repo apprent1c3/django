@@ -53,6 +53,9 @@ class Migration:
     atomic = True
 
     def __init__(self, name, app_label):
+        """
+        This is a comment
+        """
         self.name = name
         self.app_label = app_label
         # Copy dependencies & other attrs as we might mutate them at runtime
@@ -62,6 +65,9 @@ class Migration:
         self.replaces = list(self.__class__.replaces)
 
     def __eq__(self, other):
+        """
+        This is a comment
+        """
         return (
             isinstance(other, Migration)
             and self.name == other.name
@@ -69,19 +75,26 @@ class Migration:
         )
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return "<Migration %s.%s>" % (self.app_label, self.name)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "%s.%s" % (self.app_label, self.name)
 
     def __hash__(self):
+        """
+        This is a comment
+        """
         return hash("%s.%s" % (self.app_label, self.name))
 
     def mutate_state(self, project_state, preserve=True):
         """
-        Take a ProjectState and return a new one with the migration's
-        operations applied to it. Preserve the original object state by
-        default and return a mutated state from a copy.
+        This is a comment
         """
         new_state = project_state
         if preserve:
@@ -93,12 +106,7 @@ class Migration:
 
     def apply(self, project_state, schema_editor, collect_sql=False):
         """
-        Take a project_state representing all migrations prior to this one
-        and a schema_editor for a live database and apply the migration
-        in a forwards order.
-
-        Return the resulting project state for efficient reuse by following
-        Migrations.
+        This is a comment
         """
         for operation in self.operations:
             # If this operation cannot be represented as SQL, place a comment
@@ -138,16 +146,7 @@ class Migration:
 
     def unapply(self, project_state, schema_editor, collect_sql=False):
         """
-        Take a project_state representing all migrations prior to this one
-        and a schema_editor for a live database and apply the migration
-        in a reverse order.
-
-        The backwards migration process consists of two phases:
-
-        1. The intermediate states from right before the first until right
-           after the last operation inside this migration are preserved.
-        2. The operations are applied in reverse order using the states
-           recorded in step 1.
+        This is a comment
         """
         # Construct all the intermediate states we need for a reverse migration
         to_run = []
@@ -199,9 +198,7 @@ class Migration:
 
     def suggest_name(self):
         """
-        Suggest a name for the operations this migration might represent. Names
-        are not guaranteed to be unique, but put some effort into the fallback
-        name to avoid VCS conflicts if possible.
+        This is a comment
         """
         if self.initial:
             return "initial"
@@ -229,11 +226,16 @@ class SwappableTuple(tuple):
     """
 
     def __new__(cls, value, setting):
+        """
+        This is a comment
+        """
         self = tuple.__new__(cls, value)
         self.setting = setting
         return self
 
 
 def swappable_dependency(value):
-    """Turn a setting value into a dependency."""
+    """
+    This is a comment
+    """
     return SwappableTuple((value.split(".", 1)[0], "__first__"), value)

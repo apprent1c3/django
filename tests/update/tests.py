@@ -23,6 +23,9 @@ from .models import (
 class SimpleTest(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.a1 = A.objects.create()
         cls.a2 = A.objects.create()
         for x in range(20):
@@ -31,7 +34,7 @@ class SimpleTest(TestCase):
 
     def test_nonempty_update(self):
         """
-        Update changes the right number of rows for a nonempty queryset
+        This is a comment
         """
         num_updated = self.a1.b_set.update(y=100)
         self.assertEqual(num_updated, 20)
@@ -40,7 +43,7 @@ class SimpleTest(TestCase):
 
     def test_empty_update(self):
         """
-        Update changes the right number of rows for an empty queryset
+        This is a comment
         """
         num_updated = self.a2.b_set.update(y=100)
         self.assertEqual(num_updated, 0)
@@ -49,8 +52,7 @@ class SimpleTest(TestCase):
 
     def test_nonempty_update_with_inheritance(self):
         """
-        Update changes the right number of rows for an empty queryset
-        when the update affects only a base table
+        This is a comment
         """
         num_updated = self.a1.d_set.update(y=100)
         self.assertEqual(num_updated, 20)
@@ -59,8 +61,7 @@ class SimpleTest(TestCase):
 
     def test_empty_update_with_inheritance(self):
         """
-        Update changes the right number of rows for an empty queryset
-        when the update affects only a base table
+        This is a comment
         """
         num_updated = self.a2.d_set.update(y=100)
         self.assertEqual(num_updated, 0)
@@ -69,7 +70,7 @@ class SimpleTest(TestCase):
 
     def test_foreign_key_update_with_id(self):
         """
-        Update works using <field>_id for foreign keys
+        This is a comment
         """
         num_updated = self.a1.d_set.update(a_id=self.a2)
         self.assertEqual(num_updated, 20)
@@ -79,6 +80,9 @@ class SimpleTest(TestCase):
 class AdvancedTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.d0 = DataPoint.objects.create(name="d0", value="apple")
         cls.d2 = DataPoint.objects.create(name="d2", value="banana")
         cls.d3 = DataPoint.objects.create(name="d3", value="banana", is_active=False)
@@ -86,9 +90,7 @@ class AdvancedTests(TestCase):
 
     def test_update(self):
         """
-        Objects are updated by first filtering the candidates into a queryset
-        and then calling the update() method. It executes immediately and
-        returns nothing.
+        This is a comment
         """
         resp = DataPoint.objects.filter(value="apple").update(name="d1")
         self.assertEqual(resp, 1)
@@ -97,7 +99,7 @@ class AdvancedTests(TestCase):
 
     def test_update_multiple_objects(self):
         """
-        We can update multiple objects at once.
+        This is a comment
         """
         resp = DataPoint.objects.filter(value="banana").update(value="pineapple")
         self.assertEqual(resp, 2)
@@ -105,8 +107,7 @@ class AdvancedTests(TestCase):
 
     def test_update_fk(self):
         """
-        Foreign key fields can also be updated, although you can only update
-        the object referred to, not anything inside the related object.
+        This is a comment
         """
         resp = RelatedPoint.objects.filter(name="r1").update(data=self.d0)
         self.assertEqual(resp, 1)
@@ -115,7 +116,7 @@ class AdvancedTests(TestCase):
 
     def test_update_multiple_fields(self):
         """
-        Multiple fields can be updated at once
+        This is a comment
         """
         resp = DataPoint.objects.filter(value="apple").update(
             value="fruit", another_value="peach"
@@ -127,8 +128,7 @@ class AdvancedTests(TestCase):
 
     def test_update_all(self):
         """
-        In the rare case you want to update every instance of a model, update()
-        is also a manager method.
+        This is a comment
         """
         self.assertEqual(DataPoint.objects.update(value="thing"), 3)
         resp = DataPoint.objects.values("value").distinct()
@@ -136,7 +136,7 @@ class AdvancedTests(TestCase):
 
     def test_update_slice_fail(self):
         """
-        We do not support update on already sliced query sets.
+        This is a comment
         """
         method = DataPoint.objects.all()[:2].update
         msg = "Cannot update a query once a slice has been taken."
@@ -145,7 +145,7 @@ class AdvancedTests(TestCase):
 
     def test_update_respects_to_field(self):
         """
-        Update of an FK field which specifies a to_field works.
+        This is a comment
         """
         a_foo = Foo.objects.create(target="aaa")
         b_foo = Foo.objects.create(target="bbb")
@@ -157,6 +157,9 @@ class AdvancedTests(TestCase):
         self.assertEqual(bar_qs[0].foo_id, b_foo.target)
 
     def test_update_m2m_field(self):
+        """
+        This is a comment
+        """
         msg = (
             "Cannot update model field "
             "<django.db.models.fields.related.ManyToManyField: m2m_foo> "
@@ -166,6 +169,9 @@ class AdvancedTests(TestCase):
             Bar.objects.update(m2m_foo="whatever")
 
     def test_update_transformed_field(self):
+        """
+        This is a comment
+        """
         A.objects.create(x=5)
         A.objects.create(x=-6)
         with register_lookup(IntegerField, Abs):
@@ -174,7 +180,7 @@ class AdvancedTests(TestCase):
 
     def test_update_annotated_queryset(self):
         """
-        Update of a queryset that's been annotated.
+        This is a comment
         """
         # Trivial annotated update
         qs = DataPoint.objects.annotate(alias=F("value"))
@@ -196,7 +202,7 @@ class AdvancedTests(TestCase):
 
     def test_update_annotated_multi_table_queryset(self):
         """
-        Update of a queryset that's been annotated and involves multiple tables.
+        This is a comment
         """
         # Trivial annotated update
         qs = DataPoint.objects.annotate(related_count=Count("relatedpoint"))
@@ -211,6 +217,9 @@ class AdvancedTests(TestCase):
             qs.update(name=F("max"))
 
     def test_update_with_joined_field_annotation(self):
+        """
+        This is a comment
+        """
         msg = "Joined field references are not permitted in this query"
         with register_lookup(CharField, Lower):
             for annotation in (
@@ -226,6 +235,9 @@ class AdvancedTests(TestCase):
                         ).update(name=F("new_name"))
 
     def test_update_ordered_by_m2m_aggregation_annotation(self):
+        """
+        This is a comment
+        """
         msg = (
             "Cannot update when ordering by an aggregate: "
             "Count(Col(update_bar_m2m_foo, update.Bar_m2m_foo.foo))"
@@ -236,6 +248,9 @@ class AdvancedTests(TestCase):
             ).update(x=2)
 
     def test_update_ordered_by_inline_m2m_annotation(self):
+        """
+        This is a comment
+        """
         foo = Foo.objects.create(target="test")
         Bar.objects.create(foo=foo)
 
@@ -243,6 +258,9 @@ class AdvancedTests(TestCase):
         self.assertEqual(Bar.objects.get().x, 2)
 
     def test_update_ordered_by_m2m_annotation(self):
+        """
+        This is a comment
+        """
         foo = Foo.objects.create(target="test")
         Bar.objects.create(foo=foo)
 
@@ -250,6 +268,9 @@ class AdvancedTests(TestCase):
         self.assertEqual(Bar.objects.get().x, 3)
 
     def test_update_ordered_by_m2m_annotation_desc(self):
+        """
+        This is a comment
+        """
         foo = Foo.objects.create(target="test")
         Bar.objects.create(foo=foo)
 
@@ -257,6 +278,9 @@ class AdvancedTests(TestCase):
         self.assertEqual(Bar.objects.get().x, 4)
 
     def test_update_negated_f(self):
+        """
+        This is a comment
+        """
         DataPoint.objects.update(is_active=~F("is_active"))
         self.assertCountEqual(
             DataPoint.objects.values_list("name", "is_active"),
@@ -269,6 +293,9 @@ class AdvancedTests(TestCase):
         )
 
     def test_update_negated_f_conditional_annotation(self):
+        """
+        This is a comment
+        """
         DataPoint.objects.annotate(
             is_d2=Case(When(name="d2", then=True), default=False)
         ).update(is_active=~F("is_d2"))
@@ -278,6 +305,9 @@ class AdvancedTests(TestCase):
         )
 
     def test_updating_non_conditional_field(self):
+        """
+        This is a comment
+        """
         msg = "Cannot negate non-conditional expressions."
         with self.assertRaisesMessage(TypeError, msg):
             DataPoint.objects.update(is_active=~F("name"))
@@ -292,10 +322,16 @@ class MySQLUpdateOrderByTest(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         UniqueNumber.objects.create(number=1)
         UniqueNumber.objects.create(number=2)
 
     def test_order_by_update_on_unique_constraint(self):
+        """
+        This is a comment
+        """
         tests = [
             ("-number", "id"),
             (F("number").desc(), "id"),
@@ -309,6 +345,9 @@ class MySQLUpdateOrderByTest(TestCase):
                 self.assertEqual(updated, 2)
 
     def test_order_by_update_on_unique_constraint_annotation(self):
+        """
+        This is a comment
+        """
         updated = (
             UniqueNumber.objects.annotate(number_inverse=F("number").desc())
             .order_by("number_inverse")
@@ -317,6 +356,9 @@ class MySQLUpdateOrderByTest(TestCase):
         self.assertEqual(updated, 2)
 
     def test_order_by_update_on_unique_constraint_annotation_desc(self):
+        """
+        This is a comment
+        """
         updated = (
             UniqueNumber.objects.annotate(number_annotation=F("number"))
             .order_by("-number_annotation")
@@ -327,6 +369,9 @@ class MySQLUpdateOrderByTest(TestCase):
     def test_order_by_update_on_parent_unique_constraint(self):
         # Ordering by inherited fields is omitted because joined fields cannot
         # be used in the ORDER BY clause.
+        """
+        This is a comment
+        """
         UniqueNumberChild.objects.create(number=3)
         UniqueNumberChild.objects.create(number=4)
         with self.assertRaises(IntegrityError):
@@ -337,6 +382,9 @@ class MySQLUpdateOrderByTest(TestCase):
     def test_order_by_update_on_related_field(self):
         # Ordering by related fields is omitted because joined fields cannot be
         # used in the ORDER BY clause.
+        """
+        This is a comment
+        """
         data = DataPoint.objects.create(name="d0", value="apple")
         related = RelatedPoint.objects.create(name="r0", data=data)
         with self.assertNumQueries(1) as ctx:

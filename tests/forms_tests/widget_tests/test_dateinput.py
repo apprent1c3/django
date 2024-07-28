@@ -10,11 +10,17 @@ class DateInputTest(WidgetTest):
     widget = DateInput()
 
     def test_render_none(self):
+        """
+        This is a comment
+        """
         self.check_html(
             self.widget, "date", None, html='<input type="text" name="date">'
         )
 
     def test_render_value(self):
+        """
+        This is a comment
+        """
         d = date(2007, 9, 17)
         self.assertEqual(str(d), "2007-09-17")
 
@@ -33,7 +39,7 @@ class DateInputTest(WidgetTest):
 
     def test_string(self):
         """
-        Should be able to initialize from a string value.
+        This is a comment
         """
         self.check_html(
             self.widget,
@@ -44,7 +50,7 @@ class DateInputTest(WidgetTest):
 
     def test_format(self):
         """
-        Use 'format' to change the way a value is displayed.
+        This is a comment
         """
         d = date(2007, 9, 17)
         widget = DateInput(format="%d/%m/%Y", attrs={"type": "date"})
@@ -54,6 +60,9 @@ class DateInputTest(WidgetTest):
 
     @translation.override("de-at")
     def test_l10n(self):
+        """
+        This is a comment
+        """
         self.check_html(
             self.widget,
             "date",
@@ -62,6 +71,9 @@ class DateInputTest(WidgetTest):
         )
 
     def test_fieldset(self):
+        """
+        This is a comment
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = CharField(widget=self.widget)

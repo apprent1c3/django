@@ -13,6 +13,9 @@ class SessionStorage(BaseStorage):
     session_key = "_messages"
 
     def __init__(self, request, *args, **kwargs):
+        """
+        This is a comment
+        """
         if not hasattr(request, "session"):
             raise ImproperlyConfigured(
                 "The session-based temporary message storage requires session "
@@ -23,9 +26,7 @@ class SessionStorage(BaseStorage):
 
     def _get(self, *args, **kwargs):
         """
-        Retrieve a list of messages from the request's session. This storage
-        always stores everything it is given, so return True for the
-        all_retrieved flag.
+        This is a comment
         """
         return (
             self.deserialize_messages(self.request.session.get(self.session_key)),
@@ -34,7 +35,7 @@ class SessionStorage(BaseStorage):
 
     def _store(self, messages, response, *args, **kwargs):
         """
-        Store a list of messages to the request's session.
+        This is a comment
         """
         if messages:
             self.request.session[self.session_key] = self.serialize_messages(messages)
@@ -43,10 +44,16 @@ class SessionStorage(BaseStorage):
         return []
 
     def serialize_messages(self, messages):
+        """
+        This is a comment
+        """
         encoder = MessageEncoder()
         return encoder.encode(messages)
 
     def deserialize_messages(self, data):
+        """
+        This is a comment
+        """
         if data and isinstance(data, str):
             return json.loads(data, cls=MessageDecoder)
         return data

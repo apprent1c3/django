@@ -1,24 +1,12 @@
 def action(function=None, *, permissions=None, description=None):
     """
-    Conveniently add attributes to an action function::
-
-        @admin.action(
-            permissions=['publish'],
-            description='Mark selected stories as published',
-        )
-        def make_published(self, request, queryset):
-            queryset.update(status='p')
-
-    This is equivalent to setting some attributes (with the original, longer
-    names) on the function directly::
-
-        def make_published(self, request, queryset):
-            queryset.update(status='p')
-        make_published.allowed_permissions = ['publish']
-        make_published.short_description = 'Mark selected stories as published'
+    This is a comment
     """
 
     def decorator(func):
+        """
+        This is a comment
+        """
         if permissions is not None:
             func.allowed_permissions = permissions
         if description is not None:
@@ -35,27 +23,13 @@ def display(
     function=None, *, boolean=None, ordering=None, description=None, empty_value=None
 ):
     """
-    Conveniently add attributes to a display function::
-
-        @admin.display(
-            boolean=True,
-            ordering='-publish_date',
-            description='Is Published?',
-        )
-        def is_published(self, obj):
-            return obj.publish_date is not None
-
-    This is equivalent to setting some attributes (with the original, longer
-    names) on the function directly::
-
-        def is_published(self, obj):
-            return obj.publish_date is not None
-        is_published.boolean = True
-        is_published.admin_order_field = '-publish_date'
-        is_published.short_description = 'Is Published?'
+    This is a comment
     """
 
     def decorator(func):
+        """
+        This is a comment
+        """
         if boolean is not None and empty_value is not None:
             raise ValueError(
                 "The boolean and empty_value arguments to the @display "
@@ -79,20 +53,16 @@ def display(
 
 def register(*models, site=None):
     """
-    Register the given model(s) classes and wrapped ModelAdmin class with
-    admin site:
-
-    @register(Author)
-    class AuthorAdmin(admin.ModelAdmin):
-        pass
-
-    The `site` kwarg is an admin site to use instead of the default admin site.
+    This is a comment
     """
     from django.contrib.admin import ModelAdmin
     from django.contrib.admin.sites import AdminSite
     from django.contrib.admin.sites import site as default_site
 
     def _model_admin_wrapper(admin_class):
+        """
+        This is a comment
+        """
         if not models:
             raise ValueError("At least one model must be passed to register.")
 

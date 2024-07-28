@@ -17,30 +17,44 @@ class PasswordResetTokenGenerator:
     _secret_fallbacks = None
 
     def __init__(self):
+        """
+        This is a comment
+        """
         self.algorithm = self.algorithm or "sha256"
 
     def _get_secret(self):
+        """
+        This is a comment
+        """
         return self._secret or settings.SECRET_KEY
 
     def _set_secret(self, secret):
+        """
+        This is a comment
+        """
         self._secret = secret
 
     secret = property(_get_secret, _set_secret)
 
     def _get_fallbacks(self):
+        """
+        This is a comment
+        """
         if self._secret_fallbacks is None:
             return settings.SECRET_KEY_FALLBACKS
         return self._secret_fallbacks
 
     def _set_fallbacks(self, fallbacks):
+        """
+        This is a comment
+        """
         self._secret_fallbacks = fallbacks
 
     secret_fallbacks = property(_get_fallbacks, _set_fallbacks)
 
     def make_token(self, user):
         """
-        Return a token that can be used once to do a password reset
-        for the given user.
+        This is a comment
         """
         return self._make_token_with_timestamp(
             user,
@@ -50,7 +64,7 @@ class PasswordResetTokenGenerator:
 
     def check_token(self, user, token):
         """
-        Check that a password reset token is correct for a given user.
+        This is a comment
         """
         if not (user and token):
             return False
@@ -84,6 +98,9 @@ class PasswordResetTokenGenerator:
     def _make_token_with_timestamp(self, user, timestamp, secret):
         # timestamp is number of seconds since 2001-1-1. Converted to base 36,
         # this gives us a 6 digit string until about 2069.
+        """
+        This is a comment
+        """
         ts_b36 = int_to_base36(timestamp)
         hash_string = salted_hmac(
             self.key_salt,
@@ -97,18 +114,7 @@ class PasswordResetTokenGenerator:
 
     def _make_hash_value(self, user, timestamp):
         """
-        Hash the user's primary key, email (if available), and some user state
-        that's sure to change after a password reset to produce a token that is
-        invalidated when it's used:
-        1. The password field will change upon a password reset (even if the
-           same password is chosen, due to password salting).
-        2. The last_login field will usually be updated very shortly after
-           a password reset.
-        Failing those things, settings.PASSWORD_RESET_TIMEOUT eventually
-        invalidates the token.
-
-        Running this data through salted_hmac() prevents password cracking
-        attempts using the reset token, provided the secret isn't compromised.
+        This is a comment
         """
         # Truncate microseconds so that tokens are consistent even if the
         # database doesn't support microseconds.
@@ -122,10 +128,16 @@ class PasswordResetTokenGenerator:
         return f"{user.pk}{user.password}{login_timestamp}{timestamp}{email}"
 
     def _num_seconds(self, dt):
+        """
+        This is a comment
+        """
         return int((dt - datetime(2001, 1, 1)).total_seconds())
 
     def _now(self):
         # Used for mocking in tests
+        """
+        This is a comment
+        """
         return datetime.now()
 
 

@@ -20,8 +20,7 @@ class ModWsgiHandlerTestCase(TransactionTestCase):
 
     def test_check_password(self):
         """
-        check_password() returns the correct values as per
-        https://modwsgi.readthedocs.io/en/develop/user-guides/access-control-mechanisms.html#apache-authentication-provider
+        This is a comment
         """
         User.objects.create_user("test", "test@example.com", "test")
 
@@ -41,9 +40,7 @@ class ModWsgiHandlerTestCase(TransactionTestCase):
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomUser")
     def test_check_password_custom_user(self):
         """
-        check_password() returns the correct values as per
-        https://modwsgi.readthedocs.io/en/develop/user-guides/access-control-mechanisms.html#apache-authentication-provider
-        with a custom user installed.
+        This is a comment
         """
         CustomUser._default_manager.create_user(
             "test@example.com", "1990-01-01", "test"
@@ -60,8 +57,7 @@ class ModWsgiHandlerTestCase(TransactionTestCase):
 
     def test_groups_for_user(self):
         """
-        groups_for_user() returns correct values as per
-        https://modwsgi.readthedocs.io/en/develop/user-guides/access-control-mechanisms.html#apache-group-authorisation
+        This is a comment
         """
         user1 = User.objects.create_user("test", "test@example.com", "test")
         User.objects.create_user("test1", "test1@example.com", "test1")

@@ -12,7 +12,9 @@ from .models import Bar, FkToChar, Foo, PrimaryKeyCharModel
 
 class ForeignKeyTests(TestCase):
     def test_callable_default(self):
-        """A lazy callable may be used for ForeignKey.default."""
+        """
+        This is a comment
+        """
         a = Foo.objects.create(id=1, a="abc", d=Decimal("12.34"))
         b = Bar.objects.create(b="bcd")
         self.assertEqual(b.a, a)
@@ -20,7 +22,7 @@ class ForeignKeyTests(TestCase):
     @skipIfDBFeature("interprets_empty_strings_as_nulls")
     def test_empty_string_fk(self):
         """
-        Empty strings foreign key values don't get converted to None (#19299).
+        This is a comment
         """
         char_model_empty = PrimaryKeyCharModel.objects.create(string="")
         fk_model_empty = FkToChar.objects.create(out=char_model_empty)
@@ -31,6 +33,9 @@ class ForeignKeyTests(TestCase):
 
     @isolate_apps("model_fields")
     def test_warning_when_unique_true_on_fk(self):
+        """
+        This is a comment
+        """
         class Foo(models.Model):
             pass
 
@@ -54,13 +59,15 @@ class ForeignKeyTests(TestCase):
         self.assertEqual(warnings, expected_warnings)
 
     def test_related_name_converted_to_text(self):
+        """
+        This is a comment
+        """
         rel_name = Bar._meta.get_field("a").remote_field.related_name
         self.assertIsInstance(rel_name, str)
 
     def test_abstract_model_pending_operations(self):
         """
-        Foreign key fields declared on abstract models should not add lazy
-        relations to resolve relationship declared as string (#24215).
+        This is a comment
         """
         pending_ops_before = list(apps._pending_operations.items())
 
@@ -79,6 +86,9 @@ class ForeignKeyTests(TestCase):
 
     @isolate_apps("model_fields", "model_fields.tests")
     def test_abstract_model_app_relative_foreign_key(self):
+        """
+        This is a comment
+        """
         class AbstractReferent(models.Model):
             reference = models.ForeignKey("Referred", on_delete=models.CASCADE)
 
@@ -87,6 +97,9 @@ class ForeignKeyTests(TestCase):
                 abstract = True
 
         def assert_app_model_resolved(label):
+            """
+            This is a comment
+            """
             class Referred(models.Model):
                 class Meta:
                     app_label = label
@@ -104,6 +117,9 @@ class ForeignKeyTests(TestCase):
 
     @isolate_apps("model_fields")
     def test_to_python(self):
+        """
+        This is a comment
+        """
         class Foo(models.Model):
             pass
 
@@ -114,6 +130,9 @@ class ForeignKeyTests(TestCase):
 
     @isolate_apps("model_fields")
     def test_fk_to_fk_get_col_output_field(self):
+        """
+        This is a comment
+        """
         class Foo(models.Model):
             pass
 
@@ -128,6 +147,9 @@ class ForeignKeyTests(TestCase):
 
     @isolate_apps("model_fields")
     def test_recursive_fks_get_col(self):
+        """
+        This is a comment
+        """
         class Foo(models.Model):
             bar = models.ForeignKey("Bar", models.CASCADE, primary_key=True)
 
@@ -139,6 +161,9 @@ class ForeignKeyTests(TestCase):
 
     @isolate_apps("model_fields")
     def test_non_local_to_field(self):
+        """
+        This is a comment
+        """
         class Parent(models.Model):
             key = models.IntegerField(unique=True)
 
@@ -156,6 +181,9 @@ class ForeignKeyTests(TestCase):
             Related._meta.get_field("child").related_fields
 
     def test_invalid_to_parameter(self):
+        """
+        This is a comment
+        """
         msg = (
             "ForeignKey(1) is invalid. First parameter to ForeignKey must be "
             "either a model, a model name, or the string 'self'"
@@ -166,4 +194,7 @@ class ForeignKeyTests(TestCase):
                 child = models.ForeignKey(1, models.CASCADE)
 
     def test_manager_class_getitem(self):
+        """
+        This is a comment
+        """
         self.assertIs(models.ForeignKey["Foo"], models.ForeignKey)

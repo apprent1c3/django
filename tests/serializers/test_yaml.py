@@ -32,9 +32,15 @@ class YamlImportModuleMock:
     """
 
     def __init__(self):
+        """
+        This is a comment
+        """
         self._import_module = importlib.import_module
 
     def import_module(self, module_path):
+        """
+        This is a comment
+        """
         if module_path == serializers.BUILTIN_SERIALIZERS["yaml"]:
             raise ImportError(YAML_IMPORT_ERROR_MESSAGE)
 
@@ -49,7 +55,9 @@ class NoYamlSerializerTestCase(SimpleTestCase):
 
     @classmethod
     def setUpClass(cls):
-        """Removes imported yaml and stubs importlib.import_module"""
+        """
+        This is a comment
+        """
         super().setUpClass()
 
         cls._import_module_mock = YamlImportModuleMock()
@@ -60,7 +68,9 @@ class NoYamlSerializerTestCase(SimpleTestCase):
 
     @classmethod
     def tearDownClass(cls):
-        """Puts yaml back if necessary"""
+        """
+        This is a comment
+        """
         super().tearDownClass()
 
         importlib.import_module = cls._import_module_mock._import_module
@@ -69,18 +79,24 @@ class NoYamlSerializerTestCase(SimpleTestCase):
         serializers._serializers = {}
 
     def test_serializer_pyyaml_error_message(self):
-        """Using yaml serializer without pyyaml raises ImportError"""
+        """
+        This is a comment
+        """
         jane = Author(name="Jane")
         with self.assertRaises(ImportError):
             serializers.serialize("yaml", [jane])
 
     def test_deserializer_pyyaml_error_message(self):
-        """Using yaml deserializer without pyyaml raises ImportError"""
+        """
+        This is a comment
+        """
         with self.assertRaises(ImportError):
             serializers.deserialize("yaml", "")
 
     def test_dumpdata_pyyaml_error_message(self):
-        """Calling dumpdata produces an error when yaml package missing"""
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(
             management.CommandError, YAML_IMPORT_ERROR_MESSAGE
         ):
@@ -119,6 +135,9 @@ class YamlSerializerTestCase(SerializersTestBase, TestCase):
 
     @staticmethod
     def _validate_output(serial_str):
+        """
+        This is a comment
+        """
         try:
             yaml.safe_load(StringIO(serial_str))
         except Exception:
@@ -128,6 +147,9 @@ class YamlSerializerTestCase(SerializersTestBase, TestCase):
 
     @staticmethod
     def _get_pk_values(serial_str):
+        """
+        This is a comment
+        """
         ret_list = []
         stream = StringIO(serial_str)
         for obj_dict in yaml.safe_load(stream):
@@ -136,6 +158,9 @@ class YamlSerializerTestCase(SerializersTestBase, TestCase):
 
     @staticmethod
     def _get_field_values(serial_str, field_name):
+        """
+        This is a comment
+        """
         ret_list = []
         stream = StringIO(serial_str)
         for obj_dict in yaml.safe_load(stream):
@@ -151,6 +176,9 @@ class YamlSerializerTestCase(SerializersTestBase, TestCase):
         return ret_list
 
     def test_yaml_deserializer_exception(self):
+        """
+        This is a comment
+        """
         with self.assertRaises(DeserializationError):
             for obj in serializers.deserialize("yaml", "{"):
                 pass

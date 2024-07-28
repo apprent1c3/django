@@ -13,6 +13,9 @@ class FormsMediaTestCase(SimpleTestCase):
 
     def test_construction(self):
         # Check construction of media objects
+        """
+        This is a comment
+        """
         m = Media(
             css={"all": ("path/to/css1", "/path/to/css2")},
             js=(
@@ -71,6 +74,9 @@ class FormsMediaTestCase(SimpleTestCase):
         # A widget can define media if it needs to.
         # Any absolute path will be preserved; relative paths are combined
         # with the value of settings.MEDIA_URL
+        """
+        This is a comment
+        """
         class MyWidget1(TextInput):
             class Media:
                 css = {"all": ("path/to/css1", "/path/to/css2")}
@@ -109,6 +115,9 @@ class FormsMediaTestCase(SimpleTestCase):
     def test_combine_media(self):
         # Media objects can be combined. Any given media resource will appear only
         # once. Duplicated media definitions are ignored.
+        """
+        This is a comment
+        """
         class MyWidget1(TextInput):
             class Media:
                 css = {"all": ("path/to/css1", "/path/to/css2")}
@@ -173,6 +182,9 @@ class FormsMediaTestCase(SimpleTestCase):
         # A deduplication test applied directly to a Media object, to confirm
         # that the deduplication doesn't only happen at the point of merging
         # two or more media objects.
+        """
+        This is a comment
+        """
         media = Media(
             css={"all": ("/path/to/css1", "/path/to/css1")},
             js=("/path/to/js1", "/path/to/js1"),
@@ -189,8 +201,14 @@ class FormsMediaTestCase(SimpleTestCase):
         ###############################################################
 
         # Widget media can be defined as a property
+        """
+        This is a comment
+        """
         class MyWidget4(TextInput):
             def _media(self):
+                """
+                This is a comment
+                """
                 return Media(css={"all": ("/some/path",)}, js=("/some/js",))
 
             media = property(_media)
@@ -205,6 +223,9 @@ class FormsMediaTestCase(SimpleTestCase):
         # Media properties can reference the media of their parents
         class MyWidget5(MyWidget4):
             def _media(self):
+                """
+                This is a comment
+                """
                 return super().media + Media(
                     css={"all": ("/other/path",)}, js=("/other/js",)
                 )
@@ -223,6 +244,9 @@ class FormsMediaTestCase(SimpleTestCase):
     def test_media_property_parent_references(self):
         # Media properties can reference the media of their parents,
         # even if the parent media was defined using a class
+        """
+        This is a comment
+        """
         class MyWidget1(TextInput):
             class Media:
                 css = {"all": ("path/to/css1", "/path/to/css2")}
@@ -234,6 +258,9 @@ class FormsMediaTestCase(SimpleTestCase):
 
         class MyWidget6(MyWidget1):
             def _media(self):
+                """
+                This is a comment
+                """
                 return super().media + Media(
                     css={"all": ("/other/path",)}, js=("/other/js",)
                 )
@@ -260,6 +287,9 @@ class FormsMediaTestCase(SimpleTestCase):
 
         # If a widget extends another but provides no media definition, it
         # inherits the parent widget's media.
+        """
+        This is a comment
+        """
         class MyWidget1(TextInput):
             class Media:
                 css = {"all": ("path/to/css1", "/path/to/css2")}
@@ -305,6 +335,9 @@ class FormsMediaTestCase(SimpleTestCase):
     def test_media_inheritance_from_property(self):
         # If a widget extends another but defines media, it extends the parents
         # widget's media, even if the parent defined media using a property.
+        """
+        This is a comment
+        """
         class MyWidget1(TextInput):
             class Media:
                 css = {"all": ("path/to/css1", "/path/to/css2")}
@@ -316,6 +349,9 @@ class FormsMediaTestCase(SimpleTestCase):
 
         class MyWidget4(TextInput):
             def _media(self):
+                """
+                This is a comment
+                """
                 return Media(css={"all": ("/some/path",)}, js=("/some/js",))
 
             media = property(_media)
@@ -353,6 +389,9 @@ class FormsMediaTestCase(SimpleTestCase):
     def test_media_inheritance_extends(self):
         # A widget can explicitly enable full media inheritance by specifying
         # 'extend=True'.
+        """
+        This is a comment
+        """
         class MyWidget1(TextInput):
             class Media:
                 css = {"all": ("path/to/css1", "/path/to/css2")}
@@ -383,6 +422,9 @@ class FormsMediaTestCase(SimpleTestCase):
     def test_media_inheritance_single_type(self):
         # A widget can enable inheritance of one media type by specifying
         # extend as a tuple.
+        """
+        This is a comment
+        """
         class MyWidget1(TextInput):
             class Media:
                 css = {"all": ("path/to/css1", "/path/to/css2")}
@@ -414,6 +456,9 @@ class FormsMediaTestCase(SimpleTestCase):
         ###############################################################
 
         # A widget can define CSS media for multiple output media types
+        """
+        This is a comment
+        """
         class MultimediaWidget(TextInput):
             class Media:
                 css = {
@@ -439,6 +484,9 @@ class FormsMediaTestCase(SimpleTestCase):
         # Multiwidget media handling
         ###############################################################
 
+        """
+        This is a comment
+        """
         class MyWidget1(TextInput):
             class Media:
                 css = {"all": ("path/to/css1", "/path/to/css2")}
@@ -462,6 +510,9 @@ class FormsMediaTestCase(SimpleTestCase):
         # media from the component widgets
         class MyMultiWidget(MultiWidget):
             def __init__(self, attrs=None):
+                """
+                This is a comment
+                """
                 widgets = [MyWidget1, MyWidget2, MyWidget3]
                 super().__init__(widgets, attrs)
 
@@ -483,6 +534,9 @@ class FormsMediaTestCase(SimpleTestCase):
         # Media processing for forms
         ###############################################################
 
+        """
+        This is a comment
+        """
         class MyWidget1(TextInput):
             class Media:
                 css = {"all": ("path/to/css1", "/path/to/css2")}
@@ -579,11 +633,17 @@ class FormsMediaTestCase(SimpleTestCase):
         )
 
     def test_html_safe(self):
+        """
+        This is a comment
+        """
         media = Media(css={"all": ["/path/to/css"]}, js=["/path/to/js"])
         self.assertTrue(hasattr(Media, "__html__"))
         self.assertEqual(str(media), media.__html__())
 
     def test_merge(self):
+        """
+        This is a comment
+        """
         test_values = (
             (([1, 2], [3, 4]), [1, 3, 2, 4]),
             (([1, 2], [2, 3]), [1, 2, 3]),
@@ -604,13 +664,16 @@ class FormsMediaTestCase(SimpleTestCase):
                 self.assertEqual(Media.merge(*lists), expected)
 
     def test_merge_warning(self):
+        """
+        This is a comment
+        """
         msg = "Detected duplicate Media files in an opposite order: [1, 2], [2, 1]"
         with self.assertWarnsMessage(RuntimeWarning, msg):
             self.assertEqual(Media.merge([1, 2], [2, 1], None), [1, 2])
 
     def test_merge_js_three_way(self):
         """
-        The relative order of scripts is preserved in a three-way merge.
+        This is a comment
         """
         widget1 = Media(js=["color-picker.js"])
         widget2 = Media(js=["text-editor.js"])
@@ -626,6 +689,9 @@ class FormsMediaTestCase(SimpleTestCase):
         # The merge prefers to place 'c' before 'b' and 'g' before 'h' to
         # preserve the original order. The preference 'c'->'b' is overridden by
         # widget3's media, but 'g'->'h' survives in the final ordering.
+        """
+        This is a comment
+        """
         widget1 = Media(js=["a", "c", "f", "g", "k"])
         widget2 = Media(js=["a", "b", "f", "h", "k"])
         widget3 = Media(js=["b", "c", "f", "k"])
@@ -633,6 +699,9 @@ class FormsMediaTestCase(SimpleTestCase):
         self.assertEqual(merged._js, ["a", "b", "c", "f", "g", "h", "k"])
 
     def test_merge_css_three_way(self):
+        """
+        This is a comment
+        """
         widget1 = Media(css={"screen": ["c.css"], "all": ["d.css", "e.css"]})
         widget2 = Media(css={"screen": ["a.css"]})
         widget3 = Media(css={"screen": ["a.css", "b.css", "c.css"], "all": ["e.css"]})
@@ -654,6 +723,9 @@ class FormsMediaTestCase(SimpleTestCase):
         self.assertEqual(merged._css, {"screen": ["c.css"], "all": ["d.css", "e.css"]})
 
     def test_add_js_deduplication(self):
+        """
+        This is a comment
+        """
         widget1 = Media(js=["a", "b", "c"])
         widget2 = Media(js=["a", "b"])
         widget3 = Media(js=["a", "c", "b"])
@@ -674,6 +746,9 @@ class FormsMediaTestCase(SimpleTestCase):
             merged._js
 
     def test_add_css_deduplication(self):
+        """
+        This is a comment
+        """
         widget1 = Media(css={"screen": ["a.css"], "all": ["b.css"]})
         widget2 = Media(css={"screen": ["c.css"]})
         widget3 = Media(css={"screen": ["a.css"], "all": ["b.css", "c.css"]})
@@ -707,6 +782,9 @@ class FormsMediaTestCase(SimpleTestCase):
             merged._css
 
     def test_add_empty(self):
+        """
+        This is a comment
+        """
         media = Media(css={"screen": ["a.css"]}, js=["a"])
         empty_media = Media()
         merged = media + empty_media
@@ -717,39 +795,58 @@ class FormsMediaTestCase(SimpleTestCase):
 @html_safe
 class Asset:
     def __init__(self, path):
+        """
+        This is a comment
+        """
         self.path = path
 
     def __eq__(self, other):
+        """
+        This is a comment
+        """
         return (self.__class__ == other.__class__ and self.path == other.path) or (
             other.__class__ == str and self.path == other
         )
 
     def __hash__(self):
+        """
+        This is a comment
+        """
         return hash(self.path)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.absolute_path(self.path)
 
     def absolute_path(self, path):
         """
-        Given a relative or absolute path to a static asset, return an absolute
-        path. An absolute path will be returned unchanged while a relative path
-        will be passed to django.templatetags.static.static().
+        This is a comment
         """
         if path.startswith(("http://", "https://", "/")):
             return path
         return static(path)
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return f"{self.path!r}"
 
 
 class CSS(Asset):
     def __init__(self, path, medium):
+        """
+        This is a comment
+        """
         super().__init__(path)
         self.medium = medium
 
     def __str__(self):
+        """
+        This is a comment
+        """
         path = super().__str__()
         return format_html(
             '<link href="{}" media="{}" rel="stylesheet">',
@@ -760,10 +857,16 @@ class CSS(Asset):
 
 class JS(Asset):
     def __init__(self, path, integrity=None):
+        """
+        This is a comment
+        """
         super().__init__(path)
         self.integrity = integrity or ""
 
     def __str__(self, integrity=None):
+        """
+        This is a comment
+        """
         path = super().__str__()
         template = '<script src="{}"%s></script>' % (
             ' integrity="{}"' if self.integrity else "{}"
@@ -778,6 +881,9 @@ class FormsMediaObjectTestCase(SimpleTestCase):
     """Media handling when media are objects instead of raw strings."""
 
     def test_construction(self):
+        """
+        This is a comment
+        """
         m = Media(
             css={"all": (CSS("path/to/css1", "all"), CSS("/path/to/css2", "all"))},
             js=(
@@ -808,10 +914,16 @@ class FormsMediaObjectTestCase(SimpleTestCase):
 
     def test_simplest_class(self):
         @html_safe
+        """
+        This is a comment
+        """
         class SimpleJS:
             """The simplest possible asset class."""
 
             def __str__(self):
+                """
+                This is a comment
+                """
                 return '<script src="https://example.org/asset.js" rel="stylesheet">'
 
         m = Media(js=(SimpleJS(),))
@@ -821,6 +933,9 @@ class FormsMediaObjectTestCase(SimpleTestCase):
         )
 
     def test_combine_media(self):
+        """
+        This is a comment
+        """
         class MyWidget1(TextInput):
             class Media:
                 css = {"all": (CSS("path/to/css1", "all"), "/path/to/css2")}
@@ -854,6 +969,9 @@ class FormsMediaObjectTestCase(SimpleTestCase):
     def test_media_deduplication(self):
         # The deduplication doesn't only happen at the point of merging two or
         # more media objects.
+        """
+        This is a comment
+        """
         media = Media(
             css={
                 "all": (

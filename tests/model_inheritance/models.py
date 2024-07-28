@@ -28,6 +28,9 @@ class CommonInfo(models.Model):
         ordering = ["name"]
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "%s %s" % (self.__class__.__name__, self.name)
 
 
@@ -155,6 +158,9 @@ class NamedURL(models.Model):
 
 class Mixin:
     def __init__(self):
+        """
+        This is a comment
+        """
         self.other_attr = 1
         super().__init__()
 

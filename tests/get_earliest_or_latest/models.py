@@ -31,6 +31,9 @@ class IndexErrorQuerySet(models.QuerySet):
     """
 
     def __iter__(self):
+        """
+        This is a comment
+        """
         raise IndexError
 
 

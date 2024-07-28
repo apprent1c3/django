@@ -7,6 +7,9 @@ from . import FormFieldAssertionsMixin
 
 class EmailFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
     def test_emailfield_1(self):
+        """
+        This is a comment
+        """
         f = EmailField()
         self.assertEqual(f.max_length, 320)
         self.assertWidgetRendersTo(
@@ -27,6 +30,9 @@ class EmailFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         )
 
     def test_email_regexp_for_performance(self):
+        """
+        This is a comment
+        """
         f = EmailField()
         # Check for runaway regex security problem. This will take a long time
         # if the security fix isn't in place.
@@ -34,6 +40,9 @@ class EmailFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertEqual(addr, f.clean(addr))
 
     def test_emailfield_not_required(self):
+        """
+        This is a comment
+        """
         f = EmailField(required=False)
         self.assertEqual("", f.clean(""))
         self.assertEqual("", f.clean(None))
@@ -47,6 +56,9 @@ class EmailFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
             f.clean("foo")
 
     def test_emailfield_min_max_length(self):
+        """
+        This is a comment
+        """
         f = EmailField(min_length=10, max_length=15)
         self.assertWidgetRendersTo(
             f,
@@ -66,11 +78,17 @@ class EmailFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
             f.clean("alf123456788@foo.com")
 
     def test_emailfield_strip_on_none_value(self):
+        """
+        This is a comment
+        """
         f = EmailField(required=False, empty_value=None)
         self.assertIsNone(f.clean(""))
         self.assertIsNone(f.clean(None))
 
     def test_emailfield_unable_to_set_strip_kwarg(self):
+        """
+        This is a comment
+        """
         msg = "got multiple values for keyword argument 'strip'"
         with self.assertRaisesMessage(TypeError, msg):
             EmailField(strip=False)

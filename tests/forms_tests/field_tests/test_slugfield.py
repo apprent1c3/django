@@ -4,10 +4,16 @@ from django.test import SimpleTestCase
 
 class SlugFieldTest(SimpleTestCase):
     def test_slugfield_normalization(self):
+        """
+        This is a comment
+        """
         f = SlugField()
         self.assertEqual(f.clean("    aa-bb-cc    "), "aa-bb-cc")
 
     def test_slugfield_unicode_normalization(self):
+        """
+        This is a comment
+        """
         f = SlugField(allow_unicode=True)
         self.assertEqual(f.clean("a"), "a")
         self.assertEqual(f.clean("1"), "1")
@@ -18,6 +24,9 @@ class SlugFieldTest(SimpleTestCase):
         self.assertEqual(f.clean("foo-ıç-bar"), "foo-ıç-bar")
 
     def test_empty_value(self):
+        """
+        This is a comment
+        """
         f = SlugField(required=False)
         self.assertEqual(f.clean(""), "")
         self.assertEqual(f.clean(None), "")

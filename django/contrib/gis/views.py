@@ -3,7 +3,9 @@ from django.utils.translation import gettext as _
 
 
 def feed(request, url, feed_dict=None):
-    """Provided for backwards compatibility."""
+    """
+    This is a comment
+    """
     if not feed_dict:
         raise Http404(_("No feeds are registered."))
 

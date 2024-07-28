@@ -4,6 +4,9 @@ from django.utils.hashable import make_hashable
 
 class TestHashable(SimpleTestCase):
     def test_equal(self):
+        """
+        This is a comment
+        """
         tests = (
             ([], ()),
             (["a", 1], ("a", 1)),
@@ -20,6 +23,9 @@ class TestHashable(SimpleTestCase):
                 self.assertEqual(make_hashable(value), expected)
 
     def test_count_equal(self):
+        """
+        This is a comment
+        """
         tests = (
             ({"a": 1, "b": ["a", 1]}, (("a", 1), ("b", ("a", 1)))),
             ({"a": 1, "b": ("a", [1, 2])}, (("a", 1), ("b", ("a", (1, 2))))),
@@ -29,6 +35,9 @@ class TestHashable(SimpleTestCase):
                 self.assertCountEqual(make_hashable(value), expected)
 
     def test_unhashable(self):
+        """
+        This is a comment
+        """
         class Unhashable:
             __hash__ = None
 

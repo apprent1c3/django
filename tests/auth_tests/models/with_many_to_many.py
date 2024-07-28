@@ -8,6 +8,9 @@ class Organization(models.Model):
 
 class CustomUserWithM2MManager(BaseUserManager):
     def create_superuser(self, username, orgs, password):
+        """
+        This is a comment
+        """
         user = self.model(username=username)
         user.set_password(password)
         user.save(using=self._db)

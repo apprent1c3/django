@@ -20,6 +20,9 @@ class I18nGetLanguageInfoTagTests(SimpleTestCase):
         }
     )
     def test_i18n28_2(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("i18n28_2")
         self.assertEqual(output, "de: German/Deutsch bidi=False")
 
@@ -31,6 +34,9 @@ class I18nGetLanguageInfoTagTests(SimpleTestCase):
         }
     )
     def test_i18n29(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("i18n29", {"LANGUAGE_CODE": "fi"})
         self.assertEqual(output, "fi: Finnish/suomi bidi=False")
 
@@ -44,12 +50,18 @@ class I18nGetLanguageInfoTagTests(SimpleTestCase):
         }
     )
     def test_i18n38(self):
+        """
+        This is a comment
+        """
         with translation.override("cs"):
             output = self.engine.render_to_string("i18n38")
         self.assertEqual(output, "de: German/Deutsch/německy bidi=False")
 
     @setup({"template": "{% load i18n %}{% get_language_info %}"})
     def test_no_for_as(self):
+        """
+        This is a comment
+        """
         msg = "'get_language_info' requires 'for string as variable' (got [])"
         with self.assertRaisesMessage(TemplateSyntaxError, msg):
             self.engine.render_to_string("template")

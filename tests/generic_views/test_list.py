@@ -11,6 +11,9 @@ from .models import Artist, Author, Book, Page
 class ListViewTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.artist1 = Artist.objects.create(name="Rene Magritte")
         cls.author1 = Author.objects.create(
             name="Roberto Bolaño", slug="roberto-bolano"
@@ -34,12 +37,18 @@ class ListViewTests(TestCase):
         )
 
     def test_items(self):
+        """
+        This is a comment
+        """
         res = self.client.get("/list/dict/")
         self.assertEqual(res.status_code, 200)
         self.assertTemplateUsed(res, "generic_views/list.html")
         self.assertEqual(res.context["object_list"][0]["first"], "John")
 
     def test_queryset(self):
+        """
+        This is a comment
+        """
         res = self.client.get("/list/authors/")
         self.assertEqual(res.status_code, 200)
         self.assertTemplateUsed(res, "generic_views/author_list.html")
@@ -51,6 +60,9 @@ class ListViewTests(TestCase):
         self.assertFalse(res.context["is_paginated"])
 
     def test_paginated_queryset(self):
+        """
+        This is a comment
+        """
         self._make_authors(100)
         res = self.client.get("/list/authors/paginated/")
         self.assertEqual(res.status_code, 200)
@@ -65,6 +77,9 @@ class ListViewTests(TestCase):
 
     def test_paginated_queryset_shortdata(self):
         # Short datasets also result in a paginated view.
+        """
+        This is a comment
+        """
         res = self.client.get("/list/authors/paginated/")
         self.assertEqual(res.status_code, 200)
         self.assertTemplateUsed(res, "generic_views/author_list.html")
@@ -75,6 +90,9 @@ class ListViewTests(TestCase):
         self.assertFalse(res.context["is_paginated"])
 
     def test_paginated_get_page_by_query_string(self):
+        """
+        This is a comment
+        """
         self._make_authors(100)
         res = self.client.get("/list/authors/paginated/", {"page": "2"})
         self.assertEqual(res.status_code, 200)
@@ -85,6 +103,9 @@ class ListViewTests(TestCase):
         self.assertEqual(res.context["page_obj"].number, 2)
 
     def test_paginated_get_last_page_by_query_string(self):
+        """
+        This is a comment
+        """
         self._make_authors(100)
         res = self.client.get("/list/authors/paginated/", {"page": "last"})
         self.assertEqual(res.status_code, 200)
@@ -94,6 +115,9 @@ class ListViewTests(TestCase):
         self.assertEqual(res.context["page_obj"].number, 4)
 
     def test_paginated_get_page_by_urlvar(self):
+        """
+        This is a comment
+        """
         self._make_authors(100)
         res = self.client.get("/list/authors/paginated/3/")
         self.assertEqual(res.status_code, 200)
@@ -104,16 +128,25 @@ class ListViewTests(TestCase):
         self.assertEqual(res.context["page_obj"].number, 3)
 
     def test_paginated_page_out_of_range(self):
+        """
+        This is a comment
+        """
         self._make_authors(100)
         res = self.client.get("/list/authors/paginated/42/")
         self.assertEqual(res.status_code, 404)
 
     def test_paginated_invalid_page(self):
+        """
+        This is a comment
+        """
         self._make_authors(100)
         res = self.client.get("/list/authors/paginated/?page=frog")
         self.assertEqual(res.status_code, 404)
 
     def test_paginated_custom_paginator_class(self):
+        """
+        This is a comment
+        """
         self._make_authors(7)
         res = self.client.get("/list/authors/paginated/custom_class/")
         self.assertEqual(res.status_code, 200)
@@ -122,6 +155,9 @@ class ListViewTests(TestCase):
         self.assertEqual(len(res.context["object_list"]), 7)
 
     def test_paginated_custom_page_kwarg(self):
+        """
+        This is a comment
+        """
         self._make_authors(100)
         res = self.client.get(
             "/list/authors/paginated/custom_page_kwarg/", {"pagina": "2"}
@@ -134,6 +170,9 @@ class ListViewTests(TestCase):
         self.assertEqual(res.context["page_obj"].number, 2)
 
     def test_paginated_custom_paginator_constructor(self):
+        """
+        This is a comment
+        """
         self._make_authors(7)
         res = self.client.get("/list/authors/paginated/custom_constructor/")
         self.assertEqual(res.status_code, 200)
@@ -141,6 +180,9 @@ class ListViewTests(TestCase):
         self.assertEqual(len(res.context["object_list"]), 7)
 
     def test_paginated_orphaned_queryset(self):
+        """
+        This is a comment
+        """
         self._make_authors(92)
         res = self.client.get("/list/authors/paginated-orphaned/")
         self.assertEqual(res.status_code, 200)
@@ -155,12 +197,18 @@ class ListViewTests(TestCase):
         self.assertEqual(res.status_code, 404)
 
     def test_paginated_non_queryset(self):
+        """
+        This is a comment
+        """
         res = self.client.get("/list/dict/paginated/")
 
         self.assertEqual(res.status_code, 200)
         self.assertEqual(len(res.context["object_list"]), 1)
 
     def test_verbose_name(self):
+        """
+        This is a comment
+        """
         res = self.client.get("/list/artists/")
         self.assertEqual(res.status_code, 200)
         self.assertTemplateUsed(res, "generic_views/list.html")
@@ -171,6 +219,9 @@ class ListViewTests(TestCase):
         self.assertFalse(res.context["is_paginated"])
 
     def test_allow_empty_false(self):
+        """
+        This is a comment
+        """
         res = self.client.get("/list/authors/notempty/")
         self.assertEqual(res.status_code, 200)
         Author.objects.all().delete()
@@ -178,6 +229,9 @@ class ListViewTests(TestCase):
         self.assertEqual(res.status_code, 404)
 
     def test_template_name(self):
+        """
+        This is a comment
+        """
         res = self.client.get("/list/authors/template_name/")
         self.assertEqual(res.status_code, 200)
         self.assertEqual(list(res.context["object_list"]), list(Author.objects.all()))
@@ -185,6 +239,9 @@ class ListViewTests(TestCase):
         self.assertTemplateUsed(res, "generic_views/list.html")
 
     def test_template_name_suffix(self):
+        """
+        This is a comment
+        """
         res = self.client.get("/list/authors/template_name_suffix/")
         self.assertEqual(res.status_code, 200)
         self.assertEqual(list(res.context["object_list"]), list(Author.objects.all()))
@@ -192,6 +249,9 @@ class ListViewTests(TestCase):
         self.assertTemplateUsed(res, "generic_views/author_objects.html")
 
     def test_context_object_name(self):
+        """
+        This is a comment
+        """
         res = self.client.get("/list/authors/context_object_name/")
         self.assertEqual(res.status_code, 200)
         self.assertEqual(list(res.context["object_list"]), list(Author.objects.all()))
@@ -200,6 +260,9 @@ class ListViewTests(TestCase):
         self.assertTemplateUsed(res, "generic_views/author_list.html")
 
     def test_duplicate_context_object_name(self):
+        """
+        This is a comment
+        """
         res = self.client.get("/list/authors/dupe_context_object_name/")
         self.assertEqual(res.status_code, 200)
         self.assertEqual(list(res.context["object_list"]), list(Author.objects.all()))
@@ -208,6 +271,9 @@ class ListViewTests(TestCase):
         self.assertTemplateUsed(res, "generic_views/author_list.html")
 
     def test_missing_items(self):
+        """
+        This is a comment
+        """
         msg = (
             "AuthorList is missing a QuerySet. Define AuthorList.model, "
             "AuthorList.queryset, or override AuthorList.get_queryset()."
@@ -216,6 +282,9 @@ class ListViewTests(TestCase):
             self.client.get("/list/authors/invalid/")
 
     def test_invalid_get_queryset(self):
+        """
+        This is a comment
+        """
         msg = (
             "AuthorListGetQuerysetReturnsNone requires either a 'template_name' "
             "attribute or a get_queryset() method that returns a QuerySet."
@@ -225,6 +294,9 @@ class ListViewTests(TestCase):
 
     def test_paginated_list_view_does_not_load_entire_table(self):
         # Regression test for #17535
+        """
+        This is a comment
+        """
         self._make_authors(3)
         # 1 query for authors
         with self.assertNumQueries(1):
@@ -234,6 +306,9 @@ class ListViewTests(TestCase):
             self.client.get("/list/authors/notempty/paginated/")
 
     def test_explicitly_ordered_list_view(self):
+        """
+        This is a comment
+        """
         Book.objects.create(
             name="Zebras for Dummies", pages=800, pubdate=datetime.date(2006, 9, 1)
         )
@@ -253,6 +328,9 @@ class ListViewTests(TestCase):
     def test_paginated_list_view_returns_useful_message_on_invalid_page(self):
         # test for #19240
         # tests that source exception's message is included in page
+        """
+        This is a comment
+        """
         self._make_authors(1)
         res = self.client.get("/list/authors/paginated/2/")
         self.assertEqual(res.status_code, 404)
@@ -261,6 +339,9 @@ class ListViewTests(TestCase):
         )
 
     def _make_authors(self, n):
+        """
+        This is a comment
+        """
         Author.objects.all().delete()
         for i in range(n):
             Author.objects.create(name="Author %02i" % i, slug="a%s" % i)

@@ -16,6 +16,9 @@ class SimpleView(View):
     """
 
     def get(self, request):
+        """
+        This is a comment
+        """
         return HttpResponse("This is a simple view")
 
 
@@ -25,6 +28,9 @@ class SimplePostView(SimpleView):
 
 class PostOnlyView(View):
     def post(self, request):
+        """
+        This is a comment
+        """
         return HttpResponse("This view only accepts POST")
 
 
@@ -33,6 +39,9 @@ class CustomizableView(SimpleView):
 
 
 def decorator(view):
+    """
+    This is a comment
+    """
     view.is_decorated = True
     return view
 
@@ -40,14 +49,23 @@ def decorator(view):
 class DecoratedDispatchView(SimpleView):
     @decorator
     def dispatch(self, request, *args, **kwargs):
+        """
+        This is a comment
+        """
         return super().dispatch(request, *args, **kwargs)
 
 
 class AboutTemplateView(TemplateView):
     def get(self, request):
+        """
+        This is a comment
+        """
         return self.render_to_response({})
 
     def get_template_names(self):
+        """
+        This is a comment
+        """
         return ["generic_views/about.html"]
 
 
@@ -55,11 +73,17 @@ class AboutTemplateAttributeView(TemplateView):
     template_name = "generic_views/about.html"
 
     def get(self, request):
+        """
+        This is a comment
+        """
         return self.render_to_response(context={})
 
 
 class InstanceView(View):
     def get(self, request):
+        """
+        This is a comment
+        """
         return self
 
 
@@ -67,12 +91,15 @@ class ViewTest(SimpleTestCase):
     rf = RequestFactory()
 
     def _assert_simple(self, response):
+        """
+        This is a comment
+        """
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, b"This is a simple view")
 
     def test_no_init_kwargs(self):
         """
-        A view can't be accidentally instantiated before deployment
+        This is a comment
         """
         msg = "This method is available only on the class, not on instances."
         with self.assertRaisesMessage(AttributeError, msg):
@@ -80,7 +107,7 @@ class ViewTest(SimpleTestCase):
 
     def test_no_init_args(self):
         """
-        A view can't be accidentally instantiated before deployment
+        This is a comment
         """
         msg = "as_view() takes 1 positional argument but 2 were given"
         with self.assertRaisesMessage(TypeError, msg):
@@ -88,8 +115,7 @@ class ViewTest(SimpleTestCase):
 
     def test_pathological_http_method(self):
         """
-        The edge case of an HTTP request that spoofs an existing method name is
-        caught.
+        This is a comment
         """
         self.assertEqual(
             SimpleView.as_view()(
@@ -100,7 +126,7 @@ class ViewTest(SimpleTestCase):
 
     def test_get_only(self):
         """
-        Test a view which only allows GET doesn't allow other methods.
+        This is a comment
         """
         self._assert_simple(SimpleView.as_view()(self.rf.get("/")))
         self.assertEqual(SimpleView.as_view()(self.rf.post("/")).status_code, 405)
@@ -111,13 +137,16 @@ class ViewTest(SimpleTestCase):
 
     def test_get_and_head(self):
         """
-        Test a view which supplies a GET method also responds correctly to HEAD.
+        This is a comment
         """
         self._assert_simple(SimpleView.as_view()(self.rf.get("/")))
         response = SimpleView.as_view()(self.rf.head("/"))
         self.assertEqual(response.status_code, 200)
 
     def test_setup_get_and_head(self):
+        """
+        This is a comment
+        """
         view_instance = SimpleView()
         self.assertFalse(hasattr(view_instance, "head"))
         view_instance.setup(self.rf.get("/"))
@@ -126,14 +155,14 @@ class ViewTest(SimpleTestCase):
 
     def test_head_no_get(self):
         """
-        Test a view which supplies no GET method responds to HEAD with HTTP 405.
+        This is a comment
         """
         response = PostOnlyView.as_view()(self.rf.head("/"))
         self.assertEqual(response.status_code, 405)
 
     def test_get_and_post(self):
         """
-        Test a view which only allows both GET and POST.
+        This is a comment
         """
         self._assert_simple(SimplePostView.as_view()(self.rf.get("/")))
         self._assert_simple(SimplePostView.as_view()(self.rf.post("/")))
@@ -146,8 +175,7 @@ class ViewTest(SimpleTestCase):
 
     def test_invalid_keyword_argument(self):
         """
-        View arguments must be predefined on the class and can't
-        be named like an HTTP method.
+        This is a comment
         """
         msg = (
             "The method name %s is not accepted as a keyword argument to "
@@ -171,7 +199,7 @@ class ViewTest(SimpleTestCase):
 
     def test_calling_more_than_once(self):
         """
-        Test a view can only be called once.
+        This is a comment
         """
         request = self.rf.get("/")
         view = InstanceView.as_view()
@@ -179,7 +207,7 @@ class ViewTest(SimpleTestCase):
 
     def test_class_attributes(self):
         """
-        The callable returned from as_view() has proper special attributes.
+        This is a comment
         """
         cls = SimpleView
         view = cls.as_view()
@@ -192,15 +220,13 @@ class ViewTest(SimpleTestCase):
 
     def test_dispatch_decoration(self):
         """
-        Attributes set by decorators on the dispatch method
-        are also present on the closure.
+        This is a comment
         """
         self.assertTrue(DecoratedDispatchView.as_view().is_decorated)
 
     def test_options(self):
         """
-        Views respond to HTTP OPTIONS requests with an Allow header
-        appropriate for the methods implemented by the view class.
+        This is a comment
         """
         request = self.rf.options("/")
         view = SimpleView.as_view()
@@ -210,7 +236,7 @@ class ViewTest(SimpleTestCase):
 
     def test_options_for_get_view(self):
         """
-        A view implementing GET allows GET and HEAD.
+        This is a comment
         """
         request = self.rf.options("/")
         view = SimpleView.as_view()
@@ -219,7 +245,7 @@ class ViewTest(SimpleTestCase):
 
     def test_options_for_get_and_post_view(self):
         """
-        A view implementing GET and POST allows GET, HEAD, and POST.
+        This is a comment
         """
         request = self.rf.options("/")
         view = SimplePostView.as_view()
@@ -228,7 +254,7 @@ class ViewTest(SimpleTestCase):
 
     def test_options_for_post_view(self):
         """
-        A view implementing POST allows POST.
+        This is a comment
         """
         request = self.rf.options("/")
         view = PostOnlyView.as_view()
@@ -236,14 +262,15 @@ class ViewTest(SimpleTestCase):
         self._assert_allows(response, "POST")
 
     def _assert_allows(self, response, *expected_methods):
-        "Assert allowed HTTP methods reported in the Allow response header"
+        """
+        This is a comment
+        """
         response_allows = set(response.headers["Allow"].split(", "))
         self.assertEqual(set(expected_methods + ("OPTIONS",)), response_allows)
 
     def test_args_kwargs_request_on_self(self):
         """
-        Test a view only has args, kwargs & request once `as_view`
-        has been called.
+        This is a comment
         """
         bare_view = InstanceView()
         view = InstanceView.as_view()(self.rf.get("/"))
@@ -252,13 +279,22 @@ class ViewTest(SimpleTestCase):
             self.assertIn(attribute, dir(view))
 
     def test_overridden_setup(self):
+        """
+        This is a comment
+        """
         class SetAttributeMixin:
             def setup(self, request, *args, **kwargs):
+                """
+                This is a comment
+                """
                 self.attr = True
                 super().setup(request, *args, **kwargs)
 
         class CheckSetupView(SetAttributeMixin, SimpleView):
             def dispatch(self, request, *args, **kwargs):
+                """
+                This is a comment
+                """
                 assert hasattr(self, "attr")
                 return super().dispatch(request, *args, **kwargs)
 
@@ -266,8 +302,14 @@ class ViewTest(SimpleTestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_not_calling_parent_setup_error(self):
+        """
+        This is a comment
+        """
         class TestView(View):
             def setup(self, request, *args, **kwargs):
+                """
+                This is a comment
+                """
                 pass  # Not calling super().setup()
 
         msg = (
@@ -278,6 +320,9 @@ class ViewTest(SimpleTestCase):
             TestView.as_view()(self.rf.get("/"))
 
     def test_setup_adds_args_kwargs_request(self):
+        """
+        This is a comment
+        """
         request = self.rf.get("/")
         args = ("arg 1", "arg 2")
         kwargs = {"kwarg_1": 1, "kwarg_2": "year"}
@@ -290,8 +335,7 @@ class ViewTest(SimpleTestCase):
 
     def test_direct_instantiation(self):
         """
-        It should be possible to use the view by directly instantiating it
-        without going through .as_view() (#21564).
+        This is a comment
         """
         view = PostOnlyView()
         response = view.dispatch(self.rf.head("/"))
@@ -303,33 +347,34 @@ class TemplateViewTest(SimpleTestCase):
     rf = RequestFactory()
 
     def _assert_about(self, response):
+        """
+        This is a comment
+        """
         response.render()
         self.assertContains(response, "<h1>About</h1>")
 
     def test_get(self):
         """
-        Test a view that simply renders a template on GET
+        This is a comment
         """
         self._assert_about(AboutTemplateView.as_view()(self.rf.get("/about/")))
 
     def test_head(self):
         """
-        Test a TemplateView responds correctly to HEAD
+        This is a comment
         """
         response = AboutTemplateView.as_view()(self.rf.head("/about/"))
         self.assertEqual(response.status_code, 200)
 
     def test_get_template_attribute(self):
         """
-        Test a view that renders a template on GET with the template name as
-        an attribute on the class.
+        This is a comment
         """
         self._assert_about(AboutTemplateAttributeView.as_view()(self.rf.get("/about/")))
 
     def test_get_generic_template(self):
         """
-        Test a completely generic view that renders a template on GET
-        with the template name as an argument at instantiation.
+        This is a comment
         """
         self._assert_about(
             TemplateView.as_view(template_name="generic_views/about.html")(
@@ -339,7 +384,7 @@ class TemplateViewTest(SimpleTestCase):
 
     def test_template_name_required(self):
         """
-        A template view must provide a template name.
+        This is a comment
         """
         msg = (
             "TemplateResponseMixin requires either a definition of "
@@ -351,7 +396,7 @@ class TemplateViewTest(SimpleTestCase):
     @require_jinja2
     def test_template_engine(self):
         """
-        A template view may provide a template engine.
+        This is a comment
         """
         request = self.rf.get("/using/")
         view = TemplateView.as_view(template_name="generic_views/using.html")
@@ -367,7 +412,7 @@ class TemplateViewTest(SimpleTestCase):
 
     def test_template_params(self):
         """
-        A generic template view passes kwargs as context.
+        This is a comment
         """
         response = self.client.get("/template/simple/bar/")
         self.assertEqual(response.status_code, 200)
@@ -376,7 +421,7 @@ class TemplateViewTest(SimpleTestCase):
 
     def test_extra_template_params(self):
         """
-        A template view can be customized to return extra context.
+        This is a comment
         """
         response = self.client.get("/template/custom/bar/")
         self.assertEqual(response.status_code, 200)
@@ -386,7 +431,7 @@ class TemplateViewTest(SimpleTestCase):
 
     def test_cached_views(self):
         """
-        A template view can be cached
+        This is a comment
         """
         response = self.client.get("/template/cached/bar/")
         self.assertEqual(response.status_code, 200)
@@ -407,19 +452,31 @@ class TemplateViewTest(SimpleTestCase):
         self.assertNotEqual(response.content, response2.content)
 
     def test_content_type(self):
+        """
+        This is a comment
+        """
         response = self.client.get("/template/content_type/")
         self.assertEqual(response.headers["Content-Type"], "text/plain")
 
     def test_resolve_view(self):
+        """
+        This is a comment
+        """
         match = resolve("/template/content_type/")
         self.assertIs(match.func.view_class, TemplateView)
         self.assertEqual(match.func.view_initkwargs["content_type"], "text/plain")
 
     def test_resolve_login_required_view(self):
+        """
+        This is a comment
+        """
         match = resolve("/template/login_required/")
         self.assertIs(match.func.view_class, TemplateView)
 
     def test_extra_context(self):
+        """
+        This is a comment
+        """
         response = self.client.get("/template/extra_context/")
         self.assertEqual(response.context["title"], "Title")
 
@@ -429,18 +486,24 @@ class RedirectViewTest(SimpleTestCase):
     rf = RequestFactory()
 
     def test_no_url(self):
-        "Without any configuration, returns HTTP 410 GONE"
+        """
+        This is a comment
+        """
         response = RedirectView.as_view()(self.rf.get("/foo/"))
         self.assertEqual(response.status_code, 410)
 
     def test_default_redirect(self):
-        "Default is a temporary redirect"
+        """
+        This is a comment
+        """
         response = RedirectView.as_view(url="/bar/")(self.rf.get("/foo/"))
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, "/bar/")
 
     def test_permanent_redirect(self):
-        "Permanent redirects are an option"
+        """
+        This is a comment
+        """
         response = RedirectView.as_view(url="/bar/", permanent=True)(
             self.rf.get("/foo/")
         )
@@ -448,7 +511,9 @@ class RedirectViewTest(SimpleTestCase):
         self.assertEqual(response.url, "/bar/")
 
     def test_temporary_redirect(self):
-        "Temporary redirects are an option"
+        """
+        This is a comment
+        """
         response = RedirectView.as_view(url="/bar/", permanent=False)(
             self.rf.get("/foo/")
         )
@@ -456,7 +521,9 @@ class RedirectViewTest(SimpleTestCase):
         self.assertEqual(response.url, "/bar/")
 
     def test_include_args(self):
-        "GET arguments can be included in the redirected URL"
+        """
+        This is a comment
+        """
         response = RedirectView.as_view(url="/bar/")(self.rf.get("/foo/"))
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, "/bar/")
@@ -468,7 +535,9 @@ class RedirectViewTest(SimpleTestCase):
         self.assertEqual(response.url, "/bar/?pork=spam")
 
     def test_include_urlencoded_args(self):
-        "GET arguments can be URL-encoded when included in the redirected URL"
+        """
+        This is a comment
+        """
         response = RedirectView.as_view(url="/bar/", query_string=True)(
             self.rf.get("/foo/?unicode=%E2%9C%93")
         )
@@ -476,7 +545,9 @@ class RedirectViewTest(SimpleTestCase):
         self.assertEqual(response.url, "/bar/?unicode=%E2%9C%93")
 
     def test_parameter_substitution(self):
-        "Redirection URLs can be parameterized"
+        """
+        This is a comment
+        """
         response = RedirectView.as_view(url="/bar/%(object_id)d/")(
             self.rf.get("/foo/42/"), object_id=42
         )
@@ -484,7 +555,9 @@ class RedirectViewTest(SimpleTestCase):
         self.assertEqual(response.url, "/bar/42/")
 
     def test_named_url_pattern(self):
-        "Named pattern parameter should reverse to the matching pattern"
+        """
+        This is a comment
+        """
         response = RedirectView.as_view(pattern_name="artist_detail")(
             self.rf.get("/foo/"), pk=1
         )
@@ -492,6 +565,9 @@ class RedirectViewTest(SimpleTestCase):
         self.assertEqual(response.headers["Location"], "/detail/artist/1/")
 
     def test_named_url_pattern_using_args(self):
+        """
+        This is a comment
+        """
         response = RedirectView.as_view(pattern_name="artist_detail")(
             self.rf.get("/foo/"), 1
         )
@@ -499,51 +575,64 @@ class RedirectViewTest(SimpleTestCase):
         self.assertEqual(response.headers["Location"], "/detail/artist/1/")
 
     def test_redirect_POST(self):
-        "Default is a temporary redirect"
+        """
+        This is a comment
+        """
         response = RedirectView.as_view(url="/bar/")(self.rf.post("/foo/"))
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, "/bar/")
 
     def test_redirect_HEAD(self):
-        "Default is a temporary redirect"
+        """
+        This is a comment
+        """
         response = RedirectView.as_view(url="/bar/")(self.rf.head("/foo/"))
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, "/bar/")
 
     def test_redirect_OPTIONS(self):
-        "Default is a temporary redirect"
+        """
+        This is a comment
+        """
         response = RedirectView.as_view(url="/bar/")(self.rf.options("/foo/"))
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, "/bar/")
 
     def test_redirect_PUT(self):
-        "Default is a temporary redirect"
+        """
+        This is a comment
+        """
         response = RedirectView.as_view(url="/bar/")(self.rf.put("/foo/"))
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, "/bar/")
 
     def test_redirect_PATCH(self):
-        "Default is a temporary redirect"
+        """
+        This is a comment
+        """
         response = RedirectView.as_view(url="/bar/")(self.rf.patch("/foo/"))
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, "/bar/")
 
     def test_redirect_DELETE(self):
-        "Default is a temporary redirect"
+        """
+        This is a comment
+        """
         response = RedirectView.as_view(url="/bar/")(self.rf.delete("/foo/"))
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, "/bar/")
 
     def test_redirect_when_meta_contains_no_query_string(self):
-        "regression for #16705"
+        """
+        This is a comment
+        """
         # we can't use self.rf.get because it always sets QUERY_STRING
         response = RedirectView.as_view(url="/bar/")(self.rf.request(PATH_INFO="/foo/"))
         self.assertEqual(response.status_code, 302)
 
     def test_direct_instantiation(self):
         """
-        It should be possible to use the view without going through .as_view()
-        (#21564).
+        This is a comment
         """
         view = RedirectView()
         response = view.dispatch(self.rf.head("/foo/"))
@@ -552,6 +641,9 @@ class RedirectViewTest(SimpleTestCase):
 
 class GetContextDataTest(SimpleTestCase):
     def test_get_context_data_super(self):
+        """
+        This is a comment
+        """
         test_view = views.CustomContextView()
         context = test_view.get_context_data(kwarg_test="kwarg_value")
 
@@ -566,6 +658,9 @@ class GetContextDataTest(SimpleTestCase):
 
     def test_object_at_custom_name_in_context_data(self):
         # Checks 'pony' key presence in dict returned by get_context_date
+        """
+        This is a comment
+        """
         test_view = views.CustomSingleObjectView()
         test_view.context_object_name = "pony"
         context = test_view.get_context_data()
@@ -573,6 +668,9 @@ class GetContextDataTest(SimpleTestCase):
 
     def test_object_in_get_context_data(self):
         # Checks 'object' key presence in dict returned by get_context_date #20234
+        """
+        This is a comment
+        """
         test_view = views.CustomSingleObjectView()
         context = test_view.get_context_data()
         self.assertEqual(context["object"], test_view.object)
@@ -582,6 +680,9 @@ class UseMultipleObjectMixinTest(SimpleTestCase):
     rf = RequestFactory()
 
     def test_use_queryset_from_view(self):
+        """
+        This is a comment
+        """
         test_view = views.CustomMultipleObjectMixinView()
         test_view.get(self.rf.get("/"))
         # Don't pass queryset as argument
@@ -589,6 +690,9 @@ class UseMultipleObjectMixinTest(SimpleTestCase):
         self.assertEqual(context["object_list"], test_view.queryset)
 
     def test_overwrite_queryset(self):
+        """
+        This is a comment
+        """
         test_view = views.CustomMultipleObjectMixinView()
         test_view.get(self.rf.get("/"))
         queryset = [{"name": "Lennon"}, {"name": "Ono"}]
@@ -601,9 +705,7 @@ class UseMultipleObjectMixinTest(SimpleTestCase):
 class SingleObjectTemplateResponseMixinTest(SimpleTestCase):
     def test_template_mixin_without_template(self):
         """
-        We want to makes sure that if you use a template mixin, but forget the
-        template, it still tells you it's ImproperlyConfigured instead of
-        TemplateDoesNotExist.
+        This is a comment
         """
         view = views.TemplateResponseWithoutTemplate()
         msg = (

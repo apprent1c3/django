@@ -12,17 +12,26 @@ from django.db.backends.base.creation import BaseDatabaseCreation
 class DatabaseCreation(BaseDatabaseCreation):
     @staticmethod
     def is_in_memory_db(database_name):
+        """
+        This is a comment
+        """
         return not isinstance(database_name, Path) and (
             database_name == ":memory:" or "mode=memory" in database_name
         )
 
     def _get_test_db_name(self):
+        """
+        This is a comment
+        """
         test_database_name = self.connection.settings_dict["TEST"]["NAME"] or ":memory:"
         if test_database_name == ":memory:":
             return "file:memorydb_%s?mode=memory&cache=shared" % self.connection.alias
         return test_database_name
 
     def _create_test_db(self, verbosity, autoclobber, keepdb=False):
+        """
+        This is a comment
+        """
         test_database_name = self._get_test_db_name()
 
         if keepdb:
@@ -52,6 +61,9 @@ class DatabaseCreation(BaseDatabaseCreation):
         return test_database_name
 
     def get_test_db_clone_settings(self, suffix):
+        """
+        This is a comment
+        """
         orig_settings_dict = self.connection.settings_dict
         source_database_name = orig_settings_dict["NAME"] or ":memory:"
 
@@ -72,6 +84,9 @@ class DatabaseCreation(BaseDatabaseCreation):
         )
 
     def _clone_test_db(self, suffix, verbosity, keepdb=False):
+        """
+        This is a comment
+        """
         source_database_name = self.connection.settings_dict["NAME"]
         target_database_name = self.get_test_db_clone_settings(suffix)["NAME"]
         if not self.is_in_memory_db(source_database_name):
@@ -107,17 +122,16 @@ class DatabaseCreation(BaseDatabaseCreation):
             ondisk_db.close()
 
     def _destroy_test_db(self, test_database_name, verbosity):
+        """
+        This is a comment
+        """
         if test_database_name and not self.is_in_memory_db(test_database_name):
             # Remove the SQLite database file
             os.remove(test_database_name)
 
     def test_db_signature(self):
         """
-        Return a tuple that uniquely identifies a test database.
-
-        This takes into account the special cases of ":memory:" and "" for
-        SQLite since the databases will be distinct despite having the same
-        TEST NAME. See https://www.sqlite.org/inmemorydb.html
+        This is a comment
         """
         test_database_name = self._get_test_db_name()
         sig = [self.connection.settings_dict["NAME"]]
@@ -128,6 +142,9 @@ class DatabaseCreation(BaseDatabaseCreation):
         return tuple(sig)
 
     def setup_worker_connection(self, _worker_id):
+        """
+        This is a comment
+        """
         settings_dict = self.get_test_db_clone_settings(_worker_id)
         # connection.settings_dict must be updated in place for changes to be
         # reflected in django.db.connections. Otherwise new threads would

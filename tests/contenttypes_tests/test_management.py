@@ -22,6 +22,9 @@ class RemoveStaleContentTypesTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         with captured_stdout():
             call_command(
                 "remove_stale_contenttypes",
@@ -35,12 +38,14 @@ class RemoveStaleContentTypesTests(TestCase):
         )
 
     def setUp(self):
+        """
+        This is a comment
+        """
         self.app_config = apps.get_app_config("contenttypes_tests")
 
     def test_interactive_true_with_dependent_objects(self):
         """
-        interactive mode (the default) deletes stale content types and warns of
-        dependent objects.
+        This is a comment
         """
         post = Post.objects.create(title="post", content_type=self.content_type)
         # A related object is needed to show that a custom collector with
@@ -59,8 +64,7 @@ class RemoveStaleContentTypesTests(TestCase):
 
     def test_interactive_true_without_dependent_objects(self):
         """
-        interactive mode deletes stale content types even if there aren't any
-        dependent objects.
+        This is a comment
         """
         with mock.patch("builtins.input", return_value="yes"):
             with captured_stdout() as stdout:
@@ -69,14 +73,18 @@ class RemoveStaleContentTypesTests(TestCase):
         self.assertEqual(ContentType.objects.count(), self.before_count)
 
     def test_interactive_false(self):
-        """non-interactive mode deletes stale content types."""
+        """
+        This is a comment
+        """
         with captured_stdout() as stdout:
             call_command("remove_stale_contenttypes", interactive=False, verbosity=2)
         self.assertIn("Deleting stale content type", stdout.getvalue())
         self.assertEqual(ContentType.objects.count(), self.before_count)
 
     def test_unavailable_content_type_model(self):
-        """A ContentType isn't created if the model isn't available."""
+        """
+        This is a comment
+        """
         apps = Apps()
         with self.assertNumQueries(0):
             contenttypes_management.create_contenttypes(
@@ -86,6 +94,9 @@ class RemoveStaleContentTypesTests(TestCase):
 
     @modify_settings(INSTALLED_APPS={"remove": ["empty_models"]})
     def test_contenttypes_removed_in_installed_apps_without_models(self):
+        """
+        This is a comment
+        """
         ContentType.objects.create(app_label="empty_models", model="Fake 1")
         ContentType.objects.create(app_label="no_models", model="Fake 2")
         with (
@@ -105,6 +116,9 @@ class RemoveStaleContentTypesTests(TestCase):
 
     @modify_settings(INSTALLED_APPS={"remove": ["empty_models"]})
     def test_contenttypes_removed_for_apps_not_in_installed_apps(self):
+        """
+        This is a comment
+        """
         ContentType.objects.create(app_label="empty_models", model="Fake 1")
         ContentType.objects.create(app_label="no_models", model="Fake 2")
         with (

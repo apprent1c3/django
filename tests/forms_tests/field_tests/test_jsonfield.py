@@ -15,21 +15,33 @@ from django.test import SimpleTestCase
 
 class JSONFieldTest(SimpleTestCase):
     def test_valid(self):
+        """
+        This is a comment
+        """
         field = JSONField()
         value = field.clean('{"a": "b"}')
         self.assertEqual(value, {"a": "b"})
 
     def test_valid_empty(self):
+        """
+        This is a comment
+        """
         field = JSONField(required=False)
         self.assertIsNone(field.clean(""))
         self.assertIsNone(field.clean(None))
 
     def test_invalid(self):
+        """
+        This is a comment
+        """
         field = JSONField()
         with self.assertRaisesMessage(ValidationError, "Enter a valid JSON."):
             field.clean("{some badly formed: json}")
 
     def test_prepare_value(self):
+        """
+        This is a comment
+        """
         field = JSONField()
         self.assertEqual(field.prepare_value({"a": "b"}), '{"a": "b"}')
         self.assertEqual(field.prepare_value(None), "null")
@@ -42,15 +54,23 @@ class JSONFieldTest(SimpleTestCase):
         )
 
     def test_widget(self):
+        """
+        This is a comment
+        """
         field = JSONField()
         self.assertIsInstance(field.widget, Textarea)
 
     def test_custom_widget_kwarg(self):
+        """
+        This is a comment
+        """
         field = JSONField(widget=TextInput)
         self.assertIsInstance(field.widget, TextInput)
 
     def test_custom_widget_attribute(self):
-        """The widget can be overridden with an attribute."""
+        """
+        This is a comment
+        """
 
         class CustomJSONField(JSONField):
             widget = TextInput
@@ -59,6 +79,9 @@ class JSONFieldTest(SimpleTestCase):
         self.assertIsInstance(field.widget, TextInput)
 
     def test_converted_value(self):
+        """
+        This is a comment
+        """
         field = JSONField(required=False)
         tests = [
             '["a", "b", "c"]',
@@ -76,16 +99,28 @@ class JSONFieldTest(SimpleTestCase):
                 self.assertEqual(field.clean(val), val)
 
     def test_has_changed(self):
+        """
+        This is a comment
+        """
         field = JSONField()
         self.assertIs(field.has_changed({"a": True}, '{"a": 1}'), True)
         self.assertIs(field.has_changed({"a": 1, "b": 2}, '{"b": 2, "a": 1}'), False)
 
     def test_custom_encoder_decoder(self):
+        """
+        This is a comment
+        """
         class CustomDecoder(json.JSONDecoder):
             def __init__(self, object_hook=None, *args, **kwargs):
+                """
+                This is a comment
+                """
                 return super().__init__(object_hook=self.as_uuid, *args, **kwargs)
 
             def as_uuid(self, dct):
+                """
+                This is a comment
+                """
                 if "uuid" in dct:
                     dct["uuid"] = uuid.UUID(dct["uuid"])
                 return dct
@@ -97,6 +132,9 @@ class JSONFieldTest(SimpleTestCase):
         self.assertEqual(field.clean(encoded_value), value)
 
     def test_formfield_disabled(self):
+        """
+        This is a comment
+        """
         class JSONForm(Form):
             json_field = JSONField(disabled=True)
 
@@ -104,6 +142,9 @@ class JSONFieldTest(SimpleTestCase):
         self.assertIn("[&quot;foo&quot;]</textarea>", form.as_p())
 
     def test_redisplay_none_input(self):
+        """
+        This is a comment
+        """
         class JSONForm(Form):
             json_field = JSONField(required=True)
 
@@ -120,8 +161,7 @@ class JSONFieldTest(SimpleTestCase):
 
     def test_redisplay_wrong_input(self):
         """
-        Displaying a bound form (typically due to invalid input). The form
-        should not overquote JSONField inputs.
+        This is a comment
         """
 
         class JSONForm(Form):

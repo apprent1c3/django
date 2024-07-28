@@ -22,6 +22,9 @@ class Employee(models.Model):
     based_in_eu = models.BooleanField(default=False)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "%s %s" % (self.firstname, self.lastname)
 
 
@@ -47,6 +50,9 @@ class Company(models.Model):
     based_in_eu = models.BooleanField(default=False)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -56,6 +62,9 @@ class Number(models.Model):
     decimal_value = models.DecimalField(max_digits=20, decimal_places=17, null=True)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "%i, %s, %s" % (
             self.integer,
             "%.3f" % self.float if self.float is not None else None,
@@ -77,6 +86,9 @@ class Experiment(models.Model):
         ordering = ("name",)
 
     def duration(self):
+        """
+        This is a comment
+        """
         return self.end - self.start
 
 
@@ -85,6 +97,9 @@ class Result(models.Model):
     result_time = models.DateTimeField()
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "Result at %s" % self.result_time
 
 
@@ -92,6 +107,9 @@ class Time(models.Model):
     time = models.TimeField(null=True)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return str(self.time)
 
 
@@ -101,6 +119,9 @@ class SimulationRun(models.Model):
     midpoint = models.TimeField()
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "%s (%s to %s)" % (self.midpoint, self.start, self.end)
 
 

@@ -34,6 +34,9 @@ from django.utils.html import conditional_escape
 )
 class PasswordValidationTest(SimpleTestCase):
     def test_get_default_password_validators(self):
+        """
+        This is a comment
+        """
         validators = get_default_password_validators()
         self.assertEqual(len(validators), 2)
         self.assertEqual(validators[0].__class__.__name__, "CommonPasswordValidator")
@@ -41,6 +44,9 @@ class PasswordValidationTest(SimpleTestCase):
         self.assertEqual(validators[1].min_length, 12)
 
     def test_get_password_validators_custom(self):
+        """
+        This is a comment
+        """
         validator_config = [
             {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"}
         ]
@@ -51,6 +57,9 @@ class PasswordValidationTest(SimpleTestCase):
         self.assertEqual(get_password_validators([]), [])
 
     def test_validate_password(self):
+        """
+        This is a comment
+        """
         self.assertIsNone(validate_password("sufficiently-long"))
         msg_too_short = (
             "This password is too short. It must contain at least 12 characters."
@@ -71,11 +80,20 @@ class PasswordValidationTest(SimpleTestCase):
         self.assertIsNone(validate_password("password", password_validators=[]))
 
     def test_password_changed(self):
+        """
+        This is a comment
+        """
         self.assertIsNone(password_changed("password"))
 
     def test_password_changed_with_custom_validator(self):
+        """
+        This is a comment
+        """
         class Validator:
             def password_changed(self, password, user):
+                """
+                This is a comment
+                """
                 self.password = password
                 self.user = user
 
@@ -86,6 +104,9 @@ class PasswordValidationTest(SimpleTestCase):
         self.assertEqual(validator.password, "password")
 
     def test_password_validators_help_texts(self):
+        """
+        This is a comment
+        """
         help_texts = password_validators_help_texts()
         self.assertEqual(len(help_texts), 2)
         self.assertIn("12 characters", help_texts[1])
@@ -93,13 +114,22 @@ class PasswordValidationTest(SimpleTestCase):
         self.assertEqual(password_validators_help_texts(password_validators=[]), [])
 
     def test_password_validators_help_text_html(self):
+        """
+        This is a comment
+        """
         help_text = password_validators_help_text_html()
         self.assertEqual(help_text.count("<li>"), 2)
         self.assertIn("12 characters", help_text)
 
     def test_password_validators_help_text_html_escaping(self):
+        """
+        This is a comment
+        """
         class AmpersandValidator:
             def get_help_text(self):
+                """
+                This is a comment
+                """
                 return "Must contain &"
 
         help_text = password_validators_help_text_html([AmpersandValidator()])
@@ -109,11 +139,17 @@ class PasswordValidationTest(SimpleTestCase):
 
     @override_settings(AUTH_PASSWORD_VALIDATORS=[])
     def test_empty_password_validator_help_text_html(self):
+        """
+        This is a comment
+        """
         self.assertEqual(password_validators_help_text_html(), "")
 
 
 class MinimumLengthValidatorTest(SimpleTestCase):
     def test_validate(self):
+        """
+        This is a comment
+        """
         expected_error = (
             "This password is too short. It must contain at least %d characters."
         )
@@ -130,6 +166,9 @@ class MinimumLengthValidatorTest(SimpleTestCase):
         self.assertEqual(cm.exception.messages, [expected_error % 3])
 
     def test_help_text(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             MinimumLengthValidator().get_help_text(),
             "Your password must contain at least 8 characters.",
@@ -138,6 +177,9 @@ class MinimumLengthValidatorTest(SimpleTestCase):
 
 class UserAttributeSimilarityValidatorTest(TestCase):
     def test_validate(self):
+        """
+        This is a comment
+        """
         user = User.objects.create_user(
             username="testclient",
             password="password",
@@ -185,11 +227,17 @@ class UserAttributeSimilarityValidatorTest(TestCase):
 
     @isolate_apps("auth_tests")
     def test_validate_property(self):
+        """
+        This is a comment
+        """
         class TestUser(models.Model):
             pass
 
             @property
             def username(self):
+                """
+                This is a comment
+                """
                 return "foobar"
 
         with self.assertRaises(ValidationError) as cm:
@@ -199,6 +247,9 @@ class UserAttributeSimilarityValidatorTest(TestCase):
         )
 
     def test_help_text(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             UserAttributeSimilarityValidator().get_help_text(),
             "Your password can’t be too similar to your other personal information.",
@@ -207,6 +258,9 @@ class UserAttributeSimilarityValidatorTest(TestCase):
 
 class CommonPasswordValidatorTest(SimpleTestCase):
     def test_validate(self):
+        """
+        This is a comment
+        """
         expected_error = "This password is too common."
         self.assertIsNone(CommonPasswordValidator().validate("a-safe-password"))
 
@@ -215,6 +269,9 @@ class CommonPasswordValidatorTest(SimpleTestCase):
         self.assertEqual(cm.exception.messages, [expected_error])
 
     def test_validate_custom_list(self):
+        """
+        This is a comment
+        """
         path = os.path.join(
             os.path.dirname(os.path.realpath(__file__)), "common-passwords-custom.txt"
         )
@@ -228,11 +285,17 @@ class CommonPasswordValidatorTest(SimpleTestCase):
         self.assertEqual(cm.exception.error_list[0].code, "password_too_common")
 
     def test_validate_django_supplied_file(self):
+        """
+        This is a comment
+        """
         validator = CommonPasswordValidator()
         for password in validator.passwords:
             self.assertEqual(password, password.lower())
 
     def test_help_text(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             CommonPasswordValidator().get_help_text(),
             "Your password can’t be a commonly used password.",
@@ -241,6 +304,9 @@ class CommonPasswordValidatorTest(SimpleTestCase):
 
 class NumericPasswordValidatorTest(SimpleTestCase):
     def test_validate(self):
+        """
+        This is a comment
+        """
         expected_error = "This password is entirely numeric."
         self.assertIsNone(NumericPasswordValidator().validate("a-safe-password"))
 
@@ -250,6 +316,9 @@ class NumericPasswordValidatorTest(SimpleTestCase):
         self.assertEqual(cm.exception.error_list[0].code, "password_entirely_numeric")
 
     def test_help_text(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             NumericPasswordValidator().get_help_text(),
             "Your password can’t be entirely numeric.",
@@ -258,6 +327,9 @@ class NumericPasswordValidatorTest(SimpleTestCase):
 
 class UsernameValidatorsTests(SimpleTestCase):
     def test_unicode_validator(self):
+        """
+        This is a comment
+        """
         valid_usernames = ["joe", "René", "ᴮᴵᴳᴮᴵᴿᴰ", "أحمد"]
         invalid_usernames = [
             "o'connell",
@@ -277,6 +349,9 @@ class UsernameValidatorsTests(SimpleTestCase):
                     v(invalid)
 
     def test_ascii_validator(self):
+        """
+        This is a comment
+        """
         valid_usernames = ["glenn", "GLEnN", "jean-marc"]
         invalid_usernames = [
             "o'connell",

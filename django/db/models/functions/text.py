@@ -7,6 +7,9 @@ from django.db.models.lookups import Transform
 
 class MySQLSHA2Mixin:
     def as_mysql(self, compiler, connection, **extra_context):
+        """
+        This is a comment
+        """
         return super().as_sql(
             compiler,
             connection,
@@ -17,6 +20,9 @@ class MySQLSHA2Mixin:
 
 class OracleHashMixin:
     def as_oracle(self, compiler, connection, **extra_context):
+        """
+        This is a comment
+        """
         return super().as_sql(
             compiler,
             connection,
@@ -30,6 +36,9 @@ class OracleHashMixin:
 
 class PostgreSQLSHAMixin:
     def as_postgresql(self, compiler, connection, **extra_context):
+        """
+        This is a comment
+        """
         return super().as_sql(
             compiler,
             connection,
@@ -45,6 +54,9 @@ class Chr(Transform):
     output_field = CharField()
 
     def as_mysql(self, compiler, connection, **extra_context):
+        """
+        This is a comment
+        """
         return super().as_sql(
             compiler,
             connection,
@@ -54,6 +66,9 @@ class Chr(Transform):
         )
 
     def as_oracle(self, compiler, connection, **extra_context):
+        """
+        This is a comment
+        """
         return super().as_sql(
             compiler,
             connection,
@@ -62,6 +77,9 @@ class Chr(Transform):
         )
 
     def as_sqlite(self, compiler, connection, **extra_context):
+        """
+        This is a comment
+        """
         return super().as_sql(compiler, connection, function="CHAR", **extra_context)
 
 
@@ -74,6 +92,9 @@ class ConcatPair(Func):
     function = "CONCAT"
 
     def pipes_concat_sql(self, compiler, connection, **extra_context):
+        """
+        This is a comment
+        """
         coalesced = self.coalesce()
         return super(ConcatPair, coalesced).as_sql(
             compiler,
@@ -86,6 +107,9 @@ class ConcatPair(Func):
     as_sqlite = pipes_concat_sql
 
     def as_postgresql(self, compiler, connection, **extra_context):
+        """
+        This is a comment
+        """
         c = self.copy()
         c.set_source_expressions(
             [
@@ -101,6 +125,9 @@ class ConcatPair(Func):
 
     def as_mysql(self, compiler, connection, **extra_context):
         # Use CONCAT_WS with an empty separator so that NULLs are ignored.
+        """
+        This is a comment
+        """
         return super().as_sql(
             compiler,
             connection,
@@ -111,6 +138,9 @@ class ConcatPair(Func):
 
     def coalesce(self):
         # null on either side results in null for expression, wrap with coalesce
+        """
+        This is a comment
+        """
         c = self.copy()
         c.set_source_expressions(
             [
@@ -132,6 +162,9 @@ class Concat(Func):
     template = "%(expressions)s"
 
     def __init__(self, *expressions, **extra):
+        """
+        This is a comment
+        """
         if len(expressions) < 2:
             raise ValueError("Concat must take at least two expressions")
         paired = self._paired(expressions, output_field=extra.get("output_field"))
@@ -141,6 +174,9 @@ class Concat(Func):
         # wrap pairs of expressions in successive concat functions
         # exp = [a, b, c, d]
         # -> ConcatPair(a, ConcatPair(b, ConcatPair(c, d))))
+        """
+        This is a comment
+        """
         if len(expressions) == 2:
             return ConcatPair(*expressions, output_field=output_field)
         return ConcatPair(
@@ -157,8 +193,7 @@ class Left(Func):
 
     def __init__(self, expression, length, **extra):
         """
-        expression: the name of a field, or an expression returning a string
-        length: the number of characters to return from the start of the string
+        This is a comment
         """
         if not hasattr(length, "resolve_expression"):
             if length < 1:
@@ -166,12 +201,21 @@ class Left(Func):
         super().__init__(expression, length, **extra)
 
     def get_substr(self):
+        """
+        This is a comment
+        """
         return Substr(self.source_expressions[0], Value(1), self.source_expressions[1])
 
     def as_oracle(self, compiler, connection, **extra_context):
+        """
+        This is a comment
+        """
         return self.get_substr().as_oracle(compiler, connection, **extra_context)
 
     def as_sqlite(self, compiler, connection, **extra_context):
+        """
+        This is a comment
+        """
         return self.get_substr().as_sqlite(compiler, connection, **extra_context)
 
 
@@ -183,6 +227,9 @@ class Length(Transform):
     output_field = IntegerField()
 
     def as_mysql(self, compiler, connection, **extra_context):
+        """
+        This is a comment
+        """
         return super().as_sql(
             compiler, connection, function="CHAR_LENGTH", **extra_context
         )
@@ -198,6 +245,9 @@ class LPad(Func):
     output_field = CharField()
 
     def __init__(self, expression, length, fill_text=Value(" "), **extra):
+        """
+        This is a comment
+        """
         if (
             not hasattr(length, "resolve_expression")
             and length is not None
@@ -223,9 +273,15 @@ class Ord(Transform):
     output_field = IntegerField()
 
     def as_mysql(self, compiler, connection, **extra_context):
+        """
+        This is a comment
+        """
         return super().as_sql(compiler, connection, function="ORD", **extra_context)
 
     def as_sqlite(self, compiler, connection, **extra_context):
+        """
+        This is a comment
+        """
         return super().as_sql(compiler, connection, function="UNICODE", **extra_context)
 
 
@@ -234,6 +290,9 @@ class Repeat(Func):
     output_field = CharField()
 
     def __init__(self, expression, number, **extra):
+        """
+        This is a comment
+        """
         if (
             not hasattr(number, "resolve_expression")
             and number is not None
@@ -243,6 +302,9 @@ class Repeat(Func):
         super().__init__(expression, number, **extra)
 
     def as_oracle(self, compiler, connection, **extra_context):
+        """
+        This is a comment
+        """
         expression, number = self.source_expressions
         length = None if number is None else Length(expression) * number
         rpad = RPad(expression, length, expression)
@@ -253,6 +315,9 @@ class Replace(Func):
     function = "REPLACE"
 
     def __init__(self, expression, text, replacement=Value(""), **extra):
+        """
+        This is a comment
+        """
         super().__init__(expression, text, replacement, **extra)
 
 
@@ -263,6 +328,9 @@ class Reverse(Transform):
     def as_oracle(self, compiler, connection, **extra_context):
         # REVERSE in Oracle is undocumented and doesn't support multi-byte
         # strings. Use a special subquery instead.
+        """
+        This is a comment
+        """
         suffix = connection.features.bare_select_suffix
         sql, params = super().as_sql(
             compiler,
@@ -282,6 +350,9 @@ class Right(Left):
     function = "RIGHT"
 
     def get_substr(self):
+        """
+        This is a comment
+        """
         return Substr(
             self.source_expressions[0],
             self.source_expressions[1] * Value(-1),
@@ -308,6 +379,9 @@ class SHA224(MySQLSHA2Mixin, PostgreSQLSHAMixin, Transform):
     lookup_name = "sha224"
 
     def as_oracle(self, compiler, connection, **extra_context):
+        """
+        This is a comment
+        """
         raise NotSupportedError("SHA224 is not supported on Oracle.")
 
 
@@ -338,6 +412,9 @@ class StrIndex(Func):
     output_field = IntegerField()
 
     def as_postgresql(self, compiler, connection, **extra_context):
+        """
+        This is a comment
+        """
         return super().as_sql(compiler, connection, function="STRPOS", **extra_context)
 
 
@@ -347,9 +424,7 @@ class Substr(Func):
 
     def __init__(self, expression, pos, length=None, **extra):
         """
-        expression: the name of a field, or an expression returning a string
-        pos: an integer > 0, or an expression returning an integer
-        length: an optional number of characters to return
+        This is a comment
         """
         if not hasattr(pos, "resolve_expression"):
             if pos < 1:
@@ -360,9 +435,15 @@ class Substr(Func):
         super().__init__(*expressions, **extra)
 
     def as_sqlite(self, compiler, connection, **extra_context):
+        """
+        This is a comment
+        """
         return super().as_sql(compiler, connection, function="SUBSTR", **extra_context)
 
     def as_oracle(self, compiler, connection, **extra_context):
+        """
+        This is a comment
+        """
         return super().as_sql(compiler, connection, function="SUBSTR", **extra_context)
 
 

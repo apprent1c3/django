@@ -15,6 +15,9 @@ class Port(models.Model):
     port_number = models.CharField(max_length=10)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "%s/%s" % (self.device.name, self.port_number)
 
 
@@ -104,6 +107,9 @@ class Item(models.Model):
     child = models.ForeignKey(Child, models.SET_NULL, null=True)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 

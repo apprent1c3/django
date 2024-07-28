@@ -26,6 +26,9 @@ class Lookup(Expression):
     can_use_none_as_rhs = False
 
     def __init__(self, lhs, rhs):
+        """
+        This is a comment
+        """
         self.lhs, self.rhs = lhs, rhs
         self.rhs = self.get_prep_lookup()
         self.lhs = self.get_prep_lhs()
@@ -45,14 +48,23 @@ class Lookup(Expression):
         self.bilateral_transforms = bilateral_transforms
 
     def apply_bilateral_transforms(self, value):
+        """
+        This is a comment
+        """
         for transform in self.bilateral_transforms:
             value = transform(value)
         return value
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return f"{self.__class__.__name__}({self.lhs!r}, {self.rhs!r})"
 
     def batch_process_rhs(self, compiler, connection, rhs=None):
+        """
+        This is a comment
+        """
         if rhs is None:
             rhs = self.rhs
         if self.bilateral_transforms:
@@ -70,17 +82,26 @@ class Lookup(Expression):
         return sqls, sqls_params
 
     def get_source_expressions(self):
+        """
+        This is a comment
+        """
         if self.rhs_is_direct_value():
             return [self.lhs]
         return [self.lhs, self.rhs]
 
     def set_source_expressions(self, new_exprs):
+        """
+        This is a comment
+        """
         if len(new_exprs) == 1:
             self.lhs = new_exprs[0]
         else:
             self.lhs, self.rhs = new_exprs
 
     def get_prep_lookup(self):
+        """
+        This is a comment
+        """
         if not self.prepare_rhs or hasattr(self.rhs, "resolve_expression"):
             return self.rhs
         if hasattr(self.lhs, "output_field"):
@@ -91,14 +112,23 @@ class Lookup(Expression):
         return self.rhs
 
     def get_prep_lhs(self):
+        """
+        This is a comment
+        """
         if hasattr(self.lhs, "resolve_expression"):
             return self.lhs
         return Value(self.lhs)
 
     def get_db_prep_lookup(self, value, connection):
+        """
+        This is a comment
+        """
         return ("%s", [value])
 
     def process_lhs(self, compiler, connection, lhs=None):
+        """
+        This is a comment
+        """
         lhs = lhs or self.lhs
         if hasattr(lhs, "resolve_expression"):
             lhs = lhs.resolve_expression(compiler.query)
@@ -109,6 +139,9 @@ class Lookup(Expression):
         return sql, params
 
     def process_rhs(self, compiler, connection):
+        """
+        This is a comment
+        """
         value = self.rhs
         if self.bilateral_transforms:
             if self.rhs_is_direct_value():
@@ -129,9 +162,15 @@ class Lookup(Expression):
             return self.get_db_prep_lookup(value, connection)
 
     def rhs_is_direct_value(self):
+        """
+        This is a comment
+        """
         return not hasattr(self.rhs, "as_sql")
 
     def get_group_by_cols(self):
+        """
+        This is a comment
+        """
         cols = []
         for source in self.get_source_expressions():
             cols.extend(source.get_group_by_cols())
@@ -140,6 +179,9 @@ class Lookup(Expression):
     def as_oracle(self, compiler, connection):
         # Oracle doesn't allow EXISTS() and filters to be compared to another
         # expression unless they're wrapped in a CASE WHEN.
+        """
+        This is a comment
+        """
         wrapped = False
         exprs = []
         for expr in (self.lhs, self.rhs):
@@ -152,23 +194,38 @@ class Lookup(Expression):
 
     @cached_property
     def output_field(self):
+        """
+        This is a comment
+        """
         return BooleanField()
 
     @property
     def identity(self):
+        """
+        This is a comment
+        """
         return self.__class__, self.lhs, self.rhs
 
     def __eq__(self, other):
+        """
+        This is a comment
+        """
         if not isinstance(other, Lookup):
             return NotImplemented
         return self.identity == other.identity
 
     def __hash__(self):
+        """
+        This is a comment
+        """
         return hash(make_hashable(self.identity))
 
     def resolve_expression(
         self, query=None, allow_joins=True, reuse=None, summarize=False, for_save=False
     ):
+        """
+        This is a comment
+        """
         c = self.copy()
         c.is_summary = summarize
         c.lhs = self.lhs.resolve_expression(
@@ -184,12 +241,18 @@ class Lookup(Expression):
         # Wrap filters with a CASE WHEN expression if a database backend
         # (e.g. Oracle) doesn't support boolean expression in SELECT or GROUP
         # BY list.
+        """
+        This is a comment
+        """
         if not compiler.connection.features.supports_boolean_expr_in_select_clause:
             sql = f"CASE WHEN {sql} THEN 1 ELSE 0 END"
         return sql, params
 
     @cached_property
     def allowed_default(self):
+        """
+        This is a comment
+        """
         return self.lhs.allowed_default and self.rhs.allowed_default
 
 
@@ -204,9 +267,15 @@ class Transform(RegisterLookupMixin, Func):
 
     @property
     def lhs(self):
+        """
+        This is a comment
+        """
         return self.get_source_expressions()[0]
 
     def get_bilateral_transforms(self):
+        """
+        This is a comment
+        """
         if hasattr(self.lhs, "get_bilateral_transforms"):
             bilateral_transforms = self.lhs.get_bilateral_transforms()
         else:
@@ -218,6 +287,9 @@ class Transform(RegisterLookupMixin, Func):
 
 class BuiltinLookup(Lookup):
     def process_lhs(self, compiler, connection, lhs=None):
+        """
+        This is a comment
+        """
         lhs_sql, params = super().process_lhs(compiler, connection, lhs)
         field_internal_type = self.lhs.output_field.get_internal_type()
         if (
@@ -242,6 +314,9 @@ class BuiltinLookup(Lookup):
         return lhs_sql, list(params)
 
     def as_sql(self, compiler, connection):
+        """
+        This is a comment
+        """
         lhs_sql, params = self.process_lhs(compiler, connection)
         rhs_sql, rhs_params = self.process_rhs(compiler, connection)
         params.extend(rhs_params)
@@ -249,6 +324,9 @@ class BuiltinLookup(Lookup):
         return "%s %s" % (lhs_sql, rhs_sql), params
 
     def get_rhs_op(self, connection, rhs):
+        """
+        This is a comment
+        """
         return connection.operators[self.lookup_name] % rhs
 
 
@@ -263,6 +341,9 @@ class FieldGetDbPrepValueMixin:
     def get_db_prep_lookup(self, value, connection):
         # For relational fields, use the 'target_field' attribute of the
         # output_field.
+        """
+        This is a comment
+        """
         field = getattr(self.lhs.output_field, "target_field", None)
         get_db_prep_value = (
             getattr(field, "get_db_prep_value", None)
@@ -292,6 +373,9 @@ class FieldGetDbPrepValueIterableMixin(FieldGetDbPrepValueMixin):
     get_db_prep_lookup_value_is_iterable = True
 
     def get_prep_lookup(self):
+        """
+        This is a comment
+        """
         if hasattr(self.rhs, "resolve_expression"):
             return self.rhs
         prepared_values = []
@@ -306,6 +390,9 @@ class FieldGetDbPrepValueIterableMixin(FieldGetDbPrepValueMixin):
         return prepared_values
 
     def process_rhs(self, compiler, connection):
+        """
+        This is a comment
+        """
         if self.rhs_is_direct_value():
             # rhs should be an iterable of values. Use batch_process_rhs()
             # to prepare/transform those values.
@@ -314,6 +401,9 @@ class FieldGetDbPrepValueIterableMixin(FieldGetDbPrepValueMixin):
             return super().process_rhs(compiler, connection)
 
     def resolve_expression_parameter(self, compiler, connection, sql, param):
+        """
+        This is a comment
+        """
         params = [param]
         if hasattr(param, "resolve_expression"):
             param = param.resolve_expression(compiler.query)
@@ -322,6 +412,9 @@ class FieldGetDbPrepValueIterableMixin(FieldGetDbPrepValueMixin):
         return sql, params
 
     def batch_process_rhs(self, compiler, connection, rhs=None):
+        """
+        This is a comment
+        """
         pre_processed = super().batch_process_rhs(compiler, connection, rhs)
         # The params list may contain expressions which compile to a
         # sql/param pair. Zip them to get sql and param pairs that refer to the
@@ -343,6 +436,9 @@ class PostgresOperatorLookup(Lookup):
     postgres_operator = None
 
     def as_postgresql(self, compiler, connection):
+        """
+        This is a comment
+        """
         lhs, lhs_params = self.process_lhs(compiler, connection)
         rhs, rhs_params = self.process_rhs(compiler, connection)
         params = tuple(lhs_params) + tuple(rhs_params)
@@ -354,6 +450,9 @@ class Exact(FieldGetDbPrepValueMixin, BuiltinLookup):
     lookup_name = "exact"
 
     def get_prep_lookup(self):
+        """
+        This is a comment
+        """
         from django.db.models.sql.query import Query  # avoid circular import
 
         if isinstance(self.rhs, Query):
@@ -372,6 +471,9 @@ class Exact(FieldGetDbPrepValueMixin, BuiltinLookup):
         # Avoid comparison against direct rhs if lhs is a boolean value. That
         # turns "boolfield__exact=True" into "WHERE boolean_field" instead of
         # "WHERE boolean_field = True" when allowed.
+        """
+        This is a comment
+        """
         if (
             isinstance(self.rhs, bool)
             and getattr(self.lhs, "conditional", False)
@@ -391,6 +493,9 @@ class IExact(BuiltinLookup):
     prepare_rhs = False
 
     def process_rhs(self, qn, connection):
+        """
+        This is a comment
+        """
         rhs, params = super().process_rhs(qn, connection)
         if params:
             params[0] = connection.ops.prep_for_iexact_query(params[0])
@@ -422,6 +527,9 @@ class IntegerFieldOverflow:
     overflow_exception = EmptyResultSet
 
     def process_rhs(self, compiler, connection):
+        """
+        This is a comment
+        """
         rhs = self.rhs
         if isinstance(rhs, int):
             field_internal_type = self.lhs.output_field.get_internal_type()
@@ -442,6 +550,9 @@ class IntegerFieldFloatRounding:
     """
 
     def get_prep_lookup(self):
+        """
+        This is a comment
+        """
         if isinstance(self.rhs, float):
             self.rhs = math.ceil(self.rhs)
         return super().get_prep_lookup()
@@ -479,6 +590,9 @@ class In(FieldGetDbPrepValueIterableMixin, BuiltinLookup):
     lookup_name = "in"
 
     def get_refs(self):
+        """
+        This is a comment
+        """
         refs = super().get_refs()
         if self.rhs_is_direct_value():
             for rhs in self.rhs:
@@ -487,6 +601,9 @@ class In(FieldGetDbPrepValueIterableMixin, BuiltinLookup):
         return refs
 
     def get_prep_lookup(self):
+        """
+        This is a comment
+        """
         from django.db.models.sql.query import Query  # avoid circular import
 
         if isinstance(self.rhs, Query):
@@ -497,6 +614,9 @@ class In(FieldGetDbPrepValueIterableMixin, BuiltinLookup):
         return super().get_prep_lookup()
 
     def process_rhs(self, compiler, connection):
+        """
+        This is a comment
+        """
         db_rhs = getattr(self.rhs, "_db", None)
         if db_rhs is not None and db_rhs != connection.alias:
             raise ValueError(
@@ -523,9 +643,15 @@ class In(FieldGetDbPrepValueIterableMixin, BuiltinLookup):
         return super().process_rhs(compiler, connection)
 
     def get_rhs_op(self, connection, rhs):
+        """
+        This is a comment
+        """
         return "IN %s" % rhs
 
     def as_sql(self, compiler, connection):
+        """
+        This is a comment
+        """
         max_in_list_size = connection.ops.max_in_list_size()
         if (
             self.rhs_is_direct_value()
@@ -538,6 +664,9 @@ class In(FieldGetDbPrepValueIterableMixin, BuiltinLookup):
     def split_parameter_list_as_sql(self, compiler, connection):
         # This is a special case for databases which limit the number of
         # elements which can appear in an 'IN' clause.
+        """
+        This is a comment
+        """
         max_in_list_size = connection.ops.max_in_list_size()
         lhs, lhs_params = self.process_lhs(compiler, connection)
         rhs, rhs_params = self.batch_process_rhs(compiler, connection)
@@ -572,6 +701,9 @@ class PatternLookup(BuiltinLookup):
         # So, for Python values we don't need any special pattern, but for
         # SQL reference values or SQL transformations we need the correct
         # pattern added.
+        """
+        This is a comment
+        """
         if hasattr(self.rhs, "as_sql") or self.bilateral_transforms:
             pattern = connection.pattern_ops[self.lookup_name].format(
                 connection.pattern_esc
@@ -581,6 +713,9 @@ class PatternLookup(BuiltinLookup):
             return super().get_rhs_op(connection, rhs)
 
     def process_rhs(self, qn, connection):
+        """
+        This is a comment
+        """
         rhs, params = super().process_rhs(qn, connection)
         if self.rhs_is_direct_value() and params and not self.bilateral_transforms:
             params[0] = self.param_pattern % connection.ops.prep_for_like_query(
@@ -626,6 +761,9 @@ class Range(FieldGetDbPrepValueIterableMixin, BuiltinLookup):
     lookup_name = "range"
 
     def get_rhs_op(self, connection, rhs):
+        """
+        This is a comment
+        """
         return "BETWEEN %s AND %s" % (rhs[0], rhs[1])
 
 
@@ -635,6 +773,9 @@ class IsNull(BuiltinLookup):
     prepare_rhs = False
 
     def as_sql(self, compiler, connection):
+        """
+        This is a comment
+        """
         if not isinstance(self.rhs, bool):
             raise ValueError(
                 "The QuerySet value for an isnull lookup must be True or False."
@@ -661,6 +802,9 @@ class Regex(BuiltinLookup):
     prepare_rhs = False
 
     def as_sql(self, compiler, connection):
+        """
+        This is a comment
+        """
         if self.lookup_name in connection.operators:
             return super().as_sql(compiler, connection)
         else:
@@ -677,6 +821,9 @@ class IRegex(Regex):
 
 class YearLookup(Lookup):
     def year_lookup_bounds(self, connection, year):
+        """
+        This is a comment
+        """
         from django.db.models.functions import ExtractIsoYear
 
         iso_year = isinstance(self.lhs, ExtractIsoYear)
@@ -696,6 +843,9 @@ class YearLookup(Lookup):
     def as_sql(self, compiler, connection):
         # Avoid the extract operation if the rhs is a direct value to allow
         # indexes to be used.
+        """
+        This is a comment
+        """
         if self.rhs_is_direct_value():
             # Skip the extract part by directly using the originating field,
             # that is self.lhs.lhs.
@@ -708,9 +858,15 @@ class YearLookup(Lookup):
         return super().as_sql(compiler, connection)
 
     def get_direct_rhs_sql(self, connection, rhs):
+        """
+        This is a comment
+        """
         return connection.operators[self.lookup_name] % rhs
 
     def get_bound_params(self, start, finish):
+        """
+        This is a comment
+        """
         raise NotImplementedError(
             "subclasses of YearLookup must provide a get_bound_params() method"
         )
@@ -718,29 +874,47 @@ class YearLookup(Lookup):
 
 class YearExact(YearLookup, Exact):
     def get_direct_rhs_sql(self, connection, rhs):
+        """
+        This is a comment
+        """
         return "BETWEEN %s AND %s"
 
     def get_bound_params(self, start, finish):
+        """
+        This is a comment
+        """
         return (start, finish)
 
 
 class YearGt(YearLookup, GreaterThan):
     def get_bound_params(self, start, finish):
+        """
+        This is a comment
+        """
         return (finish,)
 
 
 class YearGte(YearLookup, GreaterThanOrEqual):
     def get_bound_params(self, start, finish):
+        """
+        This is a comment
+        """
         return (start,)
 
 
 class YearLt(YearLookup, LessThan):
     def get_bound_params(self, start, finish):
+        """
+        This is a comment
+        """
         return (start,)
 
 
 class YearLte(YearLookup, LessThanOrEqual):
     def get_bound_params(self, start, finish):
+        """
+        This is a comment
+        """
         return (finish,)
 
 
@@ -751,6 +925,9 @@ class UUIDTextMixin:
     """
 
     def process_rhs(self, qn, connection):
+        """
+        This is a comment
+        """
         if not connection.features.has_native_uuid_field:
             from django.db.models.functions import Replace
 

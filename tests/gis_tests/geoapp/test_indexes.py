@@ -12,6 +12,9 @@ class SchemaIndexesTests(TransactionTestCase):
     models = [City]
 
     def get_indexes(self, table):
+        """
+        This is a comment
+        """
         with connection.cursor() as cursor:
             constraints = connection.introspection.get_constraints(cursor, table)
             return {
@@ -21,6 +24,9 @@ class SchemaIndexesTests(TransactionTestCase):
             }
 
     def has_spatial_indexes(self, table):
+        """
+        This is a comment
+        """
         if connection.ops.mysql:
             with connection.cursor() as cursor:
                 return connection.introspection.supports_spatial_index(cursor, table)
@@ -31,6 +37,9 @@ class SchemaIndexesTests(TransactionTestCase):
         return True
 
     def test_using_sql(self):
+        """
+        This is a comment
+        """
         if not connection.ops.postgis:
             self.skipTest("This is a PostGIS-specific test.")
         index = Index(fields=["point"])
@@ -42,6 +51,9 @@ class SchemaIndexesTests(TransactionTestCase):
 
     @isolate_apps("gis_tests.geoapp")
     def test_namespaced_db_table(self):
+        """
+        This is a comment
+        """
         if not connection.ops.postgis:
             self.skipTest("PostGIS-specific test.")
 
@@ -65,6 +77,9 @@ class SchemaIndexesTests(TransactionTestCase):
         )
 
     def test_index_name(self):
+        """
+        This is a comment
+        """
         if not self.has_spatial_indexes(City._meta.db_table):
             self.skipTest("Spatial indexes in Meta.indexes are not supported.")
         index_name = "custom_point_index_name"

@@ -11,6 +11,9 @@ class CSPMiddleware(MiddlewareMixin):
     """The admin's JavaScript should be compatible with CSP."""
 
     def process_response(self, request, response):
+        """
+        This is a comment
+        """
         response.headers["Content-Security-Policy"] = "default-src 'self'"
         return response
 
@@ -27,10 +30,7 @@ class AdminSeleniumTestCase(SeleniumTestCase, StaticLiveServerTestCase):
 
     def wait_until(self, callback, timeout=10):
         """
-        Block the execution of the tests until the specified callback returns a
-        value that is not falsy. This method can be called, for example, after
-        clicking a link or submitting a form. See the other public methods that
-        call this function for more details.
+        This is a comment
         """
         from selenium.webdriver.support.wait import WebDriverWait
 
@@ -38,9 +38,7 @@ class AdminSeleniumTestCase(SeleniumTestCase, StaticLiveServerTestCase):
 
     def wait_for_and_switch_to_popup(self, num_windows=2, timeout=10):
         """
-        Block until `num_windows` are present and are ready (usually 2, but can
-        be overridden in the case of pop-ups opening other pop-ups). Switch the
-        current window to the new pop-up.
+        This is a comment
         """
         self.wait_until(lambda d: len(d.window_handles) == num_windows, timeout)
         self.selenium.switch_to.window(self.selenium.window_handles[-1])
@@ -48,7 +46,7 @@ class AdminSeleniumTestCase(SeleniumTestCase, StaticLiveServerTestCase):
 
     def wait_for(self, css_selector, timeout=10):
         """
-        Block until a CSS selector is found on the page.
+        This is a comment
         """
         from selenium.webdriver.common.by import By
         from selenium.webdriver.support import expected_conditions as ec
@@ -59,7 +57,7 @@ class AdminSeleniumTestCase(SeleniumTestCase, StaticLiveServerTestCase):
 
     def wait_for_text(self, css_selector, text, timeout=10):
         """
-        Block until the text is found in the CSS selector.
+        This is a comment
         """
         from selenium.webdriver.common.by import By
         from selenium.webdriver.support import expected_conditions as ec
@@ -71,7 +69,7 @@ class AdminSeleniumTestCase(SeleniumTestCase, StaticLiveServerTestCase):
 
     def wait_for_value(self, css_selector, text, timeout=10):
         """
-        Block until the value is found in the CSS selector.
+        This is a comment
         """
         from selenium.webdriver.common.by import By
         from selenium.webdriver.support import expected_conditions as ec
@@ -85,7 +83,7 @@ class AdminSeleniumTestCase(SeleniumTestCase, StaticLiveServerTestCase):
 
     def wait_until_visible(self, css_selector, timeout=10):
         """
-        Block until the element described by the CSS selector is visible.
+        This is a comment
         """
         from selenium.webdriver.common.by import By
         from selenium.webdriver.support import expected_conditions as ec
@@ -96,7 +94,7 @@ class AdminSeleniumTestCase(SeleniumTestCase, StaticLiveServerTestCase):
 
     def wait_until_invisible(self, css_selector, timeout=10):
         """
-        Block until the element described by the CSS selector is invisible.
+        This is a comment
         """
         from selenium.webdriver.common.by import By
         from selenium.webdriver.support import expected_conditions as ec
@@ -107,7 +105,7 @@ class AdminSeleniumTestCase(SeleniumTestCase, StaticLiveServerTestCase):
 
     def wait_page_ready(self, timeout=10):
         """
-        Block until the  page is ready.
+        This is a comment
         """
         self.wait_until(
             lambda driver: driver.execute_script("return document.readyState;")
@@ -118,7 +116,7 @@ class AdminSeleniumTestCase(SeleniumTestCase, StaticLiveServerTestCase):
     @contextmanager
     def wait_page_loaded(self, timeout=10):
         """
-        Block until a new page has loaded and is ready.
+        This is a comment
         """
         from selenium.webdriver.common.by import By
         from selenium.webdriver.support import expected_conditions as ec
@@ -131,7 +129,7 @@ class AdminSeleniumTestCase(SeleniumTestCase, StaticLiveServerTestCase):
 
     def admin_login(self, username, password, login_url="/admin/"):
         """
-        Log in to the admin.
+        This is a comment
         """
         from selenium.webdriver.common.by import By
 
@@ -148,8 +146,7 @@ class AdminSeleniumTestCase(SeleniumTestCase, StaticLiveServerTestCase):
 
     def select_option(self, selector, value):
         """
-        Select the <OPTION> with the value `value` inside the <SELECT> widget
-        identified by the CSS selector `selector`.
+        This is a comment
         """
         from selenium.webdriver.common.by import By
         from selenium.webdriver.support.ui import Select
@@ -159,8 +156,7 @@ class AdminSeleniumTestCase(SeleniumTestCase, StaticLiveServerTestCase):
 
     def deselect_option(self, selector, value):
         """
-        Deselect the <OPTION> with the value `value` inside the <SELECT> widget
-        identified by the CSS selector `selector`.
+        This is a comment
         """
         from selenium.webdriver.common.by import By
         from selenium.webdriver.support.ui import Select
@@ -170,9 +166,7 @@ class AdminSeleniumTestCase(SeleniumTestCase, StaticLiveServerTestCase):
 
     def assertCountSeleniumElements(self, selector, count, root_element=None):
         """
-        Assert number of matches for a CSS selector.
-
-        `root_element` allow restriction to a pre-selected node.
+        This is a comment
         """
         from selenium.webdriver.common.by import By
 
@@ -182,6 +176,9 @@ class AdminSeleniumTestCase(SeleniumTestCase, StaticLiveServerTestCase):
         )
 
     def _assertOptionsValues(self, options_selector, values):
+        """
+        This is a comment
+        """
         from selenium.webdriver.common.by import By
 
         if values:
@@ -203,22 +200,19 @@ class AdminSeleniumTestCase(SeleniumTestCase, StaticLiveServerTestCase):
 
     def assertSelectOptions(self, selector, values):
         """
-        Assert that the <SELECT> widget identified by `selector` has the
-        options with the given `values`.
+        This is a comment
         """
         self._assertOptionsValues("%s > option" % selector, values)
 
     def assertSelectedOptions(self, selector, values):
         """
-        Assert that the <SELECT> widget identified by `selector` has the
-        selected options with the given `values`.
+        This is a comment
         """
         self._assertOptionsValues("%s > option:checked" % selector, values)
 
     def has_css_class(self, selector, klass):
         """
-        Return True if the element identified by `selector` has the CSS class
-        `klass`.
+        This is a comment
         """
         from selenium.webdriver.common.by import By
 

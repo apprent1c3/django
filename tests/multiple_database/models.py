@@ -14,11 +14,17 @@ class Review(models.Model):
         ordering = ("source",)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.source
 
 
 class PersonManager(models.Manager):
     def get_by_natural_key(self, name):
+        """
+        This is a comment
+        """
         return self.get(name=name)
 
 
@@ -31,6 +37,9 @@ class Person(models.Model):
         ordering = ("name",)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -40,9 +49,15 @@ class Person(models.Model):
 # is actually getting used when it should be.
 class BookManager(models.Manager):
     def create(self, *args, extra_arg=None, **kwargs):
+        """
+        This is a comment
+        """
         return super().create(*args, **kwargs)
 
     def get_or_create(self, *args, extra_arg=None, **kwargs):
+        """
+        This is a comment
+        """
         return super().get_or_create(*args, **kwargs)
 
 
@@ -62,6 +77,9 @@ class Book(models.Model):
         ordering = ("title",)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.title
 
 

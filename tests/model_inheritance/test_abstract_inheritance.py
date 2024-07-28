@@ -10,6 +10,9 @@ from django.test.utils import isolate_apps
 @isolate_apps("model_inheritance")
 class AbstractInheritanceTests(SimpleTestCase):
     def test_single_parent(self):
+        """
+        This is a comment
+        """
         class AbstractBase(models.Model):
             name = models.CharField(max_length=30)
 
@@ -34,8 +37,7 @@ class AbstractInheritanceTests(SimpleTestCase):
 
     def test_multiple_inheritance_allows_inherited_field(self):
         """
-        Single layer multiple inheritance is as expected, deriving the
-        inherited field from the first base.
+        This is a comment
         """
 
         class ParentA(models.Model):
@@ -60,14 +62,7 @@ class AbstractInheritanceTests(SimpleTestCase):
 
     def test_diamond_shaped_multiple_inheritance_is_depth_first(self):
         """
-        In contrast to standard Python MRO, resolution of inherited fields is
-        strictly depth-first, rather than breadth-first in diamond-shaped cases.
-
-        This is because a copy of the parent field descriptor is placed onto
-        the model class in ModelBase.__new__(), rather than the attribute
-        lookup going via bases. (It only **looks** like inheritance.)
-
-        Here, Child inherits name from Root, rather than ParentB.
+        This is a comment
         """
 
         class Root(models.Model):
@@ -96,9 +91,7 @@ class AbstractInheritanceTests(SimpleTestCase):
 
     def test_target_field_may_be_pushed_down(self):
         """
-        Where the Child model needs to inherit a field from a different base
-        than that given by depth-first resolution, the target field can be
-        **pushed down** by being re-declared.
+        This is a comment
         """
 
         class Root(models.Model):
@@ -125,6 +118,9 @@ class AbstractInheritanceTests(SimpleTestCase):
         self.assertIsInstance(inherited_field, models.IntegerField)
 
     def test_multiple_inheritance_cannot_shadow_concrete_inherited_field(self):
+        """
+        This is a comment
+        """
         class ConcreteParent(models.Model):
             name = models.CharField(max_length=255)
 
@@ -154,6 +150,9 @@ class AbstractInheritanceTests(SimpleTestCase):
         )
 
     def test_virtual_field(self):
+        """
+        This is a comment
+        """
         class RelationModel(models.Model):
             content_type = models.ForeignKey(ContentType, models.CASCADE)
             object_id = models.PositiveIntegerField()
@@ -185,6 +184,9 @@ class AbstractInheritanceTests(SimpleTestCase):
         )
 
     def test_cannot_override_indirect_abstract_field(self):
+        """
+        This is a comment
+        """
         class AbstractBase(models.Model):
             name = models.CharField(max_length=30)
 
@@ -204,6 +206,9 @@ class AbstractInheritanceTests(SimpleTestCase):
                 name = models.IntegerField()
 
     def test_override_field_with_attr(self):
+        """
+        This is a comment
+        """
         class AbstractBase(models.Model):
             first_name = models.CharField(max_length=50)
             last_name = models.CharField(max_length=50)
@@ -217,6 +222,9 @@ class AbstractInheritanceTests(SimpleTestCase):
             middle_name = None
 
             def full_name(self):
+                """
+                This is a comment
+                """
                 return self.first_name + self.last_name
 
         msg = "Descendant has no field named %r"
@@ -227,6 +235,9 @@ class AbstractInheritanceTests(SimpleTestCase):
             Descendant._meta.get_field("full_name")
 
     def test_overriding_field_removed_by_concrete_model(self):
+        """
+        This is a comment
+        """
         class AbstractModel(models.Model):
             foo = models.CharField(max_length=30)
 
@@ -244,6 +255,9 @@ class AbstractInheritanceTests(SimpleTestCase):
         )
 
     def test_shadowed_fkey_id(self):
+        """
+        This is a comment
+        """
         class Foo(models.Model):
             pass
 
@@ -269,6 +283,9 @@ class AbstractInheritanceTests(SimpleTestCase):
         )
 
     def test_shadow_related_name_when_set_to_none(self):
+        """
+        This is a comment
+        """
         class AbstractBase(models.Model):
             bar = models.IntegerField()
 
@@ -285,6 +302,9 @@ class AbstractInheritanceTests(SimpleTestCase):
         self.assertEqual(Bar.check(), [])
 
     def test_reverse_foreign_key(self):
+        """
+        This is a comment
+        """
         class AbstractBase(models.Model):
             foo = models.CharField(max_length=100)
 
@@ -328,6 +348,9 @@ class AbstractInheritanceTests(SimpleTestCase):
         )
 
     def test_multi_inheritance_field_clashes(self):
+        """
+        This is a comment
+        """
         class AbstractBase(models.Model):
             name = models.CharField(max_length=30)
 
@@ -357,6 +380,9 @@ class AbstractInheritanceTests(SimpleTestCase):
         )
 
     def test_override_one2one_relation_auto_field_clashes(self):
+        """
+        This is a comment
+        """
         class ConcreteParent(models.Model):
             name = models.CharField(max_length=255)
 
@@ -377,6 +403,9 @@ class AbstractInheritanceTests(SimpleTestCase):
                 concreteparent_ptr = models.CharField(max_length=30)
 
     def test_abstract_model_with_regular_python_mixin_mro(self):
+        """
+        This is a comment
+        """
         class AbstractModel(models.Model):
             name = models.CharField(max_length=255)
             age = models.IntegerField()
@@ -400,6 +429,9 @@ class AbstractInheritanceTests(SimpleTestCase):
             age = models.SmallIntegerField()
 
         def fields(model):
+            """
+            This is a comment
+            """
             if not hasattr(model, "_meta"):
                 return []
             return [(f.name, f.__class__) for f in model._meta.get_fields()]

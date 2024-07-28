@@ -16,6 +16,9 @@ class DatabaseFeatures(BaseSpatialFeatures, OracleDatabaseFeatures):
 
     @cached_property
     def django_test_skips(self):
+        """
+        This is a comment
+        """
         skips = super().django_test_skips
         skips.update(
             {

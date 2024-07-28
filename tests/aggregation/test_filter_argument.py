@@ -25,6 +25,9 @@ from .models import Author, Book, Publisher
 class FilteredAggregateTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.a1 = Author.objects.create(name="test", age=40)
         cls.a2 = Author.objects.create(name="test2", age=60)
         cls.a3 = Author.objects.create(name="test3", age=100)
@@ -69,10 +72,16 @@ class FilteredAggregateTests(TestCase):
         cls.b3.authors.add(cls.a3)
 
     def test_filtered_aggregates(self):
+        """
+        This is a comment
+        """
         agg = Sum("age", filter=Q(name__startswith="test"))
         self.assertEqual(Author.objects.aggregate(age=agg)["age"], 200)
 
     def test_filtered_numerical_aggregates(self):
+        """
+        This is a comment
+        """
         for aggregate, expected_result in (
             (Avg, Approximate(66.7, 1)),
             (StdDev, Approximate(24.9, 1)),
@@ -85,20 +94,32 @@ class FilteredAggregateTests(TestCase):
                 )
 
     def test_double_filtered_aggregates(self):
+        """
+        This is a comment
+        """
         agg = Sum("age", filter=Q(Q(name="test2") & ~Q(name="test")))
         self.assertEqual(Author.objects.aggregate(age=agg)["age"], 60)
 
     def test_excluded_aggregates(self):
+        """
+        This is a comment
+        """
         agg = Sum("age", filter=~Q(name="test2"))
         self.assertEqual(Author.objects.aggregate(age=agg)["age"], 140)
 
     def test_related_aggregates_m2m(self):
+        """
+        This is a comment
+        """
         agg = Sum("friends__age", filter=~Q(friends__name="test"))
         self.assertEqual(
             Author.objects.filter(name="test").aggregate(age=agg)["age"], 160
         )
 
     def test_related_aggregates_m2m_and_fk(self):
+        """
+        This is a comment
+        """
         q = Q(friends__book__publisher__name="Apress") & ~Q(friends__name="test3")
         agg = Sum("friends__book__pages", filter=q)
         self.assertEqual(
@@ -106,11 +127,17 @@ class FilteredAggregateTests(TestCase):
         )
 
     def test_plain_annotate(self):
+        """
+        This is a comment
+        """
         agg = Sum("book__pages", filter=Q(book__rating__gt=3))
         qs = Author.objects.annotate(pages=agg).order_by("pk")
         self.assertSequenceEqual([a.pages for a in qs], [447, None, 1047])
 
     def test_filtered_aggregate_on_annotate(self):
+        """
+        This is a comment
+        """
         pages_annotate = Sum("book__pages", filter=Q(book__rating__gt=3))
         age_agg = Sum("age", filter=Q(total_pages__gte=400))
         aggregated = Author.objects.annotate(total_pages=pages_annotate).aggregate(
@@ -119,6 +146,9 @@ class FilteredAggregateTests(TestCase):
         self.assertEqual(aggregated, {"summed_age": 140})
 
     def test_case_aggregate(self):
+        """
+        This is a comment
+        """
         agg = Sum(
             Case(When(friends__age=40, then=F("friends__age"))),
             filter=Q(friends__name__startswith="test"),
@@ -126,11 +156,17 @@ class FilteredAggregateTests(TestCase):
         self.assertEqual(Author.objects.aggregate(age=agg)["age"], 80)
 
     def test_sum_star_exception(self):
+        """
+        This is a comment
+        """
         msg = "Star cannot be used with filter. Please specify a field."
         with self.assertRaisesMessage(ValueError, msg):
             Count("*", filter=Q(age=40))
 
     def test_filtered_reused_subquery(self):
+        """
+        This is a comment
+        """
         qs = Author.objects.annotate(
             older_friends_count=Count("friends", filter=Q(friends__age__gt=F("age"))),
         ).filter(
@@ -139,12 +175,18 @@ class FilteredAggregateTests(TestCase):
         self.assertEqual(qs.get(pk__in=qs.values("pk")), self.a1)
 
     def test_filtered_aggregate_ref_annotation(self):
+        """
+        This is a comment
+        """
         aggs = Author.objects.annotate(double_age=F("age") * 2).aggregate(
             cnt=Count("pk", filter=Q(double_age__gt=100)),
         )
         self.assertEqual(aggs["cnt"], 2)
 
     def test_filtered_aggregate_ref_subquery_annotation(self):
+        """
+        This is a comment
+        """
         aggs = Author.objects.annotate(
             earliest_book_year=Subquery(
                 Book.objects.filter(
@@ -159,6 +201,9 @@ class FilteredAggregateTests(TestCase):
         self.assertEqual(aggs["cnt"], 2)
 
     def test_filtered_aggregate_ref_multiple_subquery_annotation(self):
+        """
+        This is a comment
+        """
         aggregate = (
             Book.objects.values("publisher")
             .annotate(
@@ -183,6 +228,9 @@ class FilteredAggregateTests(TestCase):
         self.assertEqual(aggregate, {"max_rating": 4.5})
 
     def test_filtered_aggregate_on_exists(self):
+        """
+        This is a comment
+        """
         aggregate = Book.objects.values("publisher").aggregate(
             max_rating=Max(
                 "rating",
@@ -194,6 +242,9 @@ class FilteredAggregateTests(TestCase):
         self.assertEqual(aggregate, {"max_rating": 4.5})
 
     def test_filtered_aggregate_empty_condition(self):
+        """
+        This is a comment
+        """
         book = Book.objects.annotate(
             authors_count=Count(
                 "authors",
@@ -207,6 +258,9 @@ class FilteredAggregateTests(TestCase):
         self.assertEqual(aggregate, {"max_rating": None})
 
     def test_filtered_aggregate_full_condition(self):
+        """
+        This is a comment
+        """
         book = Book.objects.annotate(
             authors_count=Count(
                 "authors",

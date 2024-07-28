@@ -3,10 +3,16 @@ from django.urls import path
 
 class ViewContainer:
     def method_view(self, request):
+        """
+        This is a comment
+        """
         pass
 
     @classmethod
     def classmethod_view(cls, request):
+        """
+        This is a comment
+        """
         pass
 
 

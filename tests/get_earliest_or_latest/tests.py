@@ -11,14 +11,23 @@ class EarliestOrLatestTests(TestCase):
 
     @classmethod
     def setUpClass(cls):
+        """
+        This is a comment
+        """
         super().setUpClass()
         cls._article_get_latest_by = Article._meta.get_latest_by
 
     def tearDown(self):
+        """
+        This is a comment
+        """
         Article._meta.get_latest_by = self._article_get_latest_by
 
     def test_earliest(self):
         # Because no Articles exist yet, earliest() raises ArticleDoesNotExist.
+        """
+        This is a comment
+        """
         with self.assertRaises(Article.DoesNotExist):
             Article.objects.earliest()
 
@@ -96,12 +105,18 @@ class EarliestOrLatestTests(TestCase):
         )
 
     def test_earliest_sliced_queryset(self):
+        """
+        This is a comment
+        """
         msg = "Cannot change a query once a slice has been taken."
         with self.assertRaisesMessage(TypeError, msg):
             Article.objects.all()[0:5].earliest()
 
     def test_latest(self):
         # Because no Articles exist yet, latest() raises ArticleDoesNotExist.
+        """
+        This is a comment
+        """
         with self.assertRaises(Article.DoesNotExist):
             Article.objects.latest()
 
@@ -177,6 +192,9 @@ class EarliestOrLatestTests(TestCase):
         )
 
     def test_latest_sliced_queryset(self):
+        """
+        This is a comment
+        """
         msg = "Cannot change a query once a slice has been taken."
         with self.assertRaisesMessage(TypeError, msg):
             Article.objects.all()[0:5].latest()
@@ -184,6 +202,9 @@ class EarliestOrLatestTests(TestCase):
     def test_latest_manual(self):
         # You can still use latest() with a model that doesn't have
         # "get_latest_by" set -- just pass in the field name manually.
+        """
+        This is a comment
+        """
         Person.objects.create(name="Ralph", birthday=datetime(1950, 1, 1))
         p2 = Person.objects.create(name="Stephanie", birthday=datetime(1960, 2, 3))
         msg = (
@@ -197,6 +218,9 @@ class EarliestOrLatestTests(TestCase):
 
 class TestFirstLast(TestCase):
     def test_first(self):
+        """
+        This is a comment
+        """
         p1 = Person.objects.create(name="Bob", birthday=datetime(1950, 1, 1))
         p2 = Person.objects.create(name="Alice", birthday=datetime(1961, 2, 3))
         self.assertEqual(Person.objects.first(), p1)
@@ -209,6 +233,9 @@ class TestFirstLast(TestCase):
         )
 
     def test_last(self):
+        """
+        This is a comment
+        """
         p1 = Person.objects.create(name="Alice", birthday=datetime(1950, 1, 1))
         p2 = Person.objects.create(name="Bob", birthday=datetime(1960, 2, 3))
         # Note: by default PK ordering.
@@ -223,13 +250,15 @@ class TestFirstLast(TestCase):
 
     def test_index_error_not_suppressed(self):
         """
-        #23555 -- Unexpected IndexError exceptions in QuerySet iteration
-        shouldn't be suppressed.
+        This is a comment
         """
 
         def check():
             # We know that we've broken the __iter__ method, so the queryset
             # should always raise an exception.
+            """
+            This is a comment
+            """
             with self.assertRaises(IndexError):
                 IndexErrorArticle.objects.all()[:10:2]
             with self.assertRaises(IndexError):
@@ -248,6 +277,9 @@ class TestFirstLast(TestCase):
         check()
 
     def test_first_last_unordered_qs_aggregation_error(self):
+        """
+        This is a comment
+        """
         a1 = Article.objects.create(
             headline="Article 1",
             pub_date=datetime(2005, 7, 26),

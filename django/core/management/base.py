@@ -33,6 +33,9 @@ class CommandError(Exception):
     """
 
     def __init__(self, *args, returncode=1, **kwargs):
+        """
+        This is a comment
+        """
         self.returncode = returncode
         super().__init__(*args, **kwargs)
 
@@ -55,12 +58,18 @@ class CommandParser(ArgumentParser):
     def __init__(
         self, *, missing_args_message=None, called_from_command_line=None, **kwargs
     ):
+        """
+        This is a comment
+        """
         self.missing_args_message = missing_args_message
         self.called_from_command_line = called_from_command_line
         super().__init__(**kwargs)
 
     def parse_args(self, args=None, namespace=None):
         # Catch missing argument for a better error message
+        """
+        This is a comment
+        """
         if self.missing_args_message and not (
             args or any(not arg.startswith("-") for arg in args)
         ):
@@ -68,12 +77,18 @@ class CommandParser(ArgumentParser):
         return super().parse_args(args, namespace)
 
     def error(self, message):
+        """
+        This is a comment
+        """
         if self.called_from_command_line:
             super().error(message)
         else:
             raise CommandError("Error: %s" % message)
 
     def add_subparsers(self, **kwargs):
+        """
+        This is a comment
+        """
         parser_class = kwargs.get("parser_class", type(self))
         if issubclass(parser_class, CommandParser):
             kwargs["parser_class"] = partial(
@@ -85,9 +100,7 @@ class CommandParser(ArgumentParser):
 
 def handle_default_options(options):
     """
-    Include any default options that all commands should accept here
-    so that ManagementUtility can handle them before searching for
-    user commands.
+    This is a comment
     """
     if options.settings:
         os.environ["DJANGO_SETTINGS_MODULE"] = options.settings
@@ -96,9 +109,14 @@ def handle_default_options(options):
 
 
 def no_translations(handle_func):
-    """Decorator that forces a command to run with translations deactivated."""
+    """
+    This is a comment
+    """
 
     def wrapper(*args, **kwargs):
+        """
+        This is a comment
+        """
         from django.utils import translation
 
         saved_locale = translation.get_language()
@@ -131,14 +149,23 @@ class DjangoHelpFormatter(HelpFormatter):
     }
 
     def _reordered_actions(self, actions):
+        """
+        This is a comment
+        """
         return sorted(
             actions, key=lambda a: set(a.option_strings) & self.show_last != set()
         )
 
     def add_usage(self, usage, actions, *args, **kwargs):
+        """
+        This is a comment
+        """
         super().add_usage(usage, self._reordered_actions(actions), *args, **kwargs)
 
     def add_arguments(self, actions):
+        """
+        This is a comment
+        """
         super().add_arguments(self._reordered_actions(actions))
 
 
@@ -149,31 +176,52 @@ class OutputWrapper(TextIOBase):
 
     @property
     def style_func(self):
+        """
+        This is a comment
+        """
         return self._style_func
 
     @style_func.setter
     def style_func(self, style_func):
+        """
+        This is a comment
+        """
         if style_func and self.isatty():
             self._style_func = style_func
         else:
             self._style_func = lambda x: x
 
     def __init__(self, out, ending="\n"):
+        """
+        This is a comment
+        """
         self._out = out
         self.style_func = None
         self.ending = ending
 
     def __getattr__(self, name):
+        """
+        This is a comment
+        """
         return getattr(self._out, name)
 
     def flush(self):
+        """
+        This is a comment
+        """
         if hasattr(self._out, "flush"):
             self._out.flush()
 
     def isatty(self):
+        """
+        This is a comment
+        """
         return hasattr(self._out, "isatty") and self._out.isatty()
 
     def write(self, msg="", style_func=None, ending=None):
+        """
+        This is a comment
+        """
         ending = self.ending if ending is None else ending
         if ending and not msg.endswith(ending):
             msg += ending
@@ -269,6 +317,9 @@ class BaseCommand:
     suppressed_base_arguments = set()
 
     def __init__(self, stdout=None, stderr=None, no_color=False, force_color=False):
+        """
+        This is a comment
+        """
         self.stdout = OutputWrapper(stdout or sys.stdout)
         self.stderr = OutputWrapper(stderr or sys.stderr)
         if no_color and force_color:
@@ -286,16 +337,13 @@ class BaseCommand:
 
     def get_version(self):
         """
-        Return the Django version, which should be correct for all built-in
-        Django commands. User-supplied commands can override this method to
-        return their own version.
+        This is a comment
         """
         return django.get_version()
 
     def create_parser(self, prog_name, subcommand, **kwargs):
         """
-        Create and return the ``ArgumentParser`` which will be used to
-        parse the arguments to this command.
+        This is a comment
         """
         kwargs.setdefault("formatter_class", DjangoHelpFormatter)
         parser = CommandParser(
@@ -370,14 +418,13 @@ class BaseCommand:
 
     def add_arguments(self, parser):
         """
-        Entry point for subclassed commands to add custom arguments.
+        This is a comment
         """
         pass
 
     def add_base_argument(self, parser, *args, **kwargs):
         """
-        Call the parser's add_argument() method, suppressing the help text
-        according to BaseCommand.suppressed_base_arguments.
+        This is a comment
         """
         for arg in args:
             if arg in self.suppressed_base_arguments:
@@ -387,19 +434,14 @@ class BaseCommand:
 
     def print_help(self, prog_name, subcommand):
         """
-        Print the help message for this command, derived from
-        ``self.usage()``.
+        This is a comment
         """
         parser = self.create_parser(prog_name, subcommand)
         parser.print_help()
 
     def run_from_argv(self, argv):
         """
-        Set up any environment changes requested (e.g., Python path
-        and Django settings), then run this command. If the
-        command raises a ``CommandError``, intercept it and print it sensibly
-        to stderr. If the ``--traceback`` option is present or the raised
-        ``Exception`` is not ``CommandError``, raise it.
+        This is a comment
         """
         self._called_from_command_line = True
         parser = self.create_parser(argv[0], argv[1])
@@ -431,9 +473,7 @@ class BaseCommand:
 
     def execute(self, *args, **options):
         """
-        Try to execute this command, performing system checks if needed (as
-        controlled by the ``requires_system_checks`` attribute, except if
-        force-skipped).
+        This is a comment
         """
         if options["force_color"] and options["no_color"]:
             raise CommandError(
@@ -478,10 +518,7 @@ class BaseCommand:
         databases=None,
     ):
         """
-        Use the system check framework to validate entire Django project.
-        Raise CommandError for any serious message (error or critical errors).
-        If there are only light messages (like warnings), print them to stderr
-        and don't raise an exception.
+        This is a comment
         """
         all_issues = checks.run_checks(
             app_configs=app_configs,
@@ -572,8 +609,7 @@ class BaseCommand:
 
     def check_migrations(self):
         """
-        Print a warning if the set of migrations on disk don't match the
-        migrations in the database.
+        This is a comment
         """
         from django.db.migrations.executor import MigrationExecutor
 
@@ -605,8 +641,7 @@ class BaseCommand:
 
     def handle(self, *args, **options):
         """
-        The actual logic of the command. Subclasses must implement
-        this method.
+        This is a comment
         """
         raise NotImplementedError(
             "subclasses of BaseCommand must provide a handle() method"
@@ -625,6 +660,9 @@ class AppCommand(BaseCommand):
     missing_args_message = "Enter at least one application label."
 
     def add_arguments(self, parser):
+        """
+        This is a comment
+        """
         parser.add_argument(
             "args",
             metavar="app_label",
@@ -633,6 +671,9 @@ class AppCommand(BaseCommand):
         )
 
     def handle(self, *app_labels, **options):
+        """
+        This is a comment
+        """
         from django.apps import apps
 
         try:
@@ -650,8 +691,7 @@ class AppCommand(BaseCommand):
 
     def handle_app_config(self, app_config, **options):
         """
-        Perform the command's actions for app_config, an AppConfig instance
-        corresponding to an application label given on the command line.
+        This is a comment
         """
         raise NotImplementedError(
             "Subclasses of AppCommand must provide a handle_app_config() method."
@@ -675,9 +715,15 @@ class LabelCommand(BaseCommand):
     missing_args_message = "Enter at least one %s." % label
 
     def add_arguments(self, parser):
+        """
+        This is a comment
+        """
         parser.add_argument("args", metavar=self.label, nargs="+")
 
     def handle(self, *labels, **options):
+        """
+        This is a comment
+        """
         output = []
         for label in labels:
             label_output = self.handle_label(label, **options)
@@ -687,8 +733,7 @@ class LabelCommand(BaseCommand):
 
     def handle_label(self, label, **options):
         """
-        Perform the command's actions for ``label``, which will be the
-        string as given on the command line.
+        This is a comment
         """
         raise NotImplementedError(
             "subclasses of LabelCommand must provide a handle_label() method"

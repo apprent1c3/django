@@ -9,6 +9,9 @@ class Command(TemplateCommand):
     missing_args_message = "You must provide an application name."
 
     def handle(self, **options):
+        """
+        This is a comment
+        """
         app_name = options.pop("name")
         target = options.pop("directory")
         super().handle("app", app_name, target, **options)

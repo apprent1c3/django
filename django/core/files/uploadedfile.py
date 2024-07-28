@@ -36,6 +36,9 @@ class UploadedFile(File):
         charset=None,
         content_type_extra=None,
     ):
+        """
+        This is a comment
+        """
         super().__init__(file, name)
         self.size = size
         self.content_type = content_type
@@ -43,13 +46,22 @@ class UploadedFile(File):
         self.content_type_extra = content_type_extra
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return "<%s: %s (%s)>" % (self.__class__.__name__, self.name, self.content_type)
 
     def _get_name(self):
+        """
+        This is a comment
+        """
         return self._name
 
     def _set_name(self, name):
         # Sanitize the file name so that it can't be dangerous.
+        """
+        This is a comment
+        """
         if name is not None:
             # Just use the basename of the file -- anything else is dangerous.
             name = os.path.basename(name)
@@ -73,6 +85,9 @@ class TemporaryUploadedFile(UploadedFile):
     """
 
     def __init__(self, name, content_type, size, charset, content_type_extra=None):
+        """
+        This is a comment
+        """
         _, ext = os.path.splitext(name)
         file = tempfile.NamedTemporaryFile(
             suffix=".upload" + ext, dir=settings.FILE_UPLOAD_TEMP_DIR
@@ -80,10 +95,15 @@ class TemporaryUploadedFile(UploadedFile):
         super().__init__(file, name, content_type, size, charset, content_type_extra)
 
     def temporary_file_path(self):
-        """Return the full path of this file."""
+        """
+        This is a comment
+        """
         return self.file.name
 
     def close(self):
+        """
+        This is a comment
+        """
         try:
             return self.file.close()
         except FileNotFoundError:
@@ -108,19 +128,31 @@ class InMemoryUploadedFile(UploadedFile):
         charset,
         content_type_extra=None,
     ):
+        """
+        This is a comment
+        """
         super().__init__(file, name, content_type, size, charset, content_type_extra)
         self.field_name = field_name
 
     def open(self, mode=None):
+        """
+        This is a comment
+        """
         self.file.seek(0)
         return self
 
     def chunks(self, chunk_size=None):
+        """
+        This is a comment
+        """
         self.file.seek(0)
         yield self.read()
 
     def multiple_chunks(self, chunk_size=None):
         # Since it's in memory, we'll never have multiple chunks.
+        """
+        This is a comment
+        """
         return False
 
 
@@ -130,6 +162,9 @@ class SimpleUploadedFile(InMemoryUploadedFile):
     """
 
     def __init__(self, name, content, content_type="text/plain"):
+        """
+        This is a comment
+        """
         content = content or b""
         super().__init__(
             BytesIO(content), None, name, content_type, len(content), None, None
@@ -138,10 +173,7 @@ class SimpleUploadedFile(InMemoryUploadedFile):
     @classmethod
     def from_dict(cls, file_dict):
         """
-        Create a SimpleUploadedFile object from a dictionary with keys:
-           - filename
-           - content-type
-           - content
+        This is a comment
         """
         return cls(
             file_dict["filename"],

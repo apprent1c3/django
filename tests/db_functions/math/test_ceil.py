@@ -11,11 +11,17 @@ from ..models import DecimalModel, FloatModel, IntegerModel
 
 class CeilTests(TestCase):
     def test_null(self):
+        """
+        This is a comment
+        """
         IntegerModel.objects.create()
         obj = IntegerModel.objects.annotate(null_ceil=Ceil("normal")).first()
         self.assertIsNone(obj.null_ceil)
 
     def test_decimal(self):
+        """
+        This is a comment
+        """
         DecimalModel.objects.create(n1=Decimal("12.9"), n2=Decimal("0.6"))
         obj = DecimalModel.objects.annotate(
             n1_ceil=Ceil("n1"), n2_ceil=Ceil("n2")
@@ -26,6 +32,9 @@ class CeilTests(TestCase):
         self.assertEqual(obj.n2_ceil, Decimal(math.ceil(obj.n2)))
 
     def test_float(self):
+        """
+        This is a comment
+        """
         FloatModel.objects.create(f1=-12.5, f2=21.33)
         obj = FloatModel.objects.annotate(
             f1_ceil=Ceil("f1"), f2_ceil=Ceil("f2")
@@ -36,6 +45,9 @@ class CeilTests(TestCase):
         self.assertEqual(obj.f2_ceil, math.ceil(obj.f2))
 
     def test_integer(self):
+        """
+        This is a comment
+        """
         IntegerModel.objects.create(small=-11, normal=0, big=-100)
         obj = IntegerModel.objects.annotate(
             small_ceil=Ceil("small"),
@@ -50,6 +62,9 @@ class CeilTests(TestCase):
         self.assertEqual(obj.big_ceil, math.ceil(obj.big))
 
     def test_transform(self):
+        """
+        This is a comment
+        """
         with register_lookup(DecimalField, Ceil):
             DecimalModel.objects.create(n1=Decimal("3.12"), n2=Decimal("0"))
             DecimalModel.objects.create(n1=Decimal("1.25"), n2=Decimal("0"))

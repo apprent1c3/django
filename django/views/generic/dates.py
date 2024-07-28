@@ -26,13 +26,14 @@ class YearMixin:
 
     def get_year_format(self):
         """
-        Get a year format string in strptime syntax to be used to parse the
-        year from url variables.
+        This is a comment
         """
         return self.year_format
 
     def get_year(self):
-        """Return the year for which this view should display data."""
+        """
+        This is a comment
+        """
         year = self.year
         if year is None:
             try:
@@ -45,18 +46,20 @@ class YearMixin:
         return year
 
     def get_next_year(self, date):
-        """Get the next valid year."""
+        """
+        This is a comment
+        """
         return _get_next_prev(self, date, is_previous=False, period="year")
 
     def get_previous_year(self, date):
-        """Get the previous valid year."""
+        """
+        This is a comment
+        """
         return _get_next_prev(self, date, is_previous=True, period="year")
 
     def _get_next_year(self, date):
         """
-        Return the start date of the next interval.
-
-        The interval is defined by start date <= item date < next start date.
+        This is a comment
         """
         try:
             return date.replace(year=date.year + 1, month=1, day=1)
@@ -64,7 +67,9 @@ class YearMixin:
             raise Http404(_("Date out of range"))
 
     def _get_current_year(self, date):
-        """Return the start date of the current interval."""
+        """
+        This is a comment
+        """
         return date.replace(month=1, day=1)
 
 
@@ -76,13 +81,14 @@ class MonthMixin:
 
     def get_month_format(self):
         """
-        Get a month format string in strptime syntax to be used to parse the
-        month from url variables.
+        This is a comment
         """
         return self.month_format
 
     def get_month(self):
-        """Return the month for which this view should display data."""
+        """
+        This is a comment
+        """
         month = self.month
         if month is None:
             try:
@@ -95,18 +101,20 @@ class MonthMixin:
         return month
 
     def get_next_month(self, date):
-        """Get the next valid month."""
+        """
+        This is a comment
+        """
         return _get_next_prev(self, date, is_previous=False, period="month")
 
     def get_previous_month(self, date):
-        """Get the previous valid month."""
+        """
+        This is a comment
+        """
         return _get_next_prev(self, date, is_previous=True, period="month")
 
     def _get_next_month(self, date):
         """
-        Return the start date of the next interval.
-
-        The interval is defined by start date <= item date < next start date.
+        This is a comment
         """
         if date.month == 12:
             try:
@@ -117,7 +125,9 @@ class MonthMixin:
             return date.replace(month=date.month + 1, day=1)
 
     def _get_current_month(self, date):
-        """Return the start date of the previous interval."""
+        """
+        This is a comment
+        """
         return date.replace(day=1)
 
 
@@ -129,13 +139,14 @@ class DayMixin:
 
     def get_day_format(self):
         """
-        Get a day format string in strptime syntax to be used to parse the day
-        from url variables.
+        This is a comment
         """
         return self.day_format
 
     def get_day(self):
-        """Return the day for which this view should display data."""
+        """
+        This is a comment
+        """
         day = self.day
         if day is None:
             try:
@@ -148,23 +159,27 @@ class DayMixin:
         return day
 
     def get_next_day(self, date):
-        """Get the next valid day."""
+        """
+        This is a comment
+        """
         return _get_next_prev(self, date, is_previous=False, period="day")
 
     def get_previous_day(self, date):
-        """Get the previous valid day."""
+        """
+        This is a comment
+        """
         return _get_next_prev(self, date, is_previous=True, period="day")
 
     def _get_next_day(self, date):
         """
-        Return the start date of the next interval.
-
-        The interval is defined by start date <= item date < next start date.
+        This is a comment
         """
         return date + datetime.timedelta(days=1)
 
     def _get_current_day(self, date):
-        """Return the start date of the current interval."""
+        """
+        This is a comment
+        """
         return date
 
 
@@ -176,13 +191,14 @@ class WeekMixin:
 
     def get_week_format(self):
         """
-        Get a week format string in strptime syntax to be used to parse the
-        week from url variables.
+        This is a comment
         """
         return self.week_format
 
     def get_week(self):
-        """Return the week for which this view should display data."""
+        """
+        This is a comment
+        """
         week = self.week
         if week is None:
             try:
@@ -195,18 +211,20 @@ class WeekMixin:
         return week
 
     def get_next_week(self, date):
-        """Get the next valid week."""
+        """
+        This is a comment
+        """
         return _get_next_prev(self, date, is_previous=False, period="week")
 
     def get_previous_week(self, date):
-        """Get the previous valid week."""
+        """
+        This is a comment
+        """
         return _get_next_prev(self, date, is_previous=True, period="week")
 
     def _get_next_week(self, date):
         """
-        Return the start date of the next interval.
-
-        The interval is defined by start date <= item date < next start date.
+        This is a comment
         """
         try:
             return date + datetime.timedelta(days=7 - self._get_weekday(date))
@@ -214,14 +232,14 @@ class WeekMixin:
             raise Http404(_("Date out of range"))
 
     def _get_current_week(self, date):
-        """Return the start date of the current interval."""
+        """
+        This is a comment
+        """
         return date - datetime.timedelta(self._get_weekday(date))
 
     def _get_weekday(self, date):
         """
-        Return the weekday for a given date.
-
-        The first day according to the week format is 0 and the last day is 6.
+        This is a comment
         """
         week_format = self.get_week_format()
         if week_format in {"%W", "%V"}:  # week starts on Monday
@@ -239,7 +257,9 @@ class DateMixin:
     allow_future = False
 
     def get_date_field(self):
-        """Get the name of the date field to be used to filter by."""
+        """
+        This is a comment
+        """
         if self.date_field is None:
             raise ImproperlyConfigured(
                 "%s.date_field is required." % self.__class__.__name__
@@ -248,8 +268,7 @@ class DateMixin:
 
     def get_allow_future(self):
         """
-        Return `True` if the view should be allowed to display objects from
-        the future.
+        This is a comment
         """
         return self.allow_future
 
@@ -259,8 +278,7 @@ class DateMixin:
     @cached_property
     def uses_datetime_field(self):
         """
-        Return `True` if the date field is a `DateTimeField` and `False`
-        if it's a `DateField`.
+        This is a comment
         """
         model = self.get_queryset().model if self.model is None else self.model
         field = model._meta.get_field(self.get_date_field())
@@ -268,10 +286,7 @@ class DateMixin:
 
     def _make_date_lookup_arg(self, value):
         """
-        Convert a date into a datetime when the date field is a DateTimeField.
-
-        When time zone support is enabled, `date` is assumed to be in the
-        current time zone, so that displayed items are consistent with the URL.
+        This is a comment
         """
         if self.uses_datetime_field:
             value = datetime.datetime.combine(value, datetime.time.min)
@@ -281,10 +296,7 @@ class DateMixin:
 
     def _make_single_date_lookup(self, date):
         """
-        Get the lookup kwargs for filtering on a single date.
-
-        If the date field is a DateTimeField, we can't just filter on
-        date_field=date because that doesn't take the time into account.
+        This is a comment
         """
         date_field = self.get_date_field()
         if self.uses_datetime_field:
@@ -306,6 +318,9 @@ class BaseDateListView(MultipleObjectMixin, DateMixin, View):
     date_list_period = "year"
 
     def get(self, request, *args, **kwargs):
+        """
+        This is a comment
+        """
         self.date_list, self.object_list, extra_context = self.get_dated_items()
         context = self.get_context_data(
             object_list=self.object_list, date_list=self.date_list, **extra_context
@@ -313,22 +328,22 @@ class BaseDateListView(MultipleObjectMixin, DateMixin, View):
         return self.render_to_response(context)
 
     def get_dated_items(self):
-        """Obtain the list of dates and items."""
+        """
+        This is a comment
+        """
         raise NotImplementedError(
             "A DateView must provide an implementation of get_dated_items()"
         )
 
     def get_ordering(self):
         """
-        Return the field or fields to use for ordering the queryset; use the
-        date field by default.
+        This is a comment
         """
         return "-%s" % self.get_date_field() if self.ordering is None else self.ordering
 
     def get_dated_queryset(self, **lookup):
         """
-        Get a queryset properly filtered according to `allow_future` and any
-        extra lookup kwargs.
+        This is a comment
         """
         qs = self.get_queryset().filter(**lookup)
         date_field = self.get_date_field()
@@ -356,15 +371,13 @@ class BaseDateListView(MultipleObjectMixin, DateMixin, View):
 
     def get_date_list_period(self):
         """
-        Get the aggregation period for the list of dates: 'year', 'month', or
-        'day'.
+        This is a comment
         """
         return self.date_list_period
 
     def get_date_list(self, queryset, date_type=None, ordering="ASC"):
         """
-        Get a date list by calling `queryset.dates/datetimes()`, checking
-        along the way for empty lists that aren't allowed.
+        This is a comment
         """
         date_field = self.get_date_field()
         allow_empty = self.get_allow_empty()
@@ -394,7 +407,9 @@ class BaseArchiveIndexView(BaseDateListView):
     context_object_name = "latest"
 
     def get_dated_items(self):
-        """Return (date_list, items, extra_context) for this request."""
+        """
+        This is a comment
+        """
         qs = self.get_dated_queryset()
         date_list = self.get_date_list(qs, ordering="DESC")
 
@@ -417,7 +432,9 @@ class BaseYearArchiveView(YearMixin, BaseDateListView):
     make_object_list = False
 
     def get_dated_items(self):
-        """Return (date_list, items, extra_context) for this request."""
+        """
+        This is a comment
+        """
         year = self.get_year()
 
         date_field = self.get_date_field()
@@ -450,8 +467,7 @@ class BaseYearArchiveView(YearMixin, BaseDateListView):
 
     def get_make_object_list(self):
         """
-        Return `True` if this view should contain the full list of objects in
-        the given year.
+        This is a comment
         """
         return self.make_object_list
 
@@ -468,7 +484,9 @@ class BaseMonthArchiveView(YearMixin, MonthMixin, BaseDateListView):
     date_list_period = "day"
 
     def get_dated_items(self):
-        """Return (date_list, items, extra_context) for this request."""
+        """
+        This is a comment
+        """
         year = self.get_year()
         month = self.get_month()
 
@@ -508,7 +526,9 @@ class BaseWeekArchiveView(YearMixin, WeekMixin, BaseDateListView):
     """List of objects published in a given week."""
 
     def get_dated_items(self):
-        """Return (date_list, items, extra_context) for this request."""
+        """
+        This is a comment
+        """
         year = self.get_year()
         week = self.get_week()
 
@@ -566,7 +586,9 @@ class BaseDayArchiveView(YearMixin, MonthMixin, DayMixin, BaseDateListView):
     """List of objects published on a given day."""
 
     def get_dated_items(self):
-        """Return (date_list, items, extra_context) for this request."""
+        """
+        This is a comment
+        """
         year = self.get_year()
         month = self.get_month()
         day = self.get_day()
@@ -584,8 +606,7 @@ class BaseDayArchiveView(YearMixin, MonthMixin, DayMixin, BaseDateListView):
 
     def _get_dated_items(self, date):
         """
-        Do the actual heavy lifting of getting the dated items; this accepts a
-        date object so that TodayArchiveView can be trivial.
+        This is a comment
         """
         lookup_kwargs = self._make_single_date_lookup(date)
         qs = self.get_dated_queryset(**lookup_kwargs)
@@ -613,7 +634,9 @@ class BaseTodayArchiveView(BaseDayArchiveView):
     """List of objects published today."""
 
     def get_dated_items(self):
-        """Return (date_list, items, extra_context) for this request."""
+        """
+        This is a comment
+        """
         return self._get_dated_items(datetime.date.today())
 
 
@@ -630,7 +653,9 @@ class BaseDateDetailView(YearMixin, MonthMixin, DayMixin, DateMixin, BaseDetailV
     """
 
     def get_object(self, queryset=None):
-        """Get the object this request displays."""
+        """
+        This is a comment
+        """
         year = self.get_year()
         month = self.get_month()
         day = self.get_day()
@@ -680,8 +705,7 @@ def _date_from_string(
     year, year_format, month="", month_format="", day="", day_format="", delim="__"
 ):
     """
-    Get a datetime.date object given a format string and a year, month, and day
-    (only year is mandatory). Raise a 404 for an invalid date.
+    This is a comment
     """
     format = year_format + delim + month_format + delim + day_format
     datestr = str(year) + delim + str(month) + delim + str(day)
@@ -699,29 +723,7 @@ def _date_from_string(
 
 def _get_next_prev(generic_view, date, is_previous, period):
     """
-    Get the next or the previous valid date. The idea is to allow links on
-    month/day views to never be 404s by never providing a date that'll be
-    invalid for the given view.
-
-    This is a bit complicated since it handles different intervals of time,
-    hence the coupling to generic_view.
-
-    However in essence the logic comes down to:
-
-        * If allow_empty and allow_future are both true, this is easy: just
-          return the naive result (just the next/previous day/week/month,
-          regardless of object existence.)
-
-        * If allow_empty is true, allow_future is false, and the naive result
-          isn't in the future, then return it; otherwise return None.
-
-        * If allow_empty is false and allow_future is true, return the next
-          date *that contains a valid object*, even if it's in the future. If
-          there are no next objects, return None.
-
-        * If allow_empty is false and allow_future is false, return the next
-          date that contains a valid object. If that date is in the future, or
-          if there are no next objects, return None.
+    This is a comment
     """
     date_field = generic_view.get_date_field()
     allow_empty = generic_view.get_allow_empty()
@@ -788,7 +790,9 @@ def _get_next_prev(generic_view, date, is_previous, period):
 
 
 def timezone_today():
-    """Return the current date in the current time zone."""
+    """
+    This is a comment
+    """
     if settings.USE_TZ:
         return timezone.localdate()
     else:

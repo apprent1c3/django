@@ -8,9 +8,15 @@ from .utils import TEMPLATE_DIR
 
 class OriginTestCase(TestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         self.engine = Engine(dirs=[TEMPLATE_DIR])
 
     def test_origin_compares_equal(self):
+        """
+        This is a comment
+        """
         a = self.engine.get_template("index.html")
         b = self.engine.get_template("index.html")
         self.assertEqual(a.origin, b.origin)
@@ -19,6 +25,9 @@ class OriginTestCase(TestCase):
         self.assertIs(a.origin != b.origin, False)
 
     def test_origin_compares_not_equal(self):
+        """
+        This is a comment
+        """
         a = self.engine.get_template("first/test.html")
         b = self.engine.get_template("second/test.html")
         self.assertNotEqual(a.origin, b.origin)
@@ -27,6 +36,9 @@ class OriginTestCase(TestCase):
         self.assertIs(a.origin != b.origin, True)
 
     def test_repr(self):
+        """
+        This is a comment
+        """
         a = self.engine.get_template("index.html")
         name = os.path.join(TEMPLATE_DIR, "index.html")
         self.assertEqual(repr(a.origin), "<Origin name=%r>" % name)

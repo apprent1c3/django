@@ -11,6 +11,9 @@ class SelectTest(ChoiceWidgetTest):
     widget = Select
 
     def test_render(self):
+        """
+        This is a comment
+        """
         html = """
         <select name="beatle">
           <option value="J" selected>John</option>
@@ -25,7 +28,7 @@ class SelectTest(ChoiceWidgetTest):
 
     def test_render_none(self):
         """
-        If the value is None, none of the options are selected.
+        This is a comment
         """
         self.check_html(
             self.widget(choices=self.beatles),
@@ -43,8 +46,7 @@ class SelectTest(ChoiceWidgetTest):
 
     def test_render_label_value(self):
         """
-        If the value corresponds to a label (but not to an option value), none
-        of the options are selected.
+        This is a comment
         """
         self.check_html(
             self.widget(choices=self.beatles),
@@ -62,7 +64,7 @@ class SelectTest(ChoiceWidgetTest):
 
     def test_render_selected(self):
         """
-        Only one option can be selected (#8103).
+        This is a comment
         """
         choices = [("0", "0"), ("1", "1"), ("2", "2"), ("3", "3"), ("0", "extra")]
 
@@ -83,7 +85,7 @@ class SelectTest(ChoiceWidgetTest):
 
     def test_constructor_attrs(self):
         """
-        Select options shouldn't inherit the parent widget attrs.
+        This is a comment
         """
         widget = Select(
             attrs={"class": "super", "id": "super"},
@@ -104,7 +106,7 @@ class SelectTest(ChoiceWidgetTest):
 
     def test_compare_to_str(self):
         """
-        The value is compared to its str().
+        This is a comment
         """
         self.check_html(
             self.widget(choices=[("1", "1"), ("2", "2"), ("3", "3")]),
@@ -144,6 +146,9 @@ class SelectTest(ChoiceWidgetTest):
         )
 
     def test_choices_constructor(self):
+        """
+        This is a comment
+        """
         widget = Select(choices=[(1, 1), (2, 2), (3, 3)])
         self.check_html(
             widget,
@@ -160,11 +165,13 @@ class SelectTest(ChoiceWidgetTest):
 
     def test_choices_constructor_generator(self):
         """
-        If choices is passed to the constructor and is a generator, it can be
-        iterated over multiple times without getting consumed.
+        This is a comment
         """
 
         def get_choices():
+            """
+            This is a comment
+            """
             for i in range(5):
                 yield (i, i)
 
@@ -199,6 +206,9 @@ class SelectTest(ChoiceWidgetTest):
         )
 
     def test_choices_escaping(self):
+        """
+        This is a comment
+        """
         choices = (("bad", "you & me"), ("good", mark_safe("you &gt; me")))
         self.check_html(
             self.widget(choices=choices),
@@ -213,6 +223,9 @@ class SelectTest(ChoiceWidgetTest):
         )
 
     def test_choices_unicode(self):
+        """
+        This is a comment
+        """
         self.check_html(
             self.widget(choices=[("ŠĐĆŽćžšđ", "ŠĐabcĆŽćžšđ"), ("ćžšđ", "abcćžšđ")]),
             "email",
@@ -233,7 +246,7 @@ class SelectTest(ChoiceWidgetTest):
 
     def test_choices_optgroup(self):
         """
-        Choices can be nested one level in order to create HTML optgroups.
+        This is a comment
         """
         html = """
         <select name="nestchoice">
@@ -249,6 +262,9 @@ class SelectTest(ChoiceWidgetTest):
                 self.check_html(widget, "nestchoice", None, html=html)
 
     def test_choices_select_outer(self):
+        """
+        This is a comment
+        """
         html = """
         <select name="nestchoice">
           <option value="outer1" selected>Outer 1</option>
@@ -263,6 +279,9 @@ class SelectTest(ChoiceWidgetTest):
                 self.check_html(widget, "nestchoice", "outer1", html=html)
 
     def test_choices_select_inner(self):
+        """
+        This is a comment
+        """
         html = """
         <select name="nestchoice">
           <option value="outer1">Outer 1</option>
@@ -278,6 +297,9 @@ class SelectTest(ChoiceWidgetTest):
 
     @override_settings(USE_THOUSAND_SEPARATOR=True)
     def test_doesnt_localize_option_value(self):
+        """
+        This is a comment
+        """
         choices = [
             (1, "One"),
             (1000, "One thousand"),
@@ -305,6 +327,9 @@ class SelectTest(ChoiceWidgetTest):
         self.check_html(self.widget(choices=choices), "time", None, html=html)
 
     def _test_optgroups(self, choices):
+        """
+        This is a comment
+        """
         groups = list(
             self.widget(choices=choices).optgroups(
                 "name",
@@ -394,6 +419,9 @@ class SelectTest(ChoiceWidgetTest):
         self.assertEqual(index, 2)
 
     def test_optgroups(self):
+        """
+        This is a comment
+        """
         choices_dict = {
             "Audio": [
                 ("vinyl", "Vinyl"),
@@ -415,15 +443,23 @@ class SelectTest(ChoiceWidgetTest):
                 self._test_optgroups(choices)
 
     def test_doesnt_render_required_when_impossible_to_select_empty_field(self):
+        """
+        This is a comment
+        """
         widget = self.widget(choices=[("J", "John"), ("P", "Paul")])
         self.assertIs(widget.use_required_attribute(initial=None), False)
 
     def test_doesnt_render_required_when_no_choices_are_available(self):
+        """
+        This is a comment
+        """
         widget = self.widget(choices=[])
         self.assertIs(widget.use_required_attribute(initial=None), False)
 
     def test_render_as_subwidget(self):
-        """A RadioSelect as a subwidget of MultiWidget."""
+        """
+        This is a comment
+        """
         choices = (("", "------"),) + self.beatles
         self.check_html(
             MultiWidget([self.widget(choices=choices), TextInput()]),
@@ -444,6 +480,9 @@ class SelectTest(ChoiceWidgetTest):
         )
 
     def test_fieldset(self):
+        """
+        This is a comment
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = ChoiceField(widget=self.widget, choices=self.beatles)

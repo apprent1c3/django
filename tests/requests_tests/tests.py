@@ -23,6 +23,9 @@ class ErrorFileUploadHandler(MemoryFileUploadHandler):
     def handle_raw_input(
         self, input_data, META, content_length, boundary, encoding=None
     ):
+        """
+        This is a comment
+        """
         raise ValueError
 
 
@@ -30,11 +33,17 @@ class CustomFileUploadHandler(MemoryFileUploadHandler):
     def handle_raw_input(
         self, input_data, META, content_length, boundary, encoding=None
     ):
+        """
+        This is a comment
+        """
         return ("_POST", "_FILES")
 
 
 class RequestsTests(SimpleTestCase):
     def test_httprequest(self):
+        """
+        This is a comment
+        """
         request = HttpRequest()
         self.assertEqual(list(request.GET), [])
         self.assertEqual(list(request.POST), [])
@@ -52,6 +61,9 @@ class RequestsTests(SimpleTestCase):
         self.assertIsNone(request.content_params)
 
     def test_httprequest_full_path(self):
+        """
+        This is a comment
+        """
         request = HttpRequest()
         request.path = "/;some/?awful/=path/foo:bar/"
         request.path_info = "/prefix" + request.path
@@ -61,6 +73,9 @@ class RequestsTests(SimpleTestCase):
         self.assertEqual(request.get_full_path_info(), "/prefix" + expected)
 
     def test_httprequest_full_path_with_query_string_and_fragment(self):
+        """
+        This is a comment
+        """
         request = HttpRequest()
         request.path = "/foo#bar"
         request.path_info = "/prefix" + request.path
@@ -69,6 +84,9 @@ class RequestsTests(SimpleTestCase):
         self.assertEqual(request.get_full_path_info(), "/prefix/foo%23bar?baz#quux")
 
     def test_httprequest_repr(self):
+        """
+        This is a comment
+        """
         request = HttpRequest()
         request.path = "/somepath/"
         request.method = "GET"
@@ -79,6 +97,9 @@ class RequestsTests(SimpleTestCase):
         self.assertEqual(repr(request), "<HttpRequest: GET '/somepath/'>")
 
     def test_httprequest_repr_invalid_method_and_path(self):
+        """
+        This is a comment
+        """
         request = HttpRequest()
         self.assertEqual(repr(request), "<HttpRequest>")
         request = HttpRequest()
@@ -89,6 +110,9 @@ class RequestsTests(SimpleTestCase):
         self.assertEqual(repr(request), "<HttpRequest>")
 
     def test_wsgirequest(self):
+        """
+        This is a comment
+        """
         request = WSGIRequest(
             {
                 "PATH_INFO": "bogus",
@@ -118,8 +142,7 @@ class RequestsTests(SimpleTestCase):
 
     def test_wsgirequest_with_script_name(self):
         """
-        The request's path is correctly assembled, regardless of whether or
-        not the SCRIPT_NAME has a trailing slash (#20169).
+        This is a comment
         """
         # With trailing slash
         request = WSGIRequest(
@@ -144,9 +167,7 @@ class RequestsTests(SimpleTestCase):
 
     def test_wsgirequest_script_url_double_slashes(self):
         """
-        WSGI squashes multiple successive slashes in PATH_INFO, WSGIRequest
-        should take that into account when populating request.path and
-        request.META['SCRIPT_NAME'] (#17133).
+        This is a comment
         """
         request = WSGIRequest(
             {
@@ -161,8 +182,7 @@ class RequestsTests(SimpleTestCase):
 
     def test_wsgirequest_with_force_script_name(self):
         """
-        The FORCE_SCRIPT_NAME setting takes precedence over the request's
-        SCRIPT_NAME environment parameter (#20169).
+        This is a comment
         """
         with override_settings(FORCE_SCRIPT_NAME="/FORCED_PREFIX/"):
             request = WSGIRequest(
@@ -177,8 +197,7 @@ class RequestsTests(SimpleTestCase):
 
     def test_wsgirequest_path_with_force_script_name_trailing_slash(self):
         """
-        The request's path is correctly assembled, regardless of whether or not
-        the FORCE_SCRIPT_NAME setting has a trailing slash (#20169).
+        This is a comment
         """
         # With trailing slash
         with override_settings(FORCE_SCRIPT_NAME="/FORCED_PREFIX/"):
@@ -202,6 +221,9 @@ class RequestsTests(SimpleTestCase):
             self.assertEqual(request.path, "/FORCED_PREFIX/somepath/")
 
     def test_wsgirequest_repr(self):
+        """
+        This is a comment
+        """
         request = WSGIRequest({"REQUEST_METHOD": "get", "wsgi.input": BytesIO(b"")})
         self.assertEqual(repr(request), "<WSGIRequest: GET '/'>")
         request = WSGIRequest(
@@ -218,7 +240,13 @@ class RequestsTests(SimpleTestCase):
         self.assertEqual(repr(request), "<WSGIRequest: GET '/somepath/'>")
 
     def test_wsgirequest_path_info(self):
+        """
+        This is a comment
+        """
         def wsgi_str(path_info, encoding="utf-8"):
+            """
+            This is a comment
+            """
             path_info = path_info.encode(
                 encoding
             )  # Actual URL sent by the browser (bytestring)
@@ -250,12 +278,18 @@ class RequestsTests(SimpleTestCase):
         self.assertEqual(request.path, "/caf%E9/")
 
     def test_wsgirequest_copy(self):
+        """
+        This is a comment
+        """
         request = WSGIRequest({"REQUEST_METHOD": "get", "wsgi.input": BytesIO(b"")})
         request_copy = copy.copy(request)
         self.assertIs(request_copy.environ, request.environ)
 
     def test_limited_stream(self):
         # Read all of a limited stream
+        """
+        This is a comment
+        """
         stream = LimitedStream(BytesIO(b"test"), 2)
         self.assertEqual(stream.read(), b"te")
         # Reading again returns nothing.
@@ -312,6 +346,9 @@ class RequestsTests(SimpleTestCase):
         self.assertEqual(stream.read(), b"")
 
     def test_stream_read(self):
+        """
+        This is a comment
+        """
         payload = FakePayload("name=value")
         request = WSGIRequest(
             {
@@ -324,6 +361,9 @@ class RequestsTests(SimpleTestCase):
         self.assertEqual(request.read(), b"name=value")
 
     def test_stream_readline(self):
+        """
+        This is a comment
+        """
         payload = FakePayload("name=value\nother=string")
         request = WSGIRequest(
             {
@@ -338,8 +378,7 @@ class RequestsTests(SimpleTestCase):
 
     def test_read_after_value(self):
         """
-        Reading from request is allowed after accessing request contents as
-        POST or body.
+        This is a comment
         """
         payload = FakePayload("name=value")
         request = WSGIRequest(
@@ -356,8 +395,7 @@ class RequestsTests(SimpleTestCase):
 
     def test_value_after_read(self):
         """
-        Construction of POST or body is not allowed after reading
-        from request.
+        This is a comment
         """
         payload = FakePayload("name=value")
         request = WSGIRequest(
@@ -374,6 +412,9 @@ class RequestsTests(SimpleTestCase):
         self.assertEqual(request.POST, {})
 
     def test_non_ascii_POST(self):
+        """
+        This is a comment
+        """
         payload = FakePayload(urlencode({"key": "España"}))
         request = WSGIRequest(
             {
@@ -386,6 +427,9 @@ class RequestsTests(SimpleTestCase):
         self.assertEqual(request.POST, {"key": ["España"]})
 
     def test_non_utf8_charset_POST_bad_request(self):
+        """
+        This is a comment
+        """
         payload = FakePayload(urlencode({"key": "España".encode("latin-1")}))
         request = WSGIRequest(
             {
@@ -405,6 +449,9 @@ class RequestsTests(SimpleTestCase):
             request.FILES
 
     def test_utf8_charset_POST(self):
+        """
+        This is a comment
+        """
         for charset in ["utf-8", "UTF-8"]:
             with self.subTest(charset=charset):
                 payload = FakePayload(urlencode({"key": "España"}))
@@ -422,7 +469,7 @@ class RequestsTests(SimpleTestCase):
 
     def test_body_after_POST_multipart_form_data(self):
         """
-        Reading body after parsing multipart/form-data is not allowed
+        This is a comment
         """
         # Because multipart is used for large amounts of data i.e. file uploads,
         # we don't want the data held in memory twice, and we don't want to
@@ -452,7 +499,7 @@ class RequestsTests(SimpleTestCase):
 
     def test_body_after_POST_multipart_related(self):
         """
-        Reading body after parsing multipart that isn't form-data is allowed
+        This is a comment
         """
         # Ticket #9054
         # There are cases in which the multipart data is related instead of
@@ -481,8 +528,7 @@ class RequestsTests(SimpleTestCase):
 
     def test_POST_multipart_with_content_length_zero(self):
         """
-        Multipart POST requests with Content-Length >= 0 are valid and need to
-        be handled.
+        This is a comment
         """
         # According to RFC 9110 Section 8.6 every POST with Content-Length >= 0
         # is a valid request, so ensure that we handle Content-Length == 0.
@@ -511,6 +557,9 @@ class RequestsTests(SimpleTestCase):
         FILE_UPLOAD_HANDLERS=["requests_tests.tests.ErrorFileUploadHandler"]
     )
     def test_POST_multipart_handler_error(self):
+        """
+        This is a comment
+        """
         payload = FakePayload(
             "\r\n".join(
                 [
@@ -537,6 +586,9 @@ class RequestsTests(SimpleTestCase):
         FILE_UPLOAD_HANDLERS=["requests_tests.tests.CustomFileUploadHandler"]
     )
     def test_POST_multipart_handler_parses_input(self):
+        """
+        This is a comment
+        """
         payload = FakePayload(
             "\r\n".join(
                 [
@@ -560,6 +612,9 @@ class RequestsTests(SimpleTestCase):
         self.assertEqual(request.FILES, "_FILES")
 
     def test_request_methods_with_content(self):
+        """
+        This is a comment
+        """
         for method in ["GET", "PUT", "DELETE"]:
             with self.subTest(method=method):
                 payload = FakePayload(urlencode({"key": "value"}))
@@ -574,6 +629,9 @@ class RequestsTests(SimpleTestCase):
                 self.assertEqual(request.POST, {})
 
     def test_POST_content_type_json(self):
+        """
+        This is a comment
+        """
         payload = FakePayload(
             "\r\n".join(
                 [
@@ -602,6 +660,9 @@ class RequestsTests(SimpleTestCase):
     ]
 
     def test_POST_form_data_json(self):
+        """
+        This is a comment
+        """
         payload = FakePayload(
             "\r\n".join([f"--{BOUNDARY}", *self._json_payload, f"--{BOUNDARY}--"])
         )
@@ -624,6 +685,9 @@ class RequestsTests(SimpleTestCase):
         )
 
     def test_POST_multipart_json(self):
+        """
+        This is a comment
+        """
         payload = FakePayload(
             "\r\n".join(
                 [
@@ -657,6 +721,9 @@ class RequestsTests(SimpleTestCase):
         )
 
     def test_POST_multipart_json_csv(self):
+        """
+        This is a comment
+        """
         payload = FakePayload(
             "\r\n".join(
                 [
@@ -696,6 +763,9 @@ class RequestsTests(SimpleTestCase):
         )
 
     def test_POST_multipart_with_file(self):
+        """
+        This is a comment
+        """
         payload = FakePayload(
             "\r\n".join(
                 [
@@ -738,6 +808,9 @@ class RequestsTests(SimpleTestCase):
         self.assertIsInstance((request.FILES["File"]), InMemoryUploadedFile)
 
     def test_base64_invalid_encoding(self):
+        """
+        This is a comment
+        """
         payload = FakePayload(
             "\r\n".join(
                 [
@@ -763,6 +836,9 @@ class RequestsTests(SimpleTestCase):
             request.POST
 
     def test_POST_binary_only(self):
+        """
+        This is a comment
+        """
         payload = b"\r\n\x01\x00\x00\x00ab\x00\x00\xcd\xcc,@"
         environ = {
             "REQUEST_METHOD": "POST",
@@ -783,6 +859,9 @@ class RequestsTests(SimpleTestCase):
         self.assertEqual(request.body, payload)
 
     def test_read_by_lines(self):
+        """
+        This is a comment
+        """
         payload = FakePayload("name=value")
         request = WSGIRequest(
             {
@@ -796,7 +875,7 @@ class RequestsTests(SimpleTestCase):
 
     def test_POST_after_body_read(self):
         """
-        POST should be populated even if body is read first
+        This is a comment
         """
         payload = FakePayload("name=value")
         request = WSGIRequest(
@@ -812,8 +891,7 @@ class RequestsTests(SimpleTestCase):
 
     def test_POST_after_body_read_and_stream_read(self):
         """
-        POST should be populated even if body is read first, and then
-        the stream is read second.
+        This is a comment
         """
         payload = FakePayload("name=value")
         request = WSGIRequest(
@@ -829,6 +907,9 @@ class RequestsTests(SimpleTestCase):
         self.assertEqual(request.POST, {"name": ["value"]})
 
     def test_multipart_post_field_with_base64(self):
+        """
+        This is a comment
+        """
         payload = FakePayload(
             "\r\n".join(
                 [
@@ -854,6 +935,9 @@ class RequestsTests(SimpleTestCase):
         self.assertEqual(request.POST, {"name": ["value"]})
 
     def test_multipart_post_field_with_invalid_base64(self):
+        """
+        This is a comment
+        """
         payload = FakePayload(
             "\r\n".join(
                 [
@@ -880,8 +964,7 @@ class RequestsTests(SimpleTestCase):
 
     def test_POST_after_body_read_and_stream_read_multipart(self):
         """
-        POST should be populated even if body is read first, and then
-        the stream is read second. Using multipart/form-data instead of urlencoded.
+        This is a comment
         """
         payload = FakePayload(
             "\r\n".join(
@@ -909,7 +992,7 @@ class RequestsTests(SimpleTestCase):
 
     def test_POST_immutable_for_multipart(self):
         """
-        MultiPartParser.parse() leaves request.POST immutable.
+        This is a comment
         """
         payload = FakePayload(
             "\r\n".join(
@@ -933,6 +1016,9 @@ class RequestsTests(SimpleTestCase):
         self.assertFalse(request.POST._mutable)
 
     def test_multipart_without_boundary(self):
+        """
+        This is a comment
+        """
         request = WSGIRequest(
             {
                 "REQUEST_METHOD": "POST",
@@ -947,6 +1033,9 @@ class RequestsTests(SimpleTestCase):
             request.POST
 
     def test_multipart_non_ascii_content_type(self):
+        """
+        This is a comment
+        """
         request = WSGIRequest(
             {
                 "REQUEST_METHOD": "POST",
@@ -963,6 +1052,9 @@ class RequestsTests(SimpleTestCase):
             request.POST
 
     def test_multipart_with_header_fields_too_large(self):
+        """
+        This is a comment
+        """
         payload = FakePayload(
             "\r\n".join(
                 [
@@ -989,12 +1081,14 @@ class RequestsTests(SimpleTestCase):
 
     def test_POST_connection_error(self):
         """
-        If wsgi.input.read() raises an exception while trying to read() the
-        POST, the exception is identifiable (not a generic OSError).
+        This is a comment
         """
 
         class ExplodingBytesIO(BytesIO):
             def read(self, size=-1, /):
+                """
+                This is a comment
+                """
                 raise OSError("kaboom!")
 
         payload = b"name=value"
@@ -1010,6 +1104,9 @@ class RequestsTests(SimpleTestCase):
             request.body
 
     def test_set_encoding_clears_POST(self):
+        """
+        This is a comment
+        """
         payload = FakePayload(
             "\r\n".join(
                 [
@@ -1037,6 +1134,9 @@ class RequestsTests(SimpleTestCase):
         # self.assertEqual(request.POST, {"name": ["Hello GĂŒnter"]})
 
     def test_set_encoding_clears_GET(self):
+        """
+        This is a comment
+        """
         payload = FakePayload("")
         request = WSGIRequest(
             {
@@ -1051,12 +1151,14 @@ class RequestsTests(SimpleTestCase):
 
     def test_FILES_connection_error(self):
         """
-        If wsgi.input.read() raises an exception while trying to read() the
-        FILES, the exception is identifiable (not a generic OSError).
+        This is a comment
         """
 
         class ExplodingBytesIO(BytesIO):
             def read(self, size=-1, /):
+                """
+                This is a comment
+                """
                 raise OSError("kaboom!")
 
         payload = b"x"
@@ -1072,11 +1174,17 @@ class RequestsTests(SimpleTestCase):
             request.FILES
 
     def test_copy(self):
+        """
+        This is a comment
+        """
         request = HttpRequest()
         request_copy = copy.copy(request)
         self.assertIs(request_copy.resolver_match, request.resolver_match)
 
     def test_deepcopy(self):
+        """
+        This is a comment
+        """
         request = RequestFactory().get("/")
         request.session = {}
         request_copy = copy.deepcopy(request)
@@ -1109,6 +1217,9 @@ class HostValidationTests(SimpleTestCase):
     )
     def test_http_get_host(self):
         # Check if X_FORWARDED_HOST is provided.
+        """
+        This is a comment
+        """
         request = HttpRequest()
         request.META = {
             "HTTP_X_FORWARDED_HOST": "forward.com",
@@ -1179,6 +1290,9 @@ class HostValidationTests(SimpleTestCase):
     @override_settings(USE_X_FORWARDED_HOST=True, ALLOWED_HOSTS=["*"])
     def test_http_get_host_with_x_forwarded_host(self):
         # Check if X_FORWARDED_HOST is provided.
+        """
+        This is a comment
+        """
         request = HttpRequest()
         request.META = {
             "HTTP_X_FORWARDED_HOST": "forward.com",
@@ -1242,6 +1356,9 @@ class HostValidationTests(SimpleTestCase):
 
     @override_settings(USE_X_FORWARDED_PORT=False)
     def test_get_port(self):
+        """
+        This is a comment
+        """
         request = HttpRequest()
         request.META = {
             "SERVER_PORT": "8080",
@@ -1258,6 +1375,9 @@ class HostValidationTests(SimpleTestCase):
 
     @override_settings(USE_X_FORWARDED_PORT=True)
     def test_get_port_with_x_forwarded_port(self):
+        """
+        This is a comment
+        """
         request = HttpRequest()
         request.META = {
             "SERVER_PORT": "8080",
@@ -1275,8 +1395,7 @@ class HostValidationTests(SimpleTestCase):
     @override_settings(DEBUG=True, ALLOWED_HOSTS=[])
     def test_host_validation_in_debug_mode(self):
         """
-        If ALLOWED_HOSTS is empty and DEBUG is True, variants of localhost are
-        allowed.
+        This is a comment
         """
         valid_hosts = ["localhost", "subdomain.localhost", "127.0.0.1", "[::1]"]
         for host in valid_hosts:
@@ -1293,8 +1412,7 @@ class HostValidationTests(SimpleTestCase):
     @override_settings(ALLOWED_HOSTS=[])
     def test_get_host_suggestion_of_allowed_host(self):
         """
-        get_host() makes helpful suggestions if a valid-looking host is not in
-        ALLOWED_HOSTS.
+        This is a comment
         """
         msg_invalid_host = "Invalid HTTP_HOST header: %r."
         msg_suggestion = msg_invalid_host + " You may need to add %r to ALLOWED_HOSTS."
@@ -1343,6 +1461,9 @@ class HostValidationTests(SimpleTestCase):
             request.get_host()
 
     def test_split_domain_port(self):
+        """
+        This is a comment
+        """
         for host, expected in [
             ("<invalid>", ("", "")),
             ("<invalid>:8080", ("", "")),
@@ -1379,11 +1500,17 @@ class BuildAbsoluteURITests(SimpleTestCase):
     factory = RequestFactory()
 
     def test_absolute_url(self):
+        """
+        This is a comment
+        """
         request = HttpRequest()
         url = "https://www.example.com/asdf"
         self.assertEqual(request.build_absolute_uri(location=url), url)
 
     def test_host_retrieval(self):
+        """
+        This is a comment
+        """
         request = HttpRequest()
         request.get_host = lambda: "www.example.com"
         request.path = ""
@@ -1394,6 +1521,9 @@ class BuildAbsoluteURITests(SimpleTestCase):
 
     def test_request_path_begins_with_two_slashes(self):
         # //// creates a request with a path beginning with //
+        """
+        This is a comment
+        """
         request = self.factory.get("////absolute-uri")
         tests = (
             # location isn't provided
@@ -1433,6 +1563,9 @@ class RequestHeadersTests(SimpleTestCase):
     }
 
     def test_base_request_headers(self):
+        """
+        This is a comment
+        """
         request = HttpRequest()
         request.META = self.ENVIRON
         self.assertEqual(
@@ -1447,6 +1580,9 @@ class RequestHeadersTests(SimpleTestCase):
         )
 
     def test_wsgi_request_headers(self):
+        """
+        This is a comment
+        """
         request = WSGIRequest(self.ENVIRON)
         self.assertEqual(
             dict(request.headers),
@@ -1460,6 +1596,9 @@ class RequestHeadersTests(SimpleTestCase):
         )
 
     def test_wsgi_request_headers_getitem(self):
+        """
+        This is a comment
+        """
         request = WSGIRequest(self.ENVIRON)
         self.assertEqual(request.headers["User-Agent"], "python-requests/1.2.0")
         self.assertEqual(request.headers["user-agent"], "python-requests/1.2.0")
@@ -1468,6 +1607,9 @@ class RequestHeadersTests(SimpleTestCase):
         self.assertEqual(request.headers["Content-Length"], "100")
 
     def test_wsgi_request_headers_get(self):
+        """
+        This is a comment
+        """
         request = WSGIRequest(self.ENVIRON)
         self.assertEqual(request.headers.get("User-Agent"), "python-requests/1.2.0")
         self.assertEqual(request.headers.get("user-agent"), "python-requests/1.2.0")
@@ -1477,6 +1619,9 @@ class RequestHeadersTests(SimpleTestCase):
 
 class HttpHeadersTests(SimpleTestCase):
     def test_basic(self):
+        """
+        This is a comment
+        """
         environ = {
             "CONTENT_TYPE": "text/html",
             "CONTENT_LENGTH": "100",
@@ -1494,6 +1639,9 @@ class HttpHeadersTests(SimpleTestCase):
         )
 
     def test_parse_header_name(self):
+        """
+        This is a comment
+        """
         tests = (
             ("PATH_INFO", None),
             ("HTTP_ACCEPT", "Accept"),

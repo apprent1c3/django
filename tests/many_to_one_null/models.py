@@ -20,6 +20,9 @@ class Article(models.Model):
         ordering = ("headline",)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.headline
 
 

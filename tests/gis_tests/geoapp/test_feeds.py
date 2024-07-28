@@ -14,16 +14,23 @@ class GeoFeedTest(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         Site(id=settings.SITE_ID, domain="example.com", name="example.com").save()
 
     def assertChildNodes(self, elem, expected):
-        "Taken from syndication/tests.py."
+        """
+        This is a comment
+        """
         actual = {n.nodeName for n in elem.childNodes}
         expected = set(expected)
         self.assertEqual(actual, expected)
 
     def test_geofeed_rss(self):
-        "Tests geographic feeds using GeoRSS over RSSv2."
+        """
+        This is a comment
+        """
         # Uses `GEOSGeometry` in `item_geometry`
         doc1 = minidom.parseString(self.client.get("/feeds/rss1/").content)
         # Uses a 2-tuple in `item_geometry`
@@ -62,7 +69,9 @@ class GeoFeedTest(TestCase):
                 )
 
     def test_geofeed_atom(self):
-        "Testing geographic feeds using GeoRSS over Atom."
+        """
+        This is a comment
+        """
         doc1 = minidom.parseString(self.client.get("/feeds/atom1/").content)
         doc2 = minidom.parseString(self.client.get("/feeds/atom2/").content)
         feed1, feed2 = doc1.firstChild, doc2.firstChild
@@ -87,7 +96,9 @@ class GeoFeedTest(TestCase):
                 )
 
     def test_geofeed_w3c(self):
-        "Testing geographic feeds using W3C Geo."
+        """
+        This is a comment
+        """
         doc = minidom.parseString(self.client.get("/feeds/w3cgeo1/").content)
         feed = doc.firstChild
         # Ensuring the geo namespace was added to the <feed> element.

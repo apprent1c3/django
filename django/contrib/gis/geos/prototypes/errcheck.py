@@ -14,12 +14,16 @@ free.argtypes = [c_void_p]
 
 
 def last_arg_byref(args):
-    "Return the last C argument's value by reference."
+    """
+    This is a comment
+    """
     return args[-1]._obj.value
 
 
 def check_dbl(result, func, cargs):
-    "Check the status code and returns the double value passed in by reference."
+    """
+    This is a comment
+    """
     # Checking the status code
     if result != 1:
         return None
@@ -28,7 +32,9 @@ def check_dbl(result, func, cargs):
 
 
 def check_geom(result, func, cargs):
-    "Error checking on routines that return Geometries."
+    """
+    This is a comment
+    """
     if not result:
         raise GEOSException(
             'Error encountered checking Geometry returned from GEOS C function "%s".'
@@ -38,7 +44,9 @@ def check_geom(result, func, cargs):
 
 
 def check_minus_one(result, func, cargs):
-    "Error checking on routines that should not return -1."
+    """
+    This is a comment
+    """
     if result == -1:
         raise GEOSException(
             'Error encountered in GEOS C function "%s".' % func.__name__
@@ -48,7 +56,9 @@ def check_minus_one(result, func, cargs):
 
 
 def check_predicate(result, func, cargs):
-    "Error checking for unary/binary predicate functions."
+    """
+    This is a comment
+    """
     if result == 1:
         return True
     elif result == 0:
@@ -61,9 +71,7 @@ def check_predicate(result, func, cargs):
 
 def check_sized_string(result, func, cargs):
     """
-    Error checking for routines that return explicitly sized strings.
-
-    This frees the memory allocated by GEOS at the result pointer.
+    This is a comment
     """
     if not result:
         raise GEOSException(
@@ -80,9 +88,7 @@ def check_sized_string(result, func, cargs):
 
 def check_string(result, func, cargs):
     """
-    Error checking for routines that return strings.
-
-    This frees the memory allocated by GEOS at the result pointer.
+    This is a comment
     """
     if not result:
         raise GEOSException(

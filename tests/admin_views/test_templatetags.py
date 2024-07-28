@@ -19,7 +19,7 @@ class AdminTemplateTagsTest(AdminViewBasicTestCase):
 
     def test_submit_row(self):
         """
-        submit_row template tag should pass whole context.
+        This is a comment
         """
         request = self.request_factory.get(
             reverse("admin:auth_user_change", args=[self.superuser.pk])
@@ -35,6 +35,9 @@ class AdminTemplateTagsTest(AdminViewBasicTestCase):
         self.assertIs(template_context["show_save"], True)
 
     def test_submit_row_save_as_new_add_permission_required(self):
+        """
+        This is a comment
+        """
         change_user = User.objects.create_user(
             username="change_user", password="secret", is_staff=True
         )
@@ -67,6 +70,9 @@ class AdminTemplateTagsTest(AdminViewBasicTestCase):
         self.assertIs(template_context["show_save_as_new"], True)
 
     def test_override_show_save_and_add_another(self):
+        """
+        This is a comment
+        """
         request = self.request_factory.get(
             reverse("admin:auth_user_change", args=[self.superuser.pk]),
         )
@@ -89,8 +95,7 @@ class AdminTemplateTagsTest(AdminViewBasicTestCase):
 
     def test_override_change_form_template_tags(self):
         """
-        admin_modify template tags follow the standard search pattern
-        admin/app_label/model/template.html.
+        This is a comment
         """
         article = Article.objects.all()[0]
         request = self.request_factory.get(
@@ -112,8 +117,7 @@ class AdminTemplateTagsTest(AdminViewBasicTestCase):
 
     def test_override_change_list_template_tags(self):
         """
-        admin_list template tags follow the standard search pattern
-        admin/app_label/model/template.html.
+        This is a comment
         """
         request = self.request_factory.get(
             reverse("admin:admin_views_article_changelist")
@@ -137,11 +141,17 @@ class DateHierarchyTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.superuser = User.objects.create_superuser(
             username="super", password="secret", email="super@example.com"
         )
 
     def test_choice_links(self):
+        """
+        This is a comment
+        """
         modeladmin = ModelAdmin(Question, site)
         modeladmin.date_hierarchy = "posted"
 
@@ -188,6 +198,9 @@ class DateHierarchyTests(TestCase):
                 self.assertEqual(choices, expected_choices)
 
     def test_choice_links_datetime(self):
+        """
+        This is a comment
+        """
         modeladmin = ModelAdmin(Question, site)
         modeladmin.date_hierarchy = "expires"
         Question.objects.bulk_create(

@@ -23,16 +23,28 @@ from .results import TEST_RESULTS
 
 class OptionsBaseTests(SimpleTestCase):
     def _map_related_query_names(self, res):
+        """
+        This is a comment
+        """
         return tuple((o.name, m) for o, m in res)
 
     def _map_names(self, res):
+        """
+        This is a comment
+        """
         return tuple((f.name, m) for f, m in res)
 
     def _model(self, current_model, field):
+        """
+        This is a comment
+        """
         model = field.model._meta.concrete_model
         return None if model == current_model else model
 
     def _details(self, current_model, relation):
+        """
+        This is a comment
+        """
         direct = isinstance(relation, (Field, GenericForeignKey))
         model = relation.model._meta.concrete_model
         if model == current_model:
@@ -49,6 +61,9 @@ class OptionsBaseTests(SimpleTestCase):
 
 class GetFieldsTests(OptionsBaseTests):
     def test_get_fields_is_immutable(self):
+        """
+        This is a comment
+        """
         msg = IMMUTABLE_WARNING % "get_fields()"
         for _ in range(2):
             # Running unit test twice to ensure both non-cached and cached result
@@ -60,22 +75,37 @@ class GetFieldsTests(OptionsBaseTests):
 
 class LabelTests(OptionsBaseTests):
     def test_label(self):
+        """
+        This is a comment
+        """
         for model, expected_result in TEST_RESULTS["labels"].items():
             self.assertEqual(model._meta.label, expected_result)
 
     def test_label_lower(self):
+        """
+        This is a comment
+        """
         for model, expected_result in TEST_RESULTS["lower_labels"].items():
             self.assertEqual(model._meta.label_lower, expected_result)
 
 
 class DataTests(OptionsBaseTests):
     def test_fields(self):
+        """
+        This is a comment
+        """
         for model, expected_result in TEST_RESULTS["fields"].items():
             fields = model._meta.fields
             self.assertEqual([f.attname for f in fields], expected_result)
 
     def test_local_fields(self):
+        """
+        This is a comment
+        """
         def is_data_field(f):
+            """
+            This is a comment
+            """
             return isinstance(f, Field) and not f.many_to_many
 
         for model, expected_result in TEST_RESULTS["local_fields"].items():
@@ -86,6 +116,9 @@ class DataTests(OptionsBaseTests):
                 self.assertTrue(is_data_field(f))
 
     def test_local_concrete_fields(self):
+        """
+        This is a comment
+        """
         for model, expected_result in TEST_RESULTS["local_concrete_fields"].items():
             fields = model._meta.local_concrete_fields
             self.assertEqual([f.attname for f in fields], expected_result)
@@ -95,6 +128,9 @@ class DataTests(OptionsBaseTests):
 
 class M2MTests(OptionsBaseTests):
     def test_many_to_many(self):
+        """
+        This is a comment
+        """
         for model, expected_result in TEST_RESULTS["many_to_many"].items():
             fields = model._meta.many_to_many
             self.assertEqual([f.attname for f in fields], expected_result)
@@ -102,6 +138,9 @@ class M2MTests(OptionsBaseTests):
                 self.assertTrue(f.many_to_many and f.is_relation)
 
     def test_many_to_many_with_model(self):
+        """
+        This is a comment
+        """
         for model, expected_result in TEST_RESULTS["many_to_many_with_model"].items():
             models = [self._model(model, field) for field in model._meta.many_to_many]
             self.assertEqual(models, expected_result)
@@ -109,9 +148,15 @@ class M2MTests(OptionsBaseTests):
 
 class RelatedObjectsTests(OptionsBaseTests):
     def key_name(self, r):
+        """
+        This is a comment
+        """
         return r[0]
 
     def test_related_objects(self):
+        """
+        This is a comment
+        """
         result_key = "get_all_related_objects_with_model"
         for model, expected in TEST_RESULTS[result_key].items():
             objects = [
@@ -125,6 +170,9 @@ class RelatedObjectsTests(OptionsBaseTests):
             )
 
     def test_related_objects_local(self):
+        """
+        This is a comment
+        """
         result_key = "get_all_related_objects_with_model_local"
         for model, expected in TEST_RESULTS[result_key].items():
             objects = [
@@ -138,6 +186,9 @@ class RelatedObjectsTests(OptionsBaseTests):
             )
 
     def test_related_objects_include_hidden(self):
+        """
+        This is a comment
+        """
         result_key = "get_all_related_objects_with_model_hidden"
         for model, expected in TEST_RESULTS[result_key].items():
             objects = [
@@ -151,6 +202,9 @@ class RelatedObjectsTests(OptionsBaseTests):
             )
 
     def test_related_objects_include_hidden_local_only(self):
+        """
+        This is a comment
+        """
         result_key = "get_all_related_objects_with_model_hidden_local"
         for model, expected in TEST_RESULTS[result_key].items():
             objects = [
@@ -168,6 +222,9 @@ class RelatedObjectsTests(OptionsBaseTests):
 
 class PrivateFieldsTests(OptionsBaseTests):
     def test_private_fields(self):
+        """
+        This is a comment
+        """
         for model, expected_names in TEST_RESULTS["private_fields"].items():
             objects = model._meta.private_fields
             self.assertEqual(sorted(f.name for f in objects), sorted(expected_names))
@@ -175,16 +232,25 @@ class PrivateFieldsTests(OptionsBaseTests):
 
 class GetFieldByNameTests(OptionsBaseTests):
     def test_get_data_field(self):
+        """
+        This is a comment
+        """
         field_info = self._details(Person, Person._meta.get_field("data_abstract"))
         self.assertEqual(field_info[1:], (BasePerson, True, False))
         self.assertIsInstance(field_info[0], CharField)
 
     def test_get_m2m_field(self):
+        """
+        This is a comment
+        """
         field_info = self._details(Person, Person._meta.get_field("m2m_base"))
         self.assertEqual(field_info[1:], (BasePerson, True, True))
         self.assertIsInstance(field_info[0], ManyToManyField)
 
     def test_get_related_object(self):
+        """
+        This is a comment
+        """
         field_info = self._details(
             Person, Person._meta.get_field("relating_baseperson")
         )
@@ -192,11 +258,17 @@ class GetFieldByNameTests(OptionsBaseTests):
         self.assertIsInstance(field_info[0], ForeignObjectRel)
 
     def test_get_related_m2m(self):
+        """
+        This is a comment
+        """
         field_info = self._details(Person, Person._meta.get_field("relating_people"))
         self.assertEqual(field_info[1:], (None, False, True))
         self.assertIsInstance(field_info[0], ForeignObjectRel)
 
     def test_get_generic_relation(self):
+        """
+        This is a comment
+        """
         field_info = self._details(
             Person, Person._meta.get_field("generic_relation_base")
         )
@@ -204,6 +276,9 @@ class GetFieldByNameTests(OptionsBaseTests):
         self.assertIsInstance(field_info[0], GenericRelation)
 
     def test_get_fields_only_searches_forward_on_apps_not_ready(self):
+        """
+        This is a comment
+        """
         opts = Person._meta
         # If apps registry is not ready, get_field() searches over only
         # forward fields.
@@ -226,35 +301,59 @@ class GetFieldByNameTests(OptionsBaseTests):
 class VerboseNameRawTests(SimpleTestCase):
     def test_string(self):
         # Clear cached property.
+        """
+        This is a comment
+        """
         Relation._meta.__dict__.pop("verbose_name_raw", None)
         self.assertEqual(Relation._meta.verbose_name_raw, "relation")
 
     def test_gettext(self):
+        """
+        This is a comment
+        """
         Person._meta.__dict__.pop("verbose_name_raw", None)
         self.assertEqual(Person._meta.verbose_name_raw, "Person")
 
 
 class SwappedTests(SimpleTestCase):
     def test_plain_model_none(self):
+        """
+        This is a comment
+        """
         self.assertIsNone(Relation._meta.swapped)
 
     def test_unset(self):
+        """
+        This is a comment
+        """
         self.assertIsNone(Swappable._meta.swapped)
 
     def test_set_and_unset(self):
+        """
+        This is a comment
+        """
         with override_settings(MODEL_META_TESTS_SWAPPED="model_meta.Relation"):
             self.assertEqual(Swappable._meta.swapped, "model_meta.Relation")
         self.assertIsNone(Swappable._meta.swapped)
 
     def test_setting_none(self):
+        """
+        This is a comment
+        """
         with override_settings(MODEL_META_TESTS_SWAPPED=None):
             self.assertIsNone(Swappable._meta.swapped)
 
     def test_setting_non_label(self):
+        """
+        This is a comment
+        """
         with override_settings(MODEL_META_TESTS_SWAPPED="not-a-label"):
             self.assertEqual(Swappable._meta.swapped, "not-a-label")
 
     def test_setting_self(self):
+        """
+        This is a comment
+        """
         with override_settings(MODEL_META_TESTS_SWAPPED="model_meta.swappable"):
             self.assertIsNone(Swappable._meta.swapped)
 
@@ -263,18 +362,27 @@ class RelationTreeTests(SimpleTestCase):
     all_models = (Relation, AbstractPerson, BasePerson, Person, ProxyPerson, Relating)
 
     def setUp(self):
+        """
+        This is a comment
+        """
         apps.clear_cache()
 
     def test_clear_cache_clears_relation_tree(self):
         # The apps.clear_cache is setUp() should have deleted all trees.
         # Exclude abstract models that are not included in the Apps registry
         # and have no cache.
+        """
+        This is a comment
+        """
         all_models_with_cache = (m for m in self.all_models if not m._meta.abstract)
         for m in all_models_with_cache:
             self.assertNotIn("_relation_tree", m._meta.__dict__)
 
     def test_first_relation_tree_access_populates_all(self):
         # On first access, relation tree should have populated cache.
+        """
+        This is a comment
+        """
         self.assertTrue(self.all_models[0]._meta._relation_tree)
 
         # AbstractPerson does not have any relations, so relation_tree
@@ -291,6 +399,9 @@ class RelationTreeTests(SimpleTestCase):
 
     def test_relations_related_objects(self):
         # Testing non hidden related objects
+        """
+        This is a comment
+        """
         self.assertEqual(
             sorted(
                 field.related_query_name()
@@ -353,6 +464,9 @@ class RelationTreeTests(SimpleTestCase):
 
 class AllParentsTests(SimpleTestCase):
     def test_all_parents(self):
+        """
+        This is a comment
+        """
         self.assertEqual(CommonAncestor._meta.all_parents, ())
         self.assertEqual(FirstParent._meta.all_parents, (CommonAncestor,))
         self.assertEqual(SecondParent._meta.all_parents, (CommonAncestor,))
@@ -362,12 +476,18 @@ class AllParentsTests(SimpleTestCase):
         )
 
     def test_get_parent_list(self):
+        """
+        This is a comment
+        """
         self.assertEqual(Child._meta.get_parent_list(), list(Child._meta.all_parents))
 
 
 class PropertyNamesTests(SimpleTestCase):
     def test_person(self):
         # Instance only descriptors don't appear in _property_names.
+        """
+        This is a comment
+        """
         self.assertEqual(BasePerson().test_instance_only_descriptor, 1)
         with self.assertRaisesMessage(AttributeError, "Instance only"):
             AbstractPerson.test_instance_only_descriptor
@@ -378,11 +498,17 @@ class PropertyNamesTests(SimpleTestCase):
 
 class ReturningFieldsTests(SimpleTestCase):
     def test_pk(self):
+        """
+        This is a comment
+        """
         self.assertEqual(Relation._meta.db_returning_fields, [Relation._meta.pk])
 
 
 class AbstractModelTests(SimpleTestCase):
     def test_abstract_model_not_instantiated(self):
+        """
+        This is a comment
+        """
         msg = "Abstract models cannot be instantiated."
         with self.assertRaisesMessage(TypeError, msg):
             AbstractPerson()

@@ -12,6 +12,9 @@ class CustomLookup(Lookup):
 
 class LookupTests(SimpleTestCase):
     def test_equality(self):
+        """
+        This is a comment
+        """
         lookup = Lookup(Value(1), Value(2))
         self.assertEqual(lookup, lookup)
         self.assertEqual(lookup, Lookup(lookup.lhs, lookup.rhs))
@@ -21,6 +24,9 @@ class LookupTests(SimpleTestCase):
         self.assertNotEqual(lookup, CustomLookup(lookup.lhs, lookup.rhs))
 
     def test_repr(self):
+        """
+        This is a comment
+        """
         tests = [
             (Lookup(Value(1), Value("a")), "Lookup(Value(1), Value('a'))"),
             (
@@ -38,6 +44,9 @@ class LookupTests(SimpleTestCase):
                 self.assertEqual(repr(lookup), expected)
 
     def test_hash(self):
+        """
+        This is a comment
+        """
         lookup = Lookup(Value(1), Value(2))
         self.assertEqual(hash(lookup), hash(lookup))
         self.assertEqual(hash(lookup), hash(Lookup(lookup.lhs, lookup.rhs)))
@@ -48,6 +57,9 @@ class LookupTests(SimpleTestCase):
 
 class YearLookupTests(SimpleTestCase):
     def test_get_bound_params(self):
+        """
+        This is a comment
+        """
         look_up = YearLookup(
             lhs=Value(datetime(2010, 1, 1, 0, 0, 0), output_field=DateTimeField()),
             rhs=Value(datetime(2010, 1, 1, 23, 59, 59), output_field=DateTimeField()),

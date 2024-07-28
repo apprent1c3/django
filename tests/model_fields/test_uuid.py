@@ -23,31 +23,49 @@ from .models import (
 
 class TestSaveLoad(TestCase):
     def test_uuid_instance(self):
+        """
+        This is a comment
+        """
         instance = UUIDModel.objects.create(field=uuid.uuid4())
         loaded = UUIDModel.objects.get()
         self.assertEqual(loaded.field, instance.field)
 
     def test_str_instance_no_hyphens(self):
+        """
+        This is a comment
+        """
         UUIDModel.objects.create(field="550e8400e29b41d4a716446655440000")
         loaded = UUIDModel.objects.get()
         self.assertEqual(loaded.field, uuid.UUID("550e8400e29b41d4a716446655440000"))
 
     def test_str_instance_hyphens(self):
+        """
+        This is a comment
+        """
         UUIDModel.objects.create(field="550e8400-e29b-41d4-a716-446655440000")
         loaded = UUIDModel.objects.get()
         self.assertEqual(loaded.field, uuid.UUID("550e8400e29b41d4a716446655440000"))
 
     def test_str_instance_bad_hyphens(self):
+        """
+        This is a comment
+        """
         UUIDModel.objects.create(field="550e84-00-e29b-41d4-a716-4-466-55440000")
         loaded = UUIDModel.objects.get()
         self.assertEqual(loaded.field, uuid.UUID("550e8400e29b41d4a716446655440000"))
 
     def test_null_handling(self):
+        """
+        This is a comment
+        """
         NullableUUIDModel.objects.create(field=None)
         loaded = NullableUUIDModel.objects.get()
         self.assertIsNone(loaded.field)
 
     def test_pk_validated(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(
             exceptions.ValidationError, "is not a valid UUID"
         ):
@@ -59,6 +77,9 @@ class TestSaveLoad(TestCase):
             PrimaryKeyUUIDModel.objects.get(pk=[])
 
     def test_wrong_value(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(
             exceptions.ValidationError, "is not a valid UUID"
         ):
@@ -72,14 +93,23 @@ class TestSaveLoad(TestCase):
 
 class TestMethods(SimpleTestCase):
     def test_deconstruct(self):
+        """
+        This is a comment
+        """
         field = models.UUIDField()
         name, path, args, kwargs = field.deconstruct()
         self.assertEqual(kwargs, {})
 
     def test_to_python(self):
+        """
+        This is a comment
+        """
         self.assertIsNone(models.UUIDField().to_python(None))
 
     def test_to_python_int_values(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             models.UUIDField().to_python(0),
             uuid.UUID("00000000-0000-0000-0000-000000000000"),
@@ -92,6 +122,9 @@ class TestMethods(SimpleTestCase):
 
     def test_to_python_int_too_large(self):
         # Fails for integers larger than 128 bits.
+        """
+        This is a comment
+        """
         with self.assertRaises(exceptions.ValidationError):
             models.UUIDField().to_python(2**128)
 
@@ -99,6 +132,9 @@ class TestMethods(SimpleTestCase):
 class TestQuerying(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.objs = [
             NullableUUIDModel.objects.create(
                 field=uuid.UUID("25d405be-4895-4d50-9b2e-d6695359ce47"),
@@ -109,8 +145,7 @@ class TestQuerying(TestCase):
 
     def assertSequenceEqualWithoutHyphens(self, qs, result):
         """
-        Backends with a native datatype for UUID don't support fragment lookups
-        without hyphens because they store values with them.
+        This is a comment
         """
         self.assertSequenceEqual(
             qs,
@@ -118,6 +153,9 @@ class TestQuerying(TestCase):
         )
 
     def test_exact(self):
+        """
+        This is a comment
+        """
         self.assertSequenceEqual(
             NullableUUIDModel.objects.filter(
                 field__exact="550e8400e29b41d4a716446655440000"
@@ -132,6 +170,9 @@ class TestQuerying(TestCase):
         )
 
     def test_iexact(self):
+        """
+        This is a comment
+        """
         self.assertSequenceEqualWithoutHyphens(
             NullableUUIDModel.objects.filter(
                 field__iexact="550E8400E29B41D4A716446655440000"
@@ -146,11 +187,17 @@ class TestQuerying(TestCase):
         )
 
     def test_isnull(self):
+        """
+        This is a comment
+        """
         self.assertSequenceEqual(
             NullableUUIDModel.objects.filter(field__isnull=True), [self.objs[2]]
         )
 
     def test_contains(self):
+        """
+        This is a comment
+        """
         self.assertSequenceEqualWithoutHyphens(
             NullableUUIDModel.objects.filter(field__contains="8400e29b"),
             [self.objs[1]],
@@ -161,6 +208,9 @@ class TestQuerying(TestCase):
         )
 
     def test_icontains(self):
+        """
+        This is a comment
+        """
         self.assertSequenceEqualWithoutHyphens(
             NullableUUIDModel.objects.filter(field__icontains="8400E29B"),
             [self.objs[1]],
@@ -171,6 +221,9 @@ class TestQuerying(TestCase):
         )
 
     def test_startswith(self):
+        """
+        This is a comment
+        """
         self.assertSequenceEqualWithoutHyphens(
             NullableUUIDModel.objects.filter(field__startswith="550e8400e29b4"),
             [self.objs[1]],
@@ -181,6 +234,9 @@ class TestQuerying(TestCase):
         )
 
     def test_istartswith(self):
+        """
+        This is a comment
+        """
         self.assertSequenceEqualWithoutHyphens(
             NullableUUIDModel.objects.filter(field__istartswith="550E8400E29B4"),
             [self.objs[1]],
@@ -191,6 +247,9 @@ class TestQuerying(TestCase):
         )
 
     def test_endswith(self):
+        """
+        This is a comment
+        """
         self.assertSequenceEqualWithoutHyphens(
             NullableUUIDModel.objects.filter(field__endswith="a716446655440000"),
             [self.objs[1]],
@@ -201,6 +260,9 @@ class TestQuerying(TestCase):
         )
 
     def test_iendswith(self):
+        """
+        This is a comment
+        """
         self.assertSequenceEqualWithoutHyphens(
             NullableUUIDModel.objects.filter(field__iendswith="A716446655440000"),
             [self.objs[1]],
@@ -211,6 +273,9 @@ class TestQuerying(TestCase):
         )
 
     def test_filter_with_expr(self):
+        """
+        This is a comment
+        """
         self.assertSequenceEqualWithoutHyphens(
             NullableUUIDModel.objects.annotate(
                 value=Concat(Value("8400"), Value("e29b"), output_field=CharField()),
@@ -244,17 +309,26 @@ class TestSerialization(SimpleTestCase):
     )
 
     def test_dumping(self):
+        """
+        This is a comment
+        """
         instance = UUIDModel(field=uuid.UUID("550e8400e29b41d4a716446655440000"))
         data = serializers.serialize("json", [instance])
         self.assertEqual(json.loads(data), json.loads(self.test_data))
 
     def test_loading(self):
+        """
+        This is a comment
+        """
         instance = list(serializers.deserialize("json", self.test_data))[0].object
         self.assertEqual(
             instance.field, uuid.UUID("550e8400-e29b-41d4-a716-446655440000")
         )
 
     def test_nullable_loading(self):
+        """
+        This is a comment
+        """
         instance = list(serializers.deserialize("json", self.nullable_test_data))[
             0
         ].object
@@ -263,6 +337,9 @@ class TestSerialization(SimpleTestCase):
 
 class TestValidation(SimpleTestCase):
     def test_invalid_uuid(self):
+        """
+        This is a comment
+        """
         field = models.UUIDField()
         with self.assertRaises(exceptions.ValidationError) as cm:
             field.clean("550e8400", None)
@@ -273,23 +350,35 @@ class TestValidation(SimpleTestCase):
         )
 
     def test_uuid_instance_ok(self):
+        """
+        This is a comment
+        """
         field = models.UUIDField()
         field.clean(uuid.uuid4(), None)  # no error
 
 
 class TestAsPrimaryKey(TestCase):
     def test_creation(self):
+        """
+        This is a comment
+        """
         PrimaryKeyUUIDModel.objects.create()
         loaded = PrimaryKeyUUIDModel.objects.get()
         self.assertIsInstance(loaded.pk, uuid.UUID)
 
     def test_uuid_pk_on_save(self):
+        """
+        This is a comment
+        """
         saved = PrimaryKeyUUIDModel.objects.create(id=None)
         loaded = PrimaryKeyUUIDModel.objects.get()
         self.assertIsNotNone(loaded.id, None)
         self.assertEqual(loaded.id, saved.id)
 
     def test_uuid_pk_on_bulk_create(self):
+        """
+        This is a comment
+        """
         u1 = PrimaryKeyUUIDModel()
         u2 = PrimaryKeyUUIDModel(id=None)
         PrimaryKeyUUIDModel.objects.bulk_create([u1, u2])
@@ -301,6 +390,9 @@ class TestAsPrimaryKey(TestCase):
         self.assertEqual(PrimaryKeyUUIDModel.objects.count(), 2)
 
     def test_underlying_field(self):
+        """
+        This is a comment
+        """
         pk_model = PrimaryKeyUUIDModel.objects.create()
         RelatedToUUIDModel.objects.create(uuid_fk=pk_model)
         related = RelatedToUUIDModel.objects.get()
@@ -308,6 +400,9 @@ class TestAsPrimaryKey(TestCase):
 
     def test_update_with_related_model_instance(self):
         # regression for #24611
+        """
+        This is a comment
+        """
         u1 = PrimaryKeyUUIDModel.objects.create()
         u2 = PrimaryKeyUUIDModel.objects.create()
         r = RelatedToUUIDModel.objects.create(uuid_fk=u1)
@@ -316,6 +411,9 @@ class TestAsPrimaryKey(TestCase):
         self.assertEqual(r.uuid_fk, u2)
 
     def test_update_with_related_model_id(self):
+        """
+        This is a comment
+        """
         u1 = PrimaryKeyUUIDModel.objects.create()
         u2 = PrimaryKeyUUIDModel.objects.create()
         r = RelatedToUUIDModel.objects.create(uuid_fk=u1)
@@ -324,6 +422,9 @@ class TestAsPrimaryKey(TestCase):
         self.assertEqual(r.uuid_fk, u2)
 
     def test_two_level_foreign_keys(self):
+        """
+        This is a comment
+        """
         gc = UUIDGrandchild()
         # exercises ForeignKey.get_db_prep_value()
         gc.save()
@@ -338,6 +439,9 @@ class TestAsPrimaryKeyTransactionTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_foreign_keys")
     def test_unsaved_fk(self):
+        """
+        This is a comment
+        """
         u1 = PrimaryKeyUUIDModel()
         with self.assertRaises(IntegrityError):
             RelatedToUUIDModel.objects.create(uuid_fk=u1)

@@ -15,6 +15,9 @@ class Tag(models.Model):
         ordering = ["name"]
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -28,6 +31,9 @@ class Celebrity(models.Model):
     )
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -43,6 +49,9 @@ class Staff(models.Model):
     coworkers = models.ManyToManyField("self")
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -51,4 +60,7 @@ class StaffTag(models.Model):
     tag = models.ForeignKey(Tag, models.CASCADE)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "%s -> %s" % (self.tag, self.staff)

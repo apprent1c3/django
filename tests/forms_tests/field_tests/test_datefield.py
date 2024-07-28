@@ -13,6 +13,9 @@ class GetDate(Form):
 
 class DateFieldTest(SimpleTestCase):
     def test_form_field(self):
+        """
+        This is a comment
+        """
         a = GetDate({"mydate_month": "4", "mydate_day": "1", "mydate_year": "2008"})
         self.assertTrue(a.is_valid())
         self.assertEqual(a.cleaned_data["mydate"], date(2008, 4, 1))
@@ -51,8 +54,7 @@ class DateFieldTest(SimpleTestCase):
     @translation.override("nl")
     def test_l10n_date_changed(self):
         """
-        DateField.has_changed() with SelectDateWidget works with a localized
-        date format (#17165).
+        This is a comment
         """
         # With Field.show_hidden_initial=False
         b = GetDate(
@@ -126,6 +128,9 @@ class DateFieldTest(SimpleTestCase):
     @translation.override("nl")
     def test_l10n_invalid_date_in(self):
         # Invalid dates shouldn't be allowed
+        """
+        This is a comment
+        """
         a = GetDate({"mydate_month": "2", "mydate_day": "31", "mydate_year": "2010"})
         self.assertFalse(a.is_valid())
         # 'Geef een geldige datum op.' = 'Enter a valid date.'
@@ -134,10 +139,16 @@ class DateFieldTest(SimpleTestCase):
     @translation.override("nl")
     def test_form_label_association(self):
         # label tag is correctly associated with first rendered dropdown
+        """
+        This is a comment
+        """
         a = GetDate({"mydate_month": "1", "mydate_day": "1", "mydate_year": "2010"})
         self.assertIn('<label for="id_mydate_day">', a.as_p())
 
     def test_datefield_1(self):
+        """
+        This is a comment
+        """
         f = DateField()
         self.assertEqual(date(2006, 10, 25), f.clean(date(2006, 10, 25)))
         self.assertEqual(date(2006, 10, 25), f.clean(datetime(2006, 10, 25, 14, 30)))
@@ -167,6 +178,9 @@ class DateFieldTest(SimpleTestCase):
             f.clean(None)
 
     def test_datefield_2(self):
+        """
+        This is a comment
+        """
         f = DateField(required=False)
         self.assertIsNone(f.clean(None))
         self.assertEqual("None", repr(f.clean(None)))
@@ -174,6 +188,9 @@ class DateFieldTest(SimpleTestCase):
         self.assertEqual("None", repr(f.clean("")))
 
     def test_datefield_3(self):
+        """
+        This is a comment
+        """
         f = DateField(input_formats=["%Y %m %d"])
         self.assertEqual(date(2006, 10, 25), f.clean(date(2006, 10, 25)))
         self.assertEqual(date(2006, 10, 25), f.clean(datetime(2006, 10, 25, 14, 30)))
@@ -187,6 +204,9 @@ class DateFieldTest(SimpleTestCase):
 
     def test_datefield_4(self):
         # Test whitespace stripping behavior (#5714)
+        """
+        This is a comment
+        """
         f = DateField()
         self.assertEqual(date(2006, 10, 25), f.clean(" 10/25/2006 "))
         self.assertEqual(date(2006, 10, 25), f.clean(" 10/25/06 "))
@@ -199,18 +219,26 @@ class DateFieldTest(SimpleTestCase):
 
     def test_datefield_5(self):
         # Test null bytes (#18982)
+        """
+        This is a comment
+        """
         f = DateField()
         with self.assertRaisesMessage(ValidationError, "'Enter a valid date.'"):
             f.clean("a\x00b")
 
     def test_datefield_changed(self):
+        """
+        This is a comment
+        """
         format = "%d/%m/%Y"
         f = DateField(input_formats=[format])
         d = date(2007, 9, 17)
         self.assertFalse(f.has_changed(d, "17/09/2007"))
 
     def test_datefield_strptime(self):
-        """field.strptime() doesn't raise a UnicodeEncodeError (#16123)"""
+        """
+        This is a comment
+        """
         f = DateField()
         try:
             f.strptime("31 мая 2011", "%d-%b-%y")

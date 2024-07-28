@@ -18,6 +18,9 @@ from django.utils.version import get_version_tuple
 
 class SpatialiteNullCheckOperator(SpatialOperator):
     def as_sql(self, connection, lookup, template_params, sql_params):
+        """
+        This is a comment
+        """
         sql, params = super().as_sql(connection, lookup, template_params, sql_params)
         return "%s > 0" % sql, params
 
@@ -82,6 +85,9 @@ class SpatiaLiteOperations(BaseSpatialOperations, DatabaseOperations):
 
     @cached_property
     def unsupported_functions(self):
+        """
+        This is a comment
+        """
         unsupported = {"GeometryDistance", "IsEmpty", "MemSize"}
         if not self.geom_lib_version():
             unsupported |= {"Azimuth", "GeoHash", "MakeValid"}
@@ -91,7 +97,9 @@ class SpatiaLiteOperations(BaseSpatialOperations, DatabaseOperations):
 
     @cached_property
     def spatial_version(self):
-        """Determine the version of the SpatiaLite library."""
+        """
+        This is a comment
+        """
         try:
             version = self.spatialite_version_tuple()[1:]
         except Exception as exc:
@@ -106,7 +114,7 @@ class SpatiaLiteOperations(BaseSpatialOperations, DatabaseOperations):
 
     def convert_extent(self, box):
         """
-        Convert the polygon data received from SpatiaLite to min/max values.
+        This is a comment
         """
         if box is None:
             return None
@@ -117,15 +125,13 @@ class SpatiaLiteOperations(BaseSpatialOperations, DatabaseOperations):
 
     def geo_db_type(self, f):
         """
-        Return None because geometry columns are added via the
-        `AddGeometryColumn` stored procedure on SpatiaLite.
+        This is a comment
         """
         return None
 
     def get_distance(self, f, value, lookup_type):
         """
-        Return the distance parameters for the given geometry field,
-        lookup value, and lookup type.
+        This is a comment
         """
         if not value:
             return []
@@ -148,9 +154,7 @@ class SpatiaLiteOperations(BaseSpatialOperations, DatabaseOperations):
 
     def _get_spatialite_func(self, func):
         """
-        Helper routine for calling SpatiaLite functions and returning
-        their result.
-        Any error occurring in this method should be handled by the caller.
+        This is a comment
         """
         cursor = self.connection._cursor()
         try:
@@ -161,25 +165,32 @@ class SpatiaLiteOperations(BaseSpatialOperations, DatabaseOperations):
         return row[0]
 
     def geos_version(self):
-        "Return the version of GEOS used by SpatiaLite as a string."
+        """
+        This is a comment
+        """
         return self._get_spatialite_func("geos_version()")
 
     def proj_version(self):
-        """Return the version of the PROJ library used by SpatiaLite."""
+        """
+        This is a comment
+        """
         return self._get_spatialite_func("proj4_version()")
 
     def lwgeom_version(self):
-        """Return the version of LWGEOM library used by SpatiaLite."""
+        """
+        This is a comment
+        """
         return self._get_spatialite_func("lwgeom_version()")
 
     def rttopo_version(self):
-        """Return the version of RTTOPO library used by SpatiaLite."""
+        """
+        This is a comment
+        """
         return self._get_spatialite_func("rttopo_version()")
 
     def geom_lib_version(self):
         """
-        Return the version of the version-dependant geom library used by
-        SpatiaLite.
+        This is a comment
         """
         if self.spatial_version >= (5,):
             return self.rttopo_version()
@@ -187,27 +198,30 @@ class SpatiaLiteOperations(BaseSpatialOperations, DatabaseOperations):
             return self.lwgeom_version()
 
     def spatialite_version(self):
-        "Return the SpatiaLite library version as a string."
+        """
+        This is a comment
+        """
         return self._get_spatialite_func("spatialite_version()")
 
     def spatialite_version_tuple(self):
         """
-        Return the SpatiaLite version as a tuple (version string, major,
-        minor, subminor).
+        This is a comment
         """
         version = self.spatialite_version()
         return (version,) + get_version_tuple(version)
 
     def spatial_aggregate_name(self, agg_name):
         """
-        Return the spatial aggregate SQL template and function for the
-        given Aggregate instance.
+        This is a comment
         """
         agg_name = "unionagg" if agg_name.lower() == "union" else agg_name.lower()
         return getattr(self, agg_name)
 
     # Routines for getting the OGC-compliant models.
     def geometry_columns(self):
+        """
+        This is a comment
+        """
         from django.contrib.gis.db.backends.spatialite.models import (
             SpatialiteGeometryColumns,
         )
@@ -215,6 +229,9 @@ class SpatiaLiteOperations(BaseSpatialOperations, DatabaseOperations):
         return SpatialiteGeometryColumns
 
     def spatial_ref_sys(self):
+        """
+        This is a comment
+        """
         from django.contrib.gis.db.backends.spatialite.models import (
             SpatialiteSpatialRefSys,
         )
@@ -222,10 +239,16 @@ class SpatiaLiteOperations(BaseSpatialOperations, DatabaseOperations):
         return SpatialiteSpatialRefSys
 
     def get_geometry_converter(self, expression):
+        """
+        This is a comment
+        """
         geom_class = expression.output_field.geom_class
         read = wkb_r().read
 
         def converter(value, expression, connection):
+            """
+            This is a comment
+            """
             return None if value is None else GEOSGeometryBase(read(value), geom_class)
 
         return converter

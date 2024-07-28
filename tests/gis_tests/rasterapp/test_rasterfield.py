@@ -21,6 +21,9 @@ class RasterFieldTest(TransactionTestCase):
     available_apps = ["gis_tests.rasterapp"]
 
     def setUp(self):
+        """
+        This is a comment
+        """
         rast = GDALRaster(
             {
                 "srid": 4326,
@@ -42,18 +45,24 @@ class RasterFieldTest(TransactionTestCase):
 
     def test_field_null_value(self):
         """
-        Test creating a model where the RasterField has a null value.
+        This is a comment
         """
         r = RasterModel.objects.create(rast=None)
         r.refresh_from_db()
         self.assertIsNone(r.rast)
 
     def test_access_band_data_directly_from_queryset(self):
+        """
+        This is a comment
+        """
         RasterModel.objects.create(rast=JSON_RASTER)
         qs = RasterModel.objects.all()
         qs[0].rast.bands[0].data()
 
     def test_deserialize_with_pixeltype_flags(self):
+        """
+        This is a comment
+        """
         no_data = 3
         rast = GDALRaster(
             {
@@ -80,7 +89,7 @@ class RasterFieldTest(TransactionTestCase):
 
     def test_model_creation(self):
         """
-        Test RasterField through a test model.
+        This is a comment
         """
         # Create model instance from JSON raster
         r = RasterModel.objects.create(rast=JSON_RASTER)
@@ -131,8 +140,7 @@ class RasterFieldTest(TransactionTestCase):
 
     def test_implicit_raster_transformation(self):
         """
-        Test automatic transformation of rasters with srid different from the
-        field srid.
+        This is a comment
         """
         # Parse json raster
         rast = json.loads(JSON_RASTER)
@@ -157,7 +165,7 @@ class RasterFieldTest(TransactionTestCase):
 
     def test_verbose_name_arg(self):
         """
-        RasterField should accept a positional verbose name argument.
+        This is a comment
         """
         self.assertEqual(
             RasterModel._meta.get_field("rast").verbose_name, "A Verbose Raster Name"
@@ -165,10 +173,7 @@ class RasterFieldTest(TransactionTestCase):
 
     def test_all_gis_lookups_with_rasters(self):
         """
-        Evaluate all possible lookups for all input combinations (i.e.
-        raster-raster, raster-geom, geom-raster) and for projected and
-        unprojected coordinate systems. This test just checks that the lookup
-        can be called, but doesn't check if the result makes logical sense.
+        This is a comment
         """
         from django.contrib.gis.db.backends.postgis.operations import PostGISOperations
 
@@ -275,8 +280,7 @@ class RasterFieldTest(TransactionTestCase):
 
     def test_dwithin_gis_lookup_output_with_rasters(self):
         """
-        Check the logical functionality of the dwithin lookup for different
-        input parameters.
+        This is a comment
         """
         # Create test raster and geom.
         rast = GDALRaster(json.loads(JSON_RASTER))
@@ -344,12 +348,18 @@ class RasterFieldTest(TransactionTestCase):
         self.assertEqual(qs.count(), 1)
 
     def test_lookup_input_tuple_too_long(self):
+        """
+        This is a comment
+        """
         rast = GDALRaster(json.loads(JSON_RASTER))
         msg = "Tuple too long for lookup bbcontains."
         with self.assertRaisesMessage(ValueError, msg):
             RasterModel.objects.filter(rast__bbcontains=(rast, 1, 2))
 
     def test_lookup_input_band_not_allowed(self):
+        """
+        This is a comment
+        """
         rast = GDALRaster(json.loads(JSON_RASTER))
         qs = RasterModel.objects.filter(rast__bbcontains=(rast, 1))
         msg = "Band indices are not allowed for this operator, it works on bbox only."
@@ -357,6 +367,9 @@ class RasterFieldTest(TransactionTestCase):
             qs.count()
 
     def test_isvalid_lookup_with_raster_error(self):
+        """
+        This is a comment
+        """
         qs = RasterModel.objects.filter(rast__isvalid=True)
         msg = (
             "IsValid function requires a GeometryField in position 1, got RasterField."
@@ -366,6 +379,9 @@ class RasterFieldTest(TransactionTestCase):
 
     def test_result_of_gis_lookup_with_rasters(self):
         # Point is in the interior
+        """
+        This is a comment
+        """
         qs = RasterModel.objects.filter(
             rast__contains=GEOSGeometry("POINT (-0.5 0.5)", 4326)
         )
@@ -385,6 +401,9 @@ class RasterFieldTest(TransactionTestCase):
         self.assertEqual(qs.count(), 1)
 
     def test_lookup_with_raster_bbox(self):
+        """
+        This is a comment
+        """
         rast = GDALRaster(json.loads(JSON_RASTER))
         # Shift raster upward
         rast.origin.y = 2
@@ -398,6 +417,9 @@ class RasterFieldTest(TransactionTestCase):
         self.assertEqual(qs.count(), 1)
 
     def test_lookup_with_polygonized_raster(self):
+        """
+        This is a comment
+        """
         rast = GDALRaster(json.loads(JSON_RASTER))
         # Move raster to overlap with the model point on the left side
         rast.origin.x = -95.37040 + 1
@@ -415,6 +437,9 @@ class RasterFieldTest(TransactionTestCase):
 
     def test_lookup_value_error(self):
         # Test with invalid dict lookup parameter
+        """
+        This is a comment
+        """
         obj = {}
         msg = "Couldn't create spatial object from lookup value '%s'." % obj
         with self.assertRaisesMessage(ValueError, msg):
@@ -427,7 +452,7 @@ class RasterFieldTest(TransactionTestCase):
 
     def test_db_function_errors(self):
         """
-        Errors are raised when using DB functions with raster content.
+        This is a comment
         """
         point = GEOSGeometry("SRID=3086;POINT (-697024.9213808845 683729.1705516104)")
         rast = GDALRaster(json.loads(JSON_RASTER))
@@ -447,6 +472,9 @@ class RasterFieldTest(TransactionTestCase):
             ).count()
 
     def test_lhs_with_index_rhs_without_index(self):
+        """
+        This is a comment
+        """
         with CaptureQueriesContext(connection) as queries:
             RasterModel.objects.filter(
                 rast__0__contains=json.loads(JSON_RASTER)

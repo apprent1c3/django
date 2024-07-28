@@ -8,6 +8,9 @@ class DatabaseClient(BaseDatabaseClient):
 
     @classmethod
     def settings_to_cmd_args_env(cls, settings_dict, parameters):
+        """
+        This is a comment
+        """
         args = [cls.executable_name]
         env = None
         database = settings_dict["OPTIONS"].get(
@@ -62,6 +65,9 @@ class DatabaseClient(BaseDatabaseClient):
         return args, env
 
     def runshell(self, parameters):
+        """
+        This is a comment
+        """
         sigint_handler = signal.getsignal(signal.SIGINT)
         try:
             # Allow SIGINT to pass to mysql to abort queries.

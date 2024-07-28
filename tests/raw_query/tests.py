@@ -19,6 +19,9 @@ from .models import (
 class RawQueryTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.a1 = Author.objects.create(
             first_name="Joe", last_name="Smith", dob=date(1950, 9, 20)
         )
@@ -78,7 +81,7 @@ class RawQueryTests(TestCase):
         translations=None,
     ):
         """
-        Execute the passed query against the passed model and check the output
+        This is a comment
         """
         results = list(
             model.objects.raw(query, params=params, translations=translations)
@@ -88,7 +91,7 @@ class RawQueryTests(TestCase):
 
     def assertProcessed(self, model, results, orig, expected_annotations=()):
         """
-        Compare the results of a raw query against expected results
+        This is a comment
         """
         self.assertEqual(len(results), len(orig))
         for index, item in enumerate(results):
@@ -109,13 +112,13 @@ class RawQueryTests(TestCase):
 
     def assertNoAnnotations(self, results):
         """
-        The results of a raw query contain no annotations
+        This is a comment
         """
         self.assertAnnotations(results, ())
 
     def assertAnnotations(self, results, expected_annotations):
         """
-        The passed raw query results contain the expected annotations
+        This is a comment
         """
         if expected_annotations:
             for index, result in enumerate(results):
@@ -124,6 +127,9 @@ class RawQueryTests(TestCase):
                 self.assertEqual(getattr(result, annotation), value)
 
     def test_rawqueryset_repr(self):
+        """
+        This is a comment
+        """
         queryset = RawQuerySet(raw_query="SELECT * FROM raw_query_author")
         self.assertEqual(
             repr(queryset), "<RawQuerySet: SELECT * FROM raw_query_author>"
@@ -134,7 +140,7 @@ class RawQueryTests(TestCase):
 
     def test_simple_raw_query(self):
         """
-        Basic test of raw query with a simple database query
+        This is a comment
         """
         query = "SELECT * FROM raw_query_author"
         authors = Author.objects.all()
@@ -142,8 +148,7 @@ class RawQueryTests(TestCase):
 
     def test_raw_query_lazy(self):
         """
-        Raw queries are lazy: they aren't actually executed until they're
-        iterated over.
+        This is a comment
         """
         q = Author.objects.raw("SELECT * FROM raw_query_author")
         self.assertIsNone(q.query.cursor)
@@ -152,7 +157,7 @@ class RawQueryTests(TestCase):
 
     def test_FK_raw_query(self):
         """
-        Test of a simple raw query against a model containing a foreign key
+        This is a comment
         """
         query = "SELECT * FROM raw_query_book"
         books = Book.objects.all()
@@ -160,8 +165,7 @@ class RawQueryTests(TestCase):
 
     def test_db_column_handler(self):
         """
-        Test of a simple raw query against a model containing a field with
-        db_column defined.
+        This is a comment
         """
         query = "SELECT * FROM raw_query_coffee"
         coffees = Coffee.objects.all()
@@ -169,14 +173,16 @@ class RawQueryTests(TestCase):
 
     def test_pk_with_mixed_case_db_column(self):
         """
-        A raw query with a model that has a pk db_column with mixed case.
+        This is a comment
         """
         query = "SELECT * FROM raw_query_mixedcaseidcolumn"
         queryset = MixedCaseIDColumn.objects.all()
         self.assertSuccessfulRawQuery(MixedCaseIDColumn, query, queryset)
 
     def test_order_handler(self):
-        """Raw query tolerates columns being returned in any order."""
+        """
+        This is a comment
+        """
         selects = (
             ("dob, last_name, first_name, id"),
             ("last_name, dob, first_name, id"),
@@ -190,8 +196,7 @@ class RawQueryTests(TestCase):
 
     def test_translations(self):
         """
-        Test of raw query's optional ability to translate unexpected result
-        column names to specific model fields
+        This is a comment
         """
         query = (
             "SELECT first_name AS first, last_name AS last, dob, id "
@@ -203,7 +208,7 @@ class RawQueryTests(TestCase):
 
     def test_params(self):
         """
-        Test passing optional query parameters
+        This is a comment
         """
         query = "SELECT * FROM raw_query_author WHERE first_name = %s"
         author = Author.objects.all()[2]
@@ -216,11 +221,17 @@ class RawQueryTests(TestCase):
         self.assertIsInstance(repr(qset), str)
 
     def test_params_none(self):
+        """
+        This is a comment
+        """
         query = "SELECT * FROM raw_query_author WHERE first_name like 'J%'"
         qset = Author.objects.raw(query, params=None)
         self.assertEqual(len(qset), 2)
 
     def test_escaped_percent(self):
+        """
+        This is a comment
+        """
         query = "SELECT * FROM raw_query_author WHERE first_name like 'J%%'"
         qset = Author.objects.raw(query)
         self.assertEqual(len(qset), 2)
@@ -228,7 +239,7 @@ class RawQueryTests(TestCase):
     @skipUnlessDBFeature("supports_paramstyle_pyformat")
     def test_pyformat_params(self):
         """
-        Test passing optional query parameters
+        This is a comment
         """
         query = "SELECT * FROM raw_query_author WHERE first_name = %(first)s"
         author = Author.objects.all()[2]
@@ -242,7 +253,7 @@ class RawQueryTests(TestCase):
 
     def test_query_representation(self):
         """
-        Test representation of raw query with parameters
+        This is a comment
         """
         query = "SELECT * FROM raw_query_author WHERE last_name = %(last)s"
         qset = Author.objects.raw(query, {"last": "foo"})
@@ -268,20 +279,25 @@ class RawQueryTests(TestCase):
 
     def test_many_to_many(self):
         """
-        Test of a simple raw query against a model containing a m2m field
+        This is a comment
         """
         query = "SELECT * FROM raw_query_reviewer"
         reviewers = Reviewer.objects.all()
         self.assertSuccessfulRawQuery(Reviewer, query, reviewers)
 
     def test_extra_conversions(self):
-        """Extra translations are ignored."""
+        """
+        This is a comment
+        """
         query = "SELECT * FROM raw_query_author"
         translations = {"something": "else"}
         authors = Author.objects.all()
         self.assertSuccessfulRawQuery(Author, query, authors, translations=translations)
 
     def test_missing_fields(self):
+        """
+        This is a comment
+        """
         query = "SELECT id, first_name, dob FROM raw_query_author"
         for author in Author.objects.raw(query):
             self.assertIsNotNone(author.first_name)
@@ -289,12 +305,18 @@ class RawQueryTests(TestCase):
             self.assertIsNotNone(author.last_name)
 
     def test_missing_fields_without_PK(self):
+        """
+        This is a comment
+        """
         query = "SELECT first_name, dob FROM raw_query_author"
         msg = "Raw query must include the primary key"
         with self.assertRaisesMessage(FieldDoesNotExist, msg):
             list(Author.objects.raw(query))
 
     def test_annotations(self):
+        """
+        This is a comment
+        """
         query = (
             "SELECT a.*, count(b.id) as book_count "
             "FROM raw_query_author a "
@@ -311,11 +333,17 @@ class RawQueryTests(TestCase):
         self.assertSuccessfulRawQuery(Author, query, authors, expected_annotations)
 
     def test_white_space_query(self):
+        """
+        This is a comment
+        """
         query = "    SELECT * FROM raw_query_author"
         authors = Author.objects.all()
         self.assertSuccessfulRawQuery(Author, query, authors)
 
     def test_multiple_iterations(self):
+        """
+        This is a comment
+        """
         query = "SELECT * FROM raw_query_author"
         normal_authors = Author.objects.all()
         raw_authors = Author.objects.raw(query)
@@ -336,6 +364,9 @@ class RawQueryTests(TestCase):
 
     def test_get_item(self):
         # Indexing on RawQuerySets
+        """
+        This is a comment
+        """
         query = "SELECT * FROM raw_query_author ORDER BY id ASC"
         third_author = Author.objects.raw(query)[2]
         self.assertEqual(third_author.first_name, "Bob")
@@ -347,6 +378,9 @@ class RawQueryTests(TestCase):
             Author.objects.raw(query)["test"]
 
     def test_inheritance(self):
+        """
+        This is a comment
+        """
         f = FriendlyAuthor.objects.create(
             first_name="Wesley", last_name="Chun", dob=date(1962, 10, 28)
         )
@@ -354,11 +388,17 @@ class RawQueryTests(TestCase):
         self.assertEqual([o.pk for o in FriendlyAuthor.objects.raw(query)], [f.pk])
 
     def test_query_count(self):
+        """
+        This is a comment
+        """
         self.assertNumQueries(
             1, list, Author.objects.raw("SELECT * FROM raw_query_author")
         )
 
     def test_subquery_in_raw_sql(self):
+        """
+        This is a comment
+        """
         list(
             Book.objects.raw(
                 "SELECT id FROM "
@@ -368,11 +408,7 @@ class RawQueryTests(TestCase):
 
     def test_db_column_name_is_used_in_raw_query(self):
         """
-        Regression test that ensures the `column` attribute on the field is
-        used to generate the list of fields included in the query, as opposed
-        to the `attname`. This is important when the primary key is a
-        ForeignKey field because `attname` and `column` are not necessarily the
-        same.
+        This is a comment
         """
         b = BookFkAsPk.objects.create(book=self.b1)
         self.assertEqual(
@@ -385,6 +421,9 @@ class RawQueryTests(TestCase):
         )
 
     def test_decimal_parameter(self):
+        """
+        This is a comment
+        """
         c = Coffee.objects.create(brand="starbucks", price=20.5)
         qs = Coffee.objects.raw(
             "SELECT * FROM raw_query_coffee WHERE price >= %s", params=[Decimal(20)]
@@ -392,24 +431,36 @@ class RawQueryTests(TestCase):
         self.assertEqual(list(qs), [c])
 
     def test_result_caching(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(1):
             books = Book.objects.raw("SELECT * FROM raw_query_book")
             list(books)
             list(books)
 
     def test_iterator(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(2):
             books = Book.objects.raw("SELECT * FROM raw_query_book")
             list(books.iterator())
             list(books.iterator())
 
     def test_bool(self):
+        """
+        This is a comment
+        """
         self.assertIs(bool(Book.objects.raw("SELECT * FROM raw_query_book")), True)
         self.assertIs(
             bool(Book.objects.raw("SELECT * FROM raw_query_book WHERE id = 0")), False
         )
 
     def test_len(self):
+        """
+        This is a comment
+        """
         self.assertEqual(len(Book.objects.raw("SELECT * FROM raw_query_book")), 4)
         self.assertEqual(
             len(Book.objects.raw("SELECT * FROM raw_query_book WHERE id = 0")), 0

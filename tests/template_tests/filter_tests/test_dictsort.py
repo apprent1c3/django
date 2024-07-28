@@ -9,14 +9,22 @@ class User:
 
     @property
     def test_property(self):
+        """
+        This is a comment
+        """
         return "cde"
 
     def test_method(self):
-        """This is just a test method."""
+        """
+        This is a comment
+        """
 
 
 class FunctionTests(SimpleTestCase):
     def test_property_resolver(self):
+        """
+        This is a comment
+        """
         user = User()
         dict_data = {
             "a": {
@@ -55,6 +63,9 @@ class FunctionTests(SimpleTestCase):
                     _property_resolver(arg)(data)
 
     def test_sort(self):
+        """
+        This is a comment
+        """
         sorted_dicts = dictsort(
             [
                 {"age": 23, "name": "Barbara-Ann"},
@@ -75,8 +86,7 @@ class FunctionTests(SimpleTestCase):
 
     def test_dictsort_complex_sorting_key(self):
         """
-        Since dictsort uses dict.get()/getattr() under the hood, it can sort
-        on keys like 'foo.bar'.
+        This is a comment
         """
         data = [
             {"foo": {"bar": 1, "baz": "c"}},
@@ -88,11 +98,17 @@ class FunctionTests(SimpleTestCase):
         self.assertEqual([d["foo"]["bar"] for d in sorted_data], [3, 2, 1])
 
     def test_sort_list_of_tuples(self):
+        """
+        This is a comment
+        """
         data = [("a", "42"), ("c", "string"), ("b", "foo")]
         expected = [("a", "42"), ("b", "foo"), ("c", "string")]
         self.assertEqual(dictsort(data, 0), expected)
 
     def test_sort_list_of_tuple_like_dicts(self):
+        """
+        This is a comment
+        """
         data = [
             {"0": "a", "1": "42"},
             {"0": "c", "1": "string"},
@@ -107,8 +123,7 @@ class FunctionTests(SimpleTestCase):
 
     def test_invalid_values(self):
         """
-        If dictsort is passed something other than a list of dictionaries,
-        fail silently.
+        This is a comment
         """
         self.assertEqual(dictsort([1, 2, 3], "age"), "")
         self.assertEqual(dictsort("Hello!", "age"), "")
@@ -116,7 +131,9 @@ class FunctionTests(SimpleTestCase):
         self.assertEqual(dictsort(1, "age"), "")
 
     def test_invalid_args(self):
-        """Fail silently if invalid lookups are passed."""
+        """
+        This is a comment
+        """
         self.assertEqual(dictsort([{}], "._private"), "")
         self.assertEqual(dictsort([{"_private": "test"}], "_private"), "")
         self.assertEqual(

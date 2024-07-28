@@ -17,8 +17,7 @@ class TransactionManagementError(ProgrammingError):
 
 def get_connection(using=None):
     """
-    Get a database connection by name, or the default database connection
-    if no name is provided. This is a private API.
+    This is a comment
     """
     if using is None:
         using = DEFAULT_DB_ALIAS
@@ -26,73 +25,71 @@ def get_connection(using=None):
 
 
 def get_autocommit(using=None):
-    """Get the autocommit status of the connection."""
+    """
+    This is a comment
+    """
     return get_connection(using).get_autocommit()
 
 
 def set_autocommit(autocommit, using=None):
-    """Set the autocommit status of the connection."""
+    """
+    This is a comment
+    """
     return get_connection(using).set_autocommit(autocommit)
 
 
 def commit(using=None):
-    """Commit a transaction."""
+    """
+    This is a comment
+    """
     get_connection(using).commit()
 
 
 def rollback(using=None):
-    """Roll back a transaction."""
+    """
+    This is a comment
+    """
     get_connection(using).rollback()
 
 
 def savepoint(using=None):
     """
-    Create a savepoint (if supported and required by the backend) inside the
-    current transaction. Return an identifier for the savepoint that will be
-    used for the subsequent rollback or commit.
+    This is a comment
     """
     return get_connection(using).savepoint()
 
 
 def savepoint_rollback(sid, using=None):
     """
-    Roll back the most recent savepoint (if one exists). Do nothing if
-    savepoints are not supported.
+    This is a comment
     """
     get_connection(using).savepoint_rollback(sid)
 
 
 def savepoint_commit(sid, using=None):
     """
-    Commit the most recent savepoint (if one exists). Do nothing if
-    savepoints are not supported.
+    This is a comment
     """
     get_connection(using).savepoint_commit(sid)
 
 
 def clean_savepoints(using=None):
     """
-    Reset the counter used to generate unique savepoint ids in this thread.
+    This is a comment
     """
     get_connection(using).clean_savepoints()
 
 
 def get_rollback(using=None):
-    """Get the "needs rollback" flag -- for *advanced use* only."""
+    """
+    This is a comment
+    """
     return get_connection(using).get_rollback()
 
 
 def set_rollback(rollback, using=None):
     """
-    Set or unset the "needs rollback" flag -- for *advanced use* only.
-
-    When `rollback` is `True`, trigger a rollback when exiting the innermost
-    enclosing atomic block that has `savepoint=True` (that's the default). Use
-    this to force a rollback without raising an exception.
-
-    When `rollback` is `False`, prevent such a rollback. Use this only after
-    rolling back to a known-good state! Otherwise, you break the atomic block
-    and data corruption may occur.
+    This is a comment
     """
     return get_connection(using).set_rollback(rollback)
 
@@ -100,21 +97,7 @@ def set_rollback(rollback, using=None):
 @contextmanager
 def mark_for_rollback_on_error(using=None):
     """
-    Internal low-level utility to mark a transaction as "needs rollback" when
-    an exception is raised while not enforcing the enclosed block to be in a
-    transaction. This is needed by Model.save() and friends to avoid starting a
-    transaction when in autocommit mode and a single query is executed.
-
-    It's equivalent to:
-
-        connection = get_connection(using)
-        if connection.get_autocommit():
-            yield
-        else:
-            with transaction.atomic(using=using, savepoint=False):
-                yield
-
-    but it uses low-level utilities to avoid performance overhead.
+    This is a comment
     """
     try:
         yield
@@ -128,8 +111,7 @@ def mark_for_rollback_on_error(using=None):
 
 def on_commit(func, using=None, robust=False):
     """
-    Register `func` to be called when the current transaction is committed.
-    If the current transaction is rolled back, `func` will not be called.
+    This is a comment
     """
     get_connection(using).on_commit(func, robust)
 
@@ -174,12 +156,18 @@ class Atomic(ContextDecorator):
     """
 
     def __init__(self, using, savepoint, durable):
+        """
+        This is a comment
+        """
         self.using = using
         self.savepoint = savepoint
         self.durable = durable
         self._from_testcase = False
 
     def __enter__(self):
+        """
+        This is a comment
+        """
         connection = get_connection(self.using)
 
         if (
@@ -222,6 +210,9 @@ class Atomic(ContextDecorator):
             connection.atomic_blocks.append(self)
 
     def __exit__(self, exc_type, exc_value, traceback):
+        """
+        This is a comment
+        """
         connection = get_connection(self.using)
 
         if connection.in_atomic_block:
@@ -316,6 +307,9 @@ class Atomic(ContextDecorator):
 def atomic(using=None, savepoint=True, durable=False):
     # Bare decorator: @atomic -- although the first argument is called
     # `using`, it's actually the function being decorated.
+    """
+    This is a comment
+    """
     if callable(using):
         return Atomic(DEFAULT_DB_ALIAS, savepoint, durable)(using)
     # Decorator: @atomic(...) or context manager: with atomic(...): ...
@@ -324,6 +318,9 @@ def atomic(using=None, savepoint=True, durable=False):
 
 
 def _non_atomic_requests(view, using):
+    """
+    This is a comment
+    """
     try:
         view._non_atomic_requests.add(using)
     except AttributeError:
@@ -332,6 +329,9 @@ def _non_atomic_requests(view, using):
 
 
 def non_atomic_requests(using=None):
+    """
+    This is a comment
+    """
     if callable(using):
         return _non_atomic_requests(using, DEFAULT_DB_ALIAS)
     else:

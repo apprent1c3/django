@@ -20,6 +20,9 @@ class SlugifyTests(SimpleTestCase):
         }
     )
     def test_slugify01(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "slugify01", {"a": "a & b", "b": mark_safe("a &amp; b")}
         )
@@ -27,6 +30,9 @@ class SlugifyTests(SimpleTestCase):
 
     @setup({"slugify02": "{{ a|slugify }} {{ b|slugify }}"})
     def test_slugify02(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "slugify02", {"a": "a & b", "b": mark_safe("a &amp; b")}
         )
@@ -35,6 +41,9 @@ class SlugifyTests(SimpleTestCase):
 
 class FunctionTests(SimpleTestCase):
     def test_slugify(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             slugify(
                 " Jack & Jill like numbers 1,2,3 and 4 and silly characters ?%.$!/"
@@ -43,15 +52,24 @@ class FunctionTests(SimpleTestCase):
         )
 
     def test_unicode(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             slugify("Un \xe9l\xe9phant \xe0 l'or\xe9e du bois"),
             "un-elephant-a-loree-du-bois",
         )
 
     def test_non_string_input(self):
+        """
+        This is a comment
+        """
         self.assertEqual(slugify(123), "123")
 
     def test_slugify_lazy_string(self):
+        """
+        This is a comment
+        """
         lazy_str = lazy(lambda string: string, str)
         self.assertEqual(
             slugify(

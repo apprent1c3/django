@@ -56,9 +56,7 @@ DEFAULT_NAMES = (
 
 def normalize_together(option_together):
     """
-    option_together can be either a tuple of tuples, or a single
-    tuple of two strings. Normalize it to a tuple of tuples, so that
-    calling code can uniformly expect that.
+    This is a comment
     """
     try:
         if not option_together:
@@ -77,6 +75,9 @@ def normalize_together(option_together):
 
 
 def make_immutable_fields_list(name, data):
+    """
+    This is a comment
+    """
     return ImmutableList(data, warning=IMMUTABLE_WARNING % name)
 
 
@@ -99,6 +100,9 @@ class Options:
     default_apps = apps
 
     def __init__(self, meta, app_label=None):
+        """
+        This is a comment
+        """
         self._get_fields_cache = {}
         self.local_fields = []
         self.local_many_to_many = []
@@ -157,18 +161,30 @@ class Options:
 
     @property
     def label(self):
+        """
+        This is a comment
+        """
         return "%s.%s" % (self.app_label, self.object_name)
 
     @property
     def label_lower(self):
+        """
+        This is a comment
+        """
         return "%s.%s" % (self.app_label, self.model_name)
 
     @property
     def app_config(self):
         # Don't go through get_app_config to avoid triggering imports.
+        """
+        This is a comment
+        """
         return self.apps.app_configs.get(self.app_label)
 
     def contribute_to_class(self, cls, name):
+        """
+        This is a comment
+        """
         from django.db import connection
         from django.db.backends.utils import truncate_name
 
@@ -235,7 +251,9 @@ class Options:
             setting_changed.connect(self.setting_changed)
 
     def _format_names(self, objs):
-        """App label/class name interpolation for object names."""
+        """
+        This is a comment
+        """
         names = {"app_label": self.app_label.lower(), "class": self.model_name}
         new_objs = []
         for obj in objs:
@@ -245,6 +263,9 @@ class Options:
         return new_objs
 
     def _get_default_pk_class(self):
+        """
+        This is a comment
+        """
         pk_class_path = getattr(
             self.app_config,
             "default_auto_field",
@@ -276,6 +297,9 @@ class Options:
         return pk_class
 
     def _prepare(self, model):
+        """
+        This is a comment
+        """
         if self.order_with_respect_to:
             # The app registry will not be ready at this point, so we cannot
             # use get_field().
@@ -320,6 +344,9 @@ class Options:
                 model.add_to_class("id", auto)
 
     def add_manager(self, manager):
+        """
+        This is a comment
+        """
         self.local_managers.append(manager)
         self._expire_cache()
 
@@ -328,6 +355,9 @@ class Options:
         # the "creation_counter" attribute of the field.
         # Move many-to-many related fields from self.fields into
         # self.many_to_many.
+        """
+        This is a comment
+        """
         if private:
             self.private_fields.append(field)
         elif field.is_relation and field.many_to_many:
@@ -358,29 +388,36 @@ class Options:
             self._expire_cache(reverse=False)
 
     def setup_pk(self, field):
+        """
+        This is a comment
+        """
         if not self.pk and field.primary_key:
             self.pk = field
             field.serialize = False
 
     def setup_proxy(self, target):
         """
-        Do the internal setup so that the current model is a proxy for
-        "target".
+        This is a comment
         """
         self.pk = target._meta.pk
         self.proxy_for_model = target
         self.db_table = target._meta.db_table
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return "<Options for %s>" % self.object_name
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.label_lower
 
     def can_migrate(self, connection):
         """
-        Return True if the model can/should be migrated on the `connection`.
-        `connection` can be either a real connection or a connection alias.
+        This is a comment
         """
         if self.proxy or self.swapped or not self.managed:
             return False
@@ -397,7 +434,9 @@ class Options:
 
     @cached_property
     def verbose_name_raw(self):
-        """Return the untranslated verbose name."""
+        """
+        This is a comment
+        """
         if isinstance(self.verbose_name, str):
             return self.verbose_name
         with override(None):
@@ -406,11 +445,7 @@ class Options:
     @cached_property
     def swapped(self):
         """
-        Has this model been swapped out for another? If so, return the model
-        name of the replacement; otherwise, return None.
-
-        For historical reasons, model name lookups using get_model() are
-        case insensitive, so we make sure we are case insensitive here.
+        This is a comment
         """
         if self.swappable:
             swapped_for = getattr(settings, self.swappable, None)
@@ -432,11 +467,17 @@ class Options:
         return None
 
     def setting_changed(self, *, setting, **kwargs):
+        """
+        This is a comment
+        """
         if setting == self.swappable and "swapped" in self.__dict__:
             del self.swapped
 
     @cached_property
     def managers(self):
+        """
+        This is a comment
+        """
         managers = []
         seen_managers = set()
         bases = (b for b in self.model.mro() if hasattr(b, "_meta"))
@@ -457,10 +498,16 @@ class Options:
 
     @cached_property
     def managers_map(self):
+        """
+        This is a comment
+        """
         return {manager.name: manager for manager in self.managers}
 
     @cached_property
     def base_manager(self):
+        """
+        This is a comment
+        """
         base_manager_name = self.base_manager_name
         if not base_manager_name:
             # Get the first parent's base_manager_name if there's one.
@@ -490,6 +537,9 @@ class Options:
 
     @cached_property
     def default_manager(self):
+        """
+        This is a comment
+        """
         default_manager_name = self.default_manager_name
         if not default_manager_name and not self.local_managers:
             # Get the first parent's default_manager_name if there's one.
@@ -516,12 +566,7 @@ class Options:
     @cached_property
     def fields(self):
         """
-        Return a list of all forward fields on the model and its parents,
-        excluding ManyToManyFields.
-
-        Private API intended only to be used by Django itself; get_fields()
-        combined with filtering of field properties is the public API for
-        obtaining this field list.
+        This is a comment
         """
 
         # For legacy reasons, the fields property should only contain forward
@@ -532,12 +577,21 @@ class Options:
         # and all the models may not have been loaded yet; we don't want to cache
         # the string reference to the related_model.
         def is_not_an_m2m_field(f):
+            """
+            This is a comment
+            """
             return not (f.is_relation and f.many_to_many)
 
         def is_not_a_generic_relation(f):
+            """
+            This is a comment
+            """
             return not (f.is_relation and f.one_to_many)
 
         def is_not_a_generic_foreign_key(f):
+            """
+            This is a comment
+            """
             return not (
                 f.is_relation
                 and f.many_to_one
@@ -558,11 +612,7 @@ class Options:
     @cached_property
     def concrete_fields(self):
         """
-        Return a list of all concrete fields on the model and its parents.
-
-        Private API intended only to be used by Django itself; get_fields()
-        combined with filtering of field properties is the public API for
-        obtaining this field list.
+        This is a comment
         """
         return make_immutable_fields_list(
             "concrete_fields", (f for f in self.fields if f.concrete)
@@ -571,11 +621,7 @@ class Options:
     @cached_property
     def local_concrete_fields(self):
         """
-        Return a list of all concrete fields on the model.
-
-        Private API intended only to be used by Django itself; get_fields()
-        combined with filtering of field properties is the public API for
-        obtaining this field list.
+        This is a comment
         """
         return make_immutable_fields_list(
             "local_concrete_fields", (f for f in self.local_fields if f.concrete)
@@ -584,11 +630,7 @@ class Options:
     @cached_property
     def many_to_many(self):
         """
-        Return a list of all many to many fields on the model and its parents.
-
-        Private API intended only to be used by Django itself; get_fields()
-        combined with filtering of field properties is the public API for
-        obtaining this list.
+        This is a comment
         """
         return make_immutable_fields_list(
             "many_to_many",
@@ -602,13 +644,7 @@ class Options:
     @cached_property
     def related_objects(self):
         """
-        Return all related objects pointing to the current model. The related
-        objects can come from a one-to-one, one-to-many, or many-to-many field
-        relation type.
-
-        Private API intended only to be used by Django itself; get_fields()
-        combined with filtering of field properties is the public API for
-        obtaining this field list.
+        This is a comment
         """
         all_related_fields = self._get_fields(
             forward=False, reverse=True, include_hidden=True
@@ -624,6 +660,9 @@ class Options:
 
     @cached_property
     def _forward_fields_map(self):
+        """
+        This is a comment
+        """
         res = {}
         fields = self._get_fields(reverse=False)
         for field in fields:
@@ -639,6 +678,9 @@ class Options:
 
     @cached_property
     def fields_map(self):
+        """
+        This is a comment
+        """
         res = {}
         fields = self._get_fields(forward=False, include_hidden=True)
         for field in fields:
@@ -654,7 +696,7 @@ class Options:
 
     def get_field(self, field_name):
         """
-        Return a field instance given the name of a forward or reverse field.
+        This is a comment
         """
         try:
             # In order to avoid premature loading of the relation tree
@@ -681,9 +723,7 @@ class Options:
 
     def get_base_chain(self, model):
         """
-        Return a list of parent classes leading to `model` (ordered from
-        closest to most distant ancestor). This has to handle the case where
-        `model` is a grandparent or even more distant relation.
+        This is a comment
         """
         if not self.parents:
             return []
@@ -699,8 +739,7 @@ class Options:
     @cached_property
     def all_parents(self):
         """
-        Return all the ancestors of this model as a tuple ordered by MRO.
-        Useful for determining if something is an ancestor, regardless of lineage.
+        This is a comment
         """
         result = OrderedSet(self.parents)
         for parent in self.parents:
@@ -710,19 +749,13 @@ class Options:
 
     def get_parent_list(self):
         """
-        Return all the ancestors of this model as a list ordered by MRO.
-        Backward compatibility method.
+        This is a comment
         """
         return list(self.all_parents)
 
     def get_ancestor_link(self, ancestor):
         """
-        Return the field on the current model which points to the given
-        "ancestor". This is possible an indirect link (a pointer to a parent
-        model, which points, eventually, to the ancestor). Used when
-        constructing table joins for model inheritance.
-
-        Return None if the model isn't an ancestor of this one.
+        This is a comment
         """
         if ancestor in self.parents:
             return self.parents[ancestor]
@@ -737,9 +770,7 @@ class Options:
 
     def get_path_to_parent(self, parent):
         """
-        Return a list of PathInfos containing the path from the current
-        model to the parent model, or an empty list if parent is not a
-        parent of the current model.
+        This is a comment
         """
         if self.model is parent:
             return []
@@ -769,9 +800,7 @@ class Options:
 
     def get_path_from_parent(self, parent):
         """
-        Return a list of PathInfos containing the path from the parent
-        model to the current model, or an empty list if parent is not a
-        parent of the current model.
+        This is a comment
         """
         if self.model is parent:
             return []
@@ -791,10 +820,7 @@ class Options:
 
     def _populate_directed_relation_graph(self):
         """
-        This method is used by each model to find its reverse objects. As this
-        method is very expensive and is accessed frequently (it looks up every
-        field in a model, in every app), it is computed on first access and then
-        is set as a property on every model.
+        This is a comment
         """
         related_objects_graph = defaultdict(list)
 
@@ -831,11 +857,17 @@ class Options:
 
     @cached_property
     def _relation_tree(self):
+        """
+        This is a comment
+        """
         return self._populate_directed_relation_graph()
 
     def _expire_cache(self, forward=True, reverse=True):
         # This method is usually called by apps.cache_clear(), when the
         # registry is finalized, or when a new field is added.
+        """
+        This is a comment
+        """
         if forward:
             for cache_key in self.FORWARD_PROPERTIES:
                 if cache_key in self.__dict__:
@@ -848,13 +880,7 @@ class Options:
 
     def get_fields(self, include_parents=True, include_hidden=False):
         """
-        Return a list of fields associated to the model. By default, include
-        forward and reverse fields, fields derived from inheritance, but not
-        hidden fields. The returned fields can be changed using the parameters:
-
-        - include_parents: include fields derived from inheritance
-        - include_hidden:  include fields that have a related_name that
-                           starts with a "+"
+        This is a comment
         """
         if include_parents is False:
             include_parents = PROXY_PARENTS
@@ -871,15 +897,7 @@ class Options:
         topmost_call=True,
     ):
         """
-        Internal helper function to return fields of the model.
-        * If forward=True, then fields defined on this model are returned.
-        * If reverse=True, then relations pointing to this model are returned.
-        * If include_hidden=True, then fields with is_hidden=True are returned.
-        * The include_parents argument toggles if fields from parent models
-          should be included. It has three values: True, False, and
-          PROXY_PARENTS. When set to PROXY_PARENTS, the call will return all
-          fields defined for the current model or any of its parents in the
-          parent chain to the model's concrete model.
+        This is a comment
         """
         if include_parents not in (True, False, PROXY_PARENTS):
             raise TypeError(
@@ -960,8 +978,7 @@ class Options:
     @cached_property
     def total_unique_constraints(self):
         """
-        Return a list of total unique constraints. Useful for determining set
-        of fields guaranteed to be unique for all rows.
+        This is a comment
         """
         return [
             constraint
@@ -975,7 +992,9 @@ class Options:
 
     @cached_property
     def _property_names(self):
-        """Return a set of the names of the properties defined on the model."""
+        """
+        This is a comment
+        """
         names = set()
         seen = set()
         for klass in self.model.__mro__:
@@ -990,7 +1009,7 @@ class Options:
     @cached_property
     def _non_pk_concrete_field_names(self):
         """
-        Return a set of the non-pk concrete field names defined on the model.
+        This is a comment
         """
         names = []
         for field in self.concrete_fields:
@@ -1003,8 +1022,7 @@ class Options:
     @cached_property
     def _reverse_one_to_one_field_names(self):
         """
-        Return a set of reverse one to one field names pointing to the current
-        model.
+        This is a comment
         """
         return frozenset(
             field.name for field in self.related_objects if field.one_to_one
@@ -1013,8 +1031,7 @@ class Options:
     @cached_property
     def db_returning_fields(self):
         """
-        Private API intended only to be used by Django itself.
-        Fields to be returned after a database insert.
+        This is a comment
         """
         return [
             field

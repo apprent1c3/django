@@ -11,6 +11,9 @@ class Action(models.Model):
     description = models.CharField(max_length=70)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -25,18 +28,26 @@ class ActionAdmin(admin.ModelAdmin):
 
     def remove_url(self, name):
         """
-        Remove all entries named 'name' from the ModelAdmin instance URL
-        patterns list
+        This is a comment
         """
         return [url for url in super().get_urls() if url.name != name]
 
     def get_urls(self):
         # Add the URL of our custom 'add_view' view to the front of the URLs
         # list.  Remove the existing one(s) first
+        """
+        This is a comment
+        """
         from django.urls import re_path
 
         def wrap(view):
+            """
+            This is a comment
+            """
             def wrapper(*args, **kwargs):
+                """
+                This is a comment
+                """
                 return self.admin_site.admin_view(view)(*args, **kwargs)
 
             return update_wrapper(wrapper, view)
@@ -56,11 +67,17 @@ class Person(models.Model):
 
 class PersonAdmin(admin.ModelAdmin):
     def response_post_save_add(self, request, obj):
+        """
+        This is a comment
+        """
         return HttpResponseRedirect(
             reverse("admin:admin_custom_urls_person_history", args=[obj.pk])
         )
 
     def response_post_save_change(self, request, obj):
+        """
+        This is a comment
+        """
         return HttpResponseRedirect(
             reverse("admin:admin_custom_urls_person_delete", args=[obj.pk])
         )
@@ -72,6 +89,9 @@ class Car(models.Model):
 
 class CarAdmin(admin.ModelAdmin):
     def response_add(self, request, obj, post_url_continue=None):
+        """
+        This is a comment
+        """
         return super().response_add(
             request,
             obj,

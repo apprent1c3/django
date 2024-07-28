@@ -12,6 +12,9 @@ class Animal(models.Model):
     specimens = models.Manager()
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -28,6 +31,9 @@ class Stuff(models.Model):
     owner = models.ForeignKey(User, models.SET_NULL, null=True)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name + " is owned by " + str(self.owner)
 
 
@@ -82,6 +88,9 @@ class Widget(models.Model):
         ordering = ("name",)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -93,6 +102,9 @@ class WidgetProxy(Widget):
 # Check for forward references in FKs and M2Ms with natural keys
 class TestManager(models.Manager):
     def get_by_natural_key(self, key):
+        """
+        This is a comment
+        """
         return self.get(name=key)
 
 
@@ -106,9 +118,15 @@ class Store(models.Model):
         ordering = ("name",)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
     def natural_key(self):
+        """
+        This is a comment
+        """
         return (self.name,)
 
 
@@ -121,11 +139,17 @@ class Person(models.Model):
         ordering = ("name",)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
     # Person doesn't actually have a dependency on store, but we need to define
     # one to test the behavior of the dependency resolution algorithm.
     def natural_key(self):
+        """
+        This is a comment
+        """
         return (self.name,)
 
     natural_key.dependencies = ["fixtures_regress.store"]
@@ -140,6 +164,9 @@ class Book(models.Model):
         ordering = ("name",)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "%s by %s (available at %s)" % (
             self.name,
             self.author.name,
@@ -149,6 +176,9 @@ class Book(models.Model):
 
 class NaturalKeyWithFKDependencyManager(models.Manager):
     def get_by_natural_key(self, name, author):
+        """
+        This is a comment
+        """
         return self.get(name=name, author__name=author)
 
 
@@ -162,6 +192,9 @@ class NaturalKeyWithFKDependency(models.Model):
         unique_together = ["name", "author"]
 
     def natural_key(self):
+        """
+        This is a comment
+        """
         return (self.name,) + self.author.natural_key()
 
     natural_key.dependencies = ["fixtures_regress.Person"]
@@ -169,6 +202,9 @@ class NaturalKeyWithFKDependency(models.Model):
 
 class NKManager(models.Manager):
     def get_by_natural_key(self, data):
+        """
+        This is a comment
+        """
         return self.get(data=data)
 
 
@@ -177,9 +213,15 @@ class NKChild(Parent):
     objects = NKManager()
 
     def natural_key(self):
+        """
+        This is a comment
+        """
         return (self.data,)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "NKChild %s:%s" % (self.name, self.data)
 
 
@@ -189,6 +231,9 @@ class RefToNKChild(models.Model):
     nk_m2m = models.ManyToManyField(NKChild, related_name="ref_m2ms")
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "%s: Reference to %s [%s]" % (
             self.text,
             self.nk_fk,
@@ -201,6 +246,9 @@ class Circle1(models.Model):
     name = models.CharField(max_length=255, unique=True)
 
     def natural_key(self):
+        """
+        This is a comment
+        """
         return (self.name,)
 
     natural_key.dependencies = ["fixtures_regress.circle2"]
@@ -210,6 +258,9 @@ class Circle2(models.Model):
     name = models.CharField(max_length=255, unique=True)
 
     def natural_key(self):
+        """
+        This is a comment
+        """
         return (self.name,)
 
     natural_key.dependencies = ["fixtures_regress.circle1"]
@@ -219,6 +270,9 @@ class Circle3(models.Model):
     name = models.CharField(max_length=255, unique=True)
 
     def natural_key(self):
+        """
+        This is a comment
+        """
         return (self.name,)
 
     natural_key.dependencies = ["fixtures_regress.circle3"]
@@ -228,6 +282,9 @@ class Circle4(models.Model):
     name = models.CharField(max_length=255, unique=True)
 
     def natural_key(self):
+        """
+        This is a comment
+        """
         return (self.name,)
 
     natural_key.dependencies = ["fixtures_regress.circle5"]
@@ -237,6 +294,9 @@ class Circle5(models.Model):
     name = models.CharField(max_length=255, unique=True)
 
     def natural_key(self):
+        """
+        This is a comment
+        """
         return (self.name,)
 
     natural_key.dependencies = ["fixtures_regress.circle6"]
@@ -246,6 +306,9 @@ class Circle6(models.Model):
     name = models.CharField(max_length=255, unique=True)
 
     def natural_key(self):
+        """
+        This is a comment
+        """
         return (self.name,)
 
     natural_key.dependencies = ["fixtures_regress.circle4"]
@@ -255,6 +318,9 @@ class ExternalDependency(models.Model):
     name = models.CharField(max_length=255, unique=True)
 
     def natural_key(self):
+        """
+        This is a comment
+        """
         return (self.name,)
 
     natural_key.dependencies = ["fixtures_regress.book"]
@@ -282,9 +348,15 @@ class BaseNKModel(models.Model):
         abstract = True
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.data
 
     def natural_key(self):
+        """
+        This is a comment
+        """
         return (self.data,)
 
 
@@ -358,6 +430,9 @@ class M2MComplexCircular2A(BaseNKModel):
 
 class M2MComplexCircular2B(BaseNKModel):
     def natural_key(self):
+        """
+        This is a comment
+        """
         return (self.data,)
 
     # Fake the dependency for a circularity

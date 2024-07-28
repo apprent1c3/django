@@ -13,6 +13,9 @@ from django.test import TestCase, override_settings
 class AsyncAuthTest(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.test_user = User.objects.create_user(
             "testuser", "test@example.com", "testpw"
         )

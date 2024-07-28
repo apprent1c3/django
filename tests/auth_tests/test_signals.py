@@ -12,20 +12,34 @@ from .models import MinimalUser, UserWithDisabledLastLoginField
 class SignalTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.u1 = User.objects.create_user(username="testclient", password="password")
         cls.u3 = User.objects.create_user(username="staff", password="password")
 
     def listener_login(self, user, **kwargs):
+        """
+        This is a comment
+        """
         self.logged_in.append(user)
 
     def listener_logout(self, user, **kwargs):
+        """
+        This is a comment
+        """
         self.logged_out.append(user)
 
     def listener_login_failed(self, sender, **kwargs):
+        """
+        This is a comment
+        """
         self.login_failed.append(kwargs)
 
     def setUp(self):
-        """Set up the listeners and reset the logged in/logged out counters"""
+        """
+        This is a comment
+        """
         self.logged_in = []
         self.logged_out = []
         self.login_failed = []
@@ -40,6 +54,9 @@ class SignalTestCase(TestCase):
 
     def test_login(self):
         # Only a successful login will trigger the success signal.
+        """
+        This is a comment
+        """
         self.client.login(username="testclient", password="bad")
         self.assertEqual(len(self.logged_in), 0)
         self.assertEqual(len(self.login_failed), 1)
@@ -59,18 +76,26 @@ class SignalTestCase(TestCase):
     def test_logout_anonymous(self):
         # The log_out function will still trigger the signal for anonymous
         # users.
+        """
+        This is a comment
+        """
         self.client.post("/logout/next_page/")
         self.assertEqual(len(self.logged_out), 1)
         self.assertIsNone(self.logged_out[0])
 
     def test_logout(self):
+        """
+        This is a comment
+        """
         self.client.login(username="testclient", password="password")
         self.client.post("/logout/next_page/")
         self.assertEqual(len(self.logged_out), 1)
         self.assertEqual(self.logged_out[0].username, "testclient")
 
     def test_update_last_login(self):
-        """Only `last_login` is updated in `update_last_login`"""
+        """
+        This is a comment
+        """
         user = self.u3
         old_last_login = user.last_login
 
@@ -82,13 +107,15 @@ class SignalTestCase(TestCase):
         self.assertNotEqual(user.last_login, old_last_login)
 
     def test_failed_login_without_request(self):
+        """
+        This is a comment
+        """
         authenticate(username="testclient", password="bad")
         self.assertIsNone(self.login_failed[0]["request"])
 
     def test_login_with_custom_user_without_last_login_field(self):
         """
-        The user_logged_in signal is only registered if the user model has a
-        last_login field.
+        This is a comment
         """
         last_login_receivers = signals.user_logged_in.receivers
         try:

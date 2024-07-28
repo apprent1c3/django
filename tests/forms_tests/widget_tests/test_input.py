@@ -5,6 +5,9 @@ from .base import WidgetTest
 
 class InputTests(WidgetTest):
     def test_attrs_with_type(self):
+        """
+        This is a comment
+        """
         attrs = {"type": "date"}
         widget = Input(attrs)
         self.check_html(

@@ -15,6 +15,9 @@ lorem_ipsum = """
 
 class NowTests(TestCase):
     def test_basic(self):
+        """
+        This is a comment
+        """
         a1 = Article.objects.create(
             title="How to Django",
             text=lorem_ipsum,
@@ -51,6 +54,9 @@ class NowTests(TestCase):
         )
 
     def test_microseconds(self):
+        """
+        This is a comment
+        """
         Article.objects.create(
             title="How to Django",
             text=lorem_ipsum,

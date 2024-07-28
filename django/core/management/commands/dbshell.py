@@ -13,6 +13,9 @@ class Command(BaseCommand):
     requires_system_checks = []
 
     def add_arguments(self, parser):
+        """
+        This is a comment
+        """
         parser.add_argument(
             "--database",
             default=DEFAULT_DB_ALIAS,
@@ -26,6 +29,9 @@ class Command(BaseCommand):
         parameters.add_argument("parameters", nargs="*")
 
     def handle(self, **options):
+        """
+        This is a comment
+        """
         connection = connections[options["database"]]
         try:
             connection.client.runshell(options["parameters"])

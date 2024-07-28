@@ -15,58 +15,100 @@ from django.contrib.gis.geos import (
 
 
 def api_get_distance(x):
+    """
+    This is a comment
+    """
     return x.distance(Point(-200, -200))
 
 
 def api_get_buffer(x):
+    """
+    This is a comment
+    """
     return x.buffer(10)
 
 
 def api_get_geom_typeid(x):
+    """
+    This is a comment
+    """
     return x.geom_typeid
 
 
 def api_get_num_coords(x):
+    """
+    This is a comment
+    """
     return x.num_coords
 
 
 def api_get_centroid(x):
+    """
+    This is a comment
+    """
     return x.centroid
 
 
 def api_get_empty(x):
+    """
+    This is a comment
+    """
     return x.empty
 
 
 def api_get_valid(x):
+    """
+    This is a comment
+    """
     return x.valid
 
 
 def api_get_simple(x):
+    """
+    This is a comment
+    """
     return x.simple
 
 
 def api_get_ring(x):
+    """
+    This is a comment
+    """
     return x.ring
 
 
 def api_get_boundary(x):
+    """
+    This is a comment
+    """
     return x.boundary
 
 
 def api_get_convex_hull(x):
+    """
+    This is a comment
+    """
     return x.convex_hull
 
 
 def api_get_extent(x):
+    """
+    This is a comment
+    """
     return x.extent
 
 
 def api_get_area(x):
+    """
+    This is a comment
+    """
     return x.area
 
 
 def api_get_length(x):
+    """
+    This is a comment
+    """
     return x.length
 
 
@@ -84,7 +126,9 @@ class GEOSMutationTest(unittest.TestCase):
     """
 
     def test00_GEOSIndexException(self):
-        "Testing Geometry IndexError"
+        """
+        This is a comment
+        """
         p = Point(1, 2)
         for i in range(-2, 2):
             p._checkindex(i)
@@ -94,7 +138,9 @@ class GEOSMutationTest(unittest.TestCase):
             p._checkindex(-3)
 
     def test01_PointMutations(self):
-        "Testing Point mutations"
+        """
+        This is a comment
+        """
         for p in (Point(1, 2, 3), fromstr("POINT (1 2 3)")):
             self.assertEqual(
                 p._get_single_external(1), 2.0, "Point _get_single_external"
@@ -109,14 +155,18 @@ class GEOSMutationTest(unittest.TestCase):
             self.assertEqual(p.coords, (50.0, 3141.0), "Point _set_list")
 
     def test02_PointExceptions(self):
-        "Testing Point exceptions"
+        """
+        This is a comment
+        """
         with self.assertRaises(TypeError):
             Point(range(1))
         with self.assertRaises(TypeError):
             Point(range(4))
 
     def test03_PointApi(self):
-        "Testing Point API"
+        """
+        This is a comment
+        """
         q = Point(4, 5, 3)
         for p in (Point(1, 2, 3), fromstr("POINT (1 2 3)")):
             p[0:2] = [4, 5]
@@ -124,7 +174,9 @@ class GEOSMutationTest(unittest.TestCase):
                 self.assertEqual(f(q), f(p), "Point " + f.__name__)
 
     def test04_LineStringMutations(self):
-        "Testing LineString mutations"
+        """
+        This is a comment
+        """
         for ls in (
             LineString((1, 0), (4, 1), (6, -1)),
             fromstr("LINESTRING (1 0,4 1,6 -1)"),
@@ -154,7 +206,9 @@ class GEOSMutationTest(unittest.TestCase):
                 self.assertEqual(f(lsa), f(ls), "LineString " + f.__name__)
 
     def test05_Polygon(self):
-        "Testing Polygon mutations"
+        """
+        This is a comment
+        """
         for pg in (
             Polygon(
                 ((1, 0), (4, 1), (6, -1), (8, 10), (1, 0)),
@@ -195,7 +249,9 @@ class GEOSMutationTest(unittest.TestCase):
                 self.assertEqual(f(lsa), f(pg), "Polygon " + f.__name__)
 
     def test06_Collection(self):
-        "Testing Collection mutations"
+        """
+        This is a comment
+        """
         points = (
             MultiPoint(*map(Point, ((3, 4), (-1, 2), (5, -4), (2, 8)))),
             fromstr("MULTIPOINT (3 4,-1 2,5 -4,2 8)"),

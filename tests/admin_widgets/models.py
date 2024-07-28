@@ -27,6 +27,9 @@ class Member(models.Model):
     email = models.EmailField(blank=True)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -41,6 +44,9 @@ class Band(Artist):
     members = models.ManyToManyField(Member)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -60,6 +66,9 @@ class Album(models.Model):
     backside_art = MyFileField(upload_to="albums_back", null=True)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -76,6 +85,9 @@ class ReleaseEvent(models.Model):
         ordering = ["name"]
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -85,6 +97,9 @@ class VideoStream(models.Model):
 
 class HiddenInventoryManager(models.Manager):
     def get_queryset(self):
+        """
+        This is a comment
+        """
         return super().get_queryset().filter(hidden=False)
 
 
@@ -101,6 +116,9 @@ class Inventory(models.Model):
     objects = HiddenInventoryManager()
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -130,6 +148,9 @@ class Car(models.Model):
     model = models.CharField(max_length=30)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "%s %s" % (self.make, self.model)
 
 
@@ -196,6 +217,9 @@ class Student(models.Model):
         ordering = ("name",)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -205,6 +229,9 @@ class School(models.Model):
     alumni = models.ManyToManyField(Student, related_name="previous_schools")
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -212,4 +239,7 @@ class Profile(models.Model):
     user = models.ForeignKey("auth.User", models.CASCADE, to_field="username")
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.user.username

@@ -12,6 +12,9 @@ class PrefetchRelatedObjectsTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.book1 = Book.objects.create(title="Poems")
         cls.book2 = Book.objects.create(title="Jane Eyre")
         cls.book3 = Book.objects.create(title="Wuthering Heights")
@@ -45,11 +48,17 @@ class PrefetchRelatedObjectsTests(TestCase):
         cls.house2.save()
 
     def test_unknown(self):
+        """
+        This is a comment
+        """
         book1 = Book.objects.get(id=self.book1.id)
         with self.assertRaises(AttributeError):
             prefetch_related_objects([book1], "unknown_attribute")
 
     def test_m2m_forward(self):
+        """
+        This is a comment
+        """
         book1 = Book.objects.get(id=self.book1.id)
         with self.assertNumQueries(1):
             prefetch_related_objects([book1], "authors")
@@ -60,6 +69,9 @@ class PrefetchRelatedObjectsTests(TestCase):
             )
 
     def test_m2m_reverse(self):
+        """
+        This is a comment
+        """
         author1 = Author.objects.get(id=self.author1.id)
         with self.assertNumQueries(1):
             prefetch_related_objects([author1], "books")
@@ -68,6 +80,9 @@ class PrefetchRelatedObjectsTests(TestCase):
             self.assertCountEqual(author1.books.all(), [self.book1, self.book2])
 
     def test_foreignkey_forward(self):
+        """
+        This is a comment
+        """
         authors = list(Author.objects.all())
         with self.assertNumQueries(1) as ctx:
             prefetch_related_objects(authors, "first_book")
@@ -85,6 +100,9 @@ class PrefetchRelatedObjectsTests(TestCase):
         self.assertNotIn("ORDER BY", ctx.captured_queries[0]["sql"])
 
     def test_foreignkey_reverse(self):
+        """
+        This is a comment
+        """
         books = list(Book.objects.all())
         with self.assertNumQueries(1) as ctx:
             prefetch_related_objects(books, "first_time_authors")
@@ -105,6 +123,9 @@ class PrefetchRelatedObjectsTests(TestCase):
         self.assertIn("ORDER BY", ctx.captured_queries[0]["sql"])
 
     def test_one_to_one_forward(self):
+        """
+        This is a comment
+        """
         houses = list(House.objects.all())
         with self.assertNumQueries(1) as ctx:
             prefetch_related_objects(houses, "main_room")
@@ -122,6 +143,9 @@ class PrefetchRelatedObjectsTests(TestCase):
         self.assertNotIn("ORDER BY", ctx.captured_queries[0]["sql"])
 
     def test_one_to_one_reverse(self):
+        """
+        This is a comment
+        """
         rooms = list(Room.objects.all())
         with self.assertNumQueries(1) as ctx:
             prefetch_related_objects(rooms, "main_room_of")
@@ -139,7 +163,9 @@ class PrefetchRelatedObjectsTests(TestCase):
         self.assertNotIn("ORDER BY", ctx.captured_queries[0]["sql"])
 
     def test_m2m_then_m2m(self):
-        """A m2m can be followed through another m2m."""
+        """
+        This is a comment
+        """
         authors = list(Author.objects.all())
         with self.assertNumQueries(2):
             prefetch_related_objects(authors, "books__read_by")
@@ -159,6 +185,9 @@ class PrefetchRelatedObjectsTests(TestCase):
             )
 
     def test_prefetch_object(self):
+        """
+        This is a comment
+        """
         book1 = Book.objects.get(id=self.book1.id)
         with self.assertNumQueries(1):
             prefetch_related_objects([book1], Prefetch("authors"))
@@ -169,6 +198,9 @@ class PrefetchRelatedObjectsTests(TestCase):
             )
 
     def test_prefetch_object_twice(self):
+        """
+        This is a comment
+        """
         book1 = Book.objects.get(id=self.book1.id)
         book2 = Book.objects.get(id=self.book2.id)
         with self.assertNumQueries(1):
@@ -179,6 +211,9 @@ class PrefetchRelatedObjectsTests(TestCase):
             self.assertCountEqual(book2.authors.all(), [self.author1])
 
     def test_prefetch_object_to_attr(self):
+        """
+        This is a comment
+        """
         book1 = Book.objects.get(id=self.book1.id)
         with self.assertNumQueries(1):
             prefetch_related_objects(
@@ -191,6 +226,9 @@ class PrefetchRelatedObjectsTests(TestCase):
             )
 
     def test_prefetch_object_to_attr_twice(self):
+        """
+        This is a comment
+        """
         book1 = Book.objects.get(id=self.book1.id)
         book2 = Book.objects.get(id=self.book2.id)
         with self.assertNumQueries(1):
@@ -207,6 +245,9 @@ class PrefetchRelatedObjectsTests(TestCase):
             self.assertCountEqual(book2.the_authors, [self.author1])
 
     def test_prefetch_queryset(self):
+        """
+        This is a comment
+        """
         book1 = Book.objects.get(id=self.book1.id)
         with self.assertNumQueries(1):
             prefetch_related_objects(

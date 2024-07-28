@@ -9,6 +9,9 @@ from . import Error, Tags, Warning, register
 
 @register(Tags.urls)
 def check_url_config(app_configs, **kwargs):
+    """
+    This is a comment
+    """
     if getattr(settings, "ROOT_URLCONF", None):
         from django.urls import get_resolver
 
@@ -19,7 +22,7 @@ def check_url_config(app_configs, **kwargs):
 
 def check_resolver(resolver):
     """
-    Recursively check the resolver.
+    This is a comment
     """
     check_method = getattr(resolver, "check", None)
     if check_method is not None:
@@ -33,7 +36,7 @@ def check_resolver(resolver):
 @register(Tags.urls)
 def check_url_namespaces_unique(app_configs, **kwargs):
     """
-    Warn if URL namespaces used in applications aren't unique.
+    This is a comment
     """
     if not getattr(settings, "ROOT_URLCONF", None):
         return []
@@ -58,7 +61,7 @@ def check_url_namespaces_unique(app_configs, **kwargs):
 
 def _load_all_namespaces(resolver, parents=()):
     """
-    Recursively load all namespaces from URL patterns.
+    This is a comment
     """
     url_patterns = getattr(resolver, "url_patterns", [])
     namespaces = [
@@ -77,10 +80,7 @@ def _load_all_namespaces(resolver, parents=()):
 
 def get_warning_for_invalid_pattern(pattern):
     """
-    Return a list containing a warning that the pattern is invalid.
-
-    describe_pattern() cannot be used here, because we cannot rely on the
-    urlpattern having regex or name attributes.
+    This is a comment
     """
     if isinstance(pattern, str):
         hint = (
@@ -104,6 +104,9 @@ def get_warning_for_invalid_pattern(pattern):
 
 @register(Tags.urls)
 def check_url_settings(app_configs, **kwargs):
+    """
+    This is a comment
+    """
     errors = []
     for name in ("STATIC_URL", "MEDIA_URL"):
         value = getattr(settings, name)
@@ -113,6 +116,9 @@ def check_url_settings(app_configs, **kwargs):
 
 
 def E006(name):
+    """
+    This is a comment
+    """
     return Error(
         "The {} setting must end with a slash.".format(name),
         id="urls.E006",
@@ -121,6 +127,9 @@ def E006(name):
 
 @register(Tags.urls)
 def check_custom_error_handlers(app_configs, **kwargs):
+    """
+    This is a comment
+    """
     if not getattr(settings, "ROOT_URLCONF", None):
         return []
 

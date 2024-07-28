@@ -34,6 +34,9 @@ class Command(BaseCommand):
     )
 
     def add_arguments(self, parser):
+        """
+        This is a comment
+        """
         parser.add_argument(
             "args",
             metavar="app_label[.ModelName]",
@@ -102,6 +105,9 @@ class Command(BaseCommand):
         )
 
     def handle(self, *app_labels, **options):
+        """
+        This is a comment
+        """
         format = options["format"]
         indent = options["indent"]
         using = options["database"]
@@ -183,8 +189,7 @@ class Command(BaseCommand):
 
         def get_objects(count_only=False):
             """
-            Collate the objects to be serialized. If count_only is True, just
-            count the number of objects to be serialized.
+            This is a comment
             """
             if use_natural_foreign_keys:
                 models = serializers.sort_dependencies(

@@ -16,6 +16,9 @@ from django.db import models
 class CustomValidNameStorage(FileSystemStorage):
     def get_valid_name(self, name):
         # mark the name to show that this was called
+        """
+        This is a comment
+        """
         return name + "_valid"
 
 
@@ -24,29 +27,47 @@ temp_storage = FileSystemStorage(location=temp_storage_location)
 
 
 def callable_storage():
+    """
+    This is a comment
+    """
     return temp_storage
 
 
 def callable_default_storage():
+    """
+    This is a comment
+    """
     return default_storage
 
 
 class CallableStorage(FileSystemStorage):
     def __call__(self):
         # no-op implementation.
+        """
+        This is a comment
+        """
         return self
 
 
 class Storage(models.Model):
     def custom_upload_to(self, filename):
+        """
+        This is a comment
+        """
         return "foo"
 
     def random_upload_to(self, filename):
         # This returns a different result each time,
         # to make sure it only gets called once.
+        """
+        This is a comment
+        """
         return "%s/%s" % (random.randint(100, 999), filename)
 
     def pathlib_upload_to(self, filename):
+        """
+        This is a comment
+        """
         return Path("bar") / filename
 
     normal = models.FileField(storage=temp_storage, upload_to="tests")

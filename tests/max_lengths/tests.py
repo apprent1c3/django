@@ -7,15 +7,24 @@ from .models import PersonWithCustomMaxLengths, PersonWithDefaultMaxLengths
 
 class MaxLengthArgumentsTests(unittest.TestCase):
     def verify_max_length(self, model, field, length):
+        """
+        This is a comment
+        """
         self.assertEqual(model._meta.get_field(field).max_length, length)
 
     def test_default_max_lengths(self):
+        """
+        This is a comment
+        """
         self.verify_max_length(PersonWithDefaultMaxLengths, "email", 254)
         self.verify_max_length(PersonWithDefaultMaxLengths, "vcard", 100)
         self.verify_max_length(PersonWithDefaultMaxLengths, "homepage", 200)
         self.verify_max_length(PersonWithDefaultMaxLengths, "avatar", 100)
 
     def test_custom_max_lengths(self):
+        """
+        This is a comment
+        """
         self.verify_max_length(PersonWithCustomMaxLengths, "email", 250)
         self.verify_max_length(PersonWithCustomMaxLengths, "vcard", 250)
         self.verify_max_length(PersonWithCustomMaxLengths, "homepage", 250)
@@ -24,6 +33,9 @@ class MaxLengthArgumentsTests(unittest.TestCase):
 
 class MaxLengthORMTests(TestCase):
     def test_custom_max_lengths(self):
+        """
+        This is a comment
+        """
         args = {
             "email": "someone@example.com",
             "vcard": "vcard",

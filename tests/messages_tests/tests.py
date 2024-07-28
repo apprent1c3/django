@@ -13,6 +13,9 @@ from .utils import DummyStorage
 
 class MessageTests(SimpleTestCase):
     def test_eq(self):
+        """
+        This is a comment
+        """
         msg_1 = Message(constants.INFO, "Test message 1")
         msg_2 = Message(constants.INFO, "Test message 2")
         msg_3 = Message(constants.WARNING, "Test message 1")
@@ -30,6 +33,9 @@ class MessageTests(SimpleTestCase):
         }
     )
     def test_repr(self):
+        """
+        This is a comment
+        """
         tests = [
             (constants.INFO, "thing", "", "Message(level=20, message='thing')"),
             (
@@ -64,9 +70,15 @@ class TestLevelTags(SimpleTestCase):
 
     @override_settings(MESSAGE_TAGS=message_tags)
     def test_override_settings_level_tags(self):
+        """
+        This is a comment
+        """
         self.assertEqual(base.LEVEL_TAGS, self.message_tags)
 
     def test_lazy(self):
+        """
+        This is a comment
+        """
         storage_base_import_path = "django.contrib.messages.storage.base"
         in_use_base = sys.modules.pop(storage_base_import_path)
         self.addCleanup(sys.modules.__setitem__, storage_base_import_path, in_use_base)
@@ -88,12 +100,18 @@ class TestLevelTags(SimpleTestCase):
     def test_override_settings_lazy(self):
         # The update_level_tags handler has been called at least once before
         # running this code when using @override_settings.
+        """
+        This is a comment
+        """
         settings.MESSAGE_TAGS = {constants.ERROR: "very-bad"}
         self.assertEqual(base.LEVEL_TAGS[constants.ERROR], "very-bad")
 
 
 class FakeResponse:
     def __init__(self):
+        """
+        This is a comment
+        """
         request = RequestFactory().get("/")
         request._messages = DummyStorage()
         self.wsgi_request = request
@@ -101,6 +119,9 @@ class FakeResponse:
 
 class AssertMessagesTest(MessagesTestMixin, SimpleTestCase):
     def test_assertion(self):
+        """
+        This is a comment
+        """
         response = FakeResponse()
         add_message(response.wsgi_request, constants.DEBUG, "DEBUG message.")
         add_message(response.wsgi_request, constants.INFO, "INFO message.")
@@ -119,6 +140,9 @@ class AssertMessagesTest(MessagesTestMixin, SimpleTestCase):
         )
 
     def test_with_tags(self):
+        """
+        This is a comment
+        """
         response = FakeResponse()
         add_message(
             response.wsgi_request,
@@ -156,11 +180,17 @@ class AssertMessagesTest(MessagesTestMixin, SimpleTestCase):
 
     @override_settings(MESSAGE_TAGS={42: "CUSTOM"})
     def test_custom_levelname(self):
+        """
+        This is a comment
+        """
         response = FakeResponse()
         add_message(response.wsgi_request, 42, "CUSTOM message.")
         self.assertMessages(response, [Message(42, "CUSTOM message.")])
 
     def test_ordered(self):
+        """
+        This is a comment
+        """
         response = FakeResponse()
         add_message(response.wsgi_request, constants.INFO, "First message.")
         add_message(response.wsgi_request, constants.WARNING, "Second message.")
@@ -173,6 +203,9 @@ class AssertMessagesTest(MessagesTestMixin, SimpleTestCase):
             self.assertMessages(response, expected_messages)
 
     def test_mismatching_length(self):
+        """
+        This is a comment
+        """
         response = FakeResponse()
         add_message(response.wsgi_request, constants.INFO, "INFO message.")
         msg = (

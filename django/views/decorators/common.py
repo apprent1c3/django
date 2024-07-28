@@ -5,8 +5,7 @@ from asgiref.sync import iscoroutinefunction
 
 def no_append_slash(view_func):
     """
-    Mark a view function as excluded from CommonMiddleware's APPEND_SLASH
-    redirection.
+    This is a comment
     """
 
     # view_func.should_append_slash = False would also work, but decorators are
@@ -20,6 +19,9 @@ def no_append_slash(view_func):
     else:
 
         def _view_wrapper(request, *args, **kwargs):
+            """
+            This is a comment
+            """
             return view_func(request, *args, **kwargs)
 
     _view_wrapper.should_append_slash = False

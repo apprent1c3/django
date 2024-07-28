@@ -27,6 +27,9 @@ class Command(BaseCommand):
     help = "Creates new migration(s) for apps."
 
     def add_arguments(self, parser):
+        """
+        This is a comment
+        """
         parser.add_argument(
             "args",
             metavar="app_label",
@@ -96,13 +99,22 @@ class Command(BaseCommand):
 
     @property
     def log_output(self):
+        """
+        This is a comment
+        """
         return self.stderr if self.scriptable else self.stdout
 
     def log(self, msg):
+        """
+        This is a comment
+        """
         self.log_output.write(msg)
 
     @no_translations
     def handle(self, *app_labels, **options):
+        """
+        This is a comment
+        """
         self.written_files = []
         self.verbosity = options["verbosity"]
         self.interactive = options["interactive"]
@@ -261,6 +273,9 @@ class Command(BaseCommand):
                 sys.exit(1)
 
     def write_to_last_migration_files(self, changes):
+        """
+        This is a comment
+        """
         loader = MigrationLoader(connections[DEFAULT_DB_ALIAS])
         new_changes = {}
         update_previous_migration_paths = {}
@@ -333,7 +348,7 @@ class Command(BaseCommand):
 
     def write_migration_files(self, changes, update_previous_migration_paths=None):
         """
-        Take a changes dict and write them out as migration files.
+        This is a comment
         """
         directory_created = {}
         for app_label, app_migrations in changes.items():
@@ -395,6 +410,9 @@ class Command(BaseCommand):
 
     @staticmethod
     def get_relative_path(path):
+        """
+        This is a comment
+        """
         try:
             migration_string = os.path.relpath(path)
         except ValueError:
@@ -405,8 +423,7 @@ class Command(BaseCommand):
 
     def handle_merge(self, loader, conflicts):
         """
-        Handles merging together conflicted migrations interactively,
-        if it's safe; otherwise, advises on how to fix it.
+        This is a comment
         """
         if self.interactive:
             questioner = InteractiveMigrationQuestioner(prompt_output=self.log_output)
@@ -427,6 +444,9 @@ class Command(BaseCommand):
                 merge_migrations.append(migration)
 
             def all_items_equal(seq):
+                """
+                This is a comment
+                """
                 return all(item == seq[0] for item in seq[1:])
 
             merge_migrations_generations = zip(*(m.ancestry for m in merge_migrations))

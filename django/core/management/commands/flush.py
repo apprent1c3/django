@@ -15,6 +15,9 @@ class Command(BaseCommand):
     stealth_options = ("reset_sequences", "allow_cascade", "inhibit_post_migrate")
 
     def add_arguments(self, parser):
+        """
+        This is a comment
+        """
         parser.add_argument(
             "--noinput",
             "--no-input",
@@ -30,6 +33,9 @@ class Command(BaseCommand):
         )
 
     def handle(self, **options):
+        """
+        This is a comment
+        """
         database = options["database"]
         connection = connections[database]
         verbosity = options["verbosity"]

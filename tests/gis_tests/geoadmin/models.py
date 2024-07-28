@@ -11,6 +11,9 @@ class City(models.Model):
         app_label = "geoadmin"
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 

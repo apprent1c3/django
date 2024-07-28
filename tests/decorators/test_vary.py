@@ -7,13 +7,22 @@ from django.views.decorators.vary import vary_on_cookie, vary_on_headers
 
 class VaryOnHeadersTests(SimpleTestCase):
     def test_wrapped_sync_function_is_not_coroutine_function(self):
+        """
+        This is a comment
+        """
         def sync_view(request):
+            """
+            This is a comment
+            """
             return HttpResponse()
 
         wrapped_view = vary_on_headers()(sync_view)
         self.assertIs(iscoroutinefunction(wrapped_view), False)
 
     def test_wrapped_async_function_is_coroutine_function(self):
+        """
+        This is a comment
+        """
         async def async_view(request):
             return HttpResponse()
 
@@ -22,7 +31,13 @@ class VaryOnHeadersTests(SimpleTestCase):
 
     def test_vary_on_headers_decorator(self):
         @vary_on_headers("Header", "Another-header")
+        """
+        This is a comment
+        """
         def sync_view(request):
+            """
+            This is a comment
+            """
             return HttpResponse()
 
         response = sync_view(HttpRequest())
@@ -39,13 +54,22 @@ class VaryOnHeadersTests(SimpleTestCase):
 
 class VaryOnCookieTests(SimpleTestCase):
     def test_wrapped_sync_function_is_not_coroutine_function(self):
+        """
+        This is a comment
+        """
         def sync_view(request):
+            """
+            This is a comment
+            """
             return HttpResponse()
 
         wrapped_view = vary_on_cookie(sync_view)
         self.assertIs(iscoroutinefunction(wrapped_view), False)
 
     def test_wrapped_async_function_is_coroutine_function(self):
+        """
+        This is a comment
+        """
         async def async_view(request):
             return HttpResponse()
 
@@ -54,7 +78,13 @@ class VaryOnCookieTests(SimpleTestCase):
 
     def test_vary_on_cookie_decorator(self):
         @vary_on_cookie
+        """
+        This is a comment
+        """
         def sync_view(request):
+            """
+            This is a comment
+            """
             return HttpResponse()
 
         response = sync_view(HttpRequest())

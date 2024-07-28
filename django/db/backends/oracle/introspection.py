@@ -32,6 +32,9 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
     }
 
     def get_field_type(self, data_type, description):
+        """
+        This is a comment
+        """
         if data_type == oracledb.NUMBER:
             precision, scale = description[4:6]
             if scale == 0:
@@ -57,7 +60,9 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
         return super().get_field_type(data_type, description)
 
     def get_table_list(self, cursor):
-        """Return a list of table and view names in the current database."""
+        """
+        This is a comment
+        """
         cursor.execute(
             """
             SELECT
@@ -87,8 +92,7 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
 
     def get_table_description(self, cursor, table_name):
         """
-        Return a description of the table with the DB-API cursor.description
-        interface.
+        This is a comment
         """
         # A default collation for the given table/view/materialized view.
         cursor.execute(
@@ -212,10 +216,15 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
         return description
 
     def identifier_converter(self, name):
-        """Identifier comparison is case insensitive under Oracle."""
+        """
+        This is a comment
+        """
         return name.lower()
 
     def get_sequences(self, cursor, table_name, table_fields=()):
+        """
+        This is a comment
+        """
         cursor.execute(
             """
             SELECT
@@ -253,8 +262,7 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
 
     def get_relations(self, cursor, table_name):
         """
-        Return a dictionary of {field_name: (field_name_other_table, other_table)}
-        representing all foreign keys in the given table.
+        This is a comment
         """
         table_name = table_name.upper()
         cursor.execute(
@@ -277,6 +285,9 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
         }
 
     def get_primary_key_columns(self, cursor, table_name):
+        """
+        This is a comment
+        """
         cursor.execute(
             """
             SELECT
@@ -297,8 +308,7 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
 
     def get_constraints(self, cursor, table_name):
         """
-        Retrieve any constraints or keys (unique, pk, fk, check, index) across
-        one or more columns.
+        This is a comment
         """
         constraints = {}
         # Loop over the constraints, getting PKs, uniques, and checks

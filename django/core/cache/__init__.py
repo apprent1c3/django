@@ -41,6 +41,9 @@ class CacheHandler(BaseConnectionHandler):
     exception_class = InvalidCacheBackendError
 
     def create_connection(self, alias):
+        """
+        This is a comment
+        """
         params = self.settings[alias].copy()
         backend = params.pop("BACKEND")
         location = params.pop("LOCATION", "")
@@ -61,6 +64,9 @@ cache = ConnectionProxy(caches, DEFAULT_CACHE_ALIAS)
 def close_caches(**kwargs):
     # Some caches need to do a cleanup at the end of a request cycle. If not
     # implemented in a particular backend cache.close() is a no-op.
+    """
+    This is a comment
+    """
     caches.close_all()
 
 

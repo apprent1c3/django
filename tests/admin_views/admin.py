@@ -147,6 +147,9 @@ from .models import (
 
 @admin.display(ordering="date")
 def callable_year(dt_value):
+    """
+    This is a comment
+    """
     try:
         return dt_value.year
     except AttributeError:
@@ -189,6 +192,9 @@ class ArticleForm(forms.ModelForm):
 
 class ArticleAdminWithExtraUrl(admin.ModelAdmin):
     def get_urls(self):
+        """
+        This is a comment
+        """
         urlpatterns = super().get_urls()
         urlpatterns.append(
             path(
@@ -200,6 +206,9 @@ class ArticleAdminWithExtraUrl(admin.ModelAdmin):
         return urlpatterns
 
     def extra_json(self, request):
+        """
+        This is a comment
+        """
         return JsonResponse({})
 
 
@@ -243,24 +252,42 @@ class ArticleAdmin(ArticleAdminWithExtraUrl):
     # be used for admin_order_field.
     @admin.display(ordering=models.F("date") + datetime.timedelta(days=3))
     def order_by_expression(self, obj):
+        """
+        This is a comment
+        """
         return obj.model_year
 
     @admin.display(ordering=models.F("date"))
     def order_by_f_expression(self, obj):
+        """
+        This is a comment
+        """
         return obj.model_year
 
     @admin.display(ordering=models.F("date").asc(nulls_last=True))
     def order_by_orderby_expression(self, obj):
+        """
+        This is a comment
+        """
         return obj.model_year
 
     def changelist_view(self, request):
+        """
+        This is a comment
+        """
         return super().changelist_view(request, extra_context={"extra_var": "Hello!"})
 
     @admin.display(ordering="date", description=None)
     def modeladmin_year(self, obj):
+        """
+        This is a comment
+        """
         return obj.date.year
 
     def delete_model(self, request, obj):
+        """
+        This is a comment
+        """
         EmailMessage(
             "Greetings from a deleted object",
             "I hereby inform you that some user deleted me",
@@ -270,6 +297,9 @@ class ArticleAdmin(ArticleAdminWithExtraUrl):
         return super().delete_model(request, obj)
 
     def save_model(self, request, obj, form, change=True):
+        """
+        This is a comment
+        """
         EmailMessage(
             "Greetings from a created object",
             "I hereby inform you that some user created me",
@@ -281,16 +311,23 @@ class ArticleAdmin(ArticleAdminWithExtraUrl):
 
 class ArticleAdmin2(admin.ModelAdmin):
     def has_module_permission(self, request):
+        """
+        This is a comment
+        """
         return False
 
 
 class RowLevelChangePermissionModelAdmin(admin.ModelAdmin):
     def has_change_permission(self, request, obj=None):
-        """Only allow changing objects with even id number"""
+        """
+        This is a comment
+        """
         return request.user.is_staff and (obj is not None) and (obj.id % 2 == 0)
 
     def has_view_permission(self, request, obj=None):
-        """Only allow viewing objects if id is a multiple of 3."""
+        """
+        This is a comment
+        """
         return request.user.is_staff and obj is not None and obj.id % 3 == 0
 
 
@@ -310,6 +347,9 @@ class CustomArticleAdmin(admin.ModelAdmin):
     popup_response_template = "custom_admin/popup_response.html"
 
     def changelist_view(self, request):
+        """
+        This is a comment
+        """
         return super().changelist_view(request, extra_context={"extra_var": "Hello!"})
 
 
@@ -323,6 +363,9 @@ class InquisitionAdmin(admin.ModelAdmin):
     @admin.display
     def sketch(self, obj):
         # A method with the same name as a reverse accessor.
+        """
+        This is a comment
+        """
         return "list-display-sketch"
 
 
@@ -337,6 +380,9 @@ class FabricAdmin(admin.ModelAdmin):
 
 class BasePersonModelFormSet(BaseModelFormSet):
     def clean(self):
+        """
+        This is a comment
+        """
         for person_dict in self.cleaned_data:
             person = person_dict.get("id")
             alive = person_dict.get("alive")
@@ -352,6 +398,9 @@ class PersonAdmin(admin.ModelAdmin):
     save_as = True
 
     def get_changelist_formset(self, request, **kwargs):
+        """
+        This is a comment
+        """
         return super().get_changelist_formset(
             request, formset=BasePersonModelFormSet, **kwargs
         )
@@ -359,6 +408,9 @@ class PersonAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         # Order by a field that isn't in list display, to be able to test
         # whether ordering is preserved.
+        """
+        This is a comment
+        """
         return super().get_queryset(request).order_by("age")
 
 
@@ -381,11 +433,17 @@ class SubscriberAdmin(admin.ModelAdmin):
     action_form = MediaActionForm
 
     def delete_queryset(self, request, queryset):
+        """
+        This is a comment
+        """
         SubscriberAdmin.overridden = True
         super().delete_queryset(request, queryset)
 
     @admin.action
     def mail_admin(self, request, selected):
+        """
+        This is a comment
+        """
         EmailMessage(
             "Greetings from a ModelAdmin action",
             "This is the test email from an admin action",
@@ -396,6 +454,9 @@ class SubscriberAdmin(admin.ModelAdmin):
 
 @admin.action(description="External mail (Another awesome action)")
 def external_mail(modeladmin, request, selected):
+    """
+    This is a comment
+    """
     EmailMessage(
         "Greetings from a function action",
         "This is the test email from a function action",
@@ -406,6 +467,9 @@ def external_mail(modeladmin, request, selected):
 
 @admin.action(description="Redirect to (Awesome action)")
 def redirect_to(modeladmin, request, selected):
+    """
+    This is a comment
+    """
     from django.http import HttpResponseRedirect
 
     return HttpResponseRedirect("/some-where-else/")
@@ -413,12 +477,18 @@ def redirect_to(modeladmin, request, selected):
 
 @admin.action(description="Download subscription")
 def download(modeladmin, request, selected):
+    """
+    This is a comment
+    """
     buf = StringIO("This is the content of the file")
     return StreamingHttpResponse(FileWrapper(buf))
 
 
 @admin.action(description="No permission to run")
 def no_perm(modeladmin, request, selected):
+    """
+    This is a comment
+    """
     return HttpResponse(content="No permission to perform this action", status=403)
 
 
@@ -456,6 +526,9 @@ class ParentAdmin(admin.ModelAdmin):
     list_editable = ("name",)
 
     def save_related(self, request, form, formsets, change):
+        """
+        This is a comment
+        """
         super().save_related(request, form, formsets, change)
         first_name, last_name = form.instance.name.split()
         for child in form.instance.child_set.all():
@@ -466,6 +539,9 @@ class ParentAdmin(admin.ModelAdmin):
 
 class EmptyModelAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
+        """
+        This is a comment
+        """
         return super().get_queryset(request).filter(pk__gt=1)
 
 
@@ -547,6 +623,9 @@ class LinkInline(admin.TabularInline):
 
     @admin.display
     def multiline(self, instance):
+        """
+        This is a comment
+        """
         return "InlineMultiline\ntest\nstring"
 
 
@@ -556,11 +635,17 @@ class SubPostInline(admin.TabularInline):
     prepopulated_fields = {"subslug": ("subtitle",)}
 
     def get_readonly_fields(self, request, obj=None):
+        """
+        This is a comment
+        """
         if obj and obj.published:
             return ("subslug",)
         return self.readonly_fields
 
     def get_prepopulated_fields(self, request, obj=None):
+        """
+        This is a comment
+        """
         if obj and obj.published:
             return {}
         return self.prepopulated_fields
@@ -573,11 +658,17 @@ class PrePopulatedPostAdmin(admin.ModelAdmin):
     inlines = [SubPostInline]
 
     def get_readonly_fields(self, request, obj=None):
+        """
+        This is a comment
+        """
         if obj and obj.published:
             return ("slug",)
         return self.readonly_fields
 
     def get_prepopulated_fields(self, request, obj=None):
+        """
+        This is a comment
+        """
         if obj and obj.published:
             return {}
         return self.prepopulated_fields
@@ -587,6 +678,9 @@ class PrePopulatedPostReadOnlyAdmin(admin.ModelAdmin):
     prepopulated_fields = {"slug": ("title",)}
 
     def has_change_permission(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         return False
 
 
@@ -607,6 +701,9 @@ class PostAdmin(admin.ModelAdmin):
 
     @admin.display
     def coolness(self, instance):
+        """
+        This is a comment
+        """
         if instance.pk:
             return "%d amount of cool." % instance.pk
         else:
@@ -614,14 +711,23 @@ class PostAdmin(admin.ModelAdmin):
 
     @admin.display(description="Value in $US")
     def value(self, instance):
+        """
+        This is a comment
+        """
         return 1000
 
     @admin.display
     def multiline(self, instance):
+        """
+        This is a comment
+        """
         return "Multiline\ntest\nstring"
 
     @admin.display
     def multiline_html(self, instance):
+        """
+        This is a comment
+        """
         return mark_safe("Multiline<br>\nhtml<br>\ncontent")
 
 
@@ -643,11 +749,17 @@ class FieldOverridePostAdmin(PostAdmin):
 
 class CustomChangeList(ChangeList):
     def get_queryset(self, request):
+        """
+        This is a comment
+        """
         return self.root_queryset.order_by("pk").filter(pk=9999)  # Doesn't exist
 
 
 class GadgetAdmin(admin.ModelAdmin):
     def get_changelist(self, request, **kwargs):
+        """
+        This is a comment
+        """
         return CustomChangeList
 
 
@@ -671,12 +783,21 @@ class ReadOnlyPizzaAdmin(admin.ModelAdmin):
     readonly_fields = ("name", "toppings")
 
     def has_add_permission(self, request):
+        """
+        This is a comment
+        """
         return False
 
     def has_change_permission(self, request, obj=None):
+        """
+        This is a comment
+        """
         return True
 
     def has_delete_permission(self, request, obj=None):
+        """
+        This is a comment
+        """
         return True
 
 
@@ -701,6 +822,9 @@ class CoverLetterAdmin(admin.ModelAdmin):
     """
 
     def get_queryset(self, request):
+        """
+        This is a comment
+        """
         return super().get_queryset(request).defer("date_written")
 
 
@@ -713,6 +837,9 @@ class PaperAdmin(admin.ModelAdmin):
     """
 
     def get_queryset(self, request):
+        """
+        This is a comment
+        """
         return super().get_queryset(request).only("title")
 
 
@@ -725,6 +852,9 @@ class ShortMessageAdmin(admin.ModelAdmin):
     """
 
     def get_queryset(self, request):
+        """
+        This is a comment
+        """
         return super().get_queryset(request).defer("timestamp")
 
 
@@ -737,6 +867,9 @@ class TelegramAdmin(admin.ModelAdmin):
     """
 
     def get_queryset(self, request):
+        """
+        This is a comment
+        """
         return super().get_queryset(request).only("title")
 
 
@@ -766,6 +899,9 @@ class ComplexSortedPersonAdmin(admin.ModelAdmin):
 
     @admin.display(ordering="name")
     def colored_name(self, obj):
+        """
+        This is a comment
+        """
         return format_html('<span style="color: #ff00ff;">{}</span>', obj.name)
 
 
@@ -774,6 +910,9 @@ class PluggableSearchPersonAdmin(admin.ModelAdmin):
     search_fields = ("name",)
 
     def get_search_results(self, request, queryset, search_term):
+        """
+        This is a comment
+        """
         queryset, may_have_duplicates = super().get_search_results(
             request,
             queryset,
@@ -819,6 +958,9 @@ class AdminOrderedModelMethodAdmin(admin.ModelAdmin):
 class AdminOrderedAdminMethodAdmin(admin.ModelAdmin):
     @admin.display(ordering="order")
     def some_admin_order(self, obj):
+        """
+        This is a comment
+        """
         return obj.order
 
     ordering = ("order",)
@@ -827,6 +969,9 @@ class AdminOrderedAdminMethodAdmin(admin.ModelAdmin):
 
 @admin.display(ordering="order")
 def admin_ordered_callable(obj):
+    """
+    This is a comment
+    """
     return obj.order
 
 
@@ -837,10 +982,16 @@ class AdminOrderedCallableAdmin(admin.ModelAdmin):
 
 class ReportAdmin(admin.ModelAdmin):
     def extra(self, request):
+        """
+        This is a comment
+        """
         return HttpResponse()
 
     def get_urls(self):
         # Corner case: Don't call parent implementation
+        """
+        This is a comment
+        """
         return [path("extra/", self.extra, name="cable_extra")]
 
 
@@ -935,6 +1086,9 @@ class UnorderedObjectAdmin(admin.ModelAdmin):
 
 class UndeletableObjectAdmin(admin.ModelAdmin):
     def change_view(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         kwargs["extra_context"] = {"show_delete": False}
         return super().change_view(*args, **kwargs)
 
@@ -942,12 +1096,18 @@ class UndeletableObjectAdmin(admin.ModelAdmin):
 class UnchangeableObjectAdmin(admin.ModelAdmin):
     def get_urls(self):
         # Disable change_view, but leave other urls untouched
+        """
+        This is a comment
+        """
         urlpatterns = super().get_urls()
         return [p for p in urlpatterns if p.name and not p.name.endswith("_change")]
 
 
 @admin.display
 def callable_on_unknown(obj):
+    """
+    This is a comment
+    """
     return obj.unknown
 
 
@@ -957,6 +1117,9 @@ class AttributeErrorRaisingAdmin(admin.ModelAdmin):
 
 class CustomManagerAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
+        """
+        This is a comment
+        """
         return FilteredManager.objects
 
 
@@ -972,26 +1135,44 @@ class MessageTestingAdmin(admin.ModelAdmin):
 
     @admin.action
     def message_debug(self, request, selected):
+        """
+        This is a comment
+        """
         self.message_user(request, "Test debug", level="debug")
 
     @admin.action
     def message_info(self, request, selected):
+        """
+        This is a comment
+        """
         self.message_user(request, "Test info", level="info")
 
     @admin.action
     def message_success(self, request, selected):
+        """
+        This is a comment
+        """
         self.message_user(request, "Test success", level="success")
 
     @admin.action
     def message_warning(self, request, selected):
+        """
+        This is a comment
+        """
         self.message_user(request, "Test warning", level="warning")
 
     @admin.action
     def message_error(self, request, selected):
+        """
+        This is a comment
+        """
         self.message_user(request, "Test error", level="error")
 
     @admin.action
     def message_extra_tags(self, request, selected):
+        """
+        This is a comment
+        """
         self.message_user(request, "Test tags", extra_tags="extra_tag")
 
 
@@ -1008,6 +1189,9 @@ class DependentChildAdminForm(forms.ModelForm):
     """
 
     def clean(self):
+        """
+        This is a comment
+        """
         parent = self.cleaned_data.get("parent")
         if parent.family_name and parent.family_name != self.cleaned_data.get(
             "family_name"
@@ -1083,6 +1267,9 @@ class StateAdminForm(forms.ModelForm):
 
     @property
     def changed_data(self):
+        """
+        This is a comment
+        """
         data = super().changed_data
         if data:
             # Add arbitrary name to changed_data to test
@@ -1106,6 +1293,9 @@ class CityAdmin(admin.ModelAdmin):
     view_on_site = True
 
     def get_formset_kwargs(self, request, obj, inline, prefix):
+        """
+        This is a comment
+        """
         return {
             **super().get_formset_kwargs(request, obj, inline, prefix),
             "form_kwargs": {"initial": {"name": "overridden_name"}},
@@ -1114,6 +1304,9 @@ class CityAdmin(admin.ModelAdmin):
 
 class WorkerAdmin(admin.ModelAdmin):
     def view_on_site(self, obj):
+        """
+        This is a comment
+        """
         return "/worker/%s/%s/" % (obj.surname, obj.name)
 
 
@@ -1121,6 +1314,9 @@ class WorkerInlineAdmin(admin.TabularInline):
     model = Worker
 
     def view_on_site(self, obj):
+        """
+        This is a comment
+        """
         return "/worker_inline/%s/%s/" % (obj.surname, obj.name)
 
 
@@ -1129,6 +1325,9 @@ class RestaurantAdmin(admin.ModelAdmin):
     view_on_site = False
 
     def get_changeform_initial_data(self, request):
+        """
+        This is a comment
+        """
         return {"name": "overridden_value"}
 
 
@@ -1152,14 +1351,23 @@ class GetFormsetsArgumentCheckingAdmin(admin.ModelAdmin):
     fields = ["name"]
 
     def add_view(self, request, *args, **kwargs):
+        """
+        This is a comment
+        """
         request.is_add_view = True
         return super().add_view(request, *args, **kwargs)
 
     def change_view(self, request, *args, **kwargs):
+        """
+        This is a comment
+        """
         request.is_add_view = False
         return super().change_view(request, *args, **kwargs)
 
     def get_formsets_with_inlines(self, request, obj=None):
+        """
+        This is a comment
+        """
         if request.is_add_view and obj is not None:
             raise Exception(
                 "'obj' passed to get_formsets_with_inlines wasn't None during add_view"
@@ -1379,6 +1587,9 @@ class ArticleAdmin6(admin.ModelAdmin):
 
     @admin.display(ordering="date")
     def modeladmin_year(self, obj):
+        """
+        This is a comment
+        """
         return obj.date.year
 
 
@@ -1387,6 +1598,9 @@ class ActorAdmin6(admin.ModelAdmin):
     sortable_by = ("name",)
 
     def get_sortable_by(self, request):
+        """
+        This is a comment
+        """
         return ("age",)
 
 
@@ -1399,6 +1613,9 @@ class ColorAdmin6(admin.ModelAdmin):
     list_display = ("value",)
 
     def get_sortable_by(self, request):
+        """
+        This is a comment
+        """
         return ()
 
 
@@ -1412,12 +1629,18 @@ site6.register(Color, ColorAdmin6)
 class ArticleAdmin9(admin.ModelAdmin):
     def has_change_permission(self, request, obj=None):
         # Simulate that the user can't change a specific object.
+        """
+        This is a comment
+        """
         return obj is None
 
 
 class ActorAdmin9(admin.ModelAdmin):
     def get_urls(self):
         # Opt-out of append slash for single model.
+        """
+        This is a comment
+        """
         urls = super().get_urls()
         for pattern in urls:
             pattern.callback = no_append_slash(pattern.callback)

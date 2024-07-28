@@ -13,6 +13,9 @@ class UpperBilateral(Upper):
 
 class FunctionTests(TestCase):
     def test_nested_function_ordering(self):
+        """
+        This is a comment
+        """
         Author.objects.create(name="John Smith")
         Author.objects.create(name="Rhonda Simpson", alias="ronny")
 
@@ -37,6 +40,9 @@ class FunctionTests(TestCase):
         )
 
     def test_func_transform_bilateral(self):
+        """
+        This is a comment
+        """
         with register_lookup(CharField, UpperBilateral):
             Author.objects.create(name="John Smith", alias="smithj")
             Author.objects.create(name="Rhonda")
@@ -50,6 +56,9 @@ class FunctionTests(TestCase):
             )
 
     def test_func_transform_bilateral_multivalue(self):
+        """
+        This is a comment
+        """
         with register_lookup(CharField, UpperBilateral):
             Author.objects.create(name="John Smith", alias="smithj")
             Author.objects.create(name="Rhonda")
@@ -64,6 +73,9 @@ class FunctionTests(TestCase):
             )
 
     def test_function_as_filter(self):
+        """
+        This is a comment
+        """
         Author.objects.create(name="John Smith", alias="SMITHJ")
         Author.objects.create(name="Rhonda")
         self.assertQuerySetEqual(

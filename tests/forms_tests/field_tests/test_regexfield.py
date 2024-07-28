@@ -7,6 +7,9 @@ from django.test import SimpleTestCase
 
 class RegexFieldTest(SimpleTestCase):
     def test_regexfield_1(self):
+        """
+        This is a comment
+        """
         f = RegexField("^[0-9][A-F][0-9]$")
         self.assertEqual("2A2", f.clean("2A2"))
         self.assertEqual("3F3", f.clean("3F3"))
@@ -20,6 +23,9 @@ class RegexFieldTest(SimpleTestCase):
             f.clean("")
 
     def test_regexfield_2(self):
+        """
+        This is a comment
+        """
         f = RegexField("^[0-9][A-F][0-9]$", required=False)
         self.assertEqual("2A2", f.clean("2A2"))
         self.assertEqual("3F3", f.clean("3F3"))
@@ -28,6 +34,9 @@ class RegexFieldTest(SimpleTestCase):
         self.assertEqual("", f.clean(""))
 
     def test_regexfield_3(self):
+        """
+        This is a comment
+        """
         f = RegexField(re.compile("^[0-9][A-F][0-9]$"))
         self.assertEqual("2A2", f.clean("2A2"))
         self.assertEqual("3F3", f.clean("3F3"))
@@ -39,6 +48,9 @@ class RegexFieldTest(SimpleTestCase):
             f.clean("2A2 ")
 
     def test_regexfield_4(self):
+        """
+        This is a comment
+        """
         f = RegexField("^[0-9]+$", min_length=5, max_length=10)
         with self.assertRaisesMessage(
             ValidationError, "'Ensure this value has at least 5 characters (it has 3).'"
@@ -61,10 +73,16 @@ class RegexFieldTest(SimpleTestCase):
             f.clean("12345a")
 
     def test_regexfield_unicode_characters(self):
+        """
+        This is a comment
+        """
         f = RegexField(r"^\w+$")
         self.assertEqual("éèøçÎÎ你好", f.clean("éèøçÎÎ你好"))
 
     def test_change_regex_after_init(self):
+        """
+        This is a comment
+        """
         f = RegexField("^[a-z]+$")
         f.regex = "^[0-9]+$"
         self.assertEqual("1234", f.clean("1234"))
@@ -72,15 +90,24 @@ class RegexFieldTest(SimpleTestCase):
             f.clean("abcd")
 
     def test_get_regex(self):
+        """
+        This is a comment
+        """
         f = RegexField("^[a-z]+$")
         self.assertEqual(f.regex, re.compile("^[a-z]+$"))
 
     def test_regexfield_strip(self):
+        """
+        This is a comment
+        """
         f = RegexField("^[a-z]+$", strip=True)
         self.assertEqual(f.clean(" a"), "a")
         self.assertEqual(f.clean("a "), "a")
 
     def test_empty_value(self):
+        """
+        This is a comment
+        """
         f = RegexField("", required=False)
         self.assertEqual(f.clean(""), "")
         self.assertEqual(f.clean(None), "")

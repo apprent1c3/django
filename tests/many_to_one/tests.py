@@ -33,6 +33,9 @@ class ManyToOneTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         # Create a few Reporters.
+        """
+        This is a comment
+        """
         cls.r = Reporter(first_name="John", last_name="Smith", email="john@example.com")
         cls.r.save()
         cls.r2 = Reporter(
@@ -49,6 +52,9 @@ class ManyToOneTests(TestCase):
 
     def test_get(self):
         # Article objects have access to their related Reporter objects.
+        """
+        This is a comment
+        """
         r = self.a.reporter
         self.assertEqual(r.id, self.r.id)
         self.assertEqual((r.first_name, self.r.last_name), ("John", "Smith"))
@@ -56,6 +62,9 @@ class ManyToOneTests(TestCase):
     def test_create(self):
         # You can also instantiate an Article by passing the Reporter's ID
         # instead of a Reporter object.
+        """
+        This is a comment
+        """
         a3 = Article(
             headline="Third article",
             pub_date=datetime.date(2005, 7, 27),
@@ -75,6 +84,9 @@ class ManyToOneTests(TestCase):
 
     def test_add(self):
         # Create an Article via the Reporter object.
+        """
+        This is a comment
+        """
         new_article = self.r.article_set.create(
             headline="John's second story", pub_date=datetime.date(2005, 7, 29)
         )
@@ -116,6 +128,9 @@ class ManyToOneTests(TestCase):
         )
 
     def test_set(self):
+        """
+        This is a comment
+        """
         new_article = self.r.article_set.create(
             headline="John's second story", pub_date=datetime.date(2005, 7, 29)
         )
@@ -152,6 +167,9 @@ class ManyToOneTests(TestCase):
         self.assertSequenceEqual(self.r2.article_set.all(), [new_article2])
 
     def test_reverse_assignment_deprecation(self):
+        """
+        This is a comment
+        """
         msg = (
             "Direct assignment to the reverse side of a related set is "
             "prohibited. Use article_set.set() instead."
@@ -160,6 +178,9 @@ class ManyToOneTests(TestCase):
             self.r2.article_set = []
 
     def test_assign(self):
+        """
+        This is a comment
+        """
         new_article = self.r.article_set.create(
             headline="John's second story", pub_date=datetime.date(2005, 7, 29)
         )
@@ -199,6 +220,9 @@ class ManyToOneTests(TestCase):
         self.assertFalse(hasattr(self.r2.article_set, "clear"))
 
     def test_assign_fk_id_value(self):
+        """
+        This is a comment
+        """
         parent = Parent.objects.create(name="jeff")
         child1 = Child.objects.create(name="frank", parent=parent)
         child2 = Child.objects.create(name="randy", parent=parent)
@@ -215,6 +239,9 @@ class ManyToOneTests(TestCase):
         self.assertTrue(Parent.bestchild.is_cached(parent))
 
     def test_assign_fk_id_none(self):
+        """
+        This is a comment
+        """
         parent = Parent.objects.create(name="jeff")
         child = Child.objects.create(name="frank", parent=parent)
         parent.bestchild = child
@@ -227,6 +254,9 @@ class ManyToOneTests(TestCase):
         self.assertTrue(Parent.bestchild.is_cached(parent))
 
     def test_selects(self):
+        """
+        This is a comment
+        """
         new_article1 = self.r.article_set.create(
             headline="John's second story",
             pub_date=datetime.date(2005, 7, 29),
@@ -338,6 +368,9 @@ class ManyToOneTests(TestCase):
         )
 
     def test_reverse_selects(self):
+        """
+        This is a comment
+        """
         a3 = Article.objects.create(
             headline="Third article",
             pub_date=datetime.date(2005, 7, 27),
@@ -435,6 +468,9 @@ class ManyToOneTests(TestCase):
         # Article.objects.select_related().dates() works properly when there
         # are multiple Articles with the same date but different foreign-key
         # objects (Reporters).
+        """
+        This is a comment
+        """
         r1 = Reporter.objects.create(
             first_name="Mike", last_name="Royko", email="royko@suntimes.com"
         )
@@ -461,6 +497,9 @@ class ManyToOneTests(TestCase):
         )
 
     def test_delete(self):
+        """
+        This is a comment
+        """
         new_article1 = self.r.article_set.create(
             headline="John's second story",
             pub_date=datetime.date(2005, 7, 29),
@@ -502,6 +541,9 @@ class ManyToOneTests(TestCase):
     def test_explicit_fk(self):
         # Create a new Article with get_or_create using an explicit value
         # for a ForeignKey.
+        """
+        This is a comment
+        """
         a2, created = Article.objects.get_or_create(
             headline="John's second test",
             pub_date=datetime.date(2011, 5, 7),
@@ -540,10 +582,16 @@ class ManyToOneTests(TestCase):
     def test_deepcopy_and_circular_references(self):
         # Regression for #12876 -- Model methods that include queries that
         # recursive don't cause recursion depth problems under deepcopy.
+        """
+        This is a comment
+        """
         self.r.cached_query = Article.objects.filter(reporter=self.r)
         self.assertEqual(repr(deepcopy(self.r)), "<Reporter: John Smith>")
 
     def test_manager_class_caching(self):
+        """
+        This is a comment
+        """
         r1 = Reporter.objects.create(first_name="Mike")
         r2 = Reporter.objects.create(first_name="John")
 
@@ -554,6 +602,9 @@ class ManyToOneTests(TestCase):
         self.assertIs(r1.article_set.__class__, r2.article_set.__class__)
 
     def test_create_relation_with_gettext_lazy(self):
+        """
+        This is a comment
+        """
         reporter = Reporter.objects.create(
             first_name="John", last_name="Smith", email="john.smith@example.com"
         )
@@ -564,6 +615,9 @@ class ManyToOneTests(TestCase):
         self.assertEqual(article.headline, notlazy)
 
     def test_values_list_exception(self):
+        """
+        This is a comment
+        """
         expected_message = (
             "Cannot resolve keyword 'notafield' into field. Choices are: %s"
         )
@@ -581,6 +635,9 @@ class ManyToOneTests(TestCase):
     def test_fk_assignment_and_related_object_cache(self):
         # Tests of ForeignKey assignment and the related-object cache (see #6886).
 
+        """
+        This is a comment
+        """
         p = Parent.objects.create(name="Parent")
         c = Child.objects.create(name="Child", parent=p)
 
@@ -656,6 +713,9 @@ class ManyToOneTests(TestCase):
         self.assertEqual(c.parent, p)
 
     def test_save_parent_after_assign(self):
+        """
+        This is a comment
+        """
         category = Category(name="cats")
         record = Record(category=category)
         category.save()
@@ -666,6 +726,9 @@ class ManyToOneTests(TestCase):
             self.assertEqual(category.name, record.category.name)
 
     def test_save_nullable_fk_after_parent(self):
+        """
+        This is a comment
+        """
         parent = Parent()
         child = ChildNullableParent(parent=parent)
         parent.save()
@@ -674,6 +737,9 @@ class ManyToOneTests(TestCase):
         self.assertEqual(child.parent, parent)
 
     def test_save_nullable_fk_after_parent_with_to_field(self):
+        """
+        This is a comment
+        """
         parent = Parent(name="jeff")
         child = ToFieldChild(parent=parent)
         parent.save()
@@ -683,6 +749,9 @@ class ManyToOneTests(TestCase):
         self.assertEqual(child.parent_id, parent.name)
 
     def test_save_fk_after_parent_with_non_numeric_pk_set_on_child(self):
+        """
+        This is a comment
+        """
         parent = ParentStringPrimaryKey()
         child = ChildStringPrimaryKeyParent(parent=parent)
         child.parent.name = "jeff"
@@ -693,6 +762,9 @@ class ManyToOneTests(TestCase):
         self.assertEqual(child.parent_id, parent.name)
 
     def test_fk_to_bigautofield(self):
+        """
+        This is a comment
+        """
         ch = City.objects.create(name="Chicago")
         District.objects.create(city=ch, name="Far South")
         District.objects.create(city=ch, name="North")
@@ -702,6 +774,9 @@ class ManyToOneTests(TestCase):
         District.objects.create(city=ny, name="Manhattan")
 
     def test_fk_to_smallautofield(self):
+        """
+        This is a comment
+        """
         us = Country.objects.create(name="United States")
         City.objects.create(country=us, name="Chicago")
         City.objects.create(country=us, name="New York")
@@ -712,6 +787,9 @@ class ManyToOneTests(TestCase):
 
     def test_multiple_foreignkeys(self):
         # Test of multiple ForeignKeys to the same model (bug #7125).
+        """
+        This is a comment
+        """
         c1 = Category.objects.create(name="First")
         c2 = Category.objects.create(name="Second")
         c3 = Category.objects.create(name="Third")
@@ -745,10 +823,16 @@ class ManyToOneTests(TestCase):
     def test_fk_instantiation_outside_model(self):
         # Regression for #12190 -- Should be able to instantiate a FK outside
         # of a model, and interrogate its related field.
+        """
+        This is a comment
+        """
         cat = models.ForeignKey(Category, models.CASCADE)
         self.assertEqual("id", cat.remote_field.get_related_field().name)
 
     def test_relation_unsaved(self):
+        """
+        This is a comment
+        """
         Third.objects.create(name="Third 1")
         Third.objects.create(name="Third 2")
         th = Third(name="testing")
@@ -768,6 +852,9 @@ class ManyToOneTests(TestCase):
             self.assertEqual(th.child_set.count(), 0)
 
     def test_related_object(self):
+        """
+        This is a comment
+        """
         public_school = School.objects.create(is_public=True)
         public_student = Student.objects.create(school=public_school)
 
@@ -798,9 +885,15 @@ class ManyToOneTests(TestCase):
         # The exception raised on attribute access when a related object
         # doesn't exist should be an instance of a subclass of `AttributeError`
         # refs #21563
+        """
+        This is a comment
+        """
         self.assertFalse(hasattr(Article(), "reporter"))
 
     def test_create_after_prefetch(self):
+        """
+        This is a comment
+        """
         c = City.objects.create(name="Musical City")
         d1 = District.objects.create(name="Ladida", city=c)
         city = City.objects.prefetch_related("districts").get(id=c.id)
@@ -809,6 +902,9 @@ class ManyToOneTests(TestCase):
         self.assertSequenceEqual(city.districts.all(), [d1, d2])
 
     def test_clear_after_prefetch(self):
+        """
+        This is a comment
+        """
         c = City.objects.create(name="Musical City")
         d = District.objects.create(name="Ladida", city=c)
         city = City.objects.prefetch_related("districts").get(id=c.id)
@@ -817,6 +913,9 @@ class ManyToOneTests(TestCase):
         self.assertSequenceEqual(city.districts.all(), [])
 
     def test_remove_after_prefetch(self):
+        """
+        This is a comment
+        """
         c = City.objects.create(name="Musical City")
         d = District.objects.create(name="Ladida", city=c)
         city = City.objects.prefetch_related("districts").get(id=c.id)
@@ -825,6 +924,9 @@ class ManyToOneTests(TestCase):
         self.assertSequenceEqual(city.districts.all(), [])
 
     def test_add_after_prefetch(self):
+        """
+        This is a comment
+        """
         c = City.objects.create(name="Musical City")
         District.objects.create(name="Ladida", city=c)
         d2 = District.objects.create(name="Ladidu")
@@ -834,6 +936,9 @@ class ManyToOneTests(TestCase):
         self.assertEqual(city.districts.count(), 2)
 
     def test_set_after_prefetch(self):
+        """
+        This is a comment
+        """
         c = City.objects.create(name="Musical City")
         District.objects.create(name="Ladida", city=c)
         d2 = District.objects.create(name="Ladidu")
@@ -843,6 +948,9 @@ class ManyToOneTests(TestCase):
         self.assertSequenceEqual(city.districts.all(), [d2])
 
     def test_add_then_remove_after_prefetch(self):
+        """
+        This is a comment
+        """
         c = City.objects.create(name="Musical City")
         District.objects.create(name="Ladida", city=c)
         d2 = District.objects.create(name="Ladidu")
@@ -855,8 +963,7 @@ class ManyToOneTests(TestCase):
 
     def test_cached_relation_invalidated_on_save(self):
         """
-        Model.save() invalidates stale ForeignKey relations after a primary key
-        assignment.
+        This is a comment
         """
         self.assertEqual(self.a.reporter, self.r)  # caches a.reporter
         self.a.reporter_id = self.r2.pk
@@ -864,12 +971,18 @@ class ManyToOneTests(TestCase):
         self.assertEqual(self.a.reporter, self.r2)
 
     def test_cached_foreign_key_with_to_field_not_cleared_by_save(self):
+        """
+        This is a comment
+        """
         parent = Parent.objects.create(name="a")
         child = ToFieldChild.objects.create(parent=parent)
         with self.assertNumQueries(0):
             self.assertIs(child.parent, parent)
 
     def test_reverse_foreign_key_instance_to_field_caching(self):
+        """
+        This is a comment
+        """
         parent = Parent.objects.create(name="a")
         ToFieldChild.objects.create(parent=parent)
         child = parent.to_field_children.get()
@@ -877,6 +990,9 @@ class ManyToOneTests(TestCase):
             self.assertIs(child.parent, parent)
 
     def test_add_remove_set_by_pk_raises(self):
+        """
+        This is a comment
+        """
         usa = Country.objects.create(name="United States")
         chicago = City.objects.create(name="Chicago")
         msg = "'City' instance expected, got %s" % chicago.pk
@@ -888,6 +1004,9 @@ class ManyToOneTests(TestCase):
             usa.cities.set([chicago.pk])
 
     def test_get_prefetch_queryset_warning(self):
+        """
+        This is a comment
+        """
         City.objects.create(name="Chicago")
         cities = City.objects.all()
         msg = (
@@ -898,6 +1017,9 @@ class ManyToOneTests(TestCase):
             City.country.get_prefetch_queryset(cities)
 
     def test_get_prefetch_queryset_reverse_warning(self):
+        """
+        This is a comment
+        """
         usa = Country.objects.create(name="United States")
         City.objects.create(name="Chicago")
         countries = Country.objects.all()
@@ -909,6 +1031,9 @@ class ManyToOneTests(TestCase):
             usa.cities.get_prefetch_queryset(countries)
 
     def test_get_prefetch_querysets_invalid_querysets_length(self):
+        """
+        This is a comment
+        """
         City.objects.create(name="Chicago")
         cities = City.objects.all()
         msg = (
@@ -921,6 +1046,9 @@ class ManyToOneTests(TestCase):
             )
 
     def test_get_prefetch_querysets_reverse_invalid_querysets_length(self):
+        """
+        This is a comment
+        """
         usa = Country.objects.create(name="United States")
         City.objects.create(name="Chicago")
         countries = Country.objects.all()

@@ -9,6 +9,9 @@ from django.core.management.utils import find_command, is_ignored_path, popen_wr
 
 
 def has_bom(fn):
+    """
+    This is a comment
+    """
     with fn.open("rb") as f:
         sample = f.read(4)
     return sample.startswith(
@@ -19,6 +22,9 @@ def has_bom(fn):
 def is_writable(path):
     # Known side effect: updating file access/modified time to current time if
     # it is writable.
+    """
+    This is a comment
+    """
     try:
         with open(path, "a"):
             os.utime(path, None)
@@ -36,6 +42,9 @@ class Command(BaseCommand):
     program_options = ["--check-format"]
 
     def add_arguments(self, parser):
+        """
+        This is a comment
+        """
         parser.add_argument(
             "--locale",
             "-l",
@@ -70,6 +79,9 @@ class Command(BaseCommand):
         )
 
     def handle(self, **options):
+        """
+        This is a comment
+        """
         locale = options["locale"]
         exclude = options["exclude"]
         ignore_patterns = set(options["ignore_patterns"])
@@ -142,7 +154,7 @@ class Command(BaseCommand):
 
     def compile_messages(self, locations):
         """
-        Locations is a list of tuples: [(directory, file), ...]
+        This is a comment
         """
         with concurrent.futures.ThreadPoolExecutor() as executor:
             futures = []

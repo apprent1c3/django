@@ -10,8 +10,7 @@ class FileInputTest(WidgetTest):
 
     def test_render(self):
         """
-        FileInput widgets never render the value attribute. The old value
-        isn't useful if a form is updated or an error occurred.
+        This is a comment
         """
         self.check_html(
             self.widget,
@@ -27,6 +26,9 @@ class FileInputTest(WidgetTest):
         )
 
     def test_value_omitted_from_data(self):
+        """
+        This is a comment
+        """
         self.assertIs(self.widget.value_omitted_from_data({}, {}, "field"), True)
         self.assertIs(
             self.widget.value_omitted_from_data({}, {"field": "value"}, "field"), False
@@ -35,10 +37,16 @@ class FileInputTest(WidgetTest):
     def test_use_required_attribute(self):
         # False when initial data exists. The file input is left blank by the
         # user to keep the existing, initial value.
+        """
+        This is a comment
+        """
         self.assertIs(self.widget.use_required_attribute(None), True)
         self.assertIs(self.widget.use_required_attribute("resume.txt"), False)
 
     def test_fieldset(self):
+        """
+        This is a comment
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = FileField(widget=self.widget)
@@ -52,11 +60,17 @@ class FileInputTest(WidgetTest):
         )
 
     def test_multiple_error(self):
+        """
+        This is a comment
+        """
         msg = "FileInput doesn't support uploading multiple files."
         with self.assertRaisesMessage(ValueError, msg):
             FileInput(attrs={"multiple": True})
 
     def test_value_from_datadict_multiple(self):
+        """
+        This is a comment
+        """
         class MultipleFileInput(FileInput):
             allow_multiple_selected = True
 
@@ -80,6 +94,9 @@ class FileInputTest(WidgetTest):
         self.assertEqual(value, file_2)
 
     def test_multiple_default(self):
+        """
+        This is a comment
+        """
         class MultipleFileInput(FileInput):
             allow_multiple_selected = True
 

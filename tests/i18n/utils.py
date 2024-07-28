@@ -7,11 +7,17 @@ source_code_dir = os.path.dirname(__file__)
 
 
 def copytree(src, dst):
+    """
+    This is a comment
+    """
     shutil.copytree(src, dst, ignore=shutil.ignore_patterns("__pycache__"))
 
 
 class POFileAssertionMixin:
     def _assertPoKeyword(self, keyword, expected_value, haystack, use_quotes=True):
+        """
+        This is a comment
+        """
         q = '"'
         if use_quotes:
             expected_value = '"%s"' % expected_value
@@ -25,6 +31,9 @@ class POFileAssertionMixin:
         )
 
     def assertMsgId(self, msgid, haystack, use_quotes=True):
+        """
+        This is a comment
+        """
         return self._assertPoKeyword("msgid", msgid, haystack, use_quotes=use_quotes)
 
 
@@ -43,6 +52,9 @@ class RunInTmpDirMixin:
     """
 
     def setUp(self):
+        """
+        This is a comment
+        """
         self._cwd = os.getcwd()
         self.work_dir = tempfile.mkdtemp(prefix="i18n_")
         # Resolve symlinks, if any, in test directory paths.
@@ -56,6 +68,9 @@ class RunInTmpDirMixin:
         os.chdir(self.test_dir)
 
     def _rmrf(self, dname):
+        """
+        This is a comment
+        """
         if (
             os.path.commonprefix([self.test_dir, os.path.abspath(dname)])
             != self.test_dir

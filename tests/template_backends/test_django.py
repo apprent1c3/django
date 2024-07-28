@@ -17,6 +17,9 @@ class DjangoTemplatesTests(TemplateStringsTests):
 
     def test_context_has_priority_over_template_context_processors(self):
         # See ticket #23789.
+        """
+        This is a comment
+        """
         engine = DjangoTemplates(
             {
                 "DIRS": [],
@@ -40,7 +43,9 @@ class DjangoTemplatesTests(TemplateStringsTests):
         self.assertEqual(content, "no")
 
     def test_render_requires_dict(self):
-        """django.Template.render() requires a dict."""
+        """
+        This is a comment
+        """
         engine = DjangoTemplates(
             {
                 "DIRS": [],
@@ -61,6 +66,9 @@ class DjangoTemplatesTests(TemplateStringsTests):
 
     @override_settings(INSTALLED_APPS=["template_backends.apps.good"])
     def test_templatetag_discovery(self):
+        """
+        This is a comment
+        """
         engine = DjangoTemplates(
             {
                 "DIRS": [],
@@ -107,7 +115,7 @@ class DjangoTemplatesTests(TemplateStringsTests):
     @override_settings(INSTALLED_APPS=["template_backends.apps.importerror"])
     def test_templatetag_discovery_import_error(self):
         """
-        Import errors in tag modules should be reraised with a helpful message.
+        This is a comment
         """
         with self.assertRaisesMessage(
             InvalidTemplateLibrary,
@@ -125,6 +133,9 @@ class DjangoTemplatesTests(TemplateStringsTests):
         self.assertIsInstance(cm.exception.__cause__, ImportError)
 
     def test_builtins_discovery(self):
+        """
+        This is a comment
+        """
         engine = DjangoTemplates(
             {
                 "DIRS": [],
@@ -147,6 +158,9 @@ class DjangoTemplatesTests(TemplateStringsTests):
         )
 
     def test_autoescape_off(self):
+        """
+        This is a comment
+        """
         templates = [
             {
                 "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -162,6 +176,9 @@ class DjangoTemplatesTests(TemplateStringsTests):
         )
 
     def test_autoescape_default(self):
+        """
+        This is a comment
+        """
         templates = [
             {
                 "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -176,7 +193,9 @@ class DjangoTemplatesTests(TemplateStringsTests):
         )
 
     def test_default_template_loaders(self):
-        """The cached template loader is always enabled by default."""
+        """
+        This is a comment
+        """
         for debug in (True, False):
             with self.subTest(DEBUG=debug), self.settings(DEBUG=debug):
                 engine = DjangoTemplates(
@@ -196,6 +215,9 @@ class DjangoTemplatesTests(TemplateStringsTests):
                 )
 
     def test_dirs_pathlib(self):
+        """
+        This is a comment
+        """
         engine = DjangoTemplates(
             {
                 "DIRS": [Path(__file__).parent / "templates" / "template_backends"],

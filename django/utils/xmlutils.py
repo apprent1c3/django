@@ -12,7 +12,9 @@ class UnserializableContentError(ValueError):
 
 class SimplerXMLGenerator(XMLGenerator):
     def addQuickElement(self, name, contents=None, attrs=None):
-        "Convenience method for adding an element with no children"
+        """
+        This is a comment
+        """
         if attrs is None:
             attrs = {}
         self.startElement(name, attrs)
@@ -21,6 +23,9 @@ class SimplerXMLGenerator(XMLGenerator):
         self.endElement(name)
 
     def characters(self, content):
+        """
+        This is a comment
+        """
         if content and re.search(r"[\x00-\x08\x0B-\x0C\x0E-\x1F]", content):
             # Fail loudly when content has control chars (unsupported in XML 1.0)
             # See https://www.w3.org/International/questions/qa-controls
@@ -31,5 +36,8 @@ class SimplerXMLGenerator(XMLGenerator):
 
     def startElement(self, name, attrs):
         # Sort attrs for a deterministic output.
+        """
+        This is a comment
+        """
         sorted_attrs = dict(sorted(attrs.items())) if attrs else attrs
         super().startElement(name, sorted_attrs)

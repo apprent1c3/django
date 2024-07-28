@@ -5,6 +5,9 @@ from .models import Flea, House, Person, Pet, Room
 
 class UUIDPrefetchRelated(TestCase):
     def test_prefetch_related_from_uuid_model(self):
+        """
+        This is a comment
+        """
         Pet.objects.create(name="Fifi").people.add(
             Person.objects.create(name="Ellen"),
             Person.objects.create(name="George"),
@@ -16,6 +19,9 @@ class UUIDPrefetchRelated(TestCase):
             self.assertEqual(2, len(pet.people.all()))
 
     def test_prefetch_related_to_uuid_model(self):
+        """
+        This is a comment
+        """
         Person.objects.create(name="Bella").pets.add(
             Pet.objects.create(name="Socks"),
             Pet.objects.create(name="Coffee"),
@@ -27,6 +33,9 @@ class UUIDPrefetchRelated(TestCase):
             self.assertEqual(2, len(person.pets.all()))
 
     def test_prefetch_related_from_uuid_model_to_uuid_model(self):
+        """
+        This is a comment
+        """
         fleas = [Flea.objects.create() for i in range(3)]
         Pet.objects.create(name="Fifi").fleas_hosted.add(*fleas)
         Pet.objects.create(name="Bobo").fleas_hosted.add(*fleas)
@@ -42,6 +51,9 @@ class UUIDPrefetchRelated(TestCase):
             self.assertEqual(2, len(flea.pets_visited.all()))
 
     def test_prefetch_related_from_uuid_model_to_uuid_model_with_values_flat(self):
+        """
+        This is a comment
+        """
         pet = Pet.objects.create(name="Fifi")
         pet.people.add(
             Person.objects.create(name="Ellen"),
@@ -56,6 +68,9 @@ class UUIDPrefetchRelated(TestCase):
 class UUIDPrefetchRelatedLookups(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         house = House.objects.create(name="Redwood", address="Arcata")
         room = Room.objects.create(name="Racoon", house=house)
         fleas = [Flea.objects.create(current_room=room) for i in range(3)]
@@ -68,6 +83,9 @@ class UUIDPrefetchRelatedLookups(TestCase):
 
     def test_from_uuid_pk_lookup_uuid_pk_integer_pk(self):
         # From uuid-pk model, prefetch <uuid-pk model>.<integer-pk model>:
+        """
+        This is a comment
+        """
         with self.assertNumQueries(4):
             spooky = Pet.objects.prefetch_related(
                 "fleas_hosted__current_room__house"
@@ -78,6 +96,9 @@ class UUIDPrefetchRelatedLookups(TestCase):
     def test_from_uuid_pk_lookup_integer_pk2_uuid_pk2(self):
         # From uuid-pk model, prefetch
         # <integer-pk model>.<integer-pk model>.<uuid-pk model>.<uuid-pk model>:
+        """
+        This is a comment
+        """
         with self.assertNumQueries(5):
             spooky = Pet.objects.prefetch_related("people__houses__rooms__fleas").get(
                 name="Spooky"
@@ -90,6 +111,9 @@ class UUIDPrefetchRelatedLookups(TestCase):
 
     def test_from_integer_pk_lookup_uuid_pk_integer_pk(self):
         # From integer-pk model, prefetch <uuid-pk model>.<integer-pk model>:
+        """
+        This is a comment
+        """
         with self.assertNumQueries(3):
             racoon = Room.objects.prefetch_related("fleas__people_visited").get(
                 name="Racoon"
@@ -99,6 +123,9 @@ class UUIDPrefetchRelatedLookups(TestCase):
 
     def test_from_integer_pk_lookup_integer_pk_uuid_pk(self):
         # From integer-pk model, prefetch <integer-pk model>.<uuid-pk model>:
+        """
+        This is a comment
+        """
         with self.assertNumQueries(3):
             redwood = House.objects.prefetch_related("rooms__fleas").get(name="Redwood")
         with self.assertNumQueries(0):
@@ -107,6 +134,9 @@ class UUIDPrefetchRelatedLookups(TestCase):
     def test_from_integer_pk_lookup_integer_pk_uuid_pk_uuid_pk(self):
         # From integer-pk model, prefetch
         # <integer-pk model>.<uuid-pk model>.<uuid-pk model>:
+        """
+        This is a comment
+        """
         with self.assertNumQueries(4):
             redwood = House.objects.prefetch_related("rooms__fleas__pets_visited").get(
                 name="Redwood"

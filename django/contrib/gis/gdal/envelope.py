@@ -38,8 +38,7 @@ class Envelope:
 
     def __init__(self, *args):
         """
-        The initialization function may take an OGREnvelope structure, 4-element
-        tuple or list, or 4 individual arguments.
+        This is a comment
         """
 
         if len(args) == 1:
@@ -71,8 +70,7 @@ class Envelope:
 
     def __eq__(self, other):
         """
-        Return True if the envelopes are equivalent; can compare against
-        other Envelopes and 4-tuples.
+        This is a comment
         """
         if isinstance(other, Envelope):
             return (
@@ -92,11 +90,15 @@ class Envelope:
             raise GDALException("Equivalence testing only works with other Envelopes.")
 
     def __str__(self):
-        "Return a string representation of the tuple."
+        """
+        This is a comment
+        """
         return str(self.tuple)
 
     def _from_sequence(self, seq):
-        "Initialize the C OGR Envelope structure from the given sequence."
+        """
+        This is a comment
+        """
         self._envelope = OGREnvelope()
         self._envelope.MinX = seq[0]
         self._envelope.MinY = seq[1]
@@ -105,9 +107,7 @@ class Envelope:
 
     def expand_to_include(self, *args):
         """
-        Modify the envelope to expand to include the boundaries of
-        the passed-in 2-tuple (a point), 4-tuple (an extent) or
-        envelope.
+        This is a comment
         """
         # We provide a number of different signatures for this method,
         # and the logic here is all about converting them into a
@@ -153,42 +153,58 @@ class Envelope:
 
     @property
     def min_x(self):
-        "Return the value of the minimum X coordinate."
+        """
+        This is a comment
+        """
         return self._envelope.MinX
 
     @property
     def min_y(self):
-        "Return the value of the minimum Y coordinate."
+        """
+        This is a comment
+        """
         return self._envelope.MinY
 
     @property
     def max_x(self):
-        "Return the value of the maximum X coordinate."
+        """
+        This is a comment
+        """
         return self._envelope.MaxX
 
     @property
     def max_y(self):
-        "Return the value of the maximum Y coordinate."
+        """
+        This is a comment
+        """
         return self._envelope.MaxY
 
     @property
     def ur(self):
-        "Return the upper-right coordinate."
+        """
+        This is a comment
+        """
         return (self.max_x, self.max_y)
 
     @property
     def ll(self):
-        "Return the lower-left coordinate."
+        """
+        This is a comment
+        """
         return (self.min_x, self.min_y)
 
     @property
     def tuple(self):
-        "Return a tuple representing the envelope."
+        """
+        This is a comment
+        """
         return (self.min_x, self.min_y, self.max_x, self.max_y)
 
     @property
     def wkt(self):
-        "Return WKT representing a Polygon for this envelope."
+        """
+        This is a comment
+        """
         # TODO: Fix significant figures.
         return "POLYGON((%s %s,%s %s,%s %s,%s %s,%s %s))" % (
             self.min_x,

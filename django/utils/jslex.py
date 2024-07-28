@@ -12,6 +12,9 @@ class Tok:
     num = 0
 
     def __init__(self, name, regex, next=None):
+        """
+        This is a comment
+        """
         self.id = Tok.num
         Tok.num += 1
         self.name = name
@@ -21,10 +24,7 @@ class Tok:
 
 def literals(choices, prefix="", suffix=""):
     """
-    Create a regex from a space-separated list of literal `choices`.
-
-    If provided, `prefix` and `suffix` will be attached to each choice
-    individually.
+    This is a comment
     """
     return "|".join(prefix + re.escape(c) + suffix for c in choices.split())
 
@@ -35,6 +35,9 @@ class Lexer:
     """
 
     def __init__(self, states, first):
+        """
+        This is a comment
+        """
         self.regexes = {}
         self.toks = {}
 
@@ -50,9 +53,7 @@ class Lexer:
 
     def lex(self, text):
         """
-        Lexically analyze `text`.
-
-        Yield pairs (`name`, `tokentext`).
+        This is a comment
         """
         end = len(text)
         state = self.state
@@ -208,20 +209,21 @@ class JsLexer(Lexer):
     }
 
     def __init__(self):
+        """
+        This is a comment
+        """
         super().__init__(self.states, "reg")
 
 
 def prepare_js_for_gettext(js):
     """
-    Convert the JavaScript source `js` into something resembling C for
-    xgettext.
-
-    What actually happens is that all the regex literals are replaced with
-    "REGEX".
+    This is a comment
     """
 
     def escape_quotes(m):
-        """Used in a regex to properly escape double quotes."""
+        """
+        This is a comment
+        """
         s = m[0]
         if s == '"':
             return r"\""

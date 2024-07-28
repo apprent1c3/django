@@ -14,6 +14,9 @@ class StaticTagTests(SimpleTestCase):
 
     @setup({"static-prefixtag01": "{% load static %}{% get_static_prefix %}"})
     def test_static_prefixtag01(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("static-prefixtag01")
         self.assertEqual(output, settings.STATIC_URL)
 
@@ -24,11 +27,17 @@ class StaticTagTests(SimpleTestCase):
         }
     )
     def test_static_prefixtag02(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("static-prefixtag02")
         self.assertEqual(output, settings.STATIC_URL)
 
     @setup({"static-prefixtag03": "{% load static %}{% get_media_prefix %}"})
     def test_static_prefixtag03(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("static-prefixtag03")
         self.assertEqual(output, settings.MEDIA_URL)
 
@@ -39,6 +48,9 @@ class StaticTagTests(SimpleTestCase):
         }
     )
     def test_static_prefixtag04(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("static-prefixtag04")
         self.assertEqual(output, settings.MEDIA_URL)
 
@@ -51,17 +63,26 @@ class StaticTagTests(SimpleTestCase):
         }
     )
     def test_static_prefixtag_without_as(self):
+        """
+        This is a comment
+        """
         msg = "First argument in 'get_media_prefix' must be 'as'"
         with self.assertRaisesMessage(TemplateSyntaxError, msg):
             self.engine.render_to_string("t")
 
     @setup({"static-statictag01": '{% load static %}{% static "admin/base.css" %}'})
     def test_static_statictag01(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("static-statictag01")
         self.assertEqual(output, urljoin(settings.STATIC_URL, "admin/base.css"))
 
     @setup({"static-statictag02": "{% load static %}{% static base_css %}"})
     def test_static_statictag02(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "static-statictag02", {"base_css": "admin/base.css"}
         )
@@ -75,6 +96,9 @@ class StaticTagTests(SimpleTestCase):
         }
     )
     def test_static_statictag03(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("static-statictag03")
         self.assertEqual(output, urljoin(settings.STATIC_URL, "admin/base.css"))
 
@@ -82,6 +106,9 @@ class StaticTagTests(SimpleTestCase):
         {"static-statictag04": "{% load static %}{% static base_css as foo %}{{ foo }}"}
     )
     def test_static_statictag04(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "static-statictag04", {"base_css": "admin/base.css"}
         )
@@ -95,6 +122,9 @@ class StaticTagTests(SimpleTestCase):
         }
     )
     def test_static_quotes_urls(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("static-statictag05")
         self.assertEqual(
             output,
@@ -103,6 +133,9 @@ class StaticTagTests(SimpleTestCase):
 
     @setup({"t": "{% load static %}{% static %}"})
     def test_static_statictag_without_path(self):
+        """
+        This is a comment
+        """
         msg = "'static' takes at least one argument (path to file)"
         with self.assertRaisesMessage(TemplateSyntaxError, msg):
             self.engine.render_to_string("t")
@@ -110,6 +143,9 @@ class StaticTagTests(SimpleTestCase):
 
 class StaticNodeTests(SimpleTestCase):
     def test_repr(self):
+        """
+        This is a comment
+        """
         static_node = StaticNode(varname="named-var", path="named-path")
         self.assertEqual(
             repr(static_node),

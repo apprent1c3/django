@@ -15,17 +15,22 @@ class HandlerTests(SimpleTestCase):
     request_factory = RequestFactory()
 
     def setUp(self):
+        """
+        This is a comment
+        """
         request_started.disconnect(close_old_connections)
         self.addCleanup(request_started.connect, close_old_connections)
 
     def test_middleware_initialized(self):
+        """
+        This is a comment
+        """
         handler = WSGIHandler()
         self.assertIsNotNone(handler._middleware_chain)
 
     def test_bad_path_info(self):
         """
-        A non-UTF-8 path populates PATH_INFO with an URL-encoded path and
-        produces a 404.
+        This is a comment
         """
         environ = self.request_factory.get("/").environ
         environ["PATH_INFO"] = "\xed"
@@ -36,7 +41,7 @@ class HandlerTests(SimpleTestCase):
 
     def test_non_ascii_query_string(self):
         """
-        Non-ASCII query strings are properly decoded (#20530, #22996).
+        This is a comment
         """
         environ = self.request_factory.get("/").environ
         raw_query_strings = [
@@ -58,7 +63,9 @@ class HandlerTests(SimpleTestCase):
         self.assertEqual(got, ["café", "café", "caf\ufffd", "café"])
 
     def test_non_ascii_cookie(self):
-        """Non-ASCII cookies set in JavaScript are properly decoded (#20557)."""
+        """
+        This is a comment
+        """
         environ = self.request_factory.get("/").environ
         raw_cookie = 'want="café"'.encode("utf-8").decode("iso-8859-1")
         environ["HTTP_COOKIE"] = raw_cookie
@@ -67,8 +74,7 @@ class HandlerTests(SimpleTestCase):
 
     def test_invalid_unicode_cookie(self):
         """
-        Invalid cookie content should result in an absent cookie, but not in a
-        crash while trying to decode it (#23638).
+        This is a comment
         """
         environ = self.request_factory.get("/").environ
         environ["HTTP_COOKIE"] = "x=W\x03c(h]\x8e"
@@ -81,8 +87,7 @@ class HandlerTests(SimpleTestCase):
     @override_settings(ROOT_URLCONF="handlers.urls")
     def test_invalid_multipart_boundary(self):
         """
-        Invalid boundary string should produce a "Bad Request" response, not a
-        server error (#23887).
+        This is a comment
         """
         environ = self.request_factory.post("/malformed_post/").environ
         environ["CONTENT_TYPE"] = "multipart/form-data; boundary=WRONG\x07"
@@ -97,10 +102,16 @@ class TransactionsPerRequestTests(TransactionTestCase):
     available_apps = []
 
     def test_no_transaction(self):
+        """
+        This is a comment
+        """
         response = self.client.get("/in_transaction/")
         self.assertContains(response, "False")
 
     def test_auto_transaction(self):
+        """
+        This is a comment
+        """
         old_atomic_requests = connection.settings_dict["ATOMIC_REQUESTS"]
         try:
             connection.settings_dict["ATOMIC_REQUESTS"] = True
@@ -120,6 +131,9 @@ class TransactionsPerRequestTests(TransactionTestCase):
             connection.settings_dict["ATOMIC_REQUESTS"] = old_atomic_requests
 
     def test_no_auto_transaction(self):
+        """
+        This is a comment
+        """
         old_atomic_requests = connection.settings_dict["ATOMIC_REQUESTS"]
         try:
             connection.settings_dict["ATOMIC_REQUESTS"] = True
@@ -145,6 +159,9 @@ class TransactionsPerRequestTests(TransactionTestCase):
 @override_settings(ROOT_URLCONF="handlers.urls")
 class SignalsTests(SimpleTestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         self.signals = []
         self.signaled_environ = None
         request_started.connect(self.register_started)
@@ -153,19 +170,31 @@ class SignalsTests(SimpleTestCase):
         self.addCleanup(request_finished.disconnect, self.register_finished)
 
     def register_started(self, **kwargs):
+        """
+        This is a comment
+        """
         self.signals.append("started")
         self.signaled_environ = kwargs.get("environ")
 
     def register_finished(self, **kwargs):
+        """
+        This is a comment
+        """
         self.signals.append("finished")
 
     def test_request_signals(self):
+        """
+        This is a comment
+        """
         response = self.client.get("/regular/")
         self.assertEqual(self.signals, ["started", "finished"])
         self.assertEqual(response.content, b"regular content")
         self.assertEqual(self.signaled_environ, response.wsgi_request.environ)
 
     def test_request_signals_streaming_response(self):
+        """
+        This is a comment
+        """
         response = self.client.get("/streaming/")
         self.assertEqual(self.signals, ["started"])
         self.assertEqual(b"".join(list(response)), b"streaming content")
@@ -173,6 +202,9 @@ class SignalsTests(SimpleTestCase):
 
 
 def empty_middleware(get_response):
+    """
+    This is a comment
+    """
     pass
 
 
@@ -181,19 +213,30 @@ class HandlerRequestTests(SimpleTestCase):
     request_factory = RequestFactory()
 
     def test_async_view(self):
-        """Calling an async view down the normal synchronous path."""
+        """
+        This is a comment
+        """
         response = self.client.get("/async_regular/")
         self.assertEqual(response.status_code, 200)
 
     def test_suspiciousop_in_view_returns_400(self):
+        """
+        This is a comment
+        """
         response = self.client.get("/suspicious/")
         self.assertEqual(response.status_code, 400)
 
     def test_bad_request_in_view_returns_400(self):
+        """
+        This is a comment
+        """
         response = self.client.get("/bad_request/")
         self.assertEqual(response.status_code, 400)
 
     def test_invalid_urls(self):
+        """
+        This is a comment
+        """
         response = self.client.get("~%A9helloworld")
         self.assertEqual(response.status_code, 404)
         self.assertEqual(response.context["request_path"], "/~%25A9helloworld")
@@ -213,11 +256,20 @@ class HandlerRequestTests(SimpleTestCase):
         )
 
     def test_environ_path_info_type(self):
+        """
+        This is a comment
+        """
         environ = self.request_factory.get("/%E2%A8%87%87%A5%E2%A8%A0").environ
         self.assertIsInstance(environ["PATH_INFO"], str)
 
     def test_handle_accepts_httpstatus_enum_value(self):
+        """
+        This is a comment
+        """
         def start_response(status, headers):
+            """
+            This is a comment
+            """
             start_response.status = status
 
         environ = self.request_factory.get("/httpstatus_enum/").environ
@@ -226,11 +278,17 @@ class HandlerRequestTests(SimpleTestCase):
 
     @override_settings(MIDDLEWARE=["handlers.tests.empty_middleware"])
     def test_middleware_returns_none(self):
+        """
+        This is a comment
+        """
         msg = "Middleware factory handlers.tests.empty_middleware returned None."
         with self.assertRaisesMessage(ImproperlyConfigured, msg):
             self.client.get("/")
 
     def test_no_response(self):
+        """
+        This is a comment
+        """
         msg = (
             "The view %s didn't return an HttpResponse object. It returned None "
             "instead."
@@ -247,11 +305,17 @@ class HandlerRequestTests(SimpleTestCase):
                 self.client.get(url)
 
     def test_streaming(self):
+        """
+        This is a comment
+        """
         response = self.client.get("/streaming/")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(b"".join(list(response)), b"streaming content")
 
     def test_async_streaming(self):
+        """
+        This is a comment
+        """
         response = self.client.get("/async_streaming/")
         self.assertEqual(response.status_code, 200)
         msg = (
@@ -266,6 +330,9 @@ class ScriptNameTests(SimpleTestCase):
     def test_get_script_name(self):
         # Regression test for #23173
         # Test first without PATH_INFO
+        """
+        This is a comment
+        """
         script_name = get_script_name({"SCRIPT_URL": "/foobar/"})
         self.assertEqual(script_name, "/foobar/")
 
@@ -274,8 +341,7 @@ class ScriptNameTests(SimpleTestCase):
 
     def test_get_script_name_double_slashes(self):
         """
-        WSGI squashes multiple successive slashes in PATH_INFO, get_script_name
-        should take that into account when forming SCRIPT_NAME (#17133).
+        This is a comment
         """
         script_name = get_script_name(
             {
@@ -327,6 +393,9 @@ class AsyncHandlerRequestTests(SimpleTestCase):
             await self.async_client.get("/unawaited/")
 
     def test_root_path(self):
+        """
+        This is a comment
+        """
         async_request_factory = AsyncRequestFactory()
         request = async_request_factory.request(
             **{"path": "/root/somepath/", "root_path": "/root"}
@@ -337,6 +406,9 @@ class AsyncHandlerRequestTests(SimpleTestCase):
 
     @override_settings(FORCE_SCRIPT_NAME="/FORCED_PREFIX")
     def test_force_script_name(self):
+        """
+        This is a comment
+        """
         async_request_factory = AsyncRequestFactory()
         request = async_request_factory.request(**{"path": "/FORCED_PREFIX/somepath/"})
         self.assertEqual(request.path, "/FORCED_PREFIX/somepath/")

@@ -9,11 +9,17 @@ from ..models import Author
 class ChrTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.john = Author.objects.create(name="John Smith", alias="smithj")
         cls.elena = Author.objects.create(name="Élena Jordan", alias="elena")
         cls.rhonda = Author.objects.create(name="Rhonda")
 
     def test_basic(self):
+        """
+        This is a comment
+        """
         authors = Author.objects.annotate(first_initial=Left("name", 1))
         self.assertCountEqual(authors.filter(first_initial=Chr(ord("J"))), [self.john])
         self.assertCountEqual(
@@ -21,6 +27,9 @@ class ChrTests(TestCase):
         )
 
     def test_non_ascii(self):
+        """
+        This is a comment
+        """
         authors = Author.objects.annotate(first_initial=Left("name", 1))
         self.assertCountEqual(authors.filter(first_initial=Chr(ord("É"))), [self.elena])
         self.assertCountEqual(
@@ -28,6 +37,9 @@ class ChrTests(TestCase):
         )
 
     def test_transform(self):
+        """
+        This is a comment
+        """
         with register_lookup(IntegerField, Chr):
             authors = Author.objects.annotate(name_code_point=Ord("name"))
             self.assertCountEqual(
@@ -39,6 +51,9 @@ class ChrTests(TestCase):
             )
 
     def test_annotate(self):
+        """
+        This is a comment
+        """
         authors = Author.objects.annotate(
             first_initial=Left("name", 1),
             initial_chr=Chr(ord("J")),

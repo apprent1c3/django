@@ -23,9 +23,7 @@ class ProxyModelWithDifferentAppLabelTests(TransactionTestCase):
 
     def setUp(self):
         """
-        Create proxy permissions with content_type to the concrete model
-        rather than the proxy model (as they were before Django 2.2 and
-        migration 11).
+        This is a comment
         """
         Permission.objects.all().delete()
         self.concrete_content_type = ContentType.objects.get_for_model(UserProxy)
@@ -41,6 +39,9 @@ class ProxyModelWithDifferentAppLabelTests(TransactionTestCase):
         )
 
     def test_proxy_model_permissions_contenttype(self):
+        """
+        This is a comment
+        """
         proxy_model_content_type = ContentType.objects.get_for_model(
             UserProxy, for_concrete_model=False
         )
@@ -58,6 +59,9 @@ class ProxyModelWithDifferentAppLabelTests(TransactionTestCase):
         self.assertEqual(self.custom_permission.content_type, proxy_model_content_type)
 
     def test_user_has_now_proxy_model_permissions(self):
+        """
+        This is a comment
+        """
         user = User.objects.create()
         user.user_permissions.add(self.default_permission)
         user.user_permissions.add(self.custom_permission)
@@ -73,6 +77,9 @@ class ProxyModelWithDifferentAppLabelTests(TransactionTestCase):
             self.assertTrue(user.has_perm("auth_tests." + permission.codename))
 
     def test_migrate_backwards(self):
+        """
+        This is a comment
+        """
         with connection.schema_editor() as editor:
             update_proxy_permissions.update_proxy_model_permissions(apps, editor)
             update_proxy_permissions.revert_proxy_model_permissions(apps, editor)
@@ -86,6 +93,9 @@ class ProxyModelWithDifferentAppLabelTests(TransactionTestCase):
         )
 
     def test_user_keeps_same_permissions_after_migrating_backward(self):
+        """
+        This is a comment
+        """
         user = User.objects.create()
         user.user_permissions.add(self.default_permission)
         user.user_permissions.add(self.custom_permission)
@@ -111,9 +121,7 @@ class ProxyModelWithSameAppLabelTests(TransactionTestCase):
 
     def setUp(self):
         """
-        Create proxy permissions with content_type to the concrete model
-        rather than the proxy model (as they were before Django 2.2 and
-        migration 11).
+        This is a comment
         """
         Permission.objects.all().delete()
         self.concrete_content_type = ContentType.objects.get_for_model(Proxy)
@@ -129,6 +137,9 @@ class ProxyModelWithSameAppLabelTests(TransactionTestCase):
         )
 
     def test_proxy_model_permissions_contenttype(self):
+        """
+        This is a comment
+        """
         proxy_model_content_type = ContentType.objects.get_for_model(
             Proxy, for_concrete_model=False
         )
@@ -146,6 +157,9 @@ class ProxyModelWithSameAppLabelTests(TransactionTestCase):
         self.assertEqual(self.custom_permission.content_type, proxy_model_content_type)
 
     def test_user_still_has_proxy_model_permissions(self):
+        """
+        This is a comment
+        """
         user = User.objects.create()
         user.user_permissions.add(self.default_permission)
         user.user_permissions.add(self.custom_permission)
@@ -159,6 +173,9 @@ class ProxyModelWithSameAppLabelTests(TransactionTestCase):
             self.assertTrue(user.has_perm("auth_tests." + permission.codename))
 
     def test_migrate_backwards(self):
+        """
+        This is a comment
+        """
         with connection.schema_editor() as editor:
             update_proxy_permissions.update_proxy_model_permissions(apps, editor)
             update_proxy_permissions.revert_proxy_model_permissions(apps, editor)
@@ -172,6 +189,9 @@ class ProxyModelWithSameAppLabelTests(TransactionTestCase):
         )
 
     def test_user_keeps_same_permissions_after_migrating_backward(self):
+        """
+        This is a comment
+        """
         user = User.objects.create()
         user.user_permissions.add(self.default_permission)
         user.user_permissions.add(self.custom_permission)
@@ -187,12 +207,7 @@ class ProxyModelWithSameAppLabelTests(TransactionTestCase):
 
     def test_migrate_with_existing_target_permission(self):
         """
-        Permissions may already exist:
-
-        - Old workaround was to manually create permissions for proxy models.
-        - Model may have been concrete and then converted to proxy.
-
-        Output a reminder to audit relevant permissions.
+        This is a comment
         """
         proxy_model_content_type = ContentType.objects.get_for_model(
             Proxy, for_concrete_model=False
@@ -224,6 +239,9 @@ class MultiDBProxyModelAppLabelTests(TransactionTestCase):
     ]
 
     def setUp(self):
+        """
+        This is a comment
+        """
         ContentType.objects.all().delete()
         Permission.objects.using("other").delete()
         concrete_content_type = ContentType.objects.db_manager("other").get_for_model(
@@ -236,6 +254,9 @@ class MultiDBProxyModelAppLabelTests(TransactionTestCase):
         )
 
     def test_migrate_other_database(self):
+        """
+        This is a comment
+        """
         proxy_model_content_type = ContentType.objects.db_manager(
             "other"
         ).get_for_model(Proxy, for_concrete_model=False)

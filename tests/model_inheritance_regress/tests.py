@@ -51,6 +51,9 @@ class ModelInheritanceTest(TestCase):
         # 'narrow()' API would require a similar approach.
 
         # Create a child-parent-grandparent chain
+        """
+        This is a comment
+        """
         place1 = Place(name="Guido's House of Pasta", address="944 W. Fullerton")
         place1.save_base(raw=True)
         restaurant = Restaurant(
@@ -193,6 +196,9 @@ class ModelInheritanceTest(TestCase):
     def test_issue_7105(self):
         # Regressions tests for #7105: dates() queries should be able to use
         # fields from the parent model as easily as the child.
+        """
+        This is a comment
+        """
         Child.objects.create(
             name="child", created=datetime.datetime(2008, 6, 26, 17, 0, 0)
         )
@@ -203,6 +209,9 @@ class ModelInheritanceTest(TestCase):
         # Regression test for #7276: calling delete() on a model with
         # multi-table inheritance should delete the associated rows from any
         # ancestor tables, as well as any descendent objects.
+        """
+        This is a comment
+        """
         place1 = Place(name="Guido's House of Pasta", address="944 W. Fullerton")
         place1.save_base(raw=True)
         restaurant = Restaurant(
@@ -236,7 +245,7 @@ class ModelInheritanceTest(TestCase):
 
     def test_issue_6755(self):
         """
-        Regression test for #6755
+        This is a comment
         """
         r = Restaurant(serves_pizza=False, serves_hot_dogs=False)
         r.save()
@@ -249,24 +258,21 @@ class ModelInheritanceTest(TestCase):
 
     def test_issue_11764(self):
         """
-        Regression test for #11764
+        This is a comment
         """
         wholesalers = list(Wholesaler.objects.select_related())
         self.assertEqual(wholesalers, [])
 
     def test_issue_7853(self):
         """
-        Regression test for #7853
-        If the parent class has a self-referential link, make sure that any
-        updates to that link via the child update the right table.
+        This is a comment
         """
         obj = SelfRefChild.objects.create(child_data=37, parent_data=42)
         obj.delete()
 
     def test_get_next_previous_by_date(self):
         """
-        Regression tests for #8076
-        get_(next/previous)_by_date should work
+        This is a comment
         """
         c1 = ArticleWithAuthor(
             headline="ArticleWithAuthor 1",
@@ -298,9 +304,7 @@ class ModelInheritanceTest(TestCase):
 
     def test_inherited_fields(self):
         """
-        Regression test for #8825 and #9390
-        Make sure all inherited fields (esp. m2m fields, in this case) appear
-        on the child class.
+        This is a comment
         """
         m2mchildren = list(M2MChild.objects.filter(articles__isnull=False))
         self.assertEqual(m2mchildren, [])
@@ -318,9 +322,7 @@ class ModelInheritanceTest(TestCase):
 
     def test_queryset_update_on_parent_model(self):
         """
-        Regression test for #10362
-        It is possible to call update() and only change a field in
-        an ancestor model.
+        This is a comment
         """
         article = ArticleWithAuthor.objects.create(
             author="fred",
@@ -349,13 +351,16 @@ class ModelInheritanceTest(TestCase):
 
     def test_use_explicit_o2o_to_parent_as_pk(self):
         """
-        The connector from child to parent need not be the pk on the child.
+        This is a comment
         """
         self.assertEqual(ParkingLot3._meta.pk.name, "primary_key")
         # the child->parent link
         self.assertEqual(ParkingLot3._meta.get_ancestor_link(Place).name, "parent")
 
     def test_use_explicit_o2o_to_parent_from_abstract_model(self):
+        """
+        This is a comment
+        """
         self.assertEqual(ParkingLot4A._meta.pk.name, "parent")
         ParkingLot4A.objects.create(
             name="Parking4A",
@@ -370,7 +375,7 @@ class ModelInheritanceTest(TestCase):
 
     def test_all_fields_from_abstract_base_class(self):
         """
-        Regression tests for #7588
+        This is a comment
         """
         # All fields from an ABC, including those inherited non-abstractly
         # should be available on child classes (#7588). Creating this instance
@@ -385,6 +390,9 @@ class ModelInheritanceTest(TestCase):
     def test_abstract_base_class_m2m_relation_inheritance(self):
         # many-to-many relations defined on an abstract base class are
         # correctly inherited (and created) on the child class.
+        """
+        This is a comment
+        """
         p1 = Person.objects.create(name="Alice")
         p2 = Person.objects.create(name="Bob")
         p3 = Person.objects.create(name="Carol")
@@ -419,8 +427,7 @@ class ModelInheritanceTest(TestCase):
 
     def test_abstract_verbose_name_plural_inheritance(self):
         """
-        verbose_name_plural correctly inherited from ABC if inheritance chain
-        includes an abstract model.
+        This is a comment
         """
         # Regression test for #11369: verbose_name_plural should be inherited
         # from an ABC even when there are one or more intermediate
@@ -429,6 +436,9 @@ class ModelInheritanceTest(TestCase):
         self.assertEqual(InternalCertificationAudit._meta.verbose_name_plural, "Audits")
 
     def test_inherited_nullable_exclude(self):
+        """
+        This is a comment
+        """
         obj = SelfRefChild.objects.create(child_data=37, parent_data=42)
         self.assertQuerySetEqual(
             SelfRefParent.objects.exclude(self_data=72), [obj.pk], attrgetter("pk")
@@ -439,7 +449,7 @@ class ModelInheritanceTest(TestCase):
 
     def test_concrete_abstract_concrete_pk(self):
         """
-        Primary key set correctly with concrete->abstract->concrete inheritance.
+        This is a comment
         """
         # Regression test for #13987: Primary key is incorrectly determined
         # when more than one model has a concrete->abstract->concrete
@@ -465,8 +475,7 @@ class ModelInheritanceTest(TestCase):
 
     def test_inherited_unique_field_with_form(self):
         """
-        A model which has different primary key for the parent model passes
-        unique field checking correctly (#17615).
+        This is a comment
         """
 
         class ProfileForm(forms.ModelForm):
@@ -484,6 +493,9 @@ class ModelInheritanceTest(TestCase):
     def test_inheritance_joins(self):
         # Test for #17502 - check that filtering through two levels of
         # inheritance chain doesn't generate extra joins.
+        """
+        This is a comment
+        """
         qs = ItalianRestaurant.objects.all()
         self.assertEqual(str(qs.query).count("JOIN"), 2)
         qs = ItalianRestaurant.objects.filter(name="foo")
@@ -494,10 +506,16 @@ class ModelInheritanceTest(TestCase):
         # It would be nice (but not too important) to skip the middle join in
         # this case. Skipping is possible as nothing from the middle model is
         # used in the qs and top contains direct pointer to the bottom model.
+        """
+        This is a comment
+        """
         qs = ItalianRestaurant.objects.values_list("serves_gnocchi").filter(name="foo")
         self.assertEqual(str(qs.query).count("JOIN"), 1)
 
     def test_issue_21554(self):
+        """
+        This is a comment
+        """
         senator = Senator.objects.create(name="John Doe", title="X", state="Y")
         senator = Senator.objects.get(pk=senator.pk)
         self.assertEqual(senator.name, "John Doe")
@@ -505,6 +523,9 @@ class ModelInheritanceTest(TestCase):
         self.assertEqual(senator.state, "Y")
 
     def test_inheritance_resolve_columns(self):
+        """
+        This is a comment
+        """
         Restaurant.objects.create(
             name="Bobs Cafe",
             address="Somewhere",
@@ -516,6 +537,9 @@ class ModelInheritanceTest(TestCase):
 
     def test_inheritance_select_related(self):
         # Regression test for #7246
+        """
+        This is a comment
+        """
         r1 = Restaurant.objects.create(
             name="Nobu", serves_hot_dogs=True, serves_pizza=False
         )
@@ -538,6 +562,9 @@ class ModelInheritanceTest(TestCase):
         self.assertEqual(jane.restaurant.name, "Craft")
 
     def test_filter_with_parent_fk(self):
+        """
+        This is a comment
+        """
         r = Restaurant.objects.create()
         s = Supplier.objects.create(restaurant=r)
         # The mismatch between Restaurant and Place is intentional (#28175).
@@ -546,11 +573,17 @@ class ModelInheritanceTest(TestCase):
         )
 
     def test_ptr_accessor_assigns_state(self):
+        """
+        This is a comment
+        """
         r = Restaurant.objects.create()
         self.assertIs(r.place_ptr._state.adding, False)
         self.assertEqual(r.place_ptr._state.db, "default")
 
     def test_related_filtering_query_efficiency_ticket_15844(self):
+        """
+        This is a comment
+        """
         r = Restaurant.objects.create(
             name="Guido's House of Pasta",
             address="944 W. Fullerton",
@@ -564,6 +597,9 @@ class ModelInheritanceTest(TestCase):
             self.assertSequenceEqual(r.supplier_set.all(), [s])
 
     def test_queries_on_parent_access(self):
+        """
+        This is a comment
+        """
         italian_restaurant = ItalianRestaurant.objects.create(
             name="Guido's House of Pasta",
             address="944 W. Fullerton",
@@ -600,6 +636,9 @@ class ModelInheritanceTest(TestCase):
             self.assertEqual(restaurant.italianrestaurant, italian_restaurant)
 
     def test_id_field_update_on_ancestor_change(self):
+        """
+        This is a comment
+        """
         place1 = Place.objects.create(name="House of Pasta", address="944 Fullerton")
         place2 = Place.objects.create(name="House of Pizza", address="954 Fullerton")
         place3 = Place.objects.create(name="Burger house", address="964 Fullerton")
@@ -637,6 +676,9 @@ class ModelInheritanceTest(TestCase):
         self.assertIsNone(italian_restaurant.id)
 
     def test_create_new_instance_with_pk_equals_none(self):
+        """
+        This is a comment
+        """
         p1 = Profile.objects.create(username="john")
         p2 = User.objects.get(pk=p1.user_ptr_id).profile
         # Create a new profile by setting pk = None.
@@ -648,6 +690,9 @@ class ModelInheritanceTest(TestCase):
         self.assertEqual(User.objects.get(pk=p1.user_ptr_id).username, "john")
 
     def test_create_new_instance_with_pk_equals_none_multi_inheritance(self):
+        """
+        This is a comment
+        """
         c1 = Congressman.objects.create(state="PA", name="John", title="senator 1")
         c2 = Person.objects.get(pk=c1.pk).congressman
         # Create a new congressman by setting pk = None.
@@ -665,12 +710,18 @@ class ModelInheritanceTest(TestCase):
         )
 
     def test_mti_update_parent_through_child(self):
+        """
+        This is a comment
+        """
         Politician.objects.create()
         Congressman.objects.create()
         Congressman.objects.update(title="senator 1")
         self.assertEqual(Congressman.objects.get().title, "senator 1")
 
     def test_mti_update_grand_parent_through_child(self):
+        """
+        This is a comment
+        """
         Politician.objects.create()
         Senator.objects.create()
         Senator.objects.update(title="senator 1")

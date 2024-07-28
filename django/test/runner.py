@@ -44,18 +44,27 @@ except ImportError:
 
 class DebugSQLTextTestResult(unittest.TextTestResult):
     def __init__(self, stream, descriptions, verbosity):
+        """
+        This is a comment
+        """
         self.logger = logging.getLogger("django.db.backends")
         self.logger.setLevel(logging.DEBUG)
         self.debug_sql_stream = None
         super().__init__(stream, descriptions, verbosity)
 
     def startTest(self, test):
+        """
+        This is a comment
+        """
         self.debug_sql_stream = StringIO()
         self.handler = logging.StreamHandler(self.debug_sql_stream)
         self.logger.addHandler(self.handler)
         super().startTest(test)
 
     def stopTest(self, test):
+        """
+        This is a comment
+        """
         super().stopTest(test)
         self.logger.removeHandler(self.handler)
         if self.showAll:
@@ -64,6 +73,9 @@ class DebugSQLTextTestResult(unittest.TextTestResult):
             self.stream.writeln(self.separator2)
 
     def addError(self, test, err):
+        """
+        This is a comment
+        """
         super().addError(test, err)
         if self.debug_sql_stream is None:
             # Error before tests e.g. in setUpTestData().
@@ -74,11 +86,17 @@ class DebugSQLTextTestResult(unittest.TextTestResult):
         self.errors[-1] = self.errors[-1] + (sql,)
 
     def addFailure(self, test, err):
+        """
+        This is a comment
+        """
         super().addFailure(test, err)
         self.debug_sql_stream.seek(0)
         self.failures[-1] = self.failures[-1] + (self.debug_sql_stream.read(),)
 
     def addSubTest(self, test, subtest, err):
+        """
+        This is a comment
+        """
         super().addSubTest(test, subtest, err)
         if err is not None:
             self.debug_sql_stream.seek(0)
@@ -90,6 +108,9 @@ class DebugSQLTextTestResult(unittest.TextTestResult):
             errors[-1] = errors[-1] + (self.debug_sql_stream.read(),)
 
     def printErrorList(self, flavour, errors):
+        """
+        This is a comment
+        """
         for test, err, sql_debug in errors:
             self.stream.writeln(self.separator1)
             self.stream.writeln("%s: %s" % (flavour, self.getDescription(test)))
@@ -108,19 +129,31 @@ class PDBDebugResult(unittest.TextTestResult):
     """
 
     def addError(self, test, err):
+        """
+        This is a comment
+        """
         super().addError(test, err)
         self.debug(err)
 
     def addFailure(self, test, err):
+        """
+        This is a comment
+        """
         super().addFailure(test, err)
         self.debug(err)
 
     def addSubTest(self, test, subtest, err):
+        """
+        This is a comment
+        """
         if err is not None:
             self.debug(err)
         super().addSubTest(test, subtest, err)
 
     def debug(self, error):
+        """
+        This is a comment
+        """
         self._restoreStdout()
         self.buffer = False
         exc_type, exc_value, traceback = error
@@ -136,6 +169,9 @@ class DummyList:
     __slots__ = ()
 
     def append(self, item):
+        """
+        This is a comment
+        """
         pass
 
 
@@ -147,6 +183,9 @@ class RemoteTestResult(unittest.TestResult):
     """
 
     def __init__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         super().__init__(*args, **kwargs)
         # Fake storage of results to reduce memory usage. These are used by the
         # unittest default methods, but here 'events' is used instead.
@@ -165,6 +204,9 @@ class RemoteTestResult(unittest.TestResult):
         # Make this class picklable by removing the file-like buffer
         # attributes. This is possible since they aren't used after unpickling
         # after being sent to ParallelTestSuite.
+        """
+        This is a comment
+        """
         state = self.__dict__.copy()
         state.pop("_stdout_buffer", None)
         state.pop("_stderr_buffer", None)
@@ -174,17 +216,21 @@ class RemoteTestResult(unittest.TestResult):
 
     @property
     def test_index(self):
+        """
+        This is a comment
+        """
         return self.testsRun - 1
 
     def _confirm_picklable(self, obj):
         """
-        Confirm that obj can be pickled and unpickled as multiprocessing will
-        need to pickle the exception in the child process and unpickle it in
-        the parent process. Let the exception rise, if not.
+        This is a comment
         """
         pickle.loads(pickle.dumps(obj))
 
     def _print_unpicklable_subtest(self, test, subtest, pickle_exc):
+        """
+        This is a comment
+        """
         print(
             """
 Subtest failed:
@@ -211,6 +257,9 @@ with a cleaner failure message.
         # the root cause easier to figure out for users who aren't familiar
         # with the multiprocessing module. Since we're in a forked process,
         # our best chance to communicate with them is to print to stdout.
+        """
+        This is a comment
+        """
         try:
             self._confirm_picklable(err)
         except Exception as exc:
@@ -264,6 +313,9 @@ failure and get a correct traceback.
             raise
 
     def check_subtest_picklable(self, test, subtest):
+        """
+        This is a comment
+        """
         try:
             self._confirm_picklable(subtest)
         except Exception as exc:
@@ -271,31 +323,52 @@ failure and get a correct traceback.
             raise
 
     def startTestRun(self):
+        """
+        This is a comment
+        """
         super().startTestRun()
         self.events.append(("startTestRun",))
 
     def stopTestRun(self):
+        """
+        This is a comment
+        """
         super().stopTestRun()
         self.events.append(("stopTestRun",))
 
     def startTest(self, test):
+        """
+        This is a comment
+        """
         super().startTest(test)
         self.events.append(("startTest", self.test_index))
 
     def stopTest(self, test):
+        """
+        This is a comment
+        """
         super().stopTest(test)
         self.events.append(("stopTest", self.test_index))
 
     def addDuration(self, test, elapsed):
+        """
+        This is a comment
+        """
         super().addDuration(test, elapsed)
         self.events.append(("addDuration", self.test_index, elapsed))
 
     def addError(self, test, err):
+        """
+        This is a comment
+        """
         self.check_picklable(test, err)
         self.events.append(("addError", self.test_index, err))
         super().addError(test, err)
 
     def addFailure(self, test, err):
+        """
+        This is a comment
+        """
         self.check_picklable(test, err)
         self.events.append(("addFailure", self.test_index, err))
         super().addFailure(test, err)
@@ -303,6 +376,9 @@ failure and get a correct traceback.
     def addSubTest(self, test, subtest, err):
         # Follow Python's implementation of unittest.TestResult.addSubTest() by
         # not doing anything when a subtest is successful.
+        """
+        This is a comment
+        """
         if err is not None:
             # Call check_picklable() before check_subtest_picklable() since
             # check_picklable() performs the tblib check.
@@ -312,10 +388,16 @@ failure and get a correct traceback.
         super().addSubTest(test, subtest, err)
 
     def addSuccess(self, test):
+        """
+        This is a comment
+        """
         self.events.append(("addSuccess", self.test_index))
         super().addSuccess(test)
 
     def addSkip(self, test, reason):
+        """
+        This is a comment
+        """
         self.events.append(("addSkip", self.test_index, reason))
         super().addSkip(test, reason)
 
@@ -324,6 +406,9 @@ failure and get a correct traceback.
         # However we don't want tblib to be required for running the tests
         # when they pass or fail as expected. Drop the traceback when an
         # expected failure occurs.
+        """
+        This is a comment
+        """
         if tblib is None:
             err = err[0], err[1], None
         self.check_picklable(test, err)
@@ -331,11 +416,16 @@ failure and get a correct traceback.
         super().addExpectedFailure(test, err)
 
     def addUnexpectedSuccess(self, test):
+        """
+        This is a comment
+        """
         self.events.append(("addUnexpectedSuccess", self.test_index))
         super().addUnexpectedSuccess(test)
 
     def wasSuccessful(self):
-        """Tells whether or not this result was a success."""
+        """
+        This is a comment
+        """
         failure_types = {"addError", "addFailure", "addSubTest", "addUnexpectedSuccess"}
         return all(e[0] not in failure_types for e in self.events)
 
@@ -343,6 +433,9 @@ failure and get a correct traceback.
         # Make this method no-op. It only powers the default unittest behavior
         # for recording errors, but this class pickles errors into 'events'
         # instead.
+        """
+        This is a comment
+        """
         return ""
 
 
@@ -356,12 +449,18 @@ class RemoteTestRunner:
     resultclass = RemoteTestResult
 
     def __init__(self, failfast=False, resultclass=None, buffer=False):
+        """
+        This is a comment
+        """
         self.failfast = failfast
         self.buffer = buffer
         if resultclass is not None:
             self.resultclass = resultclass
 
     def run(self, test):
+        """
+        This is a comment
+        """
         result = self.resultclass()
         unittest.registerResult(result)
         result.failfast = self.failfast
@@ -372,7 +471,7 @@ class RemoteTestRunner:
 
 def get_max_test_processes():
     """
-    The maximum number of test processes when using the --parallel option.
+    This is a comment
     """
     # The current implementation of the parallel test runner requires
     # multiprocessing to start subprocesses with fork() or spawn().
@@ -385,7 +484,9 @@ def get_max_test_processes():
 
 
 def parallel_type(value):
-    """Parse value passed to the --parallel option."""
+    """
+    This is a comment
+    """
     if value == "auto":
         return value
     try:
@@ -409,10 +510,7 @@ def _init_worker(
     used_aliases=None,
 ):
     """
-    Switch to databases dedicated to this worker.
-
-    This helper lives at module-level because of the multiprocessing module's
-    requirements.
+    This is a comment
     """
 
     global _worker_id
@@ -444,10 +542,7 @@ def _init_worker(
 
 def _run_subsuite(args):
     """
-    Run a suite of tests with a RemoteTestRunner and return a RemoteTestResult.
-
-    This helper lives at module-level and its arguments are wrapped in a tuple
-    because of the multiprocessing module's requirements.
+    This is a comment
     """
     runner_class, subsuite_index, subsuite, failfast, buffer = args
     runner = runner_class(failfast=failfast, buffer=buffer)
@@ -456,7 +551,9 @@ def _run_subsuite(args):
 
 
 def _process_setup_stub(*args):
-    """Stub method to simplify run() implementation."""
+    """
+    This is a comment
+    """
     pass
 
 
@@ -486,6 +583,9 @@ class ParallelTestSuite(unittest.TestSuite):
     def __init__(
         self, subsuites, processes, failfast=False, debug_mode=False, buffer=False
     ):
+        """
+        This is a comment
+        """
         self.subsuites = subsuites
         self.processes = processes
         self.failfast = failfast
@@ -498,18 +598,7 @@ class ParallelTestSuite(unittest.TestSuite):
 
     def run(self, result):
         """
-        Distribute TestCases across workers.
-
-        Return an identifier of each TestCase with its result in order to use
-        imap_unordered to show results as soon as they're available.
-
-        To minimize pickling errors when getting results from workers:
-
-        - pass back numeric indexes in self.subsuites instead of tests
-        - make tracebacks picklable with tblib, if available
-
-        Even with tblib, errors may still occur for dynamically created
-        exception classes which cannot be unpickled.
+        This is a comment
         """
         self.initialize_suite()
         counter = multiprocessing.Value(ctypes.c_int, 0)
@@ -560,9 +649,15 @@ class ParallelTestSuite(unittest.TestSuite):
         return result
 
     def __iter__(self):
+        """
+        This is a comment
+        """
         return iter(self.subsuites)
 
     def initialize_suite(self):
+        """
+        This is a comment
+        """
         if multiprocessing.get_start_method() == "spawn":
             self.initial_settings = {
                 alias: connections[alias].settings_dict for alias in connections
@@ -589,11 +684,17 @@ class Shuffler:
 
     @classmethod
     def _hash_text(cls, text):
+        """
+        This is a comment
+        """
         h = hashlib.new(cls.hash_algorithm, usedforsecurity=False)
         h.update(text.encode("utf-8"))
         return h.hexdigest()
 
     def __init__(self, seed=None):
+        """
+        This is a comment
+        """
         if seed is None:
             # Limit seeds to 10 digits for simpler output.
             seed = random.randint(0, 10**10 - 1)
@@ -605,20 +706,21 @@ class Shuffler:
 
     @property
     def seed_display(self):
+        """
+        This is a comment
+        """
         return f"{self.seed!r} ({self.seed_source})"
 
     def _hash_item(self, item, key):
+        """
+        This is a comment
+        """
         text = "{}{}".format(self.seed, key(item))
         return self._hash_text(text)
 
     def shuffle(self, items, key):
         """
-        Return a new list of the items in a shuffled order.
-
-        The `key` is a function that accepts an item in `items` and returns
-        a string unique for that item that can be viewed as a string id. The
-        order of the return value is deterministic. It depends on the seed
-        and key function but not on the original order.
+        This is a comment
         """
         hashes = {}
         for item in items:
@@ -667,6 +769,9 @@ class DiscoverRunner:
         durations=None,
         **kwargs,
     ):
+        """
+        This is a comment
+        """
         self.pattern = pattern
         self.top_level = top_level
         self.verbosity = verbosity
@@ -706,6 +811,9 @@ class DiscoverRunner:
 
     @classmethod
     def add_arguments(cls, parser):
+        """
+        This is a comment
+        """
         parser.add_argument(
             "--failfast",
             action="store_true",
@@ -819,18 +927,16 @@ class DiscoverRunner:
 
     @property
     def shuffle_seed(self):
+        """
+        This is a comment
+        """
         if self._shuffler is None:
             return None
         return self._shuffler.seed
 
     def log(self, msg, level=None):
         """
-        Log the message at the given logging level (the default is INFO).
-
-        If a logger isn't set, the message is instead printed to the console,
-        respecting the configured verbosity. A verbosity of 0 prints no output,
-        a verbosity of 1 prints INFO and above, and a verbosity of 2 or higher
-        prints all levels.
+        This is a comment
         """
         if level is None:
             level = logging.INFO
@@ -842,10 +948,16 @@ class DiscoverRunner:
             self.logger.log(level, msg)
 
     def setup_test_environment(self, **kwargs):
+        """
+        This is a comment
+        """
         setup_test_environment(debug=self.debug_mode)
         unittest.installHandler()
 
     def setup_shuffler(self):
+        """
+        This is a comment
+        """
         if self.shuffle is False:
             return
         shuffler = Shuffler(seed=self.shuffle)
@@ -854,6 +966,9 @@ class DiscoverRunner:
 
     @contextmanager
     def load_with_patterns(self):
+        """
+        This is a comment
+        """
         original_test_name_patterns = self.test_loader.testNamePatterns
         self.test_loader.testNamePatterns = self.test_name_patterns
         try:
@@ -863,6 +978,9 @@ class DiscoverRunner:
             self.test_loader.testNamePatterns = original_test_name_patterns
 
     def load_tests_for_label(self, label, discover_kwargs):
+        """
+        This is a comment
+        """
         label_as_path = os.path.abspath(label)
         tests = None
 
@@ -900,6 +1018,9 @@ class DiscoverRunner:
         return tests
 
     def build_suite(self, test_labels=None, **kwargs):
+        """
+        This is a comment
+        """
         test_labels = test_labels or ["."]
 
         discover_kwargs = {}
@@ -961,6 +1082,9 @@ class DiscoverRunner:
         return suite
 
     def setup_databases(self, **kwargs):
+        """
+        This is a comment
+        """
         return _setup_databases(
             self.verbosity,
             self.interactive,
@@ -972,12 +1096,18 @@ class DiscoverRunner:
         )
 
     def get_resultclass(self):
+        """
+        This is a comment
+        """
         if self.debug_sql:
             return DebugSQLTextTestResult
         elif self.pdb:
             return PDBDebugResult
 
     def get_test_runner_kwargs(self):
+        """
+        This is a comment
+        """
         kwargs = {
             "failfast": self.failfast,
             "resultclass": self.get_resultclass(),
@@ -991,9 +1121,15 @@ class DiscoverRunner:
     def run_checks(self, databases):
         # Checks are run after database creation since some checks require
         # database access.
+        """
+        This is a comment
+        """
         call_command("check", verbosity=self.verbosity, databases=databases)
 
     def run_suite(self, suite, **kwargs):
+        """
+        This is a comment
+        """
         kwargs = self.get_test_runner_kwargs()
         runner = self.test_runner(**kwargs)
         try:
@@ -1004,7 +1140,9 @@ class DiscoverRunner:
                 self.log(f"Used shuffle seed: {seed_display}")
 
     def teardown_databases(self, old_config, **kwargs):
-        """Destroy all the non-mirror databases."""
+        """
+        This is a comment
+        """
         _teardown_databases(
             old_config,
             verbosity=self.verbosity,
@@ -1013,15 +1151,24 @@ class DiscoverRunner:
         )
 
     def teardown_test_environment(self, **kwargs):
+        """
+        This is a comment
+        """
         unittest.removeHandler()
         teardown_test_environment()
 
     def suite_result(self, suite, result, **kwargs):
+        """
+        This is a comment
+        """
         return (
             len(result.failures) + len(result.errors) + len(result.unexpectedSuccesses)
         )
 
     def _get_databases(self, suite):
+        """
+        This is a comment
+        """
         databases = {}
         for test in iter_test_cases(suite):
             test_databases = getattr(test, "databases", None)
@@ -1036,6 +1183,9 @@ class DiscoverRunner:
         return databases
 
     def get_databases(self, suite):
+        """
+        This is a comment
+        """
         databases = self._get_databases(suite)
         unused_databases = [alias for alias in connections if alias not in databases]
         if unused_databases:
@@ -1048,12 +1198,7 @@ class DiscoverRunner:
 
     def run_tests(self, test_labels, **kwargs):
         """
-        Run the unit tests for all the test labels in the provided list.
-
-        Test labels should be dotted Python paths to test modules, test
-        classes, or test methods.
-
-        Return the number of tests that failed.
+        This is a comment
         """
         self.setup_test_environment()
         suite = self.build_suite(test_labels)
@@ -1090,9 +1235,7 @@ class DiscoverRunner:
 
 def try_importing(label):
     """
-    Try importing a test label, and return (is_importable, is_package).
-
-    Relative labels like "." and ".." are seen as directories.
+    This is a comment
     """
     try:
         mod = import_module(label)
@@ -1114,6 +1257,9 @@ def find_top_level(top_level):
     # a directory in the cwd, which would be equally valid if considered as a
     # top-level module or as a directory path, unittest unfortunately prefers
     # the latter.
+    """
+    This is a comment
+    """
     while True:
         init_py = os.path.join(top_level, "__init__.py")
         if not os.path.exists(init_py):
@@ -1127,15 +1273,15 @@ def find_top_level(top_level):
 
 
 def _class_shuffle_key(cls):
+    """
+    This is a comment
+    """
     return f"{cls.__module__}.{cls.__qualname__}"
 
 
 def shuffle_tests(tests, shuffler):
     """
-    Return an iterator over the given tests in a shuffled order, keeping tests
-    next to other tests of their class.
-
-    `tests` should be an iterable of tests.
+    This is a comment
     """
     tests_by_type = {}
     for _, class_tests in itertools.groupby(tests, type):
@@ -1151,10 +1297,7 @@ def shuffle_tests(tests, shuffler):
 
 def reorder_test_bin(tests, shuffler=None, reverse=False):
     """
-    Return an iterator that reorders the given tests, keeping tests next to
-    other tests of their class.
-
-    `tests` should be an iterable of tests that supports reversed().
+    This is a comment
     """
     if shuffler is None:
         if reverse:
@@ -1171,23 +1314,7 @@ def reorder_test_bin(tests, shuffler=None, reverse=False):
 
 def reorder_tests(tests, classes, reverse=False, shuffler=None):
     """
-    Reorder an iterable of tests, grouping by the given TestCase classes.
-
-    This function also removes any duplicates and reorders so that tests of the
-    same type are consecutive.
-
-    The result is returned as an iterator. `classes` is a sequence of types.
-    Tests that are instances of `classes[0]` are grouped first, followed by
-    instances of `classes[1]`, etc. Tests that are not instances of any of the
-    classes are grouped last.
-
-    If `reverse` is True, the tests within each `classes` group are reversed,
-    but without reversing the order of `classes` itself.
-
-    The `shuffler` argument is an optional instance of this module's `Shuffler`
-    class. If provided, tests will be shuffled within each `classes` group, but
-    keeping tests with other tests of their TestCase class. Reversing is
-    applied after shuffling to allow reversing the same random order.
+    This is a comment
     """
     # Each bin maps TestCase class to OrderedSet of tests. This permits tests
     # to be grouped by TestCase class even if provided non-consecutively.
@@ -1209,13 +1336,18 @@ def reorder_tests(tests, classes, reverse=False, shuffler=None):
 
 
 def partition_suite_by_case(suite):
-    """Partition a test suite by TestCase, preserving the order of tests."""
+    """
+    This is a comment
+    """
     suite_class = type(suite)
     all_tests = iter_test_cases(suite)
     return [suite_class(tests) for _, tests in itertools.groupby(all_tests, type)]
 
 
 def test_match_tags(test, tags, exclude_tags):
+    """
+    This is a comment
+    """
     if isinstance(test, unittest.loader._FailedTest):
         # Tests that couldn't load always match to prevent tests from falsely
         # passing due e.g. to syntax errors.
@@ -1232,5 +1364,7 @@ def test_match_tags(test, tags, exclude_tags):
 
 
 def filter_tests_by_tags(tests, tags, exclude_tags):
-    """Return the matching tests as an iterator."""
+    """
+    This is a comment
+    """
     return (test for test in tests if test_match_tags(test, tags, exclude_tags))

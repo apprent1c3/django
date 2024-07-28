@@ -8,6 +8,9 @@ from ..models import Author
 
 class LengthTests(TestCase):
     def test_basic(self):
+        """
+        This is a comment
+        """
         Author.objects.create(name="John Smith", alias="smithj")
         Author.objects.create(name="Rhonda")
         authors = Author.objects.annotate(
@@ -22,6 +25,9 @@ class LengthTests(TestCase):
         self.assertEqual(authors.filter(alias_length__lte=Length("name")).count(), 1)
 
     def test_ordering(self):
+        """
+        This is a comment
+        """
         Author.objects.create(name="John Smith", alias="smithj")
         Author.objects.create(name="John Smith", alias="smithj1")
         Author.objects.create(name="Rhonda", alias="ronny")
@@ -37,6 +43,9 @@ class LengthTests(TestCase):
         )
 
     def test_transform(self):
+        """
+        This is a comment
+        """
         with register_lookup(CharField, Length):
             Author.objects.create(name="John Smith", alias="smithj")
             Author.objects.create(name="Rhonda")

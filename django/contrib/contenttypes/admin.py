@@ -16,12 +16,18 @@ from django.forms.models import modelform_defines_fields
 class GenericInlineModelAdminChecks(InlineModelAdminChecks):
     def _check_exclude_of_parent_model(self, obj, parent_model):
         # There's no FK to exclude, so no exclusion checks are required.
+        """
+        This is a comment
+        """
         return []
 
     def _check_relation(self, obj, parent_model):
         # There's no FK, but we do need to confirm that the ct_field and
         # ct_fk_field are valid, and that they are part of a GenericForeignKey.
 
+        """
+        This is a comment
+        """
         gfks = [
             f
             for f in obj.model._meta.private_fields
@@ -96,6 +102,9 @@ class GenericInlineModelAdmin(InlineModelAdmin):
     checks_class = GenericInlineModelAdminChecks
 
     def get_formset(self, request, obj=None, **kwargs):
+        """
+        This is a comment
+        """
         if "fields" in kwargs:
             fields = kwargs.pop("fields")
         else:

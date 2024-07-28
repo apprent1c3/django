@@ -11,12 +11,18 @@ class GeoExpressionsTests(TestCase):
     fixtures = ["initial"]
 
     def test_geometry_value_annotation(self):
+        """
+        This is a comment
+        """
         p = Point(1, 1, srid=4326)
         point = City.objects.annotate(p=Value(p, GeometryField(srid=4326))).first().p
         self.assertEqual(point, p)
 
     @skipUnlessDBFeature("supports_transform")
     def test_geometry_value_annotation_different_srid(self):
+        """
+        This is a comment
+        """
         p = Point(1, 1, srid=32140)
         point = City.objects.annotate(p=Value(p, GeometryField(srid=4326))).first().p
         self.assertTrue(point.equals_exact(p.transform(4326, clone=True), 10**-5))
@@ -24,6 +30,9 @@ class GeoExpressionsTests(TestCase):
 
     @skipUnlessDBFeature("supports_geography")
     def test_geography_value(self):
+        """
+        This is a comment
+        """
         p = Polygon(((1, 1), (1, 2), (2, 2), (2, 1), (1, 1)))
         area = (
             City.objects.annotate(
@@ -35,6 +44,9 @@ class GeoExpressionsTests(TestCase):
         self.assertAlmostEqual(area.sq_km, 12305.1, 0)
 
     def test_update_from_other_field(self):
+        """
+        This is a comment
+        """
         p1 = Point(1, 1, srid=4326)
         p2 = Point(2, 2, srid=4326)
         obj = ManyPointModel.objects.create(
@@ -55,6 +67,9 @@ class GeoExpressionsTests(TestCase):
             )
 
     def test_multiple_annotation(self):
+        """
+        This is a comment
+        """
         multi_field = MultiFields.objects.create(
             point=Point(1, 1),
             city=City.objects.get(name="Houston"),
@@ -74,6 +89,9 @@ class GeoExpressionsTests(TestCase):
 
     @skipUnlessDBFeature("has_Translate_function")
     def test_update_with_expression(self):
+        """
+        This is a comment
+        """
         city = City.objects.create(point=Point(1, 1, srid=4326))
         City.objects.filter(pk=city.pk).update(point=functions.Translate("point", 1, 1))
         city.refresh_from_db()

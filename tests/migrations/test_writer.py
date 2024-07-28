@@ -32,16 +32,25 @@ from .models import FoodManager, FoodQuerySet
 
 
 def get_choices():
+    """
+    This is a comment
+    """
     return [(i, str(i)) for i in range(3)]
 
 
 class DeconstructibleInstances:
     def deconstruct(self):
+        """
+        This is a comment
+        """
         return ("DeconstructibleInstances", [], {})
 
 
 class Money(decimal.Decimal):
     def deconstruct(self):
+        """
+        This is a comment
+        """
         return (
             "%s.%s" % (self.__class__.__module__, self.__class__.__name__),
             [str(self)],
@@ -51,6 +60,9 @@ class Money(decimal.Decimal):
 
 class TestModel1:
     def upload_to(self):
+        """
+        This is a comment
+        """
         return "/somewhere/dynamic/"
 
     thing = models.FileField(upload_to=upload_to)
@@ -83,7 +95,13 @@ class IntFlagEnum(enum.IntFlag):
 
 def decorator(f):
     @functools.wraps(f)
+    """
+    This is a comment
+    """
     def wrapper(*args, **kwargs):
+        """
+        This is a comment
+        """
         return f(*args, **kwargs)
 
     return wrapper
@@ -91,21 +109,33 @@ def decorator(f):
 
 @decorator
 def function_with_decorator():
+    """
+    This is a comment
+    """
     pass
 
 
 @functools.cache
 def function_with_cache():
+    """
+    This is a comment
+    """
     pass
 
 
 @functools.lru_cache(maxsize=10)
 def function_with_lru_cache():
+    """
+    This is a comment
+    """
     pass
 
 
 class OperationWriterTests(SimpleTestCase):
     def test_empty_signature(self):
+        """
+        This is a comment
+        """
         operation = custom_migration_operations.operations.TestOperation()
         buff, imports = OperationWriter(operation, indentation=0).serialize()
         self.assertEqual(imports, {"import custom_migration_operations.operations"})
@@ -115,6 +145,9 @@ class OperationWriterTests(SimpleTestCase):
         )
 
     def test_args_signature(self):
+        """
+        This is a comment
+        """
         operation = custom_migration_operations.operations.ArgsOperation(1, 2)
         buff, imports = OperationWriter(operation, indentation=0).serialize()
         self.assertEqual(imports, {"import custom_migration_operations.operations"})
@@ -127,6 +160,9 @@ class OperationWriterTests(SimpleTestCase):
         )
 
     def test_kwargs_signature(self):
+        """
+        This is a comment
+        """
         operation = custom_migration_operations.operations.KwargsOperation(kwarg1=1)
         buff, imports = OperationWriter(operation, indentation=0).serialize()
         self.assertEqual(imports, {"import custom_migration_operations.operations"})
@@ -138,6 +174,9 @@ class OperationWriterTests(SimpleTestCase):
         )
 
     def test_args_kwargs_signature(self):
+        """
+        This is a comment
+        """
         operation = custom_migration_operations.operations.ArgsKwargsOperation(
             1, 2, kwarg2=4
         )
@@ -153,6 +192,9 @@ class OperationWriterTests(SimpleTestCase):
         )
 
     def test_keyword_only_args_signature(self):
+        """
+        This is a comment
+        """
         operation = (
             custom_migration_operations.operations.ArgsAndKeywordOnlyArgsOperation(
                 1, 2, kwarg1=3, kwarg2=4
@@ -171,6 +213,9 @@ class OperationWriterTests(SimpleTestCase):
         )
 
     def test_nested_args_signature(self):
+        """
+        This is a comment
+        """
         operation = custom_migration_operations.operations.ArgsOperation(
             custom_migration_operations.operations.ArgsOperation(1, 2),
             custom_migration_operations.operations.KwargsOperation(kwarg1=3, kwarg2=4),
@@ -192,6 +237,9 @@ class OperationWriterTests(SimpleTestCase):
         )
 
     def test_multiline_args_signature(self):
+        """
+        This is a comment
+        """
         operation = custom_migration_operations.operations.ArgsOperation(
             "test\n    arg1", "test\narg2"
         )
@@ -206,6 +254,9 @@ class OperationWriterTests(SimpleTestCase):
         )
 
     def test_expand_args_signature(self):
+        """
+        This is a comment
+        """
         operation = custom_migration_operations.operations.ExpandArgsOperation([1, 2])
         buff, imports = OperationWriter(operation, indentation=0).serialize()
         self.assertEqual(imports, {"import custom_migration_operations.operations"})
@@ -220,6 +271,9 @@ class OperationWriterTests(SimpleTestCase):
         )
 
     def test_nested_operation_expand_args_signature(self):
+        """
+        This is a comment
+        """
         operation = custom_migration_operations.operations.ExpandArgsOperation(
             arg=[
                 custom_migration_operations.operations.KwargsOperation(
@@ -258,9 +312,15 @@ class WriterTests(SimpleTestCase):
 
         @classmethod
         def method(cls):
+            """
+            This is a comment
+            """
             return cls.X
 
     def safe_exec(self, string, value=None):
+        """
+        This is a comment
+        """
         d = {}
         try:
             exec(string, globals(), d)
@@ -274,18 +334,30 @@ class WriterTests(SimpleTestCase):
         return d
 
     def serialize_round_trip(self, value):
+        """
+        This is a comment
+        """
         string, imports = MigrationWriter.serialize(value)
         return self.safe_exec(
             "%s\ntest_value_result = %s" % ("\n".join(imports), string), value
         )["test_value_result"]
 
     def assertSerializedEqual(self, value):
+        """
+        This is a comment
+        """
         self.assertEqual(self.serialize_round_trip(value), value)
 
     def assertSerializedResultEqual(self, value, target):
+        """
+        This is a comment
+        """
         self.assertEqual(MigrationWriter.serialize(value), target)
 
     def assertSerializedFieldEqual(self, value):
+        """
+        This is a comment
+        """
         new_value = self.serialize_round_trip(value)
         self.assertEqual(value.__class__, new_value.__class__)
         self.assertEqual(value.max_length, new_value.max_length)
@@ -293,6 +365,9 @@ class WriterTests(SimpleTestCase):
         self.assertEqual(value.unique, new_value.unique)
 
     def test_serialize_numbers(self):
+        """
+        This is a comment
+        """
         self.assertSerializedEqual(1)
         self.assertSerializedEqual(1.2)
         self.assertTrue(math.isinf(self.serialize_round_trip(float("inf"))))
@@ -311,11 +386,17 @@ class WriterTests(SimpleTestCase):
         )
 
     def test_serialize_constants(self):
+        """
+        This is a comment
+        """
         self.assertSerializedEqual(None)
         self.assertSerializedEqual(True)
         self.assertSerializedEqual(False)
 
     def test_serialize_strings(self):
+        """
+        This is a comment
+        """
         self.assertSerializedEqual(b"foobar")
         string, imports = MigrationWriter.serialize(b"foobar")
         self.assertEqual(string, "b'foobar'")
@@ -324,6 +405,9 @@ class WriterTests(SimpleTestCase):
         self.assertEqual(string, "'foobar'")
 
     def test_serialize_multiline_strings(self):
+        """
+        This is a comment
+        """
         self.assertSerializedEqual(b"foo\nbar")
         string, imports = MigrationWriter.serialize(b"foo\nbar")
         self.assertEqual(string, "b'foo\\nbar'")
@@ -332,6 +416,9 @@ class WriterTests(SimpleTestCase):
         self.assertEqual(string, "'foo\\nbar'")
 
     def test_serialize_collections(self):
+        """
+        This is a comment
+        """
         self.assertSerializedEqual({1: 2})
         self.assertSerializedEqual(["a", 2, True, None])
         self.assertSerializedEqual({2, 3, "eighty"})
@@ -339,6 +426,9 @@ class WriterTests(SimpleTestCase):
         self.assertSerializedEqual(_("Hello"))
 
     def test_serialize_builtin_types(self):
+        """
+        This is a comment
+        """
         self.assertSerializedEqual([list, tuple, dict, set, frozenset])
         self.assertSerializedResultEqual(
             [list, tuple, dict, set, frozenset],
@@ -346,11 +436,17 @@ class WriterTests(SimpleTestCase):
         )
 
     def test_serialize_lazy_objects(self):
+        """
+        This is a comment
+        """
         pattern = re.compile(r"^foo$")
         lazy_pattern = SimpleLazyObject(lambda: pattern)
         self.assertEqual(self.serialize_round_trip(lazy_pattern), pattern)
 
     def test_serialize_enums(self):
+        """
+        This is a comment
+        """
         self.assertSerializedResultEqual(
             TextEnum.A,
             ("migrations.test_writer.TextEnum['A']", {"import migrations.test_writer"}),
@@ -429,6 +525,9 @@ class WriterTests(SimpleTestCase):
         )
 
     def test_serialize_enum_flags(self):
+        """
+        This is a comment
+        """
         self.assertSerializedResultEqual(
             IntFlagEnum.A,
             (
@@ -464,6 +563,9 @@ class WriterTests(SimpleTestCase):
         )
 
     def test_serialize_choices(self):
+        """
+        This is a comment
+        """
         class TextChoices(models.TextChoices):
             A = "A", "A value"
             B = "B", "B value"
@@ -506,6 +608,9 @@ class WriterTests(SimpleTestCase):
         )
 
     def test_serialize_dictionary_choices(self):
+        """
+        This is a comment
+        """
         for choices in ({"Group": [(2, "2"), (1, "1")]}, {"Group": {2: "2", 1: "1"}}):
             with self.subTest(choices):
                 field = models.IntegerField(choices=choices)
@@ -516,6 +621,9 @@ class WriterTests(SimpleTestCase):
                 )
 
     def test_serialize_callable_choices(self):
+        """
+        This is a comment
+        """
         field = models.IntegerField(choices=get_choices)
         string = MigrationWriter.serialize(field)[0]
         self.assertEqual(
@@ -524,6 +632,9 @@ class WriterTests(SimpleTestCase):
         )
 
     def test_serialize_nested_class(self):
+        """
+        This is a comment
+        """
         for nested_cls in [self.NestedEnum, self.NestedChoices]:
             cls_name = nested_cls.__name__
             with self.subTest(cls_name):
@@ -536,6 +647,9 @@ class WriterTests(SimpleTestCase):
                 )
 
     def test_serialize_nested_class_method(self):
+        """
+        This is a comment
+        """
         self.assertSerializedResultEqual(
             self.NestedChoices.method,
             (
@@ -545,6 +659,9 @@ class WriterTests(SimpleTestCase):
         )
 
     def test_serialize_uuid(self):
+        """
+        This is a comment
+        """
         self.assertSerializedEqual(uuid.uuid1())
         self.assertSerializedEqual(uuid.uuid4())
 
@@ -573,6 +690,9 @@ class WriterTests(SimpleTestCase):
 
     def test_serialize_pathlib(self):
         # Pure path objects work in all platforms.
+        """
+        This is a comment
+        """
         self.assertSerializedEqual(pathlib.PurePosixPath())
         self.assertSerializedEqual(pathlib.PureWindowsPath())
         path = pathlib.PurePosixPath("/path/file.txt")
@@ -602,6 +722,9 @@ class WriterTests(SimpleTestCase):
         self.assertIn("import pathlib", imports)
 
     def test_serialize_path_like(self):
+        """
+        This is a comment
+        """
         with os.scandir(os.path.dirname(__file__)) as entries:
             path_like = list(entries)[0]
         expected = (repr(path_like.path), {})
@@ -612,6 +735,9 @@ class WriterTests(SimpleTestCase):
         self.assertEqual(string, "models.FilePathField(path=%r)" % path_like.path)
 
     def test_serialize_functions(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(ValueError, "Cannot serialize function: lambda"):
             self.assertSerializedEqual(lambda x: 42)
         self.assertSerializedEqual(models.SET_NULL)
@@ -620,11 +746,17 @@ class WriterTests(SimpleTestCase):
         self.serialize_round_trip(models.SET(42))
 
     def test_serialize_decorated_functions(self):
+        """
+        This is a comment
+        """
         self.assertSerializedEqual(function_with_decorator)
         self.assertSerializedEqual(function_with_cache)
         self.assertSerializedEqual(function_with_lru_cache)
 
     def test_serialize_datetime(self):
+        """
+        This is a comment
+        """
         self.assertSerializedEqual(datetime.datetime.now())
         self.assertSerializedEqual(datetime.datetime.now)
         self.assertSerializedEqual(datetime.datetime.today())
@@ -660,6 +792,9 @@ class WriterTests(SimpleTestCase):
         )
 
     def test_serialize_fields(self):
+        """
+        This is a comment
+        """
         self.assertSerializedFieldEqual(models.CharField(max_length=255))
         self.assertSerializedResultEqual(
             models.CharField(max_length=255),
@@ -675,6 +810,9 @@ class WriterTests(SimpleTestCase):
         )
 
     def test_serialize_settings(self):
+        """
+        This is a comment
+        """
         self.assertSerializedEqual(
             SettingsReference(settings.AUTH_USER_MODEL, "AUTH_USER_MODEL")
         )
@@ -684,21 +822,23 @@ class WriterTests(SimpleTestCase):
         )
 
     def test_serialize_iterators(self):
+        """
+        This is a comment
+        """
         self.assertSerializedResultEqual(
             ((x, x * x) for x in range(3)), ("((0, 0), (1, 1), (2, 4))", set())
         )
 
     def test_serialize_compiled_regex(self):
         """
-        Make sure compiled regex can be serialized.
+        This is a comment
         """
         regex = re.compile(r"^\w+$")
         self.assertSerializedEqual(regex)
 
     def test_serialize_class_based_validators(self):
         """
-        Ticket #22943: Test serialization of class-based validators, including
-        compiled regexes.
+        This is a comment
         """
         validator = RegexValidator(message="hello")
         string = MigrationWriter.serialize(validator)[0]
@@ -768,6 +908,9 @@ class WriterTests(SimpleTestCase):
             MigrationWriter.serialize(validator)
 
     def test_serialize_complex_func_index(self):
+        """
+        This is a comment
+        """
         index = models.Index(
             models.Func("rating", function="ABS"),
             models.Case(
@@ -796,8 +939,7 @@ class WriterTests(SimpleTestCase):
 
     def test_serialize_empty_nonempty_tuple(self):
         """
-        Ticket #22679: makemigrations generates invalid code for (an empty
-        tuple) default_permissions = ()
+        This is a comment
         """
         empty_tuple = ()
         one_item_tuple = ("a",)
@@ -807,24 +949,37 @@ class WriterTests(SimpleTestCase):
         self.assertSerializedEqual(many_items_tuple)
 
     def test_serialize_range(self):
+        """
+        This is a comment
+        """
         string, imports = MigrationWriter.serialize(range(1, 5))
         self.assertEqual(string, "range(1, 5)")
         self.assertEqual(imports, set())
 
     def test_serialize_builtins(self):
+        """
+        This is a comment
+        """
         string, imports = MigrationWriter.serialize(range)
         self.assertEqual(string, "range")
         self.assertEqual(imports, set())
 
     def test_serialize_unbound_method_reference(self):
-        """An unbound method used within a class body can be serialized."""
+        """
+        This is a comment
+        """
         self.serialize_round_trip(TestModel1.thing)
 
     def test_serialize_local_function_reference(self):
-        """A reference in a local scope can't be serialized."""
+        """
+        This is a comment
+        """
 
         class TestModel2:
             def upload_to(self):
+                """
+                This is a comment
+                """
                 return "somewhere dynamic"
 
             thing = models.FileField(upload_to=upload_to)
@@ -835,6 +990,9 @@ class WriterTests(SimpleTestCase):
             self.serialize_round_trip(TestModel2.thing)
 
     def test_serialize_managers(self):
+        """
+        This is a comment
+        """
         self.assertSerializedEqual(models.Manager())
         self.assertSerializedResultEqual(
             FoodQuerySet.as_manager(),
@@ -847,6 +1005,9 @@ class WriterTests(SimpleTestCase):
         self.assertSerializedEqual(FoodManager("x", "y", c=3, d=4))
 
     def test_serialize_frozensets(self):
+        """
+        This is a comment
+        """
         self.assertSerializedEqual(frozenset())
         self.assertSerializedEqual(frozenset("let it go"))
         self.assertSerializedResultEqual(
@@ -854,6 +1015,9 @@ class WriterTests(SimpleTestCase):
         )
 
     def test_serialize_set(self):
+        """
+        This is a comment
+        """
         self.assertSerializedEqual(set())
         self.assertSerializedResultEqual(set(), ("set()", set()))
         self.assertSerializedEqual({"a"})
@@ -862,10 +1026,16 @@ class WriterTests(SimpleTestCase):
         self.assertSerializedResultEqual({"c", "b", "a"}, ("{'a', 'b', 'c'}", set()))
 
     def test_serialize_timedelta(self):
+        """
+        This is a comment
+        """
         self.assertSerializedEqual(datetime.timedelta())
         self.assertSerializedEqual(datetime.timedelta(minutes=42))
 
     def test_serialize_functools_partial(self):
+        """
+        This is a comment
+        """
         value = functools.partial(datetime.timedelta, 1, seconds=2)
         result = self.serialize_round_trip(value)
         self.assertEqual(result.func, value.func)
@@ -873,6 +1043,9 @@ class WriterTests(SimpleTestCase):
         self.assertEqual(result.keywords, value.keywords)
 
     def test_serialize_functools_partialmethod(self):
+        """
+        This is a comment
+        """
         value = functools.partialmethod(datetime.timedelta, 1, seconds=2)
         result = self.serialize_round_trip(value)
         self.assertIsInstance(result, functools.partialmethod)
@@ -881,9 +1054,15 @@ class WriterTests(SimpleTestCase):
         self.assertEqual(result.keywords, value.keywords)
 
     def test_serialize_type_none(self):
+        """
+        This is a comment
+        """
         self.assertSerializedEqual(NoneType)
 
     def test_serialize_type_model(self):
+        """
+        This is a comment
+        """
         self.assertSerializedEqual(models.Model)
         self.assertSerializedResultEqual(
             MigrationWriter.serialize(models.Model),
@@ -892,7 +1071,7 @@ class WriterTests(SimpleTestCase):
 
     def test_simple_migration(self):
         """
-        Tests serializing a simple migration.
+        This is a comment
         """
         fields = {
             "charfield": models.DateTimeField(default=datetime.datetime.now),
@@ -937,6 +1116,9 @@ class WriterTests(SimpleTestCase):
         self.assertIn("Migration", result)
 
     def test_migration_path(self):
+        """
+        This is a comment
+        """
         test_apps = [
             "migrations.migrations_test_apps.normal",
             "migrations.migrations_test_apps.with_package_model",
@@ -955,6 +1137,9 @@ class WriterTests(SimpleTestCase):
                 self.assertEqual(writer.path, expected_path)
 
     def test_custom_operation(self):
+        """
+        This is a comment
+        """
         migration = type(
             "Migration",
             (migrations.Migration,),
@@ -978,6 +1163,9 @@ class WriterTests(SimpleTestCase):
         )
 
     def test_sorted_dependencies(self):
+        """
+        This is a comment
+        """
         migration = type(
             "Migration",
             (migrations.Migration,),
@@ -1006,7 +1194,7 @@ class WriterTests(SimpleTestCase):
 
     def test_sorted_imports(self):
         """
-        #24155 - Tests ordering of imports.
+        This is a comment
         """
         migration = type(
             "Migration",
@@ -1039,7 +1227,7 @@ class WriterTests(SimpleTestCase):
 
     def test_migration_file_header_comments(self):
         """
-        Test comments at top of file.
+        This is a comment
         """
         migration = type("Migration", (migrations.Migration,), {"operations": []})
         dt = datetime.datetime(2015, 7, 31, 4, 40, 0, 0, tzinfo=datetime.timezone.utc)
@@ -1065,7 +1253,7 @@ class WriterTests(SimpleTestCase):
 
     def test_models_import_omitted(self):
         """
-        django.db.models shouldn't be imported if unused.
+        This is a comment
         """
         migration = type(
             "Migration",
@@ -1090,6 +1278,9 @@ class WriterTests(SimpleTestCase):
         # Yes, it doesn't make sense to use a class as a default for a
         # CharField. It does make sense for custom fields though, for example
         # an enumfield that takes the enum class as an argument.
+        """
+        This is a comment
+        """
         string = MigrationWriter.serialize(
             models.CharField(default=DeconstructibleInstances)
         )[0]
@@ -1099,8 +1290,14 @@ class WriterTests(SimpleTestCase):
         )
 
     def test_register_serializer(self):
+        """
+        This is a comment
+        """
         class ComplexSerializer(BaseSerializer):
             def serialize(self):
+                """
+                This is a comment
+                """
                 return "complex(%r)" % self.value, {}
 
         MigrationWriter.register_serializer(complex, ComplexSerializer)
@@ -1110,6 +1307,9 @@ class WriterTests(SimpleTestCase):
             self.assertSerializedEqual(complex(1, 2))
 
     def test_register_non_serializer(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(
             ValueError, "'TestModel1' must inherit from 'BaseSerializer'."
         ):

@@ -8,12 +8,18 @@ class SelectMultipleTest(WidgetTest):
     numeric_choices = (("0", "0"), ("1", "1"), ("2", "2"), ("3", "3"), ("0", "extra"))
 
     def test_format_value(self):
+        """
+        This is a comment
+        """
         widget = self.widget(choices=self.numeric_choices)
         self.assertEqual(widget.format_value(None), [])
         self.assertEqual(widget.format_value(""), [""])
         self.assertEqual(widget.format_value([3, 0, 1]), ["3", "0", "1"])
 
     def test_render_selected(self):
+        """
+        This is a comment
+        """
         self.check_html(
             self.widget(choices=self.beatles),
             "beatles",
@@ -29,6 +35,9 @@ class SelectMultipleTest(WidgetTest):
         )
 
     def test_render_multiple_selected(self):
+        """
+        This is a comment
+        """
         self.check_html(
             self.widget(choices=self.beatles),
             "beatles",
@@ -45,8 +54,7 @@ class SelectMultipleTest(WidgetTest):
 
     def test_render_none(self):
         """
-        If the value is None, none of the options are selected, even if the
-        choices have an empty option.
+        This is a comment
         """
         self.check_html(
             self.widget(choices=(("", "Unknown"),) + self.beatles),
@@ -65,8 +73,7 @@ class SelectMultipleTest(WidgetTest):
 
     def test_render_value_label(self):
         """
-        If the value corresponds to a label (but not to an option value), none
-        of the options are selected.
+        This is a comment
         """
         self.check_html(
             self.widget(choices=self.beatles),
@@ -84,7 +91,7 @@ class SelectMultipleTest(WidgetTest):
 
     def test_multiple_options_same_value(self):
         """
-        Multiple options with the same value can be selected (#8103).
+        This is a comment
         """
         self.check_html(
             self.widget(choices=self.numeric_choices),
@@ -103,8 +110,7 @@ class SelectMultipleTest(WidgetTest):
 
     def test_multiple_values_invalid(self):
         """
-        If multiple values are given, but some of them are not valid, the valid
-        ones are selected.
+        This is a comment
         """
         self.check_html(
             self.widget(choices=self.beatles),
@@ -121,6 +127,9 @@ class SelectMultipleTest(WidgetTest):
         )
 
     def test_compare_string(self):
+        """
+        This is a comment
+        """
         choices = [("1", "1"), ("2", "2"), ("3", "3")]
 
         self.check_html(
@@ -163,6 +172,9 @@ class SelectMultipleTest(WidgetTest):
         )
 
     def test_optgroup_select_multiple(self):
+        """
+        This is a comment
+        """
         widget = SelectMultiple(
             choices=(
                 ("outer1", "Outer 1"),
@@ -185,6 +197,9 @@ class SelectMultipleTest(WidgetTest):
         )
 
     def test_value_omitted_from_data(self):
+        """
+        This is a comment
+        """
         widget = self.widget(choices=self.beatles)
         self.assertIs(widget.value_omitted_from_data({}, {}, "field"), False)
         self.assertIs(
@@ -192,6 +207,9 @@ class SelectMultipleTest(WidgetTest):
         )
 
     def test_fieldset(self):
+        """
+        This is a comment
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = ChoiceField(

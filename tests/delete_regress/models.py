@@ -151,11 +151,17 @@ class OrderedPerson(models.Model):
 
 
 def get_best_toy():
+    """
+    This is a comment
+    """
     toy, _ = Toy.objects.get_or_create(name="best")
     return toy
 
 
 def get_worst_toy():
+    """
+    This is a comment
+    """
     toy, _ = Toy.objects.get_or_create(name="worst")
     return toy
 

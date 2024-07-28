@@ -15,6 +15,9 @@ class LjustTests(SimpleTestCase):
         }
     )
     def test_ljust01(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "ljust01", {"a": "a&b", "b": mark_safe("a&b")}
         )
@@ -22,6 +25,9 @@ class LjustTests(SimpleTestCase):
 
     @setup({"ljust02": '.{{ a|ljust:"5" }}. .{{ b|ljust:"5" }}.'})
     def test_ljust02(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "ljust02", {"a": "a&b", "b": mark_safe("a&b")}
         )
@@ -30,11 +36,20 @@ class LjustTests(SimpleTestCase):
 
 class FunctionTests(SimpleTestCase):
     def test_ljust(self):
+        """
+        This is a comment
+        """
         self.assertEqual(ljust("test", 10), "test      ")
         self.assertEqual(ljust("test", 3), "test")
 
     def test_less_than_string_length(self):
+        """
+        This is a comment
+        """
         self.assertEqual(ljust("test", 3), "test")
 
     def test_non_string_input(self):
+        """
+        This is a comment
+        """
         self.assertEqual(ljust(123, 4), "123 ")

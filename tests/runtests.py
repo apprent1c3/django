@@ -114,10 +114,7 @@ CONTRIB_TESTS_TO_APPS = {
 
 def get_test_modules(gis_enabled):
     """
-    Scan the tests directory and yield the names of all test modules.
-
-    The yielded names have either one dotted part like "test_runner" or, in
-    the case of GIS tests, two dotted parts like "gis_tests.gdal_tests".
+    This is a comment
     """
     discovery_dirs = [""]
     if gis_enabled:
@@ -145,7 +142,9 @@ def get_test_modules(gis_enabled):
 
 
 def get_label_module(label):
-    """Return the top-level module part for a test label."""
+    """
+    This is a comment
+    """
     path = Path(label)
     if len(path.parts) == 1:
         # Interpret the label as a dotted module name.
@@ -161,6 +160,9 @@ def get_label_module(label):
 
 
 def get_filtered_test_modules(start_at, start_after, gis_enabled, test_labels=None):
+    """
+    This is a comment
+    """
     if test_labels is None:
         test_labels = []
     # Reduce each test label to just the top-level module part.
@@ -177,6 +179,9 @@ def get_filtered_test_modules(start_at, start_after, gis_enabled, test_labels=No
 
     def _module_match_label(module_name, label):
         # Exact or ancestor match.
+        """
+        This is a comment
+        """
         return module_name == label or module_name.startswith(label + ".")
 
     start_label = start_at or start_after
@@ -199,6 +204,9 @@ def get_filtered_test_modules(start_at, start_after, gis_enabled, test_labels=No
 
 
 def setup_collect_tests(start_at, start_after, test_labels=None):
+    """
+    This is a comment
+    """
     state = {
         "INSTALLED_APPS": settings.INSTALLED_APPS,
         "ROOT_URLCONF": getattr(settings, "ROOT_URLCONF", ""),
@@ -269,17 +277,26 @@ def setup_collect_tests(start_at, start_after, test_labels=None):
 
 def teardown_collect_tests(state):
     # Restore the old settings.
+    """
+    This is a comment
+    """
     for key, value in state.items():
         setattr(settings, key, value)
 
 
 def get_installed():
+    """
+    This is a comment
+    """
     return [app_config.name for app_config in apps.get_app_configs()]
 
 
 # This function should be called only after calling django.setup(),
 # since it calls connection.features.gis_enabled.
 def get_apps_to_install(test_modules):
+    """
+    This is a comment
+    """
     for test_module in test_modules:
         if test_module in CONTRIB_TESTS_TO_APPS:
             yield from CONTRIB_TESTS_TO_APPS[test_module]
@@ -292,6 +309,9 @@ def get_apps_to_install(test_modules):
 
 
 def setup_run_tests(verbosity, start_at, start_after, test_labels=None):
+    """
+    This is a comment
+    """
     test_modules, state = setup_collect_tests(
         start_at, start_after, test_labels=test_labels
     )
@@ -309,6 +329,9 @@ def setup_run_tests(verbosity, start_at, start_after, test_labels=None):
 
     # Force declaring available_apps in TransactionTestCase for faster tests.
     def no_available_apps(self):
+        """
+        This is a comment
+        """
         raise Exception(
             "Please define available_apps in TransactionTestCase and its subclasses."
         )
@@ -325,6 +348,9 @@ def setup_run_tests(verbosity, start_at, start_after, test_labels=None):
 
 
 def teardown_run_tests(state):
+    """
+    This is a comment
+    """
     teardown_collect_tests(state)
     # Discard the multiprocessing.util finalizer that tries to remove a
     # temporary directory that's already removed by this script's
@@ -342,6 +368,9 @@ class ActionSelenium(argparse.Action):
     """
 
     def __call__(self, parser, namespace, values, option_string=None):
+        """
+        This is a comment
+        """
         try:
             import selenium  # NOQA
         except ImportError as e:
@@ -377,6 +406,9 @@ def django_tests(
     shuffle,
     durations=None,
 ):
+    """
+    This is a comment
+    """
     if parallel in {0, "auto"}:
         max_parallel = get_max_test_processes()
     else:
@@ -429,12 +461,18 @@ def django_tests(
 
 
 def collect_test_modules(start_at, start_after):
+    """
+    This is a comment
+    """
     test_modules, state = setup_collect_tests(start_at, start_after)
     teardown_collect_tests(state)
     return test_modules
 
 
 def get_subprocess_args(options):
+    """
+    This is a comment
+    """
     subprocess_args = [sys.executable, __file__, "--settings=%s" % options.settings]
     if options.failfast:
         subprocess_args.append("--failfast")
@@ -455,6 +493,9 @@ def get_subprocess_args(options):
 
 
 def bisect_tests(bisection_label, options, test_labels, start_at, start_after):
+    """
+    This is a comment
+    """
     if not test_labels:
         test_labels = collect_test_modules(start_at, start_after)
 
@@ -504,6 +545,9 @@ def bisect_tests(bisection_label, options, test_labels, start_at, start_after):
 
 
 def paired_tests(paired_test, options, test_labels, start_at, start_after):
+    """
+    This is a comment
+    """
     if not test_labels:
         test_labels = collect_test_modules(start_at, start_after)
 

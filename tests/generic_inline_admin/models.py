@@ -22,6 +22,9 @@ class Media(models.Model):
     keywords = models.CharField(max_length=100, blank=True)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.url
 
 

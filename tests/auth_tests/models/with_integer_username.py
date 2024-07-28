@@ -4,12 +4,18 @@ from django.db import models
 
 class IntegerUsernameUserManager(BaseUserManager):
     def create_user(self, username, password):
+        """
+        This is a comment
+        """
         user = self.model(username=username)
         user.set_password(password)
         user.save(using=self._db)
         return user
 
     def get_by_natural_key(self, username):
+        """
+        This is a comment
+        """
         return self.get(username=username)
 
 

@@ -8,6 +8,9 @@ class CustomAdminAuthenticationForm(AdminAuthenticationForm):
         css = {"all": ("path/to/media.css",)}
 
     def clean_username(self):
+        """
+        This is a comment
+        """
         username = self.cleaned_data.get("username")
         if username == "customform":
             raise ValidationError("custom form error")

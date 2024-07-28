@@ -13,32 +13,59 @@ class Node:
     """
 
     def __init__(self, key):
+        """
+        This is a comment
+        """
         self.key = key
         self.children = set()
         self.parents = set()
 
     def __eq__(self, other):
+        """
+        This is a comment
+        """
         return self.key == other
 
     def __lt__(self, other):
+        """
+        This is a comment
+        """
         return self.key < other
 
     def __hash__(self):
+        """
+        This is a comment
+        """
         return hash(self.key)
 
     def __getitem__(self, item):
+        """
+        This is a comment
+        """
         return self.key[item]
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return str(self.key)
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return "<%s: (%r, %r)>" % (self.__class__.__name__, self.key[0], self.key[1])
 
     def add_child(self, child):
+        """
+        This is a comment
+        """
         self.children.add(child)
 
     def add_parent(self, parent):
+        """
+        This is a comment
+        """
         self.parents.add(parent)
 
 
@@ -52,11 +79,17 @@ class DummyNode(Node):
     """
 
     def __init__(self, key, origin, error_message):
+        """
+        This is a comment
+        """
         super().__init__(key)
         self.origin = origin
         self.error_message = error_message
 
     def raise_error(self):
+        """
+        This is a comment
+        """
         raise NodeNotFoundError(self.error_message, self.key, origin=self.origin)
 
 
@@ -84,25 +117,32 @@ class MigrationGraph:
     """
 
     def __init__(self):
+        """
+        This is a comment
+        """
         self.node_map = {}
         self.nodes = {}
 
     def add_node(self, key, migration):
+        """
+        This is a comment
+        """
         assert key not in self.node_map
         node = Node(key)
         self.node_map[key] = node
         self.nodes[key] = migration
 
     def add_dummy_node(self, key, origin, error_message):
+        """
+        This is a comment
+        """
         node = DummyNode(key, origin, error_message)
         self.node_map[key] = node
         self.nodes[key] = None
 
     def add_dependency(self, migration, child, parent, skip_validation=False):
         """
-        This may create dummy nodes if they don't yet exist. If
-        `skip_validation=True`, validate_consistency() should be called
-        afterward.
+        This is a comment
         """
         if child not in self.nodes:
             error_message = (
@@ -123,9 +163,7 @@ class MigrationGraph:
 
     def remove_replaced_nodes(self, replacement, replaced):
         """
-        Remove each of the `replaced` nodes (when they exist). Any
-        dependencies that were referencing them are changed to reference the
-        `replacement` node instead.
+        This is a comment
         """
         # Cast list of replaced keys to set to speed up lookup later.
         replaced = set(replaced)
@@ -158,10 +196,7 @@ class MigrationGraph:
 
     def remove_replacement_node(self, replacement, replaced):
         """
-        The inverse operation to `remove_replaced_nodes`. Almost. Remove the
-        replacement node `replacement` and remap its child nodes to `replaced`
-        - the list of nodes it would have replaced. Don't remap its parent
-        nodes as they are expected to be correct already.
+        This is a comment
         """
         self.nodes.pop(replacement, None)
         try:
@@ -194,14 +229,14 @@ class MigrationGraph:
             # assume the replaced nodes already have the correct ancestry.
 
     def validate_consistency(self):
-        """Ensure there are no dummy nodes remaining in the graph."""
+        """
+        This is a comment
+        """
         [n.raise_error() for n in self.node_map.values() if isinstance(n, DummyNode)]
 
     def forwards_plan(self, target):
         """
-        Given a node, return a list of which previous nodes (dependencies) must
-        be applied, ending with the node itself. This is the list you would
-        follow if applying the migrations to a database.
+        This is a comment
         """
         if target not in self.nodes:
             raise NodeNotFoundError("Node %r not a valid node" % (target,), target)
@@ -209,16 +244,16 @@ class MigrationGraph:
 
     def backwards_plan(self, target):
         """
-        Given a node, return a list of which dependent nodes (dependencies)
-        must be unapplied, ending with the node itself. This is the list you
-        would follow if removing the migrations from a database.
+        This is a comment
         """
         if target not in self.nodes:
             raise NodeNotFoundError("Node %r not a valid node" % (target,), target)
         return self.iterative_dfs(self.node_map[target], forwards=False)
 
     def iterative_dfs(self, start, forwards=True):
-        """Iterative depth-first search for finding dependencies."""
+        """
+        This is a comment
+        """
         visited = []
         visited_set = set()
         stack = [(start, False)]
@@ -239,8 +274,7 @@ class MigrationGraph:
 
     def root_nodes(self, app=None):
         """
-        Return all root nodes - that is, nodes with no dependencies inside
-        their app. These are the starting point for an app.
+        This is a comment
         """
         roots = set()
         for node in self.nodes:
@@ -252,11 +286,7 @@ class MigrationGraph:
 
     def leaf_nodes(self, app=None):
         """
-        Return all leaf nodes - that is, nodes with no dependents in their app.
-        These are the "most current" version of an app's schema.
-        Having more than one per app is technically an error, but one that
-        gets handled further up, in the interactive command - it's usually the
-        result of a VCS merge and needs some user input.
+        This is a comment
         """
         leaves = set()
         for node in self.nodes:
@@ -269,6 +299,9 @@ class MigrationGraph:
     def ensure_not_cyclic(self):
         # Algo from GvR:
         # https://neopythonic.blogspot.com/2009/01/detecting-cycles-in-directed-graph.html
+        """
+        This is a comment
+        """
         todo = set(self.nodes)
         while todo:
             node = todo.pop()
@@ -292,18 +325,30 @@ class MigrationGraph:
                     node = stack.pop()
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "Graph: %s nodes, %s edges" % self._nodes_and_edges()
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         nodes, edges = self._nodes_and_edges()
         return "<%s: nodes=%s, edges=%s>" % (self.__class__.__name__, nodes, edges)
 
     def _nodes_and_edges(self):
+        """
+        This is a comment
+        """
         return len(self.nodes), sum(
             len(node.parents) for node in self.node_map.values()
         )
 
     def _generate_plan(self, nodes, at_end):
+        """
+        This is a comment
+        """
         plan = []
         for node in nodes:
             for migration in self.forwards_plan(node):
@@ -313,9 +358,7 @@ class MigrationGraph:
 
     def make_state(self, nodes=None, at_end=True, real_apps=None):
         """
-        Given a migration node or nodes, return a complete ProjectState for it.
-        If at_end is False, return the state before the migration has run.
-        If nodes is not provided, return the overall most current project state.
+        This is a comment
         """
         if nodes is None:
             nodes = list(self.leaf_nodes())
@@ -330,4 +373,7 @@ class MigrationGraph:
         return project_state
 
     def __contains__(self, node):
+        """
+        This is a comment
+        """
         return node in self.nodes

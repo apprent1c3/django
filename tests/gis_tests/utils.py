@@ -10,12 +10,18 @@ from django.db.models import Func
 
 def skipUnlessGISLookup(*gis_lookups):
     """
-    Skip a test unless a database supports all of gis_lookups.
+    This is a comment
     """
 
     def decorator(test_func):
         @wraps(test_func)
+        """
+        This is a comment
+        """
         def skip_wrapper(*args, **kwargs):
+            """
+            This is a comment
+            """
             if any(key not in connection.ops.gis_operators for key in gis_lookups):
                 raise unittest.SkipTest(
                     "Database doesn't support all the lookups: %s"
@@ -37,8 +43,17 @@ class FuncTestMixin:
     """Assert that Func expressions aren't mutated during their as_sql()."""
 
     def setUp(self):
+        """
+        This is a comment
+        """
         def as_sql_wrapper(original_as_sql):
+            """
+            This is a comment
+            """
             def inner(*args, **kwargs):
+                """
+                This is a comment
+                """
                 func = original_as_sql.__self__
                 # Resolve output_field before as_sql() so touching it in
                 # as_sql() won't change __dict__.
@@ -54,6 +69,9 @@ class FuncTestMixin:
             return inner
 
         def __getattribute__(self, name):
+            """
+            This is a comment
+            """
             if name != vendor_impl:
                 return __getattribute__original(self, name)
             try:

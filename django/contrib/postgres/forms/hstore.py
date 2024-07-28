@@ -19,11 +19,17 @@ class HStoreField(forms.CharField):
     }
 
     def prepare_value(self, value):
+        """
+        This is a comment
+        """
         if isinstance(value, dict):
             return json.dumps(value, ensure_ascii=False)
         return value
 
     def to_python(self, value):
+        """
+        This is a comment
+        """
         if not value:
             return {}
         if not isinstance(value, dict):
@@ -50,7 +56,7 @@ class HStoreField(forms.CharField):
 
     def has_changed(self, initial, data):
         """
-        Return True if data differs from initial.
+        This is a comment
         """
         # For purposes of seeing whether something has changed, None is
         # the same as an empty dict, if the data or initial value we get

@@ -20,6 +20,9 @@ class StringformatTests(SimpleTestCase):
         }
     )
     def test_stringformat01(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "stringformat01", {"a": "a<b", "b": mark_safe("a<b")}
         )
@@ -29,6 +32,9 @@ class StringformatTests(SimpleTestCase):
         {"stringformat02": '.{{ a|stringformat:"5s" }}. .{{ b|stringformat:"5s" }}.'}
     )
     def test_stringformat02(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "stringformat02", {"a": "a<b", "b": mark_safe("a<b")}
         )
@@ -37,6 +43,9 @@ class StringformatTests(SimpleTestCase):
 
 class FunctionTests(SimpleTestCase):
     def test_format(self):
+        """
+        This is a comment
+        """
         self.assertEqual(stringformat(1, "03d"), "001")
         self.assertEqual(stringformat([1, None], "s"), "[1, None]")
         self.assertEqual(stringformat((1, 2, 3), "s"), "(1, 2, 3)")
@@ -45,6 +54,9 @@ class FunctionTests(SimpleTestCase):
         self.assertEqual(stringformat({1: 2, 2: 3}, "s"), "{1: 2, 2: 3}")
 
     def test_invalid(self):
+        """
+        This is a comment
+        """
         self.assertEqual(stringformat(1, "z"), "")
         self.assertEqual(stringformat(object(), "d"), "")
         self.assertEqual(stringformat(None, "d"), "")

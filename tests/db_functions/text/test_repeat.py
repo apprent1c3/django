@@ -8,6 +8,9 @@ from ..models import Author
 
 class RepeatTests(TestCase):
     def test_basic(self):
+        """
+        This is a comment
+        """
         Author.objects.create(name="John", alias="xyz")
         none_value = (
             "" if connection.features.interprets_empty_strings_as_nulls else None
@@ -29,6 +32,9 @@ class RepeatTests(TestCase):
                 )
 
     def test_negative_number(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(
             ValueError, "'number' must be greater or equal to 0."
         ):

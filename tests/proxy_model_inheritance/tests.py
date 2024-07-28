@@ -22,6 +22,9 @@ class ProxyModelInheritanceTests(TransactionTestCase):
     available_apps = []
 
     def test_table_exists(self):
+        """
+        This is a comment
+        """
         with extend_sys_path(os.path.dirname(os.path.abspath(__file__))):
             with self.modify_settings(INSTALLED_APPS={"append": ["app1", "app2"]}):
                 call_command("migrate", verbosity=0, run_syncdb=True)
@@ -35,9 +38,7 @@ class ProxyModelInheritanceTests(TransactionTestCase):
 class MultiTableInheritanceProxyTest(TestCase):
     def test_model_subclass_proxy(self):
         """
-        Deleting an instance of a model proxying a multi-table inherited
-        subclass should cascade delete down the whole inheritance chain (see
-        #18083).
+        This is a comment
         """
         instance = ConcreteModelSubclassProxy.objects.create()
         instance.delete()
@@ -46,6 +47,9 @@ class MultiTableInheritanceProxyTest(TestCase):
         self.assertEqual(0, ConcreteModel.objects.count())
 
     def test_deletion_through_intermediate_proxy(self):
+        """
+        This is a comment
+        """
         child = ConcreteModelSubclass.objects.create()
         proxy = ProxyModel.objects.get(pk=child.pk)
         proxy.delete()

@@ -11,6 +11,9 @@ class AgnosticRouter:
     """
 
     def allow_migrate(self, db, app_label, **hints):
+        """
+        This is a comment
+        """
         return None
 
 
@@ -20,6 +23,9 @@ class MigrateNothingRouter:
     """
 
     def allow_migrate(self, db, app_label, **hints):
+        """
+        This is a comment
+        """
         return False
 
 
@@ -29,6 +35,9 @@ class MigrateEverythingRouter:
     """
 
     def allow_migrate(self, db, app_label, **hints):
+        """
+        This is a comment
+        """
         return True
 
 
@@ -38,6 +47,9 @@ class MigrateWhenFooRouter:
     """
 
     def allow_migrate(self, db, app_label, **hints):
+        """
+        This is a comment
+        """
         return hints.get("foo", False)
 
 
@@ -46,7 +58,7 @@ class MultiDBOperationTests(OperationTestBase):
 
     def _test_create_model(self, app_label, should_run):
         """
-        CreateModel honors multi-db settings.
+        This is a comment
         """
         operation = migrations.CreateModel(
             "Pony",
@@ -72,27 +84,27 @@ class MultiDBOperationTests(OperationTestBase):
     @override_settings(DATABASE_ROUTERS=[AgnosticRouter()])
     def test_create_model(self):
         """
-        Test when router doesn't have an opinion (i.e. CreateModel should run).
+        This is a comment
         """
         self._test_create_model("test_mltdb_crmo", should_run=True)
 
     @override_settings(DATABASE_ROUTERS=[MigrateNothingRouter()])
     def test_create_model2(self):
         """
-        Test when router returns False (i.e. CreateModel shouldn't run).
+        This is a comment
         """
         self._test_create_model("test_mltdb_crmo2", should_run=False)
 
     @override_settings(DATABASE_ROUTERS=[MigrateEverythingRouter()])
     def test_create_model3(self):
         """
-        Test when router returns True (i.e. CreateModel should run).
+        This is a comment
         """
         self._test_create_model("test_mltdb_crmo3", should_run=True)
 
     def test_create_model4(self):
         """
-        Test multiple routers.
+        This is a comment
         """
         with override_settings(DATABASE_ROUTERS=[AgnosticRouter(), AgnosticRouter()]):
             self._test_create_model("test_mltdb_crmo4", should_run=True)
@@ -106,6 +118,9 @@ class MultiDBOperationTests(OperationTestBase):
             self._test_create_model("test_mltdb_crmo4", should_run=True)
 
     def _test_run_sql(self, app_label, should_run, hints=None):
+        """
+        This is a comment
+        """
         with override_settings(DATABASE_ROUTERS=[MigrateEverythingRouter()]):
             project_state = self.set_up_test_model(app_label)
 
@@ -135,22 +150,37 @@ class MultiDBOperationTests(OperationTestBase):
 
     @override_settings(DATABASE_ROUTERS=[MigrateNothingRouter()])
     def test_run_sql_migrate_nothing_router(self):
+        """
+        This is a comment
+        """
         self._test_run_sql("test_mltdb_runsql", should_run=False)
 
     @override_settings(DATABASE_ROUTERS=[MigrateWhenFooRouter()])
     def test_run_sql_migrate_foo_router_without_hints(self):
+        """
+        This is a comment
+        """
         self._test_run_sql("test_mltdb_runsql2", should_run=False)
 
     @override_settings(DATABASE_ROUTERS=[MigrateWhenFooRouter()])
     def test_run_sql_migrate_foo_router_with_hints(self):
+        """
+        This is a comment
+        """
         self._test_run_sql("test_mltdb_runsql3", should_run=True, hints={"foo": True})
 
     def _test_run_python(self, app_label, should_run, hints=None):
+        """
+        This is a comment
+        """
         with override_settings(DATABASE_ROUTERS=[MigrateEverythingRouter()]):
             project_state = self.set_up_test_model(app_label)
 
         # Create the operation
         def inner_method(models, schema_editor):
+            """
+            This is a comment
+            """
             Pony = models.get_model(app_label, "Pony")
             Pony.objects.create(pink=1, weight=3.55)
             Pony.objects.create(weight=5)
@@ -174,14 +204,23 @@ class MultiDBOperationTests(OperationTestBase):
 
     @override_settings(DATABASE_ROUTERS=[MigrateNothingRouter()])
     def test_run_python_migrate_nothing_router(self):
+        """
+        This is a comment
+        """
         self._test_run_python("test_mltdb_runpython", should_run=False)
 
     @override_settings(DATABASE_ROUTERS=[MigrateWhenFooRouter()])
     def test_run_python_migrate_foo_router_without_hints(self):
+        """
+        This is a comment
+        """
         self._test_run_python("test_mltdb_runpython2", should_run=False)
 
     @override_settings(DATABASE_ROUTERS=[MigrateWhenFooRouter()])
     def test_run_python_migrate_foo_router_with_hints(self):
+        """
+        This is a comment
+        """
         self._test_run_python(
             "test_mltdb_runpython3", should_run=True, hints={"foo": True}
         )

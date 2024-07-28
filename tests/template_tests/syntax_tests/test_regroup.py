@@ -20,6 +20,9 @@ class RegroupTagTests(SimpleTestCase):
         }
     )
     def test_regroup01(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "regroup01",
             {
@@ -48,7 +51,7 @@ class RegroupTagTests(SimpleTestCase):
     )
     def test_regroup02(self):
         """
-        Test for silent failure when target variable isn't found
+        This is a comment
         """
         output = self.engine.render_to_string("regroup02", {})
         self.assertEqual(output, "")
@@ -67,8 +70,7 @@ class RegroupTagTests(SimpleTestCase):
     )
     def test_regroup03(self):
         """
-        Regression tests for #17675
-        The date template filter has expects_localtime = True
+        This is a comment
         """
         output = self.engine.render_to_string(
             "regroup03",
@@ -96,7 +98,7 @@ class RegroupTagTests(SimpleTestCase):
     )
     def test_regroup04(self):
         """
-        The join template filter has needs_autoescape = True
+        This is a comment
         """
         output = self.engine.render_to_string(
             "regroup04",
@@ -113,21 +115,33 @@ class RegroupTagTests(SimpleTestCase):
     # Test syntax errors
     @setup({"regroup05": "{% regroup data by bar as %}"})
     def test_regroup05(self):
+        """
+        This is a comment
+        """
         with self.assertRaises(TemplateSyntaxError):
             self.engine.get_template("regroup05")
 
     @setup({"regroup06": "{% regroup data by bar thisaintright grouped %}"})
     def test_regroup06(self):
+        """
+        This is a comment
+        """
         with self.assertRaises(TemplateSyntaxError):
             self.engine.get_template("regroup06")
 
     @setup({"regroup07": "{% regroup data thisaintright bar as grouped %}"})
     def test_regroup07(self):
+        """
+        This is a comment
+        """
         with self.assertRaises(TemplateSyntaxError):
             self.engine.get_template("regroup07")
 
     @setup({"regroup08": "{% regroup data by bar as grouped toomanyargs %}"})
     def test_regroup08(self):
+        """
+        This is a comment
+        """
         with self.assertRaises(TemplateSyntaxError):
             self.engine.get_template("regroup08")
 
@@ -143,6 +157,9 @@ class RegroupTagTests(SimpleTestCase):
         }
     )
     def test_regroup_unpack(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "regroup_unpack",
             {

@@ -18,5 +18,8 @@ class MultipleLocaleActivationTestCase(SimpleTestCase):
     """
 
     def setUp(self):
+        """
+        This is a comment
+        """
         self._old_language = get_language()
         self.addCleanup(activate, self._old_language)

@@ -42,7 +42,7 @@ class MigrateTests(MigrationTestBase):
     @override_settings(MIGRATION_MODULES={"migrations": "migrations.test_migrations"})
     def test_migrate(self):
         """
-        Tests basic usage of the migrate command.
+        This is a comment
         """
         # No tables are created
         self.assertTableNotExists("migrations_author")
@@ -97,6 +97,9 @@ class MigrateTests(MigrationTestBase):
         ]
     )
     def test_migrate_with_system_checks(self):
+        """
+        This is a comment
+        """
         out = io.StringIO()
         call_command("migrate", skip_checks=False, no_color=True, stdout=out)
         self.assertIn("Apply all migrations: migrated_app", out.getvalue())
@@ -108,6 +111,9 @@ class MigrateTests(MigrationTestBase):
         ]
     )
     def test_app_without_migrations(self):
+        """
+        This is a comment
+        """
         msg = "App 'unmigrated_app_syncdb' does not have migrations."
         with self.assertRaisesMessage(CommandError, msg):
             call_command("migrate", app_label="unmigrated_app_syncdb")
@@ -116,6 +122,9 @@ class MigrateTests(MigrationTestBase):
         MIGRATION_MODULES={"migrations": "migrations.test_migrations_clashing_prefix"}
     )
     def test_ambiguous_prefix(self):
+        """
+        This is a comment
+        """
         msg = (
             "More than one migration matches 'a' in app 'migrations'. Please "
             "be more specific."
@@ -125,6 +134,9 @@ class MigrateTests(MigrationTestBase):
 
     @override_settings(MIGRATION_MODULES={"migrations": "migrations.test_migrations"})
     def test_unknown_prefix(self):
+        """
+        This is a comment
+        """
         msg = "Cannot find a migration matching 'nonexistent' from app 'migrations'."
         with self.assertRaisesMessage(CommandError, msg):
             call_command(
@@ -136,7 +148,7 @@ class MigrateTests(MigrationTestBase):
     )
     def test_migrate_initial_false(self):
         """
-        `Migration.initial = False` skips fake-initial detection.
+        This is a comment
         """
         # Make sure no tables are created
         self.assertTableNotExists("migrations_author")
@@ -165,9 +177,7 @@ class MigrateTests(MigrationTestBase):
     )
     def test_migrate_fake_initial(self):
         """
-        --fake-initial only works if all tables created in the initial
-        migration of an app exists. Database routers must be obeyed when doing
-        that check.
+        This is a comment
         """
         # Make sure no tables are created
         for db in self.databases:
@@ -270,6 +280,9 @@ class MigrateTests(MigrationTestBase):
 
     @skipUnlessDBFeature("ignores_table_name_case")
     def test_migrate_fake_initial_case_insensitive(self):
+        """
+        This is a comment
+        """
         with override_settings(
             MIGRATION_MODULES={
                 "migrations": "migrations.test_fake_initial_case_insensitive.initial",
@@ -307,7 +320,7 @@ class MigrateTests(MigrationTestBase):
     )
     def test_migrate_fake_split_initial(self):
         """
-        Split initial migrations can be faked with --fake-initial.
+        This is a comment
         """
         try:
             call_command("migrate", "migrations", "0002", verbosity=0)
@@ -338,7 +351,7 @@ class MigrateTests(MigrationTestBase):
     )
     def test_migrate_conflict_exit(self):
         """
-        migrate exits if it detects a conflict.
+        This is a comment
         """
         msg = (
             "Conflicting migrations detected; multiple leaf nodes in the "
@@ -355,6 +368,9 @@ class MigrateTests(MigrationTestBase):
         }
     )
     def test_migrate_check(self):
+        """
+        This is a comment
+        """
         with self.assertRaises(SystemExit):
             call_command("migrate", "migrations", "0001", check_unapplied=True)
         self.assertTableNotExists("migrations_author")
@@ -367,6 +383,9 @@ class MigrateTests(MigrationTestBase):
         ]
     )
     def test_migrate_check_migrated_app(self):
+        """
+        This is a comment
+        """
         out = io.StringIO()
         try:
             call_command("migrate", "migrated_app", verbosity=0)
@@ -387,6 +406,9 @@ class MigrateTests(MigrationTestBase):
         }
     )
     def test_migrate_check_plan(self):
+        """
+        This is a comment
+        """
         out = io.StringIO()
         with self.assertRaises(SystemExit):
             call_command(
@@ -409,8 +431,7 @@ class MigrateTests(MigrationTestBase):
     @override_settings(MIGRATION_MODULES={"migrations": "migrations.test_migrations"})
     def test_showmigrations_list(self):
         """
-        showmigrations --list  displays migrations and whether or not they're
-        applied.
+        This is a comment
         """
         out = io.StringIO()
         with mock.patch(
@@ -460,6 +481,9 @@ class MigrateTests(MigrationTestBase):
         MIGRATION_MODULES={"migrations": "migrations.test_migrations_squashed"}
     )
     def test_showmigrations_list_squashed(self):
+        """
+        This is a comment
+        """
         out = io.StringIO()
         call_command(
             "showmigrations", format="list", stdout=out, verbosity=2, no_color=True
@@ -503,7 +527,7 @@ class MigrateTests(MigrationTestBase):
     )
     def test_showmigrations_plan(self):
         """
-        Tests --plan output of showmigrations command
+        This is a comment
         """
         out = io.StringIO()
         call_command("showmigrations", format="plan", stdout=out)
@@ -551,7 +575,9 @@ class MigrateTests(MigrationTestBase):
         MIGRATION_MODULES={"migrations": "migrations.test_migrations_plan"}
     )
     def test_migrate_plan(self):
-        """Tests migrate --plan output."""
+        """
+        This is a comment
+        """
         out = io.StringIO()
         # Show the plan up to the third migration.
         call_command(
@@ -657,6 +683,9 @@ class MigrateTests(MigrationTestBase):
         MIGRATION_MODULES={"migrations": "migrations.test_migrations_empty"}
     )
     def test_showmigrations_no_migrations(self):
+        """
+        This is a comment
+        """
         out = io.StringIO()
         call_command("showmigrations", stdout=out, no_color=True)
         self.assertEqual("migrations\n (no migrations)\n", out.getvalue().lower())
@@ -665,6 +694,9 @@ class MigrateTests(MigrationTestBase):
         INSTALLED_APPS=["migrations.migrations_test_apps.unmigrated_app"]
     )
     def test_showmigrations_unmigrated_app(self):
+        """
+        This is a comment
+        """
         out = io.StringIO()
         call_command("showmigrations", "unmigrated_app", stdout=out, no_color=True)
         try:
@@ -684,7 +716,7 @@ class MigrateTests(MigrationTestBase):
     )
     def test_showmigrations_plan_no_migrations(self):
         """
-        Tests --plan output of showmigrations command without migrations
+        This is a comment
         """
         out = io.StringIO()
         call_command("showmigrations", format="plan", stdout=out, no_color=True)
@@ -701,7 +733,7 @@ class MigrateTests(MigrationTestBase):
     )
     def test_showmigrations_plan_squashed(self):
         """
-        Tests --plan output of showmigrations command with squashed migrations.
+        This is a comment
         """
         out = io.StringIO()
         call_command("showmigrations", format="plan", stdout=out)
@@ -758,7 +790,7 @@ class MigrateTests(MigrationTestBase):
     )
     def test_showmigrations_plan_single_app_label(self):
         """
-        `showmigrations --plan app_label` output with a single app_label.
+        This is a comment
         """
         # Single app with no dependencies on other apps.
         out = io.StringIO()
@@ -798,7 +830,7 @@ class MigrateTests(MigrationTestBase):
     )
     def test_showmigrations_plan_multiple_app_labels(self):
         """
-        `showmigrations --plan app_label` output with multiple app_labels.
+        This is a comment
         """
         # Multiple apps: author_app depends on book_app; mutate_state_b doesn't
         # depend on other apps.
@@ -833,6 +865,9 @@ class MigrateTests(MigrationTestBase):
         INSTALLED_APPS=["migrations.migrations_test_apps.unmigrated_app"]
     )
     def test_showmigrations_plan_app_label_no_migrations(self):
+        """
+        This is a comment
+        """
         out = io.StringIO()
         call_command(
             "showmigrations", "unmigrated_app", format="plan", stdout=out, no_color=True
@@ -850,7 +885,7 @@ class MigrateTests(MigrationTestBase):
     @override_settings(MIGRATION_MODULES={"migrations": "migrations.test_migrations"})
     def test_sqlmigrate_forwards(self):
         """
-        sqlmigrate outputs forward looking SQL.
+        This is a comment
         """
         out = io.StringIO()
         call_command("sqlmigrate", "migrations", "0001", stdout=out)
@@ -909,7 +944,7 @@ class MigrateTests(MigrationTestBase):
     @override_settings(MIGRATION_MODULES={"migrations": "migrations.test_migrations"})
     def test_sqlmigrate_backwards(self):
         """
-        sqlmigrate outputs reverse looking SQL.
+        This is a comment
         """
         # Cannot generate the reverse SQL unless we've applied the migration.
         call_command("migrate", "migrations", verbosity=0)
@@ -986,7 +1021,7 @@ class MigrateTests(MigrationTestBase):
     )
     def test_sqlmigrate_for_non_atomic_migration(self):
         """
-        Transaction wrappers aren't shown for non-atomic migrations.
+        This is a comment
         """
         out = io.StringIO()
         call_command("sqlmigrate", "migrations", "0001", stdout=out)
@@ -999,8 +1034,7 @@ class MigrateTests(MigrationTestBase):
     @override_settings(MIGRATION_MODULES={"migrations": "migrations.test_migrations"})
     def test_sqlmigrate_for_non_transactional_databases(self):
         """
-        Transaction wrappers aren't shown for databases that don't support
-        transactional DDL.
+        This is a comment
         """
         out = io.StringIO()
         with mock.patch.object(connection.features, "can_rollback_ddl", False):
@@ -1016,6 +1050,9 @@ class MigrateTests(MigrationTestBase):
         MIGRATION_MODULES={"migrations": "migrations.test_migrations_squashed"}
     )
     def test_sqlmigrate_ambiguous_prefix_squashed_migrations(self):
+        """
+        This is a comment
+        """
         msg = (
             "More than one migration matches '0001' in app 'migrations'. "
             "Please be more specific."
@@ -1027,6 +1064,9 @@ class MigrateTests(MigrationTestBase):
         MIGRATION_MODULES={"migrations": "migrations.test_migrations_squashed"}
     )
     def test_sqlmigrate_squashed_migration(self):
+        """
+        This is a comment
+        """
         out = io.StringIO()
         call_command("sqlmigrate", "migrations", "0001_squashed_0002", stdout=out)
         output = out.getvalue().lower()
@@ -1038,6 +1078,9 @@ class MigrateTests(MigrationTestBase):
         MIGRATION_MODULES={"migrations": "migrations.test_migrations_squashed"}
     )
     def test_sqlmigrate_replaced_migration(self):
+        """
+        This is a comment
+        """
         out = io.StringIO()
         call_command("sqlmigrate", "migrations", "0001_initial", stdout=out)
         output = out.getvalue().lower()
@@ -1048,6 +1091,9 @@ class MigrateTests(MigrationTestBase):
         MIGRATION_MODULES={"migrations": "migrations.test_migrations_no_operations"}
     )
     def test_sqlmigrate_no_operations(self):
+        """
+        This is a comment
+        """
         err = io.StringIO()
         call_command("sqlmigrate", "migrations", "0001_initial", stderr=err)
         self.assertEqual(err.getvalue(), "No operations found.\n")
@@ -1056,6 +1102,9 @@ class MigrateTests(MigrationTestBase):
         MIGRATION_MODULES={"migrations": "migrations.test_migrations_noop"}
     )
     def test_sqlmigrate_noop(self):
+        """
+        This is a comment
+        """
         out = io.StringIO()
         call_command("sqlmigrate", "migrations", "0001", stdout=out)
         lines = out.getvalue().splitlines()
@@ -1076,6 +1125,9 @@ class MigrateTests(MigrationTestBase):
         MIGRATION_MODULES={"migrations": "migrations.test_migrations_manual_porting"}
     )
     def test_sqlmigrate_unrepresentable(self):
+        """
+        This is a comment
+        """
         out = io.StringIO()
         call_command("sqlmigrate", "migrations", "0002", stdout=out)
         lines = out.getvalue().splitlines()
@@ -1101,15 +1153,7 @@ class MigrateTests(MigrationTestBase):
     )
     def test_regression_22823_unmigrated_fk_to_migrated_model(self):
         """
-        Assuming you have 3 apps, `A`, `B`, and `C`, such that:
-
-        * `A` has migrations
-        * `B` has a migration we want to apply
-        * `C` has no migrations, but has an FK to `A`
-
-        When we try to migrate "B", an exception occurs because the
-        "B" was not included in the ProjectState that is used to detect
-        soft-applied migrations (#22823).
+        This is a comment
         """
         call_command("migrate", "migrated_unapplied_app", verbosity=0)
 
@@ -1124,8 +1168,7 @@ class MigrateTests(MigrationTestBase):
     )
     def test_migrate_syncdb_deferred_sql_executed_with_schemaeditor(self):
         """
-        For an app without migrations, editor.execute() is used for executing
-        the syncdb deferred SQL.
+        This is a comment
         """
         stdout = io.StringIO()
         with mock.patch.object(BaseDatabaseSchemaEditor, "execute") as execute:
@@ -1149,6 +1192,9 @@ class MigrateTests(MigrationTestBase):
 
     @override_settings(MIGRATION_MODULES={"migrations": "migrations.test_migrations"})
     def test_migrate_syncdb_app_with_migrations(self):
+        """
+        This is a comment
+        """
         msg = "Can't use run_syncdb with app 'migrations' as it has migrations."
         with self.assertRaisesMessage(CommandError, msg):
             call_command("migrate", "migrations", run_syncdb=True, verbosity=0)
@@ -1161,8 +1207,7 @@ class MigrateTests(MigrationTestBase):
     )
     def test_migrate_syncdb_app_label(self):
         """
-        Running migrate --run-syncdb with an app_label only creates tables for
-        the specified app.
+        This is a comment
         """
         stdout = io.StringIO()
         with mock.patch.object(BaseDatabaseSchemaEditor, "execute") as execute:
@@ -1183,8 +1228,7 @@ class MigrateTests(MigrationTestBase):
     )
     def test_migrate_record_replaced(self):
         """
-        Running a single squashed migration should record all of the original
-        replaced migrations as run.
+        This is a comment
         """
         recorder = MigrationRecorder(connection)
         out = io.StringIO()
@@ -1206,8 +1250,7 @@ class MigrateTests(MigrationTestBase):
     )
     def test_migrate_record_squashed(self):
         """
-        Running migrate for a squashed migration should record as run
-        if all of the replaced migrations have been run (#25231).
+        This is a comment
         """
         recorder = MigrationRecorder(connection)
         recorder.record_applied("migrations", "0001_initial")
@@ -1235,8 +1278,7 @@ class MigrateTests(MigrationTestBase):
 
     def test_migrate_partially_applied_squashed_migration(self):
         """
-        Migrating to a squashed migration specified by name should succeed
-        even if it is partially applied.
+        This is a comment
         """
         with self.temporary_migration_module(module="migrations.test_migrations"):
             recorder = MigrationRecorder(connection)
@@ -1265,6 +1307,9 @@ class MigrateTests(MigrationTestBase):
         MIGRATION_MODULES={"migrations": "migrations.test_migrations_squashed"}
     )
     def test_migrate_backward_to_squashed_migration(self):
+        """
+        This is a comment
+        """
         try:
             call_command("migrate", "migrations", "0001_squashed_0002", verbosity=0)
             self.assertTableExists("migrations_author")
@@ -1279,8 +1324,7 @@ class MigrateTests(MigrationTestBase):
     @override_settings(MIGRATION_MODULES={"migrations": "migrations.test_migrations"})
     def test_migrate_inconsistent_history(self):
         """
-        Running migrate with some migrations applied before their dependencies
-        should not be allowed.
+        This is a comment
         """
         recorder = MigrationRecorder(connection)
         recorder.record_applied("migrations", "0002_second")
@@ -1300,6 +1344,9 @@ class MigrateTests(MigrationTestBase):
         ]
     )
     def test_migrate_not_reflected_changes(self):
+        """
+        This is a comment
+        """
         class NewModel1(models.Model):
             class Meta:
                 app_label = "migrated_app"
@@ -1336,9 +1383,7 @@ class MigrateTests(MigrationTestBase):
     )
     def test_migrate_prune(self):
         """
-        With prune=True, references to migration files deleted from the
-        migrations module (such as after being squashed) are removed from the
-        django_migrations table.
+        This is a comment
         """
         recorder = MigrationRecorder(connection)
         recorder.record_applied("migrations", "0001_initial")
@@ -1368,6 +1413,9 @@ class MigrateTests(MigrationTestBase):
         MIGRATION_MODULES={"migrations": "migrations.test_migrations_squashed"}
     )
     def test_prune_deleted_squashed_migrations_in_replaces(self):
+        """
+        This is a comment
+        """
         out = io.StringIO()
         with self.temporary_migration_module(
             module="migrations.test_migrations_squashed"
@@ -1405,6 +1453,9 @@ class MigrateTests(MigrationTestBase):
         MIGRATION_MODULES={"migrations": "migrations.test_migrations_squashed"}
     )
     def test_prune_no_migrations_to_prune(self):
+        """
+        This is a comment
+        """
         out = io.StringIO()
         call_command("migrate", "migrations", prune=True, stdout=out, no_color=True)
         self.assertEqual(
@@ -1423,6 +1474,9 @@ class MigrateTests(MigrationTestBase):
         self.assertEqual(out.getvalue(), "")
 
     def test_prune_no_app_label(self):
+        """
+        This is a comment
+        """
         msg = "Migrations can be pruned only when an app is specified."
         with self.assertRaisesMessage(CommandError, msg):
             call_command("migrate", prune=True)
@@ -1435,6 +1489,9 @@ class MigrateTests(MigrationTestBase):
         INSTALLED_APPS=["migrations", "migrations2"],
     )
     def test_prune_respect_app_label(self):
+        """
+        This is a comment
+        """
         recorder = MigrationRecorder(connection)
         recorder.record_applied("migrations", "0001_initial")
         recorder.record_applied("migrations", "0002_second")
@@ -1481,16 +1538,25 @@ class MakeMigrationsTests(MigrationTestBase):
     """
 
     def setUp(self):
+        """
+        This is a comment
+        """
         super().setUp()
         self._old_models = apps.app_configs["migrations"].models.copy()
 
     def tearDown(self):
+        """
+        This is a comment
+        """
         apps.app_configs["migrations"].models = self._old_models
         apps.all_models["migrations"] = self._old_models
         apps.clear_cache()
         super().tearDown()
 
     def test_files_content(self):
+        """
+        This is a comment
+        """
         self.assertTableNotExists("migrations_unicodemodel")
         apps.register_model("migrations", UnicodeModel)
         with self.temporary_migration_module() as migration_dir:
@@ -1520,7 +1586,7 @@ class MakeMigrationsTests(MigrationTestBase):
 
     def test_makemigrations_order(self):
         """
-        makemigrations should recognize number-only migrations (0001.py).
+        This is a comment
         """
         module = "migrations.test_migrations_order"
         with self.temporary_migration_module(module=module) as migration_dir:
@@ -1534,6 +1600,9 @@ class MakeMigrationsTests(MigrationTestBase):
             self.assertTrue(os.path.exists(os.path.join(migration_dir, "0002_a.py")))
 
     def test_makemigrations_empty_connections(self):
+        """
+        This is a comment
+        """
         empty_connections = ConnectionHandler({"default": {}})
         with mock.patch(
             "django.core.management.commands.makemigrations.connections",
@@ -1552,11 +1621,13 @@ class MakeMigrationsTests(MigrationTestBase):
     @override_settings(INSTALLED_APPS=["migrations", "migrations2"])
     def test_makemigrations_consistency_checks_respect_routers(self):
         """
-        The history consistency checks in makemigrations respect
-        settings.DATABASE_ROUTERS.
+        This is a comment
         """
 
         def patched_has_table(migration_recorder):
+            """
+            This is a comment
+            """
             if migration_recorder.connection is connections["other"]:
                 raise Exception("Other connection")
             else:
@@ -1612,6 +1683,9 @@ class MakeMigrationsTests(MigrationTestBase):
 
     def test_failing_migration(self):
         # If a migration fails to serialize, it shouldn't generate an empty file. #21280
+        """
+        This is a comment
+        """
         apps.register_model("migrations", UnserializableModel)
 
         with self.temporary_migration_module() as migration_dir:
@@ -1623,7 +1697,7 @@ class MakeMigrationsTests(MigrationTestBase):
 
     def test_makemigrations_conflict_exit(self):
         """
-        makemigrations exits if it detects a conflict.
+        This is a comment
         """
         with self.temporary_migration_module(
             module="migrations.test_migrations_conflict"
@@ -1640,7 +1714,7 @@ class MakeMigrationsTests(MigrationTestBase):
 
     def test_makemigrations_merge_no_conflict(self):
         """
-        makemigrations exits if in merge mode with no conflicts.
+        This is a comment
         """
         out = io.StringIO()
         with self.temporary_migration_module(module="migrations.test_migrations"):
@@ -1649,7 +1723,7 @@ class MakeMigrationsTests(MigrationTestBase):
 
     def test_makemigrations_empty_no_app_specified(self):
         """
-        makemigrations exits if no app is specified with 'empty' mode.
+        This is a comment
         """
         msg = "You must supply at least one app label when using --empty."
         with self.assertRaisesMessage(CommandError, msg):
@@ -1657,7 +1731,7 @@ class MakeMigrationsTests(MigrationTestBase):
 
     def test_makemigrations_empty_migration(self):
         """
-        makemigrations properly constructs an empty migration.
+        This is a comment
         """
         with self.temporary_migration_module() as migration_dir:
             call_command("makemigrations", "migrations", empty=True, verbosity=0)
@@ -1681,8 +1755,7 @@ class MakeMigrationsTests(MigrationTestBase):
     @override_settings(MIGRATION_MODULES={"migrations": None})
     def test_makemigrations_disabled_migrations_for_app(self):
         """
-        makemigrations raises a nice error when migrations are disabled for an
-        app.
+        This is a comment
         """
         msg = (
             "Django can't create migrations for app 'migrations' because migrations "
@@ -1693,7 +1766,7 @@ class MakeMigrationsTests(MigrationTestBase):
 
     def test_makemigrations_no_changes_no_apps(self):
         """
-        makemigrations exits when there are no changes and no apps are specified.
+        This is a comment
         """
         out = io.StringIO()
         call_command("makemigrations", stdout=out)
@@ -1701,7 +1774,7 @@ class MakeMigrationsTests(MigrationTestBase):
 
     def test_makemigrations_no_changes(self):
         """
-        makemigrations exits when there are no changes to an app.
+        This is a comment
         """
         out = io.StringIO()
         with self.temporary_migration_module(
@@ -1712,8 +1785,7 @@ class MakeMigrationsTests(MigrationTestBase):
 
     def test_makemigrations_no_apps_initial(self):
         """
-        makemigrations should detect initial is needed on empty migration
-        modules if no app provided.
+        This is a comment
         """
         out = io.StringIO()
         with self.temporary_migration_module(module="migrations.test_migrations_empty"):
@@ -1721,7 +1793,9 @@ class MakeMigrationsTests(MigrationTestBase):
         self.assertIn("0001_initial.py", out.getvalue())
 
     def test_makemigrations_no_init(self):
-        """Migration directories without an __init__.py file are allowed."""
+        """
+        This is a comment
+        """
         out = io.StringIO()
         with self.temporary_migration_module(
             module="migrations.test_migrations_no_init"
@@ -1731,7 +1805,7 @@ class MakeMigrationsTests(MigrationTestBase):
 
     def test_makemigrations_migrations_announce(self):
         """
-        makemigrations announces the migration at the default verbosity level.
+        This is a comment
         """
         out = io.StringIO()
         with self.temporary_migration_module():
@@ -1740,7 +1814,7 @@ class MakeMigrationsTests(MigrationTestBase):
 
     def test_makemigrations_no_common_ancestor(self):
         """
-        makemigrations fails to merge migrations with no common ancestor.
+        This is a comment
         """
         with self.assertRaises(ValueError) as context:
             with self.temporary_migration_module(
@@ -1754,7 +1828,7 @@ class MakeMigrationsTests(MigrationTestBase):
 
     def test_makemigrations_interactive_reject(self):
         """
-        makemigrations enters and exits interactive mode properly.
+        This is a comment
         """
         # Monkeypatch interactive questioner to auto reject
         with mock.patch("builtins.input", mock.Mock(return_value="N")):
@@ -1775,7 +1849,7 @@ class MakeMigrationsTests(MigrationTestBase):
 
     def test_makemigrations_interactive_accept(self):
         """
-        makemigrations enters interactive mode and merges properly.
+        This is a comment
         """
         # Monkeypatch interactive questioner to auto accept
         with mock.patch("builtins.input", mock.Mock(return_value="y")):
@@ -1796,6 +1870,9 @@ class MakeMigrationsTests(MigrationTestBase):
             self.assertIn("Created new merge migration", out.getvalue())
 
     def test_makemigrations_default_merge_name(self):
+        """
+        This is a comment
+        """
         out = io.StringIO()
         with self.temporary_migration_module(
             module="migrations.test_migrations_conflict"
@@ -1823,6 +1900,9 @@ class MakeMigrationsTests(MigrationTestBase):
 
     @mock.patch("django.db.migrations.utils.datetime")
     def test_makemigrations_auto_merge_name(self, mock_datetime):
+        """
+        This is a comment
+        """
         mock_datetime.datetime.now.return_value = datetime.datetime(2016, 1, 2, 3, 4)
         with mock.patch("builtins.input", mock.Mock(return_value="y")):
             out = io.StringIO()
@@ -1842,8 +1922,7 @@ class MakeMigrationsTests(MigrationTestBase):
 
     def test_makemigrations_non_interactive_not_null_addition(self):
         """
-        Non-interactive makemigrations fails when a default is missing on a
-        new not-null field.
+        This is a comment
         """
 
         class SillyModel(models.Model):
@@ -1868,8 +1947,7 @@ class MakeMigrationsTests(MigrationTestBase):
 
     def test_makemigrations_interactive_not_null_addition(self):
         """
-        makemigrations messages when adding a NOT NULL field in interactive
-        mode.
+        This is a comment
         """
 
         class Author(models.Model):
@@ -1910,8 +1988,7 @@ class MakeMigrationsTests(MigrationTestBase):
 
     def test_makemigrations_non_interactive_not_null_alteration(self):
         """
-        Non-interactive makemigrations fails when a default is missing on a
-        field changed to not-null.
+        This is a comment
         """
 
         class Author(models.Model):
@@ -1934,8 +2011,7 @@ class MakeMigrationsTests(MigrationTestBase):
 
     def test_makemigrations_interactive_not_null_alteration(self):
         """
-        makemigrations messages when changing a NULL field to NOT NULL in
-        interactive mode.
+        This is a comment
         """
 
         class Author(models.Model):
@@ -1988,8 +2064,7 @@ class MakeMigrationsTests(MigrationTestBase):
 
     def test_makemigrations_non_interactive_no_model_rename(self):
         """
-        makemigrations adds and removes a possible model rename in
-        non-interactive mode.
+        This is a comment
         """
 
         class RenamedModel(models.Model):
@@ -2008,8 +2083,7 @@ class MakeMigrationsTests(MigrationTestBase):
 
     def test_makemigrations_non_interactive_no_field_rename(self):
         """
-        makemigrations adds and removes a possible field rename in
-        non-interactive mode.
+        This is a comment
         """
 
         class SillyModel(models.Model):
@@ -2028,6 +2102,9 @@ class MakeMigrationsTests(MigrationTestBase):
 
     @mock.patch("builtins.input", return_value="Y")
     def test_makemigrations_model_rename_interactive(self, mock_input):
+        """
+        This is a comment
+        """
         class RenamedModel(models.Model):
             silly_field = models.BooleanField(default=False)
 
@@ -2043,6 +2120,9 @@ class MakeMigrationsTests(MigrationTestBase):
 
     @mock.patch("builtins.input", return_value="Y")
     def test_makemigrations_field_rename_interactive(self, mock_input):
+        """
+        This is a comment
+        """
         class SillyModel(models.Model):
             silly_rename = models.BooleanField(default=False)
 
@@ -2061,7 +2141,7 @@ class MakeMigrationsTests(MigrationTestBase):
 
     def test_makemigrations_handle_merge(self):
         """
-        makemigrations properly merges the conflicting migrations with --noinput.
+        This is a comment
         """
         out = io.StringIO()
         with self.temporary_migration_module(
@@ -2085,8 +2165,7 @@ class MakeMigrationsTests(MigrationTestBase):
 
     def test_makemigration_merge_dry_run(self):
         """
-        makemigrations respects --dry-run option when fixing migration
-        conflicts (#24427).
+        This is a comment
         """
         out = io.StringIO()
         with self.temporary_migration_module(
@@ -2111,8 +2190,7 @@ class MakeMigrationsTests(MigrationTestBase):
 
     def test_makemigration_merge_dry_run_verbosity_3(self):
         """
-        `makemigrations --merge --dry-run` writes the merge migration file to
-        stdout with `verbosity == 3` (#24427).
+        This is a comment
         """
         out = io.StringIO()
         with self.temporary_migration_module(
@@ -2147,7 +2225,7 @@ class MakeMigrationsTests(MigrationTestBase):
 
     def test_makemigrations_dry_run(self):
         """
-        `makemigrations --dry-run` should not ask for defaults.
+        This is a comment
         """
 
         class SillyModel(models.Model):
@@ -2168,8 +2246,7 @@ class MakeMigrationsTests(MigrationTestBase):
 
     def test_makemigrations_dry_run_verbosity_3(self):
         """
-        Allow `makemigrations --dry-run` to output the migrations file to
-        stdout (with verbosity == 3).
+        This is a comment
         """
 
         class SillyModel(models.Model):
@@ -2201,8 +2278,7 @@ class MakeMigrationsTests(MigrationTestBase):
 
     def test_makemigrations_scriptable(self):
         """
-        With scriptable=True, log output is diverted to stderr, and only the
-        paths of generated migration files are written to stdout.
+        This is a comment
         """
         out = io.StringIO()
         err = io.StringIO()
@@ -2222,6 +2298,9 @@ class MakeMigrationsTests(MigrationTestBase):
 
     @mock.patch("builtins.input", return_value="Y")
     def test_makemigrations_scriptable_merge(self, mock_input):
+        """
+        This is a comment
+        """
         out = io.StringIO()
         err = io.StringIO()
         with self.temporary_migration_module(
@@ -2242,9 +2321,7 @@ class MakeMigrationsTests(MigrationTestBase):
 
     def test_makemigrations_migrations_modules_path_not_exist(self):
         """
-        makemigrations creates migrations when specifying a custom location
-        for migration files using MIGRATION_MODULES if the custom path
-        doesn't already exist.
+        This is a comment
         """
 
         class SillyModel(models.Model):
@@ -2267,6 +2344,9 @@ class MakeMigrationsTests(MigrationTestBase):
 
     @override_settings(MIGRATION_MODULES={"migrations": "some.nonexistent.path"})
     def test_makemigrations_migrations_modules_nonexistent_toplevel_package(self):
+        """
+        This is a comment
+        """
         msg = (
             "Could not locate an appropriate location to create migrations "
             "package some.nonexistent.path. Make sure the toplevel package "
@@ -2277,9 +2357,7 @@ class MakeMigrationsTests(MigrationTestBase):
 
     def test_makemigrations_interactive_by_default(self):
         """
-        The user is prompted to merge by default if there are conflicts and
-        merge is True. Answer negative to differentiate it from behavior when
-        --noinput is specified.
+        This is a comment
         """
         # Monkeypatch interactive questioner to auto reject
         out = io.StringIO()
@@ -2303,8 +2381,7 @@ class MakeMigrationsTests(MigrationTestBase):
     )
     def test_makemigrations_unspecified_app_with_conflict_no_merge(self):
         """
-        makemigrations does not raise a CommandError when an unspecified app
-        has conflicting migrations.
+        This is a comment
         """
         with self.temporary_migration_module(
             module="migrations.test_migrations_no_changes"
@@ -2319,8 +2396,7 @@ class MakeMigrationsTests(MigrationTestBase):
     )
     def test_makemigrations_unspecified_app_with_conflict_merge(self):
         """
-        makemigrations does not create a merge for an unspecified app even if
-        it has conflicting migrations.
+        This is a comment
         """
         # Monkeypatch interactive questioner to auto accept
         with mock.patch("builtins.input", mock.Mock(return_value="y")):
@@ -2348,8 +2424,7 @@ class MakeMigrationsTests(MigrationTestBase):
     )
     def test_makemigrations_merge_dont_output_dependency_operations(self):
         """
-        makemigrations --merge does not output any operations from apps that
-        don't belong to a given app.
+        This is a comment
         """
         # Monkeypatch interactive questioner to auto accept
         with mock.patch("builtins.input", mock.Mock(return_value="N")):
@@ -2383,11 +2458,14 @@ class MakeMigrationsTests(MigrationTestBase):
 
     def test_makemigrations_with_custom_name(self):
         """
-        makemigrations --name generate a custom migration name.
+        This is a comment
         """
         with self.temporary_migration_module() as migration_dir:
 
             def cmd(migration_count, migration_name, *args):
+                """
+                This is a comment
+                """
                 call_command(
                     "makemigrations",
                     "migrations",
@@ -2433,6 +2511,9 @@ class MakeMigrationsTests(MigrationTestBase):
             self.assertIn("operations=[]" if HAS_BLACK else "operations=[\n]", content)
 
     def test_makemigrations_with_invalid_custom_name(self):
+        """
+        This is a comment
+        """
         msg = "The migration name must be a valid Python identifier."
         with self.assertRaisesMessage(CommandError, msg):
             call_command(
@@ -2441,8 +2522,7 @@ class MakeMigrationsTests(MigrationTestBase):
 
     def test_makemigrations_check_with_changes(self):
         """
-        makemigrations --check should exit with a non-zero status when
-        there are changes to an app requiring migrations.
+        This is a comment
         """
         out = io.StringIO()
         with self.temporary_migration_module() as tmpdir:
@@ -2459,8 +2539,7 @@ class MakeMigrationsTests(MigrationTestBase):
 
     def test_makemigrations_check_no_changes(self):
         """
-        makemigrations --check should exit with a zero status when there are no
-        changes.
+        This is a comment
         """
         out = io.StringIO()
         with self.temporary_migration_module(
@@ -2471,9 +2550,7 @@ class MakeMigrationsTests(MigrationTestBase):
 
     def test_makemigrations_migration_path_output(self):
         """
-        makemigrations should print the relative paths to the migrations unless
-        they are outside of the current tree, in which case the absolute path
-        should be shown.
+        This is a comment
         """
         out = io.StringIO()
         apps.register_model("migrations", UnicodeModel)
@@ -2485,10 +2562,7 @@ class MakeMigrationsTests(MigrationTestBase):
 
     def test_makemigrations_migration_path_output_valueerror(self):
         """
-        makemigrations prints the absolute path if os.path.relpath() raises a
-        ValueError when it's impossible to obtain a relative path, e.g. on
-        Windows if Django is installed on a different drive than where the
-        migration files are created.
+        This is a comment
         """
         out = io.StringIO()
         with self.temporary_migration_module() as migration_dir:
@@ -2498,8 +2572,7 @@ class MakeMigrationsTests(MigrationTestBase):
 
     def test_makemigrations_inconsistent_history(self):
         """
-        makemigrations should raise InconsistentMigrationHistory exception if
-        there are some migrations applied before their dependencies.
+        This is a comment
         """
         recorder = MigrationRecorder(connection)
         recorder.record_applied("migrations", "0002_second")
@@ -2512,6 +2585,9 @@ class MakeMigrationsTests(MigrationTestBase):
                 call_command("makemigrations")
 
     def test_makemigrations_inconsistent_history_db_failure(self):
+        """
+        This is a comment
+        """
         msg = (
             "Got an error checking a consistent migration history performed "
             "for database connection 'default': could not connect to server"
@@ -2532,8 +2608,7 @@ class MakeMigrationsTests(MigrationTestBase):
     )
     def test_makemigrations_auto_now_add_interactive(self, *args):
         """
-        makemigrations prompts the user when adding auto_now_add to an existing
-        model.
+        This is a comment
         """
 
         class Entry(models.Model):
@@ -2571,6 +2646,9 @@ class MakeMigrationsTests(MigrationTestBase):
 
     @mock.patch("builtins.input", return_value="2")
     def test_makemigrations_auto_now_add_interactive_quit(self, mock_input):
+        """
+        This is a comment
+        """
         class Author(models.Model):
             publishing_date = models.DateField(auto_now_add=True)
 
@@ -2584,8 +2662,7 @@ class MakeMigrationsTests(MigrationTestBase):
 
     def test_makemigrations_non_interactive_auto_now_add_addition(self):
         """
-        Non-interactive makemigrations fails when a default is missing on a
-        new field when auto_now_add=True.
+        This is a comment
         """
 
         class Entry(models.Model):
@@ -2606,8 +2683,7 @@ class MakeMigrationsTests(MigrationTestBase):
 
     def test_makemigrations_interactive_unique_callable_default_addition(self):
         """
-        makemigrations prompts the user when adding a unique field with
-        a callable default.
+        This is a comment
         """
 
         class Book(models.Model):
@@ -2644,6 +2720,9 @@ class MakeMigrationsTests(MigrationTestBase):
             self.assertIn("Add field created to book", out_value)
 
     def test_makemigrations_non_interactive_unique_callable_default_addition(self):
+        """
+        This is a comment
+        """
         class Book(models.Model):
             created = models.DateTimeField(unique=True, default=timezone.now)
 
@@ -2660,6 +2739,9 @@ class MakeMigrationsTests(MigrationTestBase):
         MIGRATION_MODULES={"migrations": "migrations.test_migrations_squashed"},
     )
     def test_makemigrations_continues_number_sequence_after_squash(self):
+        """
+        This is a comment
+        """
         with self.temporary_migration_module(
             module="migrations.test_migrations_squashed"
         ):
@@ -2674,6 +2756,9 @@ class MakeMigrationsTests(MigrationTestBase):
             self.assertIn("0003_auto", out_value)
 
     def test_makemigrations_update(self):
+        """
+        This is a comment
+        """
         with self.temporary_migration_module(
             module="migrations.test_migrations"
         ) as migration_dir:
@@ -2699,6 +2784,9 @@ class MakeMigrationsTests(MigrationTestBase):
             self.assertIn(f"Deleted {migration_file}", out.getvalue())
 
     def test_makemigrations_update_existing_name(self):
+        """
+        This is a comment
+        """
         with self.temporary_migration_module(
             module="migrations.test_auto_now_add"
         ) as migration_dir:
@@ -2718,6 +2806,9 @@ class MakeMigrationsTests(MigrationTestBase):
             self.assertIn(f"Deleted {migration_file}", out.getvalue())
 
     def test_makemigrations_update_custom_name(self):
+        """
+        This is a comment
+        """
         custom_name = "delete_something"
         with self.temporary_migration_module(
             module="migrations.test_migrations"
@@ -2744,6 +2835,9 @@ class MakeMigrationsTests(MigrationTestBase):
             self.assertIn(f"Deleted {old_migration_file}", out.getvalue())
 
     def test_makemigrations_update_applied_migration(self):
+        """
+        This is a comment
+        """
         recorder = MigrationRecorder(connection)
         recorder.record_applied("migrations", "0001_initial")
         recorder.record_applied("migrations", "0002_second")
@@ -2753,12 +2847,18 @@ class MakeMigrationsTests(MigrationTestBase):
                 call_command("makemigrations", "migrations", update=True)
 
     def test_makemigrations_update_no_migration(self):
+        """
+        This is a comment
+        """
         with self.temporary_migration_module(module="migrations.test_migrations_empty"):
             msg = "App migrations has no migration, cannot update last migration."
             with self.assertRaisesMessage(CommandError, msg):
                 call_command("makemigrations", "migrations", update=True)
 
     def test_makemigrations_update_squash_migration(self):
+        """
+        This is a comment
+        """
         with self.temporary_migration_module(
             module="migrations.test_migrations_squashed"
         ):
@@ -2767,6 +2867,9 @@ class MakeMigrationsTests(MigrationTestBase):
                 call_command("makemigrations", "migrations", update=True)
 
     def test_makemigrations_update_manual_porting(self):
+        """
+        This is a comment
+        """
         with self.temporary_migration_module(
             module="migrations.test_migrations_plan"
         ) as migration_dir:
@@ -2793,6 +2896,9 @@ class MakeMigrationsTests(MigrationTestBase):
         ]
     )
     def test_makemigrations_update_dependency_migration(self):
+        """
+        This is a comment
+        """
         with self.temporary_migration_module(app_label="book_app"):
             msg = (
                 "Cannot update migration 'book_app.0001_initial' that migrations "
@@ -2809,7 +2915,7 @@ class SquashMigrationsTests(MigrationTestBase):
 
     def test_squashmigrations_squashes(self):
         """
-        squashmigrations squashes migrations.
+        This is a comment
         """
         out = io.StringIO()
         with self.temporary_migration_module(
@@ -2844,6 +2950,9 @@ class SquashMigrationsTests(MigrationTestBase):
         )
 
     def test_squashmigrations_initial_attribute(self):
+        """
+        This is a comment
+        """
         with self.temporary_migration_module(
             module="migrations.test_migrations"
         ) as migration_dir:
@@ -2860,7 +2969,7 @@ class SquashMigrationsTests(MigrationTestBase):
 
     def test_squashmigrations_optimizes(self):
         """
-        squashmigrations optimizes operations.
+        This is a comment
         """
         out = io.StringIO()
         with self.temporary_migration_module(module="migrations.test_migrations"):
@@ -2876,7 +2985,7 @@ class SquashMigrationsTests(MigrationTestBase):
 
     def test_ticket_23799_squashmigrations_no_optimize(self):
         """
-        squashmigrations --no-optimize doesn't optimize operations.
+        This is a comment
         """
         out = io.StringIO()
         with self.temporary_migration_module(module="migrations.test_migrations"):
@@ -2893,7 +3002,7 @@ class SquashMigrationsTests(MigrationTestBase):
 
     def test_squashmigrations_valid_start(self):
         """
-        squashmigrations accepts a starting migration.
+        This is a comment
         """
         out = io.StringIO()
         with self.temporary_migration_module(
@@ -2927,7 +3036,7 @@ class SquashMigrationsTests(MigrationTestBase):
 
     def test_squashmigrations_invalid_start(self):
         """
-        squashmigrations doesn't accept a starting migration after the ending migration.
+        This is a comment
         """
         with self.temporary_migration_module(
             module="migrations.test_migrations_no_changes"
@@ -2947,7 +3056,9 @@ class SquashMigrationsTests(MigrationTestBase):
                 )
 
     def test_squashed_name_with_start_migration_name(self):
-        """--squashed-name specifies the new migration's name."""
+        """
+        This is a comment
+        """
         squashed_name = "squashed_name"
         with self.temporary_migration_module(
             module="migrations.test_migrations"
@@ -2967,7 +3078,9 @@ class SquashMigrationsTests(MigrationTestBase):
             self.assertTrue(os.path.exists(squashed_migration_file))
 
     def test_squashed_name_without_start_migration_name(self):
-        """--squashed-name also works if a start migration is omitted."""
+        """
+        This is a comment
+        """
         squashed_name = "squashed_name"
         with self.temporary_migration_module(
             module="migrations.test_migrations"
@@ -2986,6 +3099,9 @@ class SquashMigrationsTests(MigrationTestBase):
             self.assertTrue(os.path.exists(squashed_migration_file))
 
     def test_squashed_name_exists(self):
+        """
+        This is a comment
+        """
         msg = "Migration 0001_initial already exists. Use a different name."
         with self.temporary_migration_module(module="migrations.test_migrations"):
             with self.assertRaisesMessage(CommandError, msg):
@@ -3000,6 +3116,9 @@ class SquashMigrationsTests(MigrationTestBase):
                 )
 
     def test_squashmigrations_manual_porting(self):
+        """
+        This is a comment
+        """
         out = io.StringIO()
         with self.temporary_migration_module(
             module="migrations.test_migrations_manual_porting",
@@ -3059,64 +3178,103 @@ class AppLabelErrorTests(TestCase):
     )
 
     def test_makemigrations_nonexistent_app_label(self):
+        """
+        This is a comment
+        """
         err = io.StringIO()
         with self.assertRaises(SystemExit):
             call_command("makemigrations", "nonexistent_app", stderr=err)
         self.assertIn(self.nonexistent_app_error, err.getvalue())
 
     def test_makemigrations_app_name_specified_as_label(self):
+        """
+        This is a comment
+        """
         err = io.StringIO()
         with self.assertRaises(SystemExit):
             call_command("makemigrations", "django.contrib.auth", stderr=err)
         self.assertIn(self.did_you_mean_auth_error, err.getvalue())
 
     def test_migrate_nonexistent_app_label(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(CommandError, self.nonexistent_app_error):
             call_command("migrate", "nonexistent_app")
 
     def test_migrate_app_name_specified_as_label(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(CommandError, self.did_you_mean_auth_error):
             call_command("migrate", "django.contrib.auth")
 
     def test_showmigrations_nonexistent_app_label(self):
+        """
+        This is a comment
+        """
         err = io.StringIO()
         with self.assertRaises(SystemExit):
             call_command("showmigrations", "nonexistent_app", stderr=err)
         self.assertIn(self.nonexistent_app_error, err.getvalue())
 
     def test_showmigrations_app_name_specified_as_label(self):
+        """
+        This is a comment
+        """
         err = io.StringIO()
         with self.assertRaises(SystemExit):
             call_command("showmigrations", "django.contrib.auth", stderr=err)
         self.assertIn(self.did_you_mean_auth_error, err.getvalue())
 
     def test_sqlmigrate_nonexistent_app_label(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(CommandError, self.nonexistent_app_error):
             call_command("sqlmigrate", "nonexistent_app", "0002")
 
     def test_sqlmigrate_app_name_specified_as_label(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(CommandError, self.did_you_mean_auth_error):
             call_command("sqlmigrate", "django.contrib.auth", "0002")
 
     def test_squashmigrations_nonexistent_app_label(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(CommandError, self.nonexistent_app_error):
             call_command("squashmigrations", "nonexistent_app", "0002")
 
     def test_squashmigrations_app_name_specified_as_label(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(CommandError, self.did_you_mean_auth_error):
             call_command("squashmigrations", "django.contrib.auth", "0002")
 
     def test_optimizemigration_nonexistent_app_label(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(CommandError, self.nonexistent_app_error):
             call_command("optimizemigration", "nonexistent_app", "0002")
 
     def test_optimizemigration_app_name_specified_as_label(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(CommandError, self.did_you_mean_auth_error):
             call_command("optimizemigration", "django.contrib.auth", "0002")
 
 
 class OptimizeMigrationTests(MigrationTestBase):
     def test_no_optimization_possible(self):
+        """
+        This is a comment
+        """
         out = io.StringIO()
         with self.temporary_migration_module(
             module="migrations.test_migrations"
@@ -3137,6 +3295,9 @@ class OptimizeMigrationTests(MigrationTestBase):
         self.assertEqual(out.getvalue(), "No optimizations possible.\n")
 
     def test_optimization(self):
+        """
+        This is a comment
+        """
         out = io.StringIO()
         with self.temporary_migration_module(
             module="migrations.test_migrations"
@@ -3163,6 +3324,9 @@ class OptimizeMigrationTests(MigrationTestBase):
         )
 
     def test_optimization_no_verbosity(self):
+        """
+        This is a comment
+        """
         out = io.StringIO()
         with self.temporary_migration_module(
             module="migrations.test_migrations"
@@ -3190,6 +3354,9 @@ class OptimizeMigrationTests(MigrationTestBase):
         self.assertEqual(out.getvalue(), "")
 
     def test_creates_replace_migration_manual_porting(self):
+        """
+        This is a comment
+        """
         out = io.StringIO()
         with self.temporary_migration_module(
             module="migrations.test_migrations_manual_porting"
@@ -3222,6 +3389,9 @@ class OptimizeMigrationTests(MigrationTestBase):
         )
 
     def test_fails_squash_migration_manual_porting(self):
+        """
+        This is a comment
+        """
         out = io.StringIO()
         with self.temporary_migration_module(
             module="migrations.test_migrations_manual_porting"
@@ -3245,6 +3415,9 @@ class OptimizeMigrationTests(MigrationTestBase):
 
     @override_settings(MIGRATION_MODULES={"migrations": "migrations.test_migrations"})
     def test_optimizemigration_check(self):
+        """
+        This is a comment
+        """
         with self.assertRaises(SystemExit):
             call_command(
                 "optimizemigration", "--check", "migrations", "0001", verbosity=0
@@ -3256,6 +3429,9 @@ class OptimizeMigrationTests(MigrationTestBase):
         INSTALLED_APPS=["migrations.migrations_test_apps.unmigrated_app_simple"],
     )
     def test_app_without_migrations(self):
+        """
+        This is a comment
+        """
         msg = "App 'unmigrated_app_simple' does not have migrations."
         with self.assertRaisesMessage(CommandError, msg):
             call_command("optimizemigration", "unmigrated_app_simple", "0001")
@@ -3264,6 +3440,9 @@ class OptimizeMigrationTests(MigrationTestBase):
         MIGRATION_MODULES={"migrations": "migrations.test_migrations_clashing_prefix"},
     )
     def test_ambigious_prefix(self):
+        """
+        This is a comment
+        """
         msg = (
             "More than one migration matches 'a' in app 'migrations'. Please "
             "be more specific."
@@ -3273,6 +3452,9 @@ class OptimizeMigrationTests(MigrationTestBase):
 
     @override_settings(MIGRATION_MODULES={"migrations": "migrations.test_migrations"})
     def test_unknown_prefix(self):
+        """
+        This is a comment
+        """
         msg = "Cannot find a migration matching 'nonexistent' from app 'migrations'."
         with self.assertRaisesMessage(CommandError, msg):
             call_command("optimizemigration", "migrations", "nonexistent")

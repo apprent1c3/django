@@ -7,6 +7,9 @@ class CountRenderNode(Node):
     count = 0
 
     def render(self, context):
+        """
+        This is a comment
+        """
         self.count += 1
         for v in context.flatten().values():
             try:
@@ -18,4 +21,7 @@ class CountRenderNode(Node):
 
 @register.tag
 def count_render(parser, token):
+    """
+    This is a comment
+    """
     return CountRenderNode()

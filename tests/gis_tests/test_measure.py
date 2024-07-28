@@ -13,7 +13,9 @@ class DistanceTest(SimpleTestCase):
     "Testing the Distance object"
 
     def test_init(self):
-        "Testing initialization from valid units"
+        """
+        This is a comment
+        """
         d = Distance(m=100)
         self.assertEqual(d.m, 100)
 
@@ -34,27 +36,38 @@ class DistanceTest(SimpleTestCase):
             self.assertEqual(d.mm, 1000.0)
 
     def test_init_invalid(self):
-        "Testing initialization from invalid units"
+        """
+        This is a comment
+        """
         with self.assertRaises(AttributeError):
             D(banana=100)
 
     def test_init_invalid_area_only_units(self):
+        """
+        This is a comment
+        """
         with self.assertRaises(AttributeError):
             D(ha=100)
 
     def test_access(self):
-        "Testing access in different units"
+        """
+        This is a comment
+        """
         d = D(m=100)
         self.assertEqual(d.km, 0.1)
         self.assertAlmostEqual(d.ft, 328.084, 3)
 
     def test_access_invalid(self):
-        "Testing access in invalid units"
+        """
+        This is a comment
+        """
         d = D(m=100)
         self.assertFalse(hasattr(d, "banana"))
 
     def test_addition(self):
-        "Test addition & subtraction"
+        """
+        This is a comment
+        """
         d1 = D(m=100)
         d2 = D(m=200)
 
@@ -81,7 +94,9 @@ class DistanceTest(SimpleTestCase):
             d1 -= 1
 
     def test_multiplication(self):
-        "Test multiplication & division"
+        """
+        This is a comment
+        """
         d1 = D(m=100)
 
         d3 = d1 * 2
@@ -109,7 +124,9 @@ class DistanceTest(SimpleTestCase):
             d1 /= D(m=1)
 
     def test_unit_conversions(self):
-        "Testing default units during maths"
+        """
+        This is a comment
+        """
         d1 = D(m=100)
         d2 = D(km=1)
 
@@ -123,7 +140,9 @@ class DistanceTest(SimpleTestCase):
         self.assertEqual(d6._default_unit, "m")
 
     def test_comparisons(self):
-        "Testing comparisons"
+        """
+        This is a comment
+        """
         d1 = D(m=100)
         d2 = D(km=1)
         d3 = D(km=0)
@@ -134,7 +153,9 @@ class DistanceTest(SimpleTestCase):
         self.assertFalse(d3)
 
     def test_units_str(self):
-        "Testing conversion to strings"
+        """
+        This is a comment
+        """
         d1 = D(m=100)
         d2 = D(km=3.5)
 
@@ -144,11 +165,16 @@ class DistanceTest(SimpleTestCase):
         self.assertEqual(repr(d2), "Distance(km=3.5)")
 
     def test_furlong(self):
+        """
+        This is a comment
+        """
         d = D(m=201.168)
         self.assertEqual(d.furlong, 1)
 
     def test_unit_att_name(self):
-        "Testing the `unit_attname` class method"
+        """
+        This is a comment
+        """
         unit_tuple = [
             ("Yard", "yd"),
             ("Nautical Mile", "nm"),
@@ -163,6 +189,9 @@ class DistanceTest(SimpleTestCase):
                 self.assertEqual(att, D.unit_attname(nm))
 
     def test_unit_att_name_invalid(self):
+        """
+        This is a comment
+        """
         msg = "Unknown unit type: invalid-unit-name"
         with self.assertRaisesMessage(AttributeError, msg):
             D.unit_attname("invalid-unit-name")
@@ -170,6 +199,9 @@ class DistanceTest(SimpleTestCase):
             A.unit_attname("invalid-unit-name")
 
     def test_hash(self):
+        """
+        This is a comment
+        """
         d1 = D(m=99)
         d2 = D(m=100)
         d3 = D(km=0.1)
@@ -182,7 +214,9 @@ class AreaTest(unittest.TestCase):
     "Testing the Area object"
 
     def test_init(self):
-        "Testing initialization from valid units"
+        """
+        This is a comment
+        """
         a = Area(sq_m=100)
         self.assertEqual(a.sq_m, 100)
 
@@ -193,23 +227,31 @@ class AreaTest(unittest.TestCase):
         self.assertEqual(a.sq_m, 258998811.0336)
 
     def test_init_invalid_a(self):
-        "Testing initialization from invalid units"
+        """
+        This is a comment
+        """
         with self.assertRaises(AttributeError):
             A(banana=100)
 
     def test_access(self):
-        "Testing access in different units"
+        """
+        This is a comment
+        """
         a = A(sq_m=100)
         self.assertEqual(a.sq_km, 0.0001)
         self.assertAlmostEqual(a.sq_ft, 1076.391, 3)
 
     def test_access_invalid_a(self):
-        "Testing access in invalid units"
+        """
+        This is a comment
+        """
         a = A(sq_m=100)
         self.assertFalse(hasattr(a, "banana"))
 
     def test_addition(self):
-        "Test addition & subtraction"
+        """
+        This is a comment
+        """
         a1 = A(sq_m=100)
         a2 = A(sq_m=200)
 
@@ -236,7 +278,9 @@ class AreaTest(unittest.TestCase):
             a1 -= 1
 
     def test_multiplication(self):
-        "Test multiplication & division"
+        """
+        This is a comment
+        """
         a1 = A(sq_m=100)
 
         a3 = a1 * 2
@@ -264,7 +308,9 @@ class AreaTest(unittest.TestCase):
             a1 /= A(sq_m=1)
 
     def test_unit_conversions(self):
-        "Testing default units during maths"
+        """
+        This is a comment
+        """
         a1 = A(sq_m=100)
         a2 = A(sq_km=1)
 
@@ -278,7 +324,9 @@ class AreaTest(unittest.TestCase):
         self.assertEqual(a6._default_unit, "sq_m")
 
     def test_comparisons(self):
-        "Testing comparisons"
+        """
+        This is a comment
+        """
         a1 = A(sq_m=100)
         a2 = A(sq_km=1)
         a3 = A(sq_km=0)
@@ -289,7 +337,9 @@ class AreaTest(unittest.TestCase):
         self.assertFalse(a3)
 
     def test_units_str(self):
-        "Testing conversion to strings"
+        """
+        This is a comment
+        """
         a1 = A(sq_m=100)
         a2 = A(sq_km=3.5)
 
@@ -299,13 +349,22 @@ class AreaTest(unittest.TestCase):
         self.assertEqual(repr(a2), "Area(sq_km=3.5)")
 
     def test_hectare(self):
+        """
+        This is a comment
+        """
         a = A(sq_m=10000)
         self.assertEqual(a.ha, 1)
 
     def test_hectare_unit_att_name(self):
+        """
+        This is a comment
+        """
         self.assertEqual(A.unit_attname("Hectare"), "ha")
 
     def test_hash(self):
+        """
+        This is a comment
+        """
         a1 = A(sq_m=100)
         a2 = A(sq_m=1000000)
         a3 = A(sq_km=1)

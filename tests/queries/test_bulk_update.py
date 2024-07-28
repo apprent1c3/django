@@ -29,18 +29,30 @@ from .models import (
 
 class WriteToOtherRouter:
     def db_for_write(self, model, **hints):
+        """
+        This is a comment
+        """
         return "other"
 
 
 class BulkUpdateNoteTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.notes = [Note.objects.create(note=str(i), misc=str(i)) for i in range(10)]
 
     def create_tags(self):
+        """
+        This is a comment
+        """
         self.tags = [Tag.objects.create(name=str(i)) for i in range(10)]
 
     def test_simple(self):
+        """
+        This is a comment
+        """
         for note in self.notes:
             note.note = "test-%s" % note.id
         with self.assertNumQueries(1):
@@ -51,6 +63,9 @@ class BulkUpdateNoteTests(TestCase):
         )
 
     def test_multiple_fields(self):
+        """
+        This is a comment
+        """
         for note in self.notes:
             note.note = "test-%s" % note.id
             note.misc = "misc-%s" % note.id
@@ -66,16 +81,25 @@ class BulkUpdateNoteTests(TestCase):
         )
 
     def test_batch_size(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(len(self.notes)):
             Note.objects.bulk_update(self.notes, fields=["note"], batch_size=1)
 
     def test_unsaved_models(self):
+        """
+        This is a comment
+        """
         objs = self.notes + [Note(note="test", misc="test")]
         msg = "All bulk_update() objects must have a primary key set."
         with self.assertRaisesMessage(ValueError, msg):
             Note.objects.bulk_update(objs, fields=["note"])
 
     def test_foreign_keys_do_not_lookup(self):
+        """
+        This is a comment
+        """
         self.create_tags()
         for note, tag in zip(self.notes, self.tags):
             note.tag = tag
@@ -84,6 +108,9 @@ class BulkUpdateNoteTests(TestCase):
         self.assertSequenceEqual(Note.objects.filter(tag__isnull=False), self.notes)
 
     def test_set_field_to_null(self):
+        """
+        This is a comment
+        """
         self.create_tags()
         Note.objects.update(tag=self.tags[0])
         for note in self.notes:
@@ -92,6 +119,9 @@ class BulkUpdateNoteTests(TestCase):
         self.assertCountEqual(Note.objects.filter(tag__isnull=True), self.notes)
 
     def test_set_mixed_fields_to_null(self):
+        """
+        This is a comment
+        """
         self.create_tags()
         midpoint = len(self.notes) // 2
         top, bottom = self.notes[:midpoint], self.notes[midpoint:]
@@ -104,6 +134,9 @@ class BulkUpdateNoteTests(TestCase):
         self.assertCountEqual(Note.objects.filter(tag__isnull=False), bottom)
 
     def test_functions(self):
+        """
+        This is a comment
+        """
         Note.objects.update(note="TEST")
         for note in self.notes:
             note.note = Lower("note")
@@ -117,11 +150,17 @@ class BulkUpdateTests(TestCase):
     databases = {"default", "other"}
 
     def test_no_fields(self):
+        """
+        This is a comment
+        """
         msg = "Field names must be given to bulk_update()."
         with self.assertRaisesMessage(ValueError, msg):
             Note.objects.bulk_update([], fields=[])
 
     def test_invalid_batch_size(self):
+        """
+        This is a comment
+        """
         msg = "Batch size must be a positive integer."
         with self.assertRaisesMessage(ValueError, msg):
             Note.objects.bulk_update([], fields=["note"], batch_size=-1)
@@ -129,6 +168,9 @@ class BulkUpdateTests(TestCase):
             Note.objects.bulk_update([], fields=["note"], batch_size=0)
 
     def test_nonexistent_field(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(
             FieldDoesNotExist, "Note has no field named 'nonexistent'"
         ):
@@ -137,19 +179,31 @@ class BulkUpdateTests(TestCase):
     pk_fields_error = "bulk_update() cannot be used with primary key fields."
 
     def test_update_primary_key(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(ValueError, self.pk_fields_error):
             Note.objects.bulk_update([], ["id"])
 
     def test_update_custom_primary_key(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(ValueError, self.pk_fields_error):
             CustomPk.objects.bulk_update([], ["name"])
 
     def test_empty_objects(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(0):
             rows_updated = Note.objects.bulk_update([], ["note"])
         self.assertEqual(rows_updated, 0)
 
     def test_large_batch(self):
+        """
+        This is a comment
+        """
         Note.objects.bulk_create(
             [Note(note=str(i), misc=str(i)) for i in range(0, 2000)]
         )
@@ -158,6 +212,9 @@ class BulkUpdateTests(TestCase):
         self.assertEqual(rows_updated, 2000)
 
     def test_updated_rows_when_passing_duplicates(self):
+        """
+        This is a comment
+        """
         note = Note.objects.create(note="test-note", misc="test")
         rows_updated = Note.objects.bulk_update([note, note], ["note"])
         self.assertEqual(rows_updated, 1)
@@ -166,6 +223,9 @@ class BulkUpdateTests(TestCase):
         self.assertEqual(rows_updated, 2)
 
     def test_only_concrete_fields_allowed(self):
+        """
+        This is a comment
+        """
         obj = Valid.objects.create(valid="test")
         detail = Detail.objects.create(data="test")
         paragraph = Paragraph.objects.create(text="test")
@@ -179,6 +239,9 @@ class BulkUpdateTests(TestCase):
             Valid.objects.bulk_update([obj], fields=["parent"])
 
     def test_custom_db_columns(self):
+        """
+        This is a comment
+        """
         model = CustomDbColumn.objects.create(custom_column=1)
         model.custom_column = 2
         CustomDbColumn.objects.bulk_update([model], fields=["custom_column"])
@@ -186,6 +249,9 @@ class BulkUpdateTests(TestCase):
         self.assertEqual(model.custom_column, 2)
 
     def test_custom_pk(self):
+        """
+        This is a comment
+        """
         custom_pks = [
             CustomPk.objects.create(name="pk-%s" % i, extra="") for i in range(10)
         ]
@@ -198,6 +264,9 @@ class BulkUpdateTests(TestCase):
         )
 
     def test_falsey_pk_value(self):
+        """
+        This is a comment
+        """
         order = Order.objects.create(pk=0, name="test")
         order.name = "updated"
         Order.objects.bulk_update([order], ["name"])
@@ -205,6 +274,9 @@ class BulkUpdateTests(TestCase):
         self.assertEqual(order.name, "updated")
 
     def test_inherited_fields(self):
+        """
+        This is a comment
+        """
         special_categories = [
             SpecialCategory.objects.create(name=str(i), special_name=str(i))
             for i in range(10)
@@ -225,6 +297,9 @@ class BulkUpdateTests(TestCase):
         )
 
     def test_field_references(self):
+        """
+        This is a comment
+        """
         numbers = [Number.objects.create(num=0) for _ in range(10)]
         for number in numbers:
             number.num = F("num") + 1
@@ -232,6 +307,9 @@ class BulkUpdateTests(TestCase):
         self.assertCountEqual(Number.objects.filter(num=1), numbers)
 
     def test_f_expression(self):
+        """
+        This is a comment
+        """
         notes = [
             Note.objects.create(note="test_note", misc="test_misc") for _ in range(10)
         ]
@@ -241,6 +319,9 @@ class BulkUpdateTests(TestCase):
         self.assertCountEqual(Note.objects.filter(misc="test_note"), notes)
 
     def test_booleanfield(self):
+        """
+        This is a comment
+        """
         individuals = [Individual.objects.create(alive=False) for _ in range(10)]
         for individual in individuals:
             individual.alive = True
@@ -248,6 +329,9 @@ class BulkUpdateTests(TestCase):
         self.assertCountEqual(Individual.objects.filter(alive=True), individuals)
 
     def test_ipaddressfield(self):
+        """
+        This is a comment
+        """
         for ip in ("2001::1", "1.2.3.4"):
             with self.subTest(ip=ip):
                 models = [
@@ -262,6 +346,9 @@ class BulkUpdateTests(TestCase):
                 )
 
     def test_datetime_field(self):
+        """
+        This is a comment
+        """
         articles = [
             Article.objects.create(name=str(i), created=datetime.datetime.today())
             for i in range(10)
@@ -274,6 +361,9 @@ class BulkUpdateTests(TestCase):
 
     @skipUnlessDBFeature("supports_json_field")
     def test_json_field(self):
+        """
+        This is a comment
+        """
         JSONFieldNullable.objects.bulk_create(
             [JSONFieldNullable(json_field={"a": i}) for i in range(10)]
         )
@@ -286,6 +376,9 @@ class BulkUpdateTests(TestCase):
         )
 
     def test_nullable_fk_after_related_save(self):
+        """
+        This is a comment
+        """
         parent = RelatedObject.objects.create()
         child = SingleObject()
         parent.single = child
@@ -296,6 +389,9 @@ class BulkUpdateTests(TestCase):
         self.assertEqual(parent.single, child)
 
     def test_unsaved_parent(self):
+        """
+        This is a comment
+        """
         parent = RelatedObject.objects.create()
         parent.single = SingleObject()
         msg = (
@@ -306,6 +402,9 @@ class BulkUpdateTests(TestCase):
             RelatedObject.objects.bulk_update([parent], fields=["single"])
 
     def test_unspecified_unsaved_parent(self):
+        """
+        This is a comment
+        """
         parent = RelatedObject.objects.create()
         parent.single = SingleObject()
         parent.f = 42
@@ -316,6 +415,9 @@ class BulkUpdateTests(TestCase):
 
     @override_settings(DATABASE_ROUTERS=[WriteToOtherRouter()])
     def test_database_routing(self):
+        """
+        This is a comment
+        """
         note = Note.objects.create(note="create")
         note.note = "bulk_update"
         with self.assertNumQueries(1, using="other"):
@@ -323,6 +425,9 @@ class BulkUpdateTests(TestCase):
 
     @override_settings(DATABASE_ROUTERS=[WriteToOtherRouter()])
     def test_database_routing_batch_atomicity(self):
+        """
+        This is a comment
+        """
         f1 = Food.objects.create(name="Banana")
         f2 = Food.objects.create(name="Apple")
         f1.name = "Kiwi"

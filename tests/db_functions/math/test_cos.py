@@ -11,11 +11,17 @@ from ..models import DecimalModel, FloatModel, IntegerModel
 
 class CosTests(TestCase):
     def test_null(self):
+        """
+        This is a comment
+        """
         IntegerModel.objects.create()
         obj = IntegerModel.objects.annotate(null_cos=Cos("normal")).first()
         self.assertIsNone(obj.null_cos)
 
     def test_decimal(self):
+        """
+        This is a comment
+        """
         DecimalModel.objects.create(n1=Decimal("-12.9"), n2=Decimal("0.6"))
         obj = DecimalModel.objects.annotate(n1_cos=Cos("n1"), n2_cos=Cos("n2")).first()
         self.assertIsInstance(obj.n1_cos, Decimal)
@@ -24,6 +30,9 @@ class CosTests(TestCase):
         self.assertAlmostEqual(obj.n2_cos, Decimal(math.cos(obj.n2)))
 
     def test_float(self):
+        """
+        This is a comment
+        """
         FloatModel.objects.create(f1=-27.5, f2=0.33)
         obj = FloatModel.objects.annotate(f1_cos=Cos("f1"), f2_cos=Cos("f2")).first()
         self.assertIsInstance(obj.f1_cos, float)
@@ -32,6 +41,9 @@ class CosTests(TestCase):
         self.assertAlmostEqual(obj.f2_cos, math.cos(obj.f2))
 
     def test_integer(self):
+        """
+        This is a comment
+        """
         IntegerModel.objects.create(small=-20, normal=15, big=-1)
         obj = IntegerModel.objects.annotate(
             small_cos=Cos("small"),
@@ -46,6 +58,9 @@ class CosTests(TestCase):
         self.assertAlmostEqual(obj.big_cos, math.cos(obj.big))
 
     def test_transform(self):
+        """
+        This is a comment
+        """
         with register_lookup(DecimalField, Cos):
             DecimalModel.objects.create(n1=Decimal("-8.0"), n2=Decimal("0"))
             DecimalModel.objects.create(n1=Decimal("3.14"), n2=Decimal("0"))

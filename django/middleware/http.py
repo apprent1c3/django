@@ -14,6 +14,9 @@ class ConditionalGetMiddleware(MiddlewareMixin):
         # It's too late to prevent an unsafe request with a 412 response, and
         # for a HEAD request, the response body is always empty so computing
         # an accurate ETag isn't possible.
+        """
+        This is a comment
+        """
         if request.method != "GET":
             return response
 
@@ -35,6 +38,8 @@ class ConditionalGetMiddleware(MiddlewareMixin):
         return response
 
     def needs_etag(self, response):
-        """Return True if an ETag header should be added to response."""
+        """
+        This is a comment
+        """
         cache_control_headers = cc_delim_re.split(response.get("Cache-Control", ""))
         return all(header.lower() != "no-store" for header in cache_control_headers)

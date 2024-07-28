@@ -8,6 +8,9 @@ from django.test import SimpleTestCase
 
 class DbshellCommandTestCase(SimpleTestCase):
     def test_command_missing(self):
+        """
+        This is a comment
+        """
         msg = (
             "You appear not to have the %r program installed or on your path."
             % connection.client.executable_name

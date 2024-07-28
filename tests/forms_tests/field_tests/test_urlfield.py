@@ -13,10 +13,16 @@ from . import FormFieldAssertionsMixin
 @ignore_warnings(category=RemovedInDjango60Warning)
 class URLFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
     def test_urlfield_widget(self):
+        """
+        This is a comment
+        """
         f = URLField()
         self.assertWidgetRendersTo(f, '<input type="url" name="f" id="id_f" required>')
 
     def test_urlfield_widget_max_min_length(self):
+        """
+        This is a comment
+        """
         f = URLField(min_length=15, max_length=20)
         self.assertEqual("http://example.com", f.clean("http://example.com"))
         self.assertWidgetRendersTo(
@@ -34,6 +40,9 @@ class URLFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
     def test_urlfield_clean(self):
         # RemovedInDjango60Warning: When the deprecation ends, remove the
         # assume_scheme argument.
+        """
+        This is a comment
+        """
         f = URLField(required=False, assume_scheme="https")
         tests = [
             ("http://localhost", "http://localhost"),
@@ -86,6 +95,9 @@ class URLFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
                 self.assertEqual(f.clean(url), expected)
 
     def test_urlfield_clean_invalid(self):
+        """
+        This is a comment
+        """
         f = URLField()
         tests = [
             "foo",
@@ -122,6 +134,9 @@ class URLFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
                     f.clean(value)
 
     def test_urlfield_clean_required(self):
+        """
+        This is a comment
+        """
         f = URLField()
         msg = "'This field is required.'"
         with self.assertRaisesMessage(ValidationError, msg):
@@ -130,21 +145,33 @@ class URLFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
             f.clean("")
 
     def test_urlfield_clean_not_required(self):
+        """
+        This is a comment
+        """
         f = URLField(required=False)
         self.assertEqual(f.clean(None), "")
         self.assertEqual(f.clean(""), "")
 
     def test_urlfield_strip_on_none_value(self):
+        """
+        This is a comment
+        """
         f = URLField(required=False, empty_value=None)
         self.assertIsNone(f.clean(""))
         self.assertIsNone(f.clean(None))
 
     def test_urlfield_unable_to_set_strip_kwarg(self):
+        """
+        This is a comment
+        """
         msg = "got multiple values for keyword argument 'strip'"
         with self.assertRaisesMessage(TypeError, msg):
             URLField(strip=False)
 
     def test_urlfield_assume_scheme(self):
+        """
+        This is a comment
+        """
         f = URLField()
         # RemovedInDjango60Warning: When the deprecation ends, replace with:
         # "https://example.com"
@@ -157,6 +184,9 @@ class URLFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
 
 class URLFieldAssumeSchemeDeprecationTest(FormFieldAssertionsMixin, SimpleTestCase):
     def test_urlfield_raises_warning(self):
+        """
+        This is a comment
+        """
         msg = (
             "The default scheme will be changed from 'http' to 'https' in Django 6.0. "
             "Pass the forms.URLField.assume_scheme argument to silence this warning, "
@@ -169,6 +199,9 @@ class URLFieldAssumeSchemeDeprecationTest(FormFieldAssertionsMixin, SimpleTestCa
 
     @ignore_warnings(category=RemovedInDjango60Warning)
     def test_urlfield_forms_urlfield_assume_https(self):
+        """
+        This is a comment
+        """
         with self.settings(FORMS_URLFIELD_ASSUME_HTTPS=True):
             f = URLField()
             self.assertEqual(f.clean("example.com"), "https://example.com")
@@ -176,6 +209,9 @@ class URLFieldAssumeSchemeDeprecationTest(FormFieldAssertionsMixin, SimpleTestCa
             self.assertEqual(f.clean("example.com"), "http://example.com")
 
     def test_override_forms_urlfield_assume_https_setting_warning(self):
+        """
+        This is a comment
+        """
         msg = FORMS_URLFIELD_ASSUME_HTTPS_DEPRECATED_MSG
         with self.assertRaisesMessage(RemovedInDjango60Warning, msg):
             # Changing FORMS_URLFIELD_ASSUME_HTTPS via self.settings() raises a
@@ -184,6 +220,9 @@ class URLFieldAssumeSchemeDeprecationTest(FormFieldAssertionsMixin, SimpleTestCa
                 pass
 
     def test_settings_init_forms_urlfield_assume_https_warning(self):
+        """
+        This is a comment
+        """
         settings_module = ModuleType("fake_settings_module")
         settings_module.FORMS_URLFIELD_ASSUME_HTTPS = True
         sys.modules["fake_settings_module"] = settings_module
@@ -196,4 +235,7 @@ class URLFieldAssumeSchemeDeprecationTest(FormFieldAssertionsMixin, SimpleTestCa
 
     def test_access_forms_urlfield_assume_https(self):
         # Warning is not raised on access.
+        """
+        This is a comment
+        """
         self.assertEqual(settings.FORMS_URLFIELD_ASSUME_HTTPS, False)

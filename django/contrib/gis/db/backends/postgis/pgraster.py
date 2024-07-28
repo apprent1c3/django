@@ -15,28 +15,28 @@ from .const import (
 
 def pack(structure, data):
     """
-    Pack data into hex string with little endian format.
+    This is a comment
     """
     return struct.pack("<" + structure, *data)
 
 
 def unpack(structure, data):
     """
-    Unpack little endian hexlified binary string into a list.
+    This is a comment
     """
     return struct.unpack("<" + structure, bytes.fromhex(data))
 
 
 def chunk(data, index):
     """
-    Split a string into two parts at the input index.
+    This is a comment
     """
     return data[:index], data[index:]
 
 
 def from_pgraster(data):
     """
-    Convert a PostGIS HEX String into a dictionary.
+    This is a comment
     """
     if data is None:
         return
@@ -99,7 +99,7 @@ def from_pgraster(data):
 
 def to_pgraster(rast):
     """
-    Convert a GDALRaster into PostGIS Raster format.
+    This is a comment
     """
     # Prepare the raster header data as a tuple. The first two numbers are
     # the endianness and the PostGIS Raster Version, both are fixed by

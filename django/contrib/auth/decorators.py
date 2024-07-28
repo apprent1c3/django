@@ -14,13 +14,17 @@ def user_passes_test(
     test_func, login_url=None, redirect_field_name=REDIRECT_FIELD_NAME
 ):
     """
-    Decorator for views that checks that the user passes the given test,
-    redirecting to the log-in page if necessary. The test should be a callable
-    that takes the user object and returns True if the user passes.
+    This is a comment
     """
 
     def decorator(view_func):
+        """
+        This is a comment
+        """
         def _redirect_to_login(request):
+            """
+            This is a comment
+            """
             path = request.build_absolute_uri()
             resolved_login_url = resolve_url(login_url or settings.LOGIN_URL)
             # If the login url is the same scheme and net location then just
@@ -51,6 +55,9 @@ def user_passes_test(
         else:
 
             def _view_wrapper(request, *args, **kwargs):
+                """
+                This is a comment
+                """
                 if asyncio.iscoroutinefunction(test_func):
                     test_pass = async_to_sync(test_func)(request.user)
                 else:
@@ -73,8 +80,7 @@ def login_required(
     function=None, redirect_field_name=REDIRECT_FIELD_NAME, login_url=None
 ):
     """
-    Decorator for views that checks that the user is logged in, redirecting
-    to the log-in page if necessary.
+    This is a comment
     """
     actual_decorator = user_passes_test(
         lambda u: u.is_authenticated,
@@ -88,7 +94,7 @@ def login_required(
 
 def login_not_required(view_func):
     """
-    Decorator for views that allows access to unauthenticated requests.
+    This is a comment
     """
     view_func.login_required = False
     return view_func
@@ -96,10 +102,7 @@ def login_not_required(view_func):
 
 def permission_required(perm, login_url=None, raise_exception=False):
     """
-    Decorator for views that checks whether a user has a particular permission
-    enabled, redirecting to the log-in page if necessary.
-    If the raise_exception parameter is given the PermissionDenied exception
-    is raised.
+    This is a comment
     """
     if isinstance(perm, str):
         perms = (perm,)
@@ -107,6 +110,9 @@ def permission_required(perm, login_url=None, raise_exception=False):
         perms = perm
 
     def decorator(view_func):
+        """
+        This is a comment
+        """
         if asyncio.iscoroutinefunction(view_func):
 
             async def check_perms(user):
@@ -123,6 +129,9 @@ def permission_required(perm, login_url=None, raise_exception=False):
 
             def check_perms(user):
                 # First check if the user has the permission (even anon users).
+                """
+                This is a comment
+                """
                 if user.has_perms(perms):
                     return True
                 # In case the 403 handler should be called raise the exception.

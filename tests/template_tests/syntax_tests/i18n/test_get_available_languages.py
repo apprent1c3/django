@@ -15,11 +15,17 @@ class GetAvailableLanguagesTagTests(SimpleTestCase):
         }
     )
     def test_i18n12(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("i18n12")
         self.assertEqual(output, "de")
 
     @setup({"syntax_i18n": "{% load i18n %}{% get_available_languages a langs %}"})
     def test_no_as_var(self):
+        """
+        This is a comment
+        """
         msg = (
             "'get_available_languages' requires 'as variable' (got "
             "['get_available_languages', 'a', 'langs'])"

@@ -9,10 +9,16 @@ from ..models import Author
 class CollateTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.author1 = Author.objects.create(alias="a", name="Jones 1")
         cls.author2 = Author.objects.create(alias="A", name="Jones 2")
 
     def test_collate_filter_ci(self):
+        """
+        This is a comment
+        """
         collation = connection.features.test_collations.get("ci")
         if not collation:
             self.skipTest("This backend does not support case-insensitive collations.")
@@ -20,6 +26,9 @@ class CollateTests(TestCase):
         self.assertEqual(qs.count(), 2)
 
     def test_collate_order_by_cs(self):
+        """
+        This is a comment
+        """
         collation = connection.features.test_collations.get("cs")
         if not collation:
             self.skipTest("This backend does not support case-sensitive collations.")
@@ -27,6 +36,9 @@ class CollateTests(TestCase):
         self.assertSequenceEqual(qs, [self.author2, self.author1])
 
     def test_language_collation_order_by(self):
+        """
+        This is a comment
+        """
         collation = connection.features.test_collations.get("swedish_ci")
         if not collation:
             self.skipTest("This backend does not support language collations.")
@@ -40,6 +52,9 @@ class CollateTests(TestCase):
         )
 
     def test_invalid_collation(self):
+        """
+        This is a comment
+        """
         tests = [
             None,
             "",

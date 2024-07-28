@@ -2,12 +2,21 @@ class BaseDatabaseValidation:
     """Encapsulate backend-specific validation."""
 
     def __init__(self, connection):
+        """
+        This is a comment
+        """
         self.connection = connection
 
     def check(self, **kwargs):
+        """
+        This is a comment
+        """
         return []
 
     def check_field(self, field, **kwargs):
+        """
+        This is a comment
+        """
         errors = []
         # Backends may implement a check_field_type() method.
         if (

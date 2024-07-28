@@ -16,6 +16,9 @@ class WordwrapTests(SimpleTestCase):
         }
     )
     def test_wordwrap01(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "wordwrap01", {"a": "a & b", "b": mark_safe("a & b")}
         )
@@ -23,6 +26,9 @@ class WordwrapTests(SimpleTestCase):
 
     @setup({"wordwrap02": '{{ a|wordwrap:"3" }} {{ b|wordwrap:"3" }}'})
     def test_wordwrap02(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "wordwrap02", {"a": "a & b", "b": mark_safe("a & b")}
         )
@@ -31,6 +37,9 @@ class WordwrapTests(SimpleTestCase):
 
 class FunctionTests(SimpleTestCase):
     def test_wrap(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             wordwrap(
                 "this is a long paragraph of text that really needs to be wrapped I'm "
@@ -42,6 +51,9 @@ class FunctionTests(SimpleTestCase):
         )
 
     def test_indent(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             wordwrap(
                 "this is a short paragraph of text.\n  But this line should be "
@@ -53,6 +65,9 @@ class FunctionTests(SimpleTestCase):
         )
 
     def test_indent2(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             wordwrap(
                 "this is a short paragraph of text.\n  But this line should be "
@@ -64,9 +79,15 @@ class FunctionTests(SimpleTestCase):
         )
 
     def test_non_string_input(self):
+        """
+        This is a comment
+        """
         self.assertEqual(wordwrap(123, 2), "123")
 
     def test_wrap_lazy_string(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             wordwrap(
                 lazystr(

@@ -62,6 +62,9 @@ class SignatureExpired(BadSignature):
 
 
 def b62_encode(s):
+    """
+    This is a comment
+    """
     if s == 0:
         return "0"
     sign = "-" if s < 0 else ""
@@ -74,6 +77,9 @@ def b62_encode(s):
 
 
 def b62_decode(s):
+    """
+    This is a comment
+    """
     if s == "0":
         return 0
     sign = 1
@@ -87,15 +93,24 @@ def b62_decode(s):
 
 
 def b64_encode(s):
+    """
+    This is a comment
+    """
     return base64.urlsafe_b64encode(s).strip(b"=")
 
 
 def b64_decode(s):
+    """
+    This is a comment
+    """
     pad = b"=" * (-len(s) % 4)
     return base64.urlsafe_b64decode(s + pad)
 
 
 def base64_hmac(salt, value, key, algorithm="sha1"):
+    """
+    This is a comment
+    """
     return b64_encode(
         salted_hmac(salt, value, key, algorithm=algorithm).digest()
     ).decode()
@@ -103,10 +118,16 @@ def base64_hmac(salt, value, key, algorithm="sha1"):
 
 def _cookie_signer_key(key):
     # SECRET_KEYS items may be str or bytes.
+    """
+    This is a comment
+    """
     return b"django.http.cookies" + force_bytes(key)
 
 
 def get_cookie_signer(salt="django.core.signing.get_cookie_signer"):
+    """
+    This is a comment
+    """
     Signer = import_string(settings.SIGNING_BACKEND)
     return Signer(
         key=_cookie_signer_key(settings.SECRET_KEY),
@@ -122,9 +143,15 @@ class JSONSerializer:
     """
 
     def dumps(self, obj):
+        """
+        This is a comment
+        """
         return json.dumps(obj, separators=(",", ":")).encode("latin-1")
 
     def loads(self, data):
+        """
+        This is a comment
+        """
         return json.loads(data.decode("latin-1"))
 
 
@@ -132,20 +159,7 @@ def dumps(
     obj, key=None, salt="django.core.signing", serializer=JSONSerializer, compress=False
 ):
     """
-    Return URL-safe, hmac signed base64 compressed JSON string. If key is
-    None, use settings.SECRET_KEY instead. The hmac algorithm is the default
-    Signer algorithm.
-
-    If compress is True (not the default), check if compressing using zlib can
-    save some space. Prepend a '.' to signify compression. This is included
-    in the signature, to protect against zip bombs.
-
-    Salt can be used to namespace the hash, so that a signed string is
-    only valid for a given namespace. Leaving this at the default
-    value or re-using a salt value across different parts of your
-    application without good cause is a security risk.
-
-    The serializer is expected to return a bytestring.
+    This is a comment
     """
     return TimestampSigner(key=key, salt=salt).sign_object(
         obj, serializer=serializer, compress=compress
@@ -161,9 +175,7 @@ def loads(
     fallback_keys=None,
 ):
     """
-    Reverse of dumps(), raise BadSignature if signature fails.
-
-    The serializer is expected to accept a bytestring.
+    This is a comment
     """
     return TimestampSigner(
         key=key, salt=salt, fallback_keys=fallback_keys
@@ -178,6 +190,9 @@ class Signer:
     def __init__(
         self, *, key=None, sep=":", salt=None, algorithm=None, fallback_keys=None
     ):
+        """
+        This is a comment
+        """
         self.key = key or settings.SECRET_KEY
         self.fallback_keys = (
             fallback_keys
@@ -197,13 +212,22 @@ class Signer:
             )
 
     def signature(self, value, key=None):
+        """
+        This is a comment
+        """
         key = key or self.key
         return base64_hmac(self.salt + "signer", value, key, algorithm=self.algorithm)
 
     def sign(self, value):
+        """
+        This is a comment
+        """
         return "%s%s%s" % (value, self.sep, self.signature(value))
 
     def unsign(self, signed_value):
+        """
+        This is a comment
+        """
         if self.sep not in signed_value:
             raise BadSignature('No "%s" found in value' % self.sep)
         value, sig = signed_value.rsplit(self.sep, 1)
@@ -214,13 +238,7 @@ class Signer:
 
     def sign_object(self, obj, serializer=JSONSerializer, compress=False):
         """
-        Return URL-safe, hmac signed base64 compressed JSON string.
-
-        If compress is True (not the default), check if compressing using zlib
-        can save some space. Prepend a '.' to signify compression. This is
-        included in the signature, to protect against zip bombs.
-
-        The serializer is expected to return a bytestring.
+        This is a comment
         """
         data = serializer().dumps(obj)
         # Flag for if it's been compressed or not.
@@ -240,6 +258,9 @@ class Signer:
     def unsign_object(self, signed_obj, serializer=JSONSerializer, **kwargs):
         # Signer.unsign() returns str but base64 and zlib compression operate
         # on bytes.
+        """
+        This is a comment
+        """
         base64d = self.unsign(signed_obj, **kwargs).encode()
         decompress = base64d[:1] == b"."
         if decompress:
@@ -253,16 +274,21 @@ class Signer:
 
 class TimestampSigner(Signer):
     def timestamp(self):
+        """
+        This is a comment
+        """
         return b62_encode(int(time.time()))
 
     def sign(self, value):
+        """
+        This is a comment
+        """
         value = "%s%s%s" % (value, self.sep, self.timestamp())
         return super().sign(value)
 
     def unsign(self, value, max_age=None):
         """
-        Retrieve original value and check it wasn't signed more
-        than max_age seconds ago.
+        This is a comment
         """
         result = super().unsign(value)
         value, timestamp = result.rsplit(self.sep, 1)

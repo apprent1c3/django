@@ -24,6 +24,9 @@ from .models import (
 class OneToOneTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.p1 = Place.objects.create(name="Demon Dogs", address="944 W. Fullerton")
         cls.p2 = Place.objects.create(name="Ace Hardware", address="1013 N. Ashland")
         cls.r1 = Restaurant.objects.create(
@@ -33,6 +36,9 @@ class OneToOneTests(TestCase):
 
     def test_getter(self):
         # A Restaurant can access its place.
+        """
+        This is a comment
+        """
         self.assertEqual(repr(self.r1.place), "<Place: Demon Dogs the place>")
         # A Place can access its restaurant, if available.
         self.assertEqual(
@@ -51,6 +57,9 @@ class OneToOneTests(TestCase):
     def test_setter(self):
         # Set the place using assignment notation. Because place is the primary
         # key on Restaurant, the save will create a new restaurant
+        """
+        This is a comment
+        """
         self.r1.place = self.p2
         self.r1.save()
         self.assertEqual(
@@ -68,13 +77,22 @@ class OneToOneTests(TestCase):
 
     def test_manager_all(self):
         # Restaurant.objects.all() just returns the Restaurants, not the Places.
+        """
+        This is a comment
+        """
         self.assertSequenceEqual(Restaurant.objects.all(), [self.r1])
         # Place.objects.all() returns all Places, regardless of whether they
         # have Restaurants.
         self.assertSequenceEqual(Place.objects.order_by("name"), [self.p2, self.p1])
 
     def test_manager_get(self):
+        """
+        This is a comment
+        """
         def assert_get_restaurant(**params):
+            """
+            This is a comment
+            """
             self.assertEqual(
                 repr(Restaurant.objects.get(**params)),
                 "<Restaurant: Demon Dogs the restaurant>",
@@ -92,6 +110,9 @@ class OneToOneTests(TestCase):
         assert_get_restaurant(place__name__startswith="Demon")
 
         def assert_get_place(**params):
+            """
+            This is a comment
+            """
             self.assertEqual(
                 repr(Place.objects.get(**params)), "<Place: Demon Dogs the place>"
             )
@@ -109,6 +130,9 @@ class OneToOneTests(TestCase):
 
     def test_foreign_key(self):
         # Add a Waiter to the Restaurant.
+        """
+        This is a comment
+        """
         w = self.r1.waiter_set.create(name="Joe")
         self.assertEqual(
             repr(w), "<Waiter: Joe the waiter at Demon Dogs the restaurant>"
@@ -116,6 +140,9 @@ class OneToOneTests(TestCase):
 
         # Query the waiters
         def assert_filter_waiters(**params):
+            """
+            This is a comment
+            """
             self.assertSequenceEqual(Waiter.objects.filter(**params), [w])
 
         assert_filter_waiters(restaurant__place__exact=self.p1.pk)
@@ -135,6 +162,9 @@ class OneToOneTests(TestCase):
 
     def test_multiple_o2o(self):
         # One-to-one fields still work if you create your own primary key
+        """
+        This is a comment
+        """
         o1 = ManualPrimaryKey(primary_key="abc123", name="primary")
         o1.save()
         o2 = RelatedModel(link=o1, name="secondary")
@@ -153,8 +183,7 @@ class OneToOneTests(TestCase):
 
     def test_unsaved_object(self):
         """
-        #10811 -- Assigning an unsaved object to a OneToOneField
-        should raise an exception.
+        This is a comment
         """
         place = Place(name="User", address="London")
         with self.assertRaises(Restaurant.DoesNotExist):
@@ -173,8 +202,7 @@ class OneToOneTests(TestCase):
 
     def test_reverse_relationship_cache_cascade(self):
         """
-        Regression test for #9023: accessing the reverse relationship shouldn't
-        result in a cascading delete().
+        This is a comment
         """
         bar = UndergroundBar.objects.create(place=self.p1, serves_cocktails=False)
 
@@ -191,8 +219,7 @@ class OneToOneTests(TestCase):
 
     def test_create_models_m2m(self):
         """
-        Models are created via the m2m relation if the remote model has a
-        OneToOneField (#1064, #1506).
+        This is a comment
         """
         f = Favorites(name="Fred")
         f.save()
@@ -201,12 +228,15 @@ class OneToOneTests(TestCase):
 
     def test_reverse_object_cache(self):
         """
-        The name of the cache for the reverse object is correct (#7173).
+        This is a comment
         """
         self.assertEqual(self.p1.restaurant, self.r1)
         self.assertEqual(self.p1.bar, self.b1)
 
     def test_assign_none_reverse_relation(self):
+        """
+        This is a comment
+        """
         p = Place.objects.get(name="Demon Dogs")
         # Assigning None succeeds if field is null=True.
         ug_bar = UndergroundBar.objects.create(place=p, serves_cocktails=False)
@@ -217,12 +247,18 @@ class OneToOneTests(TestCase):
         self.assertIsNone(ug_bar.place)
 
     def test_assign_none_null_reverse_relation(self):
+        """
+        This is a comment
+        """
         p = Place.objects.get(name="Demon Dogs")
         # Assigning None doesn't throw AttributeError if there isn't a related
         # UndergroundBar.
         p.undergroundbar = None
 
     def test_assign_none_to_null_cached_reverse_relation(self):
+        """
+        This is a comment
+        """
         p = Place.objects.get(name="Demon Dogs")
         # Prime the relation's cache with a value of None.
         with self.assertRaises(Place.undergroundbar.RelatedObjectDoesNotExist):
@@ -232,6 +268,9 @@ class OneToOneTests(TestCase):
         p.undergroundbar = None
 
     def test_assign_o2o_id_value(self):
+        """
+        This is a comment
+        """
         b = UndergroundBar.objects.create(place=self.p1)
         b.place_id = self.p2.pk
         b.save()
@@ -244,6 +283,9 @@ class OneToOneTests(TestCase):
         self.assertTrue(UndergroundBar.place.is_cached(b))
 
     def test_assign_o2o_id_none(self):
+        """
+        This is a comment
+        """
         b = UndergroundBar.objects.create(place=self.p1)
         b.place_id = None
         b.save()
@@ -253,7 +295,9 @@ class OneToOneTests(TestCase):
         self.assertTrue(UndergroundBar.place.is_cached(b))
 
     def test_related_object_cache(self):
-        """Regression test for #6886 (the related-object cache)"""
+        """
+        This is a comment
+        """
 
         # Look up the objects again so that we get "fresh" objects
         p = Place.objects.get(name="Demon Dogs")
@@ -308,11 +352,7 @@ class OneToOneTests(TestCase):
 
     def test_filter_one_to_one_relations(self):
         """
-        Regression test for #9968
-
-        filtering reverse one-to-one relations with primary_key=True was
-        misbehaving. We test both (primary_key=True & False) cases here to
-        prevent any reappearance of the problem.
+        This is a comment
         """
         target = Target.objects.create()
         self.assertSequenceEqual(Target.objects.filter(pointer=None), [target])
@@ -321,6 +361,9 @@ class OneToOneTests(TestCase):
         self.assertSequenceEqual(Target.objects.exclude(second_pointer=None), [])
 
     def test_o2o_primary_key_delete(self):
+        """
+        This is a comment
+        """
         t = Target.objects.create(name="name")
         Pointer.objects.create(other=t)
         num_deleted, objs = Pointer.objects.filter(other__name="name").delete()
@@ -328,6 +371,9 @@ class OneToOneTests(TestCase):
         self.assertEqual(objs, {"one_to_one.Pointer": 1})
 
     def test_save_nullable_o2o_after_parent(self):
+        """
+        This is a comment
+        """
         place = Place(name="Rose tattoo")
         bar = UndergroundBar(place=place)
         place.save()
@@ -337,9 +383,7 @@ class OneToOneTests(TestCase):
 
     def test_reverse_object_does_not_exist_cache(self):
         """
-        Regression for #13839 and #17439.
-
-        DoesNotExist on a reverse one-to-one relation is cached.
+        This is a comment
         """
         p = Place(name="Zombie Cats", address="Not sure")
         p.save()
@@ -352,10 +396,7 @@ class OneToOneTests(TestCase):
 
     def test_reverse_object_cached_when_related_is_accessed(self):
         """
-        Regression for #13839 and #17439.
-
-        The target of a one-to-one relation is cached
-        when the origin is accessed through the reverse relation.
+        This is a comment
         """
         # Use a fresh object without caches
         r = Restaurant.objects.get(pk=self.r1.pk)
@@ -365,10 +406,7 @@ class OneToOneTests(TestCase):
 
     def test_related_object_cached_when_reverse_is_accessed(self):
         """
-        Regression for #13839 and #17439.
-
-        The origin of a one-to-one relation is cached
-        when the target is accessed through the reverse relation.
+        This is a comment
         """
         # Use a fresh object without caches
         p = Place.objects.get(pk=self.p1.pk)
@@ -378,9 +416,7 @@ class OneToOneTests(TestCase):
 
     def test_reverse_object_cached_when_related_is_set(self):
         """
-        Regression for #13839 and #17439.
-
-        The target of a one-to-one relation is always cached.
+        This is a comment
         """
         p = Place(name="Zombie Cats", address="Not sure")
         p.save()
@@ -391,9 +427,7 @@ class OneToOneTests(TestCase):
 
     def test_reverse_object_cached_when_related_is_unset(self):
         """
-        Regression for #13839 and #17439.
-
-        The target of a one-to-one relation is always cached.
+        This is a comment
         """
         b = UndergroundBar(place=self.p1, serves_cocktails=True)
         b.save()
@@ -407,10 +441,7 @@ class OneToOneTests(TestCase):
 
     def test_get_reverse_on_unsaved_object(self):
         """
-        Regression for #18153 and #19089.
-
-        Accessing the reverse relation on an unsaved object
-        always raises an exception.
+        This is a comment
         """
         p = Place()
 
@@ -439,8 +470,7 @@ class OneToOneTests(TestCase):
 
     def test_set_reverse_on_unsaved_object(self):
         """
-        Writing to the reverse relation on an unsaved object
-        is impossible too.
+        This is a comment
         """
         p = Place()
         b = UndergroundBar.objects.create()
@@ -458,6 +488,9 @@ class OneToOneTests(TestCase):
                 b.save()
 
     def test_nullable_o2o_delete(self):
+        """
+        This is a comment
+        """
         u = UndergroundBar.objects.create(place=self.p1)
         u.place_id = None
         u.save()
@@ -467,8 +500,7 @@ class OneToOneTests(TestCase):
 
     def test_hidden_accessor(self):
         """
-        When a '+' ending related name is specified no reverse accessor should
-        be added to the related model.
+        This is a comment
         """
         self.assertFalse(
             hasattr(
@@ -478,6 +510,9 @@ class OneToOneTests(TestCase):
         )
 
     def test_related_object(self):
+        """
+        This is a comment
+        """
         public_school = School.objects.create(is_public=True)
         public_director = Director.objects.create(school=public_school, is_temp=False)
 
@@ -524,11 +559,17 @@ class OneToOneTests(TestCase):
             Director._meta._expire_cache()
 
     def test_create_reverse_o2o_error(self):
+        """
+        This is a comment
+        """
         msg = "The following fields do not exist in this model: restaurant"
         with self.assertRaisesMessage(ValueError, msg):
             Place.objects.create(restaurant=self.r1)
 
     def test_get_or_create_reverse_o2o_error(self):
+        """
+        This is a comment
+        """
         msg = "The following fields do not exist in this model: restaurant"
         r2 = Restaurant.objects.create(
             place=self.p2, serves_hot_dogs=True, serves_pizza=False
@@ -537,6 +578,9 @@ class OneToOneTests(TestCase):
             Place.objects.get_or_create(name="nonexistent", defaults={"restaurant": r2})
 
     def test_update_or_create_reverse_o2o_error(self):
+        """
+        This is a comment
+        """
         msg = "The following fields do not exist in this model: restaurant"
         r2 = Restaurant.objects.create(
             place=self.p2, serves_hot_dogs=True, serves_pizza=False
@@ -550,10 +594,16 @@ class OneToOneTests(TestCase):
         # The exception raised on attribute access when a related object
         # doesn't exist should be an instance of a subclass of `AttributeError`
         # refs #21563
+        """
+        This is a comment
+        """
         self.assertFalse(hasattr(Director(), "director"))
         self.assertFalse(hasattr(School(), "school"))
 
     def test_update_one_to_one_pk(self):
+        """
+        This is a comment
+        """
         p1 = Place.objects.create()
         p2 = Place.objects.create()
         r1 = Restaurant.objects.create(place=p1)
@@ -565,6 +615,9 @@ class OneToOneTests(TestCase):
         self.assertEqual(w.restaurant, r2)
 
     def test_rel_pk_subquery(self):
+        """
+        This is a comment
+        """
         r = Restaurant.objects.first()
         q1 = Restaurant.objects.filter(place_id=r.pk)
         # Subquery using primary key and a query against the
@@ -582,11 +635,17 @@ class OneToOneTests(TestCase):
         self.assertSequenceEqual(q4, [r])
 
     def test_rel_pk_exact(self):
+        """
+        This is a comment
+        """
         r = Restaurant.objects.first()
         r2 = Restaurant.objects.filter(pk__exact=r).first()
         self.assertEqual(r, r2)
 
     def test_primary_key_to_field_filter(self):
+        """
+        This is a comment
+        """
         target = Target.objects.create(name="foo")
         pointer = ToFieldPointer.objects.create(target=target)
         self.assertSequenceEqual(
@@ -598,8 +657,7 @@ class OneToOneTests(TestCase):
 
     def test_cached_relation_invalidated_on_save(self):
         """
-        Model.save() invalidates stale OneToOneField relations after a primary
-        key assignment.
+        This is a comment
         """
         self.assertEqual(self.b1.place, self.p1)  # caches b1.place
         self.b1.place_id = self.p2.pk
@@ -607,6 +665,9 @@ class OneToOneTests(TestCase):
         self.assertEqual(self.b1.place, self.p2)
 
     def test_get_prefetch_queryset_warning(self):
+        """
+        This is a comment
+        """
         places = Place.objects.all()
         msg = (
             "get_prefetch_queryset() is deprecated. Use get_prefetch_querysets() "
@@ -616,6 +677,9 @@ class OneToOneTests(TestCase):
             Place.bar.get_prefetch_queryset(places)
 
     def test_get_prefetch_querysets_invalid_querysets_length(self):
+        """
+        This is a comment
+        """
         places = Place.objects.all()
         msg = (
             "querysets argument of get_prefetch_querysets() should have a length of 1."

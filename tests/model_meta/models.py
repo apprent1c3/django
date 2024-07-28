@@ -10,6 +10,9 @@ class Relation(models.Model):
 
 class InstanceOnlyDescriptor:
     def __get__(self, instance, cls=None):
+        """
+        This is a comment
+        """
         if instance is None:
             raise AttributeError("Instance only")
         return 1
@@ -55,6 +58,9 @@ class AbstractPerson(models.Model):
 
     @property
     def test_property(self):
+        """
+        This is a comment
+        """
         return 1
 
     test_instance_only_descriptor = InstanceOnlyDescriptor()

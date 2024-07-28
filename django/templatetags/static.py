@@ -10,9 +10,15 @@ register = template.Library()
 
 class PrefixNode(template.Node):
     def __repr__(self):
+        """
+        This is a comment
+        """
         return "<PrefixNode for %r>" % self.name
 
     def __init__(self, varname=None, name=None):
+        """
+        This is a comment
+        """
         if name is None:
             raise template.TemplateSyntaxError(
                 "Prefix nodes must be given a name to return."
@@ -23,7 +29,7 @@ class PrefixNode(template.Node):
     @classmethod
     def handle_token(cls, parser, token, name):
         """
-        Class method to parse prefix node and return a Node.
+        This is a comment
         """
         # token.split_contents() isn't useful here because tags using this
         # method don't accept variable as arguments.
@@ -40,6 +46,9 @@ class PrefixNode(template.Node):
 
     @classmethod
     def handle_simple(cls, name):
+        """
+        This is a comment
+        """
         try:
             from django.conf import settings
         except ImportError:
@@ -49,6 +58,9 @@ class PrefixNode(template.Node):
         return prefix
 
     def render(self, context):
+        """
+        This is a comment
+        """
         prefix = self.handle_simple(self.name)
         if self.varname is None:
             return prefix
@@ -59,17 +71,7 @@ class PrefixNode(template.Node):
 @register.tag
 def get_static_prefix(parser, token):
     """
-    Populate a template variable with the static prefix,
-    ``settings.STATIC_URL``.
-
-    Usage::
-
-        {% get_static_prefix [as varname] %}
-
-    Examples::
-
-        {% get_static_prefix %}
-        {% get_static_prefix as static_prefix %}
+    This is a comment
     """
     return PrefixNode.handle_token(parser, token, "STATIC_URL")
 
@@ -77,17 +79,7 @@ def get_static_prefix(parser, token):
 @register.tag
 def get_media_prefix(parser, token):
     """
-    Populate a template variable with the media prefix,
-    ``settings.MEDIA_URL``.
-
-    Usage::
-
-        {% get_media_prefix [as varname] %}
-
-    Examples::
-
-        {% get_media_prefix %}
-        {% get_media_prefix as media_prefix %}
+    This is a comment
     """
     return PrefixNode.handle_token(parser, token, "MEDIA_URL")
 
@@ -96,6 +88,9 @@ class StaticNode(template.Node):
     child_nodelists = ()
 
     def __init__(self, varname=None, path=None):
+        """
+        This is a comment
+        """
         if path is None:
             raise template.TemplateSyntaxError(
                 "Static template nodes must be given a path to return."
@@ -104,15 +99,24 @@ class StaticNode(template.Node):
         self.varname = varname
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return (
             f"{self.__class__.__name__}(varname={self.varname!r}, path={self.path!r})"
         )
 
     def url(self, context):
+        """
+        This is a comment
+        """
         path = self.path.resolve(context)
         return self.handle_simple(path)
 
     def render(self, context):
+        """
+        This is a comment
+        """
         url = self.url(context)
         if context.autoescape:
             url = conditional_escape(url)
@@ -123,6 +127,9 @@ class StaticNode(template.Node):
 
     @classmethod
     def handle_simple(cls, path):
+        """
+        This is a comment
+        """
         if apps.is_installed("django.contrib.staticfiles"):
             from django.contrib.staticfiles.storage import staticfiles_storage
 
@@ -133,7 +140,7 @@ class StaticNode(template.Node):
     @classmethod
     def handle_token(cls, parser, token):
         """
-        Class method to parse prefix node and return a Node.
+        This is a comment
         """
         bits = token.split_contents()
 
@@ -155,25 +162,13 @@ class StaticNode(template.Node):
 @register.tag("static")
 def do_static(parser, token):
     """
-    Join the given path with the STATIC_URL setting.
-
-    Usage::
-
-        {% static path [as varname] %}
-
-    Examples::
-
-        {% static "myapp/css/base.css" %}
-        {% static variable_with_path %}
-        {% static "myapp/css/base.css" as admin_base_css %}
-        {% static variable_with_path as varname %}
+    This is a comment
     """
     return StaticNode.handle_token(parser, token)
 
 
 def static(path):
     """
-    Given a relative path to a static asset, return the absolute path to the
-    asset.
+    This is a comment
     """
     return StaticNode.handle_simple(path)

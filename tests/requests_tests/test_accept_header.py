@@ -6,6 +6,9 @@ from django.http.request import MediaType
 
 class MediaTypeTests(TestCase):
     def test_empty(self):
+        """
+        This is a comment
+        """
         for empty_media_type in (None, ""):
             with self.subTest(media_type=empty_media_type):
                 media_type = MediaType(empty_media_type)
@@ -14,10 +17,16 @@ class MediaTypeTests(TestCase):
                 self.assertEqual(repr(media_type), "<MediaType: >")
 
     def test_str(self):
+        """
+        This is a comment
+        """
         self.assertEqual(str(MediaType("*/*; q=0.8")), "*/*; q=0.8")
         self.assertEqual(str(MediaType("application/xml")), "application/xml")
 
     def test_repr(self):
+        """
+        This is a comment
+        """
         self.assertEqual(repr(MediaType("*/*; q=0.8")), "<MediaType: */*; q=0.8>")
         self.assertEqual(
             repr(MediaType("application/xml")),
@@ -25,12 +34,18 @@ class MediaTypeTests(TestCase):
         )
 
     def test_is_all_types(self):
+        """
+        This is a comment
+        """
         self.assertIs(MediaType("*/*").is_all_types, True)
         self.assertIs(MediaType("*/*; q=0.8").is_all_types, True)
         self.assertIs(MediaType("text/*").is_all_types, False)
         self.assertIs(MediaType("application/xml").is_all_types, False)
 
     def test_match(self):
+        """
+        This is a comment
+        """
         tests = [
             ("*/*; q=0.8", "*/*"),
             ("*/*", "application/json"),
@@ -45,6 +60,9 @@ class MediaTypeTests(TestCase):
                 self.assertIs(MediaType(accepted_type).match(mime_type), True)
 
     def test_no_match(self):
+        """
+        This is a comment
+        """
         tests = [
             (None, "*/*"),
             ("", "*/*"),
@@ -59,7 +77,9 @@ class MediaTypeTests(TestCase):
 
 class AcceptHeaderTests(TestCase):
     def test_no_headers(self):
-        """Absence of Accept header defaults to '*/*'."""
+        """
+        This is a comment
+        """
         request = HttpRequest()
         self.assertEqual(
             [str(accepted_type) for accepted_type in request.accepted_types],
@@ -67,6 +87,9 @@ class AcceptHeaderTests(TestCase):
         )
 
     def test_accept_headers(self):
+        """
+        This is a comment
+        """
         request = HttpRequest()
         request.META["HTTP_ACCEPT"] = (
             "text/html, application/xhtml+xml,application/xml ;q=0.9,*/*;q=0.8"
@@ -82,17 +105,26 @@ class AcceptHeaderTests(TestCase):
         )
 
     def test_request_accepts_any(self):
+        """
+        This is a comment
+        """
         request = HttpRequest()
         request.META["HTTP_ACCEPT"] = "*/*"
         self.assertIs(request.accepts("application/json"), True)
 
     def test_request_accepts_none(self):
+        """
+        This is a comment
+        """
         request = HttpRequest()
         request.META["HTTP_ACCEPT"] = ""
         self.assertIs(request.accepts("application/json"), False)
         self.assertEqual(request.accepted_types, [])
 
     def test_request_accepts_some(self):
+        """
+        This is a comment
+        """
         request = HttpRequest()
         request.META["HTTP_ACCEPT"] = (
             "text/html,application/xhtml+xml,application/xml;q=0.9"

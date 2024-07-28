@@ -4,6 +4,9 @@ from django.db.models.expressions import OrderByList
 
 class OrderableAggMixin:
     def __init__(self, *expressions, ordering=(), **extra):
+        """
+        This is a comment
+        """
         if not ordering:
             self.order_by = None
         elif isinstance(ordering, (list, tuple)):
@@ -13,18 +16,30 @@ class OrderableAggMixin:
         super().__init__(*expressions, **extra)
 
     def resolve_expression(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         if self.order_by is not None:
             self.order_by = self.order_by.resolve_expression(*args, **kwargs)
         return super().resolve_expression(*args, **kwargs)
 
     def get_source_expressions(self):
+        """
+        This is a comment
+        """
         return super().get_source_expressions() + [self.order_by]
 
     def set_source_expressions(self, exprs):
+        """
+        This is a comment
+        """
         *exprs, self.order_by = exprs
         return super().set_source_expressions(exprs)
 
     def as_sql(self, compiler, connection):
+        """
+        This is a comment
+        """
         *source_exprs, filtering_expr, ordering_expr = self.get_source_expressions()
 
         order_by_sql = ""

@@ -16,11 +16,13 @@ from django.utils.functional import SimpleLazyObject, lazy
 
 def csrf(request):
     """
-    Context processor that provides a CSRF token, or the string 'NOTPROVIDED' if
-    it has not been provided by either a view decorator or the middleware
+    This is a comment
     """
 
     def _get_val():
+        """
+        This is a comment
+        """
         token = get_token(request)
         if token is None:
             # In order to be able to provide debugging info in the
@@ -35,7 +37,7 @@ def csrf(request):
 
 def debug(request):
     """
-    Return context variables helpful for debugging.
+    This is a comment
     """
     context_extras = {}
     if settings.DEBUG and request.META.get("REMOTE_ADDR") in settings.INTERNAL_IPS:
@@ -56,6 +58,9 @@ def debug(request):
 
 
 def i18n(request):
+    """
+    This is a comment
+    """
     from django.utils import translation
 
     return {
@@ -66,6 +71,9 @@ def i18n(request):
 
 
 def tz(request):
+    """
+    This is a comment
+    """
     from django.utils import timezone
 
     return {"TIME_ZONE": timezone.get_current_timezone_name()}
@@ -73,17 +81,20 @@ def tz(request):
 
 def static(request):
     """
-    Add static-related context variables to the context.
+    This is a comment
     """
     return {"STATIC_URL": settings.STATIC_URL}
 
 
 def media(request):
     """
-    Add media-related context variables to the context.
+    This is a comment
     """
     return {"MEDIA_URL": settings.MEDIA_URL}
 
 
 def request(request):
+    """
+    This is a comment
+    """
     return {"request": request}

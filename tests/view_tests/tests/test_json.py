@@ -6,6 +6,9 @@ from django.test import SimpleTestCase, override_settings
 @override_settings(ROOT_URLCONF="view_tests.generic_urls")
 class JsonResponseTests(SimpleTestCase):
     def test_json_response(self):
+        """
+        This is a comment
+        """
         response = self.client.get("/json/response/")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.headers["content-type"], "application/json")

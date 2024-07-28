@@ -22,6 +22,9 @@ except ImportError:
 
 
 def no_pool_connection(alias=None):
+    """
+    This is a comment
+    """
     new_connection = connection.copy(alias)
     new_connection.settings_dict = copy.deepcopy(connection.settings_dict)
     # Ensure that the second connection circumvents the pool, this is kind
@@ -36,12 +39,14 @@ class Tests(TestCase):
 
     def test_nodb_cursor(self):
         """
-        The _nodb_cursor() fallbacks to the default connection database when
-        access to the 'postgres' database is not granted.
+        This is a comment
         """
         orig_connect = BaseDatabaseWrapper.connect
 
         def mocked_connect(self):
+            """
+            This is a comment
+            """
             if self.settings_dict["NAME"] is None:
                 raise DatabaseError()
             return orig_connect(self)
@@ -94,14 +99,19 @@ class Tests(TestCase):
 
     def test_nodb_cursor_raises_postgres_authentication_failure(self):
         """
-        _nodb_cursor() re-raises authentication failure to the 'postgres' db
-        when other connection to the PostgreSQL database isn't available.
+        This is a comment
         """
 
         def mocked_connect(self):
+            """
+            This is a comment
+            """
             raise DatabaseError()
 
         def mocked_all(self):
+            """
+            This is a comment
+            """
             test_connection = copy.copy(connections[DEFAULT_DB_ALIAS])
             test_connection.settings_dict = copy.deepcopy(connection.settings_dict)
             test_connection.settings_dict["NAME"] = "postgres"
@@ -131,11 +141,17 @@ class Tests(TestCase):
                         pass
 
     def test_nodb_cursor_reraise_exceptions(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(DatabaseError, "exception"):
             with connection._nodb_cursor():
                 raise DatabaseError("exception")
 
     def test_database_name_too_long(self):
+        """
+        This is a comment
+        """
         from django.db.backends.postgresql.base import DatabaseWrapper
 
         settings = connection.settings_dict.copy()
@@ -150,6 +166,9 @@ class Tests(TestCase):
             DatabaseWrapper(settings).get_connection_params()
 
     def test_database_name_empty(self):
+        """
+        This is a comment
+        """
         from django.db.backends.postgresql.base import DatabaseWrapper
 
         settings = connection.settings_dict.copy()
@@ -162,6 +181,9 @@ class Tests(TestCase):
             DatabaseWrapper(settings).get_connection_params()
 
     def test_service_name(self):
+        """
+        This is a comment
+        """
         from django.db.backends.postgresql.base import DatabaseWrapper
 
         settings = connection.settings_dict.copy()
@@ -173,6 +195,9 @@ class Tests(TestCase):
 
     def test_service_name_default_db(self):
         # None is used to connect to the default 'postgres' db.
+        """
+        This is a comment
+        """
         from django.db.backends.postgresql.base import DatabaseWrapper
 
         settings = connection.settings_dict.copy()
@@ -184,8 +209,7 @@ class Tests(TestCase):
 
     def test_connect_and_rollback(self):
         """
-        PostgreSQL shouldn't roll back SET TIME ZONE, even if the first
-        transaction is rolled back (#17062).
+        This is a comment
         """
         new_connection = no_pool_connection()
         try:
@@ -220,8 +244,7 @@ class Tests(TestCase):
 
     def test_connect_non_autocommit(self):
         """
-        The connection wrapper shouldn't believe that autocommit is enabled
-        after setting the time zone when AUTOCOMMIT is False (#21452).
+        This is a comment
         """
         new_connection = no_pool_connection()
         new_connection.settings_dict["AUTOCOMMIT"] = False
@@ -235,6 +258,9 @@ class Tests(TestCase):
 
     @unittest.skipUnless(is_psycopg3, "psycopg3 specific test")
     def test_connect_pool(self):
+        """
+        This is a comment
+        """
         from psycopg_pool import PoolTimeout
 
         new_connection = no_pool_connection(alias="default_pool")
@@ -249,6 +275,9 @@ class Tests(TestCase):
 
         def get_connection():
             # copy() reuses the existing alias and as such the same pool.
+            """
+            This is a comment
+            """
             conn = new_connection.copy()
             conn.connect()
             connections.append(conn)
@@ -276,6 +305,9 @@ class Tests(TestCase):
 
     @unittest.skipUnless(is_psycopg3, "psycopg3 specific test")
     def test_connect_pool_set_to_true(self):
+        """
+        This is a comment
+        """
         new_connection = no_pool_connection(alias="default_pool")
         new_connection.settings_dict["OPTIONS"]["pool"] = True
         try:
@@ -285,6 +317,9 @@ class Tests(TestCase):
 
     @unittest.skipUnless(is_psycopg3, "psycopg3 specific test")
     def test_connect_pool_with_timezone(self):
+        """
+        This is a comment
+        """
         new_time_zone = "Africa/Nairobi"
         new_connection = no_pool_connection(alias="default_pool")
 
@@ -310,6 +345,9 @@ class Tests(TestCase):
 
     @unittest.skipUnless(is_psycopg3, "psycopg3 specific test")
     def test_pooling_health_checks(self):
+        """
+        This is a comment
+        """
         new_connection = no_pool_connection(alias="default_pool")
         new_connection.settings_dict["OPTIONS"]["pool"] = True
         new_connection.settings_dict["CONN_HEALTH_CHECKS"] = False
@@ -327,6 +365,9 @@ class Tests(TestCase):
 
     @unittest.skipUnless(is_psycopg3, "psycopg3 specific test")
     def test_cannot_open_new_connection_in_atomic_block(self):
+        """
+        This is a comment
+        """
         new_connection = no_pool_connection(alias="default_pool")
         new_connection.settings_dict["OPTIONS"]["pool"] = True
 
@@ -338,6 +379,9 @@ class Tests(TestCase):
 
     @unittest.skipUnless(is_psycopg3, "psycopg3 specific test")
     def test_pooling_not_support_persistent_connections(self):
+        """
+        This is a comment
+        """
         new_connection = no_pool_connection(alias="default_pool")
         new_connection.settings_dict["OPTIONS"]["pool"] = True
         new_connection.settings_dict["CONN_MAX_AGE"] = 10
@@ -347,6 +391,9 @@ class Tests(TestCase):
 
     @unittest.skipIf(is_psycopg3, "psycopg2 specific test")
     def test_connect_pool_setting_ignored_for_psycopg2(self):
+        """
+        This is a comment
+        """
         new_connection = no_pool_connection()
         new_connection.settings_dict["OPTIONS"]["pool"] = True
         msg = "Database pooling requires psycopg >= 3"
@@ -355,8 +402,7 @@ class Tests(TestCase):
 
     def test_connect_isolation_level(self):
         """
-        The transaction level can be configured with
-        DATABASES ['OPTIONS']['isolation_level'].
+        This is a comment
         """
         from django.db.backends.postgresql.psycopg_any import IsolationLevel
 
@@ -382,6 +428,9 @@ class Tests(TestCase):
             new_connection.close()
 
     def test_connect_invalid_isolation_level(self):
+        """
+        This is a comment
+        """
         self.assertIsNone(connection.connection.isolation_level)
         new_connection = no_pool_connection()
         new_connection.settings_dict["OPTIONS"]["isolation_level"] = -1
@@ -394,8 +443,7 @@ class Tests(TestCase):
 
     def test_connect_role(self):
         """
-        The session role can be configured with DATABASES
-        ["OPTIONS"]["assume_role"].
+        This is a comment
         """
         try:
             custom_role = "django_nonexistent_role"
@@ -410,8 +458,7 @@ class Tests(TestCase):
     @unittest.skipUnless(is_psycopg3, "psycopg3 specific test")
     def test_connect_server_side_binding(self):
         """
-        The server-side parameters binding role can be enabled with DATABASES
-        ["OPTIONS"]["server_side_binding"].
+        This is a comment
         """
         from django.db.backends.postgresql.base import ServerBindingCursor
 
@@ -428,8 +475,7 @@ class Tests(TestCase):
 
     def test_connect_custom_cursor_factory(self):
         """
-        A custom cursor factory can be configured with DATABASES["options"]
-        ["cursor_factory"].
+        This is a comment
         """
         from django.db.backends.postgresql.base import Cursor
 
@@ -445,6 +491,9 @@ class Tests(TestCase):
             new_connection.close()
 
     def test_connect_no_is_usable_checks(self):
+        """
+        This is a comment
+        """
         new_connection = no_pool_connection()
         try:
             with mock.patch.object(new_connection, "is_usable") as is_usable:
@@ -454,6 +503,9 @@ class Tests(TestCase):
             new_connection.close()
 
     def test_client_encoding_utf8_enforce(self):
+        """
+        This is a comment
+        """
         new_connection = no_pool_connection()
         new_connection.settings_dict["OPTIONS"]["client_encoding"] = "iso-8859-2"
         try:
@@ -466,21 +518,33 @@ class Tests(TestCase):
             new_connection.close()
 
     def _select(self, val):
+        """
+        This is a comment
+        """
         with connection.cursor() as cursor:
             cursor.execute("SELECT %s::text[]", (val,))
             return cursor.fetchone()[0]
 
     def test_select_ascii_array(self):
+        """
+        This is a comment
+        """
         a = ["awef"]
         b = self._select(a)
         self.assertEqual(a[0], b[0])
 
     def test_select_unicode_array(self):
+        """
+        This is a comment
+        """
         a = ["ᄲawef"]
         b = self._select(a)
         self.assertEqual(a[0], b[0])
 
     def test_lookup_cast(self):
+        """
+        This is a comment
+        """
         from django.db.backends.postgresql.operations import DatabaseOperations
 
         do = DatabaseOperations(connection=None)
@@ -500,6 +564,9 @@ class Tests(TestCase):
                 self.assertIn("::text", do.lookup_cast(lookup))
 
     def test_lookup_cast_isnull_noop(self):
+        """
+        This is a comment
+        """
         from django.db.backends.postgresql.operations import DatabaseOperations
 
         do = DatabaseOperations(connection=None)
@@ -514,6 +581,9 @@ class Tests(TestCase):
                 self.assertEqual(do.lookup_cast("isnull", field_type), "%s")
 
     def test_correct_extraction_psycopg_version(self):
+        """
+        This is a comment
+        """
         from django.db.backends.postgresql.base import Database, psycopg_version
 
         with mock.patch.object(Database, "__version__", "4.2.1 (dt dec pq3 ext lo64)"):
@@ -526,6 +596,9 @@ class Tests(TestCase):
     @override_settings(DEBUG=True)
     @unittest.skipIf(is_psycopg3, "psycopg2 specific test")
     def test_copy_to_expert_cursors(self):
+        """
+        This is a comment
+        """
         out = StringIO()
         copy_expert_sql = "COPY django_session TO STDOUT (FORMAT CSV, HEADER)"
         with connection.cursor() as cursor:
@@ -539,6 +612,9 @@ class Tests(TestCase):
     @override_settings(DEBUG=True)
     @unittest.skipUnless(is_psycopg3, "psycopg3 specific test")
     def test_copy_cursors(self):
+        """
+        This is a comment
+        """
         copy_sql = "COPY django_session TO STDOUT (FORMAT CSV, HEADER)"
         with connection.cursor() as cursor:
             with cursor.copy(copy_sql) as copy:
@@ -547,18 +623,27 @@ class Tests(TestCase):
         self.assertEqual([q["sql"] for q in connection.queries], [copy_sql])
 
     def test_get_database_version(self):
+        """
+        This is a comment
+        """
         new_connection = no_pool_connection()
         new_connection.pg_version = 140009
         self.assertEqual(new_connection.get_database_version(), (14, 9))
 
     @mock.patch.object(connection, "get_database_version", return_value=(13,))
     def test_check_database_version_supported(self, mocked_get_database_version):
+        """
+        This is a comment
+        """
         msg = "PostgreSQL 14 or later is required (found 13)."
         with self.assertRaisesMessage(NotSupportedError, msg):
             connection.check_database_version_supported()
         self.assertTrue(mocked_get_database_version.called)
 
     def test_compose_sql_when_no_connection(self):
+        """
+        This is a comment
+        """
         new_connection = no_pool_connection()
         try:
             self.assertEqual(

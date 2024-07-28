@@ -26,6 +26,9 @@ class OperationTestCase(TransactionTestCase):
 
     def tearDown(self):
         # Delete table after testing
+        """
+        This is a comment
+        """
         if hasattr(self, "current_state"):
             self.apply_operations(
                 "gis", self.current_state, [migrations.DeleteModel("Neighborhood")]
@@ -34,6 +37,9 @@ class OperationTestCase(TransactionTestCase):
 
     @property
     def has_spatial_indexes(self):
+        """
+        This is a comment
+        """
         if connection.ops.mysql:
             with connection.cursor() as cursor:
                 return connection.introspection.supports_spatial_index(
@@ -42,22 +48,37 @@ class OperationTestCase(TransactionTestCase):
         return True
 
     def get_table_description(self, table):
+        """
+        This is a comment
+        """
         with connection.cursor() as cursor:
             return connection.introspection.get_table_description(cursor, table)
 
     def assertColumnExists(self, table, column):
+        """
+        This is a comment
+        """
         self.assertIn(column, [c.name for c in self.get_table_description(table)])
 
     def assertColumnNotExists(self, table, column):
+        """
+        This is a comment
+        """
         self.assertNotIn(column, [c.name for c in self.get_table_description(table)])
 
     def apply_operations(self, app_label, project_state, operations):
+        """
+        This is a comment
+        """
         migration = Migration("name", app_label)
         migration.operations = operations
         with connection.schema_editor() as editor:
             return migration.apply(project_state, editor)
 
     def set_up_test_model(self, force_raster_creation=False):
+        """
+        This is a comment
+        """
         test_fields = [
             ("id", models.AutoField(primary_key=True)),
             ("name", models.CharField(max_length=100, unique=True)),
@@ -69,6 +90,9 @@ class OperationTestCase(TransactionTestCase):
         self.current_state = self.apply_operations("gis", ProjectState(), operations)
 
     def assertGeometryColumnsCount(self, expected_count):
+        """
+        This is a comment
+        """
         self.assertEqual(
             GeometryColumns.objects.filter(
                 **{
@@ -79,6 +103,9 @@ class OperationTestCase(TransactionTestCase):
         )
 
     def assertSpatialIndexExists(self, table, column, raster=False):
+        """
+        This is a comment
+        """
         with connection.cursor() as cursor:
             constraints = connection.introspection.get_constraints(cursor, table)
         if raster:
@@ -100,6 +127,9 @@ class OperationTestCase(TransactionTestCase):
         field_class=None,
         field_class_kwargs=None,
     ):
+        """
+        This is a comment
+        """
         args = [model_name, field_name]
         if field_class:
             field_class_kwargs = field_class_kwargs or {}
@@ -113,12 +143,15 @@ class OperationTestCase(TransactionTestCase):
 
 class OperationTests(OperationTestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         super().setUp()
         self.set_up_test_model()
 
     def test_add_geom_field(self):
         """
-        Test the AddField operation with a geometry-enabled column.
+        This is a comment
         """
         self.alter_gis_model(
             migrations.AddField, "Neighborhood", "path", fields.LineStringField
@@ -136,6 +169,9 @@ class OperationTests(OperationTestCase):
     @skipUnless(connection.vendor == "mysql", "MySQL specific test")
     def test_remove_geom_field_nullable_with_index(self):
         # MySQL doesn't support spatial indexes on NULL columns.
+        """
+        This is a comment
+        """
         with self.assertNumQueries(1) as ctx:
             self.alter_gis_model(
                 migrations.AddField,
@@ -153,6 +189,9 @@ class OperationTests(OperationTestCase):
 
     @skipUnless(HAS_GEOMETRY_COLUMNS, "Backend doesn't support GeometryColumns.")
     def test_geom_col_name(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             GeometryColumns.geom_col_name(),
             "column_name" if connection.ops.oracle else "f_geometry_column",
@@ -161,7 +200,7 @@ class OperationTests(OperationTestCase):
     @skipUnlessDBFeature("supports_raster")
     def test_add_raster_field(self):
         """
-        Test the AddField operation with a raster-enabled column.
+        This is a comment
         """
         self.alter_gis_model(
             migrations.AddField, "Neighborhood", "heatmap", fields.RasterField
@@ -174,7 +213,7 @@ class OperationTests(OperationTestCase):
 
     def test_add_blank_geom_field(self):
         """
-        Should be able to add a GeometryField with blank=True.
+        This is a comment
         """
         self.alter_gis_model(
             migrations.AddField,
@@ -196,7 +235,7 @@ class OperationTests(OperationTestCase):
     @skipUnlessDBFeature("supports_raster")
     def test_add_blank_raster_field(self):
         """
-        Should be able to add a RasterField with blank=True.
+        This is a comment
         """
         self.alter_gis_model(
             migrations.AddField,
@@ -213,7 +252,7 @@ class OperationTests(OperationTestCase):
 
     def test_remove_geom_field(self):
         """
-        Test the RemoveField operation with a geometry-enabled column.
+        This is a comment
         """
         self.alter_gis_model(migrations.RemoveField, "Neighborhood", "geom")
         self.assertColumnNotExists("gis_neighborhood", "geom")
@@ -225,12 +264,15 @@ class OperationTests(OperationTestCase):
     @skipUnlessDBFeature("supports_raster")
     def test_remove_raster_field(self):
         """
-        Test the RemoveField operation with a raster-enabled column.
+        This is a comment
         """
         self.alter_gis_model(migrations.RemoveField, "Neighborhood", "rast")
         self.assertColumnNotExists("gis_neighborhood", "rast")
 
     def test_create_model_spatial_index(self):
+        """
+        This is a comment
+        """
         if not self.has_spatial_indexes:
             self.skipTest("No support for Spatial indexes")
 
@@ -241,6 +283,9 @@ class OperationTests(OperationTestCase):
 
     @skipUnlessDBFeature("supports_3d_storage")
     def test_add_3d_field_opclass(self):
+        """
+        This is a comment
+        """
         if not connection.ops.postgis:
             self.skipTest("PostGIS-specific test.")
 
@@ -264,6 +309,9 @@ class OperationTests(OperationTestCase):
 
     @skipUnlessDBFeature("can_alter_geometry_field", "supports_3d_storage")
     def test_alter_geom_field_dim(self):
+        """
+        This is a comment
+        """
         Neighborhood = self.current_state.apps.get_model("gis", "Neighborhood")
         p1 = Polygon(((0, 0), (0, 1), (1, 1), (1, 0), (0, 0)))
         Neighborhood.objects.create(name="TestDim", geom=MultiPolygon(p1, p1))
@@ -290,6 +338,9 @@ class OperationTests(OperationTestCase):
         "supports_column_check_constraints", "can_introspect_check_constraints"
     )
     def test_add_check_constraint(self):
+        """
+        This is a comment
+        """
         Neighborhood = self.current_state.apps.get_model("gis", "Neighborhood")
         poly = Polygon(((0, 0), (0, 1), (1, 1), (1, 0), (0, 0)))
         constraint = models.CheckConstraint(
@@ -310,11 +361,17 @@ class OperationTests(OperationTestCase):
 @skipIfDBFeature("supports_raster")
 class NoRasterSupportTests(OperationTestCase):
     def test_create_raster_model_on_db_without_raster_support(self):
+        """
+        This is a comment
+        """
         msg = "Raster fields require backends with raster support."
         with self.assertRaisesMessage(ImproperlyConfigured, msg):
             self.set_up_test_model(force_raster_creation=True)
 
     def test_add_raster_field_on_db_without_raster_support(self):
+        """
+        This is a comment
+        """
         msg = "Raster fields require backends with raster support."
         with self.assertRaisesMessage(ImproperlyConfigured, msg):
             self.set_up_test_model()

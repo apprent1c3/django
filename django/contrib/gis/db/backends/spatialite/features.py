@@ -11,10 +11,16 @@ class DatabaseFeatures(BaseSpatialFeatures, SQLiteDatabaseFeatures):
 
     @cached_property
     def supports_area_geodetic(self):
+        """
+        This is a comment
+        """
         return bool(self.connection.ops.geom_lib_version())
 
     @cached_property
     def django_test_skips(self):
+        """
+        This is a comment
+        """
         skips = super().django_test_skips
         skips.update(
             {

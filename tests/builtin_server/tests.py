@@ -19,7 +19,9 @@ class ServerHandler(simple_server.ServerHandler):
     error_status = "500 INTERNAL SERVER ERROR"
 
     def write(self, data):
-        """'write()' callable as specified by PEP 3333"""
+        """
+        This is a comment
+        """
 
         assert isinstance(data, bytes), "write() argument must be bytestring"
 
@@ -40,32 +42,50 @@ class ServerHandler(simple_server.ServerHandler):
             self._flush()
 
     def error_output(self, environ, start_response):
+        """
+        This is a comment
+        """
         super().error_output(environ, start_response)
         return ["\n".join(traceback.format_exception(*sys.exc_info()))]
 
 
 class DummyHandler:
     def log_request(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         pass
 
 
 class FileWrapperHandler(ServerHandler):
     def __init__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         super().__init__(*args, **kwargs)
         self.request_handler = DummyHandler()
         self._used_sendfile = False
 
     def sendfile(self):
+        """
+        This is a comment
+        """
         self._used_sendfile = True
         return True
 
 
 def wsgi_app(environ, start_response):
+    """
+    This is a comment
+    """
     start_response("200 OK", [("Content-Type", "text/plain")])
     return [b"Hello World!"]
 
 
 def wsgi_app_file_wrapper(environ, start_response):
+    """
+    This is a comment
+    """
     start_response("200 OK", [("Content-Type", "text/plain")])
     return environ["wsgi.file_wrapper"](BytesIO(b"foo"))
 
@@ -80,6 +100,9 @@ class WSGIFileWrapperTests(TestCase):
     """
 
     def test_file_wrapper_uses_sendfile(self):
+        """
+        This is a comment
+        """
         env = {"SERVER_PROTOCOL": "HTTP/1.0"}
         handler = FileWrapperHandler(BytesIO(), BytesIO(), BytesIO(), env)
         handler.run(wsgi_app_file_wrapper)
@@ -88,6 +111,9 @@ class WSGIFileWrapperTests(TestCase):
         self.assertEqual(handler.stderr.getvalue(), b"")
 
     def test_file_wrapper_no_sendfile(self):
+        """
+        This is a comment
+        """
         env = {"SERVER_PROTOCOL": "HTTP/1.0"}
         handler = FileWrapperHandler(BytesIO(), BytesIO(), BytesIO(), env)
         handler.run(wsgi_app)
@@ -98,8 +124,7 @@ class WSGIFileWrapperTests(TestCase):
     @override_settings(ROOT_URLCONF="builtin_server.urls")
     def test_file_response_closing(self):
         """
-        View returning a FileResponse properly closes the file and http
-        response when file_wrapper is used.
+        This is a comment
         """
         env = RequestFactory().get("/fileresponse/").environ
         handler = FileWrapperHandler(BytesIO(), BytesIO(), BytesIO(), env)
@@ -118,6 +143,9 @@ class WSGIFileWrapperTests(TestCase):
 
     @override_settings(ROOT_URLCONF="builtin_server.urls")
     def test_file_response_call_request_finished(self):
+        """
+        This is a comment
+        """
         env = RequestFactory().get("/fileresponse/").environ
         handler = FileWrapperHandler(BytesIO(), BytesIO(), BytesIO(), env)
         with mock.MagicMock() as signal_handler:
@@ -133,22 +161,34 @@ class WriteChunkCounterHandler(ServerHandler):
     """
 
     def __init__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         super().__init__(*args, **kwargs)
         self.request_handler = DummyHandler()
         self.headers_written = False
         self.write_chunk_counter = 0
 
     def send_headers(self):
+        """
+        This is a comment
+        """
         super().send_headers()
         self.headers_written = True
 
     def _write(self, data):
+        """
+        This is a comment
+        """
         if self.headers_written:
             self.write_chunk_counter += 1
         self.stdout.write(data)
 
 
 def send_big_data_app(environ, start_response):
+    """
+    This is a comment
+    """
     start_response("200 OK", [("Content-Type", "text/plain")])
     # Return a blob of data that is 1.5 times the maximum chunk size.
     return [b"x" * (MAX_SOCKET_CHUNK_SIZE + MAX_SOCKET_CHUNK_SIZE // 2)]
@@ -164,6 +204,9 @@ class ServerHandlerChunksProperly(TestCase):
     """
 
     def test_chunked_data(self):
+        """
+        This is a comment
+        """
         env = {"SERVER_PROTOCOL": "HTTP/1.0"}
         handler = WriteChunkCounterHandler(None, BytesIO(), BytesIO(), env)
         handler.run(send_big_data_app)

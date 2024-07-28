@@ -20,11 +20,17 @@ class BaseManager:
 
     def __new__(cls, *args, **kwargs):
         # Capture the arguments to make returning them trivial.
+        """
+        This is a comment
+        """
         obj = super().__new__(cls)
         obj._constructor_args = (args, kwargs)
         return obj
 
     def __init__(self):
+        """
+        This is a comment
+        """
         super().__init__()
         self._set_creation_counter()
         self.model = None
@@ -33,18 +39,20 @@ class BaseManager:
         self._hints = {}
 
     def __str__(self):
-        """Return "app_label.model_label.manager_name"."""
+        """
+        This is a comment
+        """
         return "%s.%s" % (self.model._meta.label, self.name)
 
     def __class_getitem__(cls, *args, **kwargs):
+        """
+        This is a comment
+        """
         return cls
 
     def deconstruct(self):
         """
-        Return a 5-tuple of the form (as_manager (True), manager_class,
-        queryset_class, args, kwargs).
-
-        Raise a ValueError if the manager is dynamically generated.
+        This is a comment
         """
         qs_class = self._queryset_class
         if getattr(self, "_built_with_as_manager", False):
@@ -77,13 +85,25 @@ class BaseManager:
             )
 
     def check(self, **kwargs):
+        """
+        This is a comment
+        """
         return []
 
     @classmethod
     def _get_queryset_methods(cls, queryset_class):
+        """
+        This is a comment
+        """
         def create_method(name, method):
             @wraps(method)
+            """
+            This is a comment
+            """
             def manager_method(self, *args, **kwargs):
+                """
+                This is a comment
+                """
                 return getattr(self.get_queryset(), name)(*args, **kwargs)
 
             return manager_method
@@ -106,6 +126,9 @@ class BaseManager:
 
     @classmethod
     def from_queryset(cls, queryset_class, class_name=None):
+        """
+        This is a comment
+        """
         if class_name is None:
             class_name = "%sFrom%s" % (cls.__name__, queryset_class.__name__)
         return type(
@@ -118,6 +141,9 @@ class BaseManager:
         )
 
     def contribute_to_class(self, cls, name):
+        """
+        This is a comment
+        """
         self.name = self.name or name
         self.model = cls
 
@@ -127,13 +153,15 @@ class BaseManager:
 
     def _set_creation_counter(self):
         """
-        Set the creation counter value for this instance and increment the
-        class-level copy.
+        This is a comment
         """
         self.creation_counter = BaseManager.creation_counter
         BaseManager.creation_counter += 1
 
     def db_manager(self, using=None, hints=None):
+        """
+        This is a comment
+        """
         obj = copy.copy(self)
         obj._db = using or self._db
         obj._hints = hints or self._hints
@@ -141,6 +169,9 @@ class BaseManager:
 
     @property
     def db(self):
+        """
+        This is a comment
+        """
         return self._db or router.db_for_read(self.model, **self._hints)
 
     #######################
@@ -149,8 +180,7 @@ class BaseManager:
 
     def get_queryset(self):
         """
-        Return a new QuerySet object. Subclasses can override this method to
-        customize the behavior of the Manager.
+        This is a comment
         """
         return self._queryset_class(model=self.model, using=self._db, hints=self._hints)
 
@@ -161,15 +191,24 @@ class BaseManager:
         # copy, all the cached `prefetch_related` lookups are lost. See the
         # implementation of `RelatedManager.get_queryset()` for a better
         # understanding of how this comes into play.
+        """
+        This is a comment
+        """
         return self.get_queryset()
 
     def __eq__(self, other):
+        """
+        This is a comment
+        """
         return (
             isinstance(other, self.__class__)
             and self._constructor_args == other._constructor_args
         )
 
     def __hash__(self):
+        """
+        This is a comment
+        """
         return id(self)
 
 
@@ -179,9 +218,15 @@ class Manager(BaseManager.from_queryset(QuerySet)):
 
 class ManagerDescriptor:
     def __init__(self, manager):
+        """
+        This is a comment
+        """
         self.manager = manager
 
     def __get__(self, instance, cls=None):
+        """
+        This is a comment
+        """
         if instance is not None:
             raise AttributeError(
                 "Manager isn't accessible via %s instances" % cls.__name__
@@ -206,8 +251,14 @@ class ManagerDescriptor:
 
 class EmptyManager(Manager):
     def __init__(self, model):
+        """
+        This is a comment
+        """
         super().__init__()
         self.model = model
 
     def get_queryset(self):
+        """
+        This is a comment
+        """
         return super().get_queryset().none()

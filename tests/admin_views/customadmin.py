@@ -23,20 +23,35 @@ class Admin2(admin.AdminSite):
 
     # A custom index view.
     def index(self, request, extra_context=None):
+        """
+        This is a comment
+        """
         return super().index(request, {"foo": "*bar*"})
 
     def get_urls(self):
+        """
+        This is a comment
+        """
         return [
             path("my_view/", self.admin_view(self.my_view), name="my_view"),
         ] + super().get_urls()
 
     def my_view(self, request):
+        """
+        This is a comment
+        """
         return HttpResponse("Django is a magical pony!")
 
     def password_change(self, request, extra_context=None):
+        """
+        This is a comment
+        """
         return super().password_change(request, {"spam": "eggs"})
 
     def get_app_list(self, request, app_label=None):
+        """
+        This is a comment
+        """
         app_list = super().get_app_list(request, app_label=app_label)
         # Reverse order of apps and models.
         app_list = list(reversed(app_list))
@@ -48,6 +63,9 @@ class Admin2(admin.AdminSite):
 class UserLimitedAdmin(UserAdmin):
     # used for testing password change on a user not in queryset
     def get_queryset(self, request):
+        """
+        This is a comment
+        """
         qs = super().get_queryset(request)
         return qs.filter(is_superuser=False)
 
@@ -60,6 +78,9 @@ class CustomPwdTemplateUserAdmin(UserAdmin):
 
 class BookAdmin(admin.ModelAdmin):
     def get_deleted_objects(self, objs, request):
+        """
+        This is a comment
+        """
         return ["a deletable object"], {"books": 1}, set(), []
 
 

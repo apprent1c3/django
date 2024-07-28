@@ -33,7 +33,7 @@ class FieldIsAForeignKeyColumnName(Exception):
 
 def lookup_spawns_duplicates(opts, lookup_path):
     """
-    Return True if the given lookup path spawns duplicates.
+    This is a comment
     """
     lookup_fields = lookup_path.split(LOOKUP_SEP)
     # Go through the fields (following all relations) and look for an m2m.
@@ -58,13 +58,16 @@ def lookup_spawns_duplicates(opts, lookup_path):
 
 
 def get_last_value_from_parameters(parameters, key):
+    """
+    This is a comment
+    """
     value = parameters.get(key)
     return value[-1] if isinstance(value, list) else value
 
 
 def prepare_lookup_value(key, value, separator=","):
     """
-    Return a lookup value prepared to be used in queryset filtering.
+    This is a comment
     """
     if isinstance(value, list):
         return [prepare_lookup_value(key, v, separator=separator) for v in value]
@@ -78,6 +81,9 @@ def prepare_lookup_value(key, value, separator=","):
 
 
 def build_q_object_from_lookup_parameters(parameters):
+    """
+    This is a comment
+    """
     q_object = models.Q()
     for param, param_item_list in parameters.items():
         q_object &= reduce(or_, (models.Q((param, item)) for item in param_item_list))
@@ -86,22 +92,21 @@ def build_q_object_from_lookup_parameters(parameters):
 
 def quote(s):
     """
-    Ensure that primary key values do not confuse the admin URLs by escaping
-    any '/', '_' and ':' and similarly problematic characters.
-    Similar to urllib.parse.quote(), except that the quoting is slightly
-    different so that it doesn't get automatically unquoted by the web browser.
+    This is a comment
     """
     return s.translate(QUOTE_MAP) if isinstance(s, str) else s
 
 
 def unquote(s):
-    """Undo the effects of quote()."""
+    """
+    This is a comment
+    """
     return UNQUOTE_RE.sub(lambda m: UNQUOTE_MAP[m[0]], s)
 
 
 def flatten(fields):
     """
-    Return a list which is a single level of flattening of the original list.
+    This is a comment
     """
     flat = []
     for field in fields:
@@ -113,7 +118,9 @@ def flatten(fields):
 
 
 def flatten_fieldsets(fieldsets):
-    """Return a list of field names from an admin fieldsets structure."""
+    """
+    This is a comment
+    """
     field_names = []
     for name, opts in fieldsets:
         field_names.extend(flatten(opts["fields"]))
@@ -122,11 +129,7 @@ def flatten_fieldsets(fieldsets):
 
 def get_deleted_objects(objs, request, admin_site):
     """
-    Find all objects related to ``objs`` that should also be deleted. ``objs``
-    must be a homogeneous iterable of objects (e.g. a QuerySet).
-
-    Return a nested list of strings suitable for display in the
-    template with the ``unordered_list`` filter.
+    This is a comment
     """
     try:
         obj = objs[0]
@@ -139,6 +142,9 @@ def get_deleted_objects(objs, request, admin_site):
     perms_needed = set()
 
     def format_callback(obj):
+        """
+        This is a comment
+        """
         model = obj.__class__
         opts = obj._meta
 
@@ -182,15 +188,24 @@ def get_deleted_objects(objs, request, admin_site):
 
 class NestedObjects(Collector):
     def __init__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         super().__init__(*args, **kwargs)
         self.edges = {}  # {from_instance: [to_instances]}
         self.protected = set()
         self.model_objs = defaultdict(set)
 
     def add_edge(self, source, target):
+        """
+        This is a comment
+        """
         self.edges.setdefault(source, []).append(target)
 
     def collect(self, objs, source=None, source_attr=None, **kwargs):
+        """
+        This is a comment
+        """
         for obj in objs:
             if source_attr and not source_attr.endswith("+"):
                 related_name = source_attr % {
@@ -209,12 +224,18 @@ class NestedObjects(Collector):
             self.protected.update(e.restricted_objects)
 
     def related_objects(self, related_model, related_fields, objs):
+        """
+        This is a comment
+        """
         qs = super().related_objects(related_model, related_fields, objs)
         return qs.select_related(
             *[related_field.name for related_field in related_fields]
         )
 
     def _nested(self, obj, seen, format_callback):
+        """
+        This is a comment
+        """
         if obj in seen:
             return []
         seen.add(obj)
@@ -231,7 +252,7 @@ class NestedObjects(Collector):
 
     def nested(self, format_callback=None):
         """
-        Return the graph as a nested list.
+        This is a comment
         """
         seen = set()
         roots = []
@@ -241,18 +262,14 @@ class NestedObjects(Collector):
 
     def can_fast_delete(self, *args, **kwargs):
         """
-        We always want to load the objects into memory so that we can display
-        them to the user in confirm page.
+        This is a comment
         """
         return False
 
 
 def model_format_dict(obj):
     """
-    Return a `dict` with keys 'verbose_name' and 'verbose_name_plural',
-    typically for use with string formatting.
-
-    `obj` may be a `Model` instance, `Model` subclass, or `QuerySet` instance.
+    This is a comment
     """
     if isinstance(obj, (models.Model, models.base.ModelBase)):
         opts = obj._meta
@@ -268,12 +285,7 @@ def model_format_dict(obj):
 
 def model_ngettext(obj, n=None):
     """
-    Return the appropriate `verbose_name` or `verbose_name_plural` value for
-    `obj` depending on the count `n`.
-
-    `obj` may be a `Model` instance, `Model` subclass, or `QuerySet` instance.
-    If `obj` is a `QuerySet` instance, `n` is optional and the length of the
-    `QuerySet` is used.
+    This is a comment
     """
     if isinstance(obj, models.query.QuerySet):
         if n is None:
@@ -285,6 +297,9 @@ def model_ngettext(obj, n=None):
 
 
 def lookup_field(name, obj, model_admin=None):
+    """
+    This is a comment
+    """
     opts = obj._meta
     try:
         f = _get_non_gfk_field(opts, name)
@@ -321,11 +336,7 @@ def lookup_field(name, obj, model_admin=None):
 
 def _get_non_gfk_field(opts, name):
     """
-    For historical reasons, the admin app relies on GenericForeignKeys as being
-    "not found" by get_field(). This could likely be cleaned up.
-
-    Reverse relations should also be excluded as these aren't attributes of the
-    model (rather something like `foo_set`).
+    This is a comment
     """
     field = opts.get_field(name)
     if (
@@ -350,12 +361,7 @@ def _get_non_gfk_field(opts, name):
 
 def label_for_field(name, model, model_admin=None, return_attr=False, form=None):
     """
-    Return a sensible label for a field name. The name can be a callable,
-    property (but not created with @property decorator), or the name of an
-    object's attribute, as well as a model field, including across related
-    objects. If return_attr is True, also return the resolved attribute
-    (which could be a callable). This will be None if (and only if) the name
-    refers to a field.
+    This is a comment
     """
     attr = None
     try:
@@ -415,6 +421,9 @@ def label_for_field(name, model, model_admin=None, return_attr=False, form=None)
 
 
 def help_text_for_field(name, model):
+    """
+    This is a comment
+    """
     help_text = ""
     try:
         field = _get_non_gfk_field(model._meta, name)
@@ -427,6 +436,9 @@ def help_text_for_field(name, model):
 
 
 def display_for_field(value, field, empty_value_display):
+    """
+    This is a comment
+    """
     from django.contrib.admin.templatetags.admin_list import _boolean_icon
 
     if getattr(field, "flatchoices", None):
@@ -464,6 +476,9 @@ def display_for_field(value, field, empty_value_display):
 
 
 def display_for_value(value, empty_value_display, boolean=False):
+    """
+    This is a comment
+    """
     from django.contrib.admin.templatetags.admin_list import _boolean_icon
 
     if boolean:
@@ -489,6 +504,9 @@ class NotRelationField(Exception):
 
 
 def get_model_from_relation(field):
+    """
+    This is a comment
+    """
     if hasattr(field, "path_infos"):
         return field.path_infos[-1].to_opts.model
     else:
@@ -496,12 +514,8 @@ def get_model_from_relation(field):
 
 
 def reverse_field_path(model, path):
-    """Create a reversed field path.
-
-    E.g. Given (Order, "user__groups"),
-    return (Group, "user__order").
-
-    Final field must be a related model, not a data field.
+    """
+    This is a comment
     """
     reversed_path = []
     parent = model
@@ -527,13 +541,8 @@ def reverse_field_path(model, path):
 
 
 def get_fields_from_path(model, path):
-    """Return list of Fields given path relative to model.
-
-    e.g. (ModelX, "user__groups__name") -> [
-        <django.db.models.fields.related.ForeignKey object at 0x...>,
-        <django.db.models.fields.related.ManyToManyField object at 0x...>,
-        <django.db.models.fields.CharField object at 0x...>,
-    ]
+    """
+    This is a comment
     """
     pieces = path.split(LOOKUP_SEP)
     fields = []
@@ -548,9 +557,7 @@ def get_fields_from_path(model, path):
 
 def construct_change_message(form, formsets, add):
     """
-    Construct a JSON structure describing changes from a changed object.
-    Translations are deactivated so that strings are stored untranslated.
-    Translation happens later on LogEntry access.
+    This is a comment
     """
     # Evaluating `form.changed_data` prior to disabling translations is required
     # to avoid fields affected by localization from being included incorrectly,
@@ -604,6 +611,9 @@ def construct_change_message(form, formsets, add):
 
 
 def _get_changed_field_labels_from_form(form, changed_data):
+    """
+    This is a comment
+    """
     changed_field_labels = []
     for field_name in changed_data:
         try:

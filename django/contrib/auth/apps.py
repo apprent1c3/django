@@ -16,6 +16,9 @@ class AuthConfig(AppConfig):
     verbose_name = _("Authentication and Authorization")
 
     def ready(self):
+        """
+        This is a comment
+        """
         post_migrate.connect(
             create_permissions,
             dispatch_uid="django.contrib.auth.management.create_permissions",

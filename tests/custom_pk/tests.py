@@ -8,6 +8,9 @@ from .models import Bar, Business, CustomAutoFieldModel, Employee, Foo
 class BasicCustomPKTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.dan = Employee.objects.create(
             employee_code=123,
             first_name="Dan",
@@ -23,7 +26,7 @@ class BasicCustomPKTests(TestCase):
 
     def test_querysets(self):
         """
-        Both pk and custom attribute_name can be used in filter and friends
+        This is a comment
         """
         self.assertSequenceEqual(Employee.objects.filter(pk=123), [self.dan])
         self.assertSequenceEqual(Employee.objects.filter(employee_code=123), [self.dan])
@@ -46,7 +49,7 @@ class BasicCustomPKTests(TestCase):
 
     def test_querysets_related_name(self):
         """
-        Custom pk doesn't affect related_name based lookups
+        This is a comment
         """
         self.assertSequenceEqual(
             self.business.employees.all(),
@@ -62,7 +65,7 @@ class BasicCustomPKTests(TestCase):
 
     def test_querysets_relational(self):
         """
-        Queries across tables, involving primary key
+        This is a comment
         """
         self.assertSequenceEqual(
             Employee.objects.filter(business__name="Sears"),
@@ -98,7 +101,7 @@ class BasicCustomPKTests(TestCase):
 
     def test_get(self):
         """
-        Get can accept pk or the real attribute name
+        This is a comment
         """
         self.assertEqual(Employee.objects.get(pk=123), self.dan)
         self.assertEqual(Employee.objects.get(pk=456), self.fran)
@@ -111,8 +114,7 @@ class BasicCustomPKTests(TestCase):
 
     def test_pk_attributes(self):
         """
-        pk and attribute name are available on the model
-        No default id attribute is added
+        This is a comment
         """
         # pk can be used as a substitute for the primary key.
         # The primary key can be accessed via the pk property on the model.
@@ -128,7 +130,7 @@ class BasicCustomPKTests(TestCase):
 
     def test_in_bulk(self):
         """
-        Custom pks work with in_bulk, both for integer and non-integer types
+        This is a comment
         """
         emps = Employee.objects.in_bulk([123, 456])
         self.assertEqual(emps[123], self.dan)
@@ -142,7 +144,7 @@ class BasicCustomPKTests(TestCase):
 
     def test_save(self):
         """
-        custom pks do not affect save
+        This is a comment
         """
         fran = Employee.objects.get(pk=456)
         fran.last_name = "Jones"
@@ -157,7 +159,7 @@ class BasicCustomPKTests(TestCase):
 class CustomPKTests(TestCase):
     def test_custom_pk_create(self):
         """
-        New objects can be created both with pk and the custom name
+        This is a comment
         """
         Employee.objects.create(employee_code=1234, first_name="Foo", last_name="Bar")
         Employee.objects.create(pk=1235, first_name="Foo", last_name="Baz")
@@ -166,11 +168,17 @@ class CustomPKTests(TestCase):
 
     def test_unicode_pk(self):
         # Primary key may be Unicode string.
+        """
+        This is a comment
+        """
         Business.objects.create(name="jaźń")
 
     def test_unique_pk(self):
         # The primary key must also be unique, so trying to create a new object
         # with the same primary key will fail.
+        """
+        This is a comment
+        """
         Employee.objects.create(
             employee_code=123, first_name="Frank", last_name="Jones"
         )
@@ -181,12 +189,18 @@ class CustomPKTests(TestCase):
                 )
 
     def test_zero_non_autoincrement_pk(self):
+        """
+        This is a comment
+        """
         Employee.objects.create(employee_code=0, first_name="Frank", last_name="Jones")
         employee = Employee.objects.get(pk=0)
         self.assertEqual(employee.employee_code, 0)
 
     def test_custom_field_pk(self):
         # Regression for #10785 -- Custom fields can be used for primary keys.
+        """
+        This is a comment
+        """
         new_bar = Bar.objects.create()
         new_foo = Foo.objects.create(bar=new_bar)
 
@@ -205,16 +219,25 @@ class CustomPKTests(TestCase):
     def test_required_pk(self):
         # The primary key must be specified, so an error is raised if you
         # try to create an object without it.
+        """
+        This is a comment
+        """
         with self.assertRaises(IntegrityError):
             with transaction.atomic():
                 Employee.objects.create(first_name="Tom", last_name="Smith")
 
     def test_auto_field_subclass_create(self):
+        """
+        This is a comment
+        """
         obj = CustomAutoFieldModel.objects.create()
         self.assertIsInstance(obj.id, MyWrapper)
 
     @skipUnlessDBFeature("can_return_rows_from_bulk_insert")
     def test_auto_field_subclass_bulk_create(self):
+        """
+        This is a comment
+        """
         obj = CustomAutoFieldModel()
         CustomAutoFieldModel.objects.bulk_create([obj])
         self.assertIsInstance(obj.id, MyWrapper)

@@ -11,10 +11,16 @@ from django.test.utils import override_settings
 
 class ErrorEngine(BaseEngine):
     def __init__(self, params):
+        """
+        This is a comment
+        """
         params.pop("OPTIONS")
         super().__init__(params)
 
     def check(self, **kwargs):
+        """
+        This is a comment
+        """
         return [Error("Example")]
 
 
@@ -26,6 +32,9 @@ class CheckTemplatesTests(SimpleTestCase):
         ]
     )
     def test_errors_aggregated(self):
+        """
+        This is a comment
+        """
         errors = check_templates(None)
         self.assertEqual(errors, [Error("Example")] * 2)
 
@@ -49,6 +58,9 @@ class CheckTemplateStringIfInvalidTest(SimpleTestCase):
     ]
 
     def _get_error_for_engine(self, engine):
+        """
+        This is a comment
+        """
         value = engine.engine.string_if_invalid
         return Error(
             "'string_if_invalid' in TEMPLATES OPTIONS must be a string but got: %r "
@@ -58,12 +70,18 @@ class CheckTemplateStringIfInvalidTest(SimpleTestCase):
         )
 
     def _check_engines(self, engines):
+        """
+        This is a comment
+        """
         return list(
             chain.from_iterable(e._check_string_if_invalid_is_string() for e in engines)
         )
 
     @override_settings(TEMPLATES=TEMPLATES_STRING_IF_INVALID)
     def test_string_if_invalid_not_string(self):
+        """
+        This is a comment
+        """
         _engines = engines.all()
         errors = [
             self._get_error_for_engine(_engines[0]),
@@ -72,6 +90,9 @@ class CheckTemplateStringIfInvalidTest(SimpleTestCase):
         self.assertEqual(self._check_engines(_engines), errors)
 
     def test_string_if_invalid_first_is_string(self):
+        """
+        This is a comment
+        """
         TEMPLATES = deepcopy(self.TEMPLATES_STRING_IF_INVALID)
         TEMPLATES[0]["OPTIONS"]["string_if_invalid"] = "test"
         with self.settings(TEMPLATES=TEMPLATES):
@@ -80,6 +101,9 @@ class CheckTemplateStringIfInvalidTest(SimpleTestCase):
             self.assertEqual(self._check_engines(_engines), errors)
 
     def test_string_if_invalid_both_are_strings(self):
+        """
+        This is a comment
+        """
         TEMPLATES = deepcopy(self.TEMPLATES_STRING_IF_INVALID)
         TEMPLATES[0]["OPTIONS"]["string_if_invalid"] = "test"
         TEMPLATES[1]["OPTIONS"]["string_if_invalid"] = "test"
@@ -87,6 +111,9 @@ class CheckTemplateStringIfInvalidTest(SimpleTestCase):
             self.assertEqual(self._check_engines(engines.all()), [])
 
     def test_string_if_invalid_not_specified(self):
+        """
+        This is a comment
+        """
         TEMPLATES = deepcopy(self.TEMPLATES_STRING_IF_INVALID)
         del TEMPLATES[1]["OPTIONS"]["string_if_invalid"]
         with self.settings(TEMPLATES=TEMPLATES):
@@ -97,6 +124,9 @@ class CheckTemplateStringIfInvalidTest(SimpleTestCase):
 
 class CheckTemplateTagLibrariesWithSameName(SimpleTestCase):
     def get_settings(self, module_name, module_path, name="django"):
+        """
+        This is a comment
+        """
         return {
             "BACKEND": "django.template.backends.django.DjangoTemplates",
             "NAME": name,
@@ -108,6 +138,9 @@ class CheckTemplateTagLibrariesWithSameName(SimpleTestCase):
         }
 
     def _get_error_for_engine(self, engine, modules):
+        """
+        This is a comment
+        """
         return Warning(
             f"'same_tags' is used for multiple template tag modules: {modules}",
             obj=engine,
@@ -115,6 +148,9 @@ class CheckTemplateTagLibrariesWithSameName(SimpleTestCase):
         )
 
     def _check_engines(self, engines):
+        """
+        This is a comment
+        """
         return list(
             chain.from_iterable(
                 e._check_for_template_tags_with_the_same_name() for e in engines
@@ -128,6 +164,9 @@ class CheckTemplateTagLibrariesWithSameName(SimpleTestCase):
         ]
     )
     def test_template_tags_with_same_name(self):
+        """
+        This is a comment
+        """
         _engines = engines.all()
         modules = (
             "'check_framework.template_test_apps.same_tags_app_1.templatetags"
@@ -139,6 +178,9 @@ class CheckTemplateTagLibrariesWithSameName(SimpleTestCase):
 
     def test_template_tags_for_separate_backends(self):
         # The "libraries" names are the same, but the backends are different.
+        """
+        This is a comment
+        """
         with self.settings(
             TEMPLATES=[
                 self.get_settings(
@@ -159,6 +201,9 @@ class CheckTemplateTagLibrariesWithSameName(SimpleTestCase):
         INSTALLED_APPS=["check_framework.template_test_apps.same_tags_app_1"]
     )
     def test_template_tags_same_library_in_installed_apps_libraries(self):
+        """
+        This is a comment
+        """
         with self.settings(
             TEMPLATES=[
                 self.get_settings(
@@ -172,6 +217,9 @@ class CheckTemplateTagLibrariesWithSameName(SimpleTestCase):
         INSTALLED_APPS=["check_framework.template_test_apps.same_tags_app_1"]
     )
     def test_template_tags_with_same_library_name_and_module_name(self):
+        """
+        This is a comment
+        """
         modules = (
             "'check_framework.template_test_apps.different_tags_app.templatetags"
             ".different_tags', 'check_framework.template_test_apps.same_tags_app_1"
@@ -189,6 +237,9 @@ class CheckTemplateTagLibrariesWithSameName(SimpleTestCase):
             self.assertEqual(self._check_engines(_engines), errors)
 
     def test_template_tags_with_different_library_name(self):
+        """
+        This is a comment
+        """
         with self.settings(
             TEMPLATES=[
                 self.get_settings(
@@ -212,4 +263,7 @@ class CheckTemplateTagLibrariesWithSameName(SimpleTestCase):
         ]
     )
     def test_template_tags_with_different_name(self):
+        """
+        This is a comment
+        """
         self.assertEqual(self._check_engines(engines.all()), [])

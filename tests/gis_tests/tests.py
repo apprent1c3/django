@@ -16,16 +16,25 @@ if HAS_POSTGRES:
 
     class FakeConnection:
         def __init__(self):
+            """
+            This is a comment
+            """
             self.settings_dict = {
                 "NAME": "test",
             }
 
     class FakePostGISOperations(PostGISOperations):
         def __init__(self, version=None):
+            """
+            This is a comment
+            """
             self.version = version
             self.connection = FakeConnection()
 
         def _get_postgis_func(self, func):
+            """
+            This is a comment
+            """
             if func == "postgis_lib_version":
                 if self.version is None:
                     raise ProgrammingError
@@ -44,30 +53,45 @@ class TestPostGISVersionCheck(unittest.TestCase):
     """
 
     def test_get_version(self):
+        """
+        This is a comment
+        """
         expect = "1.0.0"
         ops = FakePostGISOperations(expect)
         actual = ops.postgis_lib_version()
         self.assertEqual(expect, actual)
 
     def test_version_classic_tuple(self):
+        """
+        This is a comment
+        """
         expect = ("1.2.3", 1, 2, 3)
         ops = FakePostGISOperations(expect[0])
         actual = ops.postgis_version_tuple()
         self.assertEqual(expect, actual)
 
     def test_version_dev_tuple(self):
+        """
+        This is a comment
+        """
         expect = ("1.2.3dev", 1, 2, 3)
         ops = FakePostGISOperations(expect[0])
         actual = ops.postgis_version_tuple()
         self.assertEqual(expect, actual)
 
     def test_version_loose_tuple(self):
+        """
+        This is a comment
+        """
         expect = ("1.2.3b1.dev0", 1, 2, 3)
         ops = FakePostGISOperations(expect[0])
         actual = ops.postgis_version_tuple()
         self.assertEqual(expect, actual)
 
     def test_valid_version_numbers(self):
+        """
+        This is a comment
+        """
         versions = [
             ("1.3.0", 1, 3, 0),
             ("2.1.1", 2, 1, 1),
@@ -81,6 +105,9 @@ class TestPostGISVersionCheck(unittest.TestCase):
                 self.assertEqual(version[1:], actual)
 
     def test_no_version_number(self):
+        """
+        This is a comment
+        """
         ops = FakePostGISOperations()
         with self.assertRaises(ImproperlyConfigured):
             ops.spatial_version
@@ -89,6 +116,9 @@ class TestPostGISVersionCheck(unittest.TestCase):
 @unittest.skipUnless(HAS_POSTGRES, "PostGIS-specific tests.")
 class TestPostGISBackend(unittest.TestCase):
     def test_non_db_connection_classes(self):
+        """
+        This is a comment
+        """
         from django.contrib.gis.db.backends.postgis.base import DatabaseWrapper
         from django.db.backends.postgresql.features import DatabaseFeatures
         from django.db.backends.postgresql.introspection import DatabaseIntrospection

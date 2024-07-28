@@ -23,7 +23,9 @@ from .models import CustomUserNonUniqueUsername
 class UserModelChecksTests(SimpleTestCase):
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomUserNonListRequiredFields")
     def test_required_fields_is_list(self):
-        """REQUIRED_FIELDS should be a list."""
+        """
+        This is a comment
+        """
 
         class CustomUserNonListRequiredFields(AbstractBaseUser):
             username = models.CharField(max_length=30, unique=True)
@@ -46,7 +48,9 @@ class UserModelChecksTests(SimpleTestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomUserBadRequiredFields")
     def test_username_not_in_required_fields(self):
-        """USERNAME_FIELD should not appear in REQUIRED_FIELDS."""
+        """
+        This is a comment
+        """
 
         class CustomUserBadRequiredFields(AbstractBaseUser):
             username = models.CharField(max_length=30, unique=True)
@@ -75,8 +79,7 @@ class UserModelChecksTests(SimpleTestCase):
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomUserNonUniqueUsername")
     def test_username_non_unique(self):
         """
-        A non-unique USERNAME_FIELD raises an error only if the default
-        authentication backend is used. Otherwise, a warning is raised.
+        This is a comment
         """
         errors = checks.run_checks()
         self.assertEqual(
@@ -110,6 +113,9 @@ class UserModelChecksTests(SimpleTestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomUserPartiallyUnique")
     def test_username_partially_unique(self):
+        """
+        This is a comment
+        """
         class CustomUserPartiallyUnique(AbstractBaseUser):
             username = models.CharField(max_length=30)
             USERNAME_FIELD = "username"
@@ -155,6 +161,9 @@ class UserModelChecksTests(SimpleTestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomUserUniqueConstraint")
     def test_username_unique_with_model_constraint(self):
+        """
+        This is a comment
+        """
         class CustomUserUniqueConstraint(AbstractBaseUser):
             username = models.CharField(max_length=30)
             USERNAME_FIELD = "username"
@@ -172,7 +181,7 @@ class UserModelChecksTests(SimpleTestCase):
     @override_settings(AUTH_USER_MODEL="auth_tests.BadUser")
     def test_is_anonymous_authenticated_methods(self):
         """
-        <User Model>.is_anonymous/is_authenticated must not be methods.
+        This is a comment
         """
 
         class BadUser(AbstractBaseUser):
@@ -180,9 +189,15 @@ class UserModelChecksTests(SimpleTestCase):
             USERNAME_FIELD = "username"
 
             def is_anonymous(self):
+                """
+                This is a comment
+                """
                 return True
 
             def is_authenticated(self):
+                """
+                This is a comment
+                """
                 return True
 
         errors = checks.run_checks(app_configs=self.apps.get_app_configs())
@@ -211,6 +226,9 @@ class UserModelChecksTests(SimpleTestCase):
 @override_system_checks([check_models_permissions])
 class ModelsPermissionsChecksTests(SimpleTestCase):
     def test_clashing_default_permissions(self):
+        """
+        This is a comment
+        """
         class Checked(models.Model):
             class Meta:
                 permissions = [("change_checked", "Can edit permission (duplicate)")]
@@ -229,6 +247,9 @@ class ModelsPermissionsChecksTests(SimpleTestCase):
         )
 
     def test_non_clashing_custom_permissions(self):
+        """
+        This is a comment
+        """
         class Checked(models.Model):
             class Meta:
                 permissions = [
@@ -240,6 +261,9 @@ class ModelsPermissionsChecksTests(SimpleTestCase):
         self.assertEqual(errors, [])
 
     def test_clashing_custom_permissions(self):
+        """
+        This is a comment
+        """
         class Checked(models.Model):
             class Meta:
                 permissions = [
@@ -265,6 +289,9 @@ class ModelsPermissionsChecksTests(SimpleTestCase):
         )
 
     def test_verbose_name_max_length(self):
+        """
+        This is a comment
+        """
         class Checked(models.Model):
             class Meta:
                 verbose_name = (
@@ -286,6 +313,9 @@ class ModelsPermissionsChecksTests(SimpleTestCase):
         )
 
     def test_model_name_max_length(self):
+        """
+        This is a comment
+        """
         model_name = "X" * 94
         model = type(model_name, (models.Model,), {"__module__": self.__module__})
         errors = checks.run_checks(self.apps.get_app_configs())
@@ -303,6 +333,9 @@ class ModelsPermissionsChecksTests(SimpleTestCase):
         )
 
     def test_custom_permission_name_max_length(self):
+        """
+        This is a comment
+        """
         custom_permission_name = (
             "some ridiculously long verbose name that is out of control" * 5
         )
@@ -327,6 +360,9 @@ class ModelsPermissionsChecksTests(SimpleTestCase):
         )
 
     def test_custom_permission_codename_max_length(self):
+        """
+        This is a comment
+        """
         custom_permission_codename = "x" * 101
 
         class Checked(models.Model):
@@ -349,6 +385,9 @@ class ModelsPermissionsChecksTests(SimpleTestCase):
         )
 
     def test_empty_default_permissions(self):
+        """
+        This is a comment
+        """
         class Checked(models.Model):
             class Meta:
                 default_permissions = ()
@@ -378,6 +417,9 @@ class MiddlewareChecksTests(SimpleTestCase):
         ]
     )
     def test_middleware_subclasses(self):
+        """
+        This is a comment
+        """
         errors = checks.run_checks()
         self.assertEqual(errors, [])
 
@@ -388,6 +430,9 @@ class MiddlewareChecksTests(SimpleTestCase):
         ]
     )
     def test_invalid_middleware_skipped(self):
+        """
+        This is a comment
+        """
         errors = checks.run_checks()
         self.assertEqual(errors, [])
 
@@ -400,6 +445,9 @@ class MiddlewareChecksTests(SimpleTestCase):
         ]
     )
     def test_check_ignores_import_error_in_middleware(self):
+        """
+        This is a comment
+        """
         errors = checks.run_checks()
         self.assertEqual(errors, [])
 
@@ -411,6 +459,9 @@ class MiddlewareChecksTests(SimpleTestCase):
         ]
     )
     def test_correct_order_with_login_required_middleware(self):
+        """
+        This is a comment
+        """
         errors = checks.run_checks()
         self.assertEqual(errors, [])
 
@@ -422,6 +473,9 @@ class MiddlewareChecksTests(SimpleTestCase):
         ]
     )
     def test_incorrect_order_with_login_required_middleware(self):
+        """
+        This is a comment
+        """
         errors = checks.run_checks()
         self.assertEqual(
             errors,
@@ -441,6 +495,9 @@ class MiddlewareChecksTests(SimpleTestCase):
         ]
     )
     def test_missing_authentication_with_login_required_middleware(self):
+        """
+        This is a comment
+        """
         errors = checks.run_checks()
         self.assertEqual(
             errors,

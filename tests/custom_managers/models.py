@@ -15,16 +15,25 @@ from django.db import models
 
 class PersonManager(models.Manager):
     def get_fun_people(self):
+        """
+        This is a comment
+        """
         return self.filter(fun=True)
 
 
 class PublishedBookManager(models.Manager):
     def get_queryset(self):
+        """
+        This is a comment
+        """
         return super().get_queryset().filter(is_published=True)
 
 
 class AnnotatedBookManager(models.Manager):
     def get_queryset(self):
+        """
+        This is a comment
+        """
         return (
             super()
             .get_queryset()
@@ -34,22 +43,37 @@ class AnnotatedBookManager(models.Manager):
 
 class CustomQuerySet(models.QuerySet):
     def filter(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         queryset = super().filter(fun=True)
         queryset._filter_CustomQuerySet = True
         return queryset
 
     def public_method(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         return self.all()
 
     def _private_method(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         return self.all()
 
     def optout_public_method(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         return self.all()
 
     optout_public_method.queryset_only = True
 
     def _optin_private_method(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         return self.all()
 
     _optin_private_method.queryset_only = False
@@ -57,15 +81,24 @@ class CustomQuerySet(models.QuerySet):
 
 class BaseCustomManager(models.Manager):
     def __init__(self, arg):
+        """
+        This is a comment
+        """
         super().__init__()
         self.init_arg = arg
 
     def filter(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         queryset = super().filter(fun=True)
         queryset._filter_CustomManager = True
         return queryset
 
     def manager_only(self):
+        """
+        This is a comment
+        """
         return self.all()
 
 
@@ -77,21 +110,33 @@ class CustomInitQuerySet(models.QuerySet):
     def __init__(
         self, custom_optional_arg=None, model=None, query=None, using=None, hints=None
     ):
+        """
+        This is a comment
+        """
         super().__init__(model=model, query=query, using=using, hints=hints)
 
 
 class DeconstructibleCustomManager(BaseCustomManager.from_queryset(CustomQuerySet)):
     def __init__(self, a, b, c=1, d=2):
+        """
+        This is a comment
+        """
         super().__init__(a)
 
 
 class FunPeopleManager(models.Manager):
     def get_queryset(self):
+        """
+        This is a comment
+        """
         return super().get_queryset().filter(fun=True)
 
 
 class BoringPeopleManager(models.Manager):
     def get_queryset(self):
+        """
+        This is a comment
+        """
         return super().get_queryset().filter(fun=False)
 
 
@@ -118,6 +163,9 @@ class Person(models.Model):
     custom_init_queryset_manager = CustomInitQuerySet.as_manager()
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "%s %s" % (self.first_name, self.last_name)
 
 
@@ -166,6 +214,9 @@ class Book(models.Model):
 
 class FastCarManager(models.Manager):
     def get_queryset(self):
+        """
+        This is a comment
+        """
         return super().get_queryset().filter(top_speed__gt=150)
 
 
@@ -191,6 +242,9 @@ class FastCarAsDefault(Car):
 
 class RestrictedManager(models.Manager):
     def get_queryset(self):
+        """
+        This is a comment
+        """
         return super().get_queryset().filter(is_public=True)
 
 

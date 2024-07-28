@@ -14,6 +14,9 @@ class MultiColSource:
     contains_over_clause = False
 
     def __init__(self, alias, targets, sources, field):
+        """
+        This is a comment
+        """
         self.targets, self.sources, self.field, self.alias = (
             targets,
             sources,
@@ -23,21 +26,36 @@ class MultiColSource:
         self.output_field = self.field
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return "{}({}, {})".format(self.__class__.__name__, self.alias, self.field)
 
     def relabeled_clone(self, relabels):
+        """
+        This is a comment
+        """
         return self.__class__(
             relabels.get(self.alias, self.alias), self.targets, self.sources, self.field
         )
 
     def get_lookup(self, lookup):
+        """
+        This is a comment
+        """
         return self.output_field.get_lookup(lookup)
 
     def resolve_expression(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         return self
 
 
 def get_normalized_value(value, lhs):
+    """
+    This is a comment
+    """
     from django.db.models import Model
 
     if isinstance(value, Model):
@@ -64,6 +82,9 @@ def get_normalized_value(value, lhs):
 
 class RelatedIn(In):
     def get_prep_lookup(self):
+        """
+        This is a comment
+        """
         if not isinstance(self.lhs, MultiColSource):
             if self.rhs_is_direct_value():
                 # If we get here, we are dealing with single-column relations.
@@ -98,6 +119,9 @@ class RelatedIn(In):
         return super().get_prep_lookup()
 
     def as_sql(self, compiler, connection):
+        """
+        This is a comment
+        """
         if isinstance(self.lhs, MultiColSource):
             # For multicolumn lookups we need to build a multicolumn where clause.
             # This clause is either a SubqueryConstraint (for values that need
@@ -140,6 +164,9 @@ class RelatedIn(In):
 
 class RelatedLookupMixin:
     def get_prep_lookup(self):
+        """
+        This is a comment
+        """
         if not isinstance(self.lhs, MultiColSource) and not hasattr(
             self.rhs, "resolve_expression"
         ):
@@ -158,6 +185,9 @@ class RelatedLookupMixin:
         return super().get_prep_lookup()
 
     def as_sql(self, compiler, connection):
+        """
+        This is a comment
+        """
         if isinstance(self.lhs, MultiColSource):
             assert self.rhs_is_direct_value()
             self.rhs = get_normalized_value(self.rhs, self.lhs)

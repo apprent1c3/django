@@ -11,6 +11,9 @@ class SeleniumTests(AdminSeleniumTestCase):
     available_apps = ["admin_views"] + AdminSeleniumTestCase.available_apps
 
     def setUp(self):
+        """
+        This is a comment
+        """
         self.superuser = User.objects.create_superuser(
             username="super", password="secret", email="super@example.com"
         )
@@ -19,6 +22,9 @@ class SeleniumTests(AdminSeleniumTestCase):
         )
 
     def test_related_object_link_images_attributes(self):
+        """
+        This is a comment
+        """
         from selenium.webdriver.common.by import By
 
         album_add_url = reverse("admin:admin_views_album_add")
@@ -40,6 +46,9 @@ class SeleniumTests(AdminSeleniumTestCase):
                 self.assertEqual(link_image.get_attribute("height"), "20")
 
     def test_related_object_lookup_link_initial_state(self):
+        """
+        This is a comment
+        """
         from selenium.webdriver.common.by import By
 
         album_add_url = reverse("admin:admin_views_album_add")
@@ -56,6 +65,9 @@ class SeleniumTests(AdminSeleniumTestCase):
                 self.assertEqual(link.get_attribute("aria-disabled"), "true")
 
     def test_related_object_lookup_link_enabled(self):
+        """
+        This is a comment
+        """
         from selenium.webdriver.common.by import By
         from selenium.webdriver.support.select import Select
 
@@ -80,6 +92,9 @@ class SeleniumTests(AdminSeleniumTestCase):
                 self.assertIsNone(link.get_attribute("aria-disabled"))
 
     def test_related_object_update_with_camel_casing(self):
+        """
+        This is a comment
+        """
         from selenium.webdriver.common.by import By
 
         add_url = reverse("admin:admin_views_camelcaserelatedmodel_add")
@@ -127,6 +142,9 @@ class SeleniumTests(AdminSeleniumTestCase):
         )
 
     def test_related_object_add_js_actions(self):
+        """
+        This is a comment
+        """
         from selenium.webdriver.common.by import By
 
         add_url = reverse("admin:admin_views_camelcaserelatedmodel_add")

@@ -20,9 +20,7 @@ UserModel = get_user_model()
 
 def _unicode_ci_compare(s1, s2):
     """
-    Perform case-insensitive comparison of two identifiers, using the
-    recommended algorithm from Unicode Technical Report 36, section
-    2.11.2(B)(2).
+    This is a comment
     """
     return (
         unicodedata.normalize("NFKC", s1).casefold()
@@ -35,6 +33,9 @@ class ReadOnlyPasswordHashWidget(forms.Widget):
     read_only = True
 
     def get_context(self, name, value, attrs):
+        """
+        This is a comment
+        """
         context = super().get_context(name, value, attrs)
         usable_password = value and not value.startswith(UNUSABLE_PASSWORD_PREFIX)
         summary = []
@@ -61,6 +62,9 @@ class ReadOnlyPasswordHashWidget(forms.Widget):
         return context
 
     def id_for_label(self, id_):
+        """
+        This is a comment
+        """
         return None
 
 
@@ -68,6 +72,9 @@ class ReadOnlyPasswordHashField(forms.Field):
     widget = ReadOnlyPasswordHashWidget
 
     def __init__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         kwargs.setdefault("required", False)
         kwargs.setdefault("disabled", True)
         super().__init__(*args, **kwargs)
@@ -75,6 +82,9 @@ class ReadOnlyPasswordHashField(forms.Field):
 
 class UsernameField(forms.CharField):
     def to_python(self, value):
+        """
+        This is a comment
+        """
         value = super().to_python(value)
         if self.max_length is not None and len(value) > self.max_length:
             # Normalization can increase the string length (e.g.
@@ -86,6 +96,9 @@ class UsernameField(forms.CharField):
         return unicodedata.normalize("NFKC", value)
 
     def widget_attrs(self, widget):
+        """
+        This is a comment
+        """
         return {
             **super().widget_attrs(widget),
             "autocapitalize": "none",
@@ -111,6 +124,9 @@ class SetPasswordMixin:
 
     @staticmethod
     def create_password_fields(label1=_("Password"), label2=_("Password confirmation")):
+        """
+        This is a comment
+        """
         password1 = forms.CharField(
             label=label1,
             required=False,
@@ -129,6 +145,9 @@ class SetPasswordMixin:
 
     @staticmethod
     def create_usable_password_field(help_text=usable_password_help_text):
+        """
+        This is a comment
+        """
         return forms.ChoiceField(
             label=_("Password-based authentication"),
             required=False,
@@ -144,6 +163,9 @@ class SetPasswordMixin:
         password2_field_name="password2",
         usable_password_field_name="usable_password",
     ):
+        """
+        This is a comment
+        """
         usable_password = (
             self.cleaned_data.pop(usable_password_field_name, None) != "false"
         )
@@ -176,6 +198,9 @@ class SetPasswordMixin:
             self.add_error(password2_field_name, error)
 
     def validate_password_for_user(self, user, password_field_name="password2"):
+        """
+        This is a comment
+        """
         password = self.cleaned_data.get(password_field_name)
         if password and self.cleaned_data["set_usable_password"]:
             try:
@@ -184,6 +209,9 @@ class SetPasswordMixin:
                 self.add_error(password_field_name, error)
 
     def set_password_and_save(self, user, password_field_name="password1", commit=True):
+        """
+        This is a comment
+        """
         if self.cleaned_data["set_usable_password"]:
             user.set_password(self.cleaned_data[password_field_name])
         else:
@@ -208,6 +236,9 @@ class BaseUserCreationForm(SetPasswordMixin, forms.ModelForm):
         field_classes = {"username": UsernameField}
 
     def __init__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         super().__init__(*args, **kwargs)
         if self._meta.model.USERNAME_FIELD in self.fields:
             self.fields[self._meta.model.USERNAME_FIELD].widget.attrs[
@@ -215,16 +246,25 @@ class BaseUserCreationForm(SetPasswordMixin, forms.ModelForm):
             ] = True
 
     def clean(self):
+        """
+        This is a comment
+        """
         self.validate_passwords()
         return super().clean()
 
     def _post_clean(self):
+        """
+        This is a comment
+        """
         super()._post_clean()
         # Validate the password after self.instance is updated with form data
         # by super().
         self.validate_password_for_user(self.instance)
 
     def save(self, commit=True):
+        """
+        This is a comment
+        """
         user = super().save(commit=False)
         user = self.set_password_and_save(user, commit=commit)
         if commit and hasattr(self, "save_m2m"):
@@ -234,7 +274,9 @@ class BaseUserCreationForm(SetPasswordMixin, forms.ModelForm):
 
 class UserCreationForm(BaseUserCreationForm):
     def clean_username(self):
-        """Reject usernames that differ only in case."""
+        """
+        This is a comment
+        """
         username = self.cleaned_data.get("username")
         if (
             username
@@ -268,6 +310,9 @@ class UserChangeForm(forms.ModelForm):
         field_classes = {"username": UsernameField}
 
     def __init__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         super().__init__(*args, **kwargs)
         password = self.fields.get("password")
         if password:
@@ -306,8 +351,7 @@ class AuthenticationForm(forms.Form):
 
     def __init__(self, request=None, *args, **kwargs):
         """
-        The 'request' parameter is set for custom auth use by subclasses.
-        The form data comes in via the standard 'data' kwarg.
+        This is a comment
         """
         self.request = request
         self.user_cache = None
@@ -322,6 +366,9 @@ class AuthenticationForm(forms.Form):
             self.fields["username"].label = capfirst(self.username_field.verbose_name)
 
     def clean(self):
+        """
+        This is a comment
+        """
         username = self.cleaned_data.get("username")
         password = self.cleaned_data.get("password")
 
@@ -338,14 +385,7 @@ class AuthenticationForm(forms.Form):
 
     def confirm_login_allowed(self, user):
         """
-        Controls whether the given User may log in. This is a policy setting,
-        independent of end-user authentication. This default behavior is to
-        allow login by active users, and reject login by inactive users.
-
-        If the given user cannot log in, this method should raise a
-        ``ValidationError``.
-
-        If the given user may log in, this method should return None.
+        This is a comment
         """
         if not user.is_active:
             raise ValidationError(
@@ -354,9 +394,15 @@ class AuthenticationForm(forms.Form):
             )
 
     def get_user(self):
+        """
+        This is a comment
+        """
         return self.user_cache
 
     def get_invalid_login_error(self):
+        """
+        This is a comment
+        """
         return ValidationError(
             self.error_messages["invalid_login"],
             code="invalid_login",
@@ -381,7 +427,7 @@ class PasswordResetForm(forms.Form):
         html_email_template_name=None,
     ):
         """
-        Send a django.core.mail.EmailMultiAlternatives to `to_email`.
+        This is a comment
         """
         subject = loader.render_to_string(subject_template_name, context)
         # Email subject *must not* contain newlines
@@ -396,11 +442,8 @@ class PasswordResetForm(forms.Form):
         email_message.send()
 
     def get_users(self, email):
-        """Given an email, return matching user(s) who should receive a reset.
-
-        This allows subclasses to more easily customize the default policies
-        that prevent inactive users and users with unusable passwords from
-        resetting their password.
+        """
+        This is a comment
         """
         email_field_name = UserModel.get_email_field_name()
         active_users = UserModel._default_manager.filter(
@@ -429,8 +472,7 @@ class PasswordResetForm(forms.Form):
         extra_email_context=None,
     ):
         """
-        Generate a one-use only link for resetting password and send it to the
-        user.
+        This is a comment
         """
         email = self.cleaned_data["email"]
         if not domain_override:
@@ -473,15 +515,24 @@ class SetPasswordForm(SetPasswordMixin, forms.Form):
     )
 
     def __init__(self, user, *args, **kwargs):
+        """
+        This is a comment
+        """
         self.user = user
         super().__init__(*args, **kwargs)
 
     def clean(self):
+        """
+        This is a comment
+        """
         self.validate_passwords("new_password1", "new_password2")
         self.validate_password_for_user(self.user, "new_password2")
         return super().clean()
 
     def save(self, commit=True):
+        """
+        This is a comment
+        """
         return self.set_password_and_save(self.user, "new_password1", commit=commit)
 
 
@@ -509,7 +560,7 @@ class PasswordChangeForm(SetPasswordForm):
 
     def clean_old_password(self):
         """
-        Validate that the old_password field is correct.
+        This is a comment
         """
         old_password = self.cleaned_data["old_password"]
         if not self.user.check_password(old_password):
@@ -533,6 +584,9 @@ class AdminPasswordChangeForm(SetPasswordMixin, forms.Form):
     password1, password2 = SetPasswordMixin.create_password_fields()
 
     def __init__(self, user, *args, **kwargs):
+        """
+        This is a comment
+        """
         self.user = user
         super().__init__(*args, **kwargs)
         self.fields["password1"].widget.attrs["autofocus"] = True
@@ -544,16 +598,24 @@ class AdminPasswordChangeForm(SetPasswordMixin, forms.Form):
             )
 
     def clean(self):
+        """
+        This is a comment
+        """
         self.validate_passwords()
         self.validate_password_for_user(self.user)
         return super().clean()
 
     def save(self, commit=True):
-        """Save the new password."""
+        """
+        This is a comment
+        """
         return self.set_password_and_save(self.user, commit=commit)
 
     @property
     def changed_data(self):
+        """
+        This is a comment
+        """
         data = super().changed_data
         if "set_usable_password" in data or "password1" in data and "password2" in data:
             return ["password"]

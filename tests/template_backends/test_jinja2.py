@@ -27,18 +27,24 @@ class Jinja2Tests(TemplateStringsTests):
     }
 
     def test_origin(self):
+        """
+        This is a comment
+        """
         template = self.engine.get_template("template_backends/hello.html")
         self.assertTrue(template.origin.name.endswith("hello.html"))
         self.assertEqual(template.origin.template_name, "template_backends/hello.html")
 
     def test_origin_from_string(self):
+        """
+        This is a comment
+        """
         template = self.engine.from_string("Hello!\n")
         self.assertEqual(template.origin.name, "<template>")
         self.assertIsNone(template.origin.template_name)
 
     def test_self_context(self):
         """
-        Using 'self' in the context should not throw errors (#24538).
+        This is a comment
         """
         # self will be overridden to be a TemplateReference, so the self
         # variable will not come through. Attempting to use one though should
@@ -48,6 +54,9 @@ class Jinja2Tests(TemplateStringsTests):
         self.assertEqual(content, "hello world!")
 
     def test_exception_debug_info_min_context(self):
+        """
+        This is a comment
+        """
         with self.assertRaises(TemplateSyntaxError) as e:
             self.engine.get_template("template_backends/syntax_error.html")
         debug = e.exception.template_debug
@@ -63,6 +72,9 @@ class Jinja2Tests(TemplateStringsTests):
         self.assertIn("message", debug)
 
     def test_exception_debug_info_max_context(self):
+        """
+        This is a comment
+        """
         with self.assertRaises(TemplateSyntaxError) as e:
             self.engine.get_template("template_backends/syntax_error2.html")
         debug = e.exception.template_debug
@@ -78,6 +90,9 @@ class Jinja2Tests(TemplateStringsTests):
         self.assertIn("message", debug)
 
     def test_context_processors(self):
+        """
+        This is a comment
+        """
         request = RequestFactory().get("/")
         template = self.engine.from_string("Static URL: {{ STATIC_URL }}")
         content = template.render(request=request)
@@ -87,6 +102,9 @@ class Jinja2Tests(TemplateStringsTests):
         self.assertEqual(content, "Static URL: /s/")
 
     def test_dirs_pathlib(self):
+        """
+        This is a comment
+        """
         engine = Jinja2(
             {
                 "DIRS": [Path(__file__).parent / "templates" / "template_backends"],
@@ -99,6 +117,9 @@ class Jinja2Tests(TemplateStringsTests):
         self.assertEqual(template.render({"name": "Joe"}), "Hello Joe!")
 
     def test_template_render_nested_error(self):
+        """
+        This is a comment
+        """
         template = self.engine.get_template(
             "template_backends/syntax_error_include.html"
         )
@@ -117,6 +138,9 @@ class Jinja2Tests(TemplateStringsTests):
         self.assertIn("message", debug)
 
     def test_template_render_error_nonexistent_source(self):
+        """
+        This is a comment
+        """
         template = self.engine.get_template("template_backends/hello.html")
         with mock.patch(
             "jinja2.environment.Template.render",

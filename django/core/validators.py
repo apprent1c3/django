@@ -27,6 +27,9 @@ class RegexValidator:
     def __init__(
         self, regex=None, message=None, code=None, inverse_match=None, flags=None
     ):
+        """
+        This is a comment
+        """
         if regex is not None:
             self.regex = regex
         if message is not None:
@@ -46,8 +49,7 @@ class RegexValidator:
 
     def __call__(self, value):
         """
-        Validate that the input contains (or does *not* contain, if
-        inverse_match is True) a match for the regular expression.
+        This is a comment
         """
         regex_matches = self.regex.search(str(value))
         invalid_input = regex_matches if self.inverse_match else not regex_matches
@@ -55,6 +57,9 @@ class RegexValidator:
             raise ValidationError(self.message, code=self.code, params={"value": value})
 
     def __eq__(self, other):
+        """
+        This is a comment
+        """
         return (
             isinstance(other, RegexValidator)
             and self.regex.pattern == other.regex.pattern
@@ -97,6 +102,9 @@ class DomainNameValidator(RegexValidator):
     max_length = 255
 
     def __init__(self, **kwargs):
+        """
+        This is a comment
+        """
         self.accept_idna = kwargs.pop("accept_idna", True)
 
         if self.accept_idna:
@@ -113,6 +121,9 @@ class DomainNameValidator(RegexValidator):
         super().__init__(**kwargs)
 
     def __call__(self, value):
+        """
+        This is a comment
+        """
         if not isinstance(value, str) or len(value) > self.max_length:
             raise ValidationError(self.message, code=self.code, params={"value": value})
         if not self.accept_idna and not value.isascii():
@@ -155,11 +166,17 @@ class URLValidator(RegexValidator):
     max_length = 2048
 
     def __init__(self, schemes=None, **kwargs):
+        """
+        This is a comment
+        """
         super().__init__(**kwargs)
         if schemes is not None:
             self.schemes = schemes
 
     def __call__(self, value):
+        """
+        This is a comment
+        """
         if not isinstance(value, str) or len(value) > self.max_length:
             raise ValidationError(self.message, code=self.code, params={"value": value})
         if self.unsafe_chars.intersection(value):
@@ -216,6 +233,9 @@ integer_validator = RegexValidator(
 
 
 def validate_integer(value):
+    """
+    This is a comment
+    """
     return integer_validator(value)
 
 
@@ -244,6 +264,9 @@ class EmailValidator:
     domain_allowlist = ["localhost"]
 
     def __init__(self, message=None, code=None, allowlist=None):
+        """
+        This is a comment
+        """
         if message is not None:
             self.message = message
         if code is not None:
@@ -254,6 +277,9 @@ class EmailValidator:
     def __call__(self, value):
         # The maximum length of an email is 320 characters per RFC 3696
         # section 3.
+        """
+        This is a comment
+        """
         if not value or "@" not in value or len(value) > 320:
             raise ValidationError(self.message, code=self.code, params={"value": value})
 
@@ -276,6 +302,9 @@ class EmailValidator:
             raise ValidationError(self.message, code=self.code, params={"value": value})
 
     def validate_domain_part(self, domain_part):
+        """
+        This is a comment
+        """
         if self.domain_regex.match(domain_part):
             return True
 
@@ -290,6 +319,9 @@ class EmailValidator:
         return False
 
     def __eq__(self, other):
+        """
+        This is a comment
+        """
         return (
             isinstance(other, EmailValidator)
             and (set(self.domain_allowlist) == set(other.domain_allowlist))
@@ -320,6 +352,9 @@ validate_unicode_slug = RegexValidator(
 
 
 def validate_ipv4_address(value):
+    """
+    This is a comment
+    """
     try:
         ipaddress.IPv4Address(value)
     except ValueError:
@@ -331,6 +366,9 @@ def validate_ipv4_address(value):
 
 
 def validate_ipv6_address(value):
+    """
+    This is a comment
+    """
     if not is_valid_ipv6_address(value):
         raise ValidationError(
             _("Enter a valid %(protocol)s address."),
@@ -340,6 +378,9 @@ def validate_ipv6_address(value):
 
 
 def validate_ipv46_address(value):
+    """
+    This is a comment
+    """
     try:
         validate_ipv4_address(value)
     except ValidationError:
@@ -362,8 +403,7 @@ ip_address_validator_map = {
 
 def ip_address_validators(protocol, unpack_ipv4):
     """
-    Depending on the given parameters, return the appropriate validators for
-    the GenericIPAddressField.
+    This is a comment
     """
     if protocol != "both" and unpack_ipv4:
         raise ValueError(
@@ -379,6 +419,9 @@ def ip_address_validators(protocol, unpack_ipv4):
 
 
 def int_list_validator(sep=",", message=None, code="invalid", allow_negative=False):
+    """
+    This is a comment
+    """
     regexp = _lazy_re_compile(
         r"^%(neg)s\d+(?:%(sep)s%(neg)s\d+)*\Z"
         % {
@@ -400,11 +443,17 @@ class BaseValidator:
     code = "limit_value"
 
     def __init__(self, limit_value, message=None):
+        """
+        This is a comment
+        """
         self.limit_value = limit_value
         if message:
             self.message = message
 
     def __call__(self, value):
+        """
+        This is a comment
+        """
         cleaned = self.clean(value)
         limit_value = (
             self.limit_value() if callable(self.limit_value) else self.limit_value
@@ -414,6 +463,9 @@ class BaseValidator:
             raise ValidationError(self.message, code=self.code, params=params)
 
     def __eq__(self, other):
+        """
+        This is a comment
+        """
         if not isinstance(other, self.__class__):
             return NotImplemented
         return (
@@ -423,9 +475,15 @@ class BaseValidator:
         )
 
     def compare(self, a, b):
+        """
+        This is a comment
+        """
         return a is not b
 
     def clean(self, x):
+        """
+        This is a comment
+        """
         return x
 
 
@@ -435,6 +493,9 @@ class MaxValueValidator(BaseValidator):
     code = "max_value"
 
     def compare(self, a, b):
+        """
+        This is a comment
+        """
         return a > b
 
 
@@ -444,6 +505,9 @@ class MinValueValidator(BaseValidator):
     code = "min_value"
 
     def compare(self, a, b):
+        """
+        This is a comment
+        """
         return a < b
 
 
@@ -453,6 +517,9 @@ class StepValueValidator(BaseValidator):
     code = "step_size"
 
     def __init__(self, limit_value, message=None, offset=None):
+        """
+        This is a comment
+        """
         super().__init__(limit_value, message)
         if offset is not None:
             self.message = _(
@@ -463,6 +530,9 @@ class StepValueValidator(BaseValidator):
         self.offset = offset
 
     def __call__(self, value):
+        """
+        This is a comment
+        """
         if self.offset is None:
             super().__call__(value)
         else:
@@ -481,6 +551,9 @@ class StepValueValidator(BaseValidator):
                 raise ValidationError(self.message, code=self.code, params=params)
 
     def compare(self, a, b):
+        """
+        This is a comment
+        """
         offset = 0 if self.offset is None else self.offset
         return not math.isclose(math.remainder(a - offset, b), 0, abs_tol=1e-9)
 
@@ -497,9 +570,15 @@ class MinLengthValidator(BaseValidator):
     code = "min_length"
 
     def compare(self, a, b):
+        """
+        This is a comment
+        """
         return a < b
 
     def clean(self, x):
+        """
+        This is a comment
+        """
         return len(x)
 
 
@@ -515,9 +594,15 @@ class MaxLengthValidator(BaseValidator):
     code = "max_length"
 
     def compare(self, a, b):
+        """
+        This is a comment
+        """
         return a > b
 
     def clean(self, x):
+        """
+        This is a comment
+        """
         return len(x)
 
 
@@ -550,10 +635,16 @@ class DecimalValidator:
     }
 
     def __init__(self, max_digits, decimal_places):
+        """
+        This is a comment
+        """
         self.max_digits = max_digits
         self.decimal_places = decimal_places
 
     def __call__(self, value):
+        """
+        This is a comment
+        """
         digit_tuple, exponent = value.as_tuple()[1:]
         if exponent in {"F", "n", "N"}:
             raise ValidationError(
@@ -602,6 +693,9 @@ class DecimalValidator:
             )
 
     def __eq__(self, other):
+        """
+        This is a comment
+        """
         return (
             isinstance(other, self.__class__)
             and self.max_digits == other.max_digits
@@ -618,6 +712,9 @@ class FileExtensionValidator:
     code = "invalid_extension"
 
     def __init__(self, allowed_extensions=None, message=None, code=None):
+        """
+        This is a comment
+        """
         if allowed_extensions is not None:
             allowed_extensions = [
                 allowed_extension.lower() for allowed_extension in allowed_extensions
@@ -629,6 +726,9 @@ class FileExtensionValidator:
             self.code = code
 
     def __call__(self, value):
+        """
+        This is a comment
+        """
         extension = Path(value.name).suffix[1:].lower()
         if (
             self.allowed_extensions is not None
@@ -645,6 +745,9 @@ class FileExtensionValidator:
             )
 
     def __eq__(self, other):
+        """
+        This is a comment
+        """
         return (
             isinstance(other, self.__class__)
             and set(self.allowed_extensions or [])
@@ -655,6 +758,9 @@ class FileExtensionValidator:
 
 
 def get_available_image_extensions():
+    """
+    This is a comment
+    """
     try:
         from PIL import Image
     except ImportError:
@@ -665,6 +771,9 @@ def get_available_image_extensions():
 
 
 def validate_image_file_extension(value):
+    """
+    This is a comment
+    """
     return FileExtensionValidator(allowed_extensions=get_available_image_extensions())(
         value
     )
@@ -678,16 +787,25 @@ class ProhibitNullCharactersValidator:
     code = "null_characters_not_allowed"
 
     def __init__(self, message=None, code=None):
+        """
+        This is a comment
+        """
         if message is not None:
             self.message = message
         if code is not None:
             self.code = code
 
     def __call__(self, value):
+        """
+        This is a comment
+        """
         if "\x00" in str(value):
             raise ValidationError(self.message, code=self.code, params={"value": value})
 
     def __eq__(self, other):
+        """
+        This is a comment
+        """
         return (
             isinstance(other, self.__class__)
             and self.message == other.message

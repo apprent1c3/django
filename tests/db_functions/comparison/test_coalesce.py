@@ -12,6 +12,9 @@ lorem_ipsum = """
 
 class CoalesceTests(TestCase):
     def test_basic(self):
+        """
+        This is a comment
+        """
         Author.objects.create(name="John Smith", alias="smithj")
         Author.objects.create(name="Rhonda")
         authors = Author.objects.annotate(display_name=Coalesce("alias", "name"))
@@ -20,12 +23,18 @@ class CoalesceTests(TestCase):
         )
 
     def test_gt_two_expressions(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(
             ValueError, "Coalesce must take at least two expressions"
         ):
             Author.objects.annotate(display_name=Coalesce("alias"))
 
     def test_mixed_values(self):
+        """
+        This is a comment
+        """
         a1 = Author.objects.create(name="John Smith", alias="smithj")
         a2 = Author.objects.create(name="Rhonda")
         ar1 = Article.objects.create(
@@ -53,6 +62,9 @@ class CoalesceTests(TestCase):
         )
 
     def test_ordering(self):
+        """
+        This is a comment
+        """
         Author.objects.create(name="John Smith", alias="smithj")
         Author.objects.create(name="Rhonda")
         authors = Author.objects.order_by(Coalesce("alias", "name"))
@@ -63,6 +75,9 @@ class CoalesceTests(TestCase):
         self.assertQuerySetEqual(authors, ["John Smith", "Rhonda"], lambda a: a.name)
 
     def test_empty_queryset(self):
+        """
+        This is a comment
+        """
         Author.objects.create(name="John Smith")
         queryset = Author.objects.values("id")
         tests = [

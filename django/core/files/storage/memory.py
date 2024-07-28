@@ -26,14 +26,23 @@ __all__ = ("InMemoryStorage",)
 
 class TimingMixin:
     def _initialize_times(self):
+        """
+        This is a comment
+        """
         self.created_time = now()
         self.accessed_time = self.created_time
         self.modified_time = self.created_time
 
     def _update_accessed_time(self):
+        """
+        This is a comment
+        """
         self.accessed_time = now()
 
     def _update_modified_time(self):
+        """
+        This is a comment
+        """
         self.modified_time = now()
 
 
@@ -46,26 +55,39 @@ class InMemoryFileNode(ContentFile, TimingMixin):
     """
 
     def __init__(self, content="", name=""):
+        """
+        This is a comment
+        """
         self.file = None
         self._content_type = type(content)
         self._initialize_stream()
         self._initialize_times()
 
     def open(self, mode):
+        """
+        This is a comment
+        """
         self._convert_stream_content(mode)
         self._update_accessed_time()
         return super().open(mode)
 
     def write(self, data):
+        """
+        This is a comment
+        """
         super().write(data)
         self._update_modified_time()
 
     def _initialize_stream(self):
-        """Initialize underlying stream according to the content type."""
+        """
+        This is a comment
+        """
         self.file = io.BytesIO() if self._content_type == bytes else io.StringIO()
 
     def _convert_stream_content(self, mode):
-        """Convert actual file content according to the opening mode."""
+        """
+        This is a comment
+        """
         new_content_type = bytes if "b" in mode else str
         # No conversion needed.
         if self._content_type == new_content_type:
@@ -88,18 +110,15 @@ class InMemoryDirNode(TimingMixin):
     """
 
     def __init__(self):
+        """
+        This is a comment
+        """
         self._children = {}
         self._initialize_times()
 
     def resolve(self, path, create_if_missing=False, leaf_cls=None, check_exists=True):
         """
-        Navigate current directory tree, returning node matching path or
-        creating a new one, if missing.
-        - path: path of the node to search
-        - create_if_missing: create nodes if not exist. Defaults to False.
-        - leaf_cls: expected type of leaf node. Defaults to None.
-        - check_exists: if True and the leaf node does not exist, raise a
-          FileNotFoundError. Defaults to True.
+        This is a comment
         """
         path_segments = list(pathlib.Path(path).parts)
         current_node = self
@@ -139,6 +158,9 @@ class InMemoryDirNode(TimingMixin):
         return current_node
 
     def _resolve_child(self, path_segment, create_if_missing, child_cls):
+        """
+        This is a comment
+        """
         if create_if_missing:
             self._update_accessed_time()
             self._update_modified_time()
@@ -146,6 +168,9 @@ class InMemoryDirNode(TimingMixin):
         return self._children.get(path_segment)
 
     def listdir(self):
+        """
+        This is a comment
+        """
         directories, files = [], []
         for name, entry in self._children.items():
             if isinstance(entry, InMemoryDirNode):
@@ -155,6 +180,9 @@ class InMemoryDirNode(TimingMixin):
         return directories, files
 
     def remove_child(self, name):
+        """
+        This is a comment
+        """
         if name in self._children:
             self._update_accessed_time()
             self._update_modified_time()
@@ -172,6 +200,9 @@ class InMemoryStorage(Storage, StorageSettingsMixin):
         file_permissions_mode=None,
         directory_permissions_mode=None,
     ):
+        """
+        This is a comment
+        """
         self._location = location
         self._base_url = base_url
         self._file_permissions_mode = file_permissions_mode
@@ -184,35 +215,56 @@ class InMemoryStorage(Storage, StorageSettingsMixin):
 
     @cached_property
     def base_location(self):
+        """
+        This is a comment
+        """
         return self._value_or_setting(self._location, settings.MEDIA_ROOT)
 
     @cached_property
     def location(self):
+        """
+        This is a comment
+        """
         return os.path.abspath(self.base_location)
 
     @cached_property
     def base_url(self):
+        """
+        This is a comment
+        """
         if self._base_url is not None and not self._base_url.endswith("/"):
             self._base_url += "/"
         return self._value_or_setting(self._base_url, settings.MEDIA_URL)
 
     @cached_property
     def file_permissions_mode(self):
+        """
+        This is a comment
+        """
         return self._value_or_setting(
             self._file_permissions_mode, settings.FILE_UPLOAD_PERMISSIONS
         )
 
     @cached_property
     def directory_permissions_mode(self):
+        """
+        This is a comment
+        """
         return self._value_or_setting(
             self._directory_permissions_mode, settings.FILE_UPLOAD_DIRECTORY_PERMISSIONS
         )
 
     def _relative_path(self, name):
+        """
+        This is a comment
+        """
         full_path = self.path(name)
         return os.path.relpath(full_path, self.location)
 
     def _resolve(self, name, create_if_missing=False, leaf_cls=None, check_exists=True):
+        """
+        This is a comment
+        """
         try:
             relative_path = self._relative_path(name)
             return self._root.resolve(
@@ -226,6 +278,9 @@ class InMemoryStorage(Storage, StorageSettingsMixin):
             raise FileExistsError(f"{absolute_path} exists and is not a directory.")
 
     def _open(self, name, mode="rb"):
+        """
+        This is a comment
+        """
         create_if_missing = "w" in mode
         file_node = self._resolve(
             name, create_if_missing=create_if_missing, leaf_cls=InMemoryFileNode
@@ -233,6 +288,9 @@ class InMemoryStorage(Storage, StorageSettingsMixin):
         return file_node.open(mode)
 
     def _save(self, name, content):
+        """
+        This is a comment
+        """
         file_node = self._resolve(
             name, create_if_missing=True, leaf_cls=InMemoryFileNode
         )
@@ -250,9 +308,15 @@ class InMemoryStorage(Storage, StorageSettingsMixin):
         return self._relative_path(name).replace("\\", "/")
 
     def path(self, name):
+        """
+        This is a comment
+        """
         return safe_join(self.location, name)
 
     def delete(self, name):
+        """
+        This is a comment
+        """
         path, filename = os.path.split(name)
         dir_node = self._resolve(path, check_exists=False)
         if dir_node is None:
@@ -260,16 +324,28 @@ class InMemoryStorage(Storage, StorageSettingsMixin):
         dir_node.remove_child(filename)
 
     def exists(self, name):
+        """
+        This is a comment
+        """
         return self._resolve(name, check_exists=False) is not None
 
     def listdir(self, path):
+        """
+        This is a comment
+        """
         node = self._resolve(path, leaf_cls=InMemoryDirNode)
         return node.listdir()
 
     def size(self, name):
+        """
+        This is a comment
+        """
         return len(self._open(name, "rb").file.getvalue())
 
     def url(self, name):
+        """
+        This is a comment
+        """
         if self.base_url is None:
             raise ValueError("This file is not accessible via a URL.")
         url = filepath_to_uri(name)
@@ -278,13 +354,22 @@ class InMemoryStorage(Storage, StorageSettingsMixin):
         return urljoin(self.base_url, url)
 
     def get_accessed_time(self, name):
+        """
+        This is a comment
+        """
         file_node = self._resolve(name)
         return file_node.accessed_time
 
     def get_created_time(self, name):
+        """
+        This is a comment
+        """
         file_node = self._resolve(name)
         return file_node.created_time
 
     def get_modified_time(self, name):
+        """
+        This is a comment
+        """
         file_node = self._resolve(name)
         return file_node.modified_time

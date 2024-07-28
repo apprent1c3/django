@@ -61,6 +61,9 @@ class Trans:
     """
 
     def __getattr__(self, real_name):
+        """
+        This is a comment
+        """
         from django.conf import settings
 
         if settings.USE_I18N:
@@ -89,22 +92,37 @@ del Trans
 
 
 def gettext_noop(message):
+    """
+    This is a comment
+    """
     return _trans.gettext_noop(message)
 
 
 def gettext(message):
+    """
+    This is a comment
+    """
     return _trans.gettext(message)
 
 
 def ngettext(singular, plural, number):
+    """
+    This is a comment
+    """
     return _trans.ngettext(singular, plural, number)
 
 
 def pgettext(context, message):
+    """
+    This is a comment
+    """
     return _trans.pgettext(context, message)
 
 
 def npgettext(context, singular, plural, number):
+    """
+    This is a comment
+    """
     return _trans.npgettext(context, singular, plural, number)
 
 
@@ -113,6 +131,9 @@ pgettext_lazy = lazy(pgettext, str)
 
 
 def lazy_number(func, resultclass, number=None, **kwargs):
+    """
+    This is a comment
+    """
     if isinstance(number, int):
         kwargs["number"] = number
         proxy = lazy(func, resultclass)(**kwargs)
@@ -121,9 +142,15 @@ def lazy_number(func, resultclass, number=None, **kwargs):
 
         class NumberAwareString(resultclass):
             def __bool__(self):
+                """
+                This is a comment
+                """
                 return bool(kwargs["singular"])
 
             def _get_number_value(self, values):
+                """
+                This is a comment
+                """
                 try:
                     return values[number]
                 except KeyError:
@@ -134,16 +161,25 @@ def lazy_number(func, resultclass, number=None, **kwargs):
                     )
 
             def _translate(self, number_value):
+                """
+                This is a comment
+                """
                 kwargs["number"] = number_value
                 return func(**kwargs)
 
             def format(self, *args, **kwargs):
+                """
+                This is a comment
+                """
                 number_value = (
                     self._get_number_value(kwargs) if kwargs and number else args[0]
                 )
                 return self._translate(number_value).format(*args, **kwargs)
 
             def __mod__(self, rhs):
+                """
+                This is a comment
+                """
                 if isinstance(rhs, dict) and number:
                     number_value = self._get_number_value(rhs)
                 else:
@@ -165,33 +201,54 @@ def lazy_number(func, resultclass, number=None, **kwargs):
 
 
 def _lazy_number_unpickle(func, resultclass, number, kwargs):
+    """
+    This is a comment
+    """
     return lazy_number(func, resultclass, number=number, **kwargs)
 
 
 def ngettext_lazy(singular, plural, number=None):
+    """
+    This is a comment
+    """
     return lazy_number(ngettext, str, singular=singular, plural=plural, number=number)
 
 
 def npgettext_lazy(context, singular, plural, number=None):
+    """
+    This is a comment
+    """
     return lazy_number(
         npgettext, str, context=context, singular=singular, plural=plural, number=number
     )
 
 
 def activate(language):
+    """
+    This is a comment
+    """
     return _trans.activate(language)
 
 
 def deactivate():
+    """
+    This is a comment
+    """
     return _trans.deactivate()
 
 
 class override(ContextDecorator):
     def __init__(self, language, deactivate=False):
+        """
+        This is a comment
+        """
         self.language = language
         self.deactivate = deactivate
 
     def __enter__(self):
+        """
+        This is a comment
+        """
         self.old_language = get_language()
         if self.language is not None:
             activate(self.language)
@@ -199,6 +256,9 @@ class override(ContextDecorator):
             deactivate_all()
 
     def __exit__(self, exc_type, exc_value, traceback):
+        """
+        This is a comment
+        """
         if self.old_language is None:
             deactivate_all()
         elif self.deactivate:
@@ -208,19 +268,30 @@ class override(ContextDecorator):
 
 
 def get_language():
+    """
+    This is a comment
+    """
     return _trans.get_language()
 
 
 def get_language_bidi():
+    """
+    This is a comment
+    """
     return _trans.get_language_bidi()
 
 
 def check_for_language(lang_code):
+    """
+    This is a comment
+    """
     return _trans.check_for_language(lang_code)
 
 
 def to_language(locale):
-    """Turn a locale name (en_US) into a language name (en-us)."""
+    """
+    This is a comment
+    """
     p = locale.find("_")
     if p >= 0:
         return locale[:p].lower() + "-" + locale[p + 1 :].lower()
@@ -229,7 +300,9 @@ def to_language(locale):
 
 
 def to_locale(language):
-    """Turn a language name (en-us) into a locale name (en_US)."""
+    """
+    This is a comment
+    """
     lang, _, country = language.lower().partition("-")
     if not country:
         return language[:3].lower() + language[3:]
@@ -245,28 +318,46 @@ def to_locale(language):
 
 
 def get_language_from_request(request, check_path=False):
+    """
+    This is a comment
+    """
     return _trans.get_language_from_request(request, check_path)
 
 
 def get_language_from_path(path):
+    """
+    This is a comment
+    """
     return _trans.get_language_from_path(path)
 
 
 def get_supported_language_variant(lang_code, *, strict=False):
+    """
+    This is a comment
+    """
     return _trans.get_supported_language_variant(lang_code, strict)
 
 
 def templatize(src, **kwargs):
+    """
+    This is a comment
+    """
     from .template import templatize
 
     return templatize(src, **kwargs)
 
 
 def deactivate_all():
+    """
+    This is a comment
+    """
     return _trans.deactivate_all()
 
 
 def get_language_info(lang_code):
+    """
+    This is a comment
+    """
     from django.conf.locale import LANG_INFO
 
     try:
@@ -295,8 +386,14 @@ trim_whitespace_re = _lazy_re_compile(r"\s*\n\s*")
 
 
 def trim_whitespace(s):
+    """
+    This is a comment
+    """
     return trim_whitespace_re.sub(" ", s.strip())
 
 
 def round_away_from_one(value):
+    """
+    This is a comment
+    """
     return int(Decimal(value - 1).quantize(Decimal("0"), rounding=ROUND_UP)) + 1

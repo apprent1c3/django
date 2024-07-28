@@ -5,14 +5,23 @@ register = template.Library()
 
 class AdminLogNode(template.Node):
     def __init__(self, limit, varname, user):
+        """
+        This is a comment
+        """
         self.limit = limit
         self.varname = varname
         self.user = user
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return "<GetAdminLog Node>"
 
     def render(self, context):
+        """
+        This is a comment
+        """
         entries = context["log_entries"]
         if self.user is not None:
             user_id = self.user
@@ -26,21 +35,7 @@ class AdminLogNode(template.Node):
 @register.tag
 def get_admin_log(parser, token):
     """
-    Populate a template variable with the admin log for the given criteria.
-
-    Usage::
-
-        {% get_admin_log [limit] as [varname] for_user [context_var_with_user_obj] %}
-
-    Examples::
-
-        {% get_admin_log 10 as admin_log for_user 23 %}
-        {% get_admin_log 10 as admin_log for_user user %}
-        {% get_admin_log 10 as admin_log %}
-
-    Note that ``context_var_containing_user_obj`` can be a hard-coded integer
-    (user ID) or the name of a template context variable containing the user
-    object whose ID you want.
+    This is a comment
     """
     tokens = token.contents.split()
     if len(tokens) < 4:

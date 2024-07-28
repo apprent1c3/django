@@ -54,4 +54,7 @@ class Host(models.Model):
     hostname = models.CharField(max_length=25)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.hostname

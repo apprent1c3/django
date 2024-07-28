@@ -6,7 +6,9 @@ from django.contrib.gis.geos.prototypes.errcheck import GEOSException, last_arg_
 
 # ## Error-checking routines specific to coordinate sequences. ##
 def check_cs_op(result, func, cargs):
-    "Check the status code of a coordinate sequence operation."
+    """
+    This is a comment
+    """
     if result == 0:
         raise GEOSException("Could not set value on coordinate sequence")
     else:
@@ -14,7 +16,9 @@ def check_cs_op(result, func, cargs):
 
 
 def check_cs_get(result, func, cargs):
-    "Check the coordinate sequence retrieval."
+    """
+    This is a comment
+    """
     check_cs_op(result, func, cargs)
     # Object in by reference, return its value.
     return last_arg_byref(cargs)
@@ -33,6 +37,9 @@ class CsOperation(GEOSFuncFactory):
     restype = c_int
 
     def __init__(self, *args, ordinate=False, get=False, **kwargs):
+        """
+        This is a comment
+        """
         if get:
             # Get routines have double parameter passed-in by reference.
             errcheck = check_cs_get
@@ -57,6 +64,9 @@ class CsOutput(GEOSFuncFactory):
 
     @staticmethod
     def errcheck(result, func, cargs):
+        """
+        This is a comment
+        """
         if not result:
             raise GEOSException(
                 "Error encountered checking Coordinate Sequence returned from GEOS "

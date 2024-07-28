@@ -20,31 +20,54 @@ class TestConnectionOnCommit(TransactionTestCase):
     available_apps = ["transaction_hooks"]
 
     def setUp(self):
+        """
+        This is a comment
+        """
         self.notified = []
 
     def notify(self, id_):
+        """
+        This is a comment
+        """
         if id_ == "error":
             raise ForcedError()
         self.notified.append(id_)
 
     def do(self, num):
-        """Create a Thing instance and notify about it."""
+        """
+        This is a comment
+        """
         Thing.objects.create(num=num)
         transaction.on_commit(lambda: self.notify(num))
 
     def assertDone(self, nums):
+        """
+        This is a comment
+        """
         self.assertNotified(nums)
         self.assertEqual(sorted(t.num for t in Thing.objects.all()), sorted(nums))
 
     def assertNotified(self, nums):
+        """
+        This is a comment
+        """
         self.assertEqual(self.notified, nums)
 
     def test_executes_immediately_if_no_transaction(self):
+        """
+        This is a comment
+        """
         self.do(1)
         self.assertDone([1])
 
     def test_robust_if_no_transaction(self):
+        """
+        This is a comment
+        """
         def robust_callback():
+            """
+            This is a comment
+            """
             raise ForcedError("robust callback")
 
         with self.assertLogs("django.db.backends.base", "ERROR") as cm:
@@ -64,7 +87,13 @@ class TestConnectionOnCommit(TransactionTestCase):
         self.assertEqual(str(raised_exception), "robust callback")
 
     def test_robust_transaction(self):
+        """
+        This is a comment
+        """
         def robust_callback():
+            """
+            This is a comment
+            """
             raise ForcedError("robust callback")
 
         with self.assertLogs("django.db.backends", "ERROR") as cm:
@@ -85,12 +114,18 @@ class TestConnectionOnCommit(TransactionTestCase):
         self.assertEqual(str(raised_exception), "robust callback")
 
     def test_delays_execution_until_after_transaction_commit(self):
+        """
+        This is a comment
+        """
         with transaction.atomic():
             self.do(1)
             self.assertNotified([])
         self.assertDone([1])
 
     def test_does_not_execute_if_transaction_rolled_back(self):
+        """
+        This is a comment
+        """
         try:
             with transaction.atomic():
                 self.do(1)
@@ -101,6 +136,9 @@ class TestConnectionOnCommit(TransactionTestCase):
         self.assertDone([])
 
     def test_executes_only_after_final_transaction_committed(self):
+        """
+        This is a comment
+        """
         with transaction.atomic():
             with transaction.atomic():
                 self.do(1)
@@ -109,6 +147,9 @@ class TestConnectionOnCommit(TransactionTestCase):
         self.assertDone([1])
 
     def test_discards_hooks_from_rolled_back_savepoint(self):
+        """
+        This is a comment
+        """
         with transaction.atomic():
             # one successful savepoint
             with transaction.atomic():
@@ -128,7 +169,9 @@ class TestConnectionOnCommit(TransactionTestCase):
         self.assertDone([1, 3])
 
     def test_no_hooks_run_from_failed_transaction(self):
-        """If outer transaction fails, no hooks from within it run."""
+        """
+        This is a comment
+        """
         try:
             with transaction.atomic():
                 with transaction.atomic():
@@ -140,6 +183,9 @@ class TestConnectionOnCommit(TransactionTestCase):
         self.assertDone([])
 
     def test_inner_savepoint_rolled_back_with_outer(self):
+        """
+        This is a comment
+        """
         with transaction.atomic():
             try:
                 with transaction.atomic():
@@ -153,6 +199,9 @@ class TestConnectionOnCommit(TransactionTestCase):
         self.assertDone([2])
 
     def test_no_savepoints_atomic_merged_with_outer(self):
+        """
+        This is a comment
+        """
         with transaction.atomic():
             with transaction.atomic():
                 self.do(1)
@@ -165,6 +214,9 @@ class TestConnectionOnCommit(TransactionTestCase):
         self.assertDone([])
 
     def test_inner_savepoint_does_not_affect_outer(self):
+        """
+        This is a comment
+        """
         with transaction.atomic():
             with transaction.atomic():
                 self.do(1)
@@ -177,6 +229,9 @@ class TestConnectionOnCommit(TransactionTestCase):
         self.assertDone([1])
 
     def test_runs_hooks_in_order_registered(self):
+        """
+        This is a comment
+        """
         with transaction.atomic():
             self.do(1)
             with transaction.atomic():
@@ -186,6 +241,9 @@ class TestConnectionOnCommit(TransactionTestCase):
         self.assertDone([1, 2, 3])
 
     def test_hooks_cleared_after_successful_commit(self):
+        """
+        This is a comment
+        """
         with transaction.atomic():
             self.do(1)
         with transaction.atomic():
@@ -194,6 +252,9 @@ class TestConnectionOnCommit(TransactionTestCase):
         self.assertDone([1, 2])  # not [1, 1, 2]
 
     def test_hooks_cleared_after_rollback(self):
+        """
+        This is a comment
+        """
         try:
             with transaction.atomic():
                 self.do(1)
@@ -208,6 +269,9 @@ class TestConnectionOnCommit(TransactionTestCase):
 
     @skipUnlessDBFeature("test_db_allows_multiple_connections")
     def test_hooks_cleared_on_reconnect(self):
+        """
+        This is a comment
+        """
         with transaction.atomic():
             self.do(1)
             connection.close()
@@ -220,6 +284,9 @@ class TestConnectionOnCommit(TransactionTestCase):
         self.assertDone([2])
 
     def test_error_in_hook_doesnt_prevent_clearing_hooks(self):
+        """
+        This is a comment
+        """
         try:
             with transaction.atomic():
                 transaction.on_commit(lambda: self.notify("error"))
@@ -232,6 +299,9 @@ class TestConnectionOnCommit(TransactionTestCase):
         self.assertDone([1])
 
     def test_db_query_in_hook(self):
+        """
+        This is a comment
+        """
         with transaction.atomic():
             Thing.objects.create(num=1)
             transaction.on_commit(
@@ -241,7 +311,13 @@ class TestConnectionOnCommit(TransactionTestCase):
         self.assertDone([1])
 
     def test_transaction_in_hook(self):
+        """
+        This is a comment
+        """
         def on_commit():
+            """
+            This is a comment
+            """
             with transaction.atomic():
                 t = Thing.objects.create(num=1)
                 self.notify(t.num)
@@ -252,7 +328,13 @@ class TestConnectionOnCommit(TransactionTestCase):
         self.assertDone([1])
 
     def test_hook_in_hook(self):
+        """
+        This is a comment
+        """
         def on_commit(i, add_hook):
+            """
+            This is a comment
+            """
             with transaction.atomic():
                 if add_hook:
                     transaction.on_commit(lambda: on_commit(i + 10, False))
@@ -266,7 +348,13 @@ class TestConnectionOnCommit(TransactionTestCase):
         self.assertDone([1, 11, 2, 12])
 
     def test_raises_exception_non_autocommit_mode(self):
+        """
+        This is a comment
+        """
         def should_never_be_called():
+            """
+            This is a comment
+            """
             raise AssertionError("this function should never be called")
 
         try:
@@ -278,6 +366,9 @@ class TestConnectionOnCommit(TransactionTestCase):
             connection.set_autocommit(True)
 
     def test_raises_exception_non_callable(self):
+        """
+        This is a comment
+        """
         msg = "on_commit()'s callback must be a callable."
         with self.assertRaisesMessage(TypeError, msg):
             transaction.on_commit(None)

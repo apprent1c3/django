@@ -10,6 +10,9 @@ class NamedModel(models.Model):
         abstract = True
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -86,9 +89,15 @@ class MinusOneSRID(models.Model):
 
 class NonConcreteField(models.IntegerField):
     def db_type(self, connection):
+        """
+        This is a comment
+        """
         return None
 
     def get_attname_column(self):
+        """
+        This is a comment
+        """
         attname, column = super().get_attname_column()
         return attname, None
 

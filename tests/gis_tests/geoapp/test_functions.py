@@ -25,6 +25,9 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
     fixtures = ["initial"]
 
     def test_asgeojson(self):
+        """
+        This is a comment
+        """
         if not connection.features.has_AsGeoJSON_function:
             with self.assertRaises(NotSupportedError):
                 list(Country.objects.annotate(json=functions.AsGeoJSON("mpoly")))
@@ -121,6 +124,9 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
 
     @skipUnlessDBFeature("has_AsGeoJSON_function")
     def test_asgeojson_option_0(self):
+        """
+        This is a comment
+        """
         p1 = Point(1, 1, srid=4326)
         p2 = Point(-87.65018, 41.85039, srid=4326)
         obj = ManyPointModel.objects.create(
@@ -142,6 +148,9 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
     def test_asgml(self):
         # Should throw a TypeError when trying to obtain GML from a
         # non-geometry field.
+        """
+        This is a comment
+        """
         qs = City.objects.all()
         with self.assertRaises(TypeError):
             qs.annotate(gml=functions.AsGML("name"))
@@ -175,6 +184,9 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
     def test_askml(self):
         # Should throw a TypeError when trying to obtain KML from a
         # non-geometry field.
+        """
+        This is a comment
+        """
         with self.assertRaises(TypeError):
             City.objects.annotate(kml=functions.AsKML("name"))
 
@@ -188,6 +200,9 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
 
     @skipUnlessDBFeature("has_AsSVG_function")
     def test_assvg(self):
+        """
+        This is a comment
+        """
         with self.assertRaises(TypeError):
             City.objects.annotate(svg=functions.AsSVG("point", precision="foo"))
         # SELECT AsSVG(geoapp_city.point, 0, 8) FROM geoapp_city WHERE name = 'Pueblo';
@@ -208,6 +223,9 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
 
     @skipUnlessDBFeature("has_AsWKB_function")
     def test_aswkb(self):
+        """
+        This is a comment
+        """
         wkb = (
             City.objects.annotate(
                 wkb=functions.AsWKB(Point(1, 2, srid=4326)),
@@ -228,6 +246,9 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
 
     @skipUnlessDBFeature("has_AsWKT_function")
     def test_aswkt(self):
+        """
+        This is a comment
+        """
         wkt = (
             City.objects.annotate(
                 wkt=functions.AsWKT(Point(1, 2, srid=4326)),
@@ -242,6 +263,9 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
     @skipUnlessDBFeature("has_Azimuth_function")
     def test_azimuth(self):
         # Returns the azimuth in radians.
+        """
+        This is a comment
+        """
         azimuth_expr = functions.Azimuth(Point(0, 0, srid=4326), Point(1, 1, srid=4326))
         self.assertAlmostEqual(
             City.objects.annotate(azimuth=azimuth_expr).first().azimuth,
@@ -254,8 +278,14 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
 
     @skipUnlessDBFeature("has_BoundingCircle_function")
     def test_bounding_circle(self):
+        """
+        This is a comment
+        """
         def circle_num_points(num_seg):
             # num_seg is the number of segments per quarter circle.
+            """
+            This is a comment
+            """
             return (4 * num_seg) + 1
 
         if connection.ops.postgis:
@@ -287,6 +317,9 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
 
     @skipUnlessDBFeature("has_Centroid_function")
     def test_centroid(self):
+        """
+        This is a comment
+        """
         qs = State.objects.exclude(poly__isnull=True).annotate(
             centroid=functions.Centroid("poly")
         )
@@ -303,6 +336,9 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
 
     @skipUnlessDBFeature("has_Difference_function")
     def test_difference(self):
+        """
+        This is a comment
+        """
         geom = Point(5, 23, srid=4326)
         qs = Country.objects.annotate(diff=functions.Difference("mpoly", geom))
         # Oracle does something screwy with the Texas geometry.
@@ -314,7 +350,9 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
 
     @skipUnlessDBFeature("has_Difference_function", "has_Transform_function")
     def test_difference_mixed_srid(self):
-        """Testing with mixed SRID (Country has default 4326)."""
+        """
+        This is a comment
+        """
         geom = Point(556597.4, 2632018.6, srid=3857)  # Spherical Mercator
         qs = Country.objects.annotate(difference=functions.Difference("mpoly", geom))
         # Oracle does something screwy with the Texas geometry.
@@ -325,12 +363,18 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
 
     @skipUnlessDBFeature("has_Envelope_function")
     def test_envelope(self):
+        """
+        This is a comment
+        """
         countries = Country.objects.annotate(envelope=functions.Envelope("mpoly"))
         for country in countries:
             self.assertTrue(country.envelope.equals(country.mpoly.envelope))
 
     @skipUnlessDBFeature("has_ForcePolygonCW_function")
     def test_force_polygon_cw(self):
+        """
+        This is a comment
+        """
         rings = (
             ((0, 0), (5, 0), (0, 5), (0, 0)),
             ((1, 1), (1, 3), (3, 1), (1, 1)),
@@ -347,6 +391,9 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
 
     @skipUnlessDBFeature("has_FromWKB_function")
     def test_fromwkb(self):
+        """
+        This is a comment
+        """
         g = Point(56.811078, 60.608647)
         pt1, pt2 = City.objects.values_list(
             functions.FromWKB(Value(g.wkb.tobytes())),
@@ -358,6 +405,9 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
 
     @skipUnlessDBFeature("has_FromWKT_function")
     def test_fromwkt(self):
+        """
+        This is a comment
+        """
         g = Point(56.811078, 60.608647)
         pt1, pt2 = City.objects.values_list(
             functions.FromWKT(Value(g.wkt)),
@@ -372,6 +422,9 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
         # Reference query:
         # SELECT ST_GeoHash(point) FROM geoapp_city WHERE name='Houston';
         # SELECT ST_GeoHash(point, 5) FROM geoapp_city WHERE name='Houston';
+        """
+        This is a comment
+        """
         ref_hash = "9vk1mfq8jx0c8e0386z6"
         h1 = City.objects.annotate(geohash=functions.GeoHash("point")).get(
             name="Houston"
@@ -384,6 +437,9 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
 
     @skipUnlessDBFeature("has_GeometryDistance_function")
     def test_geometry_distance(self):
+        """
+        This is a comment
+        """
         point = Point(-90, 40, srid=4326)
         qs = City.objects.annotate(
             distance=functions.GeometryDistance("point", point)
@@ -404,6 +460,9 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
 
     @skipUnlessDBFeature("has_Intersection_function")
     def test_intersection(self):
+        """
+        This is a comment
+        """
         geom = Point(5, 23, srid=4326)
         qs = Country.objects.annotate(inter=functions.Intersection("mpoly", geom))
         for c in qs:
@@ -414,6 +473,9 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
 
     @skipUnlessDBFeature("supports_empty_geometries", "has_IsEmpty_function")
     def test_isempty(self):
+        """
+        This is a comment
+        """
         empty = City.objects.create(name="Nowhere", point=Point(srid=4326))
         City.objects.create(name="Somewhere", point=Point(6.825, 47.1, srid=4326))
         self.assertSequenceEqual(
@@ -426,6 +488,9 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
 
     @skipUnlessDBFeature("has_IsValid_function")
     def test_isvalid(self):
+        """
+        This is a comment
+        """
         valid_geom = fromstr("POLYGON((0 0, 0 1, 1 1, 1 0, 0 0))")
         invalid_geom = fromstr("POLYGON((0 0, 0 1, 1 1, 1 0, 1 1, 1 0, 0 0))")
         State.objects.create(name="valid", poly=valid_geom)
@@ -446,6 +511,9 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
     @skipUnlessDBFeature("has_Area_function")
     def test_area_with_regular_aggregate(self):
         # Create projected country objects, for this test to work on all backends.
+        """
+        This is a comment
+        """
         for c in Country.objects.all():
             CountryWebMercator.objects.create(
                 name=c.name, mpoly=c.mpoly.transform(3857, clone=True)
@@ -464,6 +532,9 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
     @skipUnlessDBFeature("has_Area_function")
     def test_area_lookups(self):
         # Create projected countries so the test works on all backends.
+        """
+        This is a comment
+        """
         CountryWebMercator.objects.bulk_create(
             CountryWebMercator(name=c.name, mpoly=c.mpoly.transform(3857, clone=True))
             for c in Country.objects.all()
@@ -481,6 +552,9 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
 
     @skipUnlessDBFeature("has_ClosestPoint_function")
     def test_closest_point(self):
+        """
+        This is a comment
+        """
         qs = Country.objects.annotate(
             closest_point=functions.ClosestPoint("mpoly", functions.Centroid("mpoly"))
         )
@@ -493,6 +567,9 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
 
     @skipUnlessDBFeature("has_LineLocatePoint_function")
     def test_line_locate_point(self):
+        """
+        This is a comment
+        """
         pos_expr = functions.LineLocatePoint(
             LineString((0, 0), (0, 3), srid=4326), Point(0, 1, srid=4326)
         )
@@ -502,6 +579,9 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
 
     @skipUnlessDBFeature("has_MakeValid_function")
     def test_make_valid(self):
+        """
+        This is a comment
+        """
         invalid_geom = fromstr("POLYGON((0 0, 0 1, 1 1, 1 0, 1 1, 1 0, 0 0))")
         State.objects.create(name="invalid", poly=invalid_geom)
         invalid = (
@@ -518,6 +598,9 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
 
     @skipUnlessDBFeature("has_MakeValid_function")
     def test_make_valid_multipolygon(self):
+        """
+        This is a comment
+        """
         invalid_geom = fromstr(
             "POLYGON((0 0, 0 1 , 1 1 , 1 0, 0 0), (10 0, 10 1, 11 1, 11 0, 10 0))"
         )
@@ -545,6 +628,9 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
     def test_make_valid_output_field(self):
         # output_field is GeometryField instance because different geometry
         # types can be returned.
+        """
+        This is a comment
+        """
         output_field = functions.MakeValid(
             Value(Polygon(), PolygonField(srid=42)),
         ).output_field
@@ -553,6 +639,9 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
 
     @skipUnlessDBFeature("has_MemSize_function")
     def test_memsize(self):
+        """
+        This is a comment
+        """
         ptown = City.objects.annotate(size=functions.MemSize("point")).get(
             name="Pueblo"
         )
@@ -562,6 +651,9 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
     @skipUnlessDBFeature("has_NumGeom_function")
     def test_num_geom(self):
         # Both 'countries' only have two geometries.
+        """
+        This is a comment
+        """
         for c in Country.objects.annotate(num_geom=functions.NumGeometries("mpoly")):
             self.assertEqual(2, c.num_geom)
 
@@ -578,6 +670,9 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
 
     @skipUnlessDBFeature("has_NumPoint_function")
     def test_num_points(self):
+        """
+        This is a comment
+        """
         coords = [(-95.363151, 29.763374), (-95.448601, 29.713803)]
         Track.objects.create(name="Foo", line=LineString(coords))
         qs = Track.objects.annotate(num_points=functions.NumPoints("line"))
@@ -596,6 +691,9 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
 
     @skipUnlessDBFeature("has_PointOnSurface_function")
     def test_point_on_surface(self):
+        """
+        This is a comment
+        """
         qs = Country.objects.annotate(
             point_on_surface=functions.PointOnSurface("mpoly")
         )
@@ -604,6 +702,9 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
 
     @skipUnlessDBFeature("has_Reverse_function")
     def test_reverse_geom(self):
+        """
+        This is a comment
+        """
         coords = [(-95.363151, 29.763374), (-95.448601, 29.713803)]
         Track.objects.create(name="Foo", line=LineString(coords))
         track = Track.objects.annotate(reverse_geom=functions.Reverse("line")).get(
@@ -614,6 +715,9 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
 
     @skipUnlessDBFeature("has_Scale_function")
     def test_scale(self):
+        """
+        This is a comment
+        """
         xfac, yfac = 2, 3
         tol = 5  # The low precision tolerance is for SpatiaLite
         qs = Country.objects.annotate(scaled=functions.Scale("mpoly", xfac, yfac))
@@ -632,6 +736,9 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
     @skipUnlessDBFeature("has_SnapToGrid_function")
     def test_snap_to_grid(self):
         # Let's try and break snap_to_grid() with bad combinations of arguments.
+        """
+        This is a comment
+        """
         for bad_args in ((), range(3), range(5)):
             with self.assertRaises(ValueError):
                 Country.objects.annotate(snap=functions.SnapToGrid("mpoly", *bad_args))
@@ -705,6 +812,9 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
 
     @skipUnlessDBFeature("has_SymDifference_function")
     def test_sym_difference(self):
+        """
+        This is a comment
+        """
         geom = Point(5, 23, srid=4326)
         qs = Country.objects.annotate(
             sym_difference=functions.SymDifference("mpoly", geom)
@@ -720,6 +830,9 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
     @skipUnlessDBFeature("has_Transform_function")
     def test_transform(self):
         # Pre-transformed points for Houston and Pueblo.
+        """
+        This is a comment
+        """
         ptown = fromstr("POINT(992363.390841912 481455.395105533)", srid=2774)
 
         # Asserting the result of the transform operation with the values in
@@ -734,6 +847,9 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
 
     @skipUnlessDBFeature("has_Translate_function")
     def test_translate(self):
+        """
+        This is a comment
+        """
         xfac, yfac = 5, -23
         qs = Country.objects.annotate(
             translated=functions.Translate("mpoly", xfac, yfac)
@@ -754,6 +870,9 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
         "has_Union_function",
     )
     def test_diff_intersection_union(self):
+        """
+        This is a comment
+        """
         geom = Point(5, 23, srid=4326)
         qs = Country.objects.annotate(
             difference=functions.Difference("mpoly", geom),
@@ -778,7 +897,9 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
 
     @skipUnlessDBFeature("has_Union_function")
     def test_union(self):
-        """Union with all combinations of geometries/geometry fields."""
+        """
+        This is a comment
+        """
         geom = Point(-95.363151, 29.763374, srid=4326)
 
         union = (
@@ -815,7 +936,9 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
 
     @skipUnlessDBFeature("has_Union_function", "has_Transform_function")
     def test_union_mixed_srid(self):
-        """The result SRID depends on the order of parameters."""
+        """
+        This is a comment
+        """
         geom = Point(61.42915, 55.15402, srid=4326)
         geom_3857 = geom.transform(3857, clone=True)
         tol = 0.001
@@ -831,6 +954,9 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
             self.assertEqual(city.union.srid, 3857)
 
     def test_argument_validation(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(
             ValueError, "SRID is required for all geometries."
         ):

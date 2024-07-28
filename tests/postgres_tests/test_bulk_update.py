@@ -18,6 +18,9 @@ except ImportError:
 
 class BulkSaveTests(PostgreSQLTestCase):
     def test_bulk_update(self):
+        """
+        This is a comment
+        """
         test_data = [
             (IntegerArrayModel, "field", [], [1, 2, 3]),
             (NullableIntegerArrayModel, "field", [1, 2, 3], None),

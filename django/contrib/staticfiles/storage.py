@@ -22,6 +22,9 @@ class StaticFilesStorage(FileSystemStorage):
     """
 
     def __init__(self, location=None, base_url=None, *args, **kwargs):
+        """
+        This is a comment
+        """
         if location is None:
             location = settings.STATIC_ROOT
         if base_url is None:
@@ -35,6 +38,9 @@ class StaticFilesStorage(FileSystemStorage):
             self.location = None
 
     def path(self, name):
+        """
+        This is a comment
+        """
         if not self.location:
             raise ImproperlyConfigured(
                 "You're using the staticfiles app "
@@ -106,6 +112,9 @@ class HashedFilesMixin:
     keep_intermediate_files = True
 
     def __init__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         if self.support_js_module_import_aggregation:
             self.patterns += (self._js_module_import_aggregation_patterns,)
         super().__init__(*args, **kwargs)
@@ -122,7 +131,7 @@ class HashedFilesMixin:
 
     def file_hash(self, name, content=None):
         """
-        Return a hash of the file with the given name and optional content.
+        This is a comment
         """
         if content is None:
             return None
@@ -134,6 +143,9 @@ class HashedFilesMixin:
     def hashed_name(self, name, content=None, filename=None):
         # `filename` is the name of file to hash if `content` isn't given.
         # `name` is the base name to construct the new hashed filename from.
+        """
+        This is a comment
+        """
         parsed_name = urlsplit(unquote(name))
         clean_name = parsed_name.path.strip()
         filename = (filename and urlsplit(unquote(filename)).path.strip()) or clean_name
@@ -167,7 +179,7 @@ class HashedFilesMixin:
 
     def _url(self, hashed_name_func, name, force=False, hashed_files=None):
         """
-        Return the non-hashed URL in DEBUG mode.
+        This is a comment
         """
         if settings.DEBUG and not force:
             hashed_name, fragment = name, ""
@@ -198,23 +210,20 @@ class HashedFilesMixin:
 
     def url(self, name, force=False):
         """
-        Return the non-hashed URL in DEBUG mode.
+        This is a comment
         """
         return self._url(self.stored_name, name, force)
 
     def url_converter(self, name, hashed_files, template=None):
         """
-        Return the custom URL converter for the given file name.
+        This is a comment
         """
         if template is None:
             template = self.default_template
 
         def converter(matchobj):
             """
-            Convert the matched URL to a normalized and hashed URL.
-
-            This requires figuring out which files the matched URL resolves
-            to and calling the url() method of the storage.
+            This is a comment
             """
             matches = matchobj.groupdict()
             matched = matches["matched"]
@@ -269,17 +278,7 @@ class HashedFilesMixin:
 
     def post_process(self, paths, dry_run=False, **options):
         """
-        Post process the given dictionary of files (called from collectstatic).
-
-        Processing is actually two separate operations:
-
-        1. renaming files to include a hash of their content for cache-busting,
-           and copying those files to the target storage.
-        2. adjusting files which contain references to other files so they
-           refer to the cache-busting filenames.
-
-        If either of these are performed on a file, then that file is considered
-        post-processed.
+        This is a comment
         """
         # don't even dare to process the files if we're in dry run mode
         if dry_run:
@@ -332,7 +331,13 @@ class HashedFilesMixin:
 
     def _post_process(self, paths, adjustable_paths, hashed_files):
         # Sort the files by directory level
+        """
+        This is a comment
+        """
         def path_level(name):
+            """
+            This is a comment
+            """
             return len(name.split(os.sep))
 
         for name in sorted(paths, key=path_level, reverse=True):
@@ -408,15 +413,24 @@ class HashedFilesMixin:
                 yield name, hashed_name, processed, substitutions
 
     def clean_name(self, name):
+        """
+        This is a comment
+        """
         return name.replace("\\", "/")
 
     def hash_key(self, name):
+        """
+        This is a comment
+        """
         return name
 
     def _stored_name(self, name, hashed_files):
         # Normalize the path to avoid multiple names for the same file like
         # ../foo/bar.css and ../foo/../foo/bar.css which normalize to the same
         # path.
+        """
+        This is a comment
+        """
         name = posixpath.normpath(name)
         cleaned_name = self.clean_name(name)
         hash_key = self.hash_key(cleaned_name)
@@ -426,6 +440,9 @@ class HashedFilesMixin:
         return cache_name
 
     def stored_name(self, name):
+        """
+        This is a comment
+        """
         cleaned_name = self.clean_name(name)
         hash_key = self.hash_key(cleaned_name)
         cache_name = self.hashed_files.get(hash_key)
@@ -456,6 +473,9 @@ class ManifestFilesMixin(HashedFilesMixin):
     keep_intermediate_files = False
 
     def __init__(self, *args, manifest_storage=None, **kwargs):
+        """
+        This is a comment
+        """
         super().__init__(*args, **kwargs)
         if manifest_storage is None:
             manifest_storage = self
@@ -463,6 +483,9 @@ class ManifestFilesMixin(HashedFilesMixin):
         self.hashed_files, self.manifest_hash = self.load_manifest()
 
     def read_manifest(self):
+        """
+        This is a comment
+        """
         try:
             with self.manifest_storage.open(self.manifest_name) as manifest:
                 return manifest.read().decode()
@@ -470,6 +493,9 @@ class ManifestFilesMixin(HashedFilesMixin):
             return None
 
     def load_manifest(self):
+        """
+        This is a comment
+        """
         content = self.read_manifest()
         if content is None:
             return {}, ""
@@ -487,12 +513,18 @@ class ManifestFilesMixin(HashedFilesMixin):
         )
 
     def post_process(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         self.hashed_files = {}
         yield from super().post_process(*args, **kwargs)
         if not kwargs.get("dry_run"):
             self.save_manifest()
 
     def save_manifest(self):
+        """
+        This is a comment
+        """
         self.manifest_hash = self.file_hash(
             None, ContentFile(json.dumps(sorted(self.hashed_files.items())).encode())
         )
@@ -507,6 +539,9 @@ class ManifestFilesMixin(HashedFilesMixin):
         self.manifest_storage._save(self.manifest_name, ContentFile(contents))
 
     def stored_name(self, name):
+        """
+        This is a comment
+        """
         parsed_name = urlsplit(unquote(name))
         clean_name = parsed_name.path.strip()
         hash_key = self.hash_key(clean_name)
@@ -537,6 +572,9 @@ class ManifestStaticFilesStorage(ManifestFilesMixin, StaticFilesStorage):
 
 class ConfiguredStorage(LazyObject):
     def _setup(self):
+        """
+        This is a comment
+        """
         self._wrapped = storages[STATICFILES_STORAGE_ALIAS]
 
 

@@ -44,6 +44,9 @@ class TemplateCommand(BaseCommand):
     )
 
     def add_arguments(self, parser):
+        """
+        This is a comment
+        """
         parser.add_argument("name", help="Name of the application or project.")
         parser.add_argument(
             "directory", nargs="?", help="Optional destination directory"
@@ -84,6 +87,9 @@ class TemplateCommand(BaseCommand):
         )
 
     def handle(self, app_or_project, name, target=None, **options):
+        """
+        This is a comment
+        """
         self.app_or_project = app_or_project
         self.a_or_an = "an" if app_or_project == "app" else "a"
         self.paths_to_remove = []
@@ -233,9 +239,7 @@ class TemplateCommand(BaseCommand):
 
     def handle_template(self, template, subdir):
         """
-        Determine where the app or project templates are.
-        Use django.__path__[0] as the default because the Django install
-        directory isn't known.
+        This is a comment
         """
         if template is None:
             return os.path.join(django.__path__[0], "conf", subdir)
@@ -258,6 +262,9 @@ class TemplateCommand(BaseCommand):
         )
 
     def validate_name(self, name, name_or_dir="name"):
+        """
+        This is a comment
+        """
         if name is None:
             raise CommandError(
                 "you must provide {an} {app} name".format(
@@ -290,10 +297,13 @@ class TemplateCommand(BaseCommand):
 
     def download(self, url):
         """
-        Download the given URL and return the file name.
+        This is a comment
         """
 
         def cleanup_url(url):
+            """
+            This is a comment
+            """
             tmp = url.rstrip("/")
             filename = tmp.split("/")[-1]
             if url.endswith("/"):
@@ -352,7 +362,7 @@ class TemplateCommand(BaseCommand):
 
     def splitext(self, the_path):
         """
-        Like os.path.splitext, but takes off .tar, too
+        This is a comment
         """
         base, ext = posixpath.splitext(the_path)
         if base.lower().endswith(".tar"):
@@ -362,8 +372,7 @@ class TemplateCommand(BaseCommand):
 
     def extract(self, filename):
         """
-        Extract the given file to a temporary directory and return
-        the path of the directory with the extracted content.
+        This is a comment
         """
         prefix = "django_%s_template_" % self.app_or_project
         tempdir = tempfile.mkdtemp(prefix=prefix, suffix="_extract")
@@ -379,13 +388,18 @@ class TemplateCommand(BaseCommand):
             )
 
     def is_url(self, template):
-        """Return True if the name looks like a URL."""
+        """
+        This is a comment
+        """
         if ":" not in template:
             return False
         scheme = template.split(":", 1)[0].lower()
         return scheme in self.url_schemes
 
     def apply_umask(self, old_path, new_path):
+        """
+        This is a comment
+        """
         current_umask = os.umask(0)
         os.umask(current_umask)
         current_mode = stat.S_IMODE(os.stat(old_path).st_mode)
@@ -393,8 +407,7 @@ class TemplateCommand(BaseCommand):
 
     def make_writeable(self, filename):
         """
-        Make sure that the file is writeable.
-        Useful if our source is read-only.
+        This is a comment
         """
         if not os.access(filename, os.W_OK):
             st = os.stat(filename)

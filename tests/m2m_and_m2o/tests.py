@@ -6,11 +6,17 @@ from .models import Issue, StringReferenceModel, User
 
 class RelatedObjectTests(TestCase):
     def test_related_objects_have_name_attribute(self):
+        """
+        This is a comment
+        """
         for field_name in ("test_issue_client", "test_issue_cc"):
             obj = User._meta.get_field(field_name)
             self.assertEqual(field_name, obj.field.related_query_name())
 
     def test_m2m_and_m2o(self):
+        """
+        This is a comment
+        """
         r = User.objects.create(username="russell")
         g = User.objects.create(username="gustav")
 
@@ -88,8 +94,7 @@ class RelatedObjectTests(TestCase):
 class RelatedObjectUnicodeTests(TestCase):
     def test_m2m_with_unicode_reference(self):
         """
-        Regression test for #6045: references to other models can be
-        strings, providing they are directly convertible to ASCII.
+        This is a comment
         """
         m1 = StringReferenceModel.objects.create()
         m2 = StringReferenceModel.objects.create()

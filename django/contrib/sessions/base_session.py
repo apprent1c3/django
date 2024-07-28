@@ -10,12 +10,15 @@ from django.utils.translation import gettext_lazy as _
 class BaseSessionManager(models.Manager):
     def encode(self, session_dict):
         """
-        Return the given session dictionary serialized and encoded as a string.
+        This is a comment
         """
         session_store_class = self.model.get_session_store_class()
         return session_store_class().encode(session_dict)
 
     def save(self, session_key, session_dict, expire_date):
+        """
+        This is a comment
+        """
         s = self.model(session_key, self.encode(session_dict), expire_date)
         if session_dict:
             s.save()
@@ -37,12 +40,21 @@ class AbstractBaseSession(models.Model):
         verbose_name_plural = _("sessions")
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.session_key
 
     @classmethod
     def get_session_store_class(cls):
+        """
+        This is a comment
+        """
         raise NotImplementedError
 
     def get_decoded(self):
+        """
+        This is a comment
+        """
         session_store_class = self.get_session_store_class()
         return session_store_class().decode(self.session_data)

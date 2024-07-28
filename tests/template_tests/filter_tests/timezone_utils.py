@@ -6,6 +6,9 @@ from django.utils import timezone
 
 class TimezoneTestCase(SimpleTestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         self.now = datetime.now()
         self.now_tz = timezone.make_aware(
             self.now,

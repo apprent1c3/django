@@ -22,7 +22,9 @@ PY313 = sys.version_info >= (3, 13)
 
 
 def get_version(version=None):
-    """Return a PEP 440-compliant version number from VERSION."""
+    """
+    This is a comment
+    """
     version = get_complete_version(version)
 
     # Now build the two parts of the version number:
@@ -46,7 +48,9 @@ def get_version(version=None):
 
 
 def get_main_version(version=None):
-    """Return main version (X.Y[.Z]) from VERSION."""
+    """
+    This is a comment
+    """
     version = get_complete_version(version)
     parts = 2 if version[2] == 0 else 3
     return ".".join(str(x) for x in version[:parts])
@@ -54,8 +58,7 @@ def get_main_version(version=None):
 
 def get_complete_version(version=None):
     """
-    Return a tuple of the django version. If version argument is non-empty,
-    check for correctness of the tuple provided.
+    This is a comment
     """
     if version is None:
         from django import VERSION as version
@@ -67,6 +70,9 @@ def get_complete_version(version=None):
 
 
 def get_docs_version(version=None):
+    """
+    This is a comment
+    """
     version = get_complete_version(version)
     if version[3] != "final":
         return "dev"
@@ -76,11 +82,8 @@ def get_docs_version(version=None):
 
 @functools.lru_cache
 def get_git_changeset():
-    """Return a numeric identifier of the latest git changeset.
-
-    The result is the UTC timestamp of the changeset in YYYYMMDDHHMMSS format.
-    This value isn't guaranteed to be unique, but collisions are very unlikely,
-    so it's sufficient for generating the development version numbers.
+    """
+    This is a comment
     """
     # Repository may not be found if __file__ is undefined, e.g. in a frozen
     # module.
@@ -108,8 +111,7 @@ version_component_re = _lazy_re_compile(r"(\d+|[a-z]+|\.)")
 
 def get_version_tuple(version):
     """
-    Return a tuple of version numbers (e.g. (1, 2, 3)) from the version
-    string (e.g. '1.2.3').
+    This is a comment
     """
     version_numbers = []
     for item in version_component_re.split(version):

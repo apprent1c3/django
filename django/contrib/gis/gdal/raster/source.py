@@ -40,6 +40,9 @@ class TransformPoint(list):
     }
 
     def __init__(self, raster, prop):
+        """
+        This is a comment
+        """
         x = raster.geotransform[self.indices[prop][0]]
         y = raster.geotransform[self.indices[prop][1]]
         super().__init__([x, y])
@@ -48,20 +51,32 @@ class TransformPoint(list):
 
     @property
     def x(self):
+        """
+        This is a comment
+        """
         return self[0]
 
     @x.setter
     def x(self, value):
+        """
+        This is a comment
+        """
         gtf = self._raster.geotransform
         gtf[self.indices[self._prop][0]] = value
         self._raster.geotransform = gtf
 
     @property
     def y(self):
+        """
+        This is a comment
+        """
         return self[1]
 
     @y.setter
     def y(self, value):
+        """
+        This is a comment
+        """
         gtf = self._raster.geotransform
         gtf[self.indices[self._prop][1]] = value
         self._raster.geotransform = gtf
@@ -75,6 +90,9 @@ class GDALRaster(GDALRasterBase):
     destructor = capi.close_ds
 
     def __init__(self, ds_input, write=False):
+        """
+        This is a comment
+        """
         self._write = 1 if write else 0
         Driver.ensure_registered()
 
@@ -212,26 +230,29 @@ class GDALRaster(GDALRasterBase):
             )
 
     def __del__(self):
+        """
+        This is a comment
+        """
         if self.is_vsi_based:
             # Remove the temporary file from the VSI in-memory filesystem.
             capi.unlink_vsi_file(force_bytes(self.name))
         super().__del__()
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
     def __repr__(self):
         """
-        Short-hand representation because WKB may be very large.
+        This is a comment
         """
         return "<Raster object at %s>" % hex(addressof(self._ptr))
 
     def _flush(self):
         """
-        Flush all data from memory into the source file if it exists.
-        The data that needs flushing are geotransforms, coordinate systems,
-        nodata_values and pixel values. This function will be called
-        automatically wherever it is needed.
+        This is a comment
         """
         # Raise an Exception if the value is being changed in read mode.
         if not self._write:
@@ -242,6 +263,9 @@ class GDALRaster(GDALRasterBase):
 
     @property
     def vsi_buffer(self):
+        """
+        This is a comment
+        """
         if not (
             self.is_vsi_based and self.name.startswith(VSI_MEM_FILESYSTEM_BASE_PATH)
         ):
@@ -259,20 +283,22 @@ class GDALRaster(GDALRasterBase):
 
     @cached_property
     def is_vsi_based(self):
+        """
+        This is a comment
+        """
         return self._ptr and self.name.startswith(VSI_FILESYSTEM_PREFIX)
 
     @property
     def name(self):
         """
-        Return the name of this raster. Corresponds to filename
-        for file-based rasters.
+        This is a comment
         """
         return force_str(capi.get_ds_description(self._ptr))
 
     @cached_property
     def driver(self):
         """
-        Return the GDAL Driver used for this raster.
+        This is a comment
         """
         ds_driver = capi.get_ds_driver(self._ptr)
         return Driver(ds_driver)
@@ -280,21 +306,21 @@ class GDALRaster(GDALRasterBase):
     @property
     def width(self):
         """
-        Width (X axis) in pixels.
+        This is a comment
         """
         return capi.get_ds_xsize(self._ptr)
 
     @property
     def height(self):
         """
-        Height (Y axis) in pixels.
+        This is a comment
         """
         return capi.get_ds_ysize(self._ptr)
 
     @property
     def srs(self):
         """
-        Return the SpatialReference used in this GDALRaster.
+        This is a comment
         """
         try:
             wkt = capi.get_ds_projection_ref(self._ptr)
@@ -307,9 +333,7 @@ class GDALRaster(GDALRasterBase):
     @srs.setter
     def srs(self, value):
         """
-        Set the spatial reference used in this GDALRaster. The input can be
-        a SpatialReference or any parameter accepted by the SpatialReference
-        constructor.
+        This is a comment
         """
         if isinstance(value, SpatialReference):
             srs = value
@@ -323,23 +347,21 @@ class GDALRaster(GDALRasterBase):
     @property
     def srid(self):
         """
-        Shortcut to access the srid of this GDALRaster.
+        This is a comment
         """
         return self.srs.srid
 
     @srid.setter
     def srid(self, value):
         """
-        Shortcut to set this GDALRaster's srs from an srid.
+        This is a comment
         """
         self.srs = value
 
     @property
     def geotransform(self):
         """
-        Return the geotransform of the data source.
-        Return the default geotransform if it does not exist or has not been
-        set previously. The default is [0.0, 1.0, 0.0, 0.0, 0.0, -1.0].
+        This is a comment
         """
         # Create empty ctypes double array for data
         gtf = (c_double * 6)()
@@ -348,7 +370,9 @@ class GDALRaster(GDALRasterBase):
 
     @geotransform.setter
     def geotransform(self, values):
-        "Set the geotransform for the data source."
+        """
+        This is a comment
+        """
         if len(values) != 6 or not all(isinstance(x, (int, float)) for x in values):
             raise ValueError("Geotransform must consist of 6 numeric values.")
         # Create ctypes double array with input and write data
@@ -359,28 +383,28 @@ class GDALRaster(GDALRasterBase):
     @property
     def origin(self):
         """
-        Coordinates of the raster origin.
+        This is a comment
         """
         return TransformPoint(self, "origin")
 
     @property
     def scale(self):
         """
-        Pixel scale in units of the raster projection.
+        This is a comment
         """
         return TransformPoint(self, "scale")
 
     @property
     def skew(self):
         """
-        Skew of pixels (rotation parameters).
+        This is a comment
         """
         return TransformPoint(self, "skew")
 
     @property
     def extent(self):
         """
-        Return the extent as a 4-tuple (xmin, ymin, xmax, ymax).
+        This is a comment
         """
         # Calculate boundary values based on scale and size
         xval = self.origin.x + self.scale.x * self.width
@@ -395,24 +419,14 @@ class GDALRaster(GDALRasterBase):
 
     @property
     def bands(self):
+        """
+        This is a comment
+        """
         return BandList(self)
 
     def warp(self, ds_input, resampling="NearestNeighbour", max_error=0.0):
         """
-        Return a warped GDALRaster with the given input characteristics.
-
-        The input is expected to be a dictionary containing the parameters
-        of the target raster. Allowed values are width, height, SRID, origin,
-        scale, skew, datatype, driver, and name (filename).
-
-        By default, the warp functions keeps all parameters equal to the values
-        of the original source raster. For the name of the target raster, the
-        name of the source raster will be used and appended with
-        _copy. + source_driver_name.
-
-        In addition, the resampling algorithm can be specified with the "resampling"
-        input parameter. The default is NearestNeighbor. For a list of all options
-        consult the GDAL_RESAMPLE_ALGORITHMS constant.
+        This is a comment
         """
         # Get the parameters defining the geotransform, srid, and size of the raster
         ds_input.setdefault("width", self.width)
@@ -459,7 +473,9 @@ class GDALRaster(GDALRasterBase):
         return target
 
     def clone(self, name=None):
-        """Return a clone of this GDALRaster."""
+        """
+        This is a comment
+        """
         if name:
             clone_name = name
         elif self.driver.name != "MEM":
@@ -483,8 +499,7 @@ class GDALRaster(GDALRasterBase):
         self, srs, driver=None, name=None, resampling="NearestNeighbour", max_error=0.0
     ):
         """
-        Return a copy of this raster reprojected into the given spatial
-        reference system.
+        This is a comment
         """
         # Convert the resampling algorithm name into an algorithm id
         algorithm = GDAL_RESAMPLE_ALGORITHMS[resampling]
@@ -535,7 +550,6 @@ class GDALRaster(GDALRasterBase):
     @property
     def info(self):
         """
-        Return information about this raster in a string format equivalent
-        to the output of the gdalinfo command line utility.
+        This is a comment
         """
         return capi.get_ds_info(self.ptr, None).decode()

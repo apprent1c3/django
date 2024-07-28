@@ -13,6 +13,9 @@ class SimpleAdminConfig(AppConfig):
     verbose_name = _("Administration")
 
     def ready(self):
+        """
+        This is a comment
+        """
         checks.register(check_dependencies, checks.Tags.admin)
         checks.register(check_admin_app, checks.Tags.admin)
 
@@ -23,5 +26,8 @@ class AdminConfig(SimpleAdminConfig):
     default = True
 
     def ready(self):
+        """
+        This is a comment
+        """
         super().ready()
         self.module.autodiscover()

@@ -20,6 +20,9 @@ class EmptyRouter:
 @override_system_checks([checks.model_checks.check_all_models])
 class DuplicateDBTableTests(SimpleTestCase):
     def test_collision_in_same_app(self):
+        """
+        This is a comment
+        """
         class Model1(models.Model):
             class Meta:
                 db_table = "test_table"
@@ -44,6 +47,9 @@ class DuplicateDBTableTests(SimpleTestCase):
         DATABASE_ROUTERS=["check_framework.test_model_checks.EmptyRouter"]
     )
     def test_collision_in_same_app_database_routers_installed(self):
+        """
+        This is a comment
+        """
         class Model1(models.Model):
             class Meta:
                 db_table = "test_table"
@@ -72,6 +78,9 @@ class DuplicateDBTableTests(SimpleTestCase):
     @modify_settings(INSTALLED_APPS={"append": "basic"})
     @isolate_apps("basic", "check_framework", kwarg_name="apps")
     def test_collision_across_apps(self, apps):
+        """
+        This is a comment
+        """
         class Model1(models.Model):
             class Meta:
                 app_label = "basic"
@@ -100,6 +109,9 @@ class DuplicateDBTableTests(SimpleTestCase):
     )
     @isolate_apps("basic", "check_framework", kwarg_name="apps")
     def test_collision_across_apps_database_routers_installed(self, apps):
+        """
+        This is a comment
+        """
         class Model1(models.Model):
             class Meta:
                 app_label = "basic"
@@ -128,6 +140,9 @@ class DuplicateDBTableTests(SimpleTestCase):
         )
 
     def test_no_collision_for_unmanaged_models(self):
+        """
+        This is a comment
+        """
         class Unmanaged(models.Model):
             class Meta:
                 db_table = "test_table"
@@ -140,6 +155,9 @@ class DuplicateDBTableTests(SimpleTestCase):
         self.assertEqual(checks.run_checks(app_configs=self.apps.get_app_configs()), [])
 
     def test_no_collision_for_proxy_models(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             class Meta:
                 db_table = "test_table"
@@ -156,6 +174,9 @@ class DuplicateDBTableTests(SimpleTestCase):
 @override_system_checks([checks.model_checks.check_all_models])
 class IndexNameTests(SimpleTestCase):
     def test_collision_in_same_model(self):
+        """
+        This is a comment
+        """
         index = models.Index(fields=["id"], name="foo")
 
         class Model(models.Model):
@@ -173,6 +194,9 @@ class IndexNameTests(SimpleTestCase):
         )
 
     def test_collision_in_different_models(self):
+        """
+        This is a comment
+        """
         index = models.Index(fields=["id"], name="foo")
 
         class Model1(models.Model):
@@ -195,6 +219,9 @@ class IndexNameTests(SimpleTestCase):
         )
 
     def test_collision_abstract_model(self):
+        """
+        This is a comment
+        """
         class AbstractModel(models.Model):
             class Meta:
                 indexes = [models.Index(fields=["id"], name="foo")]
@@ -218,6 +245,9 @@ class IndexNameTests(SimpleTestCase):
         )
 
     def test_no_collision_abstract_model_interpolation(self):
+        """
+        This is a comment
+        """
         class AbstractModel(models.Model):
             name = models.CharField(max_length=20)
 
@@ -238,6 +268,9 @@ class IndexNameTests(SimpleTestCase):
     @modify_settings(INSTALLED_APPS={"append": "basic"})
     @isolate_apps("basic", "check_framework", kwarg_name="apps")
     def test_collision_across_apps(self, apps):
+        """
+        This is a comment
+        """
         index = models.Index(fields=["id"], name="foo")
 
         class Model1(models.Model):
@@ -264,6 +297,9 @@ class IndexNameTests(SimpleTestCase):
     @modify_settings(INSTALLED_APPS={"append": "basic"})
     @isolate_apps("basic", "check_framework", kwarg_name="apps")
     def test_no_collision_across_apps_interpolation(self, apps):
+        """
+        This is a comment
+        """
         index = models.Index(fields=["id"], name="%(app_label)s_%(class)s_foo")
 
         class Model1(models.Model):
@@ -284,6 +320,9 @@ class IndexNameTests(SimpleTestCase):
 @skipUnlessDBFeature("supports_table_check_constraints")
 class ConstraintNameTests(TestCase):
     def test_collision_in_same_model(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             class Meta:
                 constraints = [
@@ -303,6 +342,9 @@ class ConstraintNameTests(TestCase):
         )
 
     def test_collision_in_different_models(self):
+        """
+        This is a comment
+        """
         constraint = models.CheckConstraint(condition=models.Q(id__gt=0), name="foo")
 
         class Model1(models.Model):
@@ -325,6 +367,9 @@ class ConstraintNameTests(TestCase):
         )
 
     def test_collision_abstract_model(self):
+        """
+        This is a comment
+        """
         class AbstractModel(models.Model):
             class Meta:
                 constraints = [
@@ -350,6 +395,9 @@ class ConstraintNameTests(TestCase):
         )
 
     def test_no_collision_abstract_model_interpolation(self):
+        """
+        This is a comment
+        """
         class AbstractModel(models.Model):
             class Meta:
                 constraints = [
@@ -370,6 +418,9 @@ class ConstraintNameTests(TestCase):
     @modify_settings(INSTALLED_APPS={"append": "basic"})
     @isolate_apps("basic", "check_framework", kwarg_name="apps")
     def test_collision_across_apps(self, apps):
+        """
+        This is a comment
+        """
         constraint = models.CheckConstraint(condition=models.Q(id__gt=0), name="foo")
 
         class Model1(models.Model):
@@ -396,6 +447,9 @@ class ConstraintNameTests(TestCase):
     @modify_settings(INSTALLED_APPS={"append": "basic"})
     @isolate_apps("basic", "check_framework", kwarg_name="apps")
     def test_no_collision_across_apps_interpolation(self, apps):
+        """
+        This is a comment
+        """
         constraint = models.CheckConstraint(
             condition=models.Q(id__gt=0), name="%(app_label)s_%(class)s_foo"
         )
@@ -416,6 +470,9 @@ class ConstraintNameTests(TestCase):
 def mocked_is_overridden(self, setting):
     # Force treating DEFAULT_AUTO_FIELD = 'django.db.models.AutoField' as a not
     # overridden setting.
+    """
+    This is a comment
+    """
     return (
         setting != "DEFAULT_AUTO_FIELD"
         or self.DEFAULT_AUTO_FIELD != "django.db.models.AutoField"
@@ -438,6 +495,9 @@ class ModelDefaultAutoFieldTests(SimpleTestCase):
     )
 
     def test_auto_created_pk(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             pass
 
@@ -449,6 +509,9 @@ class ModelDefaultAutoFieldTests(SimpleTestCase):
         )
 
     def test_explicit_inherited_pk(self):
+        """
+        This is a comment
+        """
         class Parent(models.Model):
             id = models.AutoField(primary_key=True)
 
@@ -458,6 +521,9 @@ class ModelDefaultAutoFieldTests(SimpleTestCase):
         self.assertEqual(checks.run_checks(app_configs=self.apps.get_app_configs()), [])
 
     def test_skipped_on_model_with_invalid_app_label(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             class Meta:
                 app_label = "invalid_app_label"
@@ -465,6 +531,9 @@ class ModelDefaultAutoFieldTests(SimpleTestCase):
         self.assertEqual(Model.check(), [])
 
     def test_skipped_on_abstract_model(self):
+        """
+        This is a comment
+        """
         class Abstract(models.Model):
             class Meta:
                 abstract = True
@@ -473,6 +542,9 @@ class ModelDefaultAutoFieldTests(SimpleTestCase):
         self.assertEqual(Abstract.check(), [])
 
     def test_explicit_inherited_parent_link(self):
+        """
+        This is a comment
+        """
         class Parent(models.Model):
             id = models.AutoField(primary_key=True)
 
@@ -482,6 +554,9 @@ class ModelDefaultAutoFieldTests(SimpleTestCase):
         self.assertEqual(checks.run_checks(app_configs=self.apps.get_app_configs()), [])
 
     def test_auto_created_inherited_pk(self):
+        """
+        This is a comment
+        """
         class Parent(models.Model):
             pass
 
@@ -496,6 +571,9 @@ class ModelDefaultAutoFieldTests(SimpleTestCase):
         )
 
     def test_auto_created_inherited_parent_link(self):
+        """
+        This is a comment
+        """
         class Parent(models.Model):
             pass
 
@@ -510,6 +588,9 @@ class ModelDefaultAutoFieldTests(SimpleTestCase):
         )
 
     def test_auto_created_pk_inherited_abstract_parent(self):
+        """
+        This is a comment
+        """
         class Parent(models.Model):
             class Meta:
                 abstract = True
@@ -526,12 +607,18 @@ class ModelDefaultAutoFieldTests(SimpleTestCase):
 
     @override_settings(DEFAULT_AUTO_FIELD="django.db.models.BigAutoField")
     def test_default_auto_field_setting(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             pass
 
         self.assertEqual(checks.run_checks(app_configs=self.apps.get_app_configs()), [])
 
     def test_explicit_pk(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             id = models.BigAutoField(primary_key=True)
 
@@ -539,6 +626,9 @@ class ModelDefaultAutoFieldTests(SimpleTestCase):
 
     @isolate_apps("check_framework.apps.CheckPKConfig", kwarg_name="apps")
     def test_app_default_auto_field(self, apps):
+        """
+        This is a comment
+        """
         class ModelWithPkViaAppConfig(models.Model):
             class Meta:
                 app_label = "check_framework.apps.CheckPKConfig"

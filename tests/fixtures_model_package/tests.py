@@ -9,7 +9,9 @@ class SampleTestCase(TestCase):
     fixtures = ["model_package_fixture1.json", "model_package_fixture2.json"]
 
     def test_class_fixtures(self):
-        "Test cases can load fixture objects into models defined in packages"
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             Article.objects.all(),
             [
@@ -23,7 +25,9 @@ class SampleTestCase(TestCase):
 
 class FixtureTestCase(TestCase):
     def test_loaddata(self):
-        "Fixtures can load data into models defined in packages"
+        """
+        This is a comment
+        """
         # Load fixture 1. Single JSON file, with two objects
         management.call_command("loaddata", "model_package_fixture1.json", verbosity=0)
         self.assertQuerySetEqual(

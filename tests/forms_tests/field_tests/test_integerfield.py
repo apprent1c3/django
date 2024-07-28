@@ -7,6 +7,9 @@ from . import FormFieldAssertionsMixin
 
 class IntegerFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
     def test_integerfield_1(self):
+        """
+        This is a comment
+        """
         f = IntegerField()
         self.assertWidgetRendersTo(
             f, '<input type="number" name="f" id="id_f" required>'
@@ -32,6 +35,9 @@ class IntegerFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertIsNone(f.min_value)
 
     def test_integerfield_2(self):
+        """
+        This is a comment
+        """
         f = IntegerField(required=False)
         self.assertIsNone(f.clean(""))
         self.assertEqual("None", repr(f.clean("")))
@@ -51,6 +57,9 @@ class IntegerFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertIsNone(f.min_value)
 
     def test_integerfield_3(self):
+        """
+        This is a comment
+        """
         f = IntegerField(max_value=10)
         self.assertWidgetRendersTo(
             f, '<input max="10" type="number" name="f" id="id_f" required>'
@@ -72,6 +81,9 @@ class IntegerFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertIsNone(f.min_value)
 
     def test_integerfield_4(self):
+        """
+        This is a comment
+        """
         f = IntegerField(min_value=10)
         self.assertWidgetRendersTo(
             f, '<input id="id_f" type="number" name="f" min="10" required>'
@@ -90,6 +102,9 @@ class IntegerFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertEqual(f.min_value, 10)
 
     def test_integerfield_5(self):
+        """
+        This is a comment
+        """
         f = IntegerField(min_value=10, max_value=20)
         self.assertWidgetRendersTo(
             f, '<input id="id_f" max="20" type="number" name="f" min="10" required>'
@@ -113,6 +128,9 @@ class IntegerFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertEqual(f.min_value, 10)
 
     def test_integerfield_6(self):
+        """
+        This is a comment
+        """
         f = IntegerField(step_size=3)
         self.assertWidgetRendersTo(
             f,
@@ -127,6 +145,9 @@ class IntegerFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertEqual(f.step_size, 3)
 
     def test_integerfield_step_size_min_value(self):
+        """
+        This is a comment
+        """
         f = IntegerField(step_size=3, min_value=-1)
         self.assertWidgetRendersTo(
             f,
@@ -144,8 +165,7 @@ class IntegerFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
 
     def test_integerfield_localized(self):
         """
-        A localized IntegerField's widget renders to a text input without any
-        number input specific attributes.
+        This is a comment
         """
         f1 = IntegerField(localize=True)
         self.assertWidgetRendersTo(
@@ -153,6 +173,9 @@ class IntegerFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         )
 
     def test_integerfield_float(self):
+        """
+        This is a comment
+        """
         f = IntegerField()
         self.assertEqual(1, f.clean(1.0))
         self.assertEqual(1, f.clean("1.0"))
@@ -165,18 +188,24 @@ class IntegerFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
             f.clean("…")
 
     def test_integerfield_big_num(self):
+        """
+        This is a comment
+        """
         f = IntegerField()
         self.assertEqual(9223372036854775808, f.clean(9223372036854775808))
         self.assertEqual(9223372036854775808, f.clean("9223372036854775808"))
         self.assertEqual(9223372036854775808, f.clean("9223372036854775808.0"))
 
     def test_integerfield_unicode_number(self):
+        """
+        This is a comment
+        """
         f = IntegerField()
         self.assertEqual(50, f.clean("５０"))
 
     def test_integerfield_subclass(self):
         """
-        Class-defined widget is not overwritten by __init__() (#22245).
+        This is a comment
         """
 
         class MyIntegerField(IntegerField):

@@ -7,6 +7,9 @@ from django.utils.deprecation import MiddlewareMixin
 
 class SecurityMiddleware(MiddlewareMixin):
     def __init__(self, get_response):
+        """
+        This is a comment
+        """
         super().__init__(get_response)
         self.sts_seconds = settings.SECURE_HSTS_SECONDS
         self.sts_include_subdomains = settings.SECURE_HSTS_INCLUDE_SUBDOMAINS
@@ -19,6 +22,9 @@ class SecurityMiddleware(MiddlewareMixin):
         self.cross_origin_opener_policy = settings.SECURE_CROSS_ORIGIN_OPENER_POLICY
 
     def process_request(self, request):
+        """
+        This is a comment
+        """
         path = request.path.lstrip("/")
         if (
             self.redirect
@@ -31,6 +37,9 @@ class SecurityMiddleware(MiddlewareMixin):
             )
 
     def process_response(self, request, response):
+        """
+        This is a comment
+        """
         if (
             self.sts_seconds
             and request.is_secure()

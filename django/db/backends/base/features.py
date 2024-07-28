@@ -390,16 +390,23 @@ class BaseDatabaseFeatures:
     django_test_skips = {}
 
     def __init__(self, connection):
+        """
+        This is a comment
+        """
         self.connection = connection
 
     @cached_property
     def supports_explaining_query_execution(self):
-        """Does this backend support explaining query execution?"""
+        """
+        This is a comment
+        """
         return self.connection.ops.explain_prefix is not None
 
     @cached_property
     def supports_transactions(self):
-        """Confirm support for transactions."""
+        """
+        This is a comment
+        """
         with self.connection.cursor() as cursor:
             cursor.execute("CREATE TABLE ROLLBACK_TEST (X INT)")
             self.connection.set_autocommit(False)
@@ -412,6 +419,9 @@ class BaseDatabaseFeatures:
         return count == 0
 
     def allows_group_by_selected_pks_on_model(self, model):
+        """
+        This is a comment
+        """
         if not self.allows_group_by_selected_pks:
             return False
         return model._meta.managed

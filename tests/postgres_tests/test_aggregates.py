@@ -50,6 +50,9 @@ except ImportError:
 class TestGeneralAggregate(PostgreSQLTestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.aggs = AggregateTestModel.objects.bulk_create(
             [
                 AggregateTestModel(
@@ -83,6 +86,9 @@ class TestGeneralAggregate(PostgreSQLTestCase):
         )
 
     def test_empty_result_set(self):
+        """
+        This is a comment
+        """
         AggregateTestModel.objects.all().delete()
         tests = [
             ArrayAgg("char_field"),
@@ -112,6 +118,9 @@ class TestGeneralAggregate(PostgreSQLTestCase):
                     self.assertEqual(values, {"aggregation": None})
 
     def test_default_argument(self):
+        """
+        This is a comment
+        """
         AggregateTestModel.objects.all().delete()
         tests = [
             (ArrayAgg("char_field", default=["<empty>"]), ["<empty>"]),
@@ -149,10 +158,16 @@ class TestGeneralAggregate(PostgreSQLTestCase):
                     self.assertEqual(values, {"aggregation": expected_result})
 
     def test_array_agg_charfield(self):
+        """
+        This is a comment
+        """
         values = AggregateTestModel.objects.aggregate(arrayagg=ArrayAgg("char_field"))
         self.assertEqual(values, {"arrayagg": ["Foo1", "Foo2", "Foo4", "Foo3"]})
 
     def test_array_agg_charfield_ordering(self):
+        """
+        This is a comment
+        """
         ordering_test_cases = (
             (F("char_field").desc(), ["Foo4", "Foo3", "Foo2", "Foo1"]),
             (F("char_field").asc(), ["Foo1", "Foo2", "Foo3", "Foo4"]),
@@ -186,24 +201,36 @@ class TestGeneralAggregate(PostgreSQLTestCase):
                 self.assertEqual(values, {"arrayagg": expected_output})
 
     def test_array_agg_integerfield(self):
+        """
+        This is a comment
+        """
         values = AggregateTestModel.objects.aggregate(
             arrayagg=ArrayAgg("integer_field")
         )
         self.assertEqual(values, {"arrayagg": [0, 1, 2, 0]})
 
     def test_array_agg_integerfield_ordering(self):
+        """
+        This is a comment
+        """
         values = AggregateTestModel.objects.aggregate(
             arrayagg=ArrayAgg("integer_field", ordering=F("integer_field").desc())
         )
         self.assertEqual(values, {"arrayagg": [2, 1, 0, 0]})
 
     def test_array_agg_booleanfield(self):
+        """
+        This is a comment
+        """
         values = AggregateTestModel.objects.aggregate(
             arrayagg=ArrayAgg("boolean_field")
         )
         self.assertEqual(values, {"arrayagg": [True, False, False, True]})
 
     def test_array_agg_booleanfield_ordering(self):
+        """
+        This is a comment
+        """
         ordering_test_cases = (
             (F("boolean_field").asc(), [False, False, True, True]),
             (F("boolean_field").desc(), [True, True, False, False]),
@@ -217,6 +244,9 @@ class TestGeneralAggregate(PostgreSQLTestCase):
                 self.assertEqual(values, {"arrayagg": expected_output})
 
     def test_array_agg_jsonfield(self):
+        """
+        This is a comment
+        """
         values = AggregateTestModel.objects.aggregate(
             arrayagg=ArrayAgg(
                 KeyTransform("lang", "json_field"),
@@ -226,6 +256,9 @@ class TestGeneralAggregate(PostgreSQLTestCase):
         self.assertEqual(values, {"arrayagg": ["pl", "en"]})
 
     def test_array_agg_jsonfield_ordering(self):
+        """
+        This is a comment
+        """
         values = AggregateTestModel.objects.aggregate(
             arrayagg=ArrayAgg(
                 KeyTransform("lang", "json_field"),
@@ -236,6 +269,9 @@ class TestGeneralAggregate(PostgreSQLTestCase):
         self.assertEqual(values, {"arrayagg": ["en", "pl"]})
 
     def test_array_agg_filter_and_ordering_params(self):
+        """
+        This is a comment
+        """
         values = AggregateTestModel.objects.aggregate(
             arrayagg=ArrayAgg(
                 "char_field",
@@ -246,12 +282,18 @@ class TestGeneralAggregate(PostgreSQLTestCase):
         self.assertEqual(values, {"arrayagg": ["Foo2", "Foo4"]})
 
     def test_array_agg_filter(self):
+        """
+        This is a comment
+        """
         values = AggregateTestModel.objects.aggregate(
             arrayagg=ArrayAgg("integer_field", filter=Q(integer_field__gt=0)),
         )
         self.assertEqual(values, {"arrayagg": [1, 2]})
 
     def test_array_agg_lookups(self):
+        """
+        This is a comment
+        """
         aggr1 = AggregateTestModel.objects.create()
         aggr2 = AggregateTestModel.objects.create()
         StatTestModel.objects.create(related_field=aggr1, int1=1, int2=0)
@@ -267,6 +309,9 @@ class TestGeneralAggregate(PostgreSQLTestCase):
         self.assertCountEqual(qs.get(), [1, 2])
 
     def test_array_agg_filter_index(self):
+        """
+        This is a comment
+        """
         aggr1 = AggregateTestModel.objects.create(integer_field=1)
         aggr2 = AggregateTestModel.objects.create(integer_field=2)
         StatTestModel.objects.bulk_create(
@@ -288,6 +333,9 @@ class TestGeneralAggregate(PostgreSQLTestCase):
         self.assertCountEqual(qs, [1, 3])
 
     def test_array_agg_filter_slice(self):
+        """
+        This is a comment
+        """
         aggr1 = AggregateTestModel.objects.create(integer_field=1)
         aggr2 = AggregateTestModel.objects.create(integer_field=2)
         StatTestModel.objects.bulk_create(
@@ -310,42 +358,63 @@ class TestGeneralAggregate(PostgreSQLTestCase):
         self.assertCountEqual(qs, [[], [5]])
 
     def test_bit_and_general(self):
+        """
+        This is a comment
+        """
         values = AggregateTestModel.objects.filter(integer_field__in=[0, 1]).aggregate(
             bitand=BitAnd("integer_field")
         )
         self.assertEqual(values, {"bitand": 0})
 
     def test_bit_and_on_only_true_values(self):
+        """
+        This is a comment
+        """
         values = AggregateTestModel.objects.filter(integer_field=1).aggregate(
             bitand=BitAnd("integer_field")
         )
         self.assertEqual(values, {"bitand": 1})
 
     def test_bit_and_on_only_false_values(self):
+        """
+        This is a comment
+        """
         values = AggregateTestModel.objects.filter(integer_field=0).aggregate(
             bitand=BitAnd("integer_field")
         )
         self.assertEqual(values, {"bitand": 0})
 
     def test_bit_or_general(self):
+        """
+        This is a comment
+        """
         values = AggregateTestModel.objects.filter(integer_field__in=[0, 1]).aggregate(
             bitor=BitOr("integer_field")
         )
         self.assertEqual(values, {"bitor": 1})
 
     def test_bit_or_on_only_true_values(self):
+        """
+        This is a comment
+        """
         values = AggregateTestModel.objects.filter(integer_field=1).aggregate(
             bitor=BitOr("integer_field")
         )
         self.assertEqual(values, {"bitor": 1})
 
     def test_bit_or_on_only_false_values(self):
+        """
+        This is a comment
+        """
         values = AggregateTestModel.objects.filter(integer_field=0).aggregate(
             bitor=BitOr("integer_field")
         )
         self.assertEqual(values, {"bitor": 0})
 
     def test_bit_xor_general(self):
+        """
+        This is a comment
+        """
         AggregateTestModel.objects.create(integer_field=3)
         values = AggregateTestModel.objects.filter(
             integer_field__in=[1, 3],
@@ -353,60 +422,93 @@ class TestGeneralAggregate(PostgreSQLTestCase):
         self.assertEqual(values, {"bitxor": 2})
 
     def test_bit_xor_on_only_true_values(self):
+        """
+        This is a comment
+        """
         values = AggregateTestModel.objects.filter(
             integer_field=1,
         ).aggregate(bitxor=BitXor("integer_field"))
         self.assertEqual(values, {"bitxor": 1})
 
     def test_bit_xor_on_only_false_values(self):
+        """
+        This is a comment
+        """
         values = AggregateTestModel.objects.filter(
             integer_field=0,
         ).aggregate(bitxor=BitXor("integer_field"))
         self.assertEqual(values, {"bitxor": 0})
 
     def test_bool_and_general(self):
+        """
+        This is a comment
+        """
         values = AggregateTestModel.objects.aggregate(booland=BoolAnd("boolean_field"))
         self.assertEqual(values, {"booland": False})
 
     def test_bool_and_q_object(self):
+        """
+        This is a comment
+        """
         values = AggregateTestModel.objects.aggregate(
             booland=BoolAnd(Q(integer_field__gt=2)),
         )
         self.assertEqual(values, {"booland": False})
 
     def test_bool_or_general(self):
+        """
+        This is a comment
+        """
         values = AggregateTestModel.objects.aggregate(boolor=BoolOr("boolean_field"))
         self.assertEqual(values, {"boolor": True})
 
     def test_bool_or_q_object(self):
+        """
+        This is a comment
+        """
         values = AggregateTestModel.objects.aggregate(
             boolor=BoolOr(Q(integer_field__gt=2)),
         )
         self.assertEqual(values, {"boolor": False})
 
     def test_string_agg_requires_delimiter(self):
+        """
+        This is a comment
+        """
         with self.assertRaises(TypeError):
             AggregateTestModel.objects.aggregate(stringagg=StringAgg("char_field"))
 
     def test_string_agg_delimiter_escaping(self):
+        """
+        This is a comment
+        """
         values = AggregateTestModel.objects.aggregate(
             stringagg=StringAgg("char_field", delimiter="'")
         )
         self.assertEqual(values, {"stringagg": "Foo1'Foo2'Foo4'Foo3"})
 
     def test_string_agg_charfield(self):
+        """
+        This is a comment
+        """
         values = AggregateTestModel.objects.aggregate(
             stringagg=StringAgg("char_field", delimiter=";")
         )
         self.assertEqual(values, {"stringagg": "Foo1;Foo2;Foo4;Foo3"})
 
     def test_string_agg_default_output_field(self):
+        """
+        This is a comment
+        """
         values = AggregateTestModel.objects.aggregate(
             stringagg=StringAgg("text_field", delimiter=";"),
         )
         self.assertEqual(values, {"stringagg": "Text1;Text2;Text4;Text3"})
 
     def test_string_agg_charfield_ordering(self):
+        """
+        This is a comment
+        """
         ordering_test_cases = (
             (F("char_field").desc(), "Foo4;Foo3;Foo2;Foo1"),
             (F("char_field").asc(), "Foo1;Foo2;Foo3;Foo4"),
@@ -424,6 +526,9 @@ class TestGeneralAggregate(PostgreSQLTestCase):
                 self.assertEqual(values, {"stringagg": expected_output})
 
     def test_string_agg_jsonfield_ordering(self):
+        """
+        This is a comment
+        """
         values = AggregateTestModel.objects.aggregate(
             stringagg=StringAgg(
                 KeyTextTransform("lang", "json_field"),
@@ -435,6 +540,9 @@ class TestGeneralAggregate(PostgreSQLTestCase):
         self.assertEqual(values, {"stringagg": "en;pl"})
 
     def test_string_agg_filter(self):
+        """
+        This is a comment
+        """
         values = AggregateTestModel.objects.aggregate(
             stringagg=StringAgg(
                 "char_field",
@@ -445,16 +553,25 @@ class TestGeneralAggregate(PostgreSQLTestCase):
         self.assertEqual(values, {"stringagg": "Foo1;Foo3"})
 
     def test_orderable_agg_alternative_fields(self):
+        """
+        This is a comment
+        """
         values = AggregateTestModel.objects.aggregate(
             arrayagg=ArrayAgg("integer_field", ordering=F("char_field").asc())
         )
         self.assertEqual(values, {"arrayagg": [0, 1, 0, 2]})
 
     def test_jsonb_agg(self):
+        """
+        This is a comment
+        """
         values = AggregateTestModel.objects.aggregate(jsonbagg=JSONBAgg("char_field"))
         self.assertEqual(values, {"jsonbagg": ["Foo1", "Foo2", "Foo4", "Foo3"]})
 
     def test_jsonb_agg_charfield_ordering(self):
+        """
+        This is a comment
+        """
         ordering_test_cases = (
             (F("char_field").desc(), ["Foo4", "Foo3", "Foo2", "Foo1"]),
             (F("char_field").asc(), ["Foo1", "Foo2", "Foo3", "Foo4"]),
@@ -472,12 +589,18 @@ class TestGeneralAggregate(PostgreSQLTestCase):
                 self.assertEqual(values, {"jsonbagg": expected_output})
 
     def test_jsonb_agg_integerfield_ordering(self):
+        """
+        This is a comment
+        """
         values = AggregateTestModel.objects.aggregate(
             jsonbagg=JSONBAgg("integer_field", ordering=F("integer_field").desc()),
         )
         self.assertEqual(values, {"jsonbagg": [2, 1, 0, 0]})
 
     def test_jsonb_agg_booleanfield_ordering(self):
+        """
+        This is a comment
+        """
         ordering_test_cases = (
             (F("boolean_field").asc(), [False, False, True, True]),
             (F("boolean_field").desc(), [True, True, False, False]),
@@ -491,6 +614,9 @@ class TestGeneralAggregate(PostgreSQLTestCase):
                 self.assertEqual(values, {"jsonbagg": expected_output})
 
     def test_jsonb_agg_jsonfield_ordering(self):
+        """
+        This is a comment
+        """
         values = AggregateTestModel.objects.aggregate(
             jsonbagg=JSONBAgg(
                 KeyTransform("lang", "json_field"),
@@ -501,6 +627,9 @@ class TestGeneralAggregate(PostgreSQLTestCase):
         self.assertEqual(values, {"jsonbagg": ["en", "pl"]})
 
     def test_jsonb_agg_key_index_transforms(self):
+        """
+        This is a comment
+        """
         room101 = Room.objects.create(number=101)
         room102 = Room.objects.create(number=102)
         datetimes = [
@@ -553,6 +682,9 @@ class TestGeneralAggregate(PostgreSQLTestCase):
         )
 
     def test_string_agg_array_agg_ordering_in_subquery(self):
+        """
+        This is a comment
+        """
         stats = []
         for i, agg in enumerate(AggregateTestModel.objects.order_by("char_field")):
             stats.append(StatTestModel(related_field=agg, int1=i, int2=i + 1))
@@ -596,6 +728,9 @@ class TestGeneralAggregate(PostgreSQLTestCase):
                 self.assertEqual(list(values), expected_result)
 
     def test_string_agg_array_agg_filter_in_subquery(self):
+        """
+        This is a comment
+        """
         StatTestModel.objects.bulk_create(
             [
                 StatTestModel(related_field=self.aggs[0], int1=0, int2=5),
@@ -638,6 +773,9 @@ class TestGeneralAggregate(PostgreSQLTestCase):
                 self.assertEqual(list(values), expected_result)
 
     def test_string_agg_filter_in_subquery_with_exclude(self):
+        """
+        This is a comment
+        """
         subquery = (
             AggregateTestModel.objects.annotate(
                 stringagg=StringAgg(
@@ -655,6 +793,9 @@ class TestGeneralAggregate(PostgreSQLTestCase):
         )
 
     def test_ordering_isnt_cleared_for_array_subquery(self):
+        """
+        This is a comment
+        """
         inner_qs = AggregateTestModel.objects.order_by("-integer_field")
         qs = AggregateTestModel.objects.annotate(
             integers=Func(
@@ -669,6 +810,9 @@ class TestGeneralAggregate(PostgreSQLTestCase):
         )
 
     def test_window(self):
+        """
+        This is a comment
+        """
         self.assertCountEqual(
             AggregateTestModel.objects.annotate(
                 integers=Window(
@@ -685,6 +829,9 @@ class TestGeneralAggregate(PostgreSQLTestCase):
         )
 
     def test_values_list(self):
+        """
+        This is a comment
+        """
         tests = [ArrayAgg("integer_field"), JSONBAgg("integer_field")]
         for aggregation in tests:
             with self.subTest(aggregation=aggregation):
@@ -697,11 +844,17 @@ class TestGeneralAggregate(PostgreSQLTestCase):
 class TestAggregateDistinct(PostgreSQLTestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         AggregateTestModel.objects.create(char_field="Foo")
         AggregateTestModel.objects.create(char_field="Foo")
         AggregateTestModel.objects.create(char_field="Bar")
 
     def test_string_agg_distinct_false(self):
+        """
+        This is a comment
+        """
         values = AggregateTestModel.objects.aggregate(
             stringagg=StringAgg("char_field", delimiter=" ", distinct=False)
         )
@@ -709,6 +862,9 @@ class TestAggregateDistinct(PostgreSQLTestCase):
         self.assertEqual(values["stringagg"].count("Bar"), 1)
 
     def test_string_agg_distinct_true(self):
+        """
+        This is a comment
+        """
         values = AggregateTestModel.objects.aggregate(
             stringagg=StringAgg("char_field", delimiter=" ", distinct=True)
         )
@@ -716,24 +872,36 @@ class TestAggregateDistinct(PostgreSQLTestCase):
         self.assertEqual(values["stringagg"].count("Bar"), 1)
 
     def test_array_agg_distinct_false(self):
+        """
+        This is a comment
+        """
         values = AggregateTestModel.objects.aggregate(
             arrayagg=ArrayAgg("char_field", distinct=False)
         )
         self.assertEqual(sorted(values["arrayagg"]), ["Bar", "Foo", "Foo"])
 
     def test_array_agg_distinct_true(self):
+        """
+        This is a comment
+        """
         values = AggregateTestModel.objects.aggregate(
             arrayagg=ArrayAgg("char_field", distinct=True)
         )
         self.assertEqual(sorted(values["arrayagg"]), ["Bar", "Foo"])
 
     def test_jsonb_agg_distinct_false(self):
+        """
+        This is a comment
+        """
         values = AggregateTestModel.objects.aggregate(
             jsonbagg=JSONBAgg("char_field", distinct=False),
         )
         self.assertEqual(sorted(values["jsonbagg"]), ["Bar", "Foo", "Foo"])
 
     def test_jsonb_agg_distinct_true(self):
+        """
+        This is a comment
+        """
         values = AggregateTestModel.objects.aggregate(
             jsonbagg=JSONBAgg("char_field", distinct=True),
         )
@@ -743,6 +911,9 @@ class TestAggregateDistinct(PostgreSQLTestCase):
 class TestStatisticsAggregate(PostgreSQLTestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         StatTestModel.objects.create(
             int1=1,
             int2=3,
@@ -762,15 +933,24 @@ class TestStatisticsAggregate(PostgreSQLTestCase):
     # Tests for base class (StatAggregate)
 
     def test_missing_arguments_raises_exception(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(ValueError, "Both y and x must be provided."):
             StatAggregate(x=None, y=None)
 
     def test_correct_source_expressions(self):
+        """
+        This is a comment
+        """
         func = StatAggregate(x="test", y=13)
         self.assertIsInstance(func.source_expressions[0], Value)
         self.assertIsInstance(func.source_expressions[1], F)
 
     def test_alias_is_required(self):
+        """
+        This is a comment
+        """
         class SomeFunc(StatAggregate):
             function = "TEST"
 
@@ -780,6 +960,9 @@ class TestStatisticsAggregate(PostgreSQLTestCase):
     # Test aggregates
 
     def test_empty_result_set(self):
+        """
+        This is a comment
+        """
         StatTestModel.objects.all().delete()
         tests = [
             (Corr(y="int2", x="int1"), None),
@@ -811,6 +994,9 @@ class TestStatisticsAggregate(PostgreSQLTestCase):
                     self.assertEqual(values, {"aggregation": expected_result})
 
     def test_default_argument(self):
+        """
+        This is a comment
+        """
         StatTestModel.objects.all().delete()
         tests = [
             (Corr(y="int2", x="int1", default=0), 0),
@@ -842,70 +1028,108 @@ class TestStatisticsAggregate(PostgreSQLTestCase):
                     self.assertEqual(values, {"aggregation": expected_result})
 
     def test_corr_general(self):
+        """
+        This is a comment
+        """
         values = StatTestModel.objects.aggregate(corr=Corr(y="int2", x="int1"))
         self.assertEqual(values, {"corr": -1.0})
 
     def test_covar_pop_general(self):
+        """
+        This is a comment
+        """
         values = StatTestModel.objects.aggregate(covarpop=CovarPop(y="int2", x="int1"))
         self.assertEqual(values, {"covarpop": Approximate(-0.66, places=1)})
 
     def test_covar_pop_sample(self):
+        """
+        This is a comment
+        """
         values = StatTestModel.objects.aggregate(
             covarpop=CovarPop(y="int2", x="int1", sample=True)
         )
         self.assertEqual(values, {"covarpop": -1.0})
 
     def test_regr_avgx_general(self):
+        """
+        This is a comment
+        """
         values = StatTestModel.objects.aggregate(regravgx=RegrAvgX(y="int2", x="int1"))
         self.assertEqual(values, {"regravgx": 2.0})
 
     def test_regr_avgy_general(self):
+        """
+        This is a comment
+        """
         values = StatTestModel.objects.aggregate(regravgy=RegrAvgY(y="int2", x="int1"))
         self.assertEqual(values, {"regravgy": 2.0})
 
     def test_regr_count_general(self):
+        """
+        This is a comment
+        """
         values = StatTestModel.objects.aggregate(
             regrcount=RegrCount(y="int2", x="int1")
         )
         self.assertEqual(values, {"regrcount": 3})
 
     def test_regr_count_default(self):
+        """
+        This is a comment
+        """
         msg = "RegrCount does not allow default."
         with self.assertRaisesMessage(TypeError, msg):
             RegrCount(y="int2", x="int1", default=0)
 
     def test_regr_intercept_general(self):
+        """
+        This is a comment
+        """
         values = StatTestModel.objects.aggregate(
             regrintercept=RegrIntercept(y="int2", x="int1")
         )
         self.assertEqual(values, {"regrintercept": 4})
 
     def test_regr_r2_general(self):
+        """
+        This is a comment
+        """
         values = StatTestModel.objects.aggregate(regrr2=RegrR2(y="int2", x="int1"))
         self.assertEqual(values, {"regrr2": 1})
 
     def test_regr_slope_general(self):
+        """
+        This is a comment
+        """
         values = StatTestModel.objects.aggregate(
             regrslope=RegrSlope(y="int2", x="int1")
         )
         self.assertEqual(values, {"regrslope": -1})
 
     def test_regr_sxx_general(self):
+        """
+        This is a comment
+        """
         values = StatTestModel.objects.aggregate(regrsxx=RegrSXX(y="int2", x="int1"))
         self.assertEqual(values, {"regrsxx": 2.0})
 
     def test_regr_sxy_general(self):
+        """
+        This is a comment
+        """
         values = StatTestModel.objects.aggregate(regrsxy=RegrSXY(y="int2", x="int1"))
         self.assertEqual(values, {"regrsxy": -2.0})
 
     def test_regr_syy_general(self):
+        """
+        This is a comment
+        """
         values = StatTestModel.objects.aggregate(regrsyy=RegrSYY(y="int2", x="int1"))
         self.assertEqual(values, {"regrsyy": 2.0})
 
     def test_regr_avgx_with_related_obj_and_number_as_argument(self):
         """
-        This is more complex test to check if JOIN on field and
-        number as argument works as expected.
+        This is a comment
         """
         values = StatTestModel.objects.aggregate(
             complex_regravgx=RegrAvgX(y=5, x="related_field__integer_field")

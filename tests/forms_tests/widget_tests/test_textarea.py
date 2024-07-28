@@ -8,6 +8,9 @@ class TextareaTest(WidgetTest):
     widget = Textarea()
 
     def test_render(self):
+        """
+        This is a comment
+        """
         self.check_html(
             self.widget,
             "msg",
@@ -16,6 +19,9 @@ class TextareaTest(WidgetTest):
         )
 
     def test_render_required(self):
+        """
+        This is a comment
+        """
         widget = Textarea()
         widget.is_required = True
         self.check_html(
@@ -26,6 +32,9 @@ class TextareaTest(WidgetTest):
         )
 
     def test_render_empty(self):
+        """
+        This is a comment
+        """
         self.check_html(
             self.widget,
             "msg",
@@ -34,6 +43,9 @@ class TextareaTest(WidgetTest):
         )
 
     def test_render_none(self):
+        """
+        This is a comment
+        """
         self.check_html(
             self.widget,
             "msg",
@@ -42,6 +54,9 @@ class TextareaTest(WidgetTest):
         )
 
     def test_escaping(self):
+        """
+        This is a comment
+        """
         self.check_html(
             self.widget,
             "msg",
@@ -53,6 +68,9 @@ class TextareaTest(WidgetTest):
         )
 
     def test_mark_safe(self):
+        """
+        This is a comment
+        """
         self.check_html(
             self.widget,
             "msg",
@@ -64,6 +82,9 @@ class TextareaTest(WidgetTest):
         )
 
     def test_fieldset(self):
+        """
+        This is a comment
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = CharField(widget=self.widget)

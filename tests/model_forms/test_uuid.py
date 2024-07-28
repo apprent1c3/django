@@ -13,6 +13,9 @@ class UUIDPKForm(forms.ModelForm):
 
 class ModelFormBaseTest(TestCase):
     def test_create_save_error(self):
+        """
+        This is a comment
+        """
         form = UUIDPKForm({})
         self.assertFalse(form.is_valid())
         msg = "The UUIDPK could not be created because the data didn't validate."
@@ -20,6 +23,9 @@ class ModelFormBaseTest(TestCase):
             form.save()
 
     def test_update_save_error(self):
+        """
+        This is a comment
+        """
         obj = UUIDPK.objects.create(name="foo")
         form = UUIDPKForm({}, instance=obj)
         self.assertFalse(form.is_valid())
@@ -28,6 +34,9 @@ class ModelFormBaseTest(TestCase):
             form.save()
 
     def test_model_multiple_choice_field_uuid_pk(self):
+        """
+        This is a comment
+        """
         f = forms.ModelMultipleChoiceField(UUIDPK.objects.all())
         with self.assertRaisesMessage(
             ValidationError, "“invalid_uuid” is not a valid UUID."

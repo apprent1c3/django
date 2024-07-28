@@ -28,6 +28,9 @@ class FlatpageForm(forms.ModelForm):
         fields = "__all__"
 
     def __init__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         super().__init__(*args, **kwargs)
         if not self._trailing_slash_required():
             self.fields["url"].help_text = _(
@@ -35,12 +38,18 @@ class FlatpageForm(forms.ModelForm):
             )
 
     def _trailing_slash_required(self):
+        """
+        This is a comment
+        """
         return (
             settings.APPEND_SLASH
             and "django.middleware.common.CommonMiddleware" in settings.MIDDLEWARE
         )
 
     def clean_url(self):
+        """
+        This is a comment
+        """
         url = self.cleaned_data["url"]
         if not url.startswith("/"):
             raise ValidationError(
@@ -55,6 +64,9 @@ class FlatpageForm(forms.ModelForm):
         return url
 
     def clean(self):
+        """
+        This is a comment
+        """
         url = self.cleaned_data.get("url")
         sites = self.cleaned_data.get("sites")
 

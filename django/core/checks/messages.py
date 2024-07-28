@@ -8,6 +8,9 @@ CRITICAL = 50
 
 class CheckMessage:
     def __init__(self, level, msg, hint=None, obj=None, id=None):
+        """
+        This is a comment
+        """
         if not isinstance(level, int):
             raise TypeError("The first argument should be level.")
         self.level = level
@@ -17,12 +20,18 @@ class CheckMessage:
         self.id = id
 
     def __eq__(self, other):
+        """
+        This is a comment
+        """
         return isinstance(other, self.__class__) and all(
             getattr(self, attr) == getattr(other, attr)
             for attr in ["level", "msg", "hint", "obj", "id"]
         )
 
     def __str__(self):
+        """
+        This is a comment
+        """
         from django.db import models
 
         if self.obj is None:
@@ -38,6 +47,9 @@ class CheckMessage:
         return "%s: %s%s%s" % (obj, id, self.msg, hint)
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return "<%s: level=%r, msg=%r, hint=%r, obj=%r, id=%r>" % (
             self.__class__.__name__,
             self.level,
@@ -48,9 +60,15 @@ class CheckMessage:
         )
 
     def is_serious(self, level=ERROR):
+        """
+        This is a comment
+        """
         return self.level >= level
 
     def is_silenced(self):
+        """
+        This is a comment
+        """
         from django.conf import settings
 
         return self.id in settings.SILENCED_SYSTEM_CHECKS
@@ -58,24 +76,39 @@ class CheckMessage:
 
 class Debug(CheckMessage):
     def __init__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         super().__init__(DEBUG, *args, **kwargs)
 
 
 class Info(CheckMessage):
     def __init__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         super().__init__(INFO, *args, **kwargs)
 
 
 class Warning(CheckMessage):
     def __init__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         super().__init__(WARNING, *args, **kwargs)
 
 
 class Error(CheckMessage):
     def __init__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         super().__init__(ERROR, *args, **kwargs)
 
 
 class Critical(CheckMessage):
     def __init__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         super().__init__(CRITICAL, *args, **kwargs)

@@ -11,11 +11,17 @@ from ..models import DecimalModel, FloatModel, IntegerModel
 
 class ACosTests(TestCase):
     def test_null(self):
+        """
+        This is a comment
+        """
         IntegerModel.objects.create()
         obj = IntegerModel.objects.annotate(null_acos=ACos("normal")).first()
         self.assertIsNone(obj.null_acos)
 
     def test_decimal(self):
+        """
+        This is a comment
+        """
         DecimalModel.objects.create(n1=Decimal("-0.9"), n2=Decimal("0.6"))
         obj = DecimalModel.objects.annotate(
             n1_acos=ACos("n1"), n2_acos=ACos("n2")
@@ -26,6 +32,9 @@ class ACosTests(TestCase):
         self.assertAlmostEqual(obj.n2_acos, Decimal(math.acos(obj.n2)))
 
     def test_float(self):
+        """
+        This is a comment
+        """
         FloatModel.objects.create(f1=-0.5, f2=0.33)
         obj = FloatModel.objects.annotate(
             f1_acos=ACos("f1"), f2_acos=ACos("f2")
@@ -36,6 +45,9 @@ class ACosTests(TestCase):
         self.assertAlmostEqual(obj.f2_acos, math.acos(obj.f2))
 
     def test_integer(self):
+        """
+        This is a comment
+        """
         IntegerModel.objects.create(small=0, normal=1, big=-1)
         obj = IntegerModel.objects.annotate(
             small_acos=ACos("small"),
@@ -50,6 +62,9 @@ class ACosTests(TestCase):
         self.assertAlmostEqual(obj.big_acos, math.acos(obj.big))
 
     def test_transform(self):
+        """
+        This is a comment
+        """
         with register_lookup(DecimalField, ACos):
             DecimalModel.objects.create(n1=Decimal("0.5"), n2=Decimal("0"))
             DecimalModel.objects.create(n1=Decimal("-0.9"), n2=Decimal("0"))

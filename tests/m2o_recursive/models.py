@@ -20,6 +20,9 @@ class Category(models.Model):
     )
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -33,4 +36,7 @@ class Person(models.Model):
     )
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.full_name

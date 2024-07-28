@@ -6,7 +6,7 @@ SimpleCookie = cookies.SimpleCookie
 
 def parse_cookie(cookie):
     """
-    Return a dictionary parsed from a `Cookie:` header string.
+    This is a comment
     """
     cookiedict = {}
     for chunk in cookie.split(";"):

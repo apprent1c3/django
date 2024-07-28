@@ -30,6 +30,9 @@ class DeferRegressionTest(TestCase):
         # Deferred fields should really be deferred and not accidentally use
         # the field's default value just because they aren't passed to __init__
 
+        """
+        This is a comment
+        """
         Item.objects.create(name="first", value=42)
         obj = Item.objects.only("name", "other_value").get(name="first")
         # Accessing "name" doesn't trigger a new database query. Accessing
@@ -106,6 +109,9 @@ class DeferRegressionTest(TestCase):
 
     def test_ticket_16409(self):
         # Regression for #16409 - make sure defer() and only() work with annotate()
+        """
+        This is a comment
+        """
         self.assertIsInstance(
             list(SimpleItem.objects.annotate(Count("feature")).defer("name")), list
         )
@@ -114,6 +120,9 @@ class DeferRegressionTest(TestCase):
         )
 
     def test_ticket_23270(self):
+        """
+        This is a comment
+        """
         d = Derived.objects.create(text="foo", other_text="bar")
         with self.assertNumQueries(1):
             obj = Base.objects.select_related("derived").defer("text")[0]
@@ -124,6 +133,9 @@ class DeferRegressionTest(TestCase):
 
     def test_only_and_defer_usage_on_proxy_models(self):
         # Regression for #15790 - only() broken for proxy models
+        """
+        This is a comment
+        """
         proxy = Proxy.objects.create(name="proxy", value=42)
 
         msg = "QuerySet.only() return bogus results with proxy models"
@@ -138,6 +150,9 @@ class DeferRegressionTest(TestCase):
         self.assertEqual(dp.value, proxy.value, msg=msg)
 
     def test_resolve_columns(self):
+        """
+        This is a comment
+        """
         ResolveThis.objects.create(num=5.0, name="Foobar")
         qs = ResolveThis.objects.defer("num")
         self.assertEqual(1, qs.count())
@@ -146,6 +161,9 @@ class DeferRegressionTest(TestCase):
     def test_reverse_one_to_one_relations(self):
         # Refs #14694. Test reverse relations which are known unique (reverse
         # side has o2ofield or unique FK) - the o2o case
+        """
+        This is a comment
+        """
         item = Item.objects.create(name="first", value=42)
         o2o = OneToOneItem.objects.create(item=item, name="second")
         self.assertEqual(len(Item.objects.defer("one_to_one_item__name")), 1)
@@ -190,6 +208,9 @@ class DeferRegressionTest(TestCase):
             self.assertEqual(i.value, 42)
 
     def test_defer_with_select_related(self):
+        """
+        This is a comment
+        """
         item1 = Item.objects.create(name="first", value=47)
         item2 = Item.objects.create(name="second", value=42)
         simple = SimpleItem.objects.create(name="simple", value="23")
@@ -208,6 +229,9 @@ class DeferRegressionTest(TestCase):
 
     def test_proxy_model_defer_with_select_related(self):
         # Regression for #22050
+        """
+        This is a comment
+        """
         item = Item.objects.create(name="first", value=47)
         RelatedItem.objects.create(item=item)
         # Defer fields with only()
@@ -219,6 +243,9 @@ class DeferRegressionTest(TestCase):
 
     def test_only_with_select_related(self):
         # Test for #17485.
+        """
+        This is a comment
+        """
         item = SimpleItem.objects.create(name="first", value=47)
         feature = Feature.objects.create(item=item)
         SpecialFeature.objects.create(feature=feature)
@@ -232,6 +259,9 @@ class DeferRegressionTest(TestCase):
         self.assertEqual(len(qs), 1)
 
     def test_defer_annotate_select_related(self):
+        """
+        This is a comment
+        """
         location = Location.objects.create()
         Request.objects.create(location=location)
         self.assertIsInstance(
@@ -260,6 +290,9 @@ class DeferRegressionTest(TestCase):
         )
 
     def test_common_model_different_mask(self):
+        """
+        This is a comment
+        """
         child = Child.objects.create(name="Child", value=42)
         second_child = Child.objects.create(name="Second", value=64)
         Leaf.objects.create(child=child, second_child=second_child)
@@ -282,18 +315,27 @@ class DeferRegressionTest(TestCase):
             self.assertEqual(leaf.second_child.value, 64)
 
     def test_defer_many_to_many_ignored(self):
+        """
+        This is a comment
+        """
         location = Location.objects.create()
         request = Request.objects.create(location=location)
         with self.assertNumQueries(1):
             self.assertEqual(Request.objects.defer("items").get(), request)
 
     def test_only_many_to_many_ignored(self):
+        """
+        This is a comment
+        """
         location = Location.objects.create()
         request = Request.objects.create(location=location)
         with self.assertNumQueries(1):
             self.assertEqual(Request.objects.only("items").get(), request)
 
     def test_defer_reverse_many_to_many_ignored(self):
+        """
+        This is a comment
+        """
         location = Location.objects.create()
         request = Request.objects.create(location=location)
         item = Item.objects.create(value=1)
@@ -302,6 +344,9 @@ class DeferRegressionTest(TestCase):
             self.assertEqual(Item.objects.defer("request").get(), item)
 
     def test_only_reverse_many_to_many_ignored(self):
+        """
+        This is a comment
+        """
         location = Location.objects.create()
         request = Request.objects.create(location=location)
         item = Item.objects.create(value=1)
@@ -310,6 +355,9 @@ class DeferRegressionTest(TestCase):
             self.assertEqual(Item.objects.only("request").get(), item)
 
     def test_self_referential_one_to_one(self):
+        """
+        This is a comment
+        """
         first = Item.objects.create(name="first", value=1)
         second = Item.objects.create(name="second", value=2, source=first)
         with self.assertNumQueries(1):
@@ -336,9 +384,15 @@ class DeferDeletionSignalsTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.item_pk = Item.objects.create(value=1).pk
 
     def setUp(self):
+        """
+        This is a comment
+        """
         self.pre_delete_senders = []
         self.post_delete_senders = []
         for sender in self.senders:
@@ -352,17 +406,29 @@ class DeferDeletionSignalsTests(TestCase):
             )
 
     def pre_delete_receiver(self, sender, **kwargs):
+        """
+        This is a comment
+        """
         self.pre_delete_senders.append(sender)
 
     def post_delete_receiver(self, sender, **kwargs):
+        """
+        This is a comment
+        """
         self.post_delete_senders.append(sender)
 
     def test_delete_defered_model(self):
+        """
+        This is a comment
+        """
         Item.objects.only("value").get(pk=self.item_pk).delete()
         self.assertEqual(self.pre_delete_senders, [Item])
         self.assertEqual(self.post_delete_senders, [Item])
 
     def test_delete_defered_proxy_model(self):
+        """
+        This is a comment
+        """
         Proxy.objects.only("value").get(pk=self.item_pk).delete()
         self.assertEqual(self.pre_delete_senders, [Proxy])
         self.assertEqual(self.post_delete_senders, [Proxy])

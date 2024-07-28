@@ -13,6 +13,9 @@ from ..models import Article, Author, DecimalModel, Fan
 
 class GreatestTests(TestCase):
     def test_basic(self):
+        """
+        This is a comment
+        """
         now = timezone.now()
         before = now - timedelta(hours=1)
         Article.objects.create(
@@ -25,6 +28,9 @@ class GreatestTests(TestCase):
 
     @skipUnlessDBFeature("greatest_least_ignores_nulls")
     def test_ignores_null(self):
+        """
+        This is a comment
+        """
         now = timezone.now()
         Article.objects.create(title="Testing with Django", written=now)
         articles = Article.objects.annotate(
@@ -34,6 +40,9 @@ class GreatestTests(TestCase):
 
     @skipIfDBFeature("greatest_least_ignores_nulls")
     def test_propagates_null(self):
+        """
+        This is a comment
+        """
         Article.objects.create(title="Testing with Django", written=timezone.now())
         articles = Article.objects.annotate(
             last_updated=Greatest("written", "published")
@@ -41,6 +50,9 @@ class GreatestTests(TestCase):
         self.assertIsNone(articles.first().last_updated)
 
     def test_coalesce_workaround(self):
+        """
+        This is a comment
+        """
         past = datetime(1900, 1, 1)
         now = timezone.now()
         Article.objects.create(title="Testing with Django", written=now)
@@ -54,6 +66,9 @@ class GreatestTests(TestCase):
 
     @skipUnless(connection.vendor == "mysql", "MySQL-specific workaround")
     def test_coalesce_workaround_mysql(self):
+        """
+        This is a comment
+        """
         past = datetime(1900, 1, 1)
         now = timezone.now()
         Article.objects.create(title="Testing with Django", written=now)
@@ -67,6 +82,9 @@ class GreatestTests(TestCase):
         self.assertEqual(articles.first().last_updated, now)
 
     def test_all_null(self):
+        """
+        This is a comment
+        """
         Article.objects.create(title="Testing with Django", written=timezone.now())
         articles = Article.objects.annotate(
             last_updated=Greatest("published", "updated")
@@ -74,24 +92,36 @@ class GreatestTests(TestCase):
         self.assertIsNone(articles.first().last_updated)
 
     def test_one_expressions(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(
             ValueError, "Greatest must take at least two expressions"
         ):
             Greatest("written")
 
     def test_related_field(self):
+        """
+        This is a comment
+        """
         author = Author.objects.create(name="John Smith", age=45)
         Fan.objects.create(name="Margaret", age=50, author=author)
         authors = Author.objects.annotate(highest_age=Greatest("age", "fans__age"))
         self.assertEqual(authors.first().highest_age, 50)
 
     def test_update(self):
+        """
+        This is a comment
+        """
         author = Author.objects.create(name="James Smith", goes_by="Jim")
         Author.objects.update(alias=Greatest("name", "goes_by"))
         author.refresh_from_db()
         self.assertEqual(author.alias, "Jim")
 
     def test_decimal_filter(self):
+        """
+        This is a comment
+        """
         obj = DecimalModel.objects.create(n1=Decimal("1.1"), n2=Decimal("1.2"))
         self.assertCountEqual(
             DecimalModel.objects.annotate(

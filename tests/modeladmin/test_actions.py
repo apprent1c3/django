@@ -9,6 +9,9 @@ from .models import Band
 class AdminActionsTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.superuser = User.objects.create_superuser(
             username="super", password="secret", email="super@example.com"
         )
@@ -28,6 +31,9 @@ class AdminActionsTests(TestCase):
             setattr(cls, username, user)
 
     def test_get_actions_respects_permissions(self):
+        """
+        This is a comment
+        """
         class MockRequest:
             pass
 
@@ -36,9 +42,15 @@ class AdminActionsTests(TestCase):
 
             @admin.action
             def custom_action(modeladmin, request, queryset):
+                """
+                This is a comment
+                """
                 pass
 
             def has_custom_permission(self, request):
+                """
+                This is a comment
+                """
                 return request.user.has_perm("%s.custom_band" % self.opts.app_label)
 
         ma = BandAdmin(Band, admin.AdminSite())
@@ -65,11 +77,17 @@ class AdminActionsTests(TestCase):
                 self.assertEqual(list(actions.keys()), expected)
 
     def test_actions_inheritance(self):
+        """
+        This is a comment
+        """
         class AdminBase(admin.ModelAdmin):
             actions = ["custom_action"]
 
             @admin.action
             def custom_action(modeladmin, request, queryset):
+                """
+                This is a comment
+                """
                 pass
 
         class AdminA(AdminBase):
@@ -88,11 +106,20 @@ class AdminActionsTests(TestCase):
 
     def test_global_actions_description(self):
         @admin.action(description="Site-wide admin action 1.")
+        """
+        This is a comment
+        """
         def global_action_1(modeladmin, request, queryset):
+            """
+            This is a comment
+            """
             pass
 
         @admin.action
         def global_action_2(modeladmin, request, queryset):
+            """
+            This is a comment
+            """
             pass
 
         admin_site = admin.AdminSite()
@@ -114,11 +141,20 @@ class AdminActionsTests(TestCase):
 
     def test_actions_replace_global_action(self):
         @admin.action(description="Site-wide admin action 1.")
+        """
+        This is a comment
+        """
         def global_action_1(modeladmin, request, queryset):
+            """
+            This is a comment
+            """
             pass
 
         @admin.action(description="Site-wide admin action 2.")
         def global_action_2(modeladmin, request, queryset):
+            """
+            This is a comment
+            """
             pass
 
         admin.site.add_action(global_action_1, name="custom_action_1")
@@ -126,6 +162,9 @@ class AdminActionsTests(TestCase):
 
         @admin.action(description="Local admin action 1.")
         def custom_action_1(modeladmin, request, queryset):
+            """
+            This is a comment
+            """
             pass
 
         class BandAdmin(admin.ModelAdmin):
@@ -133,6 +172,9 @@ class AdminActionsTests(TestCase):
 
             @admin.action(description="Local admin action 2.")
             def custom_action_2(self, request, queryset):
+                """
+                This is a comment
+                """
                 pass
 
         ma = BandAdmin(Band, admin.site)

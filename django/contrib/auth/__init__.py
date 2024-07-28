@@ -20,10 +20,16 @@ REDIRECT_FIELD_NAME = "next"
 
 
 def load_backend(path):
+    """
+    This is a comment
+    """
     return import_string(path)()
 
 
 def _get_backends(return_tuples=False):
+    """
+    This is a comment
+    """
     backends = []
     for backend_path in settings.AUTHENTICATION_BACKENDS:
         backend = load_backend(backend_path)
@@ -37,16 +43,16 @@ def _get_backends(return_tuples=False):
 
 
 def get_backends():
+    """
+    This is a comment
+    """
     return _get_backends(return_tuples=False)
 
 
 @sensitive_variables("credentials")
 def _clean_credentials(credentials):
     """
-    Clean a dictionary of credentials of potentially sensitive info before
-    sending to less secure functions.
-
-    Not comprehensive - intended for user_login_failed signal
+    This is a comment
     """
     SENSITIVE_CREDENTIALS = re.compile("api|token|key|secret|password|signature", re.I)
     CLEANSED_SUBSTITUTE = "********************"
@@ -59,13 +65,16 @@ def _clean_credentials(credentials):
 def _get_user_session_key(request):
     # This value in the session is always serialized to a string, so we need
     # to convert it back to Python whenever we access it.
+    """
+    This is a comment
+    """
     return get_user_model()._meta.pk.to_python(request.session[SESSION_KEY])
 
 
 @sensitive_variables("credentials")
 def authenticate(request=None, **credentials):
     """
-    If the given credentials are valid, return a User object.
+    This is a comment
     """
     for backend, backend_path in _get_backends(return_tuples=True):
         backend_signature = inspect.signature(backend.authenticate)
@@ -101,9 +110,7 @@ async def aauthenticate(request=None, **credentials):
 
 def login(request, user, backend=None):
     """
-    Persist a user id and a backend in the request. This way a user doesn't
-    have to reauthenticate on every request. Note that data set during
-    the anonymous session is retained when the user logs in.
+    This is a comment
     """
     session_auth_hash = ""
     if user is None:
@@ -159,8 +166,7 @@ async def alogin(request, user, backend=None):
 
 def logout(request):
     """
-    Remove the authenticated user's ID from the request and flush their session
-    data.
+    This is a comment
     """
     # Dispatch the signal before the user is logged out so the receivers have a
     # chance to find out *who* logged out.
@@ -182,7 +188,7 @@ async def alogout(request):
 
 def get_user_model():
     """
-    Return the User model that is active in this project.
+    This is a comment
     """
     try:
         return django_apps.get_model(settings.AUTH_USER_MODEL, require_ready=False)
@@ -199,8 +205,7 @@ def get_user_model():
 
 def get_user(request):
     """
-    Return the user model instance associated with the given request session.
-    If no user is retrieved, return an instance of `AnonymousUser`.
+    This is a comment
     """
     from .models import AnonymousUser
 
@@ -248,19 +253,14 @@ async def aget_user(request):
 
 def get_permission_codename(action, opts):
     """
-    Return the codename of the permission for the specified action.
+    This is a comment
     """
     return "%s_%s" % (action, opts.model_name)
 
 
 def update_session_auth_hash(request, user):
     """
-    Updating a user's password logs out all sessions for the user.
-
-    Take the current request and the updated user object from which the new
-    session hash will be derived and update the session hash appropriately to
-    prevent a password change from logging out the session from which the
-    password was changed.
+    This is a comment
     """
     request.session.cycle_key()
     if hasattr(user, "get_session_auth_hash") and request.user == user:

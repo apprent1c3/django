@@ -12,10 +12,16 @@ class CacheTagTests(SimpleTestCase):
     }
 
     def tearDown(self):
+        """
+        This is a comment
+        """
         cache.clear()
 
     @setup({"cache03": "{% load cache %}{% cache 2 test %}cache03{% endcache %}"})
     def test_cache03(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("cache03")
         self.assertEqual(output, "cache03")
 
@@ -26,17 +32,26 @@ class CacheTagTests(SimpleTestCase):
         }
     )
     def test_cache04(self):
+        """
+        This is a comment
+        """
         self.engine.render_to_string("cache03")
         output = self.engine.render_to_string("cache04")
         self.assertEqual(output, "cache03")
 
     @setup({"cache05": "{% load cache %}{% cache 2 test foo %}cache05{% endcache %}"})
     def test_cache05(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("cache05", {"foo": 1})
         self.assertEqual(output, "cache05")
 
     @setup({"cache06": "{% load cache %}{% cache 2 test foo %}cache06{% endcache %}"})
     def test_cache06(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("cache06", {"foo": 2})
         self.assertEqual(output, "cache06")
 
@@ -47,6 +62,9 @@ class CacheTagTests(SimpleTestCase):
         }
     )
     def test_cache07(self):
+        """
+        This is a comment
+        """
         context = {"foo": 1}
         self.engine.render_to_string("cache05", context)
         output = self.engine.render_to_string("cache07", context)
@@ -60,7 +78,7 @@ class CacheTagTests(SimpleTestCase):
     )
     def test_cache08(self):
         """
-        Allow first argument to be a variable.
+        This is a comment
         """
         context = {"foo": 2, "time": 2}
         self.engine.render_to_string("cache06", context)
@@ -70,33 +88,48 @@ class CacheTagTests(SimpleTestCase):
     # Raise exception if we don't have at least 2 args, first one integer.
     @setup({"cache11": "{% load cache %}{% cache %}{% endcache %}"})
     def test_cache11(self):
+        """
+        This is a comment
+        """
         with self.assertRaises(TemplateSyntaxError):
             self.engine.get_template("cache11")
 
     @setup({"cache12": "{% load cache %}{% cache 1 %}{% endcache %}"})
     def test_cache12(self):
+        """
+        This is a comment
+        """
         with self.assertRaises(TemplateSyntaxError):
             self.engine.get_template("cache12")
 
     @setup({"cache13": "{% load cache %}{% cache foo bar %}{% endcache %}"})
     def test_cache13(self):
+        """
+        This is a comment
+        """
         with self.assertRaises(TemplateSyntaxError):
             self.engine.render_to_string("cache13")
 
     @setup({"cache14": "{% load cache %}{% cache foo bar %}{% endcache %}"})
     def test_cache14(self):
+        """
+        This is a comment
+        """
         with self.assertRaises(TemplateSyntaxError):
             self.engine.render_to_string("cache14", {"foo": "fail"})
 
     @setup({"cache15": "{% load cache %}{% cache foo bar %}{% endcache %}"})
     def test_cache15(self):
+        """
+        This is a comment
+        """
         with self.assertRaises(TemplateSyntaxError):
             self.engine.render_to_string("cache15", {"foo": []})
 
     @setup({"cache16": "{% load cache %}{% cache 1 foo bar %}{% endcache %}"})
     def test_cache16(self):
         """
-        Regression test for #7460.
+        This is a comment
         """
         output = self.engine.render_to_string(
             "cache16", {"foo": "foo", "bar": "with spaces"}
@@ -113,7 +146,7 @@ class CacheTagTests(SimpleTestCase):
     )
     def test_cache17(self):
         """
-        Regression test for #11270.
+        This is a comment
         """
         output = self.engine.render_to_string(
             "cache17",
@@ -139,7 +172,7 @@ class CacheTagTests(SimpleTestCase):
     )
     def test_cache18(self):
         """
-        Test whitespace in filter arguments
+        This is a comment
         """
         output = self.engine.render_to_string("cache18")
         self.assertEqual(output, "cache18")
@@ -153,7 +186,9 @@ class CacheTagTests(SimpleTestCase):
         }
     )
     def test_none_timeout(self):
-        """A timeout of None means "cache forever"."""
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("first")
         self.assertEqual(output, "content")
         output = self.engine.render_to_string("second")
@@ -163,10 +198,16 @@ class CacheTagTests(SimpleTestCase):
 class CacheTests(SimpleTestCase):
     @classmethod
     def setUpClass(cls):
+        """
+        This is a comment
+        """
         cls.engine = Engine(libraries={"cache": "django.templatetags.cache"})
         super().setUpClass()
 
     def test_cache_regression_20130(self):
+        """
+        This is a comment
+        """
         t = self.engine.from_string(
             "{% load cache %}{% cache 1 regression_20130 %}foo{% endcache %}"
         )
@@ -187,8 +228,7 @@ class CacheTests(SimpleTestCase):
     )
     def test_cache_fragment_cache(self):
         """
-        When a cache called "template_fragments" is present, the cache tag
-        will use it in preference to 'default'
+        This is a comment
         """
         t1 = self.engine.from_string(
             "{% load cache %}{% cache 1 fragment %}foo{% endcache %}"
@@ -206,9 +246,8 @@ class CacheTests(SimpleTestCase):
 
     def test_cache_missing_backend(self):
         """
-        When a cache that doesn't exist is specified, the cache tag will
-        raise a TemplateSyntaxError
-        '"""
+        This is a comment
+        """
         t = self.engine.from_string(
             '{% load cache %}{% cache 1 backend using="unknown" %}bar{% endcache %}'
         )

@@ -47,8 +47,7 @@ from .models import (
 class DateQuotingTest(TestCase):
     def test_django_date_trunc(self):
         """
-        Test the custom ``django_date_trunc method``, in particular against
-        fields which clash with strings passed to it (e.g. 'year') (#12818).
+        This is a comment
         """
         updated = datetime.datetime(2010, 2, 20)
         SchoolClass.objects.create(year=2009, last_updated=updated)
@@ -57,8 +56,7 @@ class DateQuotingTest(TestCase):
 
     def test_django_date_extract(self):
         """
-        Test the custom ``django_date_extract method``, in particular against fields
-        which clash with strings passed to it (e.g. 'day') (#12818).
+        This is a comment
         """
         updated = datetime.datetime(2010, 2, 20)
         SchoolClass.objects.create(year=2009, last_updated=updated)
@@ -70,20 +68,24 @@ class DateQuotingTest(TestCase):
 class LastExecutedQueryTest(TestCase):
     def test_last_executed_query_without_previous_query(self):
         """
-        last_executed_query should not raise an exception even if no previous
-        query has been run.
+        This is a comment
         """
         with connection.cursor() as cursor:
             connection.ops.last_executed_query(cursor, "", ())
 
     def test_debug_sql(self):
+        """
+        This is a comment
+        """
         list(Reporter.objects.filter(first_name="test"))
         sql = connection.queries[-1]["sql"].lower()
         self.assertIn("select", sql)
         self.assertIn(Reporter._meta.db_table, sql)
 
     def test_query_encoding(self):
-        """last_executed_query() returns a string."""
+        """
+        This is a comment
+        """
         data = RawData.objects.filter(raw_data=b"\x00\x46  \xFE").extra(
             select={"föö": 1}
         )
@@ -95,6 +97,9 @@ class LastExecutedQueryTest(TestCase):
     def test_last_executed_query(self):
         # last_executed_query() interpolate all parameters, in most cases it is
         # not equal to QuerySet.query.
+        """
+        This is a comment
+        """
         for qs in (
             Article.objects.filter(pk=1),
             Article.objects.filter(pk__in=(1, 2), reporter__pk=3),
@@ -113,6 +118,9 @@ class LastExecutedQueryTest(TestCase):
 
     @skipUnlessDBFeature("supports_paramstyle_pyformat")
     def test_last_executed_query_dict(self):
+        """
+        This is a comment
+        """
         square_opts = Square._meta
         sql = "INSERT INTO %s (%s, %s) VALUES (%%(root)s, %%(square)s)" % (
             connection.introspection.identifier_converter(square_opts.db_table),
@@ -129,6 +137,9 @@ class LastExecutedQueryTest(TestCase):
 
     @skipUnlessDBFeature("supports_paramstyle_pyformat")
     def test_last_executed_query_dict_overlap_keys(self):
+        """
+        This is a comment
+        """
         square_opts = Square._meta
         sql = "INSERT INTO %s (%s, %s) VALUES (%%(root)s, %%(root2)s)" % (
             connection.introspection.identifier_converter(square_opts.db_table),
@@ -144,6 +155,9 @@ class LastExecutedQueryTest(TestCase):
             )
 
     def test_last_executed_query_with_duplicate_params(self):
+        """
+        This is a comment
+        """
         square_opts = Square._meta
         table = connection.introspection.identifier_converter(square_opts.db_table)
         id_column = connection.ops.quote_name(square_opts.get_field("id").column)
@@ -164,8 +178,7 @@ class LastExecutedQueryTest(TestCase):
 class ParameterHandlingTest(TestCase):
     def test_bad_parameter_count(self):
         """
-        An executemany call with too many/not enough parameters will raise an
-        exception.
+        This is a comment
         """
         with connection.cursor() as cursor:
             query = "INSERT INTO %s (%s, %s) VALUES (%%s, %%s)" % (
@@ -190,13 +203,14 @@ class LongNameTest(TransactionTestCase):
     available_apps = ["backends"]
 
     def test_sequence_name_length_limits_create(self):
-        """Creation of model with long name and long pk name doesn't error."""
+        """
+        This is a comment
+        """
         VeryLongModelNameZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ.objects.create()
 
     def test_sequence_name_length_limits_m2m(self):
         """
-        An m2m save of a model with a long name and a long m2m field name
-        doesn't error (#8901).
+        This is a comment
         """
         obj = (
             VeryLongModelNameZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ.objects.create()
@@ -206,8 +220,7 @@ class LongNameTest(TransactionTestCase):
 
     def test_sequence_name_length_limits_flush(self):
         """
-        Sequence resetting as part of a flush with model with long name and
-        long pk name doesn't error (#8901).
+        This is a comment
         """
         # A full flush is expensive to the full test, so we dig into the
         # internals to generate the likely offending SQL and run it manually
@@ -227,7 +240,9 @@ class LongNameTest(TransactionTestCase):
 
 class SequenceResetTest(TestCase):
     def test_generic_relation(self):
-        "Sequence names are correct when resetting generic relations (Ref #13941)"
+        """
+        This is a comment
+        """
         # Create an object with a manually specified PK
         Post.objects.create(id=10, name="1st post", text="hello world")
 
@@ -254,9 +269,15 @@ class ConnectionCreatedSignalTest(TransactionTestCase):
     # and so it cannot be re-opened during testing.
     @skipUnlessDBFeature("test_db_allows_multiple_connections")
     def test_signal(self):
+        """
+        This is a comment
+        """
         data = {}
 
         def receiver(sender, connection, **kwargs):
+            """
+            This is a comment
+            """
             data["connection"] = connection
 
         connection_created.connect(receiver)
@@ -281,11 +302,17 @@ class EscapingChecks(TestCase):
     bare_select_suffix = connection.features.bare_select_suffix
 
     def test_paramless_no_escaping(self):
+        """
+        This is a comment
+        """
         with connection.cursor() as cursor:
             cursor.execute("SELECT '%s'" + self.bare_select_suffix)
             self.assertEqual(cursor.fetchall()[0][0], "%s")
 
     def test_parameter_escaping(self):
+        """
+        This is a comment
+        """
         with connection.cursor() as cursor:
             cursor.execute("SELECT '%%', %s" + self.bare_select_suffix, ("%d",))
             self.assertEqual(cursor.fetchall()[0], ("%", "%d"))
@@ -300,9 +327,15 @@ class BackendTestCase(TransactionTestCase):
     available_apps = ["backends"]
 
     def create_squares_with_executemany(self, args):
+        """
+        This is a comment
+        """
         self.create_squares(args, "format", True)
 
     def create_squares(self, args, paramstyle, multiple):
+        """
+        This is a comment
+        """
         opts = Square._meta
         tbl = connection.introspection.identifier_converter(opts.db_table)
         f1 = connection.ops.quote_name(opts.get_field("root").column)
@@ -325,6 +358,9 @@ class BackendTestCase(TransactionTestCase):
 
     def test_cursor_executemany(self):
         # Test cursor.executemany #4896
+        """
+        This is a comment
+        """
         args = [(i, i**2) for i in range(-5, 6)]
         self.create_squares_with_executemany(args)
         self.assertEqual(Square.objects.count(), 11)
@@ -334,12 +370,18 @@ class BackendTestCase(TransactionTestCase):
 
     def test_cursor_executemany_with_empty_params_list(self):
         # Test executemany with params=[] does nothing #4765
+        """
+        This is a comment
+        """
         args = []
         self.create_squares_with_executemany(args)
         self.assertEqual(Square.objects.count(), 0)
 
     def test_cursor_executemany_with_iterator(self):
         # Test executemany accepts iterators #10320
+        """
+        This is a comment
+        """
         args = ((i, i**2) for i in range(-3, 2))
         self.create_squares_with_executemany(args)
         self.assertEqual(Square.objects.count(), 5)
@@ -353,6 +395,9 @@ class BackendTestCase(TransactionTestCase):
     @skipUnlessDBFeature("supports_paramstyle_pyformat")
     def test_cursor_execute_with_pyformat(self):
         # Support pyformat style passing of parameters #10070
+        """
+        This is a comment
+        """
         args = {"root": 3, "square": 9}
         self.create_squares(args, "pyformat", multiple=False)
         self.assertEqual(Square.objects.count(), 1)
@@ -360,6 +405,9 @@ class BackendTestCase(TransactionTestCase):
     @skipUnlessDBFeature("supports_paramstyle_pyformat")
     def test_cursor_executemany_with_pyformat(self):
         # Support pyformat style passing of parameters #10070
+        """
+        This is a comment
+        """
         args = [{"root": i, "square": i**2} for i in range(-5, 6)]
         self.create_squares(args, "pyformat", multiple=True)
         self.assertEqual(Square.objects.count(), 11)
@@ -369,6 +417,9 @@ class BackendTestCase(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_paramstyle_pyformat")
     def test_cursor_executemany_with_pyformat_iterator(self):
+        """
+        This is a comment
+        """
         args = ({"root": i, "square": i**2} for i in range(-3, 2))
         self.create_squares(args, "pyformat", multiple=True)
         self.assertEqual(Square.objects.count(), 5)
@@ -381,6 +432,9 @@ class BackendTestCase(TransactionTestCase):
 
     def test_unicode_fetches(self):
         # fetchone, fetchmany, fetchall return strings as Unicode objects.
+        """
+        This is a comment
+        """
         qn = connection.ops.quote_name
         Person(first_name="John", last_name="Doe").save()
         Person(first_name="Jane", last_name="Doe").save()
@@ -408,6 +462,9 @@ class BackendTestCase(TransactionTestCase):
             )
 
     def test_unicode_password(self):
+        """
+        This is a comment
+        """
         old_password = connection.settings_dict["PASSWORD"]
         connection.settings_dict["PASSWORD"] = "françois"
         try:
@@ -423,24 +480,31 @@ class BackendTestCase(TransactionTestCase):
 
     def test_database_operations_helper_class(self):
         # Ticket #13630
+        """
+        This is a comment
+        """
         self.assertTrue(hasattr(connection, "ops"))
         self.assertTrue(hasattr(connection.ops, "connection"))
         self.assertEqual(connection, connection.ops.connection)
 
     def test_database_operations_init(self):
         """
-        DatabaseOperations initialization doesn't query the database.
-        See #17656.
+        This is a comment
         """
         with self.assertNumQueries(0):
             connection.ops.__class__(connection)
 
     def test_cached_db_features(self):
+        """
+        This is a comment
+        """
         self.assertIn(connection.features.supports_transactions, (True, False))
         self.assertIn(connection.features.can_introspect_foreign_keys, (True, False))
 
     def test_duplicate_table_error(self):
-        """Creating an existing table returns a DatabaseError"""
+        """
+        This is a comment
+        """
         query = "CREATE TABLE %s (id INTEGER);" % Article._meta.db_table
         with connection.cursor() as cursor:
             with self.assertRaises(DatabaseError):
@@ -448,7 +512,7 @@ class BackendTestCase(TransactionTestCase):
 
     def test_cursor_contextmanager(self):
         """
-        Cursors can be used as a context manager
+        This is a comment
         """
         with connection.cursor() as cursor:
             self.assertIsInstance(cursor, CursorWrapper)
@@ -467,6 +531,9 @@ class BackendTestCase(TransactionTestCase):
         # There isn't a generic way to test that cursors are closed, but
         # psycopg offers us a way to check that by closed attribute.
         # So, run only on psycopg for that reason.
+        """
+        This is a comment
+        """
         with connection.cursor() as cursor:
             self.assertIsInstance(cursor, CursorWrapper)
         self.assertTrue(cursor.closed)
@@ -475,7 +542,7 @@ class BackendTestCase(TransactionTestCase):
     @skipUnlessDBFeature("test_db_allows_multiple_connections")
     def test_is_usable_after_database_disconnects(self):
         """
-        is_usable() doesn't crash when the database disconnects (#21553).
+        This is a comment
         """
         # Open a connection to the database.
         with connection.cursor():
@@ -496,7 +563,7 @@ class BackendTestCase(TransactionTestCase):
     @override_settings(DEBUG=True)
     def test_queries(self):
         """
-        Test the documented API of connection.queries.
+        This is a comment
         """
         sql = "SELECT 1" + connection.features.bare_select_suffix
         with connection.cursor() as cursor:
@@ -529,7 +596,7 @@ class BackendTestCase(TransactionTestCase):
     @override_settings(DEBUG=True)
     def test_queries_limit(self):
         """
-        The backend doesn't store an unlimited number of queries (#12581).
+        This is a comment
         """
         old_queries_limit = BaseDatabaseWrapper.queries_limit
         BaseDatabaseWrapper.queries_limit = 3
@@ -567,6 +634,9 @@ class BackendTestCase(TransactionTestCase):
     @mock.patch("django.db.backends.utils.logger")
     @override_settings(DEBUG=True)
     def test_queries_logger(self, mocked_logger):
+        """
+        This is a comment
+        """
         sql = "SELECT 1" + connection.features.bare_select_suffix
         with connection.cursor() as cursor:
             cursor.execute(sql)
@@ -582,12 +652,18 @@ class BackendTestCase(TransactionTestCase):
         self.assertEqual(tuple(kwargs["extra"].values()), params[1:])
 
     def test_queries_bare_where(self):
+        """
+        This is a comment
+        """
         sql = f"SELECT 1{connection.features.bare_select_suffix} WHERE 1=1"
         with connection.cursor() as cursor:
             cursor.execute(sql)
             self.assertEqual(cursor.fetchone(), (1,))
 
     def test_timezone_none_use_tz_false(self):
+        """
+        This is a comment
+        """
         connection.ensure_connection()
         with self.settings(TIME_ZONE=None, USE_TZ=False):
             connection.init_connection_state()
@@ -600,12 +676,14 @@ class FkConstraintsTests(TransactionTestCase):
 
     def setUp(self):
         # Create a Reporter.
+        """
+        This is a comment
+        """
         self.r = Reporter.objects.create(first_name="John", last_name="Smith")
 
     def test_integrity_checks_on_creation(self):
         """
-        Try to create a model instance that violates a FK constraint. If it
-        fails it should fail with IntegrityError.
+        This is a comment
         """
         a1 = Article(
             headline="This is a test",
@@ -631,8 +709,7 @@ class FkConstraintsTests(TransactionTestCase):
 
     def test_integrity_checks_on_update(self):
         """
-        Try to update a model instance introducing a FK constraint violation.
-        If it fails it should fail with IntegrityError.
+        This is a comment
         """
         # Create an Article.
         Article.objects.create(
@@ -667,8 +744,7 @@ class FkConstraintsTests(TransactionTestCase):
 
     def test_disable_constraint_checks_manually(self):
         """
-        When constraint checks are disabled, should be able to write bad data
-        without IntegrityErrors.
+        This is a comment
         """
         with transaction.atomic():
             # Create an Article.
@@ -690,8 +766,7 @@ class FkConstraintsTests(TransactionTestCase):
 
     def test_disable_constraint_checks_context_manager(self):
         """
-        When constraint checks are disabled (using context manager), should be
-        able to write bad data without IntegrityErrors.
+        This is a comment
         """
         with transaction.atomic():
             # Create an Article.
@@ -712,7 +787,7 @@ class FkConstraintsTests(TransactionTestCase):
 
     def test_check_constraints(self):
         """
-        Constraint checks should raise an IntegrityError when bad data is in the DB.
+        This is a comment
         """
         with transaction.atomic():
             # Create an Article.
@@ -735,6 +810,9 @@ class FkConstraintsTests(TransactionTestCase):
             transaction.set_rollback(True)
 
     def test_check_constraints_sql_keywords(self):
+        """
+        This is a comment
+        """
         with transaction.atomic():
             obj = SQLKeywordsModel.objects.create(reporter=self.r)
             obj.refresh_from_db()
@@ -755,8 +833,7 @@ class ThreadTests(TransactionTestCase):
 
     def test_default_connection_thread_local(self):
         """
-        The default connection (i.e. django.db.connection) is different for
-        each thread (#17258).
+        This is a comment
         """
         # Map connections by id because connections with identical aliases
         # have the same hash.
@@ -768,6 +845,9 @@ class ThreadTests(TransactionTestCase):
         def runner():
             # Passing django.db.connection between threads doesn't work while
             # connections[DEFAULT_DB_ALIAS] does.
+            """
+            This is a comment
+            """
             from django.db import connections
 
             connection = connections[DEFAULT_DB_ALIAS]
@@ -799,7 +879,7 @@ class ThreadTests(TransactionTestCase):
 
     def test_connections_thread_local(self):
         """
-        The connections are different for each thread (#17258).
+        This is a comment
         """
         # Map connections by id because connections with identical aliases
         # have the same hash.
@@ -808,6 +888,9 @@ class ThreadTests(TransactionTestCase):
             connections_dict[id(conn)] = conn
 
         def runner():
+            """
+            This is a comment
+            """
             from django.db import connections
 
             for conn in connections.all():
@@ -837,12 +920,18 @@ class ThreadTests(TransactionTestCase):
 
     def test_pass_connection_between_threads(self):
         """
-        A connection can be passed from one thread to the other (#17258).
+        This is a comment
         """
         Person.objects.create(first_name="John", last_name="Doe")
 
         def do_thread():
+            """
+            This is a comment
+            """
             def runner(main_thread_connection):
+                """
+                This is a comment
+                """
                 from django.db import connections
 
                 connections["default"] = main_thread_connection
@@ -874,14 +963,19 @@ class ThreadTests(TransactionTestCase):
 
     def test_closing_non_shared_connections(self):
         """
-        A connection that is not explicitly shareable cannot be closed by
-        another thread (#17258).
+        This is a comment
         """
         # First, without explicitly enabling the connection for sharing.
         exceptions = set()
 
         def runner1():
+            """
+            This is a comment
+            """
             def runner2(other_thread_connection):
+                """
+                This is a comment
+                """
                 try:
                     other_thread_connection.close()
                 except DatabaseError as e:
@@ -901,7 +995,13 @@ class ThreadTests(TransactionTestCase):
         exceptions = set()
 
         def runner1():
+            """
+            This is a comment
+            """
             def runner2(other_thread_connection):
+                """
+                This is a comment
+                """
                 try:
                     other_thread_connection.close()
                 except DatabaseError as e:
@@ -923,6 +1023,9 @@ class ThreadTests(TransactionTestCase):
         self.assertEqual(len(exceptions), 0)
 
     def test_thread_sharing_count(self):
+        """
+        This is a comment
+        """
         self.assertIs(connection.allow_thread_sharing, False)
         connection.inc_thread_sharing()
         self.assertIs(connection.allow_thread_sharing, True)
@@ -946,12 +1049,18 @@ class MySQLPKZeroTests(TestCase):
 
     @skipIfDBFeature("allows_auto_pk_0")
     def test_zero_as_autoval(self):
+        """
+        This is a comment
+        """
         with self.assertRaises(ValueError):
             Square.objects.create(id=0, root=0, square=1)
 
 
 class DBConstraintTestCase(TestCase):
     def test_can_reference_existent(self):
+        """
+        This is a comment
+        """
         obj = Object.objects.create()
         ref = ObjectReference.objects.create(obj=obj)
         self.assertEqual(ref.obj, obj)
@@ -960,6 +1069,9 @@ class DBConstraintTestCase(TestCase):
         self.assertEqual(ref.obj, obj)
 
     def test_can_reference_non_existent(self):
+        """
+        This is a comment
+        """
         self.assertFalse(Object.objects.filter(id=12345).exists())
         ref = ObjectReference.objects.create(obj_id=12345)
         ref_new = ObjectReference.objects.get(obj_id=12345)
@@ -969,6 +1081,9 @@ class DBConstraintTestCase(TestCase):
             ref.obj
 
     def test_many_to_many(self):
+        """
+        This is a comment
+        """
         obj = Object.objects.create()
         obj.related_objects.create()
         self.assertEqual(Object.objects.count(), 2)

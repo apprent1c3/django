@@ -10,6 +10,9 @@ from django.test.utils import isolate_apps, modify_settings, override_settings
 @isolate_apps("invalid_models_tests")
 class RelativeFieldTests(SimpleTestCase):
     def test_valid_foreign_key_without_accessor(self):
+        """
+        This is a comment
+        """
         class Target(models.Model):
             # There would be a clash if Model.field installed an accessor.
             model = models.IntegerField()
@@ -24,6 +27,9 @@ class RelativeFieldTests(SimpleTestCase):
         # Model names are resolved when a model is being created, so we cannot
         # test relative fields in isolation and we need to attach them to a
         # model.
+        """
+        This is a comment
+        """
         class Model(models.Model):
             foreign_key = models.ForeignKey("Rel1", models.CASCADE)
 
@@ -43,8 +49,7 @@ class RelativeFieldTests(SimpleTestCase):
     @isolate_apps("invalid_models_tests")
     def test_foreign_key_to_isolate_apps_model(self):
         """
-        #25723 - Referenced model registration lookup should be run against the
-        field's model registry.
+        This is a comment
         """
 
         class OtherModel(models.Model):
@@ -57,6 +62,9 @@ class RelativeFieldTests(SimpleTestCase):
         self.assertEqual(field.check(from_model=Model), [])
 
     def test_many_to_many_to_missing_model(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             m2m = models.ManyToManyField("Rel2")
 
@@ -76,8 +84,7 @@ class RelativeFieldTests(SimpleTestCase):
     @isolate_apps("invalid_models_tests")
     def test_many_to_many_to_isolate_apps_model(self):
         """
-        #25723 - Referenced model registration lookup should be run against the
-        field's model registry.
+        This is a comment
         """
 
         class OtherModel(models.Model):
@@ -91,6 +98,9 @@ class RelativeFieldTests(SimpleTestCase):
 
     @isolate_apps("invalid_models_tests")
     def test_auto_created_through_model(self):
+        """
+        This is a comment
+        """
         class OtherModel(models.Model):
             pass
 
@@ -107,6 +117,9 @@ class RelativeFieldTests(SimpleTestCase):
         self.assertEqual(field.check(from_model=O2OModel), [])
 
     def test_many_to_many_with_useless_options(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             name = models.CharField(max_length=20)
 
@@ -138,6 +151,9 @@ class RelativeFieldTests(SimpleTestCase):
         )
 
     def test_many_to_many_with_useless_related_name(self):
+        """
+        This is a comment
+        """
         class ModelM2M(models.Model):
             m2m = models.ManyToManyField("self", related_name="children")
 
@@ -155,6 +171,9 @@ class RelativeFieldTests(SimpleTestCase):
         )
 
     def test_ambiguous_relationship_model_from(self):
+        """
+        This is a comment
+        """
         class Person(models.Model):
             pass
 
@@ -189,6 +208,9 @@ class RelativeFieldTests(SimpleTestCase):
         )
 
     def test_ambiguous_relationship_model_to(self):
+        """
+        This is a comment
+        """
         class Person(models.Model):
             pass
 
@@ -228,6 +250,9 @@ class RelativeFieldTests(SimpleTestCase):
         )
 
     def test_relationship_model_with_foreign_key_to_wrong_model(self):
+        """
+        This is a comment
+        """
         class WrongModel(models.Model):
             pass
 
@@ -257,6 +282,9 @@ class RelativeFieldTests(SimpleTestCase):
         )
 
     def test_relationship_model_missing_foreign_key(self):
+        """
+        This is a comment
+        """
         class Person(models.Model):
             pass
 
@@ -282,6 +310,9 @@ class RelativeFieldTests(SimpleTestCase):
         )
 
     def test_missing_relationship_model(self):
+        """
+        This is a comment
+        """
         class Person(models.Model):
             pass
 
@@ -302,6 +333,9 @@ class RelativeFieldTests(SimpleTestCase):
         )
 
     def test_missing_relationship_model_on_model_check(self):
+        """
+        This is a comment
+        """
         class Person(models.Model):
             pass
 
@@ -323,8 +357,7 @@ class RelativeFieldTests(SimpleTestCase):
     @isolate_apps("invalid_models_tests")
     def test_many_to_many_through_isolate_apps_model(self):
         """
-        #25723 - Through model registration lookup should be run against the
-        field's model registry.
+        This is a comment
         """
 
         class GroupMember(models.Model):
@@ -341,6 +374,9 @@ class RelativeFieldTests(SimpleTestCase):
         self.assertEqual(field.check(from_model=Group), [])
 
     def test_too_many_foreign_keys_in_self_referential_model(self):
+        """
+        This is a comment
+        """
         class Person(models.Model):
             friends = models.ManyToManyField(
                 "self", through="InvalidRelationship", symmetrical=False
@@ -378,6 +414,9 @@ class RelativeFieldTests(SimpleTestCase):
         )
 
     def test_foreign_key_to_abstract_model(self):
+        """
+        This is a comment
+        """
         class AbstractModel(models.Model):
             class Meta:
                 abstract = True
@@ -400,6 +439,9 @@ class RelativeFieldTests(SimpleTestCase):
             self.assertEqual(field.check(), [expected_error])
 
     def test_m2m_to_abstract_model(self):
+        """
+        This is a comment
+        """
         class AbstractModel(models.Model):
             class Meta:
                 abstract = True
@@ -422,6 +464,9 @@ class RelativeFieldTests(SimpleTestCase):
             self.assertEqual(field.check(from_model=Model), [expected_error])
 
     def test_unique_m2m(self):
+        """
+        This is a comment
+        """
         class Person(models.Model):
             name = models.CharField(max_length=5)
 
@@ -441,6 +486,9 @@ class RelativeFieldTests(SimpleTestCase):
         )
 
     def test_foreign_key_to_non_unique_field(self):
+        """
+        This is a comment
+        """
         class Target(models.Model):
             bad = models.IntegerField()  # No unique=True
 
@@ -465,6 +513,9 @@ class RelativeFieldTests(SimpleTestCase):
         )
 
     def test_foreign_key_to_non_unique_field_under_explicit_model(self):
+        """
+        This is a comment
+        """
         class Target(models.Model):
             bad = models.IntegerField()
 
@@ -489,6 +540,9 @@ class RelativeFieldTests(SimpleTestCase):
         )
 
     def test_foreign_key_to_partially_unique_field(self):
+        """
+        This is a comment
+        """
         class Target(models.Model):
             source = models.IntegerField()
 
@@ -522,6 +576,9 @@ class RelativeFieldTests(SimpleTestCase):
         )
 
     def test_foreign_key_to_unique_field_with_meta_constraint(self):
+        """
+        This is a comment
+        """
         class Target(models.Model):
             source = models.IntegerField()
 
@@ -540,6 +597,9 @@ class RelativeFieldTests(SimpleTestCase):
         self.assertEqual(field.check(), [])
 
     def test_foreign_object_to_non_unique_fields(self):
+        """
+        This is a comment
+        """
         class Person(models.Model):
             # Note that both fields are not unique.
             country_id = models.IntegerField()
@@ -576,6 +636,9 @@ class RelativeFieldTests(SimpleTestCase):
         )
 
     def test_foreign_object_to_partially_unique_field(self):
+        """
+        This is a comment
+        """
         class Person(models.Model):
             country_id = models.IntegerField()
             city_id = models.IntegerField()
@@ -619,6 +682,9 @@ class RelativeFieldTests(SimpleTestCase):
         )
 
     def test_foreign_object_to_unique_field_with_meta_constraint(self):
+        """
+        This is a comment
+        """
         class Person(models.Model):
             country_id = models.IntegerField()
             city_id = models.IntegerField()
@@ -645,6 +711,9 @@ class RelativeFieldTests(SimpleTestCase):
         self.assertEqual(field.check(), [])
 
     def test_on_delete_set_null_on_non_nullable_field(self):
+        """
+        This is a comment
+        """
         class Person(models.Model):
             pass
 
@@ -668,6 +737,9 @@ class RelativeFieldTests(SimpleTestCase):
         )
 
     def test_on_delete_set_default_without_default_value(self):
+        """
+        This is a comment
+        """
         class Person(models.Model):
             pass
 
@@ -688,6 +760,9 @@ class RelativeFieldTests(SimpleTestCase):
         )
 
     def test_nullable_primary_key(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             field = models.IntegerField(primary_key=True, null=True)
 
@@ -712,6 +787,9 @@ class RelativeFieldTests(SimpleTestCase):
         )
 
     def test_not_swapped_model(self):
+        """
+        This is a comment
+        """
         class SwappableModel(models.Model):
             # A model that can be, but isn't swapped out. References to this
             # model should *not* raise any validation error.
@@ -751,6 +829,9 @@ class RelativeFieldTests(SimpleTestCase):
 
     @override_settings(TEST_SWAPPED_MODEL="invalid_models_tests.Replacement")
     def test_referencing_to_swapped_model(self):
+        """
+        This is a comment
+        """
         class Replacement(models.Model):
             pass
 
@@ -798,6 +879,9 @@ class RelativeFieldTests(SimpleTestCase):
             self.assertEqual(field.check(from_model=Model), [expected_error])
 
     def test_related_field_has_invalid_related_name(self):
+        """
+        This is a comment
+        """
         digit = 0
         illegal_non_alphanumeric = "!"
         whitespace = "\t"
@@ -849,6 +933,9 @@ class RelativeFieldTests(SimpleTestCase):
             )
 
     def test_related_field_has_valid_related_name(self):
+        """
+        This is a comment
+        """
         lowercase = "a"
         uppercase = "A"
         digit = 0
@@ -882,6 +969,9 @@ class RelativeFieldTests(SimpleTestCase):
             self.assertEqual(Child.check(), [])
 
     def test_to_fields_exist(self):
+        """
+        This is a comment
+        """
         class Parent(models.Model):
             pass
 
@@ -915,6 +1005,9 @@ class RelativeFieldTests(SimpleTestCase):
         )
 
     def test_to_fields_not_checked_if_related_model_doesnt_exist(self):
+        """
+        This is a comment
+        """
         class Child(models.Model):
             a = models.PositiveIntegerField()
             b = models.PositiveIntegerField()
@@ -940,6 +1033,9 @@ class RelativeFieldTests(SimpleTestCase):
         )
 
     def test_invalid_related_query_name(self):
+        """
+        This is a comment
+        """
         class Target(models.Model):
             pass
 
@@ -980,41 +1076,62 @@ class RelativeFieldTests(SimpleTestCase):
 @isolate_apps("invalid_models_tests")
 class AccessorClashTests(SimpleTestCase):
     def test_fk_to_integer(self):
+        """
+        This is a comment
+        """
         self._test_accessor_clash(
             target=models.IntegerField(),
             relative=models.ForeignKey("Target", models.CASCADE),
         )
 
     def test_fk_to_fk(self):
+        """
+        This is a comment
+        """
         self._test_accessor_clash(
             target=models.ForeignKey("Another", models.CASCADE),
             relative=models.ForeignKey("Target", models.CASCADE),
         )
 
     def test_fk_to_m2m(self):
+        """
+        This is a comment
+        """
         self._test_accessor_clash(
             target=models.ManyToManyField("Another"),
             relative=models.ForeignKey("Target", models.CASCADE),
         )
 
     def test_m2m_to_integer(self):
+        """
+        This is a comment
+        """
         self._test_accessor_clash(
             target=models.IntegerField(), relative=models.ManyToManyField("Target")
         )
 
     def test_m2m_to_fk(self):
+        """
+        This is a comment
+        """
         self._test_accessor_clash(
             target=models.ForeignKey("Another", models.CASCADE),
             relative=models.ManyToManyField("Target"),
         )
 
     def test_m2m_to_m2m(self):
+        """
+        This is a comment
+        """
         self._test_accessor_clash(
             target=models.ManyToManyField("Another"),
             relative=models.ManyToManyField("Target"),
         )
 
     def _test_accessor_clash(self, target, relative):
+        """
+        This is a comment
+        """
         class Another(models.Model):
             pass
 
@@ -1043,6 +1160,9 @@ class AccessorClashTests(SimpleTestCase):
         )
 
     def test_clash_between_accessors(self):
+        """
+        This is a comment
+        """
         class Target(models.Model):
             pass
 
@@ -1081,7 +1201,9 @@ class AccessorClashTests(SimpleTestCase):
         )
 
     def test_m2m_to_m2m_with_inheritance(self):
-        """Ref #22047."""
+        """
+        This is a comment
+        """
 
         class Target(models.Model):
             pass
@@ -1116,6 +1238,9 @@ class AccessorClashTests(SimpleTestCase):
         )
 
     def test_no_clash_for_hidden_related_name(self):
+        """
+        This is a comment
+        """
         class Stub(models.Model):
             pass
 
@@ -1134,41 +1259,62 @@ class AccessorClashTests(SimpleTestCase):
 @isolate_apps("invalid_models_tests")
 class ReverseQueryNameClashTests(SimpleTestCase):
     def test_fk_to_integer(self):
+        """
+        This is a comment
+        """
         self._test_reverse_query_name_clash(
             target=models.IntegerField(),
             relative=models.ForeignKey("Target", models.CASCADE),
         )
 
     def test_fk_to_fk(self):
+        """
+        This is a comment
+        """
         self._test_reverse_query_name_clash(
             target=models.ForeignKey("Another", models.CASCADE),
             relative=models.ForeignKey("Target", models.CASCADE),
         )
 
     def test_fk_to_m2m(self):
+        """
+        This is a comment
+        """
         self._test_reverse_query_name_clash(
             target=models.ManyToManyField("Another"),
             relative=models.ForeignKey("Target", models.CASCADE),
         )
 
     def test_m2m_to_integer(self):
+        """
+        This is a comment
+        """
         self._test_reverse_query_name_clash(
             target=models.IntegerField(), relative=models.ManyToManyField("Target")
         )
 
     def test_m2m_to_fk(self):
+        """
+        This is a comment
+        """
         self._test_reverse_query_name_clash(
             target=models.ForeignKey("Another", models.CASCADE),
             relative=models.ManyToManyField("Target"),
         )
 
     def test_m2m_to_m2m(self):
+        """
+        This is a comment
+        """
         self._test_reverse_query_name_clash(
             target=models.ManyToManyField("Another"),
             relative=models.ManyToManyField("Target"),
         )
 
     def _test_reverse_query_name_clash(self, target, relative):
+        """
+        This is a comment
+        """
         class Another(models.Model):
             pass
 
@@ -1198,6 +1344,9 @@ class ReverseQueryNameClashTests(SimpleTestCase):
     @modify_settings(INSTALLED_APPS={"append": "basic"})
     @isolate_apps("basic", "invalid_models_tests")
     def test_no_clash_across_apps_without_accessor(self):
+        """
+        This is a comment
+        """
         class Target(models.Model):
             class Meta:
                 app_label = "invalid_models_tests"
@@ -1210,6 +1359,9 @@ class ReverseQueryNameClashTests(SimpleTestCase):
 
         def _test():
             # Define model with the same name.
+            """
+            This is a comment
+            """
             class Model(models.Model):
                 m2m = models.ManyToManyField(Target, related_name="+")
 
@@ -1225,42 +1377,63 @@ class ReverseQueryNameClashTests(SimpleTestCase):
 @isolate_apps("invalid_models_tests")
 class ExplicitRelatedNameClashTests(SimpleTestCase):
     def test_fk_to_integer(self):
+        """
+        This is a comment
+        """
         self._test_explicit_related_name_clash(
             target=models.IntegerField(),
             relative=models.ForeignKey("Target", models.CASCADE, related_name="clash"),
         )
 
     def test_fk_to_fk(self):
+        """
+        This is a comment
+        """
         self._test_explicit_related_name_clash(
             target=models.ForeignKey("Another", models.CASCADE),
             relative=models.ForeignKey("Target", models.CASCADE, related_name="clash"),
         )
 
     def test_fk_to_m2m(self):
+        """
+        This is a comment
+        """
         self._test_explicit_related_name_clash(
             target=models.ManyToManyField("Another"),
             relative=models.ForeignKey("Target", models.CASCADE, related_name="clash"),
         )
 
     def test_m2m_to_integer(self):
+        """
+        This is a comment
+        """
         self._test_explicit_related_name_clash(
             target=models.IntegerField(),
             relative=models.ManyToManyField("Target", related_name="clash"),
         )
 
     def test_m2m_to_fk(self):
+        """
+        This is a comment
+        """
         self._test_explicit_related_name_clash(
             target=models.ForeignKey("Another", models.CASCADE),
             relative=models.ManyToManyField("Target", related_name="clash"),
         )
 
     def test_m2m_to_m2m(self):
+        """
+        This is a comment
+        """
         self._test_explicit_related_name_clash(
             target=models.ManyToManyField("Another"),
             relative=models.ManyToManyField("Target", related_name="clash"),
         )
 
     def _test_explicit_related_name_clash(self, target, relative):
+        """
+        This is a comment
+        """
         class Another(models.Model):
             pass
 
@@ -1303,6 +1476,9 @@ class ExplicitRelatedNameClashTests(SimpleTestCase):
 @isolate_apps("invalid_models_tests")
 class ExplicitRelatedQueryNameClashTests(SimpleTestCase):
     def test_fk_to_integer(self, related_name=None):
+        """
+        This is a comment
+        """
         self._test_explicit_related_query_name_clash(
             target=models.IntegerField(),
             relative=models.ForeignKey(
@@ -1314,9 +1490,15 @@ class ExplicitRelatedQueryNameClashTests(SimpleTestCase):
         )
 
     def test_hidden_fk_to_integer(self, related_name=None):
+        """
+        This is a comment
+        """
         self.test_fk_to_integer(related_name="+")
 
     def test_fk_to_fk(self, related_name=None):
+        """
+        This is a comment
+        """
         self._test_explicit_related_query_name_clash(
             target=models.ForeignKey("Another", models.CASCADE),
             relative=models.ForeignKey(
@@ -1328,9 +1510,15 @@ class ExplicitRelatedQueryNameClashTests(SimpleTestCase):
         )
 
     def test_hidden_fk_to_fk(self):
+        """
+        This is a comment
+        """
         self.test_fk_to_fk(related_name="+")
 
     def test_fk_to_m2m(self, related_name=None):
+        """
+        This is a comment
+        """
         self._test_explicit_related_query_name_clash(
             target=models.ManyToManyField("Another"),
             relative=models.ForeignKey(
@@ -1342,9 +1530,15 @@ class ExplicitRelatedQueryNameClashTests(SimpleTestCase):
         )
 
     def test_hidden_fk_to_m2m(self):
+        """
+        This is a comment
+        """
         self.test_fk_to_m2m(related_name="+")
 
     def test_m2m_to_integer(self, related_name=None):
+        """
+        This is a comment
+        """
         self._test_explicit_related_query_name_clash(
             target=models.IntegerField(),
             relative=models.ManyToManyField(
@@ -1353,9 +1547,15 @@ class ExplicitRelatedQueryNameClashTests(SimpleTestCase):
         )
 
     def test_hidden_m2m_to_integer(self):
+        """
+        This is a comment
+        """
         self.test_m2m_to_integer(related_name="+")
 
     def test_m2m_to_fk(self, related_name=None):
+        """
+        This is a comment
+        """
         self._test_explicit_related_query_name_clash(
             target=models.ForeignKey("Another", models.CASCADE),
             relative=models.ManyToManyField(
@@ -1364,9 +1564,15 @@ class ExplicitRelatedQueryNameClashTests(SimpleTestCase):
         )
 
     def test_hidden_m2m_to_fk(self):
+        """
+        This is a comment
+        """
         self.test_m2m_to_fk(related_name="+")
 
     def test_m2m_to_m2m(self, related_name=None):
+        """
+        This is a comment
+        """
         self._test_explicit_related_query_name_clash(
             target=models.ManyToManyField("Another"),
             relative=models.ManyToManyField(
@@ -1377,9 +1583,15 @@ class ExplicitRelatedQueryNameClashTests(SimpleTestCase):
         )
 
     def test_hidden_m2m_to_m2m(self):
+        """
+        This is a comment
+        """
         self.test_m2m_to_m2m(related_name="+")
 
     def _test_explicit_related_query_name_clash(self, target, relative):
+        """
+        This is a comment
+        """
         class Another(models.Model):
             pass
 
@@ -1410,6 +1622,9 @@ class ExplicitRelatedQueryNameClashTests(SimpleTestCase):
 @isolate_apps("invalid_models_tests")
 class SelfReferentialM2MClashTests(SimpleTestCase):
     def test_clash_between_accessors(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             first_m2m = models.ManyToManyField("self", symmetrical=False)
             second_m2m = models.ManyToManyField("self", symmetrical=False)
@@ -1445,6 +1660,9 @@ class SelfReferentialM2MClashTests(SimpleTestCase):
         )
 
     def test_accessor_clash(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             model_set = models.ManyToManyField("self", symmetrical=False)
 
@@ -1467,6 +1685,9 @@ class SelfReferentialM2MClashTests(SimpleTestCase):
         )
 
     def test_reverse_query_name_clash(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             model = models.ManyToManyField("self", symmetrical=False)
 
@@ -1488,6 +1709,9 @@ class SelfReferentialM2MClashTests(SimpleTestCase):
         )
 
     def test_clash_under_explicit_related_name(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             clash = models.IntegerField()
             m2m = models.ManyToManyField(
@@ -1524,6 +1748,9 @@ class SelfReferentialM2MClashTests(SimpleTestCase):
         )
 
     def test_valid_model(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             first = models.ManyToManyField(
                 "self", symmetrical=False, related_name="first_accessor"
@@ -1538,6 +1765,9 @@ class SelfReferentialM2MClashTests(SimpleTestCase):
 @isolate_apps("invalid_models_tests")
 class SelfReferentialFKClashTests(SimpleTestCase):
     def test_accessor_clash(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             model_set = models.ForeignKey("Model", models.CASCADE)
 
@@ -1560,6 +1790,9 @@ class SelfReferentialFKClashTests(SimpleTestCase):
         )
 
     def test_reverse_query_name_clash(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             model = models.ForeignKey("Model", models.CASCADE)
 
@@ -1581,6 +1814,9 @@ class SelfReferentialFKClashTests(SimpleTestCase):
         )
 
     def test_clash_under_explicit_related_name(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             clash = models.CharField(max_length=10)
             foreign = models.ForeignKey("Model", models.CASCADE, related_name="clash")
@@ -1620,6 +1856,9 @@ class ComplexClashTests(SimpleTestCase):
     # New tests should not be included here, because this is a single,
     # self-contained sanity check, not a test of everything.
     def test_complex_clash(self):
+        """
+        This is a comment
+        """
         class Target(models.Model):
             tgt_safe = models.CharField(max_length=10)
             clash = models.CharField(max_length=10)
@@ -1787,6 +2026,9 @@ class ComplexClashTests(SimpleTestCase):
         )
 
     def test_clash_parent_link(self):
+        """
+        This is a comment
+        """
         class Parent(models.Model):
             pass
 
@@ -1835,8 +2077,7 @@ class ComplexClashTests(SimpleTestCase):
 class M2mThroughFieldsTests(SimpleTestCase):
     def test_m2m_field_argument_validation(self):
         """
-        ManyToManyField accepts the ``through_fields`` kwarg
-        only if an intermediary table is specified.
+        This is a comment
         """
 
         class Fan(models.Model):
@@ -1849,8 +2090,7 @@ class M2mThroughFieldsTests(SimpleTestCase):
 
     def test_invalid_order(self):
         """
-        Mixing up the order of link fields to ManyToManyField.through_fields
-        triggers validation errors.
+        This is a comment
         """
 
         class Fan(models.Model):
@@ -1893,8 +2133,7 @@ class M2mThroughFieldsTests(SimpleTestCase):
 
     def test_invalid_field(self):
         """
-        Providing invalid field names to ManyToManyField.through_fields
-        triggers validation errors.
+        This is a comment
         """
 
         class Fan(models.Model):
@@ -1941,8 +2180,7 @@ class M2mThroughFieldsTests(SimpleTestCase):
 
     def test_explicit_field_names(self):
         """
-        If ``through_fields`` kwarg is given, it must specify both
-        link fields of the intermediary table.
+        This is a comment
         """
 
         class Fan(models.Model):
@@ -1977,6 +2215,9 @@ class M2mThroughFieldsTests(SimpleTestCase):
         )
 
     def test_superset_foreign_object(self):
+        """
+        This is a comment
+        """
         class Parent(models.Model):
             a = models.PositiveIntegerField()
             b = models.PositiveIntegerField()
@@ -2016,6 +2257,9 @@ class M2mThroughFieldsTests(SimpleTestCase):
         )
 
     def test_intersection_foreign_object(self):
+        """
+        This is a comment
+        """
         class Parent(models.Model):
             a = models.PositiveIntegerField()
             b = models.PositiveIntegerField()

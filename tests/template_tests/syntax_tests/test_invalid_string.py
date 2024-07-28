@@ -8,6 +8,9 @@ class InvalidStringTests(SimpleTestCase):
 
     @setup({"invalidstr01": '{{ var|default:"Foo" }}'})
     def test_invalidstr01(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("invalidstr01")
         if self.engine.string_if_invalid:
             self.assertEqual(output, "INVALID")
@@ -16,6 +19,9 @@ class InvalidStringTests(SimpleTestCase):
 
     @setup({"invalidstr02": '{{ var|default_if_none:"Foo" }}'})
     def test_invalidstr02(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("invalidstr02")
         if self.engine.string_if_invalid:
             self.assertEqual(output, "INVALID")
@@ -24,21 +30,33 @@ class InvalidStringTests(SimpleTestCase):
 
     @setup({"invalidstr03": "{% for v in var %}({{ v }}){% endfor %}"})
     def test_invalidstr03(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("invalidstr03")
         self.assertEqual(output, "")
 
     @setup({"invalidstr04": "{% if var %}Yes{% else %}No{% endif %}"})
     def test_invalidstr04(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("invalidstr04")
         self.assertEqual(output, "No")
 
     @setup({"invalidstr04_2": '{% if var|default:"Foo" %}Yes{% else %}No{% endif %}'})
     def test_invalidstr04_2(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("invalidstr04_2")
         self.assertEqual(output, "Yes")
 
     @setup({"invalidstr05": "{{ var }}"})
     def test_invalidstr05(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("invalidstr05")
         if self.engine.string_if_invalid:
             self.assertEqual(output, "INVALID")
@@ -47,6 +65,9 @@ class InvalidStringTests(SimpleTestCase):
 
     @setup({"invalidstr06": "{{ var.prop }}"})
     def test_invalidstr06(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("invalidstr06")
         if self.engine.string_if_invalid:
             self.assertEqual(output, "INVALID")
@@ -61,6 +82,9 @@ class InvalidStringTests(SimpleTestCase):
         }
     )
     def test_invalidstr07(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("invalidstr07")
         if self.engine.string_if_invalid:
             self.assertEqual(output, "INVALID")

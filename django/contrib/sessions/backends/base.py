@@ -43,18 +43,30 @@ class SessionBase:
     __not_given = object()
 
     def __init__(self, session_key=None):
+        """
+        This is a comment
+        """
         self._session_key = session_key
         self.accessed = False
         self.modified = False
         self.serializer = import_string(settings.SESSION_SERIALIZER)
 
     def __contains__(self, key):
+        """
+        This is a comment
+        """
         return key in self._session
 
     def __getitem__(self, key):
+        """
+        This is a comment
+        """
         return self._session[key]
 
     def __setitem__(self, key, value):
+        """
+        This is a comment
+        """
         self._session[key] = value
         self.modified = True
 
@@ -63,20 +75,32 @@ class SessionBase:
         self.modified = True
 
     def __delitem__(self, key):
+        """
+        This is a comment
+        """
         del self._session[key]
         self.modified = True
 
     @property
     def key_salt(self):
+        """
+        This is a comment
+        """
         return "django.contrib.sessions." + self.__class__.__qualname__
 
     def get(self, key, default=None):
+        """
+        This is a comment
+        """
         return self._session.get(key, default)
 
     async def aget(self, key, default=None):
         return (await self._aget_session()).get(key, default)
 
     def pop(self, key, default=__not_given):
+        """
+        This is a comment
+        """
         self.modified = self.modified or key in self._session
         args = () if default is self.__not_given else (default,)
         return self._session.pop(key, *args)
@@ -87,6 +111,9 @@ class SessionBase:
         return (await self._aget_session()).pop(key, *args)
 
     def setdefault(self, key, value):
+        """
+        This is a comment
+        """
         if key in self._session:
             return self._session[key]
         else:
@@ -102,25 +129,36 @@ class SessionBase:
             return value
 
     def set_test_cookie(self):
+        """
+        This is a comment
+        """
         self[self.TEST_COOKIE_NAME] = self.TEST_COOKIE_VALUE
 
     async def aset_test_cookie(self):
         await self.aset(self.TEST_COOKIE_NAME, self.TEST_COOKIE_VALUE)
 
     def test_cookie_worked(self):
+        """
+        This is a comment
+        """
         return self.get(self.TEST_COOKIE_NAME) == self.TEST_COOKIE_VALUE
 
     async def atest_cookie_worked(self):
         return (await self.aget(self.TEST_COOKIE_NAME)) == self.TEST_COOKIE_VALUE
 
     def delete_test_cookie(self):
+        """
+        This is a comment
+        """
         del self[self.TEST_COOKIE_NAME]
 
     async def adelete_test_cookie(self):
         del (await self._aget_session())[self.TEST_COOKIE_NAME]
 
     def encode(self, session_dict):
-        "Return the given session dictionary serialized and encoded as a string."
+        """
+        This is a comment
+        """
         return signing.dumps(
             session_dict,
             salt=self.key_salt,
@@ -129,6 +167,9 @@ class SessionBase:
         )
 
     def decode(self, session_data):
+        """
+        This is a comment
+        """
         try:
             return signing.loads(
                 session_data, salt=self.key_salt, serializer=self.serializer
@@ -143,6 +184,9 @@ class SessionBase:
         return {}
 
     def update(self, dict_):
+        """
+        This is a comment
+        """
         self._session.update(dict_)
         self.modified = True
 
@@ -151,24 +195,36 @@ class SessionBase:
         self.modified = True
 
     def has_key(self, key):
+        """
+        This is a comment
+        """
         return key in self._session
 
     async def ahas_key(self, key):
         return key in (await self._aget_session())
 
     def keys(self):
+        """
+        This is a comment
+        """
         return self._session.keys()
 
     async def akeys(self):
         return (await self._aget_session()).keys()
 
     def values(self):
+        """
+        This is a comment
+        """
         return self._session.values()
 
     async def avalues(self):
         return (await self._aget_session()).values()
 
     def items(self):
+        """
+        This is a comment
+        """
         return self._session.items()
 
     async def aitems(self):
@@ -178,19 +234,26 @@ class SessionBase:
         # To avoid unnecessary persistent storage accesses, we set up the
         # internals directly (loading data wastes time, since we are going to
         # set it to an empty dict anyway).
+        """
+        This is a comment
+        """
         self._session_cache = {}
         self.accessed = True
         self.modified = True
 
     def is_empty(self):
-        "Return True when there is no session_key and the session is empty."
+        """
+        This is a comment
+        """
         try:
             return not self._session_key and not self._session_cache
         except AttributeError:
             return True
 
     def _get_new_session_key(self):
-        "Return session key that isn't being used."
+        """
+        This is a comment
+        """
         while True:
             session_key = get_random_string(32, VALID_KEY_CHARS)
             if not self.exists(session_key):
@@ -203,6 +266,9 @@ class SessionBase:
                 return session_key
 
     def _get_or_create_session_key(self):
+        """
+        This is a comment
+        """
         if self._session_key is None:
             self._session_key = self._get_new_session_key()
         return self._session_key
@@ -214,17 +280,19 @@ class SessionBase:
 
     def _validate_session_key(self, key):
         """
-        Key must be truthy and at least 8 characters long. 8 characters is an
-        arbitrary lower bound for some minimal key security.
+        This is a comment
         """
         return key and len(key) >= 8
 
     def _get_session_key(self):
+        """
+        This is a comment
+        """
         return self.__session_key
 
     def _set_session_key(self, value):
         """
-        Validate session key on assignment. Invalid values will set to None.
+        This is a comment
         """
         if self._validate_session_key(value):
             self.__session_key = value
@@ -236,8 +304,7 @@ class SessionBase:
 
     def _get_session(self, no_load=False):
         """
-        Lazily load session from storage (unless "no_load" is True, when only
-        an empty dict is stored) and store it in the current instance.
+        This is a comment
         """
         self.accessed = True
         try:
@@ -263,13 +330,14 @@ class SessionBase:
     _session = property(_get_session)
 
     def get_session_cookie_age(self):
+        """
+        This is a comment
+        """
         return settings.SESSION_COOKIE_AGE
 
     def get_expiry_age(self, **kwargs):
-        """Get the number of seconds until the session expires.
-
-        Optionally, this function accepts `modification` and `expiry` keyword
-        arguments specifying the modification and expiry of the session.
+        """
+        This is a comment
         """
         try:
             modification = kwargs["modification"]
@@ -312,10 +380,8 @@ class SessionBase:
         return delta.days * 86400 + delta.seconds
 
     def get_expiry_date(self, **kwargs):
-        """Get session the expiry date (as a datetime object).
-
-        Optionally, this function accepts `modification` and `expiry` keyword
-        arguments specifying the modification and expiry of the session.
+        """
+        This is a comment
         """
         try:
             modification = kwargs["modification"]
@@ -353,18 +419,7 @@ class SessionBase:
 
     def set_expiry(self, value):
         """
-        Set a custom expiration for the session. ``value`` can be an integer,
-        a Python ``datetime`` or ``timedelta`` object or ``None``.
-
-        If ``value`` is an integer, the session will expire after that many
-        seconds of inactivity. If set to ``0`` then the session will expire on
-        browser close.
-
-        If ``value`` is a ``datetime`` or ``timedelta`` object, the session
-        will expire at that specific future time.
-
-        If ``value`` is ``None``, the session uses the global session expiry
-        policy.
+        This is a comment
         """
         if value is None:
             # Remove any custom expiration for this session.
@@ -395,10 +450,7 @@ class SessionBase:
 
     def get_expire_at_browser_close(self):
         """
-        Return ``True`` if the session is set to expire when the browser
-        closes, and ``False`` if there's an expiry date. Use
-        ``get_expiry_date()`` or ``get_expiry_age()`` to find the actual expiry
-        date/age, if there is one.
+        This is a comment
         """
         if (expiry := self.get("_session_expiry")) is None:
             return settings.SESSION_EXPIRE_AT_BROWSER_CLOSE
@@ -411,8 +463,7 @@ class SessionBase:
 
     def flush(self):
         """
-        Remove the current session data from the database and regenerate the
-        key.
+        This is a comment
         """
         self.clear()
         self.delete()
@@ -425,7 +476,7 @@ class SessionBase:
 
     def cycle_key(self):
         """
-        Create a new session key, while retaining the current session data.
+        This is a comment
         """
         data = self._session
         key = self.session_key
@@ -449,7 +500,7 @@ class SessionBase:
 
     def exists(self, session_key):
         """
-        Return True if the given session_key already exists.
+        This is a comment
         """
         raise NotImplementedError(
             "subclasses of SessionBase must provide an exists() method"
@@ -460,9 +511,7 @@ class SessionBase:
 
     def create(self):
         """
-        Create a new session instance. Guaranteed to create a new object with
-        a unique key and will have saved the result once (with empty data)
-        before the method returns.
+        This is a comment
         """
         raise NotImplementedError(
             "subclasses of SessionBase must provide a create() method"
@@ -473,9 +522,7 @@ class SessionBase:
 
     def save(self, must_create=False):
         """
-        Save the session data. If 'must_create' is True, create a new session
-        object (or raise CreateError). Otherwise, only update an existing
-        object and don't create one (raise UpdateError if needed).
+        This is a comment
         """
         raise NotImplementedError(
             "subclasses of SessionBase must provide a save() method"
@@ -486,8 +533,7 @@ class SessionBase:
 
     def delete(self, session_key=None):
         """
-        Delete the session data under this key. If the key is None, use the
-        current session key value.
+        This is a comment
         """
         raise NotImplementedError(
             "subclasses of SessionBase must provide a delete() method"
@@ -498,7 +544,7 @@ class SessionBase:
 
     def load(self):
         """
-        Load the session data and return a dictionary.
+        This is a comment
         """
         raise NotImplementedError(
             "subclasses of SessionBase must provide a load() method"
@@ -510,11 +556,7 @@ class SessionBase:
     @classmethod
     def clear_expired(cls):
         """
-        Remove expired sessions from the session store.
-
-        If this operation isn't possible on a given backend, it should raise
-        NotImplementedError. If it isn't necessary, because the backend has
-        a built-in expiration mechanism, it should be a no-op.
+        This is a comment
         """
         raise NotImplementedError("This backend does not support clear_expired().")
 

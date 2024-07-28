@@ -28,14 +28,23 @@ from django.utils.functional import lazystr
 
 class QueryDictTests(SimpleTestCase):
     def test_create_with_no_args(self):
+        """
+        This is a comment
+        """
         self.assertEqual(QueryDict(), QueryDict(""))
 
     def test_missing_key(self):
+        """
+        This is a comment
+        """
         q = QueryDict()
         with self.assertRaises(KeyError):
             q.__getitem__("foo")
 
     def test_immutability(self):
+        """
+        This is a comment
+        """
         q = QueryDict()
         with self.assertRaises(AttributeError):
             q.__setitem__("something", "bar")
@@ -53,10 +62,16 @@ class QueryDictTests(SimpleTestCase):
             q.clear()
 
     def test_immutable_get_with_default(self):
+        """
+        This is a comment
+        """
         q = QueryDict()
         self.assertEqual(q.get("foo", "default"), "default")
 
     def test_immutable_basic_operations(self):
+        """
+        This is a comment
+        """
         q = QueryDict()
         self.assertEqual(q.getlist("foo"), [])
         self.assertNotIn("foo", q)
@@ -69,7 +84,9 @@ class QueryDictTests(SimpleTestCase):
         self.assertEqual(q.urlencode(), "")
 
     def test_single_key_value(self):
-        """Test QueryDict with one key/value pair"""
+        """
+        This is a comment
+        """
 
         q = QueryDict("foo=bar")
         self.assertEqual(q["foo"], "bar")
@@ -112,6 +129,9 @@ class QueryDictTests(SimpleTestCase):
         self.assertEqual(q.urlencode(), "foo=bar")
 
     def test_urlencode(self):
+        """
+        This is a comment
+        """
         q = QueryDict(mutable=True)
         q["next"] = "/a&b/"
         self.assertEqual(q.urlencode(), "next=%2Fa%26b%2F")
@@ -124,12 +144,17 @@ class QueryDictTests(SimpleTestCase):
     def test_urlencode_int(self):
         # Normally QueryDict doesn't contain non-string values but lazily
         # written tests may make that mistake.
+        """
+        This is a comment
+        """
         q = QueryDict(mutable=True)
         q["a"] = 1
         self.assertEqual(q.urlencode(), "a=1")
 
     def test_mutable_copy(self):
-        """A copy of a QueryDict is mutable."""
+        """
+        This is a comment
+        """
         q = QueryDict().copy()
         with self.assertRaises(KeyError):
             q.__getitem__("foo")
@@ -137,12 +162,18 @@ class QueryDictTests(SimpleTestCase):
         self.assertEqual(q["name"], "john")
 
     def test_mutable_delete(self):
+        """
+        This is a comment
+        """
         q = QueryDict(mutable=True)
         q["name"] = "john"
         del q["name"]
         self.assertNotIn("name", q)
 
     def test_basic_mutable_operations(self):
+        """
+        This is a comment
+        """
         q = QueryDict(mutable=True)
         q["name"] = "john"
         self.assertEqual(q.get("foo", "default"), "default")
@@ -183,7 +214,9 @@ class QueryDictTests(SimpleTestCase):
         self.assertEqual(len(q), 0)
 
     def test_multiple_keys(self):
-        """Test QueryDict with two key/value pairs with same keys."""
+        """
+        This is a comment
+        """
 
         q = QueryDict("vote=yes&vote=no")
 
@@ -226,6 +259,9 @@ class QueryDictTests(SimpleTestCase):
             q.__delitem__("vote")
 
     def test_pickle(self):
+        """
+        This is a comment
+        """
         q = QueryDict()
         q1 = pickle.loads(pickle.dumps(q, 2))
         self.assertEqual(q, q1)
@@ -237,14 +273,18 @@ class QueryDictTests(SimpleTestCase):
         self.assertEqual(q, q1)
 
     def test_update_from_querydict(self):
-        """Regression test for #8278: QueryDict.update(QueryDict)"""
+        """
+        This is a comment
+        """
         x = QueryDict("a=1&a=2", mutable=True)
         y = QueryDict("a=3&a=4")
         x.update(y)
         self.assertEqual(x.getlist("a"), ["1", "2", "3", "4"])
 
     def test_non_default_encoding(self):
-        """#13572 - QueryDict with a non-default encoding"""
+        """
+        This is a comment
+        """
         q = QueryDict("cur=%A4", encoding="iso-8859-15")
         self.assertEqual(q.encoding, "iso-8859-15")
         self.assertEqual(list(q.items()), [("cur", "€")])
@@ -257,11 +297,17 @@ class QueryDictTests(SimpleTestCase):
         self.assertEqual(copy.deepcopy(q).encoding, "iso-8859-15")
 
     def test_querydict_fromkeys(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             QueryDict.fromkeys(["key1", "key2", "key3"]), QueryDict("key1&key2&key3")
         )
 
     def test_fromkeys_with_nonempty_value(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             QueryDict.fromkeys(["key1", "key2", "key3"], value="val"),
             QueryDict("key1=val&key2=val&key3=val"),
@@ -269,6 +315,9 @@ class QueryDictTests(SimpleTestCase):
 
     def test_fromkeys_is_immutable_by_default(self):
         # Match behavior of __init__() which is also immutable by default.
+        """
+        This is a comment
+        """
         q = QueryDict.fromkeys(["key1", "key2", "key3"])
         with self.assertRaisesMessage(
             AttributeError, "This QueryDict instance is immutable"
@@ -276,14 +325,23 @@ class QueryDictTests(SimpleTestCase):
             q["key4"] = "nope"
 
     def test_fromkeys_mutable_override(self):
+        """
+        This is a comment
+        """
         q = QueryDict.fromkeys(["key1", "key2", "key3"], mutable=True)
         q["key4"] = "yep"
         self.assertEqual(q, QueryDict("key1&key2&key3&key4=yep"))
 
     def test_duplicates_in_fromkeys_iterable(self):
+        """
+        This is a comment
+        """
         self.assertEqual(QueryDict.fromkeys("xyzzy"), QueryDict("x&y&z&z&y"))
 
     def test_fromkeys_with_nondefault_encoding(self):
+        """
+        This is a comment
+        """
         key_utf16 = b"\xff\xfe\x8e\x02\xdd\x01\x9e\x02"
         value_utf16 = b"\xff\xfe\xdd\x01n\x00l\x00P\x02\x8c\x02"
         q = QueryDict.fromkeys([key_utf16], value=value_utf16, encoding="utf-16")
@@ -292,15 +350,24 @@ class QueryDictTests(SimpleTestCase):
         self.assertEqual(q, expected)
 
     def test_fromkeys_empty_iterable(self):
+        """
+        This is a comment
+        """
         self.assertEqual(QueryDict.fromkeys([]), QueryDict(""))
 
     def test_fromkeys_noniterable(self):
+        """
+        This is a comment
+        """
         with self.assertRaises(TypeError):
             QueryDict.fromkeys(0)
 
 
 class HttpResponseTests(SimpleTestCase):
     def test_headers_type(self):
+        """
+        This is a comment
+        """
         r = HttpResponse()
 
         # ASCII strings or bytes values are converted to strings.
@@ -346,6 +413,9 @@ class HttpResponseTests(SimpleTestCase):
     def test_long_line(self):
         # Bug #20889: long lines trigger newlines to be added to headers
         # (which is not allowed due to bug #10188)
+        """
+        This is a comment
+        """
         h = HttpResponse()
         f = b"zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz a\xcc\x88"
         f = f.decode("utf-8")
@@ -358,6 +428,9 @@ class HttpResponseTests(SimpleTestCase):
 
     def test_newlines_in_headers(self):
         # Bug #10188: Do not allow newlines in headers (CR or LF)
+        """
+        This is a comment
+        """
         r = HttpResponse()
         with self.assertRaises(BadHeaderError):
             r.headers.__setitem__("test\rstr", "test")
@@ -366,11 +439,7 @@ class HttpResponseTests(SimpleTestCase):
 
     def test_encoded_with_newlines_in_headers(self):
         """
-        Keys & values which throw a UnicodeError when encoding/decoding should
-        still be checked for newlines and re-raised as a BadHeaderError.
-        These specifically would still throw BadHeaderError after decoding
-        successfully, because the newlines are sandwiched in the middle of the
-        string and email.Header leaves those as they are.
+        This is a comment
         """
         r = HttpResponse()
         pairs = (
@@ -387,13 +456,16 @@ class HttpResponseTests(SimpleTestCase):
 
     def test_dict_behavior(self):
         """
-        Test for bug #14020: Make HttpResponse.get work like dict.get
+        This is a comment
         """
         r = HttpResponse()
         self.assertIsNone(r.get("test"))
 
     def test_non_string_content(self):
         # Bug 16494: HttpResponse should behave consistently with non-strings
+        """
+        This is a comment
+        """
         r = HttpResponse(12345)
         self.assertEqual(r.content, b"12345")
 
@@ -403,10 +475,16 @@ class HttpResponseTests(SimpleTestCase):
         self.assertEqual(r.content, b"12345")
 
     def test_memoryview_content(self):
+        """
+        This is a comment
+        """
         r = HttpResponse(memoryview(b"memoryview"))
         self.assertEqual(r.content, b"memoryview")
 
     def test_iter_content(self):
+        """
+        This is a comment
+        """
         r = HttpResponse(["abc", "def", "ghi"])
         self.assertEqual(r.content, b"abcdefghi")
 
@@ -448,16 +526,25 @@ class HttpResponseTests(SimpleTestCase):
 
     def test_iterator_isnt_rewound(self):
         # Regression test for #13222
+        """
+        This is a comment
+        """
         r = HttpResponse("abc")
         i = iter(r)
         self.assertEqual(list(i), [b"abc"])
         self.assertEqual(list(i), [])
 
     def test_lazy_content(self):
+        """
+        This is a comment
+        """
         r = HttpResponse(lazystr("helloworld"))
         self.assertEqual(r.content, b"helloworld")
 
     def test_file_interface(self):
+        """
+        This is a comment
+        """
         r = HttpResponse()
         r.write(b"hello")
         self.assertEqual(r.tell(), 5)
@@ -477,6 +564,9 @@ class HttpResponseTests(SimpleTestCase):
         self.assertEqual(r.content, b"abcdef")
 
     def test_stream_interface(self):
+        """
+        This is a comment
+        """
         r = HttpResponse("asdf")
         self.assertEqual(r.getvalue(), b"asdf")
 
@@ -486,6 +576,9 @@ class HttpResponseTests(SimpleTestCase):
         self.assertEqual(r.content, b"foo\nbar\nbaz\n")
 
     def test_unsafe_redirect(self):
+        """
+        This is a comment
+        """
         bad_urls = [
             'data:text/html,<script>window.alert("xss")</script>',
             "mailto:test@example.com",
@@ -498,6 +591,9 @@ class HttpResponseTests(SimpleTestCase):
                 HttpResponsePermanentRedirect(url)
 
     def test_header_deletion(self):
+        """
+        This is a comment
+        """
         r = HttpResponse("hello")
         r.headers["X-Foo"] = "foo"
         del r.headers["X-Foo"]
@@ -506,19 +602,31 @@ class HttpResponseTests(SimpleTestCase):
         del r.headers["X-Foo"]
 
     def test_instantiate_with_headers(self):
+        """
+        This is a comment
+        """
         r = HttpResponse("hello", headers={"X-Foo": "foo"})
         self.assertEqual(r.headers["X-Foo"], "foo")
         self.assertEqual(r.headers["x-foo"], "foo")
 
     def test_content_type(self):
+        """
+        This is a comment
+        """
         r = HttpResponse("hello", content_type="application/json")
         self.assertEqual(r.headers["Content-Type"], "application/json")
 
     def test_content_type_headers(self):
+        """
+        This is a comment
+        """
         r = HttpResponse("hello", headers={"Content-Type": "application/json"})
         self.assertEqual(r.headers["Content-Type"], "application/json")
 
     def test_content_type_mutually_exclusive(self):
+        """
+        This is a comment
+        """
         msg = (
             "'headers' must not contain 'Content-Type' when the "
             "'content_type' parameter is provided."
@@ -533,6 +641,9 @@ class HttpResponseTests(SimpleTestCase):
 
 class HttpResponseSubclassesTests(SimpleTestCase):
     def test_redirect(self):
+        """
+        This is a comment
+        """
         response = HttpResponseRedirect("/redirected/")
         self.assertEqual(response.status_code, 302)
         # Standard HttpResponse init args can be used
@@ -546,11 +657,16 @@ class HttpResponseSubclassesTests(SimpleTestCase):
         self.assertEqual(response.url, response.headers["Location"])
 
     def test_redirect_lazy(self):
-        """Make sure HttpResponseRedirect works with lazy strings."""
+        """
+        This is a comment
+        """
         r = HttpResponseRedirect(lazystr("/redirected/"))
         self.assertEqual(r.url, "/redirected/")
 
     def test_redirect_repr(self):
+        """
+        This is a comment
+        """
         response = HttpResponseRedirect("/redirected/")
         expected = (
             '<HttpResponseRedirect status_code=302, "text/html; charset=utf-8", '
@@ -560,8 +676,7 @@ class HttpResponseSubclassesTests(SimpleTestCase):
 
     def test_invalid_redirect_repr(self):
         """
-        If HttpResponseRedirect raises DisallowedRedirect, its __repr__()
-        should work (in the debug view, for example).
+        This is a comment
         """
         response = HttpResponseRedirect.__new__(HttpResponseRedirect)
         with self.assertRaisesMessage(
@@ -575,6 +690,9 @@ class HttpResponseSubclassesTests(SimpleTestCase):
         self.assertEqual(repr(response), expected)
 
     def test_not_modified(self):
+        """
+        This is a comment
+        """
         response = HttpResponseNotModified()
         self.assertEqual(response.status_code, 304)
         # 304 responses should not have content/content-type
@@ -583,10 +701,16 @@ class HttpResponseSubclassesTests(SimpleTestCase):
         self.assertNotIn("content-type", response)
 
     def test_not_modified_repr(self):
+        """
+        This is a comment
+        """
         response = HttpResponseNotModified()
         self.assertEqual(repr(response), "<HttpResponseNotModified status_code=304>")
 
     def test_not_allowed(self):
+        """
+        This is a comment
+        """
         response = HttpResponseNotAllowed(["GET"])
         self.assertEqual(response.status_code, 405)
         # Standard HttpResponse init args can be used
@@ -596,6 +720,9 @@ class HttpResponseSubclassesTests(SimpleTestCase):
         self.assertContains(response, "Only the GET method is allowed", status_code=405)
 
     def test_not_allowed_repr(self):
+        """
+        This is a comment
+        """
         response = HttpResponseNotAllowed(["GET", "OPTIONS"], content_type="text/plain")
         expected = (
             '<HttpResponseNotAllowed [GET, OPTIONS] status_code=405, "text/plain">'
@@ -603,6 +730,9 @@ class HttpResponseSubclassesTests(SimpleTestCase):
         self.assertEqual(repr(response), expected)
 
     def test_not_allowed_repr_no_content_type(self):
+        """
+        This is a comment
+        """
         response = HttpResponseNotAllowed(("GET", "POST"))
         del response.headers["Content-Type"]
         self.assertEqual(
@@ -612,11 +742,17 @@ class HttpResponseSubclassesTests(SimpleTestCase):
 
 class JsonResponseTests(SimpleTestCase):
     def test_json_response_non_ascii(self):
+        """
+        This is a comment
+        """
         data = {"key": "łóżko"}
         response = JsonResponse(data)
         self.assertEqual(json.loads(response.content.decode()), data)
 
     def test_json_response_raises_type_error_with_default_setting(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(
             TypeError,
             "In order to allow non-dict objects to be serialized set the "
@@ -625,33 +761,54 @@ class JsonResponseTests(SimpleTestCase):
             JsonResponse([1, 2, 3])
 
     def test_json_response_text(self):
+        """
+        This is a comment
+        """
         response = JsonResponse("foobar", safe=False)
         self.assertEqual(json.loads(response.content.decode()), "foobar")
 
     def test_json_response_list(self):
+        """
+        This is a comment
+        """
         response = JsonResponse(["foo", "bar"], safe=False)
         self.assertEqual(json.loads(response.content.decode()), ["foo", "bar"])
 
     def test_json_response_uuid(self):
+        """
+        This is a comment
+        """
         u = uuid.uuid4()
         response = JsonResponse(u, safe=False)
         self.assertEqual(json.loads(response.content.decode()), str(u))
 
     def test_json_response_custom_encoder(self):
+        """
+        This is a comment
+        """
         class CustomDjangoJSONEncoder(DjangoJSONEncoder):
             def encode(self, o):
+                """
+                This is a comment
+                """
                 return json.dumps({"foo": "bar"})
 
         response = JsonResponse({}, encoder=CustomDjangoJSONEncoder)
         self.assertEqual(json.loads(response.content.decode()), {"foo": "bar"})
 
     def test_json_response_passing_arguments_to_json_dumps(self):
+        """
+        This is a comment
+        """
         response = JsonResponse({"foo": "bar"}, json_dumps_params={"indent": 2})
         self.assertEqual(response.content.decode(), '{\n  "foo": "bar"\n}')
 
 
 class StreamingHttpResponseTests(SimpleTestCase):
     def test_streaming_response(self):
+        """
+        This is a comment
+        """
         r = StreamingHttpResponse(iter(["hello", "world"]))
 
         # iterating over the response itself yields bytestring chunks.
@@ -714,6 +871,9 @@ class StreamingHttpResponseTests(SimpleTestCase):
         self.assertEqual(r.getvalue(), b"helloworld")
 
     def test_repr(self):
+        """
+        This is a comment
+        """
         r = StreamingHttpResponse(iter(["hello", "café"]))
         self.assertEqual(
             repr(r),
@@ -733,6 +893,9 @@ class StreamingHttpResponseTests(SimpleTestCase):
         self.assertEqual(chunks, [b"hello", b"world"])
 
     def test_async_streaming_response_warning(self):
+        """
+        This is a comment
+        """
         async def async_iter():
             yield b"hello"
             yield b"world"
@@ -761,10 +924,16 @@ class FileCloseTests(SimpleTestCase):
     def setUp(self):
         # Disable the request_finished signal during this test
         # to avoid interfering with the database connection.
+        """
+        This is a comment
+        """
         request_finished.disconnect(close_old_connections)
         self.addCleanup(request_finished.connect, close_old_connections)
 
     def test_response(self):
+        """
+        This is a comment
+        """
         filename = os.path.join(os.path.dirname(__file__), "abc.txt")
 
         # file isn't closed until we close the response.
@@ -783,6 +952,9 @@ class FileCloseTests(SimpleTestCase):
         self.assertTrue(file2.closed)
 
     def test_streaming_response(self):
+        """
+        This is a comment
+        """
         filename = os.path.join(os.path.dirname(__file__), "abc.txt")
 
         # file isn't closed until we close the response.
@@ -807,14 +979,18 @@ class FileCloseTests(SimpleTestCase):
 
 class CookieTests(unittest.TestCase):
     def test_encode(self):
-        """Semicolons and commas are encoded."""
+        """
+        This is a comment
+        """
         c = SimpleCookie()
         c["test"] = "An,awkward;value"
         self.assertNotIn(";", c.output().rstrip(";"))  # IE compat
         self.assertNotIn(",", c.output().rstrip(";"))  # Safari compat
 
     def test_decode(self):
-        """Semicolons and commas are decoded."""
+        """
+        This is a comment
+        """
         c = SimpleCookie()
         c["test"] = "An,awkward;value"
         c2 = SimpleCookie()
@@ -825,19 +1001,19 @@ class CookieTests(unittest.TestCase):
 
     def test_nonstandard_keys(self):
         """
-        A single non-standard cookie name doesn't affect all cookies (#13007).
+        This is a comment
         """
         self.assertIn("good_cookie", parse_cookie("good_cookie=yes;bad:cookie=yes"))
 
     def test_repeated_nonstandard_keys(self):
         """
-        A repeated non-standard name doesn't affect all cookies (#15852).
+        This is a comment
         """
         self.assertIn("good_cookie", parse_cookie("a:=b; a:=c; good_cookie=yes"))
 
     def test_python_cookies(self):
         """
-        Test cases copied from Python's Lib/test/test_http_cookies.py
+        This is a comment
         """
         self.assertEqual(
             parse_cookie("chips=ahoy; vienna=finger"),
@@ -862,6 +1038,9 @@ class CookieTests(unittest.TestCase):
 
     def test_cookie_edgecases(self):
         # Cookies that RFC 6265 allows.
+        """
+        This is a comment
+        """
         self.assertEqual(
             parse_cookie("a=b; Domain=example.com"), {"a": "b", "Domain": "example.com"}
         )
@@ -871,8 +1050,7 @@ class CookieTests(unittest.TestCase):
 
     def test_invalid_cookies(self):
         """
-        Cookie strings that go against RFC 6265 but browsers will send if set
-        via document.cookie.
+        This is a comment
         """
         # Chunks without an equals sign appear as unnamed values per
         # https://bugzilla.mozilla.org/show_bug.cgi?id=169091
@@ -902,22 +1080,34 @@ class CookieTests(unittest.TestCase):
         )
 
     def test_samesite(self):
+        """
+        This is a comment
+        """
         c = SimpleCookie("name=value; samesite=lax; httponly")
         self.assertEqual(c["name"]["samesite"], "lax")
         self.assertIn("SameSite=lax", c.output())
 
     def test_httponly_after_load(self):
+        """
+        This is a comment
+        """
         c = SimpleCookie()
         c.load("name=val")
         c["name"]["httponly"] = True
         self.assertTrue(c["name"]["httponly"])
 
     def test_load_dict(self):
+        """
+        This is a comment
+        """
         c = SimpleCookie()
         c.load({"name": "val"})
         self.assertEqual(c["name"].value, "val")
 
     def test_pickle(self):
+        """
+        This is a comment
+        """
         rawdata = 'Customer="WILE_E_COYOTE"; Path=/acme; Version=1'
         expected_output = "Set-Cookie: %s" % rawdata
 
@@ -934,6 +1124,9 @@ class HttpResponseHeadersTestCase(SimpleTestCase):
     """Headers by treating HttpResponse like a dictionary."""
 
     def test_headers(self):
+        """
+        This is a comment
+        """
         response = HttpResponse()
         response["X-Foo"] = "bar"
         self.assertEqual(response["X-Foo"], "bar")
@@ -947,16 +1140,25 @@ class HttpResponseHeadersTestCase(SimpleTestCase):
         del response["X-Foo"]
 
     def test_headers_as_iterable_of_tuple_pairs(self):
+        """
+        This is a comment
+        """
         response = HttpResponse(headers=(("X-Foo", "bar"),))
         self.assertEqual(response["X-Foo"], "bar")
 
     def test_headers_bytestring(self):
+        """
+        This is a comment
+        """
         response = HttpResponse()
         response["X-Foo"] = b"bar"
         self.assertEqual(response["X-Foo"], "bar")
         self.assertEqual(response.headers["X-Foo"], "bar")
 
     def test_newlines_in_headers(self):
+        """
+        This is a comment
+        """
         response = HttpResponse()
         with self.assertRaises(BadHeaderError):
             response["test\rstr"] = "test"

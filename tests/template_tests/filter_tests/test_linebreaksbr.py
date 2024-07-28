@@ -13,6 +13,9 @@ class LinebreaksbrTests(SimpleTestCase):
 
     @setup({"linebreaksbr01": "{{ a|linebreaksbr }} {{ b|linebreaksbr }}"})
     def test_linebreaksbr01(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "linebreaksbr01", {"a": "x&\ny", "b": mark_safe("x&\ny")}
         )
@@ -27,6 +30,9 @@ class LinebreaksbrTests(SimpleTestCase):
         }
     )
     def test_linebreaksbr02(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "linebreaksbr02", {"a": "x&\ny", "b": mark_safe("x&\ny")}
         )
@@ -35,24 +41,42 @@ class LinebreaksbrTests(SimpleTestCase):
 
 class FunctionTests(SimpleTestCase):
     def test_newline(self):
+        """
+        This is a comment
+        """
         self.assertEqual(linebreaksbr("line 1\nline 2"), "line 1<br>line 2")
 
     def test_carriage(self):
+        """
+        This is a comment
+        """
         self.assertEqual(linebreaksbr("line 1\rline 2"), "line 1<br>line 2")
 
     def test_carriage_newline(self):
+        """
+        This is a comment
+        """
         self.assertEqual(linebreaksbr("line 1\r\nline 2"), "line 1<br>line 2")
 
     def test_non_string_input(self):
+        """
+        This is a comment
+        """
         self.assertEqual(linebreaksbr(123), "123")
 
     def test_autoescape(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             linebreaksbr("foo\n<a>bar</a>\nbuz"),
             "foo<br>&lt;a&gt;bar&lt;/a&gt;<br>buz",
         )
 
     def test_autoescape_off(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             linebreaksbr("foo\n<a>bar</a>\nbuz", autoescape=False),
             "foo<br><a>bar</a><br>buz",

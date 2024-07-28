@@ -10,6 +10,9 @@ from ..models import Author
 class MD5Tests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         Author.objects.bulk_create(
             [
                 Author(alias="John Smith"),
@@ -21,6 +24,9 @@ class MD5Tests(TestCase):
         )
 
     def test_basic(self):
+        """
+        This is a comment
+        """
         authors = (
             Author.objects.annotate(
                 md5_alias=MD5("alias"),
@@ -44,6 +50,9 @@ class MD5Tests(TestCase):
         )
 
     def test_transform(self):
+        """
+        This is a comment
+        """
         with register_lookup(CharField, MD5):
             authors = Author.objects.filter(
                 alias__md5="6117323d2cabbc17d44c2b44587f682c",

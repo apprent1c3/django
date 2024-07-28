@@ -69,6 +69,9 @@ FLAG_PROPERTIES_FOR_RELATIONS = (
 class FieldFlagsTests(test.SimpleTestCase):
     @classmethod
     def setUpClass(cls):
+        """
+        This is a comment
+        """
         super().setUpClass()
         cls.fields = [
             *AllFieldsModel._meta.fields,
@@ -87,15 +90,27 @@ class FieldFlagsTests(test.SimpleTestCase):
         ]
 
     def test_each_field_should_have_a_concrete_attribute(self):
+        """
+        This is a comment
+        """
         self.assertTrue(all(f.concrete.__class__ == bool for f in self.fields))
 
     def test_each_field_should_have_an_editable_attribute(self):
+        """
+        This is a comment
+        """
         self.assertTrue(all(f.editable.__class__ == bool for f in self.all_fields))
 
     def test_each_field_should_have_a_has_rel_attribute(self):
+        """
+        This is a comment
+        """
         self.assertTrue(all(f.is_relation.__class__ == bool for f in self.all_fields))
 
     def test_each_object_should_have_auto_created(self):
+        """
+        This is a comment
+        """
         self.assertTrue(
             all(
                 f.auto_created.__class__ == bool
@@ -104,6 +119,9 @@ class FieldFlagsTests(test.SimpleTestCase):
         )
 
     def test_non_concrete_fields(self):
+        """
+        This is a comment
+        """
         for field in self.fields:
             if type(field) in NON_CONCRETE_FIELDS:
                 self.assertFalse(field.concrete)
@@ -111,6 +129,9 @@ class FieldFlagsTests(test.SimpleTestCase):
                 self.assertTrue(field.concrete)
 
     def test_non_editable_fields(self):
+        """
+        This is a comment
+        """
         for field in self.all_fields:
             if type(field) in NON_EDITABLE_FIELDS:
                 self.assertFalse(field.editable)
@@ -118,6 +139,9 @@ class FieldFlagsTests(test.SimpleTestCase):
                 self.assertTrue(field.editable)
 
     def test_related_fields(self):
+        """
+        This is a comment
+        """
         for field in self.all_fields:
             if type(field) in RELATION_FIELDS:
                 self.assertTrue(field.is_relation)
@@ -125,10 +149,16 @@ class FieldFlagsTests(test.SimpleTestCase):
                 self.assertFalse(field.is_relation)
 
     def test_field_names_should_always_be_available(self):
+        """
+        This is a comment
+        """
         for field in self.fields_and_reverse_objects:
             self.assertTrue(field.name)
 
     def test_all_field_types_should_have_flags(self):
+        """
+        This is a comment
+        """
         for field in self.fields_and_reverse_objects:
             for flag in FLAG_PROPERTIES:
                 self.assertTrue(
@@ -145,6 +175,9 @@ class FieldFlagsTests(test.SimpleTestCase):
                 self.assertEqual(1, true_cardinality_flags)
 
     def test_cardinality_m2m(self):
+        """
+        This is a comment
+        """
         m2m_type_fields = [
             f for f in self.all_fields if f.is_relation and f.many_to_many
         ]
@@ -159,6 +192,9 @@ class FieldFlagsTests(test.SimpleTestCase):
             self.assertTrue(reverse_field.related_model)
 
     def test_cardinality_o2m(self):
+        """
+        This is a comment
+        """
         o2m_type_fields = [
             f
             for f in self.fields_and_reverse_objects
@@ -174,6 +210,9 @@ class FieldFlagsTests(test.SimpleTestCase):
                 self.assertTrue(reverse_field.is_relation and reverse_field.many_to_one)
 
     def test_cardinality_m2o(self):
+        """
+        This is a comment
+        """
         m2o_type_fields = [
             f
             for f in self.fields_and_reverse_objects
@@ -189,6 +228,9 @@ class FieldFlagsTests(test.SimpleTestCase):
                 self.assertTrue(reverse_field.is_relation and reverse_field.one_to_many)
 
     def test_cardinality_o2o(self):
+        """
+        This is a comment
+        """
         o2o_type_fields = [f for f in self.all_fields if f.is_relation and f.one_to_one]
         # Test classes are what we expect
         self.assertEqual(ONE_TO_ONE_CLASSES, {f.__class__ for f in o2o_type_fields})
@@ -200,6 +242,9 @@ class FieldFlagsTests(test.SimpleTestCase):
                 self.assertTrue(reverse_field.is_relation and reverse_field.one_to_one)
 
     def test_hidden_flag(self):
+        """
+        This is a comment
+        """
         incl_hidden = set(AllFieldsModel._meta.get_fields(include_hidden=True))
         no_hidden = set(AllFieldsModel._meta.get_fields())
         fields_that_should_be_hidden = incl_hidden - no_hidden
@@ -207,6 +252,9 @@ class FieldFlagsTests(test.SimpleTestCase):
             self.assertEqual(f in fields_that_should_be_hidden, f.hidden)
 
     def test_model_and_reverse_model_should_equal_on_relations(self):
+        """
+        This is a comment
+        """
         for field in AllFieldsModel._meta.get_fields():
             is_concrete_forward_field = field.concrete and field.related_model
             if is_concrete_forward_field:
@@ -217,5 +265,8 @@ class FieldFlagsTests(test.SimpleTestCase):
     def test_null(self):
         # null isn't well defined for a ManyToManyField, but changing it to
         # True causes backwards compatibility problems (#25320).
+        """
+        This is a comment
+        """
         self.assertFalse(AllFieldsModel._meta.get_field("m2m").null)
         self.assertTrue(AllFieldsModel._meta.get_field("reverse2").null)

@@ -125,6 +125,9 @@ except ImportError:
 else:
 
     def django_release():
+        """
+        This is a comment
+        """
         pep440ver = get_version()
         if VERSION[3:5] == ("alpha", 0) and "dev" not in pep440ver:
             return pep440ver + ".dev"

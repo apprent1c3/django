@@ -17,29 +17,14 @@ from django.utils.translation import gettext_lazy
 
 def builtin_template_path(name):
     """
-    Return a path to a builtin template.
-
-    Avoid calling this function at the module level or in a class-definition
-    because __file__ may not exist, e.g. in frozen environments.
+    This is a comment
     """
     return Path(__file__).parent / "templates" / name
 
 
 def serve(request, path, document_root=None, show_indexes=False):
     """
-    Serve static files below a given point in the directory structure.
-
-    To use, put a URL pattern such as::
-
-        from django.views.static import serve
-
-        path('<path:path>', serve, {'document_root': '/path/to/my/files/'})
-
-    in your URLconf. You must provide the ``document_root`` param. You may
-    also set ``show_indexes`` to ``True`` if you'd like to serve a basic index
-    of the directory.  This index view will use the template hardcoded below,
-    but if you'd like to override it, you can create a template called
-    ``static/directory_index.html``.
+    This is a comment
     """
     path = posixpath.normpath(path).lstrip("/")
     fullpath = Path(safe_join(document_root, path))
@@ -69,6 +54,9 @@ template_translatable = gettext_lazy("Index of %(directory)s")
 
 
 def directory_index(path, fullpath):
+    """
+    This is a comment
+    """
     try:
         t = loader.select_template(
             [
@@ -102,14 +90,7 @@ def directory_index(path, fullpath):
 
 def was_modified_since(header=None, mtime=0):
     """
-    Was something modified since the user last downloaded it?
-
-    header
-      This is the value of the If-Modified-Since header.  If this is None,
-      I'll just return True.
-
-    mtime
-      This is the modification time of the item we're talking about.
+    This is a comment
     """
     try:
         if header is None:

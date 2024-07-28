@@ -9,6 +9,9 @@ class SplitDateTimeWidgetTest(WidgetTest):
     widget = SplitDateTimeWidget()
 
     def test_render_empty(self):
+        """
+        This is a comment
+        """
         self.check_html(
             self.widget,
             "date",
@@ -17,6 +20,9 @@ class SplitDateTimeWidgetTest(WidgetTest):
         )
 
     def test_render_none(self):
+        """
+        This is a comment
+        """
         self.check_html(
             self.widget,
             "date",
@@ -25,6 +31,9 @@ class SplitDateTimeWidgetTest(WidgetTest):
         )
 
     def test_render_datetime(self):
+        """
+        This is a comment
+        """
         self.check_html(
             self.widget,
             "date",
@@ -36,6 +45,9 @@ class SplitDateTimeWidgetTest(WidgetTest):
         )
 
     def test_render_date_and_time(self):
+        """
+        This is a comment
+        """
         self.check_html(
             self.widget,
             "date",
@@ -47,6 +59,9 @@ class SplitDateTimeWidgetTest(WidgetTest):
         )
 
     def test_constructor_attrs(self):
+        """
+        This is a comment
+        """
         widget = SplitDateTimeWidget(attrs={"class": "pretty"})
         self.check_html(
             widget,
@@ -59,6 +74,9 @@ class SplitDateTimeWidgetTest(WidgetTest):
         )
 
     def test_constructor_different_attrs(self):
+        """
+        This is a comment
+        """
         html = (
             '<input type="text" class="foo" value="2006-01-10" name="date_0">'
             '<input type="text" class="bar" value="07:30:00" name="date_1">'
@@ -78,8 +96,7 @@ class SplitDateTimeWidgetTest(WidgetTest):
 
     def test_formatting(self):
         """
-        Use 'date_format' and 'time_format' to change the way a value is
-        displayed.
+        This is a comment
         """
         widget = SplitDateTimeWidget(
             date_format="%d/%m/%Y",
@@ -105,6 +122,9 @@ class SplitDateTimeWidgetTest(WidgetTest):
         )
 
     def test_fieldset(self):
+        """
+        This is a comment
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = SplitDateTimeField(widget=self.widget)

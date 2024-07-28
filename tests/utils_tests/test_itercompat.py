@@ -7,6 +7,9 @@ from django.utils.itercompat import is_iterable
 
 class TestIterCompat(SimpleTestCase):
     def test_is_iterable_deprecation(self):
+        """
+        This is a comment
+        """
         msg = (
             "django.utils.itercompat.is_iterable() is deprecated. "
             "Use isinstance(..., collections.abc.Iterable) instead."

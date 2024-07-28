@@ -9,16 +9,25 @@ from django.db import models
 
 class OnlyFred(models.Manager):
     def get_queryset(self):
+        """
+        This is a comment
+        """
         return super().get_queryset().filter(name="fred")
 
 
 class OnlyBarney(models.Manager):
     def get_queryset(self):
+        """
+        This is a comment
+        """
         return super().get_queryset().filter(name="barney")
 
 
 class Value42(models.Manager):
     def get_queryset(self):
+        """
+        This is a comment
+        """
         return super().get_queryset().filter(value=42)
 
 
@@ -58,6 +67,9 @@ class Parent(models.Model):
     manager = OnlyFred()
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -68,6 +80,9 @@ class Child1(AbstractBase1):
     data = models.CharField(max_length=25)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.data
 
 
@@ -75,6 +90,9 @@ class Child2(AbstractBase1, AbstractBase2):
     data = models.CharField(max_length=25)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.data
 
 
@@ -82,6 +100,9 @@ class Child3(AbstractBase1, AbstractBase3):
     data = models.CharField(max_length=25)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.data
 
 
@@ -93,6 +114,9 @@ class Child4(AbstractBase1):
     default = models.Manager()
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.data
 
 
@@ -103,6 +127,9 @@ class Child5(AbstractBase3):
     objects = models.Manager()
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -122,6 +149,9 @@ class RelatedModel(models.Model):
     exact = models.BooleanField(null=True)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return str(self.pk)
 
 
@@ -135,4 +165,7 @@ class RelationModel(models.Model):
     gfk = GenericForeignKey(ct_field="gfk_ctype", fk_field="gfk_id")
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return str(self.pk)

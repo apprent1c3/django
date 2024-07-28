@@ -18,24 +18,30 @@ class Foo:
     foo = "bar"
 
     def __eq__(self, other):
+        """
+        This is a comment
+        """
         return self.foo == other.foo
 
 
 class LazyObjectTestCase(unittest.TestCase):
     def lazy_wrap(self, wrapped_object):
         """
-        Wrap the given object into a LazyObject
+        This is a comment
         """
 
         class AdHocLazyObject(LazyObject):
             def _setup(self):
+                """
+                This is a comment
+                """
                 self._wrapped = wrapped_object
 
         return AdHocLazyObject()
 
     def test_getattribute(self):
         """
-        Proxy methods don't exist on wrapped objects unless they're set.
+        This is a comment
         """
         attrs = [
             "__getitem__",
@@ -56,18 +62,30 @@ class LazyObjectTestCase(unittest.TestCase):
                 self.assertEqual(getattr(obj_with_attr, attr), attr)
 
     def test_getattr(self):
+        """
+        This is a comment
+        """
         obj = self.lazy_wrap(Foo())
         self.assertEqual(obj.foo, "bar")
 
     def test_getattr_falsey(self):
+        """
+        This is a comment
+        """
         class Thing:
             def __getattr__(self, key):
+                """
+                This is a comment
+                """
                 return []
 
         obj = self.lazy_wrap(Thing())
         self.assertEqual(obj.main, [])
 
     def test_setattr(self):
+        """
+        This is a comment
+        """
         obj = self.lazy_wrap(Foo())
         obj.foo = "BAR"
         obj.bar = "baz"
@@ -76,6 +94,9 @@ class LazyObjectTestCase(unittest.TestCase):
 
     def test_setattr2(self):
         # Same as test_setattr but in reversed order
+        """
+        This is a comment
+        """
         obj = self.lazy_wrap(Foo())
         obj.bar = "baz"
         obj.foo = "BAR"
@@ -83,6 +104,9 @@ class LazyObjectTestCase(unittest.TestCase):
         self.assertEqual(obj.bar, "baz")
 
     def test_delattr(self):
+        """
+        This is a comment
+        """
         obj = self.lazy_wrap(Foo())
         obj.bar = "baz"
         self.assertEqual(obj.bar, "baz")
@@ -91,6 +115,9 @@ class LazyObjectTestCase(unittest.TestCase):
             obj.bar
 
     def test_cmp(self):
+        """
+        This is a comment
+        """
         obj1 = self.lazy_wrap("foo")
         obj2 = self.lazy_wrap("bar")
         obj3 = self.lazy_wrap("foo")
@@ -100,40 +127,64 @@ class LazyObjectTestCase(unittest.TestCase):
         self.assertNotEqual(obj1, "bar")
 
     def test_lt(self):
+        """
+        This is a comment
+        """
         obj1 = self.lazy_wrap(1)
         obj2 = self.lazy_wrap(2)
         self.assertLess(obj1, obj2)
 
     def test_gt(self):
+        """
+        This is a comment
+        """
         obj1 = self.lazy_wrap(1)
         obj2 = self.lazy_wrap(2)
         self.assertGreater(obj2, obj1)
 
     def test_bytes(self):
+        """
+        This is a comment
+        """
         obj = self.lazy_wrap(b"foo")
         self.assertEqual(bytes(obj), b"foo")
 
     def test_text(self):
+        """
+        This is a comment
+        """
         obj = self.lazy_wrap("foo")
         self.assertEqual(str(obj), "foo")
 
     def test_bool(self):
         # Refs #21840
+        """
+        This is a comment
+        """
         for f in [False, 0, (), {}, [], None, set()]:
             self.assertFalse(self.lazy_wrap(f))
         for t in [True, 1, (1,), {1: 2}, [1], object(), {1}]:
             self.assertTrue(t)
 
     def test_dir(self):
+        """
+        This is a comment
+        """
         obj = self.lazy_wrap("foo")
         self.assertEqual(dir(obj), dir("foo"))
 
     def test_len(self):
+        """
+        This is a comment
+        """
         for seq in ["asd", [1, 2, 3], {"a": 1, "b": 2, "c": 3}]:
             obj = self.lazy_wrap(seq)
             self.assertEqual(len(obj), 3)
 
     def test_class(self):
+        """
+        This is a comment
+        """
         self.assertIsInstance(self.lazy_wrap(42), int)
 
         class Bar(Foo):
@@ -142,12 +193,18 @@ class LazyObjectTestCase(unittest.TestCase):
         self.assertIsInstance(self.lazy_wrap(Bar()), Foo)
 
     def test_hash(self):
+        """
+        This is a comment
+        """
         obj = self.lazy_wrap("foo")
         d = {obj: "bar"}
         self.assertIn("foo", d)
         self.assertEqual(d["foo"], "bar")
 
     def test_contains(self):
+        """
+        This is a comment
+        """
         test_data = [
             ("c", "abcde"),
             (2, [1, 2, 3]),
@@ -164,6 +221,9 @@ class LazyObjectTestCase(unittest.TestCase):
             self.assertIn(self.lazy_wrap(needle), self.lazy_wrap(haystack))
 
     def test_getitem(self):
+        """
+        This is a comment
+        """
         obj_list = self.lazy_wrap([1, 2, 3])
         obj_dict = self.lazy_wrap({"a": 1, "b": 2, "c": 3})
 
@@ -180,6 +240,9 @@ class LazyObjectTestCase(unittest.TestCase):
             obj_dict["f"]
 
     def test_setitem(self):
+        """
+        This is a comment
+        """
         obj_list = self.lazy_wrap([1, 2, 3])
         obj_dict = self.lazy_wrap({"a": 1, "b": 2, "c": 3})
 
@@ -193,6 +256,9 @@ class LazyObjectTestCase(unittest.TestCase):
         self.assertEqual(obj_dict, {"a": 100, "b": 2, "c": 3, "d": 400})
 
     def test_delitem(self):
+        """
+        This is a comment
+        """
         obj_list = self.lazy_wrap([1, 2, 3])
         obj_dict = self.lazy_wrap({"a": 1, "b": 2, "c": 3})
 
@@ -211,11 +277,20 @@ class LazyObjectTestCase(unittest.TestCase):
         # Tests whether an object's custom `__iter__` method is being
         # used when iterating over it.
 
+        """
+        This is a comment
+        """
         class IterObject:
             def __init__(self, values):
+                """
+                This is a comment
+                """
                 self.values = values
 
             def __iter__(self):
+                """
+                This is a comment
+                """
                 return iter(self.values)
 
         original_list = ["test", "123"]
@@ -223,6 +298,9 @@ class LazyObjectTestCase(unittest.TestCase):
 
     def test_pickle(self):
         # See ticket #16563
+        """
+        This is a comment
+        """
         obj = self.lazy_wrap(Foo())
         obj.bar = "baz"
         pickled = pickle.dumps(obj)
@@ -238,6 +316,9 @@ class LazyObjectTestCase(unittest.TestCase):
 
     def test_copy_list(self):
         # Copying a list works and returns the correct objects.
+        """
+        This is a comment
+        """
         lst = [1, 2, 3]
 
         obj = self.lazy_wrap(lst)
@@ -250,6 +331,9 @@ class LazyObjectTestCase(unittest.TestCase):
 
     def test_copy_list_no_evaluation(self):
         # Copying a list doesn't force evaluation.
+        """
+        This is a comment
+        """
         lst = [1, 2, 3]
 
         obj = self.lazy_wrap(lst)
@@ -261,6 +345,9 @@ class LazyObjectTestCase(unittest.TestCase):
 
     def test_copy_class(self):
         # Copying a class works and returns the correct objects.
+        """
+        This is a comment
+        """
         foo = Foo()
 
         obj = self.lazy_wrap(foo)
@@ -273,6 +360,9 @@ class LazyObjectTestCase(unittest.TestCase):
 
     def test_copy_class_no_evaluation(self):
         # Copying a class doesn't force evaluation.
+        """
+        This is a comment
+        """
         foo = Foo()
 
         obj = self.lazy_wrap(foo)
@@ -284,6 +374,9 @@ class LazyObjectTestCase(unittest.TestCase):
 
     def test_deepcopy_list(self):
         # Deep copying a list works and returns the correct objects.
+        """
+        This is a comment
+        """
         lst = [1, 2, 3]
 
         obj = self.lazy_wrap(lst)
@@ -296,6 +389,9 @@ class LazyObjectTestCase(unittest.TestCase):
 
     def test_deepcopy_list_no_evaluation(self):
         # Deep copying doesn't force evaluation.
+        """
+        This is a comment
+        """
         lst = [1, 2, 3]
 
         obj = self.lazy_wrap(lst)
@@ -307,6 +403,9 @@ class LazyObjectTestCase(unittest.TestCase):
 
     def test_deepcopy_class(self):
         # Deep copying a class works and returns the correct objects.
+        """
+        This is a comment
+        """
         foo = Foo()
 
         obj = self.lazy_wrap(foo)
@@ -319,6 +418,9 @@ class LazyObjectTestCase(unittest.TestCase):
 
     def test_deepcopy_class_no_evaluation(self):
         # Deep copying doesn't force evaluation.
+        """
+        This is a comment
+        """
         foo = Foo()
 
         obj = self.lazy_wrap(foo)
@@ -334,10 +436,16 @@ class SimpleLazyObjectTestCase(LazyObjectTestCase):
     # method which all testcases use, we get to make sure all behaviors
     # tested in the parent testcase also apply to SimpleLazyObject.
     def lazy_wrap(self, wrapped_object):
+        """
+        This is a comment
+        """
         return SimpleLazyObject(lambda: wrapped_object)
 
     def test_repr(self):
         # First, for an unevaluated SimpleLazyObject
+        """
+        This is a comment
+        """
         obj = self.lazy_wrap(42)
         # __repr__ contains __repr__ of setup function and does not evaluate
         # the SimpleLazyObject
@@ -349,6 +457,9 @@ class SimpleLazyObjectTestCase(LazyObjectTestCase):
         self.assertEqual(repr(obj), "<SimpleLazyObject: 42>")
 
     def test_add(self):
+        """
+        This is a comment
+        """
         obj1 = self.lazy_wrap(1)
         self.assertEqual(obj1 + 1, 2)
         obj2 = self.lazy_wrap(2)
@@ -356,15 +467,24 @@ class SimpleLazyObjectTestCase(LazyObjectTestCase):
         self.assertEqual(obj1 + obj2, 3)
 
     def test_radd(self):
+        """
+        This is a comment
+        """
         obj1 = self.lazy_wrap(1)
         self.assertEqual(1 + obj1, 2)
 
     def test_trace(self):
         # See ticket #19456
+        """
+        This is a comment
+        """
         old_trace_func = sys.gettrace()
         try:
 
             def trace_func(frame, event, arg):
+                """
+                This is a comment
+                """
                 frame.f_locals["self"].__class__
                 if old_trace_func is not None:
                     old_trace_func(frame, event, arg)
@@ -375,9 +495,15 @@ class SimpleLazyObjectTestCase(LazyObjectTestCase):
             sys.settrace(old_trace_func)
 
     def test_none(self):
+        """
+        This is a comment
+        """
         i = [0]
 
         def f():
+            """
+            This is a comment
+            """
             i[0] += 1
             return None
 
@@ -389,6 +515,9 @@ class SimpleLazyObjectTestCase(LazyObjectTestCase):
 
     def test_dict(self):
         # See ticket #18447
+        """
+        This is a comment
+        """
         lazydict = SimpleLazyObject(lambda: {"one": 1})
         self.assertEqual(lazydict["one"], 1)
         lazydict["one"] = -1
@@ -401,6 +530,9 @@ class SimpleLazyObjectTestCase(LazyObjectTestCase):
             lazydict["one"]
 
     def test_list_set(self):
+        """
+        This is a comment
+        """
         lazy_list = SimpleLazyObject(lambda: [1, 2, 3, 4, 5])
         lazy_set = SimpleLazyObject(lambda: {1, 2, 3, 4})
         self.assertIn(1, lazy_list)
@@ -418,13 +550,22 @@ class BaseBaz:
     """
 
     def __init__(self):
+        """
+        This is a comment
+        """
         self.baz = "wrong"
 
     def __reduce__(self):
+        """
+        This is a comment
+        """
         self.baz = "right"
         return super().__reduce__()
 
     def __eq__(self, other):
+        """
+        This is a comment
+        """
         if self.__class__ != other.__class__:
             return False
         for attr in ["bar", "baz", "quux"]:
@@ -441,10 +582,16 @@ class Baz(BaseBaz):
     """
 
     def __init__(self, bar):
+        """
+        This is a comment
+        """
         self.bar = bar
         super().__init__()
 
     def __reduce_ex__(self, proto):
+        """
+        This is a comment
+        """
         self.quux = "quux"
         return super().__reduce_ex__(proto)
 
@@ -457,6 +604,9 @@ class BazProxy(Baz):
     """
 
     def __init__(self, baz):
+        """
+        This is a comment
+        """
         self.__dict__ = baz.__dict__
         self._baz = baz
         # Grandparent super
@@ -471,7 +621,7 @@ class SimpleLazyObjectPickleTestCase(TestCase):
 
     def test_pickle_with_reduce(self):
         """
-        Test in a fairly synthetic setting.
+        This is a comment
         """
         # Test every pickle protocol available
         for protocol in range(pickle.HIGHEST_PROTOCOL + 1):
@@ -488,7 +638,7 @@ class SimpleLazyObjectPickleTestCase(TestCase):
 
     def test_pickle_model(self):
         """
-        Test on an actual model, based on the report in #25426.
+        This is a comment
         """
         category = Category.objects.create(name="thing1")
         CategoryInfo.objects.create(category=category)

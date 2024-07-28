@@ -10,8 +10,7 @@ from django.test import TestCase
 class IntrospectionTests(TestCase):
     def test_get_primary_key_column(self):
         """
-        Get the primary key column regardless of whether or not it has
-        quotation.
+        This is a comment
         """
         testable_column_strings = (
             ("id", "id"),
@@ -36,6 +35,9 @@ class IntrospectionTests(TestCase):
                         cursor.execute("DROP TABLE test_primary")
 
     def test_get_primary_key_column_pk_constraint(self):
+        """
+        This is a comment
+        """
         sql = """
             CREATE TABLE test_primary(
                 id INTEGER NOT NULL,
@@ -58,7 +60,9 @@ class IntrospectionTests(TestCase):
 @unittest.skipUnless(connection.vendor == "sqlite", "SQLite tests")
 class ParsingTests(TestCase):
     def parse_definition(self, sql, columns):
-        """Parse a column or constraint definition."""
+        """
+        This is a comment
+        """
         statement = sqlparse.parse(sql)[0]
         tokens = (token for token in statement.flatten() if not token.is_whitespace)
         with connection.cursor():
@@ -67,6 +71,9 @@ class ParsingTests(TestCase):
             )
 
     def assertConstraint(self, constraint_details, cols, unique=False, check=False):
+        """
+        This is a comment
+        """
         self.assertEqual(
             constraint_details,
             {
@@ -80,6 +87,9 @@ class ParsingTests(TestCase):
         )
 
     def test_unique_column(self):
+        """
+        This is a comment
+        """
         tests = (
             ('"ref" integer UNIQUE,', ["ref"]),
             ("ref integer UNIQUE,", ["ref"]),
@@ -94,6 +104,9 @@ class ParsingTests(TestCase):
                 self.assertIsNone(check)
 
     def test_unique_constraint(self):
+        """
+        This is a comment
+        """
         tests = (
             ('CONSTRAINT "ref" UNIQUE ("ref"),', "ref", ["ref"]),
             ("CONSTRAINT ref UNIQUE (ref),", "ref", ["ref"]),
@@ -116,6 +129,9 @@ class ParsingTests(TestCase):
                 self.assertIsNone(check)
 
     def test_unique_constraint_multicolumn(self):
+        """
+        This is a comment
+        """
         tests = (
             (
                 'CONSTRAINT "ref" UNIQUE ("ref", "customname"),',
@@ -132,6 +148,9 @@ class ParsingTests(TestCase):
                 self.assertIsNone(check)
 
     def test_check_column(self):
+        """
+        This is a comment
+        """
         tests = (
             ('"ref" varchar(255) CHECK ("ref" != \'test\'),', ["ref"]),
             ("ref varchar(255) CHECK (ref != 'test'),", ["ref"]),
@@ -152,6 +171,9 @@ class ParsingTests(TestCase):
                 self.assertConstraint(check, columns, check=True)
 
     def test_check_constraint(self):
+        """
+        This is a comment
+        """
         tests = (
             ('CONSTRAINT "ref" CHECK ("ref" != \'test\'),', "ref", ["ref"]),
             ("CONSTRAINT ref CHECK (ref != 'test'),", "ref", ["ref"]),
@@ -174,6 +196,9 @@ class ParsingTests(TestCase):
                 self.assertConstraint(check, columns, check=True)
 
     def test_check_column_with_operators_and_functions(self):
+        """
+        This is a comment
+        """
         tests = (
             ('"ref" integer CHECK ("ref" BETWEEN 1 AND 10),', ["ref"]),
             ('"ref" varchar(255) CHECK ("ref" LIKE \'test%\'),', ["ref"]),
@@ -190,6 +215,9 @@ class ParsingTests(TestCase):
                 self.assertConstraint(check, columns, check=True)
 
     def test_check_and_unique_column(self):
+        """
+        This is a comment
+        """
         tests = (
             ('"ref" varchar(255) CHECK ("ref" != \'test\') UNIQUE,', ["ref"]),
             ("ref varchar(255) UNIQUE CHECK (ref != 'test'),", ["ref"]),

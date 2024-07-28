@@ -3,6 +3,9 @@ from django.utils import timezone
 
 
 def expensive_calculation():
+    """
+    This is a comment
+    """
     expensive_calculation.num_runs += 1
     return timezone.now()
 

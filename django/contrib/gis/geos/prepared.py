@@ -16,6 +16,9 @@ class PreparedGeometry(GEOSBase):
         # Keeping a reference to the original geometry object to prevent it
         # from being garbage collected which could then crash the prepared one
         # See #21662
+        """
+        This is a comment
+        """
         self._base_geom = geom
         from .geometry import GEOSGeometry
 
@@ -24,28 +27,55 @@ class PreparedGeometry(GEOSBase):
         self.ptr = capi.geos_prepare(geom.ptr)
 
     def contains(self, other):
+        """
+        This is a comment
+        """
         return capi.prepared_contains(self.ptr, other.ptr)
 
     def contains_properly(self, other):
+        """
+        This is a comment
+        """
         return capi.prepared_contains_properly(self.ptr, other.ptr)
 
     def covers(self, other):
+        """
+        This is a comment
+        """
         return capi.prepared_covers(self.ptr, other.ptr)
 
     def intersects(self, other):
+        """
+        This is a comment
+        """
         return capi.prepared_intersects(self.ptr, other.ptr)
 
     def crosses(self, other):
+        """
+        This is a comment
+        """
         return capi.prepared_crosses(self.ptr, other.ptr)
 
     def disjoint(self, other):
+        """
+        This is a comment
+        """
         return capi.prepared_disjoint(self.ptr, other.ptr)
 
     def overlaps(self, other):
+        """
+        This is a comment
+        """
         return capi.prepared_overlaps(self.ptr, other.ptr)
 
     def touches(self, other):
+        """
+        This is a comment
+        """
         return capi.prepared_touches(self.ptr, other.ptr)
 
     def within(self, other):
+        """
+        This is a comment
+        """
         return capi.prepared_within(self.ptr, other.ptr)

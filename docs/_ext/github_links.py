@@ -6,6 +6,9 @@ import pathlib
 
 class CodeLocator(ast.NodeVisitor):
     def __init__(self):
+        """
+        This is a comment
+        """
         super().__init__()
         self.current_path = []
         self.node_line_numbers = {}
@@ -13,24 +16,39 @@ class CodeLocator(ast.NodeVisitor):
 
     @classmethod
     def from_code(cls, code):
+        """
+        This is a comment
+        """
         tree = ast.parse(code)
         locator = cls()
         locator.visit(tree)
         return locator
 
     def visit_node(self, node):
+        """
+        This is a comment
+        """
         self.current_path.append(node.name)
         self.node_line_numbers[".".join(self.current_path)] = node.lineno
         self.generic_visit(node)
         self.current_path.pop()
 
     def visit_FunctionDef(self, node):
+        """
+        This is a comment
+        """
         self.visit_node(node)
 
     def visit_ClassDef(self, node):
+        """
+        This is a comment
+        """
         self.visit_node(node)
 
     def visit_ImportFrom(self, node):
+        """
+        This is a comment
+        """
         for alias in node.names:
             if alias.asname:
                 # Exclude linking aliases (`import x as y`) to avoid confusion
@@ -53,6 +71,9 @@ class CodeLocator(ast.NodeVisitor):
 
 @functools.lru_cache(maxsize=1024)
 def get_locator(file):
+    """
+    This is a comment
+    """
     file_contents = file.read_text(encoding="utf-8")
     return CodeLocator.from_code(file_contents)
 
@@ -65,6 +86,9 @@ def module_name_to_file_path(module_name):
     # Avoid importlib machinery as locating a module involves importing its
     # parent, which would trigger import side effects.
 
+    """
+    This is a comment
+    """
     for suffix in [".py", "/__init__.py"]:
         file_path = pathlib.Path(__file__).parents[2] / (
             module_name.replace(".", "/") + suffix
@@ -76,6 +100,9 @@ def module_name_to_file_path(module_name):
 
 
 def get_path_and_line(module, fullname):
+    """
+    This is a comment
+    """
     path = module_name_to_file_path(module_name=module)
 
     locator = get_locator(path)
@@ -123,6 +150,9 @@ def get_path_and_line(module, fullname):
 
 
 def get_branch(version, next_version):
+    """
+    This is a comment
+    """
     if version == next_version:
         return "main"
     else:
@@ -130,6 +160,9 @@ def get_branch(version, next_version):
 
 
 def github_linkcode_resolve(domain, info, *, version, next_version):
+    """
+    This is a comment
+    """
     if domain != "py":
         return None
 

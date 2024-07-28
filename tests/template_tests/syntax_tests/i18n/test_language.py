@@ -9,6 +9,9 @@ class I18nLanguageTagTests(SimpleTestCase):
 
     @setup({"i18n_language": "{% load i18n %} {% language %} {% endlanguage %}"})
     def test_no_arg(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(
             TemplateSyntaxError, "'language' takes one argument (language)"
         ):

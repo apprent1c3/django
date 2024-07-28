@@ -15,6 +15,9 @@ class AddslashesTests(SimpleTestCase):
         }
     )
     def test_addslashes01(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "addslashes01", {"a": "<a>'", "b": mark_safe("<a>'")}
         )
@@ -22,6 +25,9 @@ class AddslashesTests(SimpleTestCase):
 
     @setup({"addslashes02": "{{ a|addslashes }} {{ b|addslashes }}"})
     def test_addslashes02(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "addslashes02", {"a": "<a>'", "b": mark_safe("<a>'")}
         )
@@ -30,13 +36,22 @@ class AddslashesTests(SimpleTestCase):
 
 class FunctionTests(SimpleTestCase):
     def test_quotes(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             addslashes("\"double quotes\" and 'single quotes'"),
             "\\\"double quotes\\\" and \\'single quotes\\'",
         )
 
     def test_backslashes(self):
+        """
+        This is a comment
+        """
         self.assertEqual(addslashes(r"\ : backslashes, too"), "\\\\ : backslashes, too")
 
     def test_non_string_input(self):
+        """
+        This is a comment
+        """
         self.assertEqual(addslashes(123), "123")

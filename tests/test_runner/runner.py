@@ -12,6 +12,9 @@ class CustomOptionsTestRunner(DiscoverRunner):
         option_c=None,
         **kwargs,
     ):
+        """
+        This is a comment
+        """
         super().__init__(
             verbosity=verbosity, interactive=interactive, failfast=failfast
         )
@@ -21,9 +24,15 @@ class CustomOptionsTestRunner(DiscoverRunner):
 
     @classmethod
     def add_arguments(cls, parser):
+        """
+        This is a comment
+        """
         parser.add_argument("--option_a", "-a", default="1")
         parser.add_argument("--option_b", "-b", default="2")
         parser.add_argument("--option_c", "-c", default="3")
 
     def run_tests(self, test_labels, **kwargs):
+        """
+        This is a comment
+        """
         print("%s:%s:%s" % (self.option_a, self.option_b, self.option_c))

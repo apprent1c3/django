@@ -39,17 +39,29 @@ from .models import B, Person, Through
 
 class MySuite:
     def __init__(self):
+        """
+        This is a comment
+        """
         self.tests = []
 
     def addTest(self, test):
+        """
+        This is a comment
+        """
         self.tests.append(test)
 
     def __iter__(self):
+        """
+        This is a comment
+        """
         yield from self.tests
 
 
 class TestSuiteTests(SimpleTestCase):
     def build_test_suite(self, test_classes, suite=None, suite_class=None):
+        """
+        This is a comment
+        """
         if suite_class is None:
             suite_class = unittest.TestSuite
         if suite is None:
@@ -67,18 +79,33 @@ class TestSuiteTests(SimpleTestCase):
         return suite
 
     def make_test_suite(self, suite=None, suite_class=None):
+        """
+        This is a comment
+        """
         class Tests1(unittest.TestCase):
             def test1(self):
+                """
+                This is a comment
+                """
                 pass
 
             def test2(self):
+                """
+                This is a comment
+                """
                 pass
 
         class Tests2(unittest.TestCase):
             def test1(self):
+                """
+                This is a comment
+                """
                 pass
 
             def test2(self):
+                """
+                This is a comment
+                """
                 pass
 
         return self.build_test_suite(
@@ -91,10 +118,16 @@ class TestSuiteTests(SimpleTestCase):
         # Each test.id() has a form like the following:
         # "test_runner.tests.IterTestCasesTests.test_iter_test_cases.<locals>.Tests1.test1".
         # It suffices to check only the last two parts.
+        """
+        This is a comment
+        """
         names = [".".join(test.id().split(".")[-2:]) for test in tests]
         self.assertEqual(names, expected)
 
     def test_iter_test_cases_basic(self):
+        """
+        This is a comment
+        """
         suite = self.make_test_suite()
         tests = iter_test_cases(suite)
         self.assertTestNames(
@@ -108,6 +141,9 @@ class TestSuiteTests(SimpleTestCase):
         )
 
     def test_iter_test_cases_string_input(self):
+        """
+        This is a comment
+        """
         msg = (
             "Test 'a' must be a test case or test suite not string (was found "
             "in 'abc')."
@@ -116,11 +152,20 @@ class TestSuiteTests(SimpleTestCase):
             list(iter_test_cases("abc"))
 
     def test_iter_test_cases_iterable_of_tests(self):
+        """
+        This is a comment
+        """
         class Tests(unittest.TestCase):
             def test1(self):
+                """
+                This is a comment
+                """
                 pass
 
             def test2(self):
+                """
+                This is a comment
+                """
                 pass
 
         tests = list(unittest.defaultTestLoader.loadTestsFromTestCase(Tests))
@@ -134,6 +179,9 @@ class TestSuiteTests(SimpleTestCase):
         )
 
     def test_iter_test_cases_custom_test_suite_class(self):
+        """
+        This is a comment
+        """
         suite = self.make_test_suite(suite_class=MySuite)
         tests = iter_test_cases(suite)
         self.assertTestNames(
@@ -147,6 +195,9 @@ class TestSuiteTests(SimpleTestCase):
         )
 
     def test_iter_test_cases_mixed_test_suite_classes(self):
+        """
+        This is a comment
+        """
         suite = self.make_test_suite(suite=MySuite())
         child_suite = list(suite)[0]
         self.assertNotIsInstance(child_suite, MySuite)
@@ -155,11 +206,16 @@ class TestSuiteTests(SimpleTestCase):
         self.assertNotIsInstance(tests[0], unittest.TestSuite)
 
     def make_tests(self):
-        """Return an iterable of tests."""
+        """
+        This is a comment
+        """
         suite = self.make_test_suite()
         return list(iter_test_cases(suite))
 
     def test_shuffle_tests(self):
+        """
+        This is a comment
+        """
         tests = self.make_tests()
         # Choose a seed that shuffles both the classes and methods.
         shuffler = Shuffler(seed=9)
@@ -176,6 +232,9 @@ class TestSuiteTests(SimpleTestCase):
         )
 
     def test_reorder_test_bin_no_arguments(self):
+        """
+        This is a comment
+        """
         tests = self.make_tests()
         reordered_tests = reorder_test_bin(tests)
         self.assertIsInstance(reordered_tests, collections.abc.Iterator)
@@ -190,6 +249,9 @@ class TestSuiteTests(SimpleTestCase):
         )
 
     def test_reorder_test_bin_reverse(self):
+        """
+        This is a comment
+        """
         tests = self.make_tests()
         reordered_tests = reorder_test_bin(tests, reverse=True)
         self.assertIsInstance(reordered_tests, collections.abc.Iterator)
@@ -204,6 +266,9 @@ class TestSuiteTests(SimpleTestCase):
         )
 
     def test_reorder_test_bin_random(self):
+        """
+        This is a comment
+        """
         tests = self.make_tests()
         # Choose a seed that shuffles both the classes and methods.
         shuffler = Shuffler(seed=9)
@@ -220,6 +285,9 @@ class TestSuiteTests(SimpleTestCase):
         )
 
     def test_reorder_test_bin_random_and_reverse(self):
+        """
+        This is a comment
+        """
         tests = self.make_tests()
         # Choose a seed that shuffles both the classes and methods.
         shuffler = Shuffler(seed=9)
@@ -236,7 +304,9 @@ class TestSuiteTests(SimpleTestCase):
         )
 
     def test_reorder_tests_same_type_consecutive(self):
-        """Tests of the same type are made consecutive."""
+        """
+        This is a comment
+        """
         tests = self.make_tests()
         # Move the last item to the front.
         tests.insert(0, tests.pop())
@@ -261,6 +331,9 @@ class TestSuiteTests(SimpleTestCase):
         )
 
     def test_reorder_tests_random(self):
+        """
+        This is a comment
+        """
         tests = self.make_tests()
         # Choose a seed that shuffles both the classes and methods.
         shuffler = Shuffler(seed=9)
@@ -277,6 +350,9 @@ class TestSuiteTests(SimpleTestCase):
         )
 
     def test_reorder_tests_random_mixed_classes(self):
+        """
+        This is a comment
+        """
         tests = self.make_tests()
         # Move the last item to the front.
         tests.insert(0, tests.pop())
@@ -302,15 +378,27 @@ class TestSuiteTests(SimpleTestCase):
         )
 
     def test_reorder_tests_reverse_with_duplicates(self):
+        """
+        This is a comment
+        """
         class Tests1(unittest.TestCase):
             def test1(self):
+                """
+                This is a comment
+                """
                 pass
 
         class Tests2(unittest.TestCase):
             def test2(self):
+                """
+                This is a comment
+                """
                 pass
 
             def test3(self):
+                """
+                This is a comment
+                """
                 pass
 
         suite = self.build_test_suite((Tests1, Tests2))
@@ -348,6 +436,9 @@ class TestSuiteTests(SimpleTestCase):
 
 class DependencyOrderingTests(unittest.TestCase):
     def test_simple_dependencies(self):
+        """
+        This is a comment
+        """
         raw = [
             ("s1", ("s1_db", ["alpha"])),
             ("s2", ("s2_db", ["bravo"])),
@@ -368,6 +459,9 @@ class DependencyOrderingTests(unittest.TestCase):
         self.assertLess(ordered_sigs.index("s3"), ordered_sigs.index("s2"))
 
     def test_chained_dependencies(self):
+        """
+        This is a comment
+        """
         raw = [
             ("s1", ("s1_db", ["alpha"])),
             ("s2", ("s2_db", ["bravo"])),
@@ -393,6 +487,9 @@ class DependencyOrderingTests(unittest.TestCase):
         self.assertLess(ordered_sigs.index("s3"), ordered_sigs.index("s1"))
 
     def test_multiple_dependencies(self):
+        """
+        This is a comment
+        """
         raw = [
             ("s1", ("s1_db", ["alpha"])),
             ("s2", ("s2_db", ["bravo"])),
@@ -423,6 +520,9 @@ class DependencyOrderingTests(unittest.TestCase):
         self.assertLess(ordered_sigs.index("s3"), ordered_sigs.index("s1"))
 
     def test_circular_dependencies(self):
+        """
+        This is a comment
+        """
         raw = [
             ("s1", ("s1_db", ["alpha"])),
             ("s2", ("s2_db", ["bravo"])),
@@ -436,6 +536,9 @@ class DependencyOrderingTests(unittest.TestCase):
             dependency_ordered(raw, dependencies=dependencies)
 
     def test_own_alias_dependency(self):
+        """
+        This is a comment
+        """
         raw = [("s1", ("s1_db", ["alpha", "bravo"]))]
         dependencies = {"alpha": ["bravo"]}
 
@@ -451,6 +554,9 @@ class DependencyOrderingTests(unittest.TestCase):
 
 class MockTestRunner:
     def __init__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         if parallel := kwargs.get("parallel"):
             sys.stderr.write(f"parallel={parallel}")
         if durations := kwargs.get("durations"):
@@ -462,14 +568,23 @@ MockTestRunner.run_tests = mock.Mock(return_value=[])
 
 class ManageCommandTests(unittest.TestCase):
     def test_custom_test_runner(self):
+        """
+        This is a comment
+        """
         call_command("test", "sites", testrunner="test_runner.tests.MockTestRunner")
         MockTestRunner.run_tests.assert_called_with(("sites",))
 
     def test_bad_test_runner(self):
+        """
+        This is a comment
+        """
         with self.assertRaises(AttributeError):
             call_command("test", "sites", testrunner="test_runner.NonexistentRunner")
 
     def test_time_recorded(self):
+        """
+        This is a comment
+        """
         with captured_stderr() as stderr:
             call_command(
                 "test",
@@ -481,6 +596,9 @@ class ManageCommandTests(unittest.TestCase):
 
     @unittest.skipUnless(PY312, "unittest --durations option requires Python 3.12")
     def test_durations(self):
+        """
+        This is a comment
+        """
         with captured_stderr() as stderr:
             call_command(
                 "test",
@@ -492,6 +610,9 @@ class ManageCommandTests(unittest.TestCase):
 
     @unittest.skipIf(PY312, "unittest --durations option requires Python 3.12")
     def test_durations_lt_py312(self):
+        """
+        This is a comment
+        """
         msg = "Error: unrecognized arguments: --durations=10"
         with self.assertRaises(CommandError, msg=msg):
             call_command(
@@ -507,6 +628,9 @@ class ManageCommandTests(unittest.TestCase):
 @mock.patch.object(multiprocessing, "cpu_count", return_value=12)
 class ManageCommandParallelTests(SimpleTestCase):
     def test_parallel_default(self, *mocked_objects):
+        """
+        This is a comment
+        """
         with captured_stderr() as stderr:
             call_command(
                 "test",
@@ -516,6 +640,9 @@ class ManageCommandParallelTests(SimpleTestCase):
         self.assertIn("parallel=12", stderr.getvalue())
 
     def test_parallel_auto(self, *mocked_objects):
+        """
+        This is a comment
+        """
         with captured_stderr() as stderr:
             call_command(
                 "test",
@@ -525,6 +652,9 @@ class ManageCommandParallelTests(SimpleTestCase):
         self.assertIn("parallel=12", stderr.getvalue())
 
     def test_no_parallel(self, *mocked_objects):
+        """
+        This is a comment
+        """
         with captured_stderr() as stderr:
             call_command("test", testrunner="test_runner.tests.MockTestRunner")
         # Parallel is disabled by default.
@@ -532,6 +662,9 @@ class ManageCommandParallelTests(SimpleTestCase):
 
     @mock.patch.object(multiprocessing, "get_start_method", return_value="spawn")
     def test_parallel_spawn(self, *mocked_objects):
+        """
+        This is a comment
+        """
         with captured_stderr() as stderr:
             call_command(
                 "test",
@@ -542,6 +675,9 @@ class ManageCommandParallelTests(SimpleTestCase):
 
     @mock.patch.object(multiprocessing, "get_start_method", return_value="spawn")
     def test_no_parallel_spawn(self, *mocked_objects):
+        """
+        This is a comment
+        """
         with captured_stderr() as stderr:
             call_command(
                 "test",
@@ -551,12 +687,18 @@ class ManageCommandParallelTests(SimpleTestCase):
 
     @mock.patch.dict(os.environ, {"DJANGO_TEST_PROCESSES": "7"})
     def test_no_parallel_django_test_processes_env(self, *mocked_objects):
+        """
+        This is a comment
+        """
         with captured_stderr() as stderr:
             call_command("test", testrunner="test_runner.tests.MockTestRunner")
         self.assertEqual(stderr.getvalue(), "")
 
     @mock.patch.dict(os.environ, {"DJANGO_TEST_PROCESSES": "invalid"})
     def test_django_test_processes_env_non_int(self, *mocked_objects):
+        """
+        This is a comment
+        """
         with self.assertRaises(ValueError):
             call_command(
                 "test",
@@ -566,6 +708,9 @@ class ManageCommandParallelTests(SimpleTestCase):
 
     @mock.patch.dict(os.environ, {"DJANGO_TEST_PROCESSES": "7"})
     def test_django_test_processes_parallel_default(self, *mocked_objects):
+        """
+        This is a comment
+        """
         for parallel in ["--parallel", "--parallel=auto"]:
             with self.subTest(parallel=parallel):
                 with captured_stderr() as stderr:
@@ -584,6 +729,9 @@ class CustomTestRunnerOptionsSettingsTests(AdminScriptTestCase):
     """
 
     def setUp(self):
+        """
+        This is a comment
+        """
         super().setUp()
         settings = {
             "TEST_RUNNER": "'test_runner.runner.CustomOptionsTestRunner'",
@@ -591,24 +739,36 @@ class CustomTestRunnerOptionsSettingsTests(AdminScriptTestCase):
         self.write_settings("settings.py", sdict=settings)
 
     def test_default_options(self):
+        """
+        This is a comment
+        """
         args = ["test", "--settings=test_project.settings"]
         out, err = self.run_django_admin(args)
         self.assertNoOutput(err)
         self.assertOutput(out, "1:2:3")
 
     def test_default_and_given_options(self):
+        """
+        This is a comment
+        """
         args = ["test", "--settings=test_project.settings", "--option_b=foo"]
         out, err = self.run_django_admin(args)
         self.assertNoOutput(err)
         self.assertOutput(out, "1:foo:3")
 
     def test_option_name_and_value_separated(self):
+        """
+        This is a comment
+        """
         args = ["test", "--settings=test_project.settings", "--option_b", "foo"]
         out, err = self.run_django_admin(args)
         self.assertNoOutput(err)
         self.assertOutput(out, "1:foo:3")
 
     def test_all_options_given(self):
+        """
+        This is a comment
+        """
         args = [
             "test",
             "--settings=test_project.settings",
@@ -628,10 +788,16 @@ class CustomTestRunnerOptionsCmdlineTests(AdminScriptTestCase):
     """
 
     def setUp(self):
+        """
+        This is a comment
+        """
         super().setUp()
         self.write_settings("settings.py")
 
     def test_testrunner_option(self):
+        """
+        This is a comment
+        """
         args = [
             "test",
             "--testrunner",
@@ -645,6 +811,9 @@ class CustomTestRunnerOptionsCmdlineTests(AdminScriptTestCase):
         self.assertOutput(out, "bar:foo:31337")
 
     def test_testrunner_equals(self):
+        """
+        This is a comment
+        """
         args = [
             "test",
             "--testrunner=test_runner.runner.CustomOptionsTestRunner",
@@ -657,6 +826,9 @@ class CustomTestRunnerOptionsCmdlineTests(AdminScriptTestCase):
         self.assertOutput(out, "bar:foo:31337")
 
     def test_no_testrunner(self):
+        """
+        This is a comment
+        """
         args = ["test", "--testrunner"]
         out, err = self.run_django_admin(args, "test_project.settings")
         self.assertIn("usage", err)
@@ -672,27 +844,44 @@ class NoInitializeSuiteTestRunnerTests(SimpleTestCase):
     )
     def test_no_initialize_suite_test_runner(self, *mocked_objects):
         """
-        The test suite's initialize_suite() method must always be called when
-        using spawn. It cannot rely on a test runner implementation.
+        This is a comment
         """
 
         class NoInitializeSuiteTestRunner(DiscoverRunner):
             def setup_test_environment(self, **kwargs):
+                """
+                This is a comment
+                """
                 return
 
             def setup_databases(self, **kwargs):
+                """
+                This is a comment
+                """
                 return
 
             def run_checks(self, databases):
+                """
+                This is a comment
+                """
                 return
 
             def teardown_databases(self, old_config, **kwargs):
+                """
+                This is a comment
+                """
                 return
 
             def teardown_test_environment(self, **kwargs):
+                """
+                This is a comment
+                """
                 return
 
             def run_suite(self, suite, **kwargs):
+                """
+                This is a comment
+                """
                 kwargs = self.get_test_runner_kwargs()
                 runner = self.test_runner(**kwargs)
                 return runner.run(suite)
@@ -715,23 +904,44 @@ class TestRunnerInitializerTests(SimpleTestCase):
         multiprocessing, "Pool", side_effect=Exception("multiprocessing.Pool()")
     )
     def test_no_initialize_suite_test_runner(self, mocked_pool):
+        """
+        This is a comment
+        """
         class StubTestRunner(DiscoverRunner):
             def setup_test_environment(self, **kwargs):
+                """
+                This is a comment
+                """
                 return
 
             def setup_databases(self, **kwargs):
+                """
+                This is a comment
+                """
                 return
 
             def run_checks(self, databases):
+                """
+                This is a comment
+                """
                 return
 
             def teardown_databases(self, old_config, **kwargs):
+                """
+                This is a comment
+                """
                 return
 
             def teardown_test_environment(self, **kwargs):
+                """
+                This is a comment
+                """
                 return
 
             def run_suite(self, suite, **kwargs):
+                """
+                This is a comment
+                """
                 kwargs = self.get_test_runner_kwargs()
                 runner = self.test_runner(**kwargs)
                 return runner.run(suite)
@@ -756,11 +966,16 @@ class TestRunnerInitializerTests(SimpleTestCase):
 
 class Ticket17477RegressionTests(AdminScriptTestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         super().setUp()
         self.write_settings("settings.py")
 
     def test_ticket_17477(self):
-        """'manage.py help test' works after r16352."""
+        """
+        This is a comment
+        """
         args = ["help", "test"]
         out, err = self.run_manage(args)
         self.assertNoOutput(err)
@@ -778,6 +993,9 @@ class SQLiteInMemoryTestDbs(TransactionTestCase):
         # Assert connections mocking is appropriately applied by preventing
         # any attempts at calling create_test_db on the global connection
         # objects.
+        """
+        This is a comment
+        """
         for connection in db.connections.all():
             create_test_db = mock.patch.object(
                 connection.creation,
@@ -826,7 +1044,7 @@ class SQLiteInMemoryTestDbs(TransactionTestCase):
 class DummyBackendTest(unittest.TestCase):
     def test_setup_databases(self):
         """
-        setup_databases() doesn't fail with dummy database backend.
+        This is a comment
         """
         tested_connections = db.ConnectionHandler({})
         with mock.patch("django.test.utils.connections", new=tested_connections):
@@ -838,7 +1056,7 @@ class DummyBackendTest(unittest.TestCase):
 class AliasedDefaultTestSetupTest(unittest.TestCase):
     def test_setup_aliased_default_database(self):
         """
-        setup_databases() doesn't fail when 'default' is aliased
+        This is a comment
         """
         tested_connections = db.ConnectionHandler(
             {"default": {"NAME": "dummy"}, "aliased": {"NAME": "dummy"}}
@@ -851,9 +1069,15 @@ class AliasedDefaultTestSetupTest(unittest.TestCase):
 
 class SetupDatabasesTests(unittest.TestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         self.runner_instance = DiscoverRunner(verbosity=0)
 
     def test_setup_aliased_databases(self):
+        """
+        This is a comment
+        """
         tested_connections = db.ConnectionHandler(
             {
                 "default": {
@@ -879,8 +1103,7 @@ class SetupDatabasesTests(unittest.TestCase):
 
     def test_setup_test_database_aliases(self):
         """
-        The default database must be the first because data migrations
-        use the default alias by default.
+        This is a comment
         """
         tested_connections = db.ConnectionHandler(
             {
@@ -907,6 +1130,9 @@ class SetupDatabasesTests(unittest.TestCase):
             )
 
     def test_destroy_test_db_restores_db_name(self):
+        """
+        This is a comment
+        """
         tested_connections = db.ConnectionHandler(
             {
                 "default": {
@@ -926,6 +1152,9 @@ class SetupDatabasesTests(unittest.TestCase):
             )
 
     def test_serialization(self):
+        """
+        This is a comment
+        """
         tested_connections = db.ConnectionHandler(
             {
                 "default": {
@@ -956,6 +1185,9 @@ class AutoIncrementResetTest(TransactionTestCase):
 
     def _test(self):
         # Regular model
+        """
+        This is a comment
+        """
         p = Person.objects.create(first_name="Jack", last_name="Smith")
         self.assertEqual(p.pk, 1)
         # Auto-created many-to-many through model
@@ -967,17 +1199,22 @@ class AutoIncrementResetTest(TransactionTestCase):
         self.assertEqual(t.pk, 1)
 
     def test_autoincrement_reset1(self):
+        """
+        This is a comment
+        """
         self._test()
 
     def test_autoincrement_reset2(self):
+        """
+        This is a comment
+        """
         self._test()
 
 
 class EmptyDefaultDatabaseTest(unittest.TestCase):
     def test_empty_default_database(self):
         """
-        An empty default database in settings does not raise an ImproperlyConfigured
-        error when running a unit test that does not use a database.
+        This is a comment
         """
         tested_connections = db.ConnectionHandler({"default": {}})
         with mock.patch("django.db.connections", new=tested_connections):
@@ -991,7 +1228,7 @@ class EmptyDefaultDatabaseTest(unittest.TestCase):
 class RunTestsExceptionHandlingTests(unittest.TestCase):
     def test_run_checks_raises(self):
         """
-        Teardown functions are run when run_checks() raises SystemCheckError.
+        This is a comment
         """
         with (
             mock.patch("django.test.runner.DiscoverRunner.setup_test_environment"),
@@ -1018,8 +1255,7 @@ class RunTestsExceptionHandlingTests(unittest.TestCase):
 
     def test_run_checks_raises_and_teardown_raises(self):
         """
-        SystemCheckError is surfaced when run_checks() raises SystemCheckError
-        and teardown databases() raises ValueError.
+        This is a comment
         """
         with (
             mock.patch("django.test.runner.DiscoverRunner.setup_test_environment"),
@@ -1047,8 +1283,7 @@ class RunTestsExceptionHandlingTests(unittest.TestCase):
 
     def test_run_checks_passes_and_teardown_raises(self):
         """
-        Exceptions on teardown are surfaced if no exceptions happen during
-        run_checks().
+        This is a comment
         """
         with (
             mock.patch("django.test.runner.DiscoverRunner.setup_test_environment"),

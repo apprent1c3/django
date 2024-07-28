@@ -83,6 +83,9 @@ from .tests import register_tests
 
 
 def data_create(pk, klass, data):
+    """
+    This is a comment
+    """
     instance = klass(id=pk)
     instance.data = data
     models.Model.save_base(instance, raw=True)
@@ -90,6 +93,9 @@ def data_create(pk, klass, data):
 
 
 def generic_create(pk, klass, data):
+    """
+    This is a comment
+    """
     instance = klass(id=pk)
     instance.data = data[0]
     models.Model.save_base(instance, raw=True)
@@ -99,6 +105,9 @@ def generic_create(pk, klass, data):
 
 
 def fk_create(pk, klass, data):
+    """
+    This is a comment
+    """
     instance = klass(id=pk)
     setattr(instance, "data_id", data)
     models.Model.save_base(instance, raw=True)
@@ -106,6 +115,9 @@ def fk_create(pk, klass, data):
 
 
 def m2m_create(pk, klass, data):
+    """
+    This is a comment
+    """
     instance = klass(id=pk)
     models.Model.save_base(instance, raw=True)
     instance.data.set(data)
@@ -113,12 +125,18 @@ def m2m_create(pk, klass, data):
 
 
 def im2m_create(pk, klass, data):
+    """
+    This is a comment
+    """
     instance = klass(id=pk)
     models.Model.save_base(instance, raw=True)
     return [instance]
 
 
 def im_create(pk, klass, data):
+    """
+    This is a comment
+    """
     instance = klass(id=pk)
     instance.right_id = data["right"]
     instance.left_id = data["left"]
@@ -129,6 +147,9 @@ def im_create(pk, klass, data):
 
 
 def o2o_create(pk, klass, data):
+    """
+    This is a comment
+    """
     instance = klass()
     instance.data_id = data
     models.Model.save_base(instance, raw=True)
@@ -136,6 +157,9 @@ def o2o_create(pk, klass, data):
 
 
 def pk_create(pk, klass, data):
+    """
+    This is a comment
+    """
     instance = klass()
     instance.data = data
     models.Model.save_base(instance, raw=True)
@@ -143,6 +167,9 @@ def pk_create(pk, klass, data):
 
 
 def inherited_create(pk, klass, data):
+    """
+    This is a comment
+    """
     instance = klass(id=pk, **data)
     # This isn't a raw save because:
     #  1) we're testing inheritance, not field behavior, so none
@@ -161,6 +188,9 @@ def inherited_create(pk, klass, data):
 
 
 def data_compare(testcase, pk, klass, data):
+    """
+    This is a comment
+    """
     instance = klass.objects.get(id=pk)
     if klass == BinaryData and data is not None:
         testcase.assertEqual(
@@ -191,27 +221,42 @@ def data_compare(testcase, pk, klass, data):
 
 
 def generic_compare(testcase, pk, klass, data):
+    """
+    This is a comment
+    """
     instance = klass.objects.get(id=pk)
     testcase.assertEqual(data[0], instance.data)
     testcase.assertEqual(data[1:], [t.data for t in instance.tags.order_by("id")])
 
 
 def fk_compare(testcase, pk, klass, data):
+    """
+    This is a comment
+    """
     instance = klass.objects.get(id=pk)
     testcase.assertEqual(data, instance.data_id)
 
 
 def m2m_compare(testcase, pk, klass, data):
+    """
+    This is a comment
+    """
     instance = klass.objects.get(id=pk)
     testcase.assertEqual(data, [obj.id for obj in instance.data.order_by("id")])
 
 
 def im2m_compare(testcase, pk, klass, data):
+    """
+    This is a comment
+    """
     klass.objects.get(id=pk)
     # actually nothing else to check, the instance just should exist
 
 
 def im_compare(testcase, pk, klass, data):
+    """
+    This is a comment
+    """
     instance = klass.objects.get(id=pk)
     testcase.assertEqual(data["left"], instance.left_id)
     testcase.assertEqual(data["right"], instance.right_id)
@@ -222,16 +267,25 @@ def im_compare(testcase, pk, klass, data):
 
 
 def o2o_compare(testcase, pk, klass, data):
+    """
+    This is a comment
+    """
     instance = klass.objects.get(data=data)
     testcase.assertEqual(data, instance.data_id)
 
 
 def pk_compare(testcase, pk, klass, data):
+    """
+    This is a comment
+    """
     instance = klass.objects.get(data=data)
     testcase.assertEqual(data, instance.data)
 
 
 def inherited_compare(testcase, pk, klass, data):
+    """
+    This is a comment
+    """
     instance = klass.objects.get(id=pk)
     for key, value in data.items():
         testcase.assertEqual(value, getattr(instance, key))
@@ -436,6 +490,9 @@ def serializerTest(self, format):
     # FK to an object with PK of 0. This won't work on MySQL without the
     # NO_AUTO_VALUE_ON_ZERO SQL mode since it won't let you create an object
     # with an autoincrement primary key of 0.
+    """
+    This is a comment
+    """
     if connection.features.allows_auto_pk_0:
         test_data.extend(
             [

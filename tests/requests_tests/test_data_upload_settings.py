@@ -20,6 +20,9 @@ TOO_MUCH_DATA_MSG = "Request body exceeded settings.DATA_UPLOAD_MAX_MEMORY_SIZE.
 
 class DataUploadMaxMemorySizeFormPostTests(SimpleTestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         payload = FakePayload("a=1&a=2&a=3\r\n")
         self.request = WSGIRequest(
             {
@@ -31,21 +34,33 @@ class DataUploadMaxMemorySizeFormPostTests(SimpleTestCase):
         )
 
     def test_size_exceeded(self):
+        """
+        This is a comment
+        """
         with self.settings(DATA_UPLOAD_MAX_MEMORY_SIZE=12):
             with self.assertRaisesMessage(RequestDataTooBig, TOO_MUCH_DATA_MSG):
                 self.request._load_post_and_files()
 
     def test_size_not_exceeded(self):
+        """
+        This is a comment
+        """
         with self.settings(DATA_UPLOAD_MAX_MEMORY_SIZE=13):
             self.request._load_post_and_files()
 
     def test_no_limit(self):
+        """
+        This is a comment
+        """
         with self.settings(DATA_UPLOAD_MAX_MEMORY_SIZE=None):
             self.request._load_post_and_files()
 
 
 class DataUploadMaxMemorySizeMultipartPostTests(SimpleTestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         payload = FakePayload(
             "\r\n".join(
                 [
@@ -67,19 +82,31 @@ class DataUploadMaxMemorySizeMultipartPostTests(SimpleTestCase):
         )
 
     def test_size_exceeded(self):
+        """
+        This is a comment
+        """
         with self.settings(DATA_UPLOAD_MAX_MEMORY_SIZE=10):
             with self.assertRaisesMessage(RequestDataTooBig, TOO_MUCH_DATA_MSG):
                 self.request._load_post_and_files()
 
     def test_size_not_exceeded(self):
+        """
+        This is a comment
+        """
         with self.settings(DATA_UPLOAD_MAX_MEMORY_SIZE=11):
             self.request._load_post_and_files()
 
     def test_no_limit(self):
+        """
+        This is a comment
+        """
         with self.settings(DATA_UPLOAD_MAX_MEMORY_SIZE=None):
             self.request._load_post_and_files()
 
     def test_file_passes(self):
+        """
+        This is a comment
+        """
         payload = FakePayload(
             "\r\n".join(
                 [
@@ -107,6 +134,9 @@ class DataUploadMaxMemorySizeMultipartPostTests(SimpleTestCase):
 
 class DataUploadMaxMemorySizeGetTests(SimpleTestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         self.request = WSGIRequest(
             {
                 "REQUEST_METHOD": "GET",
@@ -116,25 +146,40 @@ class DataUploadMaxMemorySizeGetTests(SimpleTestCase):
         )
 
     def test_data_upload_max_memory_size_exceeded(self):
+        """
+        This is a comment
+        """
         with self.settings(DATA_UPLOAD_MAX_MEMORY_SIZE=2):
             with self.assertRaisesMessage(RequestDataTooBig, TOO_MUCH_DATA_MSG):
                 self.request.body
 
     def test_size_not_exceeded(self):
+        """
+        This is a comment
+        """
         with self.settings(DATA_UPLOAD_MAX_MEMORY_SIZE=3):
             self.request.body
 
     def test_no_limit(self):
+        """
+        This is a comment
+        """
         with self.settings(DATA_UPLOAD_MAX_MEMORY_SIZE=None):
             self.request.body
 
     def test_empty_content_length(self):
+        """
+        This is a comment
+        """
         self.request.environ["CONTENT_LENGTH"] = ""
         self.request.body
 
 
 class DataUploadMaxNumberOfFieldsGet(SimpleTestCase):
     def test_get_max_fields_exceeded(self):
+        """
+        This is a comment
+        """
         with self.settings(DATA_UPLOAD_MAX_NUMBER_FIELDS=1):
             with self.assertRaisesMessage(TooManyFieldsSent, TOO_MANY_FIELDS_MSG):
                 request = WSGIRequest(
@@ -147,6 +192,9 @@ class DataUploadMaxNumberOfFieldsGet(SimpleTestCase):
                 request.GET["a"]
 
     def test_get_max_fields_not_exceeded(self):
+        """
+        This is a comment
+        """
         with self.settings(DATA_UPLOAD_MAX_NUMBER_FIELDS=3):
             request = WSGIRequest(
                 {
@@ -160,6 +208,9 @@ class DataUploadMaxNumberOfFieldsGet(SimpleTestCase):
 
 class DataUploadMaxNumberOfFieldsMultipartPost(SimpleTestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         payload = FakePayload(
             "\r\n".join(
                 [
@@ -185,21 +236,33 @@ class DataUploadMaxNumberOfFieldsMultipartPost(SimpleTestCase):
         )
 
     def test_number_exceeded(self):
+        """
+        This is a comment
+        """
         with self.settings(DATA_UPLOAD_MAX_NUMBER_FIELDS=1):
             with self.assertRaisesMessage(TooManyFieldsSent, TOO_MANY_FIELDS_MSG):
                 self.request._load_post_and_files()
 
     def test_number_not_exceeded(self):
+        """
+        This is a comment
+        """
         with self.settings(DATA_UPLOAD_MAX_NUMBER_FIELDS=2):
             self.request._load_post_and_files()
 
     def test_no_limit(self):
+        """
+        This is a comment
+        """
         with self.settings(DATA_UPLOAD_MAX_NUMBER_FIELDS=None):
             self.request._load_post_and_files()
 
 
 class DataUploadMaxNumberOfFilesMultipartPost(SimpleTestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         payload = FakePayload(
             "\r\n".join(
                 [
@@ -231,21 +294,33 @@ class DataUploadMaxNumberOfFilesMultipartPost(SimpleTestCase):
         )
 
     def test_number_exceeded(self):
+        """
+        This is a comment
+        """
         with self.settings(DATA_UPLOAD_MAX_NUMBER_FILES=1):
             with self.assertRaisesMessage(TooManyFilesSent, TOO_MANY_FILES_MSG):
                 self.request._load_post_and_files()
 
     def test_number_not_exceeded(self):
+        """
+        This is a comment
+        """
         with self.settings(DATA_UPLOAD_MAX_NUMBER_FILES=2):
             self.request._load_post_and_files()
 
     def test_no_limit(self):
+        """
+        This is a comment
+        """
         with self.settings(DATA_UPLOAD_MAX_NUMBER_FILES=None):
             self.request._load_post_and_files()
 
 
 class DataUploadMaxNumberOfFieldsFormPost(SimpleTestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         payload = FakePayload("\r\n".join(["a=1&a=2&a=3", ""]))
         self.request = WSGIRequest(
             {
@@ -257,14 +332,23 @@ class DataUploadMaxNumberOfFieldsFormPost(SimpleTestCase):
         )
 
     def test_number_exceeded(self):
+        """
+        This is a comment
+        """
         with self.settings(DATA_UPLOAD_MAX_NUMBER_FIELDS=2):
             with self.assertRaisesMessage(TooManyFieldsSent, TOO_MANY_FIELDS_MSG):
                 self.request._load_post_and_files()
 
     def test_number_not_exceeded(self):
+        """
+        This is a comment
+        """
         with self.settings(DATA_UPLOAD_MAX_NUMBER_FIELDS=3):
             self.request._load_post_and_files()
 
     def test_no_limit(self):
+        """
+        This is a comment
+        """
         with self.settings(DATA_UPLOAD_MAX_NUMBER_FIELDS=None):
             self.request._load_post_and_files()

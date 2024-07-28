@@ -12,6 +12,9 @@ class WidgetTest(SimpleTestCase):
 
     @classmethod
     def setUpClass(cls):
+        """
+        This is a comment
+        """
         cls.django_renderer = DjangoTemplates()
         cls.jinja2_renderer = Jinja2() if jinja2 else None
         cls.renderers = [cls.django_renderer] + (
@@ -22,6 +25,9 @@ class WidgetTest(SimpleTestCase):
     def check_html(
         self, widget, name, value, html="", attrs=None, strict=False, **kwargs
     ):
+        """
+        This is a comment
+        """
         assertEqual = self.assertEqual if strict else self.assertHTMLEqual
         if self.jinja2_renderer:
             output = widget.render(

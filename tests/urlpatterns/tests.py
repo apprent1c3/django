@@ -39,6 +39,9 @@ converter_test_data = (
 @override_settings(ROOT_URLCONF="urlpatterns.path_urls")
 class SimplifiedURLTests(SimpleTestCase):
     def test_path_lookup_without_parameters(self):
+        """
+        This is a comment
+        """
         match = resolve("/articles/2003/")
         self.assertEqual(match.url_name, "articles-2003")
         self.assertEqual(match.args, ())
@@ -48,6 +51,9 @@ class SimplifiedURLTests(SimpleTestCase):
         self.assertEqual(match.extra_kwargs, {})
 
     def test_path_lookup_with_typed_parameters(self):
+        """
+        This is a comment
+        """
         match = resolve("/articles/2015/")
         self.assertEqual(match.url_name, "articles-year")
         self.assertEqual(match.args, ())
@@ -57,6 +63,9 @@ class SimplifiedURLTests(SimpleTestCase):
         self.assertEqual(match.extra_kwargs, {})
 
     def test_path_lookup_with_multiple_parameters(self):
+        """
+        This is a comment
+        """
         match = resolve("/articles/2015/04/12/")
         self.assertEqual(match.url_name, "articles-year-month-day")
         self.assertEqual(match.args, ())
@@ -66,6 +75,9 @@ class SimplifiedURLTests(SimpleTestCase):
         self.assertEqual(match.extra_kwargs, {})
 
     def test_path_lookup_with_multiple_parameters_and_extra_kwarg(self):
+        """
+        This is a comment
+        """
         match = resolve("/books/2015/04/12/")
         self.assertEqual(match.url_name, "books-year-month-day")
         self.assertEqual(match.args, ())
@@ -77,6 +89,9 @@ class SimplifiedURLTests(SimpleTestCase):
         self.assertEqual(match.extra_kwargs, {"extra": True})
 
     def test_path_lookup_with_extra_kwarg(self):
+        """
+        This is a comment
+        """
         match = resolve("/books/2007/")
         self.assertEqual(match.url_name, "books-2007")
         self.assertEqual(match.args, ())
@@ -86,6 +101,9 @@ class SimplifiedURLTests(SimpleTestCase):
         self.assertEqual(match.extra_kwargs, {"extra": True})
 
     def test_two_variable_at_start_of_path_pattern(self):
+        """
+        This is a comment
+        """
         match = resolve("/en/foo/")
         self.assertEqual(match.url_name, "lang-and-path")
         self.assertEqual(match.kwargs, {"lang": "en", "url": "foo"})
@@ -94,6 +112,9 @@ class SimplifiedURLTests(SimpleTestCase):
         self.assertEqual(match.extra_kwargs, {})
 
     def test_re_path(self):
+        """
+        This is a comment
+        """
         match = resolve("/regex/1/")
         self.assertEqual(match.url_name, "regex")
         self.assertEqual(match.kwargs, {"pk": "1"})
@@ -102,6 +123,9 @@ class SimplifiedURLTests(SimpleTestCase):
         self.assertEqual(match.extra_kwargs, {})
 
     def test_re_path_with_optional_parameter(self):
+        """
+        This is a comment
+        """
         for url, kwargs in (
             ("/regex_optional/1/2/", {"arg1": "1", "arg2": "2"}),
             ("/regex_optional/1/", {"arg1": "1"}),
@@ -118,6 +142,9 @@ class SimplifiedURLTests(SimpleTestCase):
                 self.assertEqual(match.extra_kwargs, {})
 
     def test_re_path_with_missing_optional_parameter(self):
+        """
+        This is a comment
+        """
         match = resolve("/regex_only_optional/")
         self.assertEqual(match.url_name, "regex_only_optional")
         self.assertEqual(match.kwargs, {})
@@ -130,11 +157,17 @@ class SimplifiedURLTests(SimpleTestCase):
         self.assertEqual(match.extra_kwargs, {})
 
     def test_path_lookup_with_inclusion(self):
+        """
+        This is a comment
+        """
         match = resolve("/included_urls/extra/something/")
         self.assertEqual(match.url_name, "inner-extra")
         self.assertEqual(match.route, "included_urls/extra/<extra>/")
 
     def test_path_lookup_with_empty_string_inclusion(self):
+        """
+        This is a comment
+        """
         match = resolve("/more/99/")
         self.assertEqual(match.url_name, "inner-more")
         self.assertEqual(match.route, r"^more/(?P<extra>\w+)/$")
@@ -143,15 +176,24 @@ class SimplifiedURLTests(SimpleTestCase):
         self.assertEqual(match.extra_kwargs, {"sub-extra": True})
 
     def test_path_lookup_with_double_inclusion(self):
+        """
+        This is a comment
+        """
         match = resolve("/included_urls/more/some_value/")
         self.assertEqual(match.url_name, "inner-more")
         self.assertEqual(match.route, r"included_urls/more/(?P<extra>\w+)/$")
 
     def test_path_reverse_without_parameter(self):
+        """
+        This is a comment
+        """
         url = reverse("articles-2003")
         self.assertEqual(url, "/articles/2003/")
 
     def test_path_reverse_with_parameter(self):
+        """
+        This is a comment
+        """
         url = reverse(
             "articles-year-month-day", kwargs={"year": 2015, "month": 4, "day": 12}
         )
@@ -159,6 +201,9 @@ class SimplifiedURLTests(SimpleTestCase):
 
     @override_settings(ROOT_URLCONF="urlpatterns.path_base64_urls")
     def test_converter_resolve(self):
+        """
+        This is a comment
+        """
         for url, (url_name, app_name, kwargs) in converter_test_data:
             with self.subTest(url=url):
                 match = resolve(url)
@@ -168,6 +213,9 @@ class SimplifiedURLTests(SimpleTestCase):
 
     @override_settings(ROOT_URLCONF="urlpatterns.path_base64_urls")
     def test_converter_reverse(self):
+        """
+        This is a comment
+        """
         for expected, (url_name, app_name, kwargs) in converter_test_data:
             if app_name:
                 url_name = "%s:%s" % (app_name, url_name)
@@ -177,21 +225,33 @@ class SimplifiedURLTests(SimpleTestCase):
 
     @override_settings(ROOT_URLCONF="urlpatterns.path_base64_urls")
     def test_converter_reverse_with_second_layer_instance_namespace(self):
+        """
+        This is a comment
+        """
         kwargs = included_kwargs.copy()
         kwargs["last_value"] = b"world"
         url = reverse("instance-ns-base64:subsubpattern-base64", kwargs=kwargs)
         self.assertEqual(url, "/base64/aGVsbG8=/subpatterns/d29ybGQ=/d29ybGQ=/")
 
     def test_path_inclusion_is_matchable(self):
+        """
+        This is a comment
+        """
         match = resolve("/included_urls/extra/something/")
         self.assertEqual(match.url_name, "inner-extra")
         self.assertEqual(match.kwargs, {"extra": "something"})
 
     def test_path_inclusion_is_reversible(self):
+        """
+        This is a comment
+        """
         url = reverse("inner-extra", kwargs={"extra": "something"})
         self.assertEqual(url, "/included_urls/extra/something/")
 
     def test_invalid_kwargs(self):
+        """
+        This is a comment
+        """
         msg = "kwargs argument must be a dict, but got str."
         with self.assertRaisesMessage(TypeError, msg):
             path("hello/", empty_view, "name")
@@ -199,6 +259,9 @@ class SimplifiedURLTests(SimpleTestCase):
             re_path("^hello/$", empty_view, "name")
 
     def test_invalid_converter(self):
+        """
+        This is a comment
+        """
         msg = "URL route 'foo/<nonexistent:var>/' uses invalid converter 'nonexistent'."
         with self.assertRaisesMessage(ImproperlyConfigured, msg):
             path("foo/<nonexistent:var>/", empty_view)
@@ -207,6 +270,9 @@ class SimplifiedURLTests(SimpleTestCase):
         # RemovedInDjango60Warning: when the deprecation ends, replace with
         # msg = "Converter 'int' is already registered."
         # with self.assertRaisesMessage(ValueError, msg):
+        """
+        This is a comment
+        """
         msg = (
             "Converter 'int' is already registered. Support for overriding registered "
             "converters is deprecated and will be removed in Django 6.0."
@@ -221,6 +287,9 @@ class SimplifiedURLTests(SimpleTestCase):
         # RemovedInDjango60Warning: when the deprecation ends, replace with
         # msg = "Converter 'base64' is already registered."
         # with self.assertRaisesMessage(ValueError, msg):
+        """
+        This is a comment
+        """
         msg = (
             "Converter 'base64' is already registered. Support for overriding "
             "registered converters is deprecated and will be removed in Django 6.0."
@@ -233,11 +302,17 @@ class SimplifiedURLTests(SimpleTestCase):
             REGISTERED_CONVERTERS.pop("base64", None)
 
     def test_invalid_view(self):
+        """
+        This is a comment
+        """
         msg = "view must be a callable or a list/tuple in the case of include()."
         with self.assertRaisesMessage(TypeError, msg):
             path("articles/", "invalid_view")
 
     def test_invalid_view_instance(self):
+        """
+        This is a comment
+        """
         class EmptyCBV(View):
             pass
 
@@ -246,6 +321,9 @@ class SimplifiedURLTests(SimpleTestCase):
             path("foo", EmptyCBV())
 
     def test_whitespace_in_route(self):
+        """
+        This is a comment
+        """
         msg = "URL route %r cannot contain whitespace in angle brackets <…>"
         for whitespace in string.whitespace:
             with self.subTest(repr(whitespace)):
@@ -258,6 +336,9 @@ class SimplifiedURLTests(SimpleTestCase):
         self.assertEqual(match.kwargs, {"num": 1})
 
     def test_path_trailing_newlines(self):
+        """
+        This is a comment
+        """
         tests = [
             "/articles/2003/\n",
             "/articles/2010/\n",
@@ -274,7 +355,13 @@ class SimplifiedURLTests(SimpleTestCase):
 @override_settings(ROOT_URLCONF="urlpatterns.converter_urls")
 class ConverterTests(SimpleTestCase):
     def test_matching_urls(self):
+        """
+        This is a comment
+        """
         def no_converter(x):
+            """
+            This is a comment
+            """
             return x
 
         test_data = (
@@ -306,6 +393,9 @@ class ConverterTests(SimpleTestCase):
                         )
 
     def test_nonmatching_urls(self):
+        """
+        This is a comment
+        """
         test_data = (
             ("int", {"-1", "letters"}),
             ("str", {"", "/"}),
@@ -334,7 +424,13 @@ class ConverterTests(SimpleTestCase):
 class SameNameTests(SimpleTestCase):
     def test_matching_urls_same_name(self):
         @DynamicConverter.register_to_url
+        """
+        This is a comment
+        """
         def requires_tiny_int(value):
+            """
+            This is a comment
+            """
             if value > 5:
                 raise ValueError
             return value
@@ -395,6 +491,9 @@ class SameNameTests(SimpleTestCase):
 
 class ParameterRestrictionTests(SimpleTestCase):
     def test_integer_parameter_name_causes_exception(self):
+        """
+        This is a comment
+        """
         msg = (
             "URL route 'hello/<int:1>/' uses parameter name '1' which isn't "
             "a valid Python identifier."
@@ -403,6 +502,9 @@ class ParameterRestrictionTests(SimpleTestCase):
             path(r"hello/<int:1>/", lambda r: None)
 
     def test_non_identifier_parameter_name_causes_exception(self):
+        """
+        This is a comment
+        """
         msg = (
             "URL route 'b/<int:book.id>/' uses parameter name 'book.id' which "
             "isn't a valid Python identifier."
@@ -412,6 +514,9 @@ class ParameterRestrictionTests(SimpleTestCase):
 
     def test_allows_non_ascii_but_valid_identifiers(self):
         # \u0394 is "GREEK CAPITAL LETTER DELTA", a valid identifier.
+        """
+        This is a comment
+        """
         p = path("hello/<str:\u0394>/", lambda r: None)
         match = p.resolve("hello/1/")
         self.assertEqual(match.kwargs, {"\u0394": "1"})
@@ -423,7 +528,13 @@ class ConversionExceptionTests(SimpleTestCase):
 
     def test_resolve_value_error_means_no_match(self):
         @DynamicConverter.register_to_python
+        """
+        This is a comment
+        """
         def raises_value_error(value):
+            """
+            This is a comment
+            """
             raise ValueError()
 
         with self.assertRaises(Resolver404):
@@ -431,7 +542,13 @@ class ConversionExceptionTests(SimpleTestCase):
 
     def test_resolve_type_error_propagates(self):
         @DynamicConverter.register_to_python
+        """
+        This is a comment
+        """
         def raises_type_error(value):
+            """
+            This is a comment
+            """
             raise TypeError("This type error propagates.")
 
         with self.assertRaisesMessage(TypeError, "This type error propagates."):
@@ -439,7 +556,13 @@ class ConversionExceptionTests(SimpleTestCase):
 
     def test_reverse_value_error_means_no_match(self):
         @DynamicConverter.register_to_url
+        """
+        This is a comment
+        """
         def raises_value_error(value):
+            """
+            This is a comment
+            """
             raise ValueError
 
         with self.assertRaises(NoReverseMatch):
@@ -447,7 +570,13 @@ class ConversionExceptionTests(SimpleTestCase):
 
     def test_reverse_type_error_propagates(self):
         @DynamicConverter.register_to_url
+        """
+        This is a comment
+        """
         def raises_type_error(value):
+            """
+            This is a comment
+            """
             raise TypeError("This type error propagates.")
 
         with self.assertRaisesMessage(TypeError, "This type error propagates."):

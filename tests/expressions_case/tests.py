@@ -36,6 +36,9 @@ except ImportError:
 class CaseExpressionTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         o = CaseTestModel.objects.create(integer=1, integer2=1, string="1")
         O2OCaseTestModel.objects.create(o2o=o, integer=1)
         FKCaseTestModel.objects.create(fk=o, integer=1)
@@ -80,6 +83,9 @@ class CaseExpressionTests(TestCase):
         ]
 
     def test_annotate(self):
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             CaseTestModel.objects.annotate(
                 test=Case(
@@ -101,6 +107,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_annotate_without_default(self):
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             CaseTestModel.objects.annotate(
                 test=Case(
@@ -113,6 +122,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_annotate_with_expression_as_value(self):
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             CaseTestModel.objects.annotate(
                 f_test=Case(
@@ -126,6 +138,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_annotate_with_expression_as_condition(self):
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             CaseTestModel.objects.annotate(
                 f_test=Case(
@@ -146,6 +161,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_annotate_with_join_in_value(self):
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             CaseTestModel.objects.annotate(
                 join_test=Case(
@@ -159,6 +177,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_annotate_with_in_clause(self):
+        """
+        This is a comment
+        """
         fk_rels = FKCaseTestModel.objects.filter(integer__in=[5])
         self.assertQuerySetEqual(
             CaseTestModel.objects.only("pk", "integer")
@@ -176,6 +197,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_annotate_with_join_in_condition(self):
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             CaseTestModel.objects.annotate(
                 join_test=Case(
@@ -197,6 +221,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_annotate_with_join_in_predicate(self):
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             CaseTestModel.objects.annotate(
                 join_test=Case(
@@ -219,6 +246,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_annotate_with_annotation_in_value(self):
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             CaseTestModel.objects.annotate(
                 f_plus_1=F("integer") + 1,
@@ -237,6 +267,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_annotate_with_annotation_in_condition(self):
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             CaseTestModel.objects.annotate(
                 f_plus_1=F("integer") + 1,
@@ -261,6 +294,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_annotate_with_annotation_in_predicate(self):
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             CaseTestModel.objects.annotate(
                 f_minus_2=F("integer") - 2,
@@ -287,6 +323,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_annotate_with_aggregation_in_value(self):
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             CaseTestModel.objects.values(*self.group_by_fields)
             .annotate(
@@ -313,6 +352,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_annotate_with_aggregation_in_condition(self):
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             CaseTestModel.objects.values(*self.group_by_fields)
             .annotate(
@@ -339,6 +381,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_annotate_with_aggregation_in_predicate(self):
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             CaseTestModel.objects.values(*self.group_by_fields)
             .annotate(
@@ -365,6 +410,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_annotate_exclude(self):
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             CaseTestModel.objects.annotate(
                 test=Case(
@@ -380,6 +428,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_annotate_filter_decimal(self):
+        """
+        This is a comment
+        """
         obj = CaseTestModel.objects.create(integer=0, decimal=Decimal("1"))
         qs = CaseTestModel.objects.annotate(
             x=Case(When(integer=0, then=F("decimal"))),
@@ -389,6 +440,9 @@ class CaseExpressionTests(TestCase):
         self.assertSequenceEqual(qs.filter(Q(y=1) & Q(y=Decimal("1"))), [obj])
 
     def test_annotate_values_not_in_order_by(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             list(
                 CaseTestModel.objects.annotate(
@@ -406,6 +460,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_annotate_with_empty_when(self):
+        """
+        This is a comment
+        """
         objects = CaseTestModel.objects.annotate(
             selected=Case(
                 When(pk__in=[], then=Value("selected")),
@@ -416,6 +473,9 @@ class CaseExpressionTests(TestCase):
         self.assertTrue(all(obj.selected == "not selected" for obj in objects))
 
     def test_annotate_with_full_when(self):
+        """
+        This is a comment
+        """
         objects = CaseTestModel.objects.annotate(
             selected=Case(
                 When(~Q(pk__in=[]), then=Value("selected")),
@@ -426,6 +486,9 @@ class CaseExpressionTests(TestCase):
         self.assertTrue(all(obj.selected == "selected" for obj in objects))
 
     def test_combined_expression(self):
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             CaseTestModel.objects.annotate(
                 test=Case(
@@ -440,6 +503,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_in_subquery(self):
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             CaseTestModel.objects.filter(
                 pk__in=CaseTestModel.objects.annotate(
@@ -454,6 +520,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_condition_with_lookups(self):
+        """
+        This is a comment
+        """
         qs = CaseTestModel.objects.annotate(
             test=Case(
                 When(Q(integer2=1), string="2", then=Value(False)),
@@ -465,6 +534,9 @@ class CaseExpressionTests(TestCase):
         self.assertIs(qs.get(integer=1).test, True)
 
     def test_case_reuse(self):
+        """
+        This is a comment
+        """
         SOME_CASE = Case(
             When(pk=0, then=Value("0")),
             default=Value("1"),
@@ -478,6 +550,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_aggregate(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             CaseTestModel.objects.aggregate(
                 one=Sum(
@@ -505,6 +580,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_aggregate_with_expression_as_value(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             CaseTestModel.objects.aggregate(
                 one=Sum(Case(When(integer=1, then="integer"))),
@@ -515,6 +593,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_aggregate_with_expression_as_condition(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             CaseTestModel.objects.aggregate(
                 equal=Sum(
@@ -532,6 +613,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_filter(self):
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             CaseTestModel.objects.filter(
                 integer2=Case(
@@ -545,6 +629,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_filter_without_default(self):
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             CaseTestModel.objects.filter(
                 integer2=Case(
@@ -557,6 +644,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_filter_with_expression_as_value(self):
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             CaseTestModel.objects.filter(
                 integer2=Case(
@@ -570,6 +660,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_filter_with_expression_as_condition(self):
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             CaseTestModel.objects.filter(
                 string=Case(
@@ -582,6 +675,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_filter_with_join_in_value(self):
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             CaseTestModel.objects.filter(
                 integer2=Case(
@@ -595,6 +691,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_filter_with_join_in_condition(self):
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             CaseTestModel.objects.filter(
                 integer=Case(
@@ -607,6 +706,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_filter_with_join_in_predicate(self):
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             CaseTestModel.objects.filter(
                 integer2=Case(
@@ -620,6 +722,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_filter_with_annotation_in_value(self):
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             CaseTestModel.objects.annotate(
                 f=F("integer"),
@@ -637,6 +742,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_filter_with_annotation_in_condition(self):
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             CaseTestModel.objects.annotate(
                 f_plus_1=F("integer") + 1,
@@ -653,6 +761,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_filter_with_annotation_in_predicate(self):
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             CaseTestModel.objects.annotate(
                 f_plus_1=F("integer") + 1,
@@ -670,6 +781,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_filter_with_aggregation_in_value(self):
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             CaseTestModel.objects.values(*self.group_by_fields)
             .annotate(
@@ -688,6 +802,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_filter_with_aggregation_in_condition(self):
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             CaseTestModel.objects.values(*self.group_by_fields)
             .annotate(
@@ -706,6 +823,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_filter_with_aggregation_in_predicate(self):
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             CaseTestModel.objects.values(*self.group_by_fields)
             .annotate(
@@ -723,6 +843,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_update(self):
+        """
+        This is a comment
+        """
         CaseTestModel.objects.update(
             string=Case(
                 When(integer=1, then=Value("one")),
@@ -745,6 +868,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_update_without_default(self):
+        """
+        This is a comment
+        """
         CaseTestModel.objects.update(
             integer2=Case(
                 When(integer=1, then=1),
@@ -758,6 +884,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_update_with_expression_as_value(self):
+        """
+        This is a comment
+        """
         CaseTestModel.objects.update(
             integer=Case(
                 When(integer=1, then=F("integer") + 1),
@@ -772,6 +901,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_update_with_expression_as_condition(self):
+        """
+        This is a comment
+        """
         CaseTestModel.objects.update(
             string=Case(
                 When(integer2=F("integer"), then=Value("equal")),
@@ -793,6 +925,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_update_with_join_in_condition_raise_field_error(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(
             FieldError, "Joined field references are not permitted in this query"
         ):
@@ -804,6 +939,9 @@ class CaseExpressionTests(TestCase):
             )
 
     def test_update_with_join_in_predicate_raise_field_error(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(
             FieldError, "Joined field references are not permitted in this query"
         ):
@@ -817,6 +955,9 @@ class CaseExpressionTests(TestCase):
             )
 
     def test_update_big_integer(self):
+        """
+        This is a comment
+        """
         CaseTestModel.objects.update(
             big_integer=Case(
                 When(integer=1, then=1),
@@ -830,6 +971,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_update_binary(self):
+        """
+        This is a comment
+        """
         CaseTestModel.objects.update(
             binary=Case(
                 When(integer=1, then=b"one"),
@@ -852,6 +996,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_update_boolean(self):
+        """
+        This is a comment
+        """
         CaseTestModel.objects.update(
             boolean=Case(
                 When(integer=1, then=True),
@@ -874,6 +1021,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_update_date(self):
+        """
+        This is a comment
+        """
         CaseTestModel.objects.update(
             date=Case(
                 When(integer=1, then=date(2015, 1, 1)),
@@ -895,6 +1045,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_update_date_time(self):
+        """
+        This is a comment
+        """
         CaseTestModel.objects.update(
             date_time=Case(
                 When(integer=1, then=datetime(2015, 1, 1)),
@@ -916,6 +1069,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_update_decimal(self):
+        """
+        This is a comment
+        """
         CaseTestModel.objects.update(
             decimal=Case(
                 When(integer=1, then=Decimal("1.1")),
@@ -939,6 +1095,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_update_duration(self):
+        """
+        This is a comment
+        """
         CaseTestModel.objects.update(
             duration=Case(
                 When(integer=1, then=timedelta(1)),
@@ -960,6 +1119,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_update_email(self):
+        """
+        This is a comment
+        """
         CaseTestModel.objects.update(
             email=Case(
                 When(integer=1, then=Value("1@example.com")),
@@ -982,6 +1144,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_update_file(self):
+        """
+        This is a comment
+        """
         CaseTestModel.objects.update(
             file=Case(
                 When(integer=1, then=Value("~/1")),
@@ -995,6 +1160,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_update_file_path(self):
+        """
+        This is a comment
+        """
         CaseTestModel.objects.update(
             file_path=Case(
                 When(integer=1, then=Value("~/1")),
@@ -1009,6 +1177,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_update_float(self):
+        """
+        This is a comment
+        """
         CaseTestModel.objects.update(
             float=Case(
                 When(integer=1, then=1.1),
@@ -1023,6 +1194,9 @@ class CaseExpressionTests(TestCase):
 
     @unittest.skipUnless(Image, "Pillow not installed")
     def test_update_image(self):
+        """
+        This is a comment
+        """
         CaseTestModel.objects.update(
             image=Case(
                 When(integer=1, then=Value("~/1")),
@@ -1036,6 +1210,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_update_generic_ip_address(self):
+        """
+        This is a comment
+        """
         CaseTestModel.objects.update(
             generic_ip_address=Case(
                 When(integer=1, then=Value("1.1.1.1")),
@@ -1058,6 +1235,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_update_null_boolean(self):
+        """
+        This is a comment
+        """
         CaseTestModel.objects.update(
             null_boolean=Case(
                 When(integer=1, then=True),
@@ -1079,6 +1259,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_update_positive_big_integer(self):
+        """
+        This is a comment
+        """
         CaseTestModel.objects.update(
             positive_big_integer=Case(
                 When(integer=1, then=1),
@@ -1092,6 +1275,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_update_positive_integer(self):
+        """
+        This is a comment
+        """
         CaseTestModel.objects.update(
             positive_integer=Case(
                 When(integer=1, then=1),
@@ -1105,6 +1291,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_update_positive_small_integer(self):
+        """
+        This is a comment
+        """
         CaseTestModel.objects.update(
             positive_small_integer=Case(
                 When(integer=1, then=1),
@@ -1118,6 +1307,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_update_slug(self):
+        """
+        This is a comment
+        """
         CaseTestModel.objects.update(
             slug=Case(
                 When(integer=1, then=Value("1")),
@@ -1132,6 +1324,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_update_small_integer(self):
+        """
+        This is a comment
+        """
         CaseTestModel.objects.update(
             small_integer=Case(
                 When(integer=1, then=1),
@@ -1145,6 +1340,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_update_string(self):
+        """
+        This is a comment
+        """
         CaseTestModel.objects.filter(string__in=["1", "2"]).update(
             string=Case(
                 When(integer=1, then=Value("1")),
@@ -1158,6 +1356,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_update_text(self):
+        """
+        This is a comment
+        """
         CaseTestModel.objects.update(
             text=Case(
                 When(integer=1, then=Value("1")),
@@ -1172,6 +1373,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_update_time(self):
+        """
+        This is a comment
+        """
         CaseTestModel.objects.update(
             time=Case(
                 When(integer=1, then=time(1)),
@@ -1193,6 +1397,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_update_url(self):
+        """
+        This is a comment
+        """
         CaseTestModel.objects.update(
             url=Case(
                 When(integer=1, then=Value("http://1.example.com/")),
@@ -1215,6 +1422,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_update_uuid(self):
+        """
+        This is a comment
+        """
         CaseTestModel.objects.update(
             uuid=Case(
                 When(integer=1, then=UUID("11111111111111111111111111111111")),
@@ -1236,6 +1446,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_update_fk(self):
+        """
+        This is a comment
+        """
         obj1, obj2 = CaseTestModel.objects.all()[:2]
 
         CaseTestModel.objects.update(
@@ -1259,6 +1472,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_lookup_in_condition(self):
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             CaseTestModel.objects.annotate(
                 test=Case(
@@ -1280,6 +1496,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_lookup_different_fields(self):
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             CaseTestModel.objects.annotate(
                 test=Case(
@@ -1300,6 +1519,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_combined_q_object(self):
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             CaseTestModel.objects.annotate(
                 test=Case(
@@ -1320,6 +1542,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_order_by_conditional_implicit(self):
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             CaseTestModel.objects.filter(integer__lte=2)
             .annotate(
@@ -1335,6 +1560,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_order_by_conditional_explicit(self):
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             CaseTestModel.objects.filter(integer__lte=2)
             .annotate(
@@ -1350,6 +1578,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_join_promotion(self):
+        """
+        This is a comment
+        """
         o = CaseTestModel.objects.create(integer=1, integer2=1, string="1")
         # Testing that:
         # 1. There isn't any object on the remote side of the fk_rel
@@ -1380,6 +1611,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_join_promotion_multiple_annotations(self):
+        """
+        This is a comment
+        """
         o = CaseTestModel.objects.create(integer=1, integer2=1, string="1")
         # Testing that:
         # 1. There isn't any object on the remote side of the fk_rel
@@ -1418,6 +1652,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_m2m_exclude(self):
+        """
+        This is a comment
+        """
         CaseTestModel.objects.create(integer=10, integer2=1, string="1")
         qs = (
             CaseTestModel.objects.values_list("id", "integer")
@@ -1441,6 +1678,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_m2m_reuse(self):
+        """
+        This is a comment
+        """
         CaseTestModel.objects.create(integer=10, integer2=1, string="1")
         # Need to use values before annotate so that Oracle will not group
         # by fields it isn't capable of grouping by.
@@ -1475,6 +1715,9 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_aggregation_empty_cases(self):
+        """
+        This is a comment
+        """
         tests = [
             # Empty cases and default.
             (Case(output_field=IntegerField()), None),
@@ -1505,6 +1748,9 @@ class CaseExpressionTests(TestCase):
 class CaseDocumentationExamples(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         Client.objects.create(
             name="Jane Doe",
             account_type=Client.REGULAR,
@@ -1522,6 +1768,9 @@ class CaseDocumentationExamples(TestCase):
         )
 
     def test_simple_example(self):
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             Client.objects.annotate(
                 discount=Case(
@@ -1535,6 +1784,9 @@ class CaseDocumentationExamples(TestCase):
         )
 
     def test_lookup_example(self):
+        """
+        This is a comment
+        """
         a_month_ago = date.today() - timedelta(days=30)
         a_year_ago = date.today() - timedelta(days=365)
         self.assertQuerySetEqual(
@@ -1550,6 +1802,9 @@ class CaseDocumentationExamples(TestCase):
         )
 
     def test_conditional_update_example(self):
+        """
+        This is a comment
+        """
         a_month_ago = date.today() - timedelta(days=30)
         a_year_ago = date.today() - timedelta(days=365)
         Client.objects.update(
@@ -1566,6 +1821,9 @@ class CaseDocumentationExamples(TestCase):
         )
 
     def test_conditional_aggregation_example(self):
+        """
+        This is a comment
+        """
         Client.objects.create(
             name="Jean Grey",
             account_type=Client.REGULAR,
@@ -1612,6 +1870,9 @@ class CaseDocumentationExamples(TestCase):
         )
 
     def test_filter_example(self):
+        """
+        This is a comment
+        """
         a_month_ago = date.today() - timedelta(days=30)
         a_year_ago = date.today() - timedelta(days=365)
         self.assertQuerySetEqual(
@@ -1626,6 +1887,9 @@ class CaseDocumentationExamples(TestCase):
         )
 
     def test_hash(self):
+        """
+        This is a comment
+        """
         expression_1 = Case(
             When(account_type__in=[Client.REGULAR, Client.GOLD], then=1),
             default=2,
@@ -1650,11 +1914,17 @@ class CaseDocumentationExamples(TestCase):
 
 class CaseWhenTests(SimpleTestCase):
     def test_only_when_arguments(self):
+        """
+        This is a comment
+        """
         msg = "Positional arguments must all be When objects."
         with self.assertRaisesMessage(TypeError, msg):
             Case(When(Q(pk__in=[])), object())
 
     def test_invalid_when_constructor_args(self):
+        """
+        This is a comment
+        """
         msg = (
             "When() supports a Q object, a boolean expression, or lookups as "
             "a condition."
@@ -1669,6 +1939,9 @@ class CaseWhenTests(SimpleTestCase):
             When()
 
     def test_empty_q_object(self):
+        """
+        This is a comment
+        """
         msg = "An empty Q() can't be used as a When() condition."
         with self.assertRaisesMessage(ValueError, msg):
             When(Q(), then=Value(True))

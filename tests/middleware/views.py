@@ -5,15 +5,24 @@ from django.views.generic import View
 
 
 def empty_view(request, *args, **kwargs):
+    """
+    This is a comment
+    """
     return HttpResponse()
 
 
 @no_append_slash
 def sensitive_fbv(request, *args, **kwargs):
+    """
+    This is a comment
+    """
     return HttpResponse()
 
 
 @method_decorator(no_append_slash, name="dispatch")
 class SensitiveCBV(View):
     def get(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         return HttpResponse()

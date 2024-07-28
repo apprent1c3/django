@@ -25,14 +25,23 @@ class Category(models.Model):
         ordering = ("pk",)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return self.__str__()
 
 
 class WriterManager(models.Manager):
     def get_queryset(self):
+        """
+        This is a comment
+        """
         qs = super().get_queryset()
         return qs.filter(archived=False)
 
@@ -47,6 +56,9 @@ class Writer(models.Model):
         ordering = ("name",)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -66,11 +78,17 @@ class Article(models.Model):
     status = models.PositiveIntegerField(choices=ARTICLE_STATUS, blank=True, null=True)
 
     def save(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         if not self.id:
             self.created = datetime.date.today()
         return super().save(*args, **kwargs)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.headline
 
 
@@ -91,14 +109,23 @@ class Publication(models.Model):
     date_published = models.DateField()
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.title
 
 
 def default_mode():
+    """
+    This is a comment
+    """
     return "di"
 
 
 def default_category():
+    """
+    This is a comment
+    """
     return 3
 
 
@@ -131,6 +158,9 @@ class WriterProfile(models.Model):
     age = models.PositiveIntegerField()
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "%s is %s" % (self.writer, self.age)
 
 
@@ -143,11 +173,17 @@ class TextFile(models.Model):
     file = models.FileField(storage=temp_storage, upload_to="tests", max_length=15)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.description
 
 
 class CustomFileField(models.FileField):
     def save_form_data(self, instance, data):
+        """
+        This is a comment
+        """
         been_here = getattr(self, "been_saved", False)
         assert not been_here, "save_form_data called more than once"
         setattr(self, "been_saved", True)
@@ -170,6 +206,9 @@ try:
 
     class ImageFile(models.Model):
         def custom_upload_path(self, filename):
+            """
+            This is a comment
+            """
             path = self.path or "tests"
             return "%s/%s" % (path, filename)
 
@@ -188,10 +227,16 @@ try:
         path = models.CharField(max_length=16, blank=True, default="")
 
         def __str__(self):
+            """
+            This is a comment
+            """
             return self.description
 
     class OptionalImageFile(models.Model):
         def custom_upload_path(self, filename):
+            """
+            This is a comment
+            """
             path = self.path or "tests"
             return "%s/%s" % (path, filename)
 
@@ -209,16 +254,25 @@ try:
         path = models.CharField(max_length=16, blank=True, default="")
 
         def __str__(self):
+            """
+            This is a comment
+            """
             return self.description
 
     class NoExtensionImageFile(models.Model):
         def upload_to(self, filename):
+            """
+            This is a comment
+            """
             return "tests/no_extension"
 
         description = models.CharField(max_length=20)
         image = models.ImageField(storage=temp_storage, upload_to=upload_to)
 
         def __str__(self):
+            """
+            This is a comment
+            """
             return self.description
 
 except ImportError:
@@ -233,6 +287,9 @@ class Product(models.Model):
     slug = models.SlugField(unique=True)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.slug
 
 
@@ -244,6 +301,9 @@ class Price(models.Model):
         unique_together = (("price", "quantity"),)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "%s for %s" % (self.quantity, self.price)
 
 
@@ -278,9 +338,15 @@ class Inventory(models.Model):
         ordering = ("name",)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return self.__str__()
 
 
@@ -315,6 +381,9 @@ class ExplicitPK(models.Model):
         unique_together = ("key", "desc")
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.key
 
 
@@ -325,6 +394,9 @@ class Post(models.Model):
     posted = models.DateField()
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.title
 
 
@@ -335,6 +407,9 @@ class DateTimePost(models.Model):
     posted = models.DateTimeField(editable=False)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.title
 
 
@@ -346,11 +421,17 @@ class BigInt(models.Model):
     biggie = models.BigIntegerField()
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return str(self.biggie)
 
 
 class MarkupField(models.CharField):
     def __init__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         kwargs["max_length"] = 20
         super().__init__(*args, **kwargs)
 
@@ -359,6 +440,9 @@ class MarkupField(models.CharField):
         # that you know the markup will always be X, but it is among an app
         # that allows the user to say it could be something else)
         # regressed at r10062
+        """
+        This is a comment
+        """
         return None
 
 
@@ -378,9 +462,15 @@ class Colour(models.Model):
     name = models.CharField(max_length=50)
 
     def __iter__(self):
+        """
+        This is a comment
+        """
         yield from range(5)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -402,6 +492,9 @@ class CustomErrorMessage(models.Model):
     )
 
     def clean(self):
+        """
+        This is a comment
+        """
         if self.name1 == "FORBIDDEN_VALUE":
             raise ValidationError(
                 {"name1": [ValidationError("Model.clean() error messages.")]}
@@ -415,10 +508,16 @@ class CustomErrorMessage(models.Model):
 
 
 def today_callable_dict():
+    """
+    This is a comment
+    """
     return {"last_action__gte": datetime.datetime.today()}
 
 
 def today_callable_q():
+    """
+    This is a comment
+    """
     return models.Q(last_action__gte=datetime.datetime.today())
 
 
@@ -427,6 +526,9 @@ class Character(models.Model):
     last_action = models.DateTimeField()
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.username
 
 
@@ -459,10 +561,16 @@ class Photo(models.Model):
     # Support code for the tests; this keeps track of how many times save()
     # gets called on each instance.
     def __init__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         super().__init__(*args, **kwargs)
         self._savecount = 0
 
     def save(self, force_insert=False, force_update=False):
+        """
+        This is a comment
+        """
         super().save(force_insert=force_insert, force_update=force_update)
         self._savecount += 1
 
@@ -478,6 +586,9 @@ class StrictAssignmentFieldSpecific(models.Model):
     _should_error = False
 
     def __setattr__(self, key, value):
+        """
+        This is a comment
+        """
         if self._should_error is True:
             raise ValidationError(message={key: "Cannot set attribute"}, code="invalid")
         super().__setattr__(key, value)
@@ -488,6 +599,9 @@ class StrictAssignmentAll(models.Model):
     _should_error = False
 
     def __setattr__(self, key, value):
+        """
+        This is a comment
+        """
         if self._should_error is True:
             raise ValidationError(message="Cannot set attribute", code="invalid")
         super().__setattr__(key, value)

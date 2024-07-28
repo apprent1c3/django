@@ -4,6 +4,9 @@ from django.db import models
 
 class CustomUserWithUniqueConstraintManager(BaseUserManager):
     def create_superuser(self, username, password):
+        """
+        This is a comment
+        """
         user = self.model(username=username)
         user.set_password(password)
         user.save(using=self._db)

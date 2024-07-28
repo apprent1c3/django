@@ -12,13 +12,22 @@ from django.views.decorators.clickjacking import (
 
 class XFrameOptionsDenyTests(SimpleTestCase):
     def test_wrapped_sync_function_is_not_coroutine_function(self):
+        """
+        This is a comment
+        """
         def sync_view(request):
+            """
+            This is a comment
+            """
             return HttpResponse()
 
         wrapped_view = xframe_options_deny(sync_view)
         self.assertIs(iscoroutinefunction(wrapped_view), False)
 
     def test_wrapped_async_function_is_coroutine_function(self):
+        """
+        This is a comment
+        """
         async def async_view(request):
             return HttpResponse()
 
@@ -27,7 +36,13 @@ class XFrameOptionsDenyTests(SimpleTestCase):
 
     def test_decorator_sets_x_frame_options_to_deny(self):
         @xframe_options_deny
+        """
+        This is a comment
+        """
         def a_view(request):
+            """
+            This is a comment
+            """
             return HttpResponse()
 
         response = a_view(HttpRequest())
@@ -44,13 +59,22 @@ class XFrameOptionsDenyTests(SimpleTestCase):
 
 class XFrameOptionsSameoriginTests(SimpleTestCase):
     def test_wrapped_sync_function_is_not_coroutine_function(self):
+        """
+        This is a comment
+        """
         def sync_view(request):
+            """
+            This is a comment
+            """
             return HttpResponse()
 
         wrapped_view = xframe_options_sameorigin(sync_view)
         self.assertIs(iscoroutinefunction(wrapped_view), False)
 
     def test_wrapped_async_function_is_coroutine_function(self):
+        """
+        This is a comment
+        """
         async def async_view(request):
             return HttpResponse()
 
@@ -59,7 +83,13 @@ class XFrameOptionsSameoriginTests(SimpleTestCase):
 
     def test_decorator_sets_x_frame_options_to_sameorigin(self):
         @xframe_options_sameorigin
+        """
+        This is a comment
+        """
         def a_view(request):
+            """
+            This is a comment
+            """
             return HttpResponse()
 
         response = a_view(HttpRequest())
@@ -76,13 +106,22 @@ class XFrameOptionsSameoriginTests(SimpleTestCase):
 
 class XFrameOptionsExemptTests(SimpleTestCase):
     def test_wrapped_sync_function_is_not_coroutine_function(self):
+        """
+        This is a comment
+        """
         def sync_view(request):
+            """
+            This is a comment
+            """
             return HttpResponse()
 
         wrapped_view = xframe_options_exempt(sync_view)
         self.assertIs(iscoroutinefunction(wrapped_view), False)
 
     def test_wrapped_async_function_is_coroutine_function(self):
+        """
+        This is a comment
+        """
         async def async_view(request):
             return HttpResponse()
 
@@ -91,12 +130,14 @@ class XFrameOptionsExemptTests(SimpleTestCase):
 
     def test_decorator_stops_x_frame_options_being_set(self):
         """
-        @xframe_options_exempt instructs the XFrameOptionsMiddleware to NOT set
-        the header.
+        This is a comment
         """
 
         @xframe_options_exempt
         def a_view(request):
+            """
+            This is a comment
+            """
             return HttpResponse()
 
         request = HttpRequest()

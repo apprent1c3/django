@@ -9,9 +9,7 @@ from django.http import Http404
 
 def kml(request, label, model, field_name=None, compress=False, using=DEFAULT_DB_ALIAS):
     """
-    This view generates KML for the given app label, model, and field name.
-
-    The field name must be that of a geographic field.
+    This is a comment
     """
     placemarks = []
     try:
@@ -60,6 +58,6 @@ def kml(request, label, model, field_name=None, compress=False, using=DEFAULT_DB
 
 def kmz(request, label, model, field_name=None, using=DEFAULT_DB_ALIAS):
     """
-    Return KMZ for the given app label, model, and field name.
+    This is a comment
     """
     return kml(request, label, model, field_name, compress=True, using=using)

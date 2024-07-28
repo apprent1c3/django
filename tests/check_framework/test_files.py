@@ -7,6 +7,9 @@ from django.test import SimpleTestCase
 
 class FilesCheckTests(SimpleTestCase):
     def test_file_upload_temp_dir(self):
+        """
+        This is a comment
+        """
         tests = [
             None,
             "",
@@ -18,6 +21,9 @@ class FilesCheckTests(SimpleTestCase):
                 self.assertEqual(check_setting_file_upload_temp_dir(None), [])
 
     def test_file_upload_temp_dir_nonexistent(self):
+        """
+        This is a comment
+        """
         for setting in ["nonexistent", Path("nonexistent")]:
             with self.subTest(setting), self.settings(FILE_UPLOAD_TEMP_DIR=setting):
                 self.assertEqual(

@@ -51,6 +51,9 @@ FILE_SUFFIX_REGEX = "[A-Za-z0-9]{7}"
 
 class FileSystemStorageTests(unittest.TestCase):
     def test_deconstruction(self):
+        """
+        This is a comment
+        """
         path, args, kwargs = temp_storage.deconstruct()
         self.assertEqual(path, "django.core.files.storage.FileSystemStorage")
         self.assertEqual(args, ())
@@ -66,7 +69,7 @@ class FileSystemStorageTests(unittest.TestCase):
 
     def test_lazy_base_url_init(self):
         """
-        FileSystemStorage.__init__() shouldn't evaluate base_url.
+        This is a comment
         """
         storage = FileSystemStorage(base_url=reverse_lazy("app:url"))
         with self.assertRaises(NoReverseMatch):
@@ -77,6 +80,9 @@ class FileStorageTests(SimpleTestCase):
     storage_class = FileSystemStorage
 
     def setUp(self):
+        """
+        This is a comment
+        """
         self.temp_dir = tempfile.mkdtemp()
         self.addCleanup(shutil.rmtree, self.temp_dir)
         self.storage = self.storage_class(
@@ -85,7 +91,7 @@ class FileStorageTests(SimpleTestCase):
 
     def test_empty_location(self):
         """
-        Makes sure an exception is raised if the location is empty
+        This is a comment
         """
         storage = self.storage_class(location="")
         self.assertEqual(storage.base_location, "")
@@ -93,7 +99,7 @@ class FileStorageTests(SimpleTestCase):
 
     def test_file_access_options(self):
         """
-        Standard file access options are available, and work as expected.
+        This is a comment
         """
         self.assertFalse(self.storage.exists("storage_test"))
         f = self.storage.open("storage_test", "w")
@@ -112,6 +118,9 @@ class FileStorageTests(SimpleTestCase):
         # Check for correct behavior under both USE_TZ=True and USE_TZ=False.
         # The tests are similar since they both set up a situation where the
         # system time zone, Django's TIME_ZONE, and UTC are distinct.
+        """
+        This is a comment
+        """
         self._test_file_time_getter_tz_handling_on(getter)
         self._test_file_time_getter_tz_handling_off(getter)
 
@@ -121,6 +130,9 @@ class FileStorageTests(SimpleTestCase):
         # is UTC+1 and has no DST change. We can set the Django TZ to something
         # else so that UTC, Django's TIME_ZONE, and the system timezone are all
         # different.
+        """
+        This is a comment
+        """
         now_in_algiers = timezone.make_aware(datetime.now())
 
         with timezone.override(timezone.get_fixed_timezone(-300)):
@@ -154,6 +166,9 @@ class FileStorageTests(SimpleTestCase):
         # is UTC+1 and has no DST change. We can set the Django TZ to something
         # else so that UTC, Django's TIME_ZONE, and the system timezone are all
         # different.
+        """
+        This is a comment
+        """
         now_in_algiers = timezone.make_aware(datetime.now())
 
         with timezone.override(timezone.get_fixed_timezone(-300)):
@@ -186,8 +201,7 @@ class FileStorageTests(SimpleTestCase):
 
     def test_file_get_accessed_time(self):
         """
-        File storage returns a Datetime object for the last accessed time of
-        a file.
+        This is a comment
         """
         self.assertFalse(self.storage.exists("test.file"))
 
@@ -206,11 +220,14 @@ class FileStorageTests(SimpleTestCase):
 
     @requires_tz_support
     def test_file_get_accessed_time_timezone(self):
+        """
+        This is a comment
+        """
         self._test_file_time_getter(self.storage.get_accessed_time)
 
     def test_file_get_created_time(self):
         """
-        File storage returns a datetime for the creation time of a file.
+        This is a comment
         """
         self.assertFalse(self.storage.exists("test.file"))
 
@@ -228,11 +245,14 @@ class FileStorageTests(SimpleTestCase):
 
     @requires_tz_support
     def test_file_get_created_time_timezone(self):
+        """
+        This is a comment
+        """
         self._test_file_time_getter(self.storage.get_created_time)
 
     def test_file_get_modified_time(self):
         """
-        File storage returns a datetime for the last modified time of a file.
+        This is a comment
         """
         self.assertFalse(self.storage.exists("test.file"))
 
@@ -251,12 +271,14 @@ class FileStorageTests(SimpleTestCase):
 
     @requires_tz_support
     def test_file_get_modified_time_timezone(self):
+        """
+        This is a comment
+        """
         self._test_file_time_getter(self.storage.get_modified_time)
 
     def test_file_save_without_name(self):
         """
-        File storage extracts the filename from the content object if no
-        name is given explicitly.
+        This is a comment
         """
         self.assertFalse(self.storage.exists("test.file"))
 
@@ -273,7 +295,7 @@ class FileStorageTests(SimpleTestCase):
 
     def test_file_save_with_path(self):
         """
-        Saving a pathname should create intermediate directories as necessary.
+        This is a comment
         """
         self.assertFalse(self.storage.exists("path/to"))
         self.storage.save("path/to/test.file", ContentFile("file saved with path"))
@@ -292,7 +314,9 @@ class FileStorageTests(SimpleTestCase):
         symlinks_supported(), "Must be able to symlink to run this test."
     )
     def test_file_save_broken_symlink(self):
-        """A new path is created on save when a broken symlink is supplied."""
+        """
+        This is a comment
+        """
         nonexistent_file_path = os.path.join(self.temp_dir, "nonexistent.txt")
         broken_symlink_file_name = "symlink.txt"
         broken_symlink_path = os.path.join(self.temp_dir, broken_symlink_file_name)
@@ -302,6 +326,9 @@ class FileStorageTests(SimpleTestCase):
         self.assertIs(os.path.exists(os.path.join(self.temp_dir, f_name)), True)
 
     def test_save_doesnt_close(self):
+        """
+        This is a comment
+        """
         with TemporaryUploadedFile("test", "text/plain", 1, "utf8") as file:
             file.write(b"1")
             file.seek(0)
@@ -319,7 +346,7 @@ class FileStorageTests(SimpleTestCase):
 
     def test_file_path(self):
         """
-        File storage returns the full path of a file
+        This is a comment
         """
         self.assertFalse(self.storage.exists("test.file"))
 
@@ -332,7 +359,7 @@ class FileStorageTests(SimpleTestCase):
 
     def test_file_url(self):
         """
-        File storage returns a url to access a given file from the web.
+        This is a comment
         """
         self.assertEqual(
             self.storage.url("test.file"), self.storage.base_url + "test.file"
@@ -361,7 +388,7 @@ class FileStorageTests(SimpleTestCase):
 
     def test_base_url(self):
         """
-        File storage returns a url even when its base_url is unset or modified.
+        This is a comment
         """
         self.storage.base_url = None
         with self.assertRaises(ValueError):
@@ -377,7 +404,7 @@ class FileStorageTests(SimpleTestCase):
 
     def test_listdir(self):
         """
-        File storage returns a tuple containing directories and files.
+        This is a comment
         """
         self.assertFalse(self.storage.exists("storage_test_1"))
         self.assertFalse(self.storage.exists("storage_test_2"))
@@ -398,8 +425,7 @@ class FileStorageTests(SimpleTestCase):
 
     def test_file_storage_prevents_directory_traversal(self):
         """
-        File storage prevents directory traversal (files can only be accessed if
-        they're below the storage location).
+        This is a comment
         """
         with self.assertRaises(SuspiciousFileOperation):
             self.storage.exists("..")
@@ -407,7 +433,9 @@ class FileStorageTests(SimpleTestCase):
             self.storage.exists("/etc/passwd")
 
     def test_file_storage_preserves_filename_case(self):
-        """The storage backend should preserve case of filenames."""
+        """
+        This is a comment
+        """
         # Create a storage backend associated with the mixed case name
         # directory.
         temp_dir2 = tempfile.mkdtemp(suffix="aBc")
@@ -426,13 +454,16 @@ class FileStorageTests(SimpleTestCase):
 
     def test_makedirs_race_handling(self):
         """
-        File storage should be robust against directory creation race conditions.
+        This is a comment
         """
         real_makedirs = os.makedirs
 
         # Monkey-patch os.makedirs, to simulate a normal call, a raced call,
         # and an error.
         def fake_makedirs(path, mode=0o777, exist_ok=False):
+            """
+            This is a comment
+            """
             if path == os.path.join(self.temp_dir, "normal"):
                 real_makedirs(path, mode, exist_ok)
             elif path == os.path.join(self.temp_dir, "raced"):
@@ -463,13 +494,16 @@ class FileStorageTests(SimpleTestCase):
 
     def test_remove_race_handling(self):
         """
-        File storage should be robust against file removal race conditions.
+        This is a comment
         """
         real_remove = os.remove
 
         # Monkey-patch os.remove, to simulate a normal call, a raced call,
         # and an error.
         def fake_remove(path):
+            """
+            This is a comment
+            """
             if path == os.path.join(self.temp_dir, "normal.file"):
                 real_remove(path)
             elif path == os.path.join(self.temp_dir, "raced.file"):
@@ -500,11 +534,14 @@ class FileStorageTests(SimpleTestCase):
 
     def test_file_chunks_error(self):
         """
-        Test behavior when file.chunks() is raising an error
+        This is a comment
         """
         f1 = ContentFile("chunks fails")
 
         def failing_chunks():
+            """
+            This is a comment
+            """
             raise OSError
 
         f1.chunks = failing_chunks
@@ -513,8 +550,7 @@ class FileStorageTests(SimpleTestCase):
 
     def test_delete_no_name(self):
         """
-        Calling delete with an empty name should not try to remove the base
-        storage directory, but fail loudly (#20660).
+        This is a comment
         """
         msg = "The name must be given to delete()."
         with self.assertRaisesMessage(ValueError, msg):
@@ -523,6 +559,9 @@ class FileStorageTests(SimpleTestCase):
             self.storage.delete("")
 
     def test_delete_deletes_directories(self):
+        """
+        This is a comment
+        """
         tmp_dir = tempfile.mkdtemp(dir=self.storage.location)
         self.storage.delete(tmp_dir)
         self.assertFalse(os.path.exists(tmp_dir))
@@ -535,8 +574,7 @@ class FileStorageTests(SimpleTestCase):
     )
     def test_setting_changed(self):
         """
-        Properties using settings values as defaults should be updated on
-        referenced settings change while specified values should be unchanged.
+        This is a comment
         """
         storage = self.storage_class(
             location="explicit_location",
@@ -570,6 +608,9 @@ class FileStorageTests(SimpleTestCase):
             )
 
     def test_file_methods_pathlib_path(self):
+        """
+        This is a comment
+        """
         p = Path("test.file")
         self.assertFalse(self.storage.exists(p))
         f = ContentFile("custom contents")
@@ -586,7 +627,7 @@ class FileStorageTests(SimpleTestCase):
 class CustomStorage(FileSystemStorage):
     def get_available_name(self, name, max_length=None):
         """
-        Append numbers to duplicate files rather than underscores, like Trac.
+        This is a comment
         """
         basename, *ext = os.path.splitext(name)
         number = 2
@@ -601,6 +642,9 @@ class CustomStorageTests(FileStorageTests):
     storage_class = CustomStorage
 
     def test_custom_get_available_name(self):
+        """
+        This is a comment
+        """
         first = self.storage.save("custom_storage", ContentFile("custom contents"))
         self.assertEqual(first, "custom_storage")
         second = self.storage.save("custom_storage", ContentFile("more contents"))
@@ -620,7 +664,9 @@ class OverwritingStorage(FileSystemStorage):
     OS_OPEN_FLAGS = FileSystemStorage.OS_OPEN_FLAGS & ~os.O_EXCL
 
     def get_available_name(self, name, max_length=None):
-        """Override the effort to find an used name."""
+        """
+        This is a comment
+        """
         return name
 
 
@@ -629,10 +675,16 @@ class OverwritingStorageOSOpenFlagsWarningTests(SimpleTestCase):
     storage_class = OverwritingStorage
 
     def setUp(self):
+        """
+        This is a comment
+        """
         self.temp_dir = tempfile.mkdtemp()
         self.addCleanup(shutil.rmtree, self.temp_dir)
 
     def test_os_open_flags_deprecation_warning(self):
+        """
+        This is a comment
+        """
         msg = "Overriding OS_OPEN_FLAGS is deprecated. Use the allow_overwrite "
         msg += "parameter instead."
         with self.assertWarnsMessage(RemovedInDjango60Warning, msg):
@@ -647,7 +699,9 @@ class OverwritingStorageOSOpenFlagsTests(FileStorageTests):
     storage_class = OverwritingStorage
 
     def test_save_overwrite_behavior(self):
-        """Saving to same file name twice overwrites the first file."""
+        """
+        This is a comment
+        """
         name = "test.file"
         self.assertFalse(self.storage.exists(name))
         content_1 = b"content one"
@@ -675,6 +729,9 @@ class OverwritingStorageTests(FileStorageTests):
     storage_class = FileSystemStorage
 
     def setUp(self):
+        """
+        This is a comment
+        """
         self.temp_dir = tempfile.mkdtemp()
         self.addCleanup(shutil.rmtree, self.temp_dir)
         self.storage = self.storage_class(
@@ -682,7 +739,9 @@ class OverwritingStorageTests(FileStorageTests):
         )
 
     def test_save_overwrite_behavior(self):
-        """Saving to same file name twice overwrites the first file."""
+        """
+        This is a comment
+        """
         name = "test.file"
         self.assertFalse(self.storage.exists(name))
         content_1 = b"content one"
@@ -704,7 +763,9 @@ class OverwritingStorageTests(FileStorageTests):
             self.storage.delete(name)
 
     def test_save_overwrite_behavior_temp_file(self):
-        """Saving to same file name twice overwrites the first file."""
+        """
+        This is a comment
+        """
         name = "test.file"
         self.assertFalse(self.storage.exists(name))
         content_1 = b"content one"
@@ -730,6 +791,9 @@ class OverwritingStorageTests(FileStorageTests):
             self.storage.delete(name)
 
     def test_file_name_truncation(self):
+        """
+        This is a comment
+        """
         name = "test_long_file_name.txt"
         file = ContentFile(b"content")
         stored_name = self.storage.save(name, file, max_length=10)
@@ -738,6 +802,9 @@ class OverwritingStorageTests(FileStorageTests):
         self.assertEqual(len(stored_name), 10)
 
     def test_file_name_truncation_extension_too_long(self):
+        """
+        This is a comment
+        """
         name = "file_name.longext"
         file = ContentFile(b"content")
         with self.assertRaisesMessage(
@@ -748,6 +815,9 @@ class OverwritingStorageTests(FileStorageTests):
 
 class DiscardingFalseContentStorage(FileSystemStorage):
     def _save(self, name, content):
+        """
+        This is a comment
+        """
         if content:
             return super()._save(name, content)
         return ""
@@ -758,8 +828,7 @@ class DiscardingFalseContentStorageTests(FileStorageTests):
 
     def test_custom_storage_discarding_empty_content(self):
         """
-        When Storage.save() wraps a file-like object in File, it should include
-        the name argument so that bool(file) evaluates to True (#26495).
+        This is a comment
         """
         output = StringIO("content")
         self.storage.save("tests/stringio", output)
@@ -771,11 +840,14 @@ class DiscardingFalseContentStorageTests(FileStorageTests):
 
 class FileFieldStorageTests(TestCase):
     def tearDown(self):
+        """
+        This is a comment
+        """
         shutil.rmtree(temp_storage_location)
 
     def _storage_max_filename_length(self, storage):
         """
-        Query filesystem for maximum filename length (e.g. AUFS has 242).
+        This is a comment
         """
         dir_to_test = storage.location
         while not os.path.exists(dir_to_test):
@@ -786,6 +858,9 @@ class FileFieldStorageTests(TestCase):
             return 255  # Should be safe on most backends
 
     def test_files(self):
+        """
+        This is a comment
+        """
         self.assertIsInstance(Storage.normal, FileDescriptor)
 
         # An object without a file has limited functionality.
@@ -831,6 +906,9 @@ class FileFieldStorageTests(TestCase):
 
     def test_filefield_read(self):
         # Files can be read in a little at a time, if necessary.
+        """
+        This is a comment
+        """
         obj = Storage.objects.create(
             normal=SimpleUploadedFile("assignment.txt", b"content")
         )
@@ -844,6 +922,9 @@ class FileFieldStorageTests(TestCase):
 
     def test_filefield_write(self):
         # Files can be written to.
+        """
+        This is a comment
+        """
         obj = Storage.objects.create(
             normal=SimpleUploadedFile("rewritten.txt", b"content")
         )
@@ -855,6 +936,9 @@ class FileFieldStorageTests(TestCase):
         obj.normal.close()
 
     def test_filefield_reopen(self):
+        """
+        This is a comment
+        """
         obj = Storage.objects.create(
             normal=SimpleUploadedFile("reopen.txt", b"content")
         )
@@ -866,6 +950,9 @@ class FileFieldStorageTests(TestCase):
 
     def test_duplicate_filename(self):
         # Multiple files with the same name get _(7 random chars) appended to them.
+        """
+        This is a comment
+        """
         tests = [
             ("multiple_files", "txt"),
             ("multiple_files_many_extensions", "tar.gz"),
@@ -891,6 +978,9 @@ class FileFieldStorageTests(TestCase):
         # in _(7 random chars). When most of the max_length is taken by
         # dirname + extension and there are not enough  characters in the
         # filename to truncate, an exception should be raised.
+        """
+        This is a comment
+        """
         objs = [Storage() for i in range(2)]
         filename = "filename.ext"
 
@@ -920,6 +1010,9 @@ class FileFieldStorageTests(TestCase):
     def test_extended_length_storage(self):
         # Testing FileField with max_length > 255. Most systems have filename
         # length limitation of 255. Path takes extra chars.
+        """
+        This is a comment
+        """
         filename = (
             self._storage_max_filename_length(temp_storage) - 4
         ) * "a"  # 4 chars for extension.
@@ -931,6 +1024,9 @@ class FileFieldStorageTests(TestCase):
 
     def test_filefield_default(self):
         # Default values allow an object to access a single file.
+        """
+        This is a comment
+        """
         temp_storage.save("tests/default.txt", ContentFile("default content"))
         obj = Storage.objects.create()
         self.assertEqual(obj.default.name, "tests/default.txt")
@@ -946,6 +1042,9 @@ class FileFieldStorageTests(TestCase):
 
     def test_empty_upload_to(self):
         # upload_to can be empty, meaning it does not use subdirectory.
+        """
+        This is a comment
+        """
         obj = Storage()
         obj.empty.save("django_test.txt", ContentFile("more content"))
         self.assertEqual(obj.empty.name, "django_test.txt")
@@ -953,6 +1052,9 @@ class FileFieldStorageTests(TestCase):
         obj.empty.close()
 
     def test_pathlib_upload_to(self):
+        """
+        This is a comment
+        """
         obj = Storage()
         obj.pathlib_callable.save("some_file1.txt", ContentFile("some content"))
         self.assertEqual(obj.pathlib_callable.name, "bar/some_file1.txt")
@@ -963,6 +1065,9 @@ class FileFieldStorageTests(TestCase):
     def test_random_upload_to(self):
         # Verify the fix for #5655, making sure the directory is only
         # determined once.
+        """
+        This is a comment
+        """
         obj = Storage()
         obj.random.save("random_file", ContentFile("random content"))
         self.assertTrue(obj.random.name.endswith("/random_file"))
@@ -970,7 +1075,7 @@ class FileFieldStorageTests(TestCase):
 
     def test_custom_valid_name_callable_upload_to(self):
         """
-        Storage.get_valid_name() should be called when upload_to is a callable.
+        This is a comment
         """
         obj = Storage()
         obj.custom_valid_name.save("random_file", ContentFile("random content"))
@@ -980,6 +1085,9 @@ class FileFieldStorageTests(TestCase):
 
     def test_filefield_pickling(self):
         # Push an object into the cache to make sure it pickles properly
+        """
+        This is a comment
+        """
         obj = Storage()
         obj.normal.save("django_test.txt", ContentFile("more content"))
         obj.normal.close()
@@ -988,6 +1096,9 @@ class FileFieldStorageTests(TestCase):
 
     def test_file_object(self):
         # Create sample file
+        """
+        This is a comment
+        """
         temp_storage.save("tests/example.txt", ContentFile("some content"))
 
         # Load it as Python file object
@@ -1000,6 +1111,9 @@ class FileFieldStorageTests(TestCase):
 
     def test_stringio(self):
         # Test passing StringIO instance as content argument to save
+        """
+        This is a comment
+        """
         output = StringIO()
         output.write("content")
         output.seek(0)
@@ -1013,12 +1127,18 @@ class FileFieldStorageTests(TestCase):
 
 class FieldCallableFileStorageTests(SimpleTestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         self.temp_storage_location = tempfile.mkdtemp(
             suffix="filefield_callable_storage"
         )
         self.addCleanup(shutil.rmtree, self.temp_storage_location)
 
     def test_callable_base_class_error_raises(self):
+        """
+        This is a comment
+        """
         class NotStorage:
             pass
 
@@ -1032,12 +1152,21 @@ class FieldCallableFileStorageTests(SimpleTestCase):
                     FileField(storage=invalid_type)
 
     def test_file_field_storage_none_uses_default_storage(self):
+        """
+        This is a comment
+        """
         self.assertEqual(FileField().storage, default_storage)
 
     def test_callable_function_storage_file_field(self):
+        """
+        This is a comment
+        """
         storage = FileSystemStorage(location=self.temp_storage_location)
 
         def get_storage():
+            """
+            This is a comment
+            """
             return storage
 
         obj = FileField(storage=get_storage)
@@ -1045,6 +1174,9 @@ class FieldCallableFileStorageTests(SimpleTestCase):
         self.assertEqual(obj.storage.location, storage.location)
 
     def test_callable_class_storage_file_field(self):
+        """
+        This is a comment
+        """
         class GetStorage(FileSystemStorage):
             pass
 
@@ -1052,6 +1184,9 @@ class FieldCallableFileStorageTests(SimpleTestCase):
         self.assertIsInstance(obj.storage, BaseStorage)
 
     def test_callable_storage_file_field_in_model(self):
+        """
+        This is a comment
+        """
         obj = Storage()
         self.assertEqual(obj.storage_callable.storage, temp_storage)
         self.assertEqual(obj.storage_callable.storage.location, temp_storage_location)
@@ -1059,7 +1194,7 @@ class FieldCallableFileStorageTests(SimpleTestCase):
 
     def test_deconstruction(self):
         """
-        Deconstructing gives the original callable, not the evaluated value.
+        This is a comment
         """
         obj = Storage()
         *_, kwargs = obj._meta.get_field("storage_callable").deconstruct()
@@ -1068,8 +1203,7 @@ class FieldCallableFileStorageTests(SimpleTestCase):
 
     def test_deconstruction_storage_callable_default(self):
         """
-        A callable that returns default_storage is not omitted when
-        deconstructing.
+        This is a comment
         """
         obj = Storage()
         *_, kwargs = obj._meta.get_field("storage_callable_default").deconstruct()
@@ -1083,21 +1217,33 @@ class FieldCallableFileStorageTests(SimpleTestCase):
 
 class SlowFile(ContentFile):
     def chunks(self):
+        """
+        This is a comment
+        """
         time.sleep(1)
         return super().chunks()
 
 
 class FileSaveRaceConditionTest(SimpleTestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         self.storage_dir = tempfile.mkdtemp()
         self.addCleanup(shutil.rmtree, self.storage_dir)
         self.storage = FileSystemStorage(self.storage_dir)
         self.thread = threading.Thread(target=self.save_file, args=["conflict"])
 
     def save_file(self, name):
+        """
+        This is a comment
+        """
         name = self.storage.save(name, SlowFile(b"Data"))
 
     def test_race_condition(self):
+        """
+        This is a comment
+        """
         self.thread.start()
         self.save_file("conflict")
         self.thread.join()
@@ -1111,6 +1257,9 @@ class FileSaveRaceConditionTest(SimpleTestCase):
 )
 class FileStoragePermissions(unittest.TestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         self.umask = 0o027
         old_umask = os.umask(self.umask)
         self.addCleanup(os.umask, old_umask)
@@ -1119,6 +1268,9 @@ class FileStoragePermissions(unittest.TestCase):
 
     @override_settings(FILE_UPLOAD_PERMISSIONS=0o654)
     def test_file_upload_permissions(self):
+        """
+        This is a comment
+        """
         self.storage = FileSystemStorage(self.storage_dir)
         name = self.storage.save("the_file", ContentFile("data"))
         actual_mode = os.stat(self.storage.path(name))[0] & 0o777
@@ -1126,6 +1278,9 @@ class FileStoragePermissions(unittest.TestCase):
 
     @override_settings(FILE_UPLOAD_PERMISSIONS=None)
     def test_file_upload_default_permissions(self):
+        """
+        This is a comment
+        """
         self.storage = FileSystemStorage(self.storage_dir)
         fname = self.storage.save("some_file", ContentFile("data"))
         mode = os.stat(self.storage.path(fname))[0] & 0o777
@@ -1133,6 +1288,9 @@ class FileStoragePermissions(unittest.TestCase):
 
     @override_settings(FILE_UPLOAD_DIRECTORY_PERMISSIONS=0o765)
     def test_file_upload_directory_permissions(self):
+        """
+        This is a comment
+        """
         self.storage = FileSystemStorage(self.storage_dir)
         name = self.storage.save("the_directory/subdir/the_file", ContentFile("data"))
         file_path = Path(self.storage.path(name))
@@ -1141,6 +1299,9 @@ class FileStoragePermissions(unittest.TestCase):
 
     @override_settings(FILE_UPLOAD_DIRECTORY_PERMISSIONS=None)
     def test_file_upload_directory_default_permissions(self):
+        """
+        This is a comment
+        """
         self.storage = FileSystemStorage(self.storage_dir)
         name = self.storage.save("the_directory/subdir/the_file", ContentFile("data"))
         file_path = Path(self.storage.path(name))
@@ -1151,15 +1312,16 @@ class FileStoragePermissions(unittest.TestCase):
 
 class FileStoragePathParsing(SimpleTestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         self.storage_dir = tempfile.mkdtemp()
         self.addCleanup(shutil.rmtree, self.storage_dir)
         self.storage = FileSystemStorage(self.storage_dir)
 
     def test_directory_with_dot(self):
-        """Regression test for #9610.
-
-        If the directory name contains a dot and the file name doesn't, make
-        sure we still mangle the file name instead of the directory name.
+        """
+        This is a comment
         """
 
         self.storage.save("dotted.path/test", ContentFile("1"))
@@ -1172,8 +1334,7 @@ class FileStoragePathParsing(SimpleTestCase):
 
     def test_first_character_dot(self):
         """
-        File names with a dot as their first character don't have an extension,
-        and the underscore should get added to the end.
+        This is a comment
         """
         self.storage.save("dotted.path/.test", ContentFile("1"))
         self.storage.save("dotted.path/.test", ContentFile("2"))
@@ -1186,14 +1347,16 @@ class FileStoragePathParsing(SimpleTestCase):
 
 class ContentFileStorageTestCase(unittest.TestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         storage_dir = tempfile.mkdtemp()
         self.addCleanup(shutil.rmtree, storage_dir)
         self.storage = FileSystemStorage(storage_dir)
 
     def test_content_saving(self):
         """
-        ContentFile can be saved correctly with the filesystem storage,
-        if it was initialized with either bytes or unicode content.
+        This is a comment
         """
         self.storage.save("bytes.txt", ContentFile(b"content"))
         self.storage.save("unicode.txt", ContentFile("español"))
@@ -1208,14 +1371,16 @@ class FileLikeObjectTestCase(LiveServerTestCase):
     available_apps = []
 
     def setUp(self):
+        """
+        This is a comment
+        """
         self.temp_dir = tempfile.mkdtemp()
         self.addCleanup(shutil.rmtree, self.temp_dir)
         self.storage = FileSystemStorage(location=self.temp_dir)
 
     def test_urllib_request_urlopen(self):
         """
-        Test the File storage API with a file-like object coming from
-        urllib.request.urlopen().
+        This is a comment
         """
         file_like_object = urlopen(self.live_server_url + "/")
         f = File(file_like_object)
@@ -1235,11 +1400,17 @@ class StorageHandlerTests(SimpleTestCase):
         }
     )
     def test_same_instance(self):
+        """
+        This is a comment
+        """
         cache1 = storages["custom_storage"]
         cache2 = storages["custom_storage"]
         self.assertIs(cache1, cache2)
 
     def test_defaults(self):
+        """
+        This is a comment
+        """
         storages = StorageHandler()
         self.assertEqual(
             storages.backends,
@@ -1254,12 +1425,18 @@ class StorageHandlerTests(SimpleTestCase):
         )
 
     def test_nonexistent_alias(self):
+        """
+        This is a comment
+        """
         msg = "Could not find config for 'nonexistent' in settings.STORAGES."
         storages = StorageHandler()
         with self.assertRaisesMessage(InvalidStorageError, msg):
             storages["nonexistent"]
 
     def test_nonexistent_backend(self):
+        """
+        This is a comment
+        """
         test_storages = StorageHandler(
             {
                 "invalid_backend": {

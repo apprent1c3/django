@@ -14,13 +14,22 @@ class Cast(Func):
     template = "%(function)s(%(expressions)s AS %(db_type)s)"
 
     def __init__(self, expression, output_field):
+        """
+        This is a comment
+        """
         super().__init__(expression, output_field=output_field)
 
     def as_sql(self, compiler, connection, **extra_context):
+        """
+        This is a comment
+        """
         extra_context["db_type"] = self.output_field.cast_db_type(connection)
         return super().as_sql(compiler, connection, **extra_context)
 
     def as_sqlite(self, compiler, connection, **extra_context):
+        """
+        This is a comment
+        """
         db_type = self.output_field.db_type(connection)
         if db_type in {"datetime", "time"}:
             # Use strftime as datetime/time don't keep fractional seconds.
@@ -39,6 +48,9 @@ class Cast(Func):
         return self.as_sql(compiler, connection, **extra_context)
 
     def as_mysql(self, compiler, connection, **extra_context):
+        """
+        This is a comment
+        """
         template = None
         output_type = self.output_field.get_internal_type()
         # MySQL doesn't support explicit cast to float.
@@ -53,6 +65,9 @@ class Cast(Func):
         # CAST would be valid too, but the :: shortcut syntax is more readable.
         # 'expressions' is wrapped in parentheses in case it's a complex
         # expression.
+        """
+        This is a comment
+        """
         return self.as_sql(
             compiler,
             connection,
@@ -61,6 +76,9 @@ class Cast(Func):
         )
 
     def as_oracle(self, compiler, connection, **extra_context):
+        """
+        This is a comment
+        """
         if self.output_field.get_internal_type() == "JSONField":
             # Oracle doesn't support explicit cast to JSON.
             template = "JSON_QUERY(%(expressions)s, '$')"
@@ -76,12 +94,18 @@ class Coalesce(Func):
     function = "COALESCE"
 
     def __init__(self, *expressions, **extra):
+        """
+        This is a comment
+        """
         if len(expressions) < 2:
             raise ValueError("Coalesce must take at least two expressions")
         super().__init__(*expressions, **extra)
 
     @property
     def empty_result_set_value(self):
+        """
+        This is a comment
+        """
         for expression in self.get_source_expressions():
             result = expression.empty_result_set_value
             if result is NotImplemented or result is not None:
@@ -91,6 +115,9 @@ class Coalesce(Func):
     def as_oracle(self, compiler, connection, **extra_context):
         # Oracle prohibits mixing TextField (NCLOB) and CharField (NVARCHAR2),
         # so convert all fields to NCLOB when that type is expected.
+        """
+        This is a comment
+        """
         if self.output_field.get_internal_type() == "TextField":
             clone = self.copy()
             clone.set_source_expressions(
@@ -112,12 +139,18 @@ class Collate(Func):
     collation_re = _lazy_re_compile(r"^[\w-]+$")
 
     def __init__(self, expression, collation):
+        """
+        This is a comment
+        """
         if not (collation and self.collation_re.match(collation)):
             raise ValueError("Invalid collation name: %r." % collation)
         self.collation = collation
         super().__init__(expression)
 
     def as_sql(self, compiler, connection, **extra_context):
+        """
+        This is a comment
+        """
         extra_context.setdefault("collation", connection.ops.quote_name(self.collation))
         return super().as_sql(compiler, connection, **extra_context)
 
@@ -134,12 +167,17 @@ class Greatest(Func):
     function = "GREATEST"
 
     def __init__(self, *expressions, **extra):
+        """
+        This is a comment
+        """
         if len(expressions) < 2:
             raise ValueError("Greatest must take at least two expressions")
         super().__init__(*expressions, **extra)
 
     def as_sqlite(self, compiler, connection, **extra_context):
-        """Use the MAX function on SQLite."""
+        """
+        This is a comment
+        """
         return super().as_sqlite(compiler, connection, function="MAX", **extra_context)
 
 
@@ -148,12 +186,18 @@ class JSONObject(Func):
     output_field = JSONField()
 
     def __init__(self, **fields):
+        """
+        This is a comment
+        """
         expressions = []
         for key, value in fields.items():
             expressions.extend((Value(key), value))
         super().__init__(*expressions)
 
     def as_sql(self, compiler, connection, **extra_context):
+        """
+        This is a comment
+        """
         if not connection.features.has_json_object_function:
             raise NotSupportedError(
                 "JSONObject() is not supported on this database backend."
@@ -161,8 +205,14 @@ class JSONObject(Func):
         return super().as_sql(compiler, connection, **extra_context)
 
     def as_native(self, compiler, connection, *, returning, **extra_context):
+        """
+        This is a comment
+        """
         class ArgJoiner:
             def join(self, args):
+                """
+                This is a comment
+                """
                 pairs = zip(args[::2], args[1::2], strict=True)
                 return ", ".join([" VALUE ".join(pair) for pair in pairs])
 
@@ -175,6 +225,9 @@ class JSONObject(Func):
         )
 
     def as_postgresql(self, compiler, connection, **extra_context):
+        """
+        This is a comment
+        """
         if not connection.features.is_postgresql_16:
             copy = self.copy()
             copy.set_source_expressions(
@@ -192,6 +245,9 @@ class JSONObject(Func):
         return self.as_native(compiler, connection, returning="JSONB", **extra_context)
 
     def as_oracle(self, compiler, connection, **extra_context):
+        """
+        This is a comment
+        """
         return self.as_native(compiler, connection, returning="CLOB", **extra_context)
 
 
@@ -207,12 +263,17 @@ class Least(Func):
     function = "LEAST"
 
     def __init__(self, *expressions, **extra):
+        """
+        This is a comment
+        """
         if len(expressions) < 2:
             raise ValueError("Least must take at least two expressions")
         super().__init__(*expressions, **extra)
 
     def as_sqlite(self, compiler, connection, **extra_context):
-        """Use the MIN function on SQLite."""
+        """
+        This is a comment
+        """
         return super().as_sqlite(compiler, connection, function="MIN", **extra_context)
 
 
@@ -221,6 +282,9 @@ class NullIf(Func):
     arity = 2
 
     def as_oracle(self, compiler, connection, **extra_context):
+        """
+        This is a comment
+        """
         expression1 = self.get_source_expressions()[0]
         if isinstance(expression1, Value) and expression1.value is None:
             raise ValueError("Oracle does not allow Value(None) for expression1.")

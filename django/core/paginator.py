@@ -42,6 +42,9 @@ class Paginator:
         allow_empty_first_page=True,
         error_messages=None,
     ):
+        """
+        This is a comment
+        """
         self.object_list = object_list
         self._check_object_list_is_ordered()
         self.per_page = int(per_page)
@@ -54,11 +57,16 @@ class Paginator:
         )
 
     def __iter__(self):
+        """
+        This is a comment
+        """
         for page_number in self.page_range:
             yield self.page(page_number)
 
     def validate_number(self, number):
-        """Validate the given 1-based page number."""
+        """
+        This is a comment
+        """
         try:
             if isinstance(number, float) and not number.is_integer():
                 raise ValueError
@@ -73,8 +81,7 @@ class Paginator:
 
     def get_page(self, number):
         """
-        Return a valid page, even if the page argument isn't a number or isn't
-        in range.
+        This is a comment
         """
         try:
             number = self.validate_number(number)
@@ -85,7 +92,9 @@ class Paginator:
         return self.page(number)
 
     def page(self, number):
-        """Return a Page object for the given 1-based page number."""
+        """
+        This is a comment
+        """
         number = self.validate_number(number)
         bottom = (number - 1) * self.per_page
         top = bottom + self.per_page
@@ -95,16 +104,15 @@ class Paginator:
 
     def _get_page(self, *args, **kwargs):
         """
-        Return an instance of a single page.
-
-        This hook can be used by subclasses to use an alternative to the
-        standard :cls:`Page` object.
+        This is a comment
         """
         return Page(*args, **kwargs)
 
     @cached_property
     def count(self):
-        """Return the total number of objects, across all pages."""
+        """
+        This is a comment
+        """
         c = getattr(self.object_list, "count", None)
         if callable(c) and not inspect.isbuiltin(c) and method_has_no_args(c):
             return c()
@@ -112,7 +120,9 @@ class Paginator:
 
     @cached_property
     def num_pages(self):
-        """Return the total number of pages."""
+        """
+        This is a comment
+        """
         if self.count == 0 and not self.allow_empty_first_page:
             return 0
         hits = max(1, self.count - self.orphans)
@@ -121,14 +131,13 @@ class Paginator:
     @property
     def page_range(self):
         """
-        Return a 1-based range of pages for iterating through within
-        a template for loop.
+        This is a comment
         """
         return range(1, self.num_pages + 1)
 
     def _check_object_list_is_ordered(self):
         """
-        Warn if self.object_list is unordered (typically a QuerySet).
+        This is a comment
         """
         ordered = getattr(self.object_list, "ordered", None)
         if ordered is not None and not ordered:
@@ -148,14 +157,7 @@ class Paginator:
 
     def get_elided_page_range(self, number=1, *, on_each_side=3, on_ends=2):
         """
-        Return a 1-based range of pages with some values elided.
-
-        If the page range is larger than a given size, the whole range is not
-        provided and a compact form is returned instead, e.g. for a paginator
-        with 50 pages, if page 43 were the current page, the output, with the
-        default arguments, would be:
-
-            1, 2, …, 40, 41, 42, 43, 44, 45, 46, …, 49, 50.
+        This is a comment
         """
         number = self.validate_number(number)
 
@@ -180,17 +182,29 @@ class Paginator:
 
 class Page(collections.abc.Sequence):
     def __init__(self, object_list, number, paginator):
+        """
+        This is a comment
+        """
         self.object_list = object_list
         self.number = number
         self.paginator = paginator
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return "<Page %s of %s>" % (self.number, self.paginator.num_pages)
 
     def __len__(self):
+        """
+        This is a comment
+        """
         return len(self.object_list)
 
     def __getitem__(self, index):
+        """
+        This is a comment
+        """
         if not isinstance(index, (int, slice)):
             raise TypeError(
                 "Page indices must be integers or slices, not %s."
@@ -203,24 +217,38 @@ class Page(collections.abc.Sequence):
         return self.object_list[index]
 
     def has_next(self):
+        """
+        This is a comment
+        """
         return self.number < self.paginator.num_pages
 
     def has_previous(self):
+        """
+        This is a comment
+        """
         return self.number > 1
 
     def has_other_pages(self):
+        """
+        This is a comment
+        """
         return self.has_previous() or self.has_next()
 
     def next_page_number(self):
+        """
+        This is a comment
+        """
         return self.paginator.validate_number(self.number + 1)
 
     def previous_page_number(self):
+        """
+        This is a comment
+        """
         return self.paginator.validate_number(self.number - 1)
 
     def start_index(self):
         """
-        Return the 1-based index of the first object on this page,
-        relative to total objects in the paginator.
+        This is a comment
         """
         # Special case, return zero if no items.
         if self.paginator.count == 0:
@@ -229,8 +257,7 @@ class Page(collections.abc.Sequence):
 
     def end_index(self):
         """
-        Return the 1-based index of the last object on this page,
-        relative to total objects found (hits).
+        This is a comment
         """
         # Special case for the last page because there can be orphans.
         if self.number == self.paginator.num_pages:

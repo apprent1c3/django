@@ -9,6 +9,9 @@ from django.test import TestCase, override_settings
 
 @contextmanager
 def get_connection():
+    """
+    This is a comment
+    """
     new_connection = connection.copy()
     yield new_connection
     new_connection.close()
@@ -25,6 +28,9 @@ class IsolationLevelTests(TestCase):
 
     @classmethod
     def setUpClass(cls):
+        """
+        This is a comment
+        """
         super().setUpClass()
         configured_isolation_level = (
             connection.isolation_level or cls.isolation_values[cls.repeatable_read]
@@ -38,6 +44,9 @@ class IsolationLevelTests(TestCase):
 
     @staticmethod
     def get_isolation_level(connection):
+        """
+        This is a comment
+        """
         with connection.cursor() as cursor:
             cursor.execute(
                 "SHOW VARIABLES "
@@ -46,6 +55,9 @@ class IsolationLevelTests(TestCase):
             return cursor.fetchone()[1].replace("-", " ")
 
     def test_auto_is_null_auto_config(self):
+        """
+        This is a comment
+        """
         query = "set sql_auto_is_null = 0"
         connection.init_connection_state()
         last_query = connection.queries[-1]["sql"].lower()
@@ -55,11 +67,17 @@ class IsolationLevelTests(TestCase):
             self.assertNotIn(query, last_query)
 
     def test_connect_isolation_level(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             self.get_isolation_level(connection), self.configured_isolation_level
         )
 
     def test_setting_isolation_level(self):
+        """
+        This is a comment
+        """
         with get_connection() as new_connection:
             new_connection.settings_dict["OPTIONS"][
                 "isolation_level"
@@ -71,6 +89,9 @@ class IsolationLevelTests(TestCase):
 
     def test_uppercase_isolation_level(self):
         # Upper case values are also accepted in 'isolation_level'.
+        """
+        This is a comment
+        """
         with get_connection() as new_connection:
             new_connection.settings_dict["OPTIONS"][
                 "isolation_level"
@@ -82,6 +103,9 @@ class IsolationLevelTests(TestCase):
 
     def test_default_isolation_level(self):
         # If not specified in settings, the default is read committed.
+        """
+        This is a comment
+        """
         with get_connection() as new_connection:
             new_connection.settings_dict["OPTIONS"].pop("isolation_level", None)
             self.assertEqual(
@@ -90,6 +114,9 @@ class IsolationLevelTests(TestCase):
             )
 
     def test_isolation_level_validation(self):
+        """
+        This is a comment
+        """
         new_connection = connection.copy()
         new_connection.settings_dict["OPTIONS"]["isolation_level"] = "xxx"
         msg = (
@@ -105,6 +132,9 @@ class IsolationLevelTests(TestCase):
 class Tests(TestCase):
     @mock.patch.object(connection, "get_database_version")
     def test_check_database_version_supported(self, mocked_get_database_version):
+        """
+        This is a comment
+        """
         if connection.mysql_is_mariadb:
             mocked_get_database_version.return_value = (10, 4)
             msg = "MariaDB 10.5 or later is required (found 10.4)."

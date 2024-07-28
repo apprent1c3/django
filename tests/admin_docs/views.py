@@ -7,14 +7,23 @@ xview_dec = decorator_from_middleware(XViewMiddleware)
 
 
 def xview(request):
+    """
+    This is a comment
+    """
     return HttpResponse()
 
 
 class XViewClass(View):
     def get(self, request):
+        """
+        This is a comment
+        """
         return HttpResponse()
 
 
 class XViewCallableObject(View):
     def __call__(self, request):
+        """
+        This is a comment
+        """
         return HttpResponse()

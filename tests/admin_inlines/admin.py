@@ -202,6 +202,9 @@ class TitleForm(forms.ModelForm):
     title1 = forms.CharField(max_length=100)
 
     def clean(self):
+        """
+        This is a comment
+        """
         cleaned_data = self.cleaned_data
         title1 = cleaned_data.get("title1")
         title2 = cleaned_data.get("title2")
@@ -275,6 +278,9 @@ class FootNoteNonEditableInlineCustomForm(admin.TabularInline):
     form = FootNoteForm
 
     def has_change_permission(self, request, obj=None):
+        """
+        This is a comment
+        """
         return False
 
 
@@ -283,6 +289,9 @@ class QuestionInline(admin.TabularInline):
     readonly_fields = ["call_me"]
 
     def call_me(self, obj):
+        """
+        This is a comment
+        """
         return "Callable in QuestionInline"
 
 
@@ -290,6 +299,9 @@ class PollAdmin(admin.ModelAdmin):
     inlines = [QuestionInline]
 
     def call_me(self, obj):
+        """
+        This is a comment
+        """
         return "Callable in PollAdmin"
 
 
@@ -298,6 +310,9 @@ class ChapterInline(admin.TabularInline):
     readonly_fields = ["call_me"]
 
     def call_me(self, obj):
+        """
+        This is a comment
+        """
         return "Callable in ChapterInline"
 
 
@@ -309,6 +324,9 @@ class ReadOnlyChapterInline(admin.TabularInline):
     model = Chapter
 
     def has_change_permission(self, request, obj=None):
+        """
+        This is a comment
+        """
         return False
 
 
@@ -343,12 +361,18 @@ class BinaryTreeAdmin(admin.TabularInline):
     model = BinaryTree
 
     def get_extra(self, request, obj=None, **kwargs):
+        """
+        This is a comment
+        """
         extra = 2
         if obj:
             return extra - obj.binarytree_set.count()
         return extra
 
     def get_max_num(self, request, obj=None, **kwargs):
+        """
+        This is a comment
+        """
         max_num = 3
         if obj:
             return max_num - obj.binarytree_set.count()
@@ -372,6 +396,9 @@ class SomeChildModelForm(forms.ModelForm):
         help_texts = {"readonly_field": "Help text from ModelForm.Meta"}
 
     def __init__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         super().__init__(*args, **kwargs)
         self.fields["name"].label = "new label"
 
@@ -450,6 +477,9 @@ class ChildHiddenFieldForm(forms.ModelForm):
         widgets = {"position": forms.HiddenInput}
 
     def _post_clean(self):
+        """
+        This is a comment
+        """
         super()._post_clean()
         if self.instance is not None and self.instance.position == 1:
             self.add_error(None, ValidationError("A non-field error"))
@@ -488,6 +518,9 @@ class UUIDParentModelAdmin(admin.ModelAdmin):
 
 class ShowInlineParentAdmin(admin.ModelAdmin):
     def get_inlines(self, request, obj):
+        """
+        This is a comment
+        """
         if obj is not None and obj.show_inlines:
             return [ShowInlineChildInline]
         return []

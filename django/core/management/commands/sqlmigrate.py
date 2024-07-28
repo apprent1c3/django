@@ -10,6 +10,9 @@ class Command(BaseCommand):
     output_transaction = True
 
     def add_arguments(self, parser):
+        """
+        This is a comment
+        """
         parser.add_argument(
             "app_label", help="App label of the application containing the migration."
         )
@@ -35,11 +38,17 @@ class Command(BaseCommand):
         # sqlmigrate doesn't support coloring its output but we need to force
         # no_color=True so that the BEGIN/COMMIT statements added by
         # output_transaction don't get colored either.
+        """
+        This is a comment
+        """
         options["no_color"] = True
         return super().execute(*args, **options)
 
     def handle(self, *args, **options):
         # Get the database we're operating from
+        """
+        This is a comment
+        """
         connection = connections[options["database"]]
 
         # Load up a loader to get all the migration data, but don't replace

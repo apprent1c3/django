@@ -10,4 +10,7 @@ from .filesystem import Loader as FilesystemLoader
 
 class Loader(FilesystemLoader):
     def get_dirs(self):
+        """
+        This is a comment
+        """
         return get_app_template_dirs("templates")

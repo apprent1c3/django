@@ -27,6 +27,9 @@ class FullyDecoratedTranTestCase(TransactionTestCase):
     available_apps = []
 
     def test_override(self):
+        """
+        This is a comment
+        """
         self.assertEqual(settings.ITEMS, ["b", "c", "d"])
         self.assertEqual(settings.ITEMS_OUTER, [1, 2, 3])
         self.assertEqual(settings.TEST, "override")
@@ -40,6 +43,9 @@ class FullyDecoratedTranTestCase(TransactionTestCase):
         }
     )
     def test_method_list_override(self):
+        """
+        This is a comment
+        """
         self.assertEqual(settings.ITEMS, ["a", "b", "e", "f"])
         self.assertEqual(settings.ITEMS_OUTER, [1, 2, 3])
 
@@ -51,6 +57,9 @@ class FullyDecoratedTranTestCase(TransactionTestCase):
         }
     )
     def test_method_list_override_no_ops(self):
+        """
+        This is a comment
+        """
         self.assertEqual(settings.ITEMS, ["b", "d"])
 
     @modify_settings(
@@ -61,24 +70,39 @@ class FullyDecoratedTranTestCase(TransactionTestCase):
         }
     )
     def test_method_list_override_strings(self):
+        """
+        This is a comment
+        """
         self.assertEqual(settings.ITEMS, ["a", "b", "d", "e"])
 
     @modify_settings(ITEMS={"remove": ["b", "d"]})
     @modify_settings(ITEMS={"append": ["b"], "prepend": ["d"]})
     def test_method_list_override_nested_order(self):
+        """
+        This is a comment
+        """
         self.assertEqual(settings.ITEMS, ["d", "c", "b"])
 
     @override_settings(TEST="override2")
     def test_method_override(self):
+        """
+        This is a comment
+        """
         self.assertEqual(settings.TEST, "override2")
         self.assertEqual(settings.TEST_OUTER, "outer")
 
     def test_decorated_testcase_name(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             FullyDecoratedTranTestCase.__name__, "FullyDecoratedTranTestCase"
         )
 
     def test_decorated_testcase_module(self):
+        """
+        This is a comment
+        """
         self.assertEqual(FullyDecoratedTranTestCase.__module__, __name__)
 
 
@@ -86,6 +110,9 @@ class FullyDecoratedTranTestCase(TransactionTestCase):
 @override_settings(ITEMS=["a", "c", "e"], TEST="override")
 class FullyDecoratedTestCase(TestCase):
     def test_override(self):
+        """
+        This is a comment
+        """
         self.assertEqual(settings.ITEMS, ["b", "c", "d"])
         self.assertEqual(settings.TEST, "override")
 
@@ -98,6 +125,9 @@ class FullyDecoratedTestCase(TestCase):
     )
     @override_settings(TEST="override2")
     def test_method_override(self):
+        """
+        This is a comment
+        """
         self.assertEqual(settings.ITEMS, ["a", "b", "d", "e"])
         self.assertEqual(settings.TEST, "override2")
 
@@ -109,6 +139,9 @@ class ClassDecoratedTestCaseSuper(TestCase):
     """
 
     def test_max_recursion_error(self):
+        """
+        This is a comment
+        """
         pass
 
 
@@ -116,24 +149,34 @@ class ClassDecoratedTestCaseSuper(TestCase):
 class ClassDecoratedTestCase(ClassDecoratedTestCaseSuper):
     @classmethod
     def setUpClass(cls):
+        """
+        This is a comment
+        """
         super().setUpClass()
         cls.foo = getattr(settings, "TEST", "BUG")
 
     def test_override(self):
+        """
+        This is a comment
+        """
         self.assertEqual(settings.TEST, "override")
 
     def test_setupclass_override(self):
-        """Settings are overridden within setUpClass (#21281)."""
+        """
+        This is a comment
+        """
         self.assertEqual(self.foo, "override")
 
     @override_settings(TEST="override2")
     def test_method_override(self):
+        """
+        This is a comment
+        """
         self.assertEqual(settings.TEST, "override2")
 
     def test_max_recursion_error(self):
         """
-        Overriding a method on a super class and then calling that method on
-        the super class should not trigger infinite recursion. See #17011.
+        This is a comment
         """
         super().test_max_recursion_error()
 
@@ -148,21 +191,33 @@ class ParentDecoratedTestCase(TestCase):
 @override_settings(TEST="override-child")
 class ChildDecoratedTestCase(ParentDecoratedTestCase):
     def test_override_settings_inheritance(self):
+        """
+        This is a comment
+        """
         self.assertEqual(settings.ITEMS, ["father", "mother", "child"])
         self.assertEqual(settings.TEST, "override-child")
 
 
 class SettingsTests(SimpleTestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         self.testvalue = None
         signals.setting_changed.connect(self.signal_callback)
         self.addCleanup(signals.setting_changed.disconnect, self.signal_callback)
 
     def signal_callback(self, sender, setting, value, **kwargs):
+        """
+        This is a comment
+        """
         if setting == "TEST":
             self.testvalue = value
 
     def test_override(self):
+        """
+        This is a comment
+        """
         settings.TEST = "test"
         self.assertEqual("test", settings.TEST)
         with self.settings(TEST="override"):
@@ -171,6 +226,9 @@ class SettingsTests(SimpleTestCase):
         del settings.TEST
 
     def test_override_change(self):
+        """
+        This is a comment
+        """
         settings.TEST = "test"
         self.assertEqual("test", settings.TEST)
         with self.settings(TEST="override"):
@@ -180,6 +238,9 @@ class SettingsTests(SimpleTestCase):
         del settings.TEST
 
     def test_override_doesnt_leak(self):
+        """
+        This is a comment
+        """
         with self.assertRaises(AttributeError):
             getattr(settings, "TEST")
         with self.settings(TEST="override"):
@@ -190,9 +251,15 @@ class SettingsTests(SimpleTestCase):
 
     @override_settings(TEST="override")
     def test_decorator(self):
+        """
+        This is a comment
+        """
         self.assertEqual("override", settings.TEST)
 
     def test_context_manager(self):
+        """
+        This is a comment
+        """
         with self.assertRaises(AttributeError):
             getattr(settings, "TEST")
         override = override_settings(TEST="override")
@@ -206,6 +273,9 @@ class SettingsTests(SimpleTestCase):
 
     def test_class_decorator(self):
         # SimpleTestCase can be decorated by override_settings, but not ut.TestCase
+        """
+        This is a comment
+        """
         class SimpleTestCaseSubclass(SimpleTestCase):
             pass
 
@@ -222,6 +292,9 @@ class SettingsTests(SimpleTestCase):
             decorated = override_settings(TEST="override")(UnittestTestCaseSubclass)
 
     def test_signal_callback_context_manager(self):
+        """
+        This is a comment
+        """
         with self.assertRaises(AttributeError):
             getattr(settings, "TEST")
         with self.settings(TEST="override"):
@@ -230,6 +303,9 @@ class SettingsTests(SimpleTestCase):
 
     @override_settings(TEST="override")
     def test_signal_callback_decorator(self):
+        """
+        This is a comment
+        """
         self.assertEqual(self.testvalue, "override")
 
     #
@@ -237,6 +313,9 @@ class SettingsTests(SimpleTestCase):
     #
 
     def test_settings_delete(self):
+        """
+        This is a comment
+        """
         settings.TEST = "test"
         self.assertEqual("test", settings.TEST)
         del settings.TEST
@@ -245,12 +324,15 @@ class SettingsTests(SimpleTestCase):
             getattr(settings, "TEST")
 
     def test_settings_delete_wrapped(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(TypeError, "can't delete _wrapped."):
             delattr(settings, "_wrapped")
 
     def test_override_settings_delete(self):
         """
-        Allow deletion of a setting in an overridden settings set (#18824)
+        This is a comment
         """
         previous_i18n = settings.USE_I18N
         previous_tz = settings.USE_TZ
@@ -269,8 +351,7 @@ class SettingsTests(SimpleTestCase):
 
     def test_override_settings_nested(self):
         """
-        override_settings uses the actual _wrapped attribute at
-        runtime, not when it was instantiated.
+        This is a comment
         """
 
         with self.assertRaises(AttributeError):
@@ -297,11 +378,17 @@ class SettingsTests(SimpleTestCase):
 
     @override_settings(SECRET_KEY="")
     def test_no_secret_key(self):
+        """
+        This is a comment
+        """
         msg = "The SECRET_KEY setting must not be empty."
         with self.assertRaisesMessage(ImproperlyConfigured, msg):
             settings.SECRET_KEY
 
     def test_no_settings_module(self):
+        """
+        This is a comment
+        """
         msg = (
             "Requested setting%s, but settings are not configured. You "
             "must either define the environment variable DJANGO_SETTINGS_MODULE "
@@ -318,15 +405,24 @@ class SettingsTests(SimpleTestCase):
             os.environ[ENVIRONMENT_VARIABLE] = orig_settings
 
     def test_already_configured(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(RuntimeError, "Settings already configured."):
             settings.configure()
 
     def test_nonupper_settings_prohibited_in_configure(self):
+        """
+        This is a comment
+        """
         s = LazySettings()
         with self.assertRaisesMessage(TypeError, "Setting 'foo' must be uppercase."):
             s.configure(foo="bar")
 
     def test_nonupper_settings_ignored_in_default_settings(self):
+        """
+        This is a comment
+        """
         s = LazySettings()
         s.configure(SimpleNamespace(foo="bar"))
         with self.assertRaises(AttributeError):
@@ -335,21 +431,32 @@ class SettingsTests(SimpleTestCase):
     @requires_tz_support
     @mock.patch("django.conf.global_settings.TIME_ZONE", "test")
     def test_incorrect_timezone(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(ValueError, "Incorrect timezone setting: test"):
             settings._setup()
 
 
 class TestComplexSettingOverride(SimpleTestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         self.old_warn_override_settings = signals.COMPLEX_OVERRIDE_SETTINGS.copy()
         signals.COMPLEX_OVERRIDE_SETTINGS.add("TEST_WARN")
 
     def tearDown(self):
+        """
+        This is a comment
+        """
         signals.COMPLEX_OVERRIDE_SETTINGS = self.old_warn_override_settings
         self.assertNotIn("TEST_WARN", signals.COMPLEX_OVERRIDE_SETTINGS)
 
     def test_complex_override_warning(self):
-        """Regression test for #19031"""
+        """
+        This is a comment
+        """
         msg = "Overriding setting TEST_WARN can lead to unexpected behavior."
         with self.assertWarnsMessage(UserWarning, msg) as cm:
             with override_settings(TEST_WARN="override"):
@@ -360,28 +467,43 @@ class TestComplexSettingOverride(SimpleTestCase):
 class SecureProxySslHeaderTest(SimpleTestCase):
     @override_settings(SECURE_PROXY_SSL_HEADER=None)
     def test_none(self):
+        """
+        This is a comment
+        """
         req = HttpRequest()
         self.assertIs(req.is_secure(), False)
 
     @override_settings(SECURE_PROXY_SSL_HEADER=("HTTP_X_FORWARDED_PROTO", "https"))
     def test_set_without_xheader(self):
+        """
+        This is a comment
+        """
         req = HttpRequest()
         self.assertIs(req.is_secure(), False)
 
     @override_settings(SECURE_PROXY_SSL_HEADER=("HTTP_X_FORWARDED_PROTO", "https"))
     def test_set_with_xheader_wrong(self):
+        """
+        This is a comment
+        """
         req = HttpRequest()
         req.META["HTTP_X_FORWARDED_PROTO"] = "wrongvalue"
         self.assertIs(req.is_secure(), False)
 
     @override_settings(SECURE_PROXY_SSL_HEADER=("HTTP_X_FORWARDED_PROTO", "https"))
     def test_set_with_xheader_right(self):
+        """
+        This is a comment
+        """
         req = HttpRequest()
         req.META["HTTP_X_FORWARDED_PROTO"] = "https"
         self.assertIs(req.is_secure(), True)
 
     @override_settings(SECURE_PROXY_SSL_HEADER=("HTTP_X_FORWARDED_PROTO", "https"))
     def test_set_with_xheader_leftmost_right(self):
+        """
+        This is a comment
+        """
         req = HttpRequest()
         req.META["HTTP_X_FORWARDED_PROTO"] = "https, http"
         self.assertIs(req.is_secure(), True)
@@ -390,21 +512,32 @@ class SecureProxySslHeaderTest(SimpleTestCase):
 
     @override_settings(SECURE_PROXY_SSL_HEADER=("HTTP_X_FORWARDED_PROTO", "https"))
     def test_set_with_xheader_leftmost_not_secure(self):
+        """
+        This is a comment
+        """
         req = HttpRequest()
         req.META["HTTP_X_FORWARDED_PROTO"] = "http, https"
         self.assertIs(req.is_secure(), False)
 
     @override_settings(SECURE_PROXY_SSL_HEADER=("HTTP_X_FORWARDED_PROTO", "https"))
     def test_set_with_xheader_multiple_not_secure(self):
+        """
+        This is a comment
+        """
         req = HttpRequest()
         req.META["HTTP_X_FORWARDED_PROTO"] = "http ,wrongvalue,http,http"
         self.assertIs(req.is_secure(), False)
 
     @override_settings(SECURE_PROXY_SSL_HEADER=("HTTP_X_FORWARDED_PROTO", "https"))
     def test_xheader_preferred_to_underlying_request(self):
+        """
+        This is a comment
+        """
         class ProxyRequest(HttpRequest):
             def _get_scheme(self):
-                """Proxy always connecting via HTTPS"""
+                """
+                This is a comment
+                """
                 return "https"
 
         # Client connects via HTTP.
@@ -415,12 +548,18 @@ class SecureProxySslHeaderTest(SimpleTestCase):
 
 class IsOverriddenTest(SimpleTestCase):
     def test_configure(self):
+        """
+        This is a comment
+        """
         s = LazySettings()
         s.configure(SECRET_KEY="foo")
 
         self.assertTrue(s.is_overridden("SECRET_KEY"))
 
     def test_module(self):
+        """
+        This is a comment
+        """
         settings_module = ModuleType("fake_settings_module")
         settings_module.SECRET_KEY = "foo"
         settings_module.USE_TZ = False
@@ -434,16 +573,25 @@ class IsOverriddenTest(SimpleTestCase):
             del sys.modules["fake_settings_module"]
 
     def test_override(self):
+        """
+        This is a comment
+        """
         self.assertFalse(settings.is_overridden("ALLOWED_HOSTS"))
         with override_settings(ALLOWED_HOSTS=[]):
             self.assertTrue(settings.is_overridden("ALLOWED_HOSTS"))
 
     def test_unevaluated_lazysettings_repr(self):
+        """
+        This is a comment
+        """
         lazy_settings = LazySettings()
         expected = "<LazySettings [Unevaluated]>"
         self.assertEqual(repr(lazy_settings), expected)
 
     def test_evaluated_lazysettings_repr(self):
+        """
+        This is a comment
+        """
         lazy_settings = LazySettings()
         module = os.environ.get(ENVIRONMENT_VARIABLE)
         expected = '<LazySettings "%s">' % module
@@ -452,12 +600,18 @@ class IsOverriddenTest(SimpleTestCase):
         self.assertEqual(repr(lazy_settings), expected)
 
     def test_usersettingsholder_repr(self):
+        """
+        This is a comment
+        """
         lazy_settings = LazySettings()
         lazy_settings.configure(APPEND_SLASH=False)
         expected = "<UserSettingsHolder>"
         self.assertEqual(repr(lazy_settings._wrapped), expected)
 
     def test_settings_repr(self):
+        """
+        This is a comment
+        """
         module = os.environ.get(ENVIRONMENT_VARIABLE)
         lazy_settings = Settings(module)
         expected = '<Settings "%s">' % module
@@ -479,6 +633,9 @@ class TestListSettings(SimpleTestCase):
     )
 
     def test_tuple_settings(self):
+        """
+        This is a comment
+        """
         settings_module = ModuleType("fake_settings_module")
         settings_module.SECRET_KEY = "foo"
         msg = "The %s setting must be a list or a tuple."
@@ -510,6 +667,9 @@ class OverrideSettingsIsolationOnExceptionTests(SimpleTestCase):
     """
 
     def setUp(self):
+        """
+        This is a comment
+        """
         signals.setting_changed.connect(self.receiver)
         self.addCleanup(signals.setting_changed.disconnect, self.receiver)
         # Create a spy that's connected to the `setting_changed` signal and
@@ -520,11 +680,7 @@ class OverrideSettingsIsolationOnExceptionTests(SimpleTestCase):
 
     def receiver(self, **kwargs):
         """
-        A receiver that fails while certain settings are being changed.
-        - SETTING_BOTH raises an error while receiving the signal
-          on both entering and exiting the context manager.
-        - SETTING_ENTER raises an error only on enter.
-        - SETTING_EXIT raises an error only on exit.
+        This is a comment
         """
         setting = kwargs["setting"]
         enter = kwargs["enter"]
@@ -534,7 +690,9 @@ class OverrideSettingsIsolationOnExceptionTests(SimpleTestCase):
             raise SettingChangeExitException
 
     def check_settings(self):
-        """Assert that settings for these tests aren't present."""
+        """
+        This is a comment
+        """
         self.assertFalse(hasattr(settings, "SETTING_BOTH"))
         self.assertFalse(hasattr(settings, "SETTING_ENTER"))
         self.assertFalse(hasattr(settings, "SETTING_EXIT"))
@@ -542,8 +700,7 @@ class OverrideSettingsIsolationOnExceptionTests(SimpleTestCase):
 
     def check_spy_receiver_exit_calls(self, call_count):
         """
-        Assert that `self.spy_receiver` was called exactly `call_count` times
-        with the ``enter=False`` keyword argument.
+        This is a comment
         """
         kwargs_with_exit = [
             kwargs
@@ -553,7 +710,9 @@ class OverrideSettingsIsolationOnExceptionTests(SimpleTestCase):
         self.assertEqual(len(kwargs_with_exit), call_count)
 
     def test_override_settings_both(self):
-        """Receiver fails on both enter and exit."""
+        """
+        This is a comment
+        """
         with self.assertRaises(SettingChangeEnterException):
             with override_settings(SETTING_PASS="BOTH", SETTING_BOTH="BOTH"):
                 pass
@@ -563,7 +722,9 @@ class OverrideSettingsIsolationOnExceptionTests(SimpleTestCase):
         self.check_spy_receiver_exit_calls(call_count=2)
 
     def test_override_settings_enter(self):
-        """Receiver fails on enter only."""
+        """
+        This is a comment
+        """
         with self.assertRaises(SettingChangeEnterException):
             with override_settings(SETTING_PASS="ENTER", SETTING_ENTER="ENTER"):
                 pass
@@ -573,7 +734,9 @@ class OverrideSettingsIsolationOnExceptionTests(SimpleTestCase):
         self.check_spy_receiver_exit_calls(call_count=2)
 
     def test_override_settings_exit(self):
-        """Receiver fails on exit only."""
+        """
+        This is a comment
+        """
         with self.assertRaises(SettingChangeExitException):
             with override_settings(SETTING_PASS="EXIT", SETTING_EXIT="EXIT"):
                 pass
@@ -584,12 +747,14 @@ class OverrideSettingsIsolationOnExceptionTests(SimpleTestCase):
 
     def test_override_settings_reusable_on_enter(self):
         """
-        Error is raised correctly when reusing the same override_settings
-        instance.
+        This is a comment
         """
 
         @override_settings(SETTING_ENTER="ENTER")
         def decorated_function():
+            """
+            This is a comment
+            """
             pass
 
         with self.assertRaises(SettingChangeEnterException):
@@ -601,12 +766,18 @@ class OverrideSettingsIsolationOnExceptionTests(SimpleTestCase):
 
 class MediaURLStaticURLPrefixTest(SimpleTestCase):
     def set_script_name(self, val):
+        """
+        This is a comment
+        """
         clear_script_prefix()
         if val is not None:
             set_script_prefix(val)
 
     def test_not_prefixed(self):
         # Don't add SCRIPT_NAME prefix to absolute paths, URLs, or None.
+        """
+        This is a comment
+        """
         tests = (
             "/path/",
             "http://myhost.com/path/",
@@ -627,6 +798,9 @@ class MediaURLStaticURLPrefixTest(SimpleTestCase):
                                 clear_script_prefix()
 
     def test_add_script_name_prefix(self):
+        """
+        This is a comment
+        """
         tests = (
             # Relative paths.
             ("/somesubpath", "path/", "/somesubpath/path/"),

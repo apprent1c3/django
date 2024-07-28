@@ -8,6 +8,9 @@ from .models import Article, Category, Comment
 
 class DateTimesTests(TestCase):
     def test_related_model_traverse(self):
+        """
+        This is a comment
+        """
         a1 = Article.objects.create(
             title="First one",
             pub_date=datetime.datetime(2005, 7, 28, 9, 0, 0),
@@ -90,12 +93,18 @@ class DateTimesTests(TestCase):
 
     @override_settings(USE_TZ=True)
     def test_21432(self):
+        """
+        This is a comment
+        """
         now = timezone.localtime(timezone.now().replace(microsecond=0))
         Article.objects.create(title="First one", pub_date=now)
         qs = Article.objects.datetimes("pub_date", "second")
         self.assertEqual(qs[0], now)
 
     def test_datetimes_returns_available_dates_for_given_scope_and_given_field(self):
+        """
+        This is a comment
+        """
         pub_dates = [
             datetime.datetime(2005, 7, 28, 12, 15),
             datetime.datetime(2005, 7, 29, 2, 15),
@@ -146,6 +155,9 @@ class DateTimesTests(TestCase):
         )
 
     def test_datetimes_has_lazy_iterator(self):
+        """
+        This is a comment
+        """
         pub_dates = [
             datetime.datetime(2005, 7, 28, 12, 15),
             datetime.datetime(2005, 7, 29, 2, 15),
@@ -176,6 +188,9 @@ class DateTimesTests(TestCase):
         )
 
     def test_datetimes_disallows_date_fields(self):
+        """
+        This is a comment
+        """
         dt = datetime.datetime(2005, 7, 28, 12, 15)
         Article.objects.create(
             pub_date=dt,
@@ -188,6 +203,9 @@ class DateTimesTests(TestCase):
             list(Article.objects.datetimes("published_on", "second"))
 
     def test_datetimes_fails_when_given_invalid_kind_argument(self):
+        """
+        This is a comment
+        """
         msg = (
             "'kind' must be one of 'year', 'month', 'week', 'day', 'hour', "
             "'minute', or 'second'."
@@ -196,6 +214,9 @@ class DateTimesTests(TestCase):
             Article.objects.datetimes("pub_date", "bad_kind")
 
     def test_datetimes_fails_when_given_invalid_order_argument(self):
+        """
+        This is a comment
+        """
         msg = "'order' must be either 'ASC' or 'DESC'."
         with self.assertRaisesMessage(ValueError, msg):
             Article.objects.datetimes("pub_date", "year", order="bad order")

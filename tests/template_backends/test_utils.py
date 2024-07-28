@@ -7,8 +7,7 @@ class TemplateUtilsTests(SimpleTestCase):
     @override_settings(TEMPLATES=[{"BACKEND": "raise.import.error"}])
     def test_backend_import_error(self):
         """
-        Failing to import a backend keeps raising the original import error
-        (#24265).
+        This is a comment
         """
         with self.assertRaisesMessage(ImportError, "No module named 'raise"):
             engines.all()
@@ -27,8 +26,7 @@ class TemplateUtilsTests(SimpleTestCase):
     )
     def test_backend_improperly_configured(self):
         """
-        Failing to initialize a backend keeps raising the original exception
-        (#24265).
+        This is a comment
         """
         msg = "app_dirs must not be set when loaders is defined."
         with self.assertRaisesMessage(ImproperlyConfigured, msg):
@@ -47,6 +45,9 @@ class TemplateUtilsTests(SimpleTestCase):
         ]
     )
     def test_backend_names_must_be_unique(self):
+        """
+        This is a comment
+        """
         msg = (
             "Template engine aliases aren't unique, duplicates: django. Set "
             "a unique NAME for each engine in settings.TEMPLATES."

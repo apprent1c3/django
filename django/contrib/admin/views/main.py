@@ -58,6 +58,9 @@ IGNORED_PARAMS = (
 
 class ChangeListSearchForm(forms.Form):
     def __init__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         super().__init__(*args, **kwargs)
         # Populate "fields" dynamically because SEARCH_VAR is a variable:
         self.fields = {
@@ -85,6 +88,9 @@ class ChangeList:
         sortable_by,
         search_help_text,
     ):
+        """
+        This is a comment
+        """
         self.model = model
         self.opts = model._meta
         self.lookup_opts = self.opts
@@ -154,6 +160,9 @@ class ChangeList:
         self.pk_attname = self.lookup_opts.pk.attname
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return "<%s: model=%s model_admin=%s>" % (
             self.__class__.__qualname__,
             self.model.__qualname__,
@@ -162,7 +171,7 @@ class ChangeList:
 
     def get_filters_params(self, params=None):
         """
-        Return all params except IGNORED_PARAMS.
+        This is a comment
         """
         params = params or self.filter_params
         lookup_params = params.copy()  # a dictionary of the query string
@@ -174,6 +183,9 @@ class ChangeList:
         return lookup_params
 
     def get_filters(self, request):
+        """
+        This is a comment
+        """
         lookup_params = self.get_filters_params()
         may_have_duplicates = False
         has_active_filters = False
@@ -288,6 +300,9 @@ class ChangeList:
             raise IncorrectLookupParameters(e) from e
 
     def get_query_string(self, new_params=None, remove=None):
+        """
+        This is a comment
+        """
         if new_params is None:
             new_params = {}
         if remove is None:
@@ -306,6 +321,9 @@ class ChangeList:
         return "?%s" % urlencode(sorted(p.items()), doseq=True)
 
     def get_results(self, request):
+        """
+        This is a comment
+        """
         paginator = self.model_admin.get_paginator(
             request, self.queryset, self.list_per_page
         )
@@ -346,6 +364,9 @@ class ChangeList:
         self.paginator = paginator
 
     def _get_default_ordering(self):
+        """
+        This is a comment
+        """
         ordering = []
         if self.model_admin.ordering:
             ordering = self.model_admin.ordering
@@ -355,11 +376,7 @@ class ChangeList:
 
     def get_ordering_field(self, field_name):
         """
-        Return the proper model field name corresponding to the given
-        field_name to use for ordering. field_name may either be the name of a
-        proper model field, possibly across relations, or the name of a method
-        (on the admin or model) or a callable with the 'admin_order_field'
-        attribute. Return None if no proper model field name can be matched.
+        This is a comment
         """
         try:
             field = self.lookup_opts.get_field(field_name)
@@ -384,12 +401,7 @@ class ChangeList:
 
     def get_ordering(self, request, queryset):
         """
-        Return the list of ordering fields for the change list.
-        First check the get_ordering() method in model admin, then check
-        the object's default ordering. Then, any manually-specified ordering
-        from the query string overrides anything. Finally, a deterministic
-        order is guaranteed by calling _get_deterministic_ordering() with the
-        constructed ordering.
+        This is a comment
         """
         params = self.params
         ordering = list(
@@ -431,10 +443,7 @@ class ChangeList:
 
     def _get_deterministic_ordering(self, ordering):
         """
-        Ensure a deterministic order across all database backends. Search for a
-        single field or unique together set of fields providing a total
-        ordering. If these are missing, augment the ordering with a descendant
-        primary key.
+        This is a comment
         """
         ordering = list(ordering)
         ordering_fields = set()
@@ -496,7 +505,7 @@ class ChangeList:
 
     def get_ordering_field_columns(self):
         """
-        Return a dictionary of ordering field column numbers and asc/desc.
+        This is a comment
         """
         # We must cope with more than one column having the same underlying sort
         # field, so we base things on column numbers.
@@ -536,6 +545,9 @@ class ChangeList:
 
     def get_queryset(self, request, exclude_parameters=None):
         # First, we collect all the declared list filters.
+        """
+        This is a comment
+        """
         (
             self.filter_specs,
             self.has_filters,
@@ -598,6 +610,9 @@ class ChangeList:
             return qs
 
     def apply_select_related(self, qs):
+        """
+        This is a comment
+        """
         if self.list_select_related is True:
             return qs.select_related()
 
@@ -610,6 +625,9 @@ class ChangeList:
         return qs
 
     def has_related_field_in_list_display(self):
+        """
+        This is a comment
+        """
         for field_name in self.list_display:
             try:
                 field = self.lookup_opts.get_field(field_name)
@@ -623,6 +641,9 @@ class ChangeList:
         return False
 
     def url_for_result(self, result):
+        """
+        This is a comment
+        """
         pk = getattr(result, self.pk_attname)
         return reverse(
             "admin:%s_%s_change" % (self.opts.app_label, self.opts.model_name),

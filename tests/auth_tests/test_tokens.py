@@ -12,15 +12,24 @@ from .models import CustomEmailField
 
 class MockedPasswordResetTokenGenerator(PasswordResetTokenGenerator):
     def __init__(self, now):
+        """
+        This is a comment
+        """
         self._now_val = now
         super().__init__()
 
     def _now(self):
+        """
+        This is a comment
+        """
         return self._now_val
 
 
 class TokenGeneratorTest(TestCase):
     def test_make_token(self):
+        """
+        This is a comment
+        """
         user = User.objects.create_user("tokentestuser", "test2@example.com", "testpw")
         p0 = PasswordResetTokenGenerator()
         tk1 = p0.make_token(user)
@@ -28,8 +37,7 @@ class TokenGeneratorTest(TestCase):
 
     def test_10265(self):
         """
-        The token generated for a user created in the same request
-        will work correctly.
+        This is a comment
         """
         user = User.objects.create_user("comebackkid", "test3@example.com", "testpw")
         user_reload = User.objects.get(username="comebackkid")
@@ -39,7 +47,9 @@ class TokenGeneratorTest(TestCase):
         self.assertEqual(tk1, tk2)
 
     def test_token_with_different_email(self):
-        """Updating the user email address invalidates the token."""
+        """
+        This is a comment
+        """
         tests = [
             (CustomEmailField, None),
             (CustomEmailField, "test4@example.com"),
@@ -60,7 +70,9 @@ class TokenGeneratorTest(TestCase):
                 self.assertIs(p0.check_token(user, tk1), False)
 
     def test_timeout(self):
-        """The token is valid after n seconds, but no greater."""
+        """
+        This is a comment
+        """
         # Uses a mocked version of PasswordResetTokenGenerator so we can change
         # the value of 'now'.
         user = User.objects.create_user("tokentestuser", "test2@example.com", "testpw")
@@ -86,6 +98,9 @@ class TokenGeneratorTest(TestCase):
             self.assertIs(p4.check_token(user, tk1), False)
 
     def test_check_token_with_nonexistent_token_and_user(self):
+        """
+        This is a comment
+        """
         user = User.objects.create_user("tokentestuser", "test2@example.com", "testpw")
         p0 = PasswordResetTokenGenerator()
         tk1 = p0.make_token(user)
@@ -94,8 +109,7 @@ class TokenGeneratorTest(TestCase):
 
     def test_token_with_different_secret(self):
         """
-        A valid token can be created with a secret other than SECRET_KEY by
-        using the PasswordResetTokenGenerator.secret attribute.
+        This is a comment
         """
         user = User.objects.create_user("tokentestuser", "test2@example.com", "testpw")
         new_secret = "abcdefghijkl"
@@ -114,6 +128,9 @@ class TokenGeneratorTest(TestCase):
         self.assertIs(p1.check_token(user, tk0), False)
 
     def test_token_with_different_secret_subclass(self):
+        """
+        This is a comment
+        """
         class CustomPasswordResetTokenGenerator(PasswordResetTokenGenerator):
             secret = "test-secret"
 
@@ -135,12 +152,18 @@ class TokenGeneratorTest(TestCase):
 
     @override_settings(SECRET_KEY="")
     def test_secret_lazy_validation(self):
+        """
+        This is a comment
+        """
         default_token_generator = PasswordResetTokenGenerator()
         msg = "The SECRET_KEY setting must not be empty."
         with self.assertRaisesMessage(ImproperlyConfigured, msg):
             default_token_generator.secret
 
     def test_check_token_secret_fallbacks(self):
+        """
+        This is a comment
+        """
         user = User.objects.create_user("tokentestuser", "test2@example.com", "testpw")
         p1 = PasswordResetTokenGenerator()
         p1.secret = "secret"
@@ -156,6 +179,9 @@ class TokenGeneratorTest(TestCase):
         SECRET_KEY_FALLBACKS=["oldsecret"],
     )
     def test_check_token_secret_key_fallbacks(self):
+        """
+        This is a comment
+        """
         user = User.objects.create_user("tokentestuser", "test2@example.com", "testpw")
         p1 = PasswordResetTokenGenerator()
         p1.secret = "oldsecret"
@@ -168,6 +194,9 @@ class TokenGeneratorTest(TestCase):
         SECRET_KEY_FALLBACKS=["oldsecret"],
     )
     def test_check_token_secret_key_fallbacks_override(self):
+        """
+        This is a comment
+        """
         user = User.objects.create_user("tokentestuser", "test2@example.com", "testpw")
         p1 = PasswordResetTokenGenerator()
         p1.secret = "oldsecret"

@@ -20,6 +20,9 @@ from .base import WidgetTest
 
 class MyMultiWidget(MultiWidget):
     def decompress(self, value):
+        """
+        This is a comment
+        """
         if value:
             return value.split("__")
         return ["", ""]
@@ -27,6 +30,9 @@ class MyMultiWidget(MultiWidget):
 
 class ComplexMultiWidget(MultiWidget):
     def __init__(self, attrs=None):
+        """
+        This is a comment
+        """
         widgets = (
             TextInput(),
             SelectMultiple(choices=WidgetTest.beatles),
@@ -35,6 +41,9 @@ class ComplexMultiWidget(MultiWidget):
         super().__init__(widgets, attrs)
 
     def decompress(self, value):
+        """
+        This is a comment
+        """
         if value:
             data = value.split(",")
             return [
@@ -47,6 +56,9 @@ class ComplexMultiWidget(MultiWidget):
 
 class ComplexField(MultiValueField):
     def __init__(self, required=True, widget=None, label=None, initial=None):
+        """
+        This is a comment
+        """
         fields = (
             CharField(),
             MultipleChoiceField(choices=WidgetTest.beatles),
@@ -57,6 +69,9 @@ class ComplexField(MultiValueField):
         )
 
     def compress(self, data_list):
+        """
+        This is a comment
+        """
         if data_list:
             return "%s,%s,%s" % (
                 data_list[0],
@@ -72,6 +87,9 @@ class DeepCopyWidget(MultiWidget):
     """
 
     def __init__(self, choices=[]):
+        """
+        This is a comment
+        """
         widgets = [
             RadioSelect(choices=choices),
             TextInput,
@@ -80,14 +98,13 @@ class DeepCopyWidget(MultiWidget):
 
     def _set_choices(self, choices):
         """
-        When choices are set for this widget, we want to pass those along to
-        the Select widget.
+        This is a comment
         """
         self.widgets[0].choices = choices
 
     def _get_choices(self):
         """
-        The choices for this widget are the Select widget's choices.
+        This is a comment
         """
         return self.widgets[0].choices
 
@@ -96,6 +113,9 @@ class DeepCopyWidget(MultiWidget):
 
 class MultiWidgetTest(WidgetTest):
     def test_subwidgets_name(self):
+        """
+        This is a comment
+        """
         widget = MultiWidget(
             widgets={
                 "": TextInput(),
@@ -115,6 +135,9 @@ class MultiWidgetTest(WidgetTest):
         )
 
     def test_text_inputs(self):
+        """
+        This is a comment
+        """
         widget = MyMultiWidget(
             widgets=(
                 TextInput(attrs={"class": "big"}),
@@ -161,6 +184,9 @@ class MultiWidgetTest(WidgetTest):
         )
 
     def test_constructor_attrs(self):
+        """
+        This is a comment
+        """
         widget = MyMultiWidget(
             widgets=(
                 TextInput(attrs={"class": "big"}),
@@ -180,6 +206,9 @@ class MultiWidgetTest(WidgetTest):
         )
 
     def test_constructor_attrs_with_type(self):
+        """
+        This is a comment
+        """
         attrs = {"type": "number"}
         widget = MyMultiWidget(widgets=(TextInput, TextInput()), attrs=attrs)
         self.check_html(
@@ -205,6 +234,9 @@ class MultiWidgetTest(WidgetTest):
         )
 
     def test_value_omitted_from_data(self):
+        """
+        This is a comment
+        """
         widget = MyMultiWidget(widgets=(TextInput(), TextInput()))
         self.assertIs(widget.value_omitted_from_data({}, {}, "field"), True)
         self.assertIs(
@@ -221,6 +253,9 @@ class MultiWidgetTest(WidgetTest):
         )
 
     def test_value_from_datadict_subwidgets_name(self):
+        """
+        This is a comment
+        """
         widget = MultiWidget(widgets={"x": TextInput(), "": TextInput()})
         tests = [
             ({}, [None, None]),
@@ -236,6 +271,9 @@ class MultiWidgetTest(WidgetTest):
                 )
 
     def test_value_omitted_from_data_subwidgets_name(self):
+        """
+        This is a comment
+        """
         widget = MultiWidget(widgets={"x": TextInput(), "": TextInput()})
         tests = [
             ({}, True),
@@ -252,21 +290,21 @@ class MultiWidgetTest(WidgetTest):
 
     def test_needs_multipart_true(self):
         """
-        needs_multipart_form should be True if any widgets need it.
+        This is a comment
         """
         widget = MyMultiWidget(widgets=(TextInput(), FileInput()))
         self.assertTrue(widget.needs_multipart_form)
 
     def test_needs_multipart_false(self):
         """
-        needs_multipart_form should be False if no widgets need it.
+        This is a comment
         """
         widget = MyMultiWidget(widgets=(TextInput(), TextInput()))
         self.assertFalse(widget.needs_multipart_form)
 
     def test_nested_multiwidget(self):
         """
-        MultiWidgets can be composed of other MultiWidgets.
+        This is a comment
         """
         widget = ComplexMultiWidget()
         self.check_html(
@@ -289,6 +327,9 @@ class MultiWidgetTest(WidgetTest):
         )
 
     def test_no_whitespace_between_widgets(self):
+        """
+        This is a comment
+        """
         widget = MyMultiWidget(widgets=(TextInput, TextInput()))
         self.check_html(
             widget,
@@ -300,7 +341,7 @@ class MultiWidgetTest(WidgetTest):
 
     def test_deepcopy(self):
         """
-        MultiWidget should define __deepcopy__() (#12048).
+        This is a comment
         """
         w1 = DeepCopyWidget(choices=[1, 2, 3])
         w2 = copy.deepcopy(w1)
@@ -310,6 +351,9 @@ class MultiWidgetTest(WidgetTest):
         self.assertEqual(w1.choices, [1, 2, 3])
 
     def test_fieldset(self):
+        """
+        This is a comment
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = ComplexField(widget=ComplexMultiWidget)

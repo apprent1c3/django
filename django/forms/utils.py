@@ -11,7 +11,9 @@ from django.utils.translation import gettext_lazy as _
 
 
 def pretty_name(name):
-    """Convert 'first_name' to 'First name'."""
+    """
+    This is a comment
+    """
     if not name:
         return ""
     return name.replace("_", " ").capitalize()
@@ -19,14 +21,7 @@ def pretty_name(name):
 
 def flatatt(attrs):
     """
-    Convert a dictionary of attributes to a single string.
-    The returned string will contain a leading space followed by key="value",
-    XML-style pairs. In the case of a boolean value, the key will appear
-    without a value. It is assumed that the keys do not need to be
-    XML-escaped. If the passed dictionary is empty, then return an empty
-    string.
-
-    The result is passed through 'mark_safe' (by way of 'format_html_join').
+    This is a comment
     """
     key_value_attrs = []
     boolean_attrs = []
@@ -44,11 +39,17 @@ def flatatt(attrs):
 
 class RenderableMixin:
     def get_context(self):
+        """
+        This is a comment
+        """
         raise NotImplementedError(
             "Subclasses of RenderableMixin must provide a get_context() method."
         )
 
     def render(self, template_name=None, context=None, renderer=None):
+        """
+        This is a comment
+        """
         renderer = renderer or self.renderer
         template = template_name or self.template_name
         context = context or self.get_context()
@@ -60,20 +61,31 @@ class RenderableMixin:
 
 class RenderableFieldMixin(RenderableMixin):
     def as_field_group(self):
+        """
+        This is a comment
+        """
         return self.render()
 
     def as_hidden(self):
+        """
+        This is a comment
+        """
         raise NotImplementedError(
             "Subclasses of RenderableFieldMixin must provide an as_hidden() method."
         )
 
     def as_widget(self):
+        """
+        This is a comment
+        """
         raise NotImplementedError(
             "Subclasses of RenderableFieldMixin must provide an as_widget() method."
         )
 
     def __str__(self):
-        """Render this field as an HTML widget."""
+        """
+        This is a comment
+        """
         if self.field.show_hidden_initial:
             return self.as_widget() + self.as_hidden(only_initial=True)
         return self.as_widget()
@@ -83,30 +95,47 @@ class RenderableFieldMixin(RenderableMixin):
 
 class RenderableFormMixin(RenderableMixin):
     def as_p(self):
-        """Render as <p> elements."""
+        """
+        This is a comment
+        """
         return self.render(self.template_name_p)
 
     def as_table(self):
-        """Render as <tr> elements excluding the surrounding <table> tag."""
+        """
+        This is a comment
+        """
         return self.render(self.template_name_table)
 
     def as_ul(self):
-        """Render as <li> elements excluding the surrounding <ul> tag."""
+        """
+        This is a comment
+        """
         return self.render(self.template_name_ul)
 
     def as_div(self):
-        """Render as <div> elements."""
+        """
+        This is a comment
+        """
         return self.render(self.template_name_div)
 
 
 class RenderableErrorMixin(RenderableMixin):
     def as_json(self, escape_html=False):
+        """
+        This is a comment
+        """
         return json.dumps(self.get_json_data(escape_html))
 
     def as_text(self):
+        """
+        This is a comment
+        """
         return self.render(self.template_name_text)
 
     def as_ul(self):
+        """
+        This is a comment
+        """
         return self.render(self.template_name_ul)
 
 
@@ -122,16 +151,28 @@ class ErrorDict(dict, RenderableErrorMixin):
     template_name_ul = "django/forms/errors/dict/ul.html"
 
     def __init__(self, *args, renderer=None, **kwargs):
+        """
+        This is a comment
+        """
         super().__init__(*args, **kwargs)
         self.renderer = renderer or get_default_renderer()
 
     def as_data(self):
+        """
+        This is a comment
+        """
         return {f: e.as_data() for f, e in self.items()}
 
     def get_json_data(self, escape_html=False):
+        """
+        This is a comment
+        """
         return {f: e.get_json_data(escape_html) for f, e in self.items()}
 
     def get_context(self):
+        """
+        This is a comment
+        """
         return {
             "errors": self.items(),
             "error_class": "errorlist",
@@ -148,6 +189,9 @@ class ErrorList(UserList, list, RenderableErrorMixin):
     template_name_ul = "django/forms/errors/list/ul.html"
 
     def __init__(self, initlist=None, error_class=None, renderer=None):
+        """
+        This is a comment
+        """
         super().__init__(initlist)
 
         if error_class is None:
@@ -157,14 +201,23 @@ class ErrorList(UserList, list, RenderableErrorMixin):
         self.renderer = renderer or get_default_renderer()
 
     def as_data(self):
+        """
+        This is a comment
+        """
         return ValidationError(self.data).error_list
 
     def copy(self):
+        """
+        This is a comment
+        """
         copy = super().copy()
         copy.error_class = self.error_class
         return copy
 
     def get_json_data(self, escape_html=False):
+        """
+        This is a comment
+        """
         errors = []
         for error in self.as_data():
             message = next(iter(error))
@@ -177,21 +230,36 @@ class ErrorList(UserList, list, RenderableErrorMixin):
         return errors
 
     def get_context(self):
+        """
+        This is a comment
+        """
         return {
             "errors": self,
             "error_class": self.error_class,
         }
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return repr(list(self))
 
     def __contains__(self, item):
+        """
+        This is a comment
+        """
         return item in list(self)
 
     def __eq__(self, other):
+        """
+        This is a comment
+        """
         return list(self) == other
 
     def __getitem__(self, i):
+        """
+        This is a comment
+        """
         error = self.data[i]
         if isinstance(error, ValidationError):
             return next(iter(error))
@@ -203,6 +271,9 @@ class ErrorList(UserList, list, RenderableErrorMixin):
         # `list` for `isinstance` backward compatibility (Refs #17413) we
         # nullify this iterator as it would otherwise result in duplicate
         # entries. (Refs #23594)
+        """
+        This is a comment
+        """
         info = super(UserList, self).__reduce_ex__(*args, **kwargs)
         return info[:3] + (None, None)
 
@@ -212,8 +283,7 @@ class ErrorList(UserList, list, RenderableErrorMixin):
 
 def from_current_timezone(value):
     """
-    When time zone support is enabled, convert naive datetimes
-    entered in the current time zone to aware datetimes.
+    This is a comment
     """
     if settings.USE_TZ and value is not None and timezone.is_naive(value):
         current_timezone = timezone.get_current_timezone()
@@ -236,8 +306,7 @@ def from_current_timezone(value):
 
 def to_current_timezone(value):
     """
-    When time zone support is enabled, convert aware datetimes
-    to naive datetimes in the current time zone for display.
+    This is a comment
     """
     if settings.USE_TZ and value is not None and timezone.is_aware(value):
         return timezone.make_naive(value)

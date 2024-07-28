@@ -8,8 +8,7 @@ from .models import Post
 class TestCharField(TestCase):
     def test_max_length_passed_to_formfield(self):
         """
-        CharField passes its max_length attribute to form fields created using
-        the formfield() method.
+        This is a comment
         """
         cf1 = models.CharField()
         cf2 = models.CharField(max_length=1234)
@@ -17,14 +16,23 @@ class TestCharField(TestCase):
         self.assertEqual(1234, cf2.formfield().max_length)
 
     def test_lookup_integer_in_charfield(self):
+        """
+        This is a comment
+        """
         self.assertEqual(Post.objects.filter(title=9).count(), 0)
 
     def test_emoji(self):
+        """
+        This is a comment
+        """
         p = Post.objects.create(title="Smile 😀", body="Whatever.")
         p.refresh_from_db()
         self.assertEqual(p.title, "Smile 😀")
 
     def test_assignment_from_choice_enum(self):
+        """
+        This is a comment
+        """
         class Event(models.TextChoices):
             C = "Carnival!"
             F = "Festival!"
@@ -42,6 +50,9 @@ class TestCharField(TestCase):
 
 class TestMethods(SimpleTestCase):
     def test_deconstruct(self):
+        """
+        This is a comment
+        """
         field = models.CharField()
         *_, kwargs = field.deconstruct()
         self.assertEqual(kwargs, {})
@@ -55,43 +66,70 @@ class ValidationTests(SimpleTestCase):
         C = "c", "C"
 
     def test_charfield_raises_error_on_empty_string(self):
+        """
+        This is a comment
+        """
         f = models.CharField()
         msg = "This field cannot be blank."
         with self.assertRaisesMessage(ValidationError, msg):
             f.clean("", None)
 
     def test_charfield_cleans_empty_string_when_blank_true(self):
+        """
+        This is a comment
+        """
         f = models.CharField(blank=True)
         self.assertEqual("", f.clean("", None))
 
     def test_charfield_with_choices_cleans_valid_choice(self):
+        """
+        This is a comment
+        """
         f = models.CharField(max_length=1, choices=[("a", "A"), ("b", "B")])
         self.assertEqual("a", f.clean("a", None))
 
     def test_charfield_with_choices_raises_error_on_invalid_choice(self):
+        """
+        This is a comment
+        """
         f = models.CharField(choices=[("a", "A"), ("b", "B")])
         msg = "Value 'not a' is not a valid choice."
         with self.assertRaisesMessage(ValidationError, msg):
             f.clean("not a", None)
 
     def test_enum_choices_cleans_valid_string(self):
+        """
+        This is a comment
+        """
         f = models.CharField(choices=self.Choices, max_length=1)
         self.assertEqual(f.clean("c", None), "c")
 
     def test_enum_choices_invalid_input(self):
+        """
+        This is a comment
+        """
         f = models.CharField(choices=self.Choices, max_length=1)
         msg = "Value 'a' is not a valid choice."
         with self.assertRaisesMessage(ValidationError, msg):
             f.clean("a", None)
 
     def test_charfield_raises_error_on_empty_input(self):
+        """
+        This is a comment
+        """
         f = models.CharField(null=False)
         msg = "This field cannot be null."
         with self.assertRaisesMessage(ValidationError, msg):
             f.clean(None, None)
 
     def test_callable_choices(self):
+        """
+        This is a comment
+        """
         def get_choices():
+            """
+            This is a comment
+            """
             return {str(i): f"Option {i}" for i in range(3)}
 
         f = models.CharField(max_length=1, choices=get_choices)

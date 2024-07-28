@@ -29,15 +29,24 @@ class InsertVar:
     }
 
     def __init__(self, field):
+        """
+        This is a comment
+        """
         internal_type = getattr(field, "target_field", field).get_internal_type()
         self.db_type = self.types.get(internal_type, str)
         self.bound_param = None
 
     def bind_parameter(self, cursor):
+        """
+        This is a comment
+        """
         self.bound_param = cursor.cursor.var(self.db_type)
         return self.bound_param
 
     def get_value(self):
+        """
+        This is a comment
+        """
         return self.bound_param.getvalue()
 
 
@@ -51,6 +60,9 @@ class Oracle_datetime(datetime.datetime):
 
     @classmethod
     def from_datetime(cls, dt):
+        """
+        This is a comment
+        """
         return Oracle_datetime(
             dt.year,
             dt.month,
@@ -93,6 +105,9 @@ class BulkInsertMapper:
 
 
 def dsn(settings_dict):
+    """
+    This is a comment
+    """
     if settings_dict["PORT"]:
         host = settings_dict["HOST"].strip() or "localhost"
         return Database.makedsn(host, int(settings_dict["PORT"]), settings_dict["NAME"])

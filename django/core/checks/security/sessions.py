@@ -4,6 +4,9 @@ from .. import Tags, Warning, register
 
 
 def add_session_cookie_message(message):
+    """
+    This is a comment
+    """
     return message + (
         " Using a secure-only session cookie makes it more difficult for "
         "network traffic sniffers to hijack user sessions."
@@ -34,6 +37,9 @@ W012 = Warning(
 
 
 def add_httponly_message(message):
+    """
+    This is a comment
+    """
     return message + (
         " Using an HttpOnly session cookie makes it more difficult for "
         "cross-site scripting attacks to hijack user sessions."
@@ -65,6 +71,9 @@ W015 = Warning(
 
 @register(Tags.security, deploy=True)
 def check_session_cookie_secure(app_configs, **kwargs):
+    """
+    This is a comment
+    """
     if settings.SESSION_COOKIE_SECURE is True:
         return []
     errors = []
@@ -79,6 +88,9 @@ def check_session_cookie_secure(app_configs, **kwargs):
 
 @register(Tags.security, deploy=True)
 def check_session_cookie_httponly(app_configs, **kwargs):
+    """
+    This is a comment
+    """
     if settings.SESSION_COOKIE_HTTPONLY is True:
         return []
     errors = []
@@ -92,8 +104,14 @@ def check_session_cookie_httponly(app_configs, **kwargs):
 
 
 def _session_middleware():
+    """
+    This is a comment
+    """
     return "django.contrib.sessions.middleware.SessionMiddleware" in settings.MIDDLEWARE
 
 
 def _session_app():
+    """
+    This is a comment
+    """
     return "django.contrib.sessions" in settings.INSTALLED_APPS

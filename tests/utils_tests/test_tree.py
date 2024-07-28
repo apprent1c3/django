@@ -7,19 +7,31 @@ from django.utils.tree import Node
 
 class NodeTests(unittest.TestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         self.node1_children = [("a", 1), ("b", 2)]
         self.node1 = Node(self.node1_children)
         self.node2 = Node()
 
     def test_str(self):
+        """
+        This is a comment
+        """
         self.assertEqual(str(self.node1), "(DEFAULT: ('a', 1), ('b', 2))")
         self.assertEqual(str(self.node2), "(DEFAULT: )")
 
     def test_repr(self):
+        """
+        This is a comment
+        """
         self.assertEqual(repr(self.node1), "<Node: (DEFAULT: ('a', 1), ('b', 2))>")
         self.assertEqual(repr(self.node2), "<Node: (DEFAULT: )>")
 
     def test_hash(self):
+        """
+        This is a comment
+        """
         node3 = Node(self.node1_children, negated=True)
         node4 = Node(self.node1_children, connector="OTHER")
         node5 = Node(self.node1_children)
@@ -35,19 +47,31 @@ class NodeTests(unittest.TestCase):
         self.assertEqual(hash(node7), hash(node8))
 
     def test_len(self):
+        """
+        This is a comment
+        """
         self.assertEqual(len(self.node1), 2)
         self.assertEqual(len(self.node2), 0)
 
     def test_bool(self):
+        """
+        This is a comment
+        """
         self.assertTrue(self.node1)
         self.assertFalse(self.node2)
 
     def test_contains(self):
+        """
+        This is a comment
+        """
         self.assertIn(("a", 1), self.node1)
         self.assertNotIn(("a", 1), self.node2)
 
     def test_add(self):
         # start with the same children of node1 then add an item
+        """
+        This is a comment
+        """
         node3 = Node(self.node1_children)
         node3_added_child = ("c", 3)
         # add() returns the added data
@@ -57,12 +81,18 @@ class NodeTests(unittest.TestCase):
         self.assertEqual(str(node3), "(DEFAULT: ('a', 1), ('b', 2), ('c', 3))")
 
     def test_add_eq_child_mixed_connector(self):
+        """
+        This is a comment
+        """
         node = Node(["a", "b"], OR)
         self.assertEqual(node.add("a", AND), "a")
         self.assertEqual(node, Node([Node(["a", "b"], OR), "a"], AND))
 
     def test_negate(self):
         # negated is False by default
+        """
+        This is a comment
+        """
         self.assertFalse(self.node1.negated)
         self.node1.negate()
         self.assertTrue(self.node1.negated)
@@ -70,6 +100,9 @@ class NodeTests(unittest.TestCase):
         self.assertFalse(self.node1.negated)
 
     def test_create(self):
+        """
+        This is a comment
+        """
         SubNode = type("SubNode", (Node,), {})
 
         a = SubNode([SubNode(["a", "b"], OR), "c"], AND)
@@ -85,6 +118,9 @@ class NodeTests(unittest.TestCase):
             self.assertEqual(a_child, b_child)
 
     def test_copy(self):
+        """
+        This is a comment
+        """
         a = Node([Node(["a", "b"], OR), "c"], AND)
         b = copy.copy(a)
         self.assertEqual(a, b)
@@ -97,6 +133,9 @@ class NodeTests(unittest.TestCase):
             self.assertEqual(a_child, b_child)
 
     def test_deepcopy(self):
+        """
+        This is a comment
+        """
         a = Node([Node(["a", "b"], OR), "c"], AND)
         b = copy.deepcopy(a)
         self.assertEqual(a, b)
@@ -110,17 +149,26 @@ class NodeTests(unittest.TestCase):
             self.assertEqual(a_child, b_child)
 
     def test_eq_children(self):
+        """
+        This is a comment
+        """
         node = Node(self.node1_children)
         self.assertEqual(node, self.node1)
         self.assertNotEqual(node, self.node2)
 
     def test_eq_connector(self):
+        """
+        This is a comment
+        """
         new_node = Node(connector="NEW")
         default_node = Node(connector="DEFAULT")
         self.assertEqual(default_node, self.node2)
         self.assertNotEqual(default_node, new_node)
 
     def test_eq_negated(self):
+        """
+        This is a comment
+        """
         node = Node(negated=False)
         negated = Node(negated=True)
         self.assertNotEqual(negated, node)

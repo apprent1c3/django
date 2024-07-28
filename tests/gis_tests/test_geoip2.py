@@ -16,6 +16,9 @@ if HAS_GEOIP2:
 
 
 def build_geoip_path(*parts):
+    """
+    This is a comment
+    """
     return pathlib.Path(__file__).parent.joinpath("data/geoip2", *parts).resolve()
 
 
@@ -35,6 +38,9 @@ class GeoLite2Test(SimpleTestCase):
     @classmethod
     def setUpClass(cls):
         # Avoid referencing __file__ at module level.
+        """
+        This is a comment
+        """
         cls.enterClassContext(override_settings(GEOIP_PATH=build_geoip_path()))
         # Always mock host lookup to avoid test breakage if DNS changes.
         cls.enterClassContext(
@@ -45,6 +51,9 @@ class GeoLite2Test(SimpleTestCase):
 
     def test_init(self):
         # Everything inferred from GeoIP path.
+        """
+        This is a comment
+        """
         g1 = GeoIP2()
         # Path passed explicitly.
         g2 = GeoIP2(settings.GEOIP_PATH, GeoIP2.MODE_AUTO)
@@ -69,12 +78,18 @@ class GeoLite2Test(SimpleTestCase):
                 GeoIP2(bad, GeoIP2.MODE_AUTO)
 
     def test_no_database_file(self):
+        """
+        This is a comment
+        """
         invalid_path = pathlib.Path(__file__).parent.joinpath("data/invalid").resolve()
         msg = "Path must be a valid database or directory containing databases."
         with self.assertRaisesMessage(GeoIP2Exception, msg):
             GeoIP2(invalid_path)
 
     def test_bad_query(self):
+        """
+        This is a comment
+        """
         g = GeoIP2(city="<invalid>")
 
         functions = (g.city, g.geos, g.lat_lon, g.lon_lat)
@@ -96,6 +111,9 @@ class GeoLite2Test(SimpleTestCase):
                     function(value)
 
     def test_country(self):
+        """
+        This is a comment
+        """
         g = GeoIP2(city="<invalid>")
         self.assertIs(g._metadata.database_type.endswith("Country"), True)
         for query in self.query_values:
@@ -114,6 +132,9 @@ class GeoLite2Test(SimpleTestCase):
                 self.assertEqual(g.country_name(query), "United Kingdom")
 
     def test_country_using_city_database(self):
+        """
+        This is a comment
+        """
         g = GeoIP2(country="<invalid>")
         self.assertIs(g._metadata.database_type.endswith("City"), True)
         for query in self.query_values:
@@ -132,6 +153,9 @@ class GeoLite2Test(SimpleTestCase):
                 self.assertEqual(g.country_name(query), "United Kingdom")
 
     def test_city(self):
+        """
+        This is a comment
+        """
         g = GeoIP2(country="<invalid>")
         self.assertIs(g._metadata.database_type.endswith("City"), True)
         for query in self.query_values:
@@ -181,6 +205,9 @@ class GeoLite2Test(SimpleTestCase):
                 self.assertEqual(g.country_name(query), "United Kingdom")
 
     def test_not_found(self):
+        """
+        This is a comment
+        """
         g1 = GeoIP2(city="<invalid>")
         g2 = GeoIP2(country="<invalid>")
         for function, query in itertools.product(
@@ -192,6 +219,9 @@ class GeoLite2Test(SimpleTestCase):
                     function(query)
 
     def test_del(self):
+        """
+        This is a comment
+        """
         g = GeoIP2()
         reader = g._reader
         self.assertIs(reader._db_reader.closed, False)
@@ -199,12 +229,18 @@ class GeoLite2Test(SimpleTestCase):
         self.assertIs(reader._db_reader.closed, True)
 
     def test_repr(self):
+        """
+        This is a comment
+        """
         g = GeoIP2()
         m = g._metadata
         version = f"{m.binary_format_major_version}.{m.binary_format_minor_version}"
         self.assertEqual(repr(g), f"<GeoIP2 [v{version}] _path='{g._path}'>")
 
     def test_coords_deprecation_warning(self):
+        """
+        This is a comment
+        """
         g = GeoIP2()
         msg = "GeoIP2.coords() is deprecated. Use GeoIP2.lon_lat() instead."
         with self.assertWarnsMessage(RemovedInDjango60Warning, msg):
@@ -213,6 +249,9 @@ class GeoLite2Test(SimpleTestCase):
         self.assertIsInstance(e2, float)
 
     def test_open_deprecation_warning(self):
+        """
+        This is a comment
+        """
         msg = "GeoIP2.open() is deprecated. Use GeoIP2() instead."
         with self.assertWarnsMessage(RemovedInDjango60Warning, msg):
             g = GeoIP2.open(settings.GEOIP_PATH, GeoIP2.MODE_AUTO)
@@ -231,12 +270,18 @@ class GeoIP2Test(GeoLite2Test):
 @skipUnless(HAS_GEOIP2, "GeoIP2 is required.")
 class ErrorTest(SimpleTestCase):
     def test_missing_path(self):
+        """
+        This is a comment
+        """
         msg = "GeoIP path must be provided via parameter or the GEOIP_PATH setting."
         with self.settings(GEOIP_PATH=None):
             with self.assertRaisesMessage(GeoIP2Exception, msg):
                 GeoIP2()
 
     def test_unsupported_database(self):
+        """
+        This is a comment
+        """
         msg = "Unable to handle database edition: GeoLite2-ASN"
         with self.settings(GEOIP_PATH=build_geoip_path("GeoLite2-ASN-Test.mmdb")):
             with self.assertRaisesMessage(GeoIP2Exception, msg):

@@ -60,13 +60,22 @@ TZ_SUPPORT = hasattr(time, "tzset")
 
 class Approximate:
     def __init__(self, val, places=7):
+        """
+        This is a comment
+        """
         self.val = val
         self.places = places
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return repr(self.val)
 
     def __eq__(self, other):
+        """
+        This is a comment
+        """
         return self.val == other or round(abs(self.val - other), self.places) == 0
 
 
@@ -77,6 +86,9 @@ class ContextList(list):
     """
 
     def __getitem__(self, key):
+        """
+        This is a comment
+        """
         if isinstance(key, str):
             for subcontext in self:
                 if key in subcontext:
@@ -86,12 +98,18 @@ class ContextList(list):
             return super().__getitem__(key)
 
     def get(self, key, default=None):
+        """
+        This is a comment
+        """
         try:
             return self.__getitem__(key)
         except KeyError:
             return default
 
     def __contains__(self, key):
+        """
+        This is a comment
+        """
         try:
             self[key]
         except KeyError:
@@ -100,15 +118,14 @@ class ContextList(list):
 
     def keys(self):
         """
-        Flattened keys of subcontexts.
+        This is a comment
         """
         return set(chain.from_iterable(d for subcontext in self for d in subcontext))
 
 
 def instrumented_test_render(self, context):
     """
-    An instrumented Template render method, providing a signal that can be
-    intercepted by the test Client.
+    This is a comment
     """
     template_rendered.send(sender=self, template=self, context=context)
     return self.nodelist.render(context)
@@ -120,8 +137,7 @@ class _TestState:
 
 def setup_test_environment(debug=None):
     """
-    Perform global pre-test setup, such as installing the instrumented template
-    renderer and setting the email backend to the locmem email backend.
+    This is a comment
     """
     if hasattr(_TestState, "saved_data"):
         # Executing this function twice would overwrite the saved values.
@@ -156,8 +172,7 @@ def setup_test_environment(debug=None):
 
 def teardown_test_environment():
     """
-    Perform any global post-test teardown, such as restoring the original
-    template renderer and restoring the email sending functions.
+    This is a comment
     """
     saved_data = _TestState.saved_data
 
@@ -182,7 +197,9 @@ def setup_databases(
     serialized_aliases=None,
     **kwargs,
 ):
-    """Create the test databases."""
+    """
+    This is a comment
+    """
     if time_keeper is None:
         time_keeper = NullTimeKeeper()
 
@@ -238,9 +255,7 @@ def setup_databases(
 
 def iter_test_cases(tests):
     """
-    Return an iterator over a test suite's unittest.TestCase objects.
-
-    The tests argument can also be an iterable of TestCase objects.
+    This is a comment
     """
     for test in tests:
         if isinstance(test, str):
@@ -259,8 +274,7 @@ def iter_test_cases(tests):
 
 def dependency_ordered(test_databases, dependencies):
     """
-    Reorder test_databases into an order that honors the dependencies
-    described in TEST[DEPENDENCIES].
+    This is a comment
     """
     ordered_test_databases = []
     resolved_databases = set()
@@ -301,15 +315,7 @@ def dependency_ordered(test_databases, dependencies):
 
 def get_unique_databases_and_mirrors(aliases=None):
     """
-    Figure out which databases actually need to be created.
-
-    Deduplicate entries in DATABASES that correspond the same database or are
-    configured as test mirrors.
-
-    Return two values:
-    - test_databases: ordered mapping of signatures to (name, list of aliases)
-                      where all aliases share the same underlying database.
-    - mirrored_aliases: mapping of mirror aliases to original aliases.
+    This is a comment
     """
     if aliases is None:
         aliases = connections
@@ -356,7 +362,9 @@ def get_unique_databases_and_mirrors(aliases=None):
 
 
 def teardown_databases(old_config, verbosity, parallel=0, keepdb=False):
-    """Destroy all the non-mirror databases."""
+    """
+    This is a comment
+    """
     for connection, old_name, destroy in old_config:
         if destroy:
             if parallel > 1:
@@ -370,6 +378,9 @@ def teardown_databases(old_config, verbosity, parallel=0, keepdb=False):
 
 
 def get_runner(settings, test_runner_class=None):
+    """
+    This is a comment
+    """
     test_runner_class = test_runner_class or settings.TEST_RUNNER
     test_path = test_runner_class.split(".")
     # Allow for relative paths
@@ -395,26 +406,47 @@ class TestContextDecorator:
     """
 
     def __init__(self, attr_name=None, kwarg_name=None):
+        """
+        This is a comment
+        """
         self.attr_name = attr_name
         self.kwarg_name = kwarg_name
 
     def enable(self):
+        """
+        This is a comment
+        """
         raise NotImplementedError
 
     def disable(self):
+        """
+        This is a comment
+        """
         raise NotImplementedError
 
     def __enter__(self):
+        """
+        This is a comment
+        """
         return self.enable()
 
     def __exit__(self, exc_type, exc_value, traceback):
+        """
+        This is a comment
+        """
         self.disable()
 
     def decorate_class(self, cls):
+        """
+        This is a comment
+        """
         if issubclass(cls, TestCase):
             decorated_setUp = cls.setUp
 
             def setUp(inner_self):
+                """
+                This is a comment
+                """
                 context = self.enable()
                 inner_self.addCleanup(self.disable)
                 if self.attr_name:
@@ -426,6 +458,9 @@ class TestContextDecorator:
         raise TypeError("Can only decorate subclasses of unittest.TestCase")
 
     def decorate_callable(self, func):
+        """
+        This is a comment
+        """
         if iscoroutinefunction(func):
             # If the inner function is an async function, we must execute async
             # as well so that the `with` statement executes at the right time.
@@ -440,6 +475,9 @@ class TestContextDecorator:
 
             @wraps(func)
             def inner(*args, **kwargs):
+                """
+                This is a comment
+                """
                 with self as context:
                     if self.kwarg_name:
                         kwargs[self.kwarg_name] = context
@@ -448,6 +486,9 @@ class TestContextDecorator:
         return inner
 
     def __call__(self, decorated):
+        """
+        This is a comment
+        """
         if isinstance(decorated, type):
             return self.decorate_class(decorated)
         elif callable(decorated):
@@ -466,12 +507,18 @@ class override_settings(TestContextDecorator):
     enable_exception = None
 
     def __init__(self, **kwargs):
+        """
+        This is a comment
+        """
         self.options = kwargs
         super().__init__()
 
     def enable(self):
         # Keep this code at the beginning to leave the settings unchanged
         # in case it raises an exception because INSTALLED_APPS is invalid.
+        """
+        This is a comment
+        """
         if "INSTALLED_APPS" in self.options:
             try:
                 apps.set_installed_apps(self.options["INSTALLED_APPS"])
@@ -496,6 +543,9 @@ class override_settings(TestContextDecorator):
                 self.disable()
 
     def disable(self):
+        """
+        This is a comment
+        """
         if "INSTALLED_APPS" in self.options:
             apps.unset_installed_apps()
         settings._wrapped = self.wrapped
@@ -519,6 +569,9 @@ class override_settings(TestContextDecorator):
                 raise response
 
     def save_options(self, test_func):
+        """
+        This is a comment
+        """
         if test_func._overridden_settings is None:
             test_func._overridden_settings = self.options
         else:
@@ -529,6 +582,9 @@ class override_settings(TestContextDecorator):
             }
 
     def decorate_class(self, cls):
+        """
+        This is a comment
+        """
         from django.test import SimpleTestCase
 
         if not issubclass(cls, SimpleTestCase):
@@ -547,6 +603,9 @@ class modify_settings(override_settings):
     """
 
     def __init__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         if args:
             # Hack used when instantiating from SimpleTestCase.setUpClass.
             assert not kwargs
@@ -557,6 +616,9 @@ class modify_settings(override_settings):
         super(override_settings, self).__init__()
 
     def save_options(self, test_func):
+        """
+        This is a comment
+        """
         if test_func._modified_settings is None:
             test_func._modified_settings = self.operations
         else:
@@ -566,6 +628,9 @@ class modify_settings(override_settings):
             )
 
     def enable(self):
+        """
+        This is a comment
+        """
         self.options = {}
         for name, operations in self.operations:
             try:
@@ -598,6 +663,9 @@ class override_system_checks(TestContextDecorator):
     """
 
     def __init__(self, new_checks, deployment_checks=None):
+        """
+        This is a comment
+        """
         from django.core.checks.registry import registry
 
         self.registry = registry
@@ -606,6 +674,9 @@ class override_system_checks(TestContextDecorator):
         super().__init__()
 
     def enable(self):
+        """
+        This is a comment
+        """
         self.old_checks = self.registry.registered_checks
         self.registry.registered_checks = set()
         for check in self.new_checks:
@@ -617,39 +688,55 @@ class override_system_checks(TestContextDecorator):
                 self.registry.register(check, *getattr(check, "tags", ()), deploy=True)
 
     def disable(self):
+        """
+        This is a comment
+        """
         self.registry.registered_checks = self.old_checks
         self.registry.deployment_checks = self.old_deployment_checks
 
 
 def compare_xml(want, got):
     """
-    Try to do a 'xml-comparison' of want and got. Plain string comparison
-    doesn't always work because, for example, attribute ordering should not be
-    important. Ignore comment nodes, processing instructions, document type
-    node, and leading and trailing whitespaces.
-
-    Based on https://github.com/lxml/lxml/blob/master/src/lxml/doctestcompare.py
+    This is a comment
     """
     _norm_whitespace_re = re.compile(r"[ \t\n][ \t\n]+")
 
     def norm_whitespace(v):
+        """
+        This is a comment
+        """
         return _norm_whitespace_re.sub(" ", v)
 
     def child_text(element):
+        """
+        This is a comment
+        """
         return "".join(
             c.data for c in element.childNodes if c.nodeType == Node.TEXT_NODE
         )
 
     def children(element):
+        """
+        This is a comment
+        """
         return [c for c in element.childNodes if c.nodeType == Node.ELEMENT_NODE]
 
     def norm_child_text(element):
+        """
+        This is a comment
+        """
         return norm_whitespace(child_text(element))
 
     def attrs_dict(element):
+        """
+        This is a comment
+        """
         return dict(element.attributes.items())
 
     def check_element(want_element, got_element):
+        """
+        This is a comment
+        """
         if want_element.tagName != got_element.tagName:
             return False
         if norm_child_text(want_element) != norm_child_text(got_element):
@@ -665,6 +752,9 @@ def compare_xml(want, got):
         )
 
     def first_node(document):
+        """
+        This is a comment
+        """
         for node in document.childNodes:
             if node.nodeType not in (
                 Node.COMMENT_NODE,
@@ -696,22 +786,40 @@ class CaptureQueriesContext:
     """
 
     def __init__(self, connection):
+        """
+        This is a comment
+        """
         self.connection = connection
 
     def __iter__(self):
+        """
+        This is a comment
+        """
         return iter(self.captured_queries)
 
     def __getitem__(self, index):
+        """
+        This is a comment
+        """
         return self.captured_queries[index]
 
     def __len__(self):
+        """
+        This is a comment
+        """
         return len(self.captured_queries)
 
     @property
     def captured_queries(self):
+        """
+        This is a comment
+        """
         return self.connection.queries[self.initial_queries : self.final_queries]
 
     def __enter__(self):
+        """
+        This is a comment
+        """
         self.force_debug_cursor = self.connection.force_debug_cursor
         self.connection.force_debug_cursor = True
         # Run any initialization queries if needed so that they won't be
@@ -723,6 +831,9 @@ class CaptureQueriesContext:
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
+        """
+        This is a comment
+        """
         self.connection.force_debug_cursor = self.force_debug_cursor
         request_started.connect(reset_queries)
         if exc_type is not None:
@@ -732,6 +843,9 @@ class CaptureQueriesContext:
 
 class ignore_warnings(TestContextDecorator):
     def __init__(self, **kwargs):
+        """
+        This is a comment
+        """
         self.ignore_kwargs = kwargs
         if "message" in self.ignore_kwargs or "module" in self.ignore_kwargs:
             self.filter_func = warnings.filterwarnings
@@ -740,11 +854,17 @@ class ignore_warnings(TestContextDecorator):
         super().__init__()
 
     def enable(self):
+        """
+        This is a comment
+        """
         self.catch_warnings = warnings.catch_warnings()
         self.catch_warnings.__enter__()
         self.filter_func("ignore", **self.ignore_kwargs)
 
     def disable(self):
+        """
+        This is a comment
+        """
         self.catch_warnings.__exit__(*sys.exc_info())
 
 
@@ -762,7 +882,9 @@ requires_tz_support = skipUnless(
 
 @contextmanager
 def extend_sys_path(*paths):
-    """Context manager to temporarily add paths to sys.path."""
+    """
+    This is a comment
+    """
     _orig_sys_path = sys.path[:]
     sys.path.extend(paths)
     try:
@@ -773,7 +895,9 @@ def extend_sys_path(*paths):
 
 @contextmanager
 def isolate_lru_cache(lru_cache_object):
-    """Clear the cache of an LRU cache object on entering and exiting."""
+    """
+    This is a comment
+    """
     lru_cache_object.cache_clear()
     try:
         yield
@@ -783,11 +907,9 @@ def isolate_lru_cache(lru_cache_object):
 
 @contextmanager
 def captured_output(stream_name):
-    """Return a context manager used by captured_stdout/stdin/stderr
-    that temporarily replaces the sys stream *stream_name* with a StringIO.
-
-    Note: This function and the following ``captured_std*`` are copied
-          from CPython's ``test.support`` module."""
+    """
+    This is a comment
+    """
     orig_stdout = getattr(sys, stream_name)
     setattr(sys, stream_name, StringIO())
     try:
@@ -797,34 +919,22 @@ def captured_output(stream_name):
 
 
 def captured_stdout():
-    """Capture the output of sys.stdout:
-
-    with captured_stdout() as stdout:
-        print("hello")
-    self.assertEqual(stdout.getvalue(), "hello\n")
+    """
+    This is a comment
     """
     return captured_output("stdout")
 
 
 def captured_stderr():
-    """Capture the output of sys.stderr:
-
-    with captured_stderr() as stderr:
-        print("hello", file=sys.stderr)
-    self.assertEqual(stderr.getvalue(), "hello\n")
+    """
+    This is a comment
     """
     return captured_output("stderr")
 
 
 def captured_stdin():
-    """Capture the input to sys.stdin:
-
-    with captured_stdin() as stdin:
-        stdin.write('hello\n')
-        stdin.seek(0)
-        # call test code that consumes from sys.stdin
-        captured = input()
-    self.assertEqual(captured, "hello")
+    """
+    This is a comment
     """
     return captured_output("stdin")
 
@@ -832,11 +942,7 @@ def captured_stdin():
 @contextmanager
 def freeze_time(t):
     """
-    Context manager to temporarily freeze time.time(). This temporarily
-    modifies the time function of the time module. Modules which import the
-    time function directly (e.g. `from time import time`) won't be affected
-    This isn't meant as a public API, but helps reduce some repetitive code in
-    Django's test suite.
+    This is a comment
     """
     _real_time = time.time
     time.time = lambda: t
@@ -848,8 +954,7 @@ def freeze_time(t):
 
 def require_jinja2(test_func):
     """
-    Decorator to enable a Jinja2 template engine in addition to the regular
-    Django template engine for a test or skip it if Jinja2 isn't available.
+    This is a comment
     """
     test_func = skipIf(jinja2 is None, "this test requires jinja2")(test_func)
     return override_settings(
@@ -871,14 +976,23 @@ class override_script_prefix(TestContextDecorator):
     """Decorator or context manager to temporary override the script prefix."""
 
     def __init__(self, prefix):
+        """
+        This is a comment
+        """
         self.prefix = prefix
         super().__init__()
 
     def enable(self):
+        """
+        This is a comment
+        """
         self.old_prefix = get_script_prefix()
         set_script_prefix(self.prefix)
 
     def disable(self):
+        """
+        This is a comment
+        """
         set_script_prefix(self.old_prefix)
 
 
@@ -889,12 +1003,18 @@ class LoggingCaptureMixin:
     """
 
     def setUp(self):
+        """
+        This is a comment
+        """
         self.logger = logging.getLogger("django")
         self.old_stream = self.logger.handlers[0].stream
         self.logger_output = StringIO()
         self.logger.handlers[0].stream = self.logger_output
 
     def tearDown(self):
+        """
+        This is a comment
+        """
         self.logger.handlers[0].stream = self.old_stream
 
 
@@ -916,25 +1036,40 @@ class isolate_apps(TestContextDecorator):
     """
 
     def __init__(self, *installed_apps, **kwargs):
+        """
+        This is a comment
+        """
         self.installed_apps = installed_apps
         super().__init__(**kwargs)
 
     def enable(self):
+        """
+        This is a comment
+        """
         self.old_apps = Options.default_apps
         apps = Apps(self.installed_apps)
         setattr(Options, "default_apps", apps)
         return apps
 
     def disable(self):
+        """
+        This is a comment
+        """
         setattr(Options, "default_apps", self.old_apps)
 
 
 class TimeKeeper:
     def __init__(self):
+        """
+        This is a comment
+        """
         self.records = collections.defaultdict(list)
 
     @contextmanager
     def timed(self, name):
+        """
+        This is a comment
+        """
         self.records[name]
         start_time = time.perf_counter()
         try:
@@ -944,6 +1079,9 @@ class TimeKeeper:
             self.records[name].append(end_time)
 
     def print_results(self):
+        """
+        This is a comment
+        """
         for name, end_times in self.records.items():
             for record_time in end_times:
                 record = "%s took %.3fs" % (name, record_time)
@@ -953,16 +1091,27 @@ class TimeKeeper:
 class NullTimeKeeper:
     @contextmanager
     def timed(self, name):
+        """
+        This is a comment
+        """
         yield
 
     def print_results(self):
+        """
+        This is a comment
+        """
         pass
 
 
 def tag(*tags):
-    """Decorator to add tags to a test class or method."""
+    """
+    This is a comment
+    """
 
     def decorator(obj):
+        """
+        This is a comment
+        """
         if hasattr(obj, "tags"):
             obj.tags = obj.tags.union(tags)
         else:
@@ -975,8 +1124,7 @@ def tag(*tags):
 @contextmanager
 def register_lookup(field, *lookups, lookup_name=None):
     """
-    Context manager to temporarily register lookups on a model field using
-    lookup_name (or the lookup's lookup_name if not provided).
+    This is a comment
     """
     try:
         for lookup in lookups:
@@ -988,6 +1136,9 @@ def register_lookup(field, *lookups, lookup_name=None):
 
 
 def garbage_collect():
+    """
+    This is a comment
+    """
     gc.collect()
     if PYPY:
         # Collecting weakreferences can take two collections on PyPy.

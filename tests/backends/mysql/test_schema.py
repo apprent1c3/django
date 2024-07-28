@@ -7,6 +7,9 @@ from django.test import TestCase
 @unittest.skipUnless(connection.vendor == "mysql", "MySQL tests")
 class SchemaEditorTests(TestCase):
     def test_quote_value(self):
+        """
+        This is a comment
+        """
         import MySQLdb
 
         editor = connection.schema_editor()

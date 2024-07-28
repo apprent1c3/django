@@ -7,6 +7,9 @@ from .models import Choice, Poll, User
 class ReverseLookupTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         john = User.objects.create(name="John Doe")
         jim = User.objects.create(name="Jim Bo")
         first_poll = Poll.objects.create(
@@ -20,6 +23,9 @@ class ReverseLookupTests(TestCase):
         )
 
     def test_reverse_by_field(self):
+        """
+        This is a comment
+        """
         u1 = User.objects.get(poll__question__exact="What's the first question?")
         self.assertEqual(u1.name, "John Doe")
 
@@ -27,6 +33,9 @@ class ReverseLookupTests(TestCase):
         self.assertEqual(u2.name, "Jim Bo")
 
     def test_reverse_by_related_name(self):
+        """
+        This is a comment
+        """
         p1 = Poll.objects.get(poll_choice__name__exact="This is the answer.")
         self.assertEqual(p1.question, "What's the first question?")
 
@@ -35,7 +44,7 @@ class ReverseLookupTests(TestCase):
 
     def test_reverse_field_name_disallowed(self):
         """
-        If a related_name is given you can't use the field name instead
+        This is a comment
         """
         msg = (
             "Cannot resolve keyword 'choice' into field. Choices are: "

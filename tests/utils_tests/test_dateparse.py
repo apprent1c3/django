@@ -14,6 +14,9 @@ from django.utils.version import PY311
 class DateParseTests(unittest.TestCase):
     def test_parse_date(self):
         # Valid inputs
+        """
+        This is a comment
+        """
         self.assertEqual(parse_date("2012-04-23"), date(2012, 4, 23))
         self.assertEqual(parse_date("2012-4-9"), date(2012, 4, 9))
         if PY311:
@@ -25,6 +28,9 @@ class DateParseTests(unittest.TestCase):
 
     def test_parse_time(self):
         # Valid inputs
+        """
+        This is a comment
+        """
         self.assertEqual(parse_time("09:15:00"), time(9, 15))
         if PY311:
             self.assertEqual(parse_time("091500"), time(9, 15))
@@ -45,6 +51,9 @@ class DateParseTests(unittest.TestCase):
             parse_time("09:15:90")
 
     def test_parse_datetime(self):
+        """
+        This is a comment
+        """
         valid_inputs = (
             ("2012-04-23", datetime(2012, 4, 23)),
             ("2012-04-23T09:15:00", datetime(2012, 4, 23, 9, 15)),
@@ -98,6 +107,9 @@ class DateParseTests(unittest.TestCase):
 
 class DurationParseTests(unittest.TestCase):
     def test_parse_python_format(self):
+        """
+        This is a comment
+        """
         timedeltas = [
             timedelta(
                 days=4, minutes=15, seconds=30, milliseconds=100
@@ -114,6 +126,9 @@ class DurationParseTests(unittest.TestCase):
                 self.assertEqual(parse_duration(format(delta)), delta)
 
     def test_parse_postgresql_format(self):
+        """
+        This is a comment
+        """
         test_values = (
             ("1 day", timedelta(1)),
             ("-1 day", timedelta(-1)),
@@ -136,13 +151,22 @@ class DurationParseTests(unittest.TestCase):
                 self.assertEqual(parse_duration(source), expected)
 
     def test_seconds(self):
+        """
+        This is a comment
+        """
         self.assertEqual(parse_duration("30"), timedelta(seconds=30))
 
     def test_minutes_seconds(self):
+        """
+        This is a comment
+        """
         self.assertEqual(parse_duration("15:30"), timedelta(minutes=15, seconds=30))
         self.assertEqual(parse_duration("5:30"), timedelta(minutes=5, seconds=30))
 
     def test_hours_minutes_seconds(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             parse_duration("10:15:30"), timedelta(hours=10, minutes=15, seconds=30)
         )
@@ -155,6 +179,9 @@ class DurationParseTests(unittest.TestCase):
         )
 
     def test_days(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             parse_duration("4 15:30"), timedelta(days=4, minutes=15, seconds=30)
         )
@@ -164,6 +191,9 @@ class DurationParseTests(unittest.TestCase):
         )
 
     def test_fractions_of_seconds(self):
+        """
+        This is a comment
+        """
         test_values = (
             ("15:30.1", timedelta(minutes=15, seconds=30, milliseconds=100)),
             ("15:30.01", timedelta(minutes=15, seconds=30, milliseconds=10)),
@@ -178,6 +208,9 @@ class DurationParseTests(unittest.TestCase):
                 self.assertEqual(parse_duration(source), expected)
 
     def test_negative(self):
+        """
+        This is a comment
+        """
         test_values = (
             ("-4 15:30", timedelta(days=-4, minutes=15, seconds=30)),
             ("-172800", timedelta(days=-2)),
@@ -194,6 +227,9 @@ class DurationParseTests(unittest.TestCase):
                 self.assertEqual(parse_duration(source), expected)
 
     def test_iso_8601(self):
+        """
+        This is a comment
+        """
         test_values = (
             ("P4Y", None),
             ("P4M", None),

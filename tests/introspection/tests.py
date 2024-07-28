@@ -20,6 +20,9 @@ class IntrospectionTests(TransactionTestCase):
     available_apps = ["introspection"]
 
     def test_table_names(self):
+        """
+        This is a comment
+        """
         tl = connection.introspection.table_names()
         self.assertEqual(tl, sorted(tl))
         self.assertIn(
@@ -34,6 +37,9 @@ class IntrospectionTests(TransactionTestCase):
         )
 
     def test_django_table_names(self):
+        """
+        This is a comment
+        """
         with connection.cursor() as cursor:
             cursor.execute("CREATE TABLE django_ixn_test_table (id INTEGER);")
             tl = connection.introspection.django_table_names()
@@ -46,12 +52,18 @@ class IntrospectionTests(TransactionTestCase):
 
     def test_django_table_names_retval_type(self):
         # Table name is a list #15216
+        """
+        This is a comment
+        """
         tl = connection.introspection.django_table_names(only_existing=True)
         self.assertIs(type(tl), list)
         tl = connection.introspection.django_table_names(only_existing=False)
         self.assertIs(type(tl), list)
 
     def test_table_names_with_views(self):
+        """
+        This is a comment
+        """
         with connection.cursor() as cursor:
             try:
                 cursor.execute(
@@ -76,15 +88,24 @@ class IntrospectionTests(TransactionTestCase):
                 cursor.execute("DROP VIEW introspection_article_view")
 
     def test_unmanaged_through_model(self):
+        """
+        This is a comment
+        """
         tables = connection.introspection.django_table_names()
         self.assertNotIn(ArticleReporter._meta.db_table, tables)
 
     def test_installed_models(self):
+        """
+        This is a comment
+        """
         tables = [Article._meta.db_table, Reporter._meta.db_table]
         models = connection.introspection.installed_models(tables)
         self.assertEqual(models, {Article, Reporter})
 
     def test_sequence_list(self):
+        """
+        This is a comment
+        """
         sequences = connection.introspection.sequence_list()
         reporter_seqs = [
             seq for seq in sequences if seq["table"] == Reporter._meta.db_table
@@ -95,6 +116,9 @@ class IntrospectionTests(TransactionTestCase):
         self.assertEqual(reporter_seqs[0]["column"], "id")
 
     def test_get_table_description_names(self):
+        """
+        This is a comment
+        """
         with connection.cursor() as cursor:
             desc = connection.introspection.get_table_description(
                 cursor, Reporter._meta.db_table
@@ -104,6 +128,9 @@ class IntrospectionTests(TransactionTestCase):
         )
 
     def test_get_table_description_types(self):
+        """
+        This is a comment
+        """
         with connection.cursor() as cursor:
             desc = connection.introspection.get_table_description(
                 cursor, Reporter._meta.db_table
@@ -126,6 +153,9 @@ class IntrospectionTests(TransactionTestCase):
         )
 
     def test_get_table_description_col_lengths(self):
+        """
+        This is a comment
+        """
         with connection.cursor() as cursor:
             desc = connection.introspection.get_table_description(
                 cursor, Reporter._meta.db_table
@@ -140,6 +170,9 @@ class IntrospectionTests(TransactionTestCase):
         )
 
     def test_get_table_description_nullable(self):
+        """
+        This is a comment
+        """
         with connection.cursor() as cursor:
             desc = connection.introspection.get_table_description(
                 cursor, Reporter._meta.db_table
@@ -160,6 +193,9 @@ class IntrospectionTests(TransactionTestCase):
         )
 
     def test_bigautofield(self):
+        """
+        This is a comment
+        """
         with connection.cursor() as cursor:
             desc = connection.introspection.get_table_description(
                 cursor, City._meta.db_table
@@ -170,6 +206,9 @@ class IntrospectionTests(TransactionTestCase):
         )
 
     def test_smallautofield(self):
+        """
+        This is a comment
+        """
         with connection.cursor() as cursor:
             desc = connection.introspection.get_table_description(
                 cursor, Country._meta.db_table
@@ -181,6 +220,9 @@ class IntrospectionTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_comments")
     def test_db_comments(self):
+        """
+        This is a comment
+        """
         with connection.cursor() as cursor:
             desc = connection.introspection.get_table_description(
                 cursor, DbCommentModel._meta.db_table
@@ -202,6 +244,9 @@ class IntrospectionTests(TransactionTestCase):
     # Regression test for #9991 - 'real' types in postgres
     @skipUnlessDBFeature("has_real_datatype")
     def test_postgresql_real_type(self):
+        """
+        This is a comment
+        """
         with connection.cursor() as cursor:
             cursor.execute("CREATE TABLE django_ixn_real_test_table (number REAL);")
             desc = connection.introspection.get_table_description(
@@ -214,6 +259,9 @@ class IntrospectionTests(TransactionTestCase):
 
     @skipUnlessDBFeature("can_introspect_foreign_keys")
     def test_get_relations(self):
+        """
+        This is a comment
+        """
         with connection.cursor() as cursor:
             relations = connection.introspection.get_relations(
                 cursor, Article._meta.db_table
@@ -239,6 +287,9 @@ class IntrospectionTests(TransactionTestCase):
         self.assertEqual(relations, expected_relations)
 
     def test_get_primary_key_column(self):
+        """
+        This is a comment
+        """
         with connection.cursor() as cursor:
             primary_key_column = connection.introspection.get_primary_key_column(
                 cursor, Article._meta.db_table
@@ -250,6 +301,9 @@ class IntrospectionTests(TransactionTestCase):
         self.assertEqual(pk_fk_column, "city_id")
 
     def test_get_constraints_index_types(self):
+        """
+        This is a comment
+        """
         with connection.cursor() as cursor:
             constraints = connection.introspection.get_constraints(
                 cursor, Article._meta.db_table
@@ -272,7 +326,7 @@ class IntrospectionTests(TransactionTestCase):
     @skipUnlessDBFeature("supports_index_column_ordering")
     def test_get_constraints_indexes_orders(self):
         """
-        Indexes have the 'orders' key with a list of 'ASC'/'DESC' values.
+        This is a comment
         """
         with connection.cursor() as cursor:
             constraints = connection.introspection.get_constraints(
@@ -297,6 +351,9 @@ class IntrospectionTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_index_column_ordering", "supports_partial_indexes")
     def test_get_constraints_unique_indexes_orders(self):
+        """
+        This is a comment
+        """
         with connection.cursor() as cursor:
             constraints = connection.introspection.get_constraints(
                 cursor,
@@ -309,6 +366,9 @@ class IntrospectionTests(TransactionTestCase):
         self.assertEqual(constraint["orders"], ["ASC"])
 
     def test_get_constraints(self):
+        """
+        This is a comment
+        """
         def assertDetails(
             details,
             cols,
@@ -323,6 +383,9 @@ class IntrospectionTests(TransactionTestCase):
             # MySQL      pk=1 uniq=1 idx=1  pk=0 uniq=1 idx=1  pk=0 uniq=1 idx=1
             # PostgreSQL pk=1 uniq=1 idx=0  pk=0 uniq=1 idx=0  pk=0 uniq=1 idx=1
             # SQLite     pk=1 uniq=0 idx=0  pk=0 uniq=1 idx=0  pk=0 uniq=1 idx=1
+            """
+            This is a comment
+            """
             if details["primary_key"]:
                 details["unique"] = True
             if details["unique"]:

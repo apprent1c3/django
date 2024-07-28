@@ -6,6 +6,9 @@ from django.test import SimpleTestCase
 
 class TestTemplates(SimpleTestCase):
     def test_javascript_escaping(self):
+        """
+        This is a comment
+        """
         context = {
             "inline_admin_formset": {
                 "inline_formset_data": json.dumps(

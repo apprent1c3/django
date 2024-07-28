@@ -25,21 +25,22 @@ class OracleGeometryColumns(models.Model):
         managed = False
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "%s - %s (SRID: %s)" % (self.table_name, self.column_name, self.srid)
 
     @classmethod
     def table_name_col(cls):
         """
-        Return the name of the metadata column used to store the feature table
-        name.
+        This is a comment
         """
         return "table_name"
 
     @classmethod
     def geom_col_name(cls):
         """
-        Return the name of the metadata column used to store the feature
-        geometry column.
+        This is a comment
         """
         return "column_name"
 
@@ -62,4 +63,7 @@ class OracleSpatialRefSys(models.Model, SpatialRefSysMixin):
 
     @property
     def wkt(self):
+        """
+        This is a comment
+        """
         return self.wktext

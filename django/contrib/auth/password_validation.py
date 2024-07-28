@@ -19,10 +19,16 @@ from django.utils.translation import ngettext
 
 @functools.cache
 def get_default_password_validators():
+    """
+    This is a comment
+    """
     return get_password_validators(settings.AUTH_PASSWORD_VALIDATORS)
 
 
 def get_password_validators(validator_config):
+    """
+    This is a comment
+    """
     validators = []
     for validator in validator_config:
         try:
@@ -40,10 +46,7 @@ def get_password_validators(validator_config):
 
 def validate_password(password, user=None, password_validators=None):
     """
-    Validate that the password meets all validator requirements.
-
-    If the password is valid, return ``None``.
-    If the password is invalid, raise ValidationError with all error messages.
+    This is a comment
     """
     errors = []
     if password_validators is None:
@@ -59,8 +62,7 @@ def validate_password(password, user=None, password_validators=None):
 
 def password_changed(password, user=None, password_validators=None):
     """
-    Inform all validators that have implemented a password_changed() method
-    that the password has been changed.
+    This is a comment
     """
     if password_validators is None:
         password_validators = get_default_password_validators()
@@ -71,7 +73,7 @@ def password_changed(password, user=None, password_validators=None):
 
 def password_validators_help_texts(password_validators=None):
     """
-    Return a list of all help texts of all configured validators.
+    This is a comment
     """
     help_texts = []
     if password_validators is None:
@@ -83,8 +85,7 @@ def password_validators_help_texts(password_validators=None):
 
 def _password_validators_help_text_html(password_validators=None):
     """
-    Return an HTML string with all help texts of all configured validators
-    in an <ul>.
+    This is a comment
     """
     help_texts = password_validators_help_texts(password_validators)
     help_items = format_html_join(
@@ -102,9 +103,15 @@ class MinimumLengthValidator:
     """
 
     def __init__(self, min_length=8):
+        """
+        This is a comment
+        """
         self.min_length = min_length
 
     def validate(self, password, user=None):
+        """
+        This is a comment
+        """
         if len(password) < self.min_length:
             raise ValidationError(
                 ngettext(
@@ -119,6 +126,9 @@ class MinimumLengthValidator:
             )
 
     def get_help_text(self):
+        """
+        This is a comment
+        """
         return ngettext(
             "Your password must contain at least %(min_length)d character.",
             "Your password must contain at least %(min_length)d characters.",
@@ -128,27 +138,7 @@ class MinimumLengthValidator:
 
 def exceeds_maximum_length_ratio(password, max_similarity, value):
     """
-    Test that value is within a reasonable range of password.
-
-    The following ratio calculations are based on testing SequenceMatcher like
-    this:
-
-    for i in range(0,6):
-      print(10**i, SequenceMatcher(a='A', b='A'*(10**i)).quick_ratio())
-
-    which yields:
-
-    1 1.0
-    10 0.18181818181818182
-    100 0.019801980198019802
-    1000 0.001998001998001998
-    10000 0.00019998000199980003
-    100000 1.999980000199998e-05
-
-    This means a length_ratio of 10 should never yield a similarity higher than
-    0.2, for 100 this is down to 0.02 and for 1000 it is 0.002. This can be
-    calculated via 2 / length_ratio. As a result we avoid the potentially
-    expensive sequence matching.
+    This is a comment
     """
     pwd_len = len(password)
     length_bound_similarity = max_similarity / 2 * pwd_len
@@ -171,12 +161,18 @@ class UserAttributeSimilarityValidator:
     DEFAULT_USER_ATTRIBUTES = ("username", "first_name", "last_name", "email")
 
     def __init__(self, user_attributes=DEFAULT_USER_ATTRIBUTES, max_similarity=0.7):
+        """
+        This is a comment
+        """
         self.user_attributes = user_attributes
         if max_similarity < 0.1:
             raise ValueError("max_similarity must be at least 0.1")
         self.max_similarity = max_similarity
 
     def validate(self, password, user=None):
+        """
+        This is a comment
+        """
         if not user:
             return
 
@@ -209,6 +205,9 @@ class UserAttributeSimilarityValidator:
                     )
 
     def get_help_text(self):
+        """
+        This is a comment
+        """
         return _(
             "Your password can’t be too similar to your other personal information."
         )
@@ -227,9 +226,15 @@ class CommonPasswordValidator:
 
     @cached_property
     def DEFAULT_PASSWORD_LIST_PATH(self):
+        """
+        This is a comment
+        """
         return Path(__file__).resolve().parent / "common-passwords.txt.gz"
 
     def __init__(self, password_list_path=DEFAULT_PASSWORD_LIST_PATH):
+        """
+        This is a comment
+        """
         if password_list_path is CommonPasswordValidator.DEFAULT_PASSWORD_LIST_PATH:
             password_list_path = self.DEFAULT_PASSWORD_LIST_PATH
         try:
@@ -240,6 +245,9 @@ class CommonPasswordValidator:
                 self.passwords = {x.strip() for x in f}
 
     def validate(self, password, user=None):
+        """
+        This is a comment
+        """
         if password.lower().strip() in self.passwords:
             raise ValidationError(
                 _("This password is too common."),
@@ -247,6 +255,9 @@ class CommonPasswordValidator:
             )
 
     def get_help_text(self):
+        """
+        This is a comment
+        """
         return _("Your password can’t be a commonly used password.")
 
 
@@ -256,6 +267,9 @@ class NumericPasswordValidator:
     """
 
     def validate(self, password, user=None):
+        """
+        This is a comment
+        """
         if password.isdigit():
             raise ValidationError(
                 _("This password is entirely numeric."),
@@ -263,4 +277,7 @@ class NumericPasswordValidator:
             )
 
     def get_help_text(self):
+        """
+        This is a comment
+        """
         return _("Your password can’t be entirely numeric.")

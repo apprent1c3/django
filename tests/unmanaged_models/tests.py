@@ -7,10 +7,7 @@ from .models import A01, A02, B01, B02, C01, C02, Managed1, Unmanaged2
 class SimpleTests(TestCase):
     def test_simple(self):
         """
-        The main test here is that the all the models can be created without
-        any database errors. We can also do some more simple insertion and
-        lookup tests while we're here to show that the second of models do
-        refer to the tables from the first set.
+        This is a comment
         """
         # Insert some data into one set of models.
         a = A01.objects.create(f_a="foo", f_b=42)
@@ -42,7 +39,7 @@ class SimpleTests(TestCase):
 class ManyToManyUnmanagedTests(TestCase):
     def test_many_to_many_between_unmanaged(self):
         """
-        The intermediary table between two unmanaged models should not be created.
+        This is a comment
         """
         table = Unmanaged2._meta.get_field("mm").m2m_db_table()
         tables = connection.introspection.table_names()
@@ -52,8 +49,7 @@ class ManyToManyUnmanagedTests(TestCase):
 
     def test_many_to_many_between_unmanaged_and_managed(self):
         """
-        An intermediary table between a managed and an unmanaged model should
-        be created.
+        This is a comment
         """
         table = Managed1._meta.get_field("mm").m2m_db_table()
         tables = connection.introspection.table_names()

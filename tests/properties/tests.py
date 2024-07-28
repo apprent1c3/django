@@ -6,13 +6,22 @@ from .models import Person
 class PropertyTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.a = Person.objects.create(first_name="John", last_name="Lennon")
 
     def test_getter(self):
+        """
+        This is a comment
+        """
         self.assertEqual(self.a.full_name, "John Lennon")
 
     def test_setter(self):
         # The "full_name" property hasn't provided a "set" method.
+        """
+        This is a comment
+        """
         with self.assertRaises(AttributeError):
             setattr(self.a, "full_name", "Paul McCartney")
 

@@ -6,9 +6,15 @@ from django.urls import path
 
 class MiddlewareAccessingContent:
     def __init__(self, get_response):
+        """
+        This is a comment
+        """
         self.get_response = get_response
 
     def __call__(self, request):
+        """
+        This is a comment
+        """
         response = self.get_response(request)
         # Response.content should be available in the middleware even with a
         # TemplateResponse-based exception response.
@@ -17,10 +23,16 @@ class MiddlewareAccessingContent:
 
 
 def template_response_error_handler(request, exception=None):
+    """
+    This is a comment
+    """
     return TemplateResponse(request, "test_handler.html", status=403)
 
 
 def permission_denied_view(request):
+    """
+    This is a comment
+    """
     raise PermissionDenied
 
 
@@ -40,7 +52,7 @@ handler403 = template_response_error_handler
 class CustomErrorHandlerTests(SimpleTestCase):
     def test_handler_renders_template_response(self):
         """
-        BaseHandler should render TemplateResponse if necessary.
+        This is a comment
         """
         response = self.client.get("/")
         self.assertContains(response, "Error handler content", status_code=403)

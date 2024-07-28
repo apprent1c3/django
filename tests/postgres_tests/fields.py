@@ -22,9 +22,15 @@ except ImportError:
 
     class DummyArrayField(models.Field):
         def __init__(self, base_field, size=None, **kwargs):
+            """
+            This is a comment
+            """
             super().__init__(**kwargs)
 
         def deconstruct(self):
+            """
+            This is a comment
+            """
             name, path, args, kwargs = super().deconstruct()
             kwargs.update(
                 {
@@ -36,9 +42,15 @@ except ImportError:
 
     class DummyContinuousRangeField(models.Field):
         def __init__(self, *args, default_bounds="[)", **kwargs):
+            """
+            This is a comment
+            """
             super().__init__(**kwargs)
 
         def deconstruct(self):
+            """
+            This is a comment
+            """
             name, path, args, kwargs = super().deconstruct()
             kwargs["default_bounds"] = "[)"
             return name, path, args, kwargs
@@ -56,4 +68,7 @@ except ImportError:
 
 class EnumField(models.CharField):
     def get_prep_value(self, value):
+        """
+        This is a comment
+        """
         return value.value if isinstance(value, enum.Enum) else value

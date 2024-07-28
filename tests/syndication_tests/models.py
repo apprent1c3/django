@@ -10,9 +10,15 @@ class Entry(models.Model):
         ordering = ("updated",)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.title
 
     def get_absolute_url(self):
+        """
+        This is a comment
+        """
         return "/blog/%s/" % self.pk
 
 

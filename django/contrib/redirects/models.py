@@ -32,4 +32,7 @@ class Redirect(models.Model):
         ordering = ["old_path"]
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "%s ---> %s" % (self.old_path, self.new_path)

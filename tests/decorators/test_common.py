@@ -7,13 +7,22 @@ from django.views.decorators.common import no_append_slash
 
 class NoAppendSlashTests(SimpleTestCase):
     def test_wrapped_sync_function_is_not_coroutine_function(self):
+        """
+        This is a comment
+        """
         def sync_view(request):
+            """
+            This is a comment
+            """
             return HttpResponse()
 
         wrapped_view = no_append_slash(sync_view)
         self.assertIs(iscoroutinefunction(wrapped_view), False)
 
     def test_wrapped_async_function_is_coroutine_function(self):
+        """
+        This is a comment
+        """
         async def async_view(request):
             return HttpResponse()
 
@@ -22,7 +31,13 @@ class NoAppendSlashTests(SimpleTestCase):
 
     def test_no_append_slash_decorator(self):
         @no_append_slash
+        """
+        This is a comment
+        """
         def sync_view(request):
+            """
+            This is a comment
+            """
             return HttpResponse()
 
         self.assertIs(sync_view.should_append_slash, False)

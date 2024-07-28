@@ -24,6 +24,9 @@ class CheckTestCase(SimpleTestCase):
         invalid_obj=None,
         admin_site=None,
     ):
+        """
+        This is a comment
+        """
         if admin_site is None:
             admin_site = AdminSite()
         invalid_obj = invalid_obj or model_admin
@@ -36,7 +39,7 @@ class CheckTestCase(SimpleTestCase):
         self, model_admin, model, msg, id=None, hint=None, invalid_obj=None
     ):
         """
-        Same as assertIsInvalid but treats the given msg as a regexp.
+        This is a comment
         """
         invalid_obj = invalid_obj or model_admin
         admin_obj = model_admin(model, AdminSite())
@@ -49,6 +52,9 @@ class CheckTestCase(SimpleTestCase):
         self.assertRegex(error.msg, msg)
 
     def assertIsValid(self, model_admin, model, admin_site=None):
+        """
+        This is a comment
+        """
         if admin_site is None:
             admin_site = AdminSite()
         admin_obj = model_admin(model, admin_site)
@@ -57,6 +63,9 @@ class CheckTestCase(SimpleTestCase):
 
 class RawIdCheckTests(CheckTestCase):
     def test_not_iterable(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             raw_id_fields = 10
 
@@ -68,6 +77,9 @@ class RawIdCheckTests(CheckTestCase):
         )
 
     def test_missing_field(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             raw_id_fields = ["non_existent_field"]
 
@@ -80,6 +92,9 @@ class RawIdCheckTests(CheckTestCase):
         )
 
     def test_invalid_field_type(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             raw_id_fields = ("name",)
 
@@ -92,12 +107,18 @@ class RawIdCheckTests(CheckTestCase):
         )
 
     def test_valid_case(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             raw_id_fields = ("users",)
 
         self.assertIsValid(TestModelAdmin, ValidationTestModel)
 
     def test_field_attname(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             raw_id_fields = ["band_id"]
 
@@ -112,12 +133,18 @@ class RawIdCheckTests(CheckTestCase):
 
 class FieldsetsCheckTests(CheckTestCase):
     def test_valid_case(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             fieldsets = (("General", {"fields": ("name",)}),)
 
         self.assertIsValid(TestModelAdmin, ValidationTestModel)
 
     def test_not_iterable(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             fieldsets = 10
 
@@ -129,6 +156,9 @@ class FieldsetsCheckTests(CheckTestCase):
         )
 
     def test_non_iterable_item(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             fieldsets = ({},)
 
@@ -140,6 +170,9 @@ class FieldsetsCheckTests(CheckTestCase):
         )
 
     def test_item_not_a_pair(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             fieldsets = ((),)
 
@@ -151,6 +184,9 @@ class FieldsetsCheckTests(CheckTestCase):
         )
 
     def test_second_element_of_item_not_a_dict(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             fieldsets = (("General", ()),)
 
@@ -162,6 +198,9 @@ class FieldsetsCheckTests(CheckTestCase):
         )
 
     def test_missing_fields_key(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             fieldsets = (("General", {}),)
 
@@ -178,6 +217,9 @@ class FieldsetsCheckTests(CheckTestCase):
         self.assertIsValid(TestModelAdmin, ValidationTestModel)
 
     def test_specified_both_fields_and_fieldsets(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             fieldsets = (("General", {"fields": ("name",)}),)
             fields = ["name"]
@@ -190,6 +232,9 @@ class FieldsetsCheckTests(CheckTestCase):
         )
 
     def test_duplicate_fields(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             fieldsets = [(None, {"fields": ["name", "name"]})]
 
@@ -201,6 +246,9 @@ class FieldsetsCheckTests(CheckTestCase):
         )
 
     def test_duplicate_fields_in_fieldsets(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             fieldsets = [
                 (None, {"fields": ["name"]}),
@@ -215,6 +263,9 @@ class FieldsetsCheckTests(CheckTestCase):
         )
 
     def test_fieldsets_with_custom_form_validation(self):
+        """
+        This is a comment
+        """
         class BandAdmin(ModelAdmin):
             fieldsets = (("Band", {"fields": ("name",)}),)
 
@@ -223,6 +274,9 @@ class FieldsetsCheckTests(CheckTestCase):
 
 class FieldsCheckTests(CheckTestCase):
     def test_duplicate_fields_in_fields(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             fields = ["name", "name"]
 
@@ -234,6 +288,9 @@ class FieldsCheckTests(CheckTestCase):
         )
 
     def test_inline(self):
+        """
+        This is a comment
+        """
         class ValidationTestInline(TabularInline):
             model = ValidationTestInlineModel
             fields = 10
@@ -252,6 +309,9 @@ class FieldsCheckTests(CheckTestCase):
 
 class FormCheckTests(CheckTestCase):
     def test_invalid_type(self):
+        """
+        This is a comment
+        """
         class FakeForm:
             pass
 
@@ -271,12 +331,18 @@ class FormCheckTests(CheckTestCase):
                 )
 
     def test_fieldsets_with_custom_form_validation(self):
+        """
+        This is a comment
+        """
         class BandAdmin(ModelAdmin):
             fieldsets = (("Band", {"fields": ("name",)}),)
 
         self.assertIsValid(BandAdmin, Band)
 
     def test_valid_case(self):
+        """
+        This is a comment
+        """
         class AdminBandForm(forms.ModelForm):
             delete = forms.BooleanField()
 
@@ -289,6 +355,9 @@ class FormCheckTests(CheckTestCase):
 
 class FilterVerticalCheckTests(CheckTestCase):
     def test_not_iterable(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             filter_vertical = 10
 
@@ -300,6 +369,9 @@ class FilterVerticalCheckTests(CheckTestCase):
         )
 
     def test_missing_field(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             filter_vertical = ("non_existent_field",)
 
@@ -312,6 +384,9 @@ class FilterVerticalCheckTests(CheckTestCase):
         )
 
     def test_invalid_field_type(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             filter_vertical = ("name",)
 
@@ -324,6 +399,9 @@ class FilterVerticalCheckTests(CheckTestCase):
 
     @isolate_apps("modeladmin")
     def test_invalid_reverse_m2m_field_with_related_name(self):
+        """
+        This is a comment
+        """
         class Contact(Model):
             pass
 
@@ -342,6 +420,9 @@ class FilterVerticalCheckTests(CheckTestCase):
 
     @isolate_apps("modeladmin")
     def test_invalid_m2m_field_with_through(self):
+        """
+        This is a comment
+        """
         class Artist(Model):
             bands = ManyToManyField("Band", through="BandArtist")
 
@@ -361,6 +442,9 @@ class FilterVerticalCheckTests(CheckTestCase):
         )
 
     def test_valid_case(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             filter_vertical = ("users",)
 
@@ -369,6 +453,9 @@ class FilterVerticalCheckTests(CheckTestCase):
 
 class FilterHorizontalCheckTests(CheckTestCase):
     def test_not_iterable(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             filter_horizontal = 10
 
@@ -380,6 +467,9 @@ class FilterHorizontalCheckTests(CheckTestCase):
         )
 
     def test_missing_field(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             filter_horizontal = ("non_existent_field",)
 
@@ -392,6 +482,9 @@ class FilterHorizontalCheckTests(CheckTestCase):
         )
 
     def test_invalid_field_type(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             filter_horizontal = ("name",)
 
@@ -404,6 +497,9 @@ class FilterHorizontalCheckTests(CheckTestCase):
 
     @isolate_apps("modeladmin")
     def test_invalid_reverse_m2m_field_with_related_name(self):
+        """
+        This is a comment
+        """
         class Contact(Model):
             pass
 
@@ -422,6 +518,9 @@ class FilterHorizontalCheckTests(CheckTestCase):
 
     @isolate_apps("modeladmin")
     def test_invalid_m2m_field_with_through(self):
+        """
+        This is a comment
+        """
         class Artist(Model):
             bands = ManyToManyField("Band", through="BandArtist")
 
@@ -441,6 +540,9 @@ class FilterHorizontalCheckTests(CheckTestCase):
         )
 
     def test_valid_case(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             filter_horizontal = ("users",)
 
@@ -449,6 +551,9 @@ class FilterHorizontalCheckTests(CheckTestCase):
 
 class RadioFieldsCheckTests(CheckTestCase):
     def test_not_dictionary(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             radio_fields = ()
 
@@ -460,6 +565,9 @@ class RadioFieldsCheckTests(CheckTestCase):
         )
 
     def test_missing_field(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             radio_fields = {"non_existent_field": VERTICAL}
 
@@ -472,6 +580,9 @@ class RadioFieldsCheckTests(CheckTestCase):
         )
 
     def test_invalid_field_type(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             radio_fields = {"name": VERTICAL}
 
@@ -484,6 +595,9 @@ class RadioFieldsCheckTests(CheckTestCase):
         )
 
     def test_invalid_value(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             radio_fields = {"state": None}
 
@@ -496,6 +610,9 @@ class RadioFieldsCheckTests(CheckTestCase):
         )
 
     def test_valid_case(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             radio_fields = {"state": VERTICAL}
 
@@ -504,6 +621,9 @@ class RadioFieldsCheckTests(CheckTestCase):
 
 class PrepopulatedFieldsCheckTests(CheckTestCase):
     def test_not_list_or_tuple(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             prepopulated_fields = {"slug": "test"}
 
@@ -515,6 +635,9 @@ class PrepopulatedFieldsCheckTests(CheckTestCase):
         )
 
     def test_not_dictionary(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             prepopulated_fields = ()
 
@@ -526,6 +649,9 @@ class PrepopulatedFieldsCheckTests(CheckTestCase):
         )
 
     def test_missing_field(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             prepopulated_fields = {"non_existent_field": ("slug",)}
 
@@ -538,6 +664,9 @@ class PrepopulatedFieldsCheckTests(CheckTestCase):
         )
 
     def test_missing_field_again(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             prepopulated_fields = {"slug": ("non_existent_field",)}
 
@@ -551,6 +680,9 @@ class PrepopulatedFieldsCheckTests(CheckTestCase):
         )
 
     def test_invalid_field_type(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             prepopulated_fields = {"users": ("name",)}
 
@@ -563,12 +695,18 @@ class PrepopulatedFieldsCheckTests(CheckTestCase):
         )
 
     def test_valid_case(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             prepopulated_fields = {"slug": ("name",)}
 
         self.assertIsValid(TestModelAdmin, ValidationTestModel)
 
     def test_one_to_one_field(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             prepopulated_fields = {"best_friend": ("name",)}
 
@@ -584,6 +722,9 @@ class PrepopulatedFieldsCheckTests(CheckTestCase):
 
 class ListDisplayTests(CheckTestCase):
     def test_not_iterable(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             list_display = 10
 
@@ -595,6 +736,9 @@ class ListDisplayTests(CheckTestCase):
         )
 
     def test_missing_field(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             list_display = ("non_existent_field",)
 
@@ -608,6 +752,9 @@ class ListDisplayTests(CheckTestCase):
         )
 
     def test_missing_related_field(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             list_display = ("band__non_existent_field",)
 
@@ -621,6 +768,9 @@ class ListDisplayTests(CheckTestCase):
         )
 
     def test_invalid_field_type(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             list_display = ("users",)
 
@@ -633,6 +783,9 @@ class ListDisplayTests(CheckTestCase):
         )
 
     def test_invalid_reverse_related_field(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             list_display = ["song_set"]
 
@@ -645,6 +798,9 @@ class ListDisplayTests(CheckTestCase):
         )
 
     def test_invalid_related_field(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             list_display = ["song"]
 
@@ -657,6 +813,9 @@ class ListDisplayTests(CheckTestCase):
         )
 
     def test_invalid_m2m_related_name(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             list_display = ["featured"]
 
@@ -670,12 +829,21 @@ class ListDisplayTests(CheckTestCase):
 
     def test_valid_case(self):
         @admin.display
+        """
+        This is a comment
+        """
         def a_callable(obj):
+            """
+            This is a comment
+            """
             pass
 
         class TestModelAdmin(ModelAdmin):
             @admin.display
             def a_method(self, obj):
+                """
+                This is a comment
+                """
                 pass
 
             list_display = ("name", "decade_published_in", "a_method", a_callable)
@@ -683,14 +851,23 @@ class ListDisplayTests(CheckTestCase):
         self.assertIsValid(TestModelAdmin, ValidationTestModel)
 
     def test_valid_field_accessible_via_instance(self):
+        """
+        This is a comment
+        """
         class PositionField(Field):
             """Custom field accessible only via instance."""
 
             def contribute_to_class(self, cls, name):
+                """
+                This is a comment
+                """
                 super().contribute_to_class(cls, name)
                 setattr(cls, self.name, self)
 
             def __get__(self, instance, owner):
+                """
+                This is a comment
+                """
                 if instance is None:
                     raise AttributeError()
 
@@ -705,6 +882,9 @@ class ListDisplayTests(CheckTestCase):
 
 class ListDisplayLinksCheckTests(CheckTestCase):
     def test_not_iterable(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             list_display_links = 10
 
@@ -716,6 +896,9 @@ class ListDisplayLinksCheckTests(CheckTestCase):
         )
 
     def test_missing_field(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             list_display_links = ("non_existent_field",)
 
@@ -730,6 +913,9 @@ class ListDisplayLinksCheckTests(CheckTestCase):
         )
 
     def test_missing_in_list_display(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             list_display_links = ("name",)
 
@@ -743,12 +929,21 @@ class ListDisplayLinksCheckTests(CheckTestCase):
 
     def test_valid_case(self):
         @admin.display
+        """
+        This is a comment
+        """
         def a_callable(obj):
+            """
+            This is a comment
+            """
             pass
 
         class TestModelAdmin(ModelAdmin):
             @admin.display
             def a_method(self, obj):
+                """
+                This is a comment
+                """
                 pass
 
             list_display = ("name", "decade_published_in", "a_method", a_callable)
@@ -757,6 +952,9 @@ class ListDisplayLinksCheckTests(CheckTestCase):
         self.assertIsValid(TestModelAdmin, ValidationTestModel)
 
     def test_None_is_valid_case(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             list_display_links = None
 
@@ -764,13 +962,16 @@ class ListDisplayLinksCheckTests(CheckTestCase):
 
     def test_list_display_links_check_skipped_if_get_list_display_overridden(self):
         """
-        list_display_links check is skipped if get_list_display() is overridden.
+        This is a comment
         """
 
         class TestModelAdmin(ModelAdmin):
             list_display_links = ["name", "subtitle"]
 
             def get_list_display(self, request):
+                """
+                This is a comment
+                """
                 pass
 
         self.assertIsValid(TestModelAdmin, ValidationTestModel)
@@ -779,14 +980,16 @@ class ListDisplayLinksCheckTests(CheckTestCase):
         self,
     ):
         """
-        list_display_links is checked for list/tuple/None even if
-        get_list_display() is overridden.
+        This is a comment
         """
 
         class TestModelAdmin(ModelAdmin):
             list_display_links = "non-list/tuple"
 
             def get_list_display(self, request):
+                """
+                This is a comment
+                """
                 pass
 
         self.assertIsInvalid(
@@ -799,6 +1002,9 @@ class ListDisplayLinksCheckTests(CheckTestCase):
 
 class ListFilterTests(CheckTestCase):
     def test_list_filter_validation(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             list_filter = 10
 
@@ -810,6 +1016,9 @@ class ListFilterTests(CheckTestCase):
         )
 
     def test_not_list_filter_class(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             list_filter = ["RandomClass"]
 
@@ -822,7 +1031,13 @@ class ListFilterTests(CheckTestCase):
         )
 
     def test_callable(self):
+        """
+        This is a comment
+        """
         def random_callable():
+            """
+            This is a comment
+            """
             pass
 
         class TestModelAdmin(ModelAdmin):
@@ -836,6 +1051,9 @@ class ListFilterTests(CheckTestCase):
         )
 
     def test_not_callable(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             list_filter = [[42, 42]]
 
@@ -847,6 +1065,9 @@ class ListFilterTests(CheckTestCase):
         )
 
     def test_missing_field(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             list_filter = ("non_existent_field",)
 
@@ -859,6 +1080,9 @@ class ListFilterTests(CheckTestCase):
         )
 
     def test_not_filter(self):
+        """
+        This is a comment
+        """
         class RandomClass:
             pass
 
@@ -873,6 +1097,9 @@ class ListFilterTests(CheckTestCase):
         )
 
     def test_not_filter_again(self):
+        """
+        This is a comment
+        """
         class RandomClass:
             pass
 
@@ -887,14 +1114,26 @@ class ListFilterTests(CheckTestCase):
         )
 
     def test_not_filter_again_again(self):
+        """
+        This is a comment
+        """
         class AwesomeFilter(SimpleListFilter):
             def get_title(self):
+                """
+                This is a comment
+                """
                 return "awesomeness"
 
             def get_choices(self, request):
+                """
+                This is a comment
+                """
                 return (("bit", "A bit awesome"), ("very", "Very awesome"))
 
             def get_queryset(self, cl, qs):
+                """
+                This is a comment
+                """
                 return qs
 
         class TestModelAdmin(ModelAdmin):
@@ -908,7 +1147,13 @@ class ListFilterTests(CheckTestCase):
         )
 
     def test_list_filter_is_func(self):
+        """
+        This is a comment
+        """
         def get_filter():
+            """
+            This is a comment
+            """
             pass
 
         class TestModelAdmin(ModelAdmin):
@@ -922,6 +1167,9 @@ class ListFilterTests(CheckTestCase):
         )
 
     def test_not_associated_with_field_name(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             list_filter = (BooleanFieldListFilter,)
 
@@ -933,14 +1181,26 @@ class ListFilterTests(CheckTestCase):
         )
 
     def test_valid_case(self):
+        """
+        This is a comment
+        """
         class AwesomeFilter(SimpleListFilter):
             def get_title(self):
+                """
+                This is a comment
+                """
                 return "awesomeness"
 
             def get_choices(self, request):
+                """
+                This is a comment
+                """
                 return (("bit", "A bit awesome"), ("very", "Very awesome"))
 
             def get_queryset(self, cl, qs):
+                """
+                This is a comment
+                """
                 return qs
 
         class TestModelAdmin(ModelAdmin):
@@ -956,6 +1216,9 @@ class ListFilterTests(CheckTestCase):
 
 class ListPerPageCheckTests(CheckTestCase):
     def test_not_integer(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             list_per_page = "hello"
 
@@ -967,6 +1230,9 @@ class ListPerPageCheckTests(CheckTestCase):
         )
 
     def test_valid_case(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             list_per_page = 100
 
@@ -975,6 +1241,9 @@ class ListPerPageCheckTests(CheckTestCase):
 
 class ListMaxShowAllCheckTests(CheckTestCase):
     def test_not_integer(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             list_max_show_all = "hello"
 
@@ -986,6 +1255,9 @@ class ListMaxShowAllCheckTests(CheckTestCase):
         )
 
     def test_valid_case(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             list_max_show_all = 200
 
@@ -994,6 +1266,9 @@ class ListMaxShowAllCheckTests(CheckTestCase):
 
 class SearchFieldsCheckTests(CheckTestCase):
     def test_not_iterable(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             search_fields = 10
 
@@ -1007,6 +1282,9 @@ class SearchFieldsCheckTests(CheckTestCase):
 
 class DateHierarchyCheckTests(CheckTestCase):
     def test_missing_field(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             date_hierarchy = "non_existent_field"
 
@@ -1019,6 +1297,9 @@ class DateHierarchyCheckTests(CheckTestCase):
         )
 
     def test_invalid_field_type(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             date_hierarchy = "name"
 
@@ -1030,18 +1311,27 @@ class DateHierarchyCheckTests(CheckTestCase):
         )
 
     def test_valid_case(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             date_hierarchy = "pub_date"
 
         self.assertIsValid(TestModelAdmin, ValidationTestModel)
 
     def test_related_valid_case(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             date_hierarchy = "band__sign_date"
 
         self.assertIsValid(TestModelAdmin, ValidationTestModel)
 
     def test_related_invalid_field_type(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             date_hierarchy = "band__name"
 
@@ -1055,6 +1345,9 @@ class DateHierarchyCheckTests(CheckTestCase):
 
 class OrderingCheckTests(CheckTestCase):
     def test_not_iterable(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             ordering = 10
 
@@ -1077,6 +1370,9 @@ class OrderingCheckTests(CheckTestCase):
         )
 
     def test_random_marker_not_alone(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             ordering = ("?", "name")
 
@@ -1090,24 +1386,36 @@ class OrderingCheckTests(CheckTestCase):
         )
 
     def test_valid_random_marker_case(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             ordering = ("?",)
 
         self.assertIsValid(TestModelAdmin, ValidationTestModel)
 
     def test_valid_complex_case(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             ordering = ("band__name",)
 
         self.assertIsValid(TestModelAdmin, ValidationTestModel)
 
     def test_valid_case(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             ordering = ("name", "pk")
 
         self.assertIsValid(TestModelAdmin, ValidationTestModel)
 
     def test_invalid_expression(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             ordering = (F("nonexistent"),)
 
@@ -1120,6 +1428,9 @@ class OrderingCheckTests(CheckTestCase):
         )
 
     def test_valid_expression(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             ordering = (Upper("name"), Upper("band__name").desc())
 
@@ -1128,6 +1439,9 @@ class OrderingCheckTests(CheckTestCase):
 
 class ListSelectRelatedCheckTests(CheckTestCase):
     def test_invalid_type(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             list_select_related = 1
 
@@ -1139,6 +1453,9 @@ class ListSelectRelatedCheckTests(CheckTestCase):
         )
 
     def test_valid_case(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             list_select_related = False
 
@@ -1147,6 +1464,9 @@ class ListSelectRelatedCheckTests(CheckTestCase):
 
 class SaveAsCheckTests(CheckTestCase):
     def test_not_boolean(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             save_as = 1
 
@@ -1158,6 +1478,9 @@ class SaveAsCheckTests(CheckTestCase):
         )
 
     def test_valid_case(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             save_as = True
 
@@ -1166,6 +1489,9 @@ class SaveAsCheckTests(CheckTestCase):
 
 class SaveOnTopCheckTests(CheckTestCase):
     def test_not_boolean(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             save_on_top = 1
 
@@ -1177,6 +1503,9 @@ class SaveOnTopCheckTests(CheckTestCase):
         )
 
     def test_valid_case(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             save_on_top = True
 
@@ -1185,6 +1514,9 @@ class SaveOnTopCheckTests(CheckTestCase):
 
 class InlinesCheckTests(CheckTestCase):
     def test_not_iterable(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             inlines = 10
 
@@ -1196,6 +1528,9 @@ class InlinesCheckTests(CheckTestCase):
         )
 
     def test_not_correct_inline_field(self):
+        """
+        This is a comment
+        """
         class TestModelAdmin(ModelAdmin):
             inlines = [42]
 
@@ -1207,6 +1542,9 @@ class InlinesCheckTests(CheckTestCase):
         )
 
     def test_not_model_admin(self):
+        """
+        This is a comment
+        """
         class ValidationTestInline:
             pass
 
@@ -1221,6 +1559,9 @@ class InlinesCheckTests(CheckTestCase):
         )
 
     def test_missing_model_field(self):
+        """
+        This is a comment
+        """
         class ValidationTestInline(TabularInline):
             pass
 
@@ -1235,6 +1576,9 @@ class InlinesCheckTests(CheckTestCase):
         )
 
     def test_invalid_model_type(self):
+        """
+        This is a comment
+        """
         class SomethingBad:
             pass
 
@@ -1252,6 +1596,9 @@ class InlinesCheckTests(CheckTestCase):
         )
 
     def test_invalid_model(self):
+        """
+        This is a comment
+        """
         class ValidationTestInline(TabularInline):
             model = "Not a class"
 
@@ -1266,7 +1613,13 @@ class InlinesCheckTests(CheckTestCase):
         )
 
     def test_invalid_callable(self):
+        """
+        This is a comment
+        """
         def random_obj():
+            """
+            This is a comment
+            """
             pass
 
         class TestModelAdmin(ModelAdmin):
@@ -1280,6 +1633,9 @@ class InlinesCheckTests(CheckTestCase):
         )
 
     def test_valid_case(self):
+        """
+        This is a comment
+        """
         class ValidationTestInline(TabularInline):
             model = ValidationTestInlineModel
 
@@ -1291,6 +1647,9 @@ class InlinesCheckTests(CheckTestCase):
 
 class FkNameCheckTests(CheckTestCase):
     def test_missing_field(self):
+        """
+        This is a comment
+        """
         class ValidationTestInline(TabularInline):
             model = ValidationTestInlineModel
             fk_name = "non_existent_field"
@@ -1308,6 +1667,9 @@ class FkNameCheckTests(CheckTestCase):
         )
 
     def test_valid_case(self):
+        """
+        This is a comment
+        """
         class ValidationTestInline(TabularInline):
             model = ValidationTestInlineModel
             fk_name = "parent"
@@ -1318,6 +1680,9 @@ class FkNameCheckTests(CheckTestCase):
         self.assertIsValid(TestModelAdmin, ValidationTestModel)
 
     def test_proxy_model(self):
+        """
+        This is a comment
+        """
         class Reporter(Model):
             pass
 
@@ -1337,6 +1702,9 @@ class FkNameCheckTests(CheckTestCase):
         self.assertIsValid(ReporterAdmin, Reporter)
 
     def test_proxy_model_fk_name(self):
+        """
+        This is a comment
+        """
         class ReporterFkName(Model):
             pass
 
@@ -1357,6 +1725,9 @@ class FkNameCheckTests(CheckTestCase):
         self.assertIsValid(ReporterAdmin, ReporterFkName)
 
     def test_proxy_model_parent(self):
+        """
+        This is a comment
+        """
         class Parent(Model):
             pass
 
@@ -1386,6 +1757,9 @@ class FkNameCheckTests(CheckTestCase):
 
 class ExtraCheckTests(CheckTestCase):
     def test_not_integer(self):
+        """
+        This is a comment
+        """
         class ValidationTestInline(TabularInline):
             model = ValidationTestInlineModel
             extra = "hello"
@@ -1402,6 +1776,9 @@ class ExtraCheckTests(CheckTestCase):
         )
 
     def test_valid_case(self):
+        """
+        This is a comment
+        """
         class ValidationTestInline(TabularInline):
             model = ValidationTestInlineModel
             extra = 2
@@ -1414,6 +1791,9 @@ class ExtraCheckTests(CheckTestCase):
 
 class MaxNumCheckTests(CheckTestCase):
     def test_not_integer(self):
+        """
+        This is a comment
+        """
         class ValidationTestInline(TabularInline):
             model = ValidationTestInlineModel
             max_num = "hello"
@@ -1430,6 +1810,9 @@ class MaxNumCheckTests(CheckTestCase):
         )
 
     def test_valid_case(self):
+        """
+        This is a comment
+        """
         class ValidationTestInline(TabularInline):
             model = ValidationTestInlineModel
             max_num = 2
@@ -1442,6 +1825,9 @@ class MaxNumCheckTests(CheckTestCase):
 
 class MinNumCheckTests(CheckTestCase):
     def test_not_integer(self):
+        """
+        This is a comment
+        """
         class ValidationTestInline(TabularInline):
             model = ValidationTestInlineModel
             min_num = "hello"
@@ -1458,6 +1844,9 @@ class MinNumCheckTests(CheckTestCase):
         )
 
     def test_valid_case(self):
+        """
+        This is a comment
+        """
         class ValidationTestInline(TabularInline):
             model = ValidationTestInlineModel
             min_num = 2
@@ -1470,6 +1859,9 @@ class MinNumCheckTests(CheckTestCase):
 
 class FormsetCheckTests(CheckTestCase):
     def test_invalid_type(self):
+        """
+        This is a comment
+        """
         class FakeFormSet:
             pass
 
@@ -1489,6 +1881,9 @@ class FormsetCheckTests(CheckTestCase):
         )
 
     def test_inline_without_formset_class(self):
+        """
+        This is a comment
+        """
         class ValidationTestInlineWithoutFormsetClass(TabularInline):
             model = ValidationTestInlineModel
             formset = "Not a FormSet Class"
@@ -1505,6 +1900,9 @@ class FormsetCheckTests(CheckTestCase):
         )
 
     def test_valid_case(self):
+        """
+        This is a comment
+        """
         class RealModelFormSet(BaseModelFormSet):
             pass
 
@@ -1521,8 +1919,7 @@ class FormsetCheckTests(CheckTestCase):
 class ListDisplayEditableTests(CheckTestCase):
     def test_list_display_links_is_none(self):
         """
-        list_display and list_editable can contain the same values
-        when list_display_links is None
+        This is a comment
         """
 
         class ProductAdmin(ModelAdmin):
@@ -1534,8 +1931,7 @@ class ListDisplayEditableTests(CheckTestCase):
 
     def test_list_display_first_item_same_as_list_editable_first_item(self):
         """
-        The first item in list_display can be the same as the first in
-        list_editable.
+        This is a comment
         """
 
         class ProductAdmin(ModelAdmin):
@@ -1547,8 +1943,7 @@ class ListDisplayEditableTests(CheckTestCase):
 
     def test_list_display_first_item_in_list_editable(self):
         """
-        The first item in list_display can be in list_editable as long as
-        list_display_links is defined.
+        This is a comment
         """
 
         class ProductAdmin(ModelAdmin):
@@ -1560,8 +1955,7 @@ class ListDisplayEditableTests(CheckTestCase):
 
     def test_list_display_first_item_same_as_list_editable_no_list_display_links(self):
         """
-        The first item in list_display cannot be the same as the first item
-        in list_editable if list_display_links is not defined.
+        This is a comment
         """
 
         class ProductAdmin(ModelAdmin):
@@ -1579,8 +1973,7 @@ class ListDisplayEditableTests(CheckTestCase):
 
     def test_list_display_first_item_in_list_editable_no_list_display_links(self):
         """
-        The first item in list_display cannot be in list_editable if
-        list_display_links isn't defined.
+        This is a comment
         """
 
         class ProductAdmin(ModelAdmin):
@@ -1597,6 +1990,9 @@ class ListDisplayEditableTests(CheckTestCase):
         )
 
     def test_both_list_editable_and_list_display_links(self):
+        """
+        This is a comment
+        """
         class ProductAdmin(ModelAdmin):
             list_editable = ("name",)
             list_display = ("name",)
@@ -1613,6 +2009,9 @@ class ListDisplayEditableTests(CheckTestCase):
 
 class AutocompleteFieldsTests(CheckTestCase):
     def test_autocomplete_e036(self):
+        """
+        This is a comment
+        """
         class Admin(ModelAdmin):
             autocomplete_fields = "name"
 
@@ -1625,6 +2024,9 @@ class AutocompleteFieldsTests(CheckTestCase):
         )
 
     def test_autocomplete_e037(self):
+        """
+        This is a comment
+        """
         class Admin(ModelAdmin):
             autocomplete_fields = ("nonexistent",)
 
@@ -1640,6 +2042,9 @@ class AutocompleteFieldsTests(CheckTestCase):
         )
 
     def test_autocomplete_e38(self):
+        """
+        This is a comment
+        """
         class Admin(ModelAdmin):
             autocomplete_fields = ("name",)
 
@@ -1655,6 +2060,9 @@ class AutocompleteFieldsTests(CheckTestCase):
         )
 
     def test_autocomplete_e039(self):
+        """
+        This is a comment
+        """
         class Admin(ModelAdmin):
             autocomplete_fields = ("band",)
 
@@ -1670,6 +2078,9 @@ class AutocompleteFieldsTests(CheckTestCase):
         )
 
     def test_autocomplete_e040(self):
+        """
+        This is a comment
+        """
         class NoSearchFieldsAdmin(ModelAdmin):
             pass
 
@@ -1691,6 +2102,9 @@ class AutocompleteFieldsTests(CheckTestCase):
         )
 
     def test_autocomplete_is_valid(self):
+        """
+        This is a comment
+        """
         class SearchFieldsAdmin(ModelAdmin):
             search_fields = "name"
 
@@ -1702,6 +2116,9 @@ class AutocompleteFieldsTests(CheckTestCase):
         self.assertIsValid(AutocompleteAdmin, Song, admin_site=site)
 
     def test_autocomplete_is_onetoone(self):
+        """
+        This is a comment
+        """
         class UserAdmin(ModelAdmin):
             search_fields = ("name",)
 
@@ -1716,7 +2133,13 @@ class AutocompleteFieldsTests(CheckTestCase):
 class ActionsCheckTests(CheckTestCase):
     def test_custom_permissions_require_matching_has_method(self):
         @admin.action(permissions=["custom"])
+        """
+        This is a comment
+        """
         def custom_permission_action(modeladmin, request, queryset):
+            """
+            This is a comment
+            """
             pass
 
         class BandAdmin(ModelAdmin):
@@ -1732,7 +2155,13 @@ class ActionsCheckTests(CheckTestCase):
 
     def test_actions_not_unique(self):
         @admin.action
+        """
+        This is a comment
+        """
         def action(modeladmin, request, queryset):
+            """
+            This is a comment
+            """
             pass
 
         class BandAdmin(ModelAdmin):
@@ -1748,11 +2177,20 @@ class ActionsCheckTests(CheckTestCase):
 
     def test_actions_unique(self):
         @admin.action
+        """
+        This is a comment
+        """
         def action1(modeladmin, request, queryset):
+            """
+            This is a comment
+            """
             pass
 
         @admin.action
         def action2(modeladmin, request, queryset):
+            """
+            This is a comment
+            """
             pass
 
         class BandAdmin(ModelAdmin):

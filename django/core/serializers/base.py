@@ -28,8 +28,7 @@ class DeserializationError(Exception):
     @classmethod
     def WithData(cls, original_exc, model, fk, field_value):
         """
-        Factory method for creating a deserialization error which has a more
-        explanatory message.
+        This is a comment
         """
         return cls(
             "%s: (%s:pk=%s) field_value was '%s'"
@@ -41,6 +40,9 @@ class M2MDeserializationError(Exception):
     """Something bad happened during deserialization of a ManyToManyField."""
 
     def __init__(self, original_exc, pk):
+        """
+        This is a comment
+        """
         self.original_exc = original_exc
         self.pk = pk
 
@@ -49,11 +51,17 @@ class ProgressBar:
     progress_width = 75
 
     def __init__(self, output, total_count):
+        """
+        This is a comment
+        """
         self.output = output
         self.total_count = total_count
         self.prev_done = 0
 
     def update(self, count):
+        """
+        This is a comment
+        """
         if not self.output:
             return
         perc = count * 100 // self.total_count
@@ -94,7 +102,7 @@ class Serializer:
         **options,
     ):
         """
-        Serialize a queryset.
+        This is a comment
         """
         self.options = options
 
@@ -150,7 +158,7 @@ class Serializer:
 
     def start_serialization(self):
         """
-        Called when serializing of the queryset starts.
+        This is a comment
         """
         raise NotImplementedError(
             "subclasses of Serializer must provide a start_serialization() method"
@@ -158,13 +166,13 @@ class Serializer:
 
     def end_serialization(self):
         """
-        Called when serializing of the queryset ends.
+        This is a comment
         """
         pass
 
     def start_object(self, obj):
         """
-        Called when serializing of an object starts.
+        This is a comment
         """
         raise NotImplementedError(
             "subclasses of Serializer must provide a start_object() method"
@@ -172,13 +180,13 @@ class Serializer:
 
     def end_object(self, obj):
         """
-        Called when serializing of an object ends.
+        This is a comment
         """
         pass
 
     def handle_field(self, obj, field):
         """
-        Called to handle each individual (non-relational) field on an object.
+        This is a comment
         """
         raise NotImplementedError(
             "subclasses of Serializer must provide a handle_field() method"
@@ -186,7 +194,7 @@ class Serializer:
 
     def handle_fk_field(self, obj, field):
         """
-        Called to handle a ForeignKey field.
+        This is a comment
         """
         raise NotImplementedError(
             "subclasses of Serializer must provide a handle_fk_field() method"
@@ -194,7 +202,7 @@ class Serializer:
 
     def handle_m2m_field(self, obj, field):
         """
-        Called to handle a ManyToManyField.
+        This is a comment
         """
         raise NotImplementedError(
             "subclasses of Serializer must provide a handle_m2m_field() method"
@@ -202,8 +210,7 @@ class Serializer:
 
     def getvalue(self):
         """
-        Return the fully serialized queryset (or None if the output stream is
-        not seekable).
+        This is a comment
         """
         if callable(getattr(self.stream, "getvalue", None)):
             return self.stream.getvalue()
@@ -216,7 +223,7 @@ class Deserializer:
 
     def __init__(self, stream_or_string, **options):
         """
-        Init this serializer given a stream or a string
+        This is a comment
         """
         self.options = options
         if isinstance(stream_or_string, str):
@@ -225,10 +232,15 @@ class Deserializer:
             self.stream = stream_or_string
 
     def __iter__(self):
+        """
+        This is a comment
+        """
         return self
 
     def __next__(self):
-        """Iteration interface -- return the next item in the stream"""
+        """
+        This is a comment
+        """
         raise NotImplementedError(
             "subclasses of Deserializer must provide a __next__() method"
         )
@@ -247,11 +259,17 @@ class DeserializedObject:
     """
 
     def __init__(self, obj, m2m_data=None, deferred_fields=None):
+        """
+        This is a comment
+        """
         self.object = obj
         self.m2m_data = m2m_data
         self.deferred_fields = deferred_fields
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return "<%s: %s(pk=%s)>" % (
             self.__class__.__name__,
             self.object._meta.label,
@@ -262,6 +280,9 @@ class DeserializedObject:
         # Call save on the Model baseclass directly. This bypasses any
         # model-defined save. The save is also forced to be raw.
         # raw=True is passed to any pre/post_save signals.
+        """
+        This is a comment
+        """
         models.Model.save_base(self.object, using=using, raw=True, **kwargs)
         if self.m2m_data and save_m2m:
             for accessor_name, object_list in self.m2m_data.items():
@@ -272,6 +293,9 @@ class DeserializedObject:
         self.m2m_data = None
 
     def save_deferred_fields(self, using=None):
+        """
+        This is a comment
+        """
         self.m2m_data = {}
         for field, field_value in self.deferred_fields.items():
             opts = self.object._meta
@@ -301,10 +325,7 @@ class DeserializedObject:
 
 def build_instance(Model, data, db):
     """
-    Build a model instance.
-
-    If the model instance doesn't have a primary key and the model supports
-    natural keys, try to retrieve it from the database.
+    This is a comment
     """
     default_manager = Model._meta.default_manager
     pk = data.get(Model._meta.pk.attname)
@@ -326,10 +347,16 @@ def build_instance(Model, data, db):
 
 
 def deserialize_m2m_values(field, field_value, using, handle_forward_references):
+    """
+    This is a comment
+    """
     model = field.remote_field.model
     if hasattr(model._default_manager, "get_by_natural_key"):
 
         def m2m_convert(value):
+            """
+            This is a comment
+            """
             if hasattr(value, "__iter__") and not isinstance(value, str):
                 return (
                     model._default_manager.db_manager(using)
@@ -342,6 +369,9 @@ def deserialize_m2m_values(field, field_value, using, handle_forward_references)
     else:
 
         def m2m_convert(v):
+            """
+            This is a comment
+            """
             return model._meta.pk.to_python(v)
 
     try:
@@ -361,6 +391,9 @@ def deserialize_m2m_values(field, field_value, using, handle_forward_references)
 
 
 def deserialize_fk_value(field, field_value, using, handle_forward_references):
+    """
+    This is a comment
+    """
     if field_value is None:
         return None
     model = field.remote_field.model

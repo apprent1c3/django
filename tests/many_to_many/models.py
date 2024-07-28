@@ -17,6 +17,9 @@ class Publication(models.Model):
         ordering = ("title",)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.title
 
 
@@ -25,11 +28,17 @@ class Tag(models.Model):
     name = models.CharField(max_length=50)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
 class NoDeletedArticleManager(models.Manager):
     def get_queryset(self):
+        """
+        This is a comment
+        """
         return super().get_queryset().exclude(headline="deleted")
 
 
@@ -47,6 +56,9 @@ class Article(models.Model):
         ordering = ("headline",)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.headline
 
 
@@ -54,6 +66,9 @@ class User(models.Model):
     username = models.CharField(max_length=20, unique=True)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.username
 
 

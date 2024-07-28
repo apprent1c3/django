@@ -32,6 +32,9 @@ from ..models import ChoiceModel
 
 class AssertFormErrorsMixin:
     def assertFormErrors(self, expected, the_callable, *args, **kwargs):
+        """
+        This is a comment
+        """
         with self.assertRaises(ValidationError) as cm:
             the_callable(*args, **kwargs)
         self.assertEqual(cm.exception.messages, expected)
@@ -39,6 +42,9 @@ class AssertFormErrorsMixin:
 
 class FormsErrorMessagesTestCase(SimpleTestCase, AssertFormErrorsMixin):
     def test_charfield(self):
+        """
+        This is a comment
+        """
         e = {
             "required": "REQUIRED",
             "min_length": "LENGTH %(show_value)s, MIN LENGTH %(limit_value)s",
@@ -50,6 +56,9 @@ class FormsErrorMessagesTestCase(SimpleTestCase, AssertFormErrorsMixin):
         self.assertFormErrors(["LENGTH 11, MAX LENGTH 10"], f.clean, "12345678901")
 
     def test_integerfield(self):
+        """
+        This is a comment
+        """
         e = {
             "required": "REQUIRED",
             "invalid": "INVALID",
@@ -63,6 +72,9 @@ class FormsErrorMessagesTestCase(SimpleTestCase, AssertFormErrorsMixin):
         self.assertFormErrors(["MAX VALUE IS 10"], f.clean, "11")
 
     def test_floatfield(self):
+        """
+        This is a comment
+        """
         e = {
             "required": "REQUIRED",
             "invalid": "INVALID",
@@ -76,6 +88,9 @@ class FormsErrorMessagesTestCase(SimpleTestCase, AssertFormErrorsMixin):
         self.assertFormErrors(["MAX VALUE IS 10"], f.clean, "11")
 
     def test_decimalfield(self):
+        """
+        This is a comment
+        """
         e = {
             "required": "REQUIRED",
             "invalid": "INVALID",
@@ -97,6 +112,9 @@ class FormsErrorMessagesTestCase(SimpleTestCase, AssertFormErrorsMixin):
         self.assertFormErrors(["MAX DIGITS BEFORE DP IS 2"], f2.clean, "123.4")
 
     def test_datefield(self):
+        """
+        This is a comment
+        """
         e = {
             "required": "REQUIRED",
             "invalid": "INVALID",
@@ -106,6 +124,9 @@ class FormsErrorMessagesTestCase(SimpleTestCase, AssertFormErrorsMixin):
         self.assertFormErrors(["INVALID"], f.clean, "abc")
 
     def test_timefield(self):
+        """
+        This is a comment
+        """
         e = {
             "required": "REQUIRED",
             "invalid": "INVALID",
@@ -115,6 +136,9 @@ class FormsErrorMessagesTestCase(SimpleTestCase, AssertFormErrorsMixin):
         self.assertFormErrors(["INVALID"], f.clean, "abc")
 
     def test_datetimefield(self):
+        """
+        This is a comment
+        """
         e = {
             "required": "REQUIRED",
             "invalid": "INVALID",
@@ -124,6 +148,9 @@ class FormsErrorMessagesTestCase(SimpleTestCase, AssertFormErrorsMixin):
         self.assertFormErrors(["INVALID"], f.clean, "abc")
 
     def test_regexfield(self):
+        """
+        This is a comment
+        """
         e = {
             "required": "REQUIRED",
             "invalid": "INVALID",
@@ -137,6 +164,9 @@ class FormsErrorMessagesTestCase(SimpleTestCase, AssertFormErrorsMixin):
         self.assertFormErrors(["LENGTH 11, MAX LENGTH 10"], f.clean, "12345678901")
 
     def test_emailfield(self):
+        """
+        This is a comment
+        """
         e = {
             "required": "REQUIRED",
             "invalid": "INVALID",
@@ -150,6 +180,9 @@ class FormsErrorMessagesTestCase(SimpleTestCase, AssertFormErrorsMixin):
         self.assertFormErrors(["LENGTH 11, MAX LENGTH 10"], f.clean, "aye@bee.com")
 
     def test_filefield(self):
+        """
+        This is a comment
+        """
         e = {
             "required": "REQUIRED",
             "invalid": "INVALID",
@@ -163,6 +196,9 @@ class FormsErrorMessagesTestCase(SimpleTestCase, AssertFormErrorsMixin):
         self.assertFormErrors(["EMPTY FILE"], f.clean, SimpleUploadedFile("name", ""))
 
     def test_urlfield(self):
+        """
+        This is a comment
+        """
         e = {
             "required": "REQUIRED",
             "invalid": "INVALID",
@@ -179,6 +215,9 @@ class FormsErrorMessagesTestCase(SimpleTestCase, AssertFormErrorsMixin):
         )
 
     def test_booleanfield(self):
+        """
+        This is a comment
+        """
         e = {
             "required": "REQUIRED",
         }
@@ -186,6 +225,9 @@ class FormsErrorMessagesTestCase(SimpleTestCase, AssertFormErrorsMixin):
         self.assertFormErrors(["REQUIRED"], f.clean, "")
 
     def test_choicefield(self):
+        """
+        This is a comment
+        """
         e = {
             "required": "REQUIRED",
             "invalid_choice": "%(value)s IS INVALID CHOICE",
@@ -195,6 +237,9 @@ class FormsErrorMessagesTestCase(SimpleTestCase, AssertFormErrorsMixin):
         self.assertFormErrors(["b IS INVALID CHOICE"], f.clean, "b")
 
     def test_multiplechoicefield(self):
+        """
+        This is a comment
+        """
         e = {
             "required": "REQUIRED",
             "invalid_choice": "%(value)s IS INVALID CHOICE",
@@ -206,6 +251,9 @@ class FormsErrorMessagesTestCase(SimpleTestCase, AssertFormErrorsMixin):
         self.assertFormErrors(["b IS INVALID CHOICE"], f.clean, ["b"])
 
     def test_splitdatetimefield(self):
+        """
+        This is a comment
+        """
         e = {
             "required": "REQUIRED",
             "invalid_date": "INVALID DATE",
@@ -216,6 +264,9 @@ class FormsErrorMessagesTestCase(SimpleTestCase, AssertFormErrorsMixin):
         self.assertFormErrors(["INVALID DATE", "INVALID TIME"], f.clean, ["a", "b"])
 
     def test_generic_ipaddressfield(self):
+        """
+        This is a comment
+        """
         e = {
             "required": "REQUIRED",
             "invalid": "INVALID IP ADDRESS",
@@ -225,19 +276,31 @@ class FormsErrorMessagesTestCase(SimpleTestCase, AssertFormErrorsMixin):
         self.assertFormErrors(["INVALID IP ADDRESS"], f.clean, "127.0.0")
 
     def test_subclassing_errorlist(self):
+        """
+        This is a comment
+        """
         class TestForm(Form):
             first_name = CharField()
             last_name = CharField()
             birthday = DateField()
 
             def clean(self):
+                """
+                This is a comment
+                """
                 raise ValidationError("I like to be awkward.")
 
         class CustomErrorList(utils.ErrorList):
             def __str__(self):
+                """
+                This is a comment
+                """
                 return self.as_divs()
 
             def as_divs(self):
+                """
+                This is a comment
+                """
                 if not self:
                     return ""
                 return mark_safe(
@@ -272,6 +335,9 @@ class FormsErrorMessagesTestCase(SimpleTestCase, AssertFormErrorsMixin):
         # messages might be presented in non-HTML contexts. Instead, the
         # message is marked for escaping by the template engine, so a template
         # is needed to trigger the escaping.
+        """
+        This is a comment
+        """
         t = Template("{{ form.errors }}")
 
         class SomeForm(Form):
@@ -311,6 +377,9 @@ class FormsErrorMessagesTestCase(SimpleTestCase, AssertFormErrorsMixin):
 class ModelChoiceFieldErrorMessagesTestCase(TestCase, AssertFormErrorsMixin):
     def test_modelchoicefield(self):
         # Create choices for the model choice field tests below.
+        """
+        This is a comment
+        """
         ChoiceModel.objects.create(pk=1, name="a")
         ChoiceModel.objects.create(pk=2, name="b")
         ChoiceModel.objects.create(pk=3, name="c")
@@ -338,6 +407,9 @@ class ModelChoiceFieldErrorMessagesTestCase(TestCase, AssertFormErrorsMixin):
         self.assertFormErrors(["4 IS INVALID CHOICE"], f.clean, ["4"])
 
     def test_modelchoicefield_value_placeholder(self):
+        """
+        This is a comment
+        """
         f = ModelChoiceField(
             queryset=ChoiceModel.objects.all(),
             error_messages={

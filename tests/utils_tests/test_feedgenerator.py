@@ -14,7 +14,7 @@ class FeedgeneratorTests(SimpleTestCase):
 
     def test_get_tag_uri(self):
         """
-        get_tag_uri() correctly generates TagURIs.
+        This is a comment
         """
         self.assertEqual(
             feedgenerator.get_tag_uri(
@@ -25,7 +25,7 @@ class FeedgeneratorTests(SimpleTestCase):
 
     def test_get_tag_uri_with_port(self):
         """
-        get_tag_uri() correctly generates TagURIs from URLs with port numbers.
+        This is a comment
         """
         self.assertEqual(
             feedgenerator.get_tag_uri(
@@ -37,7 +37,7 @@ class FeedgeneratorTests(SimpleTestCase):
 
     def test_rfc2822_date(self):
         """
-        rfc2822_date() correctly formats datetime objects.
+        This is a comment
         """
         self.assertEqual(
             feedgenerator.rfc2822_date(datetime.datetime(2008, 11, 14, 13, 37, 0)),
@@ -46,7 +46,7 @@ class FeedgeneratorTests(SimpleTestCase):
 
     def test_rfc2822_date_with_timezone(self):
         """
-        rfc2822_date() correctly formats datetime objects with tzinfo.
+        This is a comment
         """
         self.assertEqual(
             feedgenerator.rfc2822_date(
@@ -59,7 +59,7 @@ class FeedgeneratorTests(SimpleTestCase):
 
     def test_rfc2822_date_without_time(self):
         """
-        rfc2822_date() correctly formats date objects.
+        This is a comment
         """
         self.assertEqual(
             feedgenerator.rfc2822_date(datetime.date(2008, 11, 14)),
@@ -68,7 +68,7 @@ class FeedgeneratorTests(SimpleTestCase):
 
     def test_rfc3339_date(self):
         """
-        rfc3339_date() correctly formats datetime objects.
+        This is a comment
         """
         self.assertEqual(
             feedgenerator.rfc3339_date(datetime.datetime(2008, 11, 14, 13, 37, 0)),
@@ -77,7 +77,7 @@ class FeedgeneratorTests(SimpleTestCase):
 
     def test_rfc3339_date_with_timezone(self):
         """
-        rfc3339_date() correctly formats datetime objects with tzinfo.
+        This is a comment
         """
         self.assertEqual(
             feedgenerator.rfc3339_date(
@@ -90,7 +90,7 @@ class FeedgeneratorTests(SimpleTestCase):
 
     def test_rfc3339_date_without_time(self):
         """
-        rfc3339_date() correctly formats date objects.
+        This is a comment
         """
         self.assertEqual(
             feedgenerator.rfc3339_date(datetime.date(2008, 11, 14)),
@@ -99,14 +99,14 @@ class FeedgeneratorTests(SimpleTestCase):
 
     def test_atom1_mime_type(self):
         """
-        Atom MIME type has UTF8 Charset parameter set
+        This is a comment
         """
         atom_feed = feedgenerator.Atom1Feed("title", "link", "description")
         self.assertEqual(atom_feed.content_type, "application/atom+xml; charset=utf-8")
 
     def test_rss_mime_type(self):
         """
-        RSS MIME type has UTF8 Charset parameter set
+        This is a comment
         """
         rss_feed = feedgenerator.Rss201rev2Feed("title", "link", "description")
         self.assertEqual(rss_feed.content_type, "application/rss+xml; charset=utf-8")
@@ -114,6 +114,9 @@ class FeedgeneratorTests(SimpleTestCase):
     # Two regression tests for #14202
 
     def test_feed_without_feed_url_gets_rendered_without_atom_link(self):
+        """
+        This is a comment
+        """
         feed = feedgenerator.Rss201rev2Feed("title", "/link/", "descr")
         self.assertIsNone(feed.feed["feed_url"])
         feed_content = feed.writeString("utf-8")
@@ -122,6 +125,9 @@ class FeedgeneratorTests(SimpleTestCase):
         self.assertNotIn('rel="self"', feed_content)
 
     def test_feed_with_feed_url_gets_rendered_with_atom_link(self):
+        """
+        This is a comment
+        """
         feed = feedgenerator.Rss201rev2Feed(
             "title", "/link/", "descr", feed_url="/feed/"
         )
@@ -133,16 +139,25 @@ class FeedgeneratorTests(SimpleTestCase):
 
     def test_atom_add_item(self):
         # Not providing any optional arguments to Atom1Feed.add_item()
+        """
+        This is a comment
+        """
         feed = feedgenerator.Atom1Feed("title", "/link/", "descr")
         feed.add_item("item_title", "item_link", "item_description")
         feed.writeString("utf-8")
 
     def test_deterministic_attribute_order(self):
+        """
+        This is a comment
+        """
         feed = feedgenerator.Atom1Feed("title", "/link/", "desc")
         feed_content = feed.writeString("utf-8")
         self.assertIn('href="/link/" rel="alternate"', feed_content)
 
     def test_latest_post_date_returns_utc_time(self):
+        """
+        This is a comment
+        """
         for use_tz in (True, False):
             with self.settings(USE_TZ=use_tz):
                 rss_feed = feedgenerator.Rss201rev2Feed("title", "link", "description")
@@ -152,6 +167,9 @@ class FeedgeneratorTests(SimpleTestCase):
                 )
 
     def test_stylesheet_keeps_lazy_urls(self):
+        """
+        This is a comment
+        """
         m = mock.Mock(return_value="test.css")
         stylesheet = feedgenerator.Stylesheet(SimpleLazyObject(m))
         m.assert_not_called()

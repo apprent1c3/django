@@ -15,6 +15,9 @@ class CenterTests(SimpleTestCase):
         }
     )
     def test_center01(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "center01", {"a": "a&b", "b": mark_safe("a&b")}
         )
@@ -22,6 +25,9 @@ class CenterTests(SimpleTestCase):
 
     @setup({"center02": '.{{ a|center:"5" }}. .{{ b|center:"5" }}.'})
     def test_center02(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "center02", {"a": "a&b", "b": mark_safe("a&b")}
         )
@@ -30,7 +36,13 @@ class CenterTests(SimpleTestCase):
 
 class FunctionTests(SimpleTestCase):
     def test_center(self):
+        """
+        This is a comment
+        """
         self.assertEqual(center("test", 6), " test ")
 
     def test_non_string_input(self):
+        """
+        This is a comment
+        """
         self.assertEqual(center(123, 5), " 123 ")

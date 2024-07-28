@@ -12,6 +12,9 @@ class SpacelessTagTests(SimpleTestCase):
         }
     )
     def test_spaceless01(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("spaceless01")
         self.assertEqual(output, "<b><i> text </i></b>")
 
@@ -23,11 +26,17 @@ class SpacelessTagTests(SimpleTestCase):
         }
     )
     def test_spaceless02(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("spaceless02")
         self.assertEqual(output, "<b><i> text </i></b>")
 
     @setup({"spaceless03": "{% spaceless %}<b><i>text</i></b>{% endspaceless %}"})
     def test_spaceless03(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("spaceless03")
         self.assertEqual(output, "<b><i>text</i></b>")
 
@@ -39,6 +48,9 @@ class SpacelessTagTests(SimpleTestCase):
         }
     )
     def test_spaceless04(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("spaceless04", {"text": "This & that"})
         self.assertEqual(output, "<b><i>This &amp; that</i></b>")
 
@@ -50,6 +62,9 @@ class SpacelessTagTests(SimpleTestCase):
         }
     )
     def test_spaceless05(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("spaceless05", {"text": "This & that"})
         self.assertEqual(output, "<b><i>This & that</i></b>")
 
@@ -61,5 +76,8 @@ class SpacelessTagTests(SimpleTestCase):
         }
     )
     def test_spaceless06(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("spaceless06", {"text": "This & that"})
         self.assertEqual(output, "<b><i>This & that</i></b>")

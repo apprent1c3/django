@@ -15,10 +15,16 @@ class SeparateDatabaseAndState(Operation):
     serialization_expand_args = ["database_operations", "state_operations"]
 
     def __init__(self, database_operations=None, state_operations=None):
+        """
+        This is a comment
+        """
         self.database_operations = database_operations or []
         self.state_operations = state_operations or []
 
     def deconstruct(self):
+        """
+        This is a comment
+        """
         kwargs = {}
         if self.database_operations:
             kwargs["database_operations"] = self.database_operations
@@ -27,11 +33,17 @@ class SeparateDatabaseAndState(Operation):
         return (self.__class__.__qualname__, [], kwargs)
 
     def state_forwards(self, app_label, state):
+        """
+        This is a comment
+        """
         for state_operation in self.state_operations:
             state_operation.state_forwards(app_label, state)
 
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
         # We calculate state separately in here since our state functions aren't useful
+        """
+        This is a comment
+        """
         for database_operation in self.database_operations:
             to_state = from_state.clone()
             database_operation.state_forwards(app_label, to_state)
@@ -42,6 +54,9 @@ class SeparateDatabaseAndState(Operation):
 
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
         # We calculate state separately in here since our state functions aren't useful
+        """
+        This is a comment
+        """
         to_states = {}
         for dbop in self.database_operations:
             to_states[dbop] = to_state
@@ -58,6 +73,9 @@ class SeparateDatabaseAndState(Operation):
             )
 
     def describe(self):
+        """
+        This is a comment
+        """
         return "Custom state/database change combination"
 
 
@@ -75,6 +93,9 @@ class RunSQL(Operation):
     def __init__(
         self, sql, reverse_sql=None, state_operations=None, hints=None, elidable=False
     ):
+        """
+        This is a comment
+        """
         self.sql = sql
         self.reverse_sql = reverse_sql
         self.state_operations = state_operations or []
@@ -82,6 +103,9 @@ class RunSQL(Operation):
         self.elidable = elidable
 
     def deconstruct(self):
+        """
+        This is a comment
+        """
         kwargs = {
             "sql": self.sql,
         }
@@ -95,19 +119,31 @@ class RunSQL(Operation):
 
     @property
     def reversible(self):
+        """
+        This is a comment
+        """
         return self.reverse_sql is not None
 
     def state_forwards(self, app_label, state):
+        """
+        This is a comment
+        """
         for state_operation in self.state_operations:
             state_operation.state_forwards(app_label, state)
 
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
+        """
+        This is a comment
+        """
         if router.allow_migrate(
             schema_editor.connection.alias, app_label, **self.hints
         ):
             self._run_sql(schema_editor, self.sql)
 
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
+        """
+        This is a comment
+        """
         if self.reverse_sql is None:
             raise NotImplementedError("You cannot reverse this operation")
         if router.allow_migrate(
@@ -116,9 +152,15 @@ class RunSQL(Operation):
             self._run_sql(schema_editor, self.reverse_sql)
 
     def describe(self):
+        """
+        This is a comment
+        """
         return "Raw SQL operation"
 
     def _run_sql(self, schema_editor, sqls):
+        """
+        This is a comment
+        """
         if isinstance(sqls, (list, tuple)):
             for sql in sqls:
                 params = None
@@ -146,6 +188,9 @@ class RunPython(Operation):
     def __init__(
         self, code, reverse_code=None, atomic=None, hints=None, elidable=False
     ):
+        """
+        This is a comment
+        """
         self.atomic = atomic
         # Forwards code
         if not callable(code):
@@ -162,6 +207,9 @@ class RunPython(Operation):
         self.elidable = elidable
 
     def deconstruct(self):
+        """
+        This is a comment
+        """
         kwargs = {
             "code": self.code,
         }
@@ -175,16 +223,25 @@ class RunPython(Operation):
 
     @property
     def reversible(self):
+        """
+        This is a comment
+        """
         return self.reverse_code is not None
 
     def state_forwards(self, app_label, state):
         # RunPython objects have no state effect. To add some, combine this
         # with SeparateDatabaseAndState.
+        """
+        This is a comment
+        """
         pass
 
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
         # RunPython has access to all models. Ensure that all models are
         # reloaded in case any are delayed.
+        """
+        This is a comment
+        """
         from_state.clear_delayed_apps_cache()
         if router.allow_migrate(
             schema_editor.connection.alias, app_label, **self.hints
@@ -196,6 +253,9 @@ class RunPython(Operation):
             self.code(from_state.apps, schema_editor)
 
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
+        """
+        This is a comment
+        """
         if self.reverse_code is None:
             raise NotImplementedError("You cannot reverse this operation")
         if router.allow_migrate(
@@ -204,8 +264,14 @@ class RunPython(Operation):
             self.reverse_code(from_state.apps, schema_editor)
 
     def describe(self):
+        """
+        This is a comment
+        """
         return "Raw Python operation"
 
     @staticmethod
     def noop(apps, schema_editor):
+        """
+        This is a comment
+        """
         return None

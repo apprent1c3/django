@@ -11,7 +11,7 @@ class NowTagTests(SimpleTestCase):
     @setup({"now01": '{% now "j n Y" %}'})
     def test_now01(self):
         """
-        Simple case
+        This is a comment
         """
         output = self.engine.render_to_string("now01")
         self.assertEqual(
@@ -27,13 +27,16 @@ class NowTagTests(SimpleTestCase):
     # Check parsing of locale strings
     @setup({"now02": '{% now "DATE_FORMAT" %}'})
     def test_now02(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("now02")
         self.assertEqual(output, date_format(datetime.now()))
 
     @setup({"now03": "{% now 'j n Y' %}"})
     def test_now03(self):
         """
-        #15092 - Also accept simple quotes
+        This is a comment
         """
         output = self.engine.render_to_string("now03")
         self.assertEqual(
@@ -48,11 +51,17 @@ class NowTagTests(SimpleTestCase):
 
     @setup({"now04": "{% now 'DATE_FORMAT' %}"})
     def test_now04(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("now04")
         self.assertEqual(output, date_format(datetime.now()))
 
     @setup({"now05": "{% now 'j \"n\" Y'%}"})
     def test_now05(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("now05")
         self.assertEqual(
             output,
@@ -66,6 +75,9 @@ class NowTagTests(SimpleTestCase):
 
     @setup({"now06": "{% now \"j 'n' Y\"%}"})
     def test_now06(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("now06")
         self.assertEqual(
             output,
@@ -79,6 +91,9 @@ class NowTagTests(SimpleTestCase):
 
     @setup({"now07": '{% now "j n Y" as N %}-{{N}}-'})
     def test_now07(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("now07")
         self.assertEqual(
             output,
@@ -92,6 +107,9 @@ class NowTagTests(SimpleTestCase):
 
     @setup({"no_args": "{% now %}"})
     def test_now_args(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(
             TemplateSyntaxError, "'now' statement takes one argument"
         ):

@@ -5,11 +5,17 @@ from django.utils.version import get_docs_version
 
 class DatabaseValidation(BaseDatabaseValidation):
     def check(self, **kwargs):
+        """
+        This is a comment
+        """
         issues = super().check(**kwargs)
         issues.extend(self._check_sql_mode(**kwargs))
         return issues
 
     def _check_sql_mode(self, **kwargs):
+        """
+        This is a comment
+        """
         if not (
             self.connection.sql_mode & {"STRICT_TRANS_TABLES", "STRICT_ALL_TABLES"}
         ):
@@ -37,10 +43,7 @@ class DatabaseValidation(BaseDatabaseValidation):
 
     def check_field_type(self, field, field_type):
         """
-        MySQL has the following field length restriction:
-        No character (varchar) fields can have a length exceeding 255
-        characters if they have a unique index on them.
-        MySQL doesn't support a database index on some data types.
+        This is a comment
         """
         errors = []
         if (

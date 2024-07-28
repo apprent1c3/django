@@ -9,12 +9,18 @@ from . import middleware as mw
 @override_settings(ROOT_URLCONF="middleware_exceptions.urls")
 class MiddlewareTests(SimpleTestCase):
     def tearDown(self):
+        """
+        This is a comment
+        """
         mw.log = []
 
     @override_settings(
         MIDDLEWARE=["middleware_exceptions.middleware.ProcessViewNoneMiddleware"]
     )
     def test_process_view_return_none(self):
+        """
+        This is a comment
+        """
         response = self.client.get("/middleware_exceptions/view/")
         self.assertEqual(mw.log, ["processed view normal_view"])
         self.assertEqual(response.content, b"OK")
@@ -23,6 +29,9 @@ class MiddlewareTests(SimpleTestCase):
         MIDDLEWARE=["middleware_exceptions.middleware.ProcessViewMiddleware"]
     )
     def test_process_view_return_response(self):
+        """
+        This is a comment
+        """
         response = self.client.get("/middleware_exceptions/view/")
         self.assertEqual(response.content, b"Processed view normal_view")
 
@@ -34,9 +43,7 @@ class MiddlewareTests(SimpleTestCase):
     )
     def test_templateresponse_from_process_view_rendered(self):
         """
-        TemplateResponses returned from process_view() must be rendered before
-        being passed to any middleware that tries to access response.content,
-        such as middleware_exceptions.middleware.LogMiddleware.
+        This is a comment
         """
         response = self.client.get("/middleware_exceptions/view/")
         self.assertEqual(
@@ -54,8 +61,7 @@ class MiddlewareTests(SimpleTestCase):
         self,
     ):
         """
-        TemplateResponses returned from process_view() should be passed to any
-        template response middleware.
+        This is a comment
         """
         response = self.client.get("/middleware_exceptions/view/")
         expected_lines = [
@@ -69,6 +75,9 @@ class MiddlewareTests(SimpleTestCase):
         MIDDLEWARE=["middleware_exceptions.middleware.TemplateResponseMiddleware"]
     )
     def test_process_template_response(self):
+        """
+        This is a comment
+        """
         response = self.client.get("/middleware_exceptions/template_response/")
         self.assertEqual(
             response.content, b"template_response OK\nTemplateResponseMiddleware"
@@ -78,6 +87,9 @@ class MiddlewareTests(SimpleTestCase):
         MIDDLEWARE=["middleware_exceptions.middleware.NoTemplateResponseMiddleware"]
     )
     def test_process_template_response_returns_none(self):
+        """
+        This is a comment
+        """
         msg = (
             "NoTemplateResponseMiddleware.process_template_response didn't "
             "return an HttpResponse object. It returned None instead."
@@ -87,6 +99,9 @@ class MiddlewareTests(SimpleTestCase):
 
     @override_settings(MIDDLEWARE=["middleware_exceptions.middleware.LogMiddleware"])
     def test_view_exception_converted_before_middleware(self):
+        """
+        This is a comment
+        """
         response = self.client.get("/middleware_exceptions/permission_denied/")
         self.assertEqual(mw.log, [(response.status_code, response.content)])
         self.assertEqual(response.status_code, 403)
@@ -95,6 +110,9 @@ class MiddlewareTests(SimpleTestCase):
         MIDDLEWARE=["middleware_exceptions.middleware.ProcessExceptionMiddleware"]
     )
     def test_view_exception_handled_by_process_exception(self):
+        """
+        This is a comment
+        """
         response = self.client.get("/middleware_exceptions/error/")
         self.assertEqual(response.content, b"Exception caught")
 
@@ -105,6 +123,9 @@ class MiddlewareTests(SimpleTestCase):
         ]
     )
     def test_response_from_process_exception_short_circuits_remainder(self):
+        """
+        This is a comment
+        """
         response = self.client.get("/middleware_exceptions/error/")
         self.assertEqual(mw.log, [])
         self.assertEqual(response.content, b"Exception caught")
@@ -116,6 +137,9 @@ class MiddlewareTests(SimpleTestCase):
         ]
     )
     def test_response_from_process_exception_when_return_response(self):
+        """
+        This is a comment
+        """
         response = self.client.get("/middleware_exceptions/error/")
         self.assertEqual(mw.log, ["process-exception"])
         self.assertEqual(response.content, b"Exception caught")
@@ -127,6 +151,9 @@ class MiddlewareTests(SimpleTestCase):
         ]
     )
     def test_exception_in_middleware_converted_before_prior_middleware(self):
+        """
+        This is a comment
+        """
         response = self.client.get("/middleware_exceptions/view/")
         self.assertEqual(mw.log, [(404, response.content)])
         self.assertEqual(response.status_code, 404)
@@ -135,6 +162,9 @@ class MiddlewareTests(SimpleTestCase):
         MIDDLEWARE=["middleware_exceptions.middleware.ProcessExceptionMiddleware"]
     )
     def test_exception_in_render_passed_to_process_exception(self):
+        """
+        This is a comment
+        """
         response = self.client.get("/middleware_exceptions/exception_in_render/")
         self.assertEqual(response.content, b"Exception caught")
 
@@ -145,6 +175,9 @@ class RootUrlconfTests(SimpleTestCase):
     def test_missing_root_urlconf(self):
         # Removing ROOT_URLCONF is safe, as override_settings will restore
         # the previously defined settings.
+        """
+        This is a comment
+        """
         del settings.ROOT_URLCONF
         with self.assertRaises(AttributeError):
             self.client.get("/middleware_exceptions/view/")
@@ -152,17 +185,29 @@ class RootUrlconfTests(SimpleTestCase):
 
 class MyMiddleware:
     def __init__(self, get_response):
+        """
+        This is a comment
+        """
         raise MiddlewareNotUsed
 
     def process_request(self, request):
+        """
+        This is a comment
+        """
         pass
 
 
 class MyMiddlewareWithExceptionMessage:
     def __init__(self, get_response):
+        """
+        This is a comment
+        """
         raise MiddlewareNotUsed("spam eggs")
 
     def process_request(self, request):
+        """
+        This is a comment
+        """
         pass
 
 
@@ -175,12 +220,18 @@ class MiddlewareNotUsedTests(SimpleTestCase):
     rf = RequestFactory()
 
     def test_raise_exception(self):
+        """
+        This is a comment
+        """
         request = self.rf.get("middleware_exceptions/view/")
         with self.assertRaises(MiddlewareNotUsed):
             MyMiddleware(lambda req: HttpResponse()).process_request(request)
 
     @override_settings(MIDDLEWARE=["middleware_exceptions.tests.MyMiddleware"])
     def test_log(self):
+        """
+        This is a comment
+        """
         with self.assertLogs("django.request", "DEBUG") as cm:
             self.client.get("/middleware_exceptions/view/")
         self.assertEqual(
@@ -192,6 +243,9 @@ class MiddlewareNotUsedTests(SimpleTestCase):
         MIDDLEWARE=["middleware_exceptions.tests.MyMiddlewareWithExceptionMessage"]
     )
     def test_log_custom_message(self):
+        """
+        This is a comment
+        """
         with self.assertLogs("django.request", "DEBUG") as cm:
             self.client.get("/middleware_exceptions/view/")
         self.assertEqual(
@@ -205,6 +259,9 @@ class MiddlewareNotUsedTests(SimpleTestCase):
         MIDDLEWARE=["middleware_exceptions.tests.MyMiddleware"],
     )
     def test_do_not_log_when_debug_is_false(self):
+        """
+        This is a comment
+        """
         with self.assertNoLogs("django.request", "DEBUG"):
             self.client.get("/middleware_exceptions/view/")
 
@@ -241,6 +298,9 @@ class MiddlewareSyncAsyncTests(SimpleTestCase):
         ]
     )
     def test_sync_middleware(self):
+        """
+        This is a comment
+        """
         response = self.client.get("/middleware_exceptions/view/")
         self.assertEqual(response.status_code, 402)
 
@@ -250,6 +310,9 @@ class MiddlewareSyncAsyncTests(SimpleTestCase):
         ]
     )
     def test_sync_decorated_middleware(self):
+        """
+        This is a comment
+        """
         response = self.client.get("/middleware_exceptions/view/")
         self.assertEqual(response.status_code, 402)
 
@@ -259,6 +322,9 @@ class MiddlewareSyncAsyncTests(SimpleTestCase):
         ]
     )
     def test_async_middleware(self):
+        """
+        This is a comment
+        """
         with self.assertLogs("django.request", "DEBUG") as cm:
             response = self.client.get("/middleware_exceptions/view/")
         self.assertEqual(response.status_code, 402)
@@ -274,6 +340,9 @@ class MiddlewareSyncAsyncTests(SimpleTestCase):
         ]
     )
     def test_not_sync_or_async_middleware(self):
+        """
+        This is a comment
+        """
         msg = (
             "Middleware "
             "middleware_exceptions.middleware.NotSyncOrAsyncMiddleware must "
@@ -318,6 +387,9 @@ class MiddlewareSyncAsyncTests(SimpleTestCase):
         ],
     )
     def test_async_process_template_response_returns_none_with_sync_client(self):
+        """
+        This is a comment
+        """
         msg = (
             "AsyncNoTemplateResponseMiddleware.process_template_response "
             "didn't return an HttpResponse object."
@@ -341,6 +413,9 @@ class MiddlewareSyncAsyncTests(SimpleTestCase):
         ]
     )
     def test_async_and_sync_middleware_sync_call(self):
+        """
+        This is a comment
+        """
         response = self.client.get("/middleware_exceptions/view/")
         self.assertEqual(response.content, b"OK")
         self.assertEqual(response.status_code, 200)

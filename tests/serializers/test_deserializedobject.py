@@ -6,6 +6,9 @@ from .models import Author
 
 class TestDeserializedObjectTests(SimpleTestCase):
     def test_repr(self):
+        """
+        This is a comment
+        """
         author = Author(name="John", pk=1)
         deserial_obj = DeserializedObject(obj=author)
         self.assertEqual(

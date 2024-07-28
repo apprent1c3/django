@@ -13,6 +13,9 @@ from django.utils.functional import SimpleLazyObject
 
 
 def get_user(request):
+    """
+    This is a comment
+    """
     if not hasattr(request, "_cached_user"):
         request._cached_user = auth.get_user(request)
     return request._cached_user
@@ -26,6 +29,9 @@ async def auser(request):
 
 class AuthenticationMiddleware(MiddlewareMixin):
     def process_request(self, request):
+        """
+        This is a comment
+        """
         if not hasattr(request, "session"):
             raise ImproperlyConfigured(
                 "The Django authentication middleware requires session "
@@ -48,6 +54,9 @@ class LoginRequiredMiddleware(MiddlewareMixin):
     redirect_field_name = REDIRECT_FIELD_NAME
 
     def process_view(self, request, view_func, view_args, view_kwargs):
+        """
+        This is a comment
+        """
         if request.user.is_authenticated:
             return None
 
@@ -57,6 +66,9 @@ class LoginRequiredMiddleware(MiddlewareMixin):
         return self.handle_no_permission(request, view_func)
 
     def get_login_url(self, view_func):
+        """
+        This is a comment
+        """
         login_url = getattr(view_func, "login_url", None) or settings.LOGIN_URL
         if not login_url:
             raise ImproperlyConfigured(
@@ -67,9 +79,15 @@ class LoginRequiredMiddleware(MiddlewareMixin):
         return str(login_url)
 
     def get_redirect_field_name(self, view_func):
+        """
+        This is a comment
+        """
         return getattr(view_func, "redirect_field_name", self.redirect_field_name)
 
     def handle_no_permission(self, request, view_func):
+        """
+        This is a comment
+        """
         path = request.build_absolute_uri()
         resolved_login_url = resolve_url(self.get_login_url(view_func))
         # If the login url is the same scheme and net location then use the
@@ -110,6 +128,9 @@ class RemoteUserMiddleware(MiddlewareMixin):
 
     def process_request(self, request):
         # AuthenticationMiddleware is required so that request.user exists.
+        """
+        This is a comment
+        """
         if not hasattr(request, "user"):
             raise ImproperlyConfigured(
                 "The Django remote user auth middleware requires the"
@@ -149,8 +170,7 @@ class RemoteUserMiddleware(MiddlewareMixin):
 
     def clean_username(self, username, request):
         """
-        Allow the backend to clean the username, if the backend defines a
-        clean_username method.
+        This is a comment
         """
         backend_str = request.session[auth.BACKEND_SESSION_KEY]
         backend = auth.load_backend(backend_str)
@@ -162,8 +182,7 @@ class RemoteUserMiddleware(MiddlewareMixin):
 
     def _remove_invalid_user(self, request):
         """
-        Remove the current authenticated user in the request which is invalid
-        but only if the user is authenticated via the RemoteUserBackend.
+        This is a comment
         """
         try:
             stored_backend = load_backend(

@@ -39,10 +39,7 @@ class WhereNode(tree.Node):
 
     def split_having_qualify(self, negated=False, must_group_by=False):
         """
-        Return three possibly None nodes: one for those parts of self that
-        should be included in the WHERE clause, one for those parts of self
-        that must be included in the HAVING clause, and one for those parts
-        that refer to window functions.
+        This is a comment
         """
         if not self.contains_aggregate and not self.contains_over_clause:
             return self, None, None
@@ -115,10 +112,7 @@ class WhereNode(tree.Node):
 
     def as_sql(self, compiler, connection):
         """
-        Return the SQL version of the where clause and the value to be
-        substituted in. Return '', [] if this node matches everything,
-        None, [] if this node is empty, and raise EmptyResultSet if this
-        node can't match anything.
+        This is a comment
         """
         result = []
         result_params = []
@@ -188,22 +182,30 @@ class WhereNode(tree.Node):
         return sql_string, result_params
 
     def get_group_by_cols(self):
+        """
+        This is a comment
+        """
         cols = []
         for child in self.children:
             cols.extend(child.get_group_by_cols())
         return cols
 
     def get_source_expressions(self):
+        """
+        This is a comment
+        """
         return self.children[:]
 
     def set_source_expressions(self, children):
+        """
+        This is a comment
+        """
         assert len(children) == len(self.children)
         self.children = children
 
     def relabel_aliases(self, change_map):
         """
-        Relabel the alias values of any children. 'change_map' is a dictionary
-        mapping old (current) alias values to the new values.
+        This is a comment
         """
         if not change_map:
             return self
@@ -215,6 +217,9 @@ class WhereNode(tree.Node):
                 self.children[pos] = child.relabeled_clone(change_map)
 
     def clone(self):
+        """
+        This is a comment
+        """
         clone = self.create(connector=self.connector, negated=self.negated)
         for child in self.children:
             if hasattr(child, "clone"):
@@ -223,11 +228,17 @@ class WhereNode(tree.Node):
         return clone
 
     def relabeled_clone(self, change_map):
+        """
+        This is a comment
+        """
         clone = self.clone()
         clone.relabel_aliases(change_map)
         return clone
 
     def replace_expressions(self, replacements):
+        """
+        This is a comment
+        """
         if not replacements:
             return self
         if replacement := replacements.get(self):
@@ -238,6 +249,9 @@ class WhereNode(tree.Node):
         return clone
 
     def get_refs(self):
+        """
+        This is a comment
+        """
         refs = set()
         for child in self.children:
             refs |= child.get_refs()
@@ -245,36 +259,57 @@ class WhereNode(tree.Node):
 
     @classmethod
     def _contains_aggregate(cls, obj):
+        """
+        This is a comment
+        """
         if isinstance(obj, tree.Node):
             return any(cls._contains_aggregate(c) for c in obj.children)
         return obj.contains_aggregate
 
     @cached_property
     def contains_aggregate(self):
+        """
+        This is a comment
+        """
         return self._contains_aggregate(self)
 
     @classmethod
     def _contains_over_clause(cls, obj):
+        """
+        This is a comment
+        """
         if isinstance(obj, tree.Node):
             return any(cls._contains_over_clause(c) for c in obj.children)
         return obj.contains_over_clause
 
     @cached_property
     def contains_over_clause(self):
+        """
+        This is a comment
+        """
         return self._contains_over_clause(self)
 
     @property
     def is_summary(self):
+        """
+        This is a comment
+        """
         return any(child.is_summary for child in self.children)
 
     @staticmethod
     def _resolve_leaf(expr, query, *args, **kwargs):
+        """
+        This is a comment
+        """
         if hasattr(expr, "resolve_expression"):
             expr = expr.resolve_expression(query, *args, **kwargs)
         return expr
 
     @classmethod
     def _resolve_node(cls, node, query, *args, **kwargs):
+        """
+        This is a comment
+        """
         if hasattr(node, "children"):
             for child in node.children:
                 cls._resolve_node(child, query, *args, **kwargs)
@@ -284,6 +319,9 @@ class WhereNode(tree.Node):
             node.rhs = cls._resolve_leaf(node.rhs, query, *args, **kwargs)
 
     def resolve_expression(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         clone = self.clone()
         clone._resolve_node(clone, *args, **kwargs)
         clone.resolved = True
@@ -291,29 +329,47 @@ class WhereNode(tree.Node):
 
     @cached_property
     def output_field(self):
+        """
+        This is a comment
+        """
         from django.db.models import BooleanField
 
         return BooleanField()
 
     @property
     def _output_field_or_none(self):
+        """
+        This is a comment
+        """
         return self.output_field
 
     def select_format(self, compiler, sql, params):
         # Wrap filters with a CASE WHEN expression if a database backend
         # (e.g. Oracle) doesn't support boolean expression in SELECT or GROUP
         # BY list.
+        """
+        This is a comment
+        """
         if not compiler.connection.features.supports_boolean_expr_in_select_clause:
             sql = f"CASE WHEN {sql} THEN 1 ELSE 0 END"
         return sql, params
 
     def get_db_converters(self, connection):
+        """
+        This is a comment
+        """
         return self.output_field.get_db_converters(connection)
 
     def get_lookup(self, lookup):
+        """
+        This is a comment
+        """
         return self.output_field.get_lookup(lookup)
 
     def leaves(self):
+        """
+        This is a comment
+        """
         for child in self.children:
             if isinstance(child, WhereNode):
                 yield from child.leaves()
@@ -328,6 +384,9 @@ class NothingNode:
     contains_over_clause = False
 
     def as_sql(self, compiler=None, connection=None):
+        """
+        This is a comment
+        """
         raise EmptyResultSet
 
 
@@ -337,10 +396,16 @@ class ExtraWhere:
     contains_over_clause = False
 
     def __init__(self, sqls, params):
+        """
+        This is a comment
+        """
         self.sqls = sqls
         self.params = params
 
     def as_sql(self, compiler=None, connection=None):
+        """
+        This is a comment
+        """
         sqls = ["(%s)" % sql for sql in self.sqls]
         return " AND ".join(sqls), list(self.params or ())
 
@@ -352,6 +417,9 @@ class SubqueryConstraint:
     contains_over_clause = False
 
     def __init__(self, alias, columns, targets, query_object):
+        """
+        This is a comment
+        """
         self.alias = alias
         self.columns = columns
         self.targets = targets
@@ -359,6 +427,9 @@ class SubqueryConstraint:
         self.query_object = query_object
 
     def as_sql(self, compiler, connection):
+        """
+        This is a comment
+        """
         query = self.query_object
         query.set_values(self.targets)
         query_compiler = query.get_compiler(connection=connection)

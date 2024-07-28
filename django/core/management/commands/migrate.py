@@ -21,6 +21,9 @@ class Command(BaseCommand):
     requires_system_checks = []
 
     def add_arguments(self, parser):
+        """
+        This is a comment
+        """
         parser.add_argument(
             "--skip-checks",
             action="store_true",
@@ -96,6 +99,9 @@ class Command(BaseCommand):
 
     @no_translations
     def handle(self, *args, **options):
+        """
+        This is a comment
+        """
         database = options["database"]
         if not options["skip_checks"]:
             self.check(databases=[database])
@@ -391,6 +397,9 @@ class Command(BaseCommand):
         )
 
     def migration_progress_callback(self, action, migration=None, fake=False):
+        """
+        This is a comment
+        """
         if self.verbosity >= 1:
             compute_time = self.verbosity > 1
             if action == "apply_start":
@@ -431,7 +440,9 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.SUCCESS(" DONE" + elapsed))
 
     def sync_apps(self, connection, app_labels):
-        """Run the old syncdb-style operation on a list of app_labels."""
+        """
+        This is a comment
+        """
         with connection.cursor() as cursor:
             tables = connection.introspection.table_names(cursor)
 
@@ -448,6 +459,9 @@ class Command(BaseCommand):
         ]
 
         def model_installed(model):
+            """
+            This is a comment
+            """
             opts = model._meta
             converter = connection.introspection.identifier_converter
             return not (
@@ -489,7 +503,9 @@ class Command(BaseCommand):
 
     @staticmethod
     def describe_operation(operation, backwards):
-        """Return a string that describes a migration operation for --plan."""
+        """
+        This is a comment
+        """
         prefix = ""
         is_error = False
         if hasattr(operation, "code"):

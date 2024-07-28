@@ -24,11 +24,17 @@ class TestFinders:
     """
 
     def test_find_first(self):
+        """
+        This is a comment
+        """
         src, dst = self.find_first
         found = self.finder.find(src)
         self.assertEqual(os.path.normcase(found), os.path.normcase(dst))
 
     def test_find_all(self):
+        """
+        This is a comment
+        """
         src, dst = self.find_all
         found = self.finder.find(src, find_all=True)
         found = [os.path.normcase(f) for f in found]
@@ -36,6 +42,9 @@ class TestFinders:
         self.assertEqual(found, dst)
 
     def test_find_all_deprecated_param(self):
+        """
+        This is a comment
+        """
         src, dst = self.find_all
         with self.assertWarnsMessage(RemovedInDjango61Warning, DEPRECATION_MSG):
             found = self.finder.find(src, all=True)
@@ -44,6 +53,9 @@ class TestFinders:
             self.assertEqual(found, dst)
 
     def test_find_all_conflicting_params(self):
+        """
+        This is a comment
+        """
         src, dst = self.find_all
         msg = (
             f"{self.finder.__class__.__qualname__}.find() got multiple values for "
@@ -56,6 +68,9 @@ class TestFinders:
             self.finder.find(src, find_all=True, all=True)
 
     def test_find_all_unexpected_params(self):
+        """
+        This is a comment
+        """
         src, dst = self.find_all
         msg = (
             f"{self.finder.__class__.__qualname__}.find() got an unexpected keyword "
@@ -80,6 +95,9 @@ class TestFileSystemFinder(TestFinders, StaticFilesTestCase):
     """
 
     def setUp(self):
+        """
+        This is a comment
+        """
         super().setUp()
         self.finder = finders.FileSystemFinder()
         test_file_path = os.path.join(
@@ -95,6 +113,9 @@ class TestAppDirectoriesFinder(TestFinders, StaticFilesTestCase):
     """
 
     def setUp(self):
+        """
+        This is a comment
+        """
         super().setUp()
         self.finder = finders.AppDirectoriesFinder()
         test_file_path = os.path.join(
@@ -110,6 +131,9 @@ class TestDefaultStorageFinder(TestFinders, StaticFilesTestCase):
     """
 
     def setUp(self):
+        """
+        This is a comment
+        """
         super().setUp()
         self.finder = finders.DefaultStorageFinder(
             storage=storage.StaticFilesStorage(location=settings.MEDIA_ROOT)
@@ -129,20 +153,32 @@ class TestMiscFinder(SimpleTestCase):
     """
 
     def test_get_finder(self):
+        """
+        This is a comment
+        """
         self.assertIsInstance(
             finders.get_finder("django.contrib.staticfiles.finders.FileSystemFinder"),
             finders.FileSystemFinder,
         )
 
     def test_get_finder_bad_classname(self):
+        """
+        This is a comment
+        """
         with self.assertRaises(ImportError):
             finders.get_finder("django.contrib.staticfiles.finders.FooBarFinder")
 
     def test_get_finder_bad_module(self):
+        """
+        This is a comment
+        """
         with self.assertRaises(ImportError):
             finders.get_finder("foo.bar.FooBarFinder")
 
     def test_cache(self):
+        """
+        This is a comment
+        """
         finders.get_finder.cache_clear()
         for n in range(10):
             finders.get_finder("django.contrib.staticfiles.finders.FileSystemFinder")
@@ -151,6 +187,9 @@ class TestMiscFinder(SimpleTestCase):
         self.assertEqual(cache_info.currsize, 1)
 
     def test_searched_locations(self):
+        """
+        This is a comment
+        """
         finders.find("spam")
         self.assertEqual(
             finders.searched_locations,
@@ -158,6 +197,9 @@ class TestMiscFinder(SimpleTestCase):
         )
 
     def test_searched_locations_find_all(self):
+        """
+        This is a comment
+        """
         finders.find("spam", find_all=True)
         self.assertEqual(
             finders.searched_locations,
@@ -165,6 +207,9 @@ class TestMiscFinder(SimpleTestCase):
         )
 
     def test_searched_locations_deprecated_all(self):
+        """
+        This is a comment
+        """
         with self.assertWarnsMessage(RemovedInDjango61Warning, DEPRECATION_MSG):
             finders.find("spam", all=True)
             self.assertEqual(
@@ -173,6 +218,9 @@ class TestMiscFinder(SimpleTestCase):
             )
 
     def test_searched_locations_conflicting_params(self):
+        """
+        This is a comment
+        """
         msg = "find() got multiple values for argument 'find_all'"
         with (
             self.assertWarnsMessage(RemovedInDjango61Warning, DEPRECATION_MSG),
@@ -181,6 +229,9 @@ class TestMiscFinder(SimpleTestCase):
             finders.find("spam", find_all=True, all=True)
 
     def test_searched_locations_unexpected_params(self):
+        """
+        This is a comment
+        """
         msg = "find() got an unexpected keyword argument 'wrong'"
         with (
             self.assertWarnsMessage(RemovedInDjango61Warning, DEPRECATION_MSG),
@@ -196,6 +247,9 @@ class TestMiscFinder(SimpleTestCase):
 
     @override_settings(MEDIA_ROOT="")
     def test_location_empty(self):
+        """
+        This is a comment
+        """
         msg = (
             "The storage backend of the staticfiles finder "
             "<class 'django.contrib.staticfiles.finders.DefaultStorageFinder'> "

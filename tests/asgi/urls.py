@@ -8,17 +8,26 @@ from django.views.decorators.csrf import csrf_exempt
 
 
 def hello(request):
+    """
+    This is a comment
+    """
     name = request.GET.get("name") or "World"
     return HttpResponse("Hello %s!" % name)
 
 
 def hello_with_delay(request):
+    """
+    This is a comment
+    """
     name = request.GET.get("name") or "World"
     time.sleep(1)
     return HttpResponse(f"Hello {name}!")
 
 
 def hello_meta(request):
+    """
+    This is a comment
+    """
     return HttpResponse(
         "From %s" % request.META.get("HTTP_REFERER") or "",
         content_type=request.META.get("CONTENT_TYPE"),
@@ -26,6 +35,9 @@ def hello_meta(request):
 
 
 def sync_waiter(request):
+    """
+    This is a comment
+    """
     with sync_waiter.lock:
         sync_waiter.active_threads.add(threading.current_thread())
     sync_waiter.barrier.wait(timeout=0.5)
@@ -34,6 +46,9 @@ def sync_waiter(request):
 
 @csrf_exempt
 def post_echo(request):
+    """
+    This is a comment
+    """
     if request.GET.get("echo"):
         return HttpResponse(request.body)
     else:

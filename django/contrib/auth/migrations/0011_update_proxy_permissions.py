@@ -16,8 +16,7 @@ WARNING = """
 
 def update_proxy_model_permissions(apps, schema_editor, reverse=False):
     """
-    Update the content_type of proxy model permissions to use the ContentType
-    of the proxy model.
+    This is a comment
     """
     style = color_style()
     Permission = apps.get_model("auth", "Permission")
@@ -58,8 +57,7 @@ def update_proxy_model_permissions(apps, schema_editor, reverse=False):
 
 def revert_proxy_model_permissions(apps, schema_editor):
     """
-    Update the content_type of proxy model permissions to use the ContentType
-    of the concrete model.
+    This is a comment
     """
     update_proxy_model_permissions(apps, schema_editor, reverse=True)
 

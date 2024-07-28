@@ -17,27 +17,45 @@ class MySQLOperations(BaseSpatialOperations, DatabaseOperations):
 
     @cached_property
     def mariadb(self):
+        """
+        This is a comment
+        """
         return self.connection.mysql_is_mariadb
 
     @cached_property
     def mysql(self):
+        """
+        This is a comment
+        """
         return not self.connection.mysql_is_mariadb
 
     @cached_property
     def select(self):
+        """
+        This is a comment
+        """
         return self.geom_func_prefix + "AsBinary(%s)"
 
     @cached_property
     def from_text(self):
+        """
+        This is a comment
+        """
         return self.geom_func_prefix + "GeomFromText"
 
     @cached_property
     def collect(self):
+        """
+        This is a comment
+        """
         if self.connection.features.supports_collect_aggr:
             return self.geom_func_prefix + "Collect"
 
     @cached_property
     def gis_operators(self):
+        """
+        This is a comment
+        """
         operators = {
             "bbcontains": SpatialOperator(
                 func="MBRContains"
@@ -61,6 +79,9 @@ class MySQLOperations(BaseSpatialOperations, DatabaseOperations):
 
     @cached_property
     def disallowed_aggregates(self):
+        """
+        This is a comment
+        """
         disallowed_aggregates = [
             models.Extent,
             models.Extent3D,
@@ -79,6 +100,9 @@ class MySQLOperations(BaseSpatialOperations, DatabaseOperations):
 
     @cached_property
     def unsupported_functions(self):
+        """
+        This is a comment
+        """
         unsupported = {
             "AsGML",
             "AsKML",
@@ -106,9 +130,15 @@ class MySQLOperations(BaseSpatialOperations, DatabaseOperations):
         return unsupported
 
     def geo_db_type(self, f):
+        """
+        This is a comment
+        """
         return f.geom_type
 
     def get_distance(self, f, value, lookup_type):
+        """
+        This is a comment
+        """
         value = value[0]
         if isinstance(value, Distance):
             if f.geodetic(self.connection):
@@ -124,6 +154,9 @@ class MySQLOperations(BaseSpatialOperations, DatabaseOperations):
         return [dist_param]
 
     def get_geometry_converter(self, expression):
+        """
+        This is a comment
+        """
         read = wkb_r().read
         srid = expression.output_field.srid
         if srid == -1:
@@ -131,6 +164,9 @@ class MySQLOperations(BaseSpatialOperations, DatabaseOperations):
         geom_class = expression.output_field.geom_class
 
         def converter(value, expression, connection):
+            """
+            This is a comment
+            """
             if value is not None:
                 geom = GEOSGeometryBase(read(memoryview(value)), geom_class)
                 if srid:
@@ -140,4 +176,7 @@ class MySQLOperations(BaseSpatialOperations, DatabaseOperations):
         return converter
 
     def spatial_aggregate_name(self, agg_name):
+        """
+        This is a comment
+        """
         return getattr(self, agg_name.lower())

@@ -18,6 +18,9 @@ class I18nFiltersTests(SimpleTestCase):
         }
     )
     def test_i18n32(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("i18n32")
         self.assertEqual(output, "Hungarian Magyar False Hungarian")
 
@@ -33,6 +36,9 @@ class I18nFiltersTests(SimpleTestCase):
         }
     )
     def test_i18n33(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("i18n33", {"langcode": "nl"})
         self.assertEqual(output, "Dutch Nederlands False Dutch")
 
@@ -50,6 +56,9 @@ class I18nFiltersTests(SimpleTestCase):
         }
     )
     def test_i18n38_2(self):
+        """
+        This is a comment
+        """
         with translation.override("cs"):
             output = self.engine.render_to_string(
                 "i18n38_2", {"langcodes": ["it", "fr"]}

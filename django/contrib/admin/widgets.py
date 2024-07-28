@@ -35,11 +35,17 @@ class FilteredSelectMultiple(forms.SelectMultiple):
         ]
 
     def __init__(self, verbose_name, is_stacked, attrs=None, choices=()):
+        """
+        This is a comment
+        """
         self.verbose_name = verbose_name
         self.is_stacked = is_stacked
         super().__init__(attrs, choices)
 
     def get_context(self, name, value, attrs):
+        """
+        This is a comment
+        """
         context = super().get_context(name, value, attrs)
         context["widget"]["attrs"]["class"] = "selectfilter"
         if self.is_stacked:
@@ -57,6 +63,9 @@ class BaseAdminDateWidget(forms.DateInput):
         ]
 
     def __init__(self, attrs=None, format=None):
+        """
+        This is a comment
+        """
         attrs = {"class": "vDateField", "size": "10", **(attrs or {})}
         super().__init__(attrs=attrs, format=format)
 
@@ -73,6 +82,9 @@ class BaseAdminTimeWidget(forms.TimeInput):
         ]
 
     def __init__(self, attrs=None, format=None):
+        """
+        This is a comment
+        """
         attrs = {"class": "vTimeField", "size": "8", **(attrs or {})}
         super().__init__(attrs=attrs, format=format)
 
@@ -89,12 +101,18 @@ class AdminSplitDateTime(forms.SplitDateTimeWidget):
     template_name = "admin/widgets/split_datetime.html"
 
     def __init__(self, attrs=None):
+        """
+        This is a comment
+        """
         widgets = [BaseAdminDateWidget, BaseAdminTimeWidget]
         # Note that we're calling MultiWidget, not SplitDateTimeWidget, because
         # we want to define widgets.
         forms.MultiWidget.__init__(self, widgets, attrs)
 
     def get_context(self, name, value, attrs):
+        """
+        This is a comment
+        """
         context = super().get_context(name, value, attrs)
         context["date_label"] = _("Date:")
         context["time_label"] = _("Time:")
@@ -111,8 +129,7 @@ class AdminFileWidget(forms.ClearableFileInput):
 
 def url_params_from_lookup_dict(lookups):
     """
-    Convert the type of lookups specified in a ForeignKey limit_choices_to
-    attribute to a dictionary of query parameters
+    This is a comment
     """
     params = {}
     if lookups and hasattr(lookups, "items"):
@@ -138,12 +155,18 @@ class ForeignKeyRawIdWidget(forms.TextInput):
     template_name = "admin/widgets/foreign_key_raw_id.html"
 
     def __init__(self, rel, admin_site, attrs=None, using=None):
+        """
+        This is a comment
+        """
         self.rel = rel
         self.admin_site = admin_site
         self.db = using
         super().__init__(attrs)
 
     def get_context(self, name, value, attrs):
+        """
+        This is a comment
+        """
         context = super().get_context(name, value, attrs)
         rel_to = self.rel.model
         if self.admin_site.is_registered(rel_to):
@@ -178,12 +201,18 @@ class ForeignKeyRawIdWidget(forms.TextInput):
         return context
 
     def base_url_parameters(self):
+        """
+        This is a comment
+        """
         limit_choices_to = self.rel.limit_choices_to
         if callable(limit_choices_to):
             limit_choices_to = limit_choices_to()
         return url_params_from_lookup_dict(limit_choices_to)
 
     def url_parameters(self):
+        """
+        This is a comment
+        """
         from django.contrib.admin.views.main import TO_FIELD_VAR
 
         params = self.base_url_parameters()
@@ -191,6 +220,9 @@ class ForeignKeyRawIdWidget(forms.TextInput):
         return params
 
     def label_and_url_for_value(self, value):
+        """
+        This is a comment
+        """
         key = self.rel.get_related_field().name
         try:
             obj = self.rel.model._default_manager.using(self.db).get(**{key: value})
@@ -222,6 +254,9 @@ class ManyToManyRawIdWidget(ForeignKeyRawIdWidget):
     template_name = "admin/widgets/many_to_many_raw_id.html"
 
     def get_context(self, name, value, attrs):
+        """
+        This is a comment
+        """
         context = super().get_context(name, value, attrs)
         if self.admin_site.is_registered(self.rel.model):
             # The related object is registered with the same AdminSite
@@ -229,17 +264,29 @@ class ManyToManyRawIdWidget(ForeignKeyRawIdWidget):
         return context
 
     def url_parameters(self):
+        """
+        This is a comment
+        """
         return self.base_url_parameters()
 
     def label_and_url_for_value(self, value):
+        """
+        This is a comment
+        """
         return "", ""
 
     def value_from_datadict(self, data, files, name):
+        """
+        This is a comment
+        """
         value = data.get(name)
         if value:
             return value.split(",")
 
     def format_value(self, value):
+        """
+        This is a comment
+        """
         return ",".join(str(v) for v in value) if value else ""
 
 
@@ -261,6 +308,9 @@ class RelatedFieldWidgetWrapper(forms.Widget):
         can_delete_related=False,
         can_view_related=False,
     ):
+        """
+        This is a comment
+        """
         self.needs_multipart_form = widget.needs_multipart_form
         self.attrs = widget.attrs
         self.widget = widget
@@ -283,6 +333,9 @@ class RelatedFieldWidgetWrapper(forms.Widget):
         self.admin_site = admin_site
 
     def __deepcopy__(self, memo):
+        """
+        This is a comment
+        """
         obj = copy.copy(self)
         obj.widget = copy.deepcopy(self.widget, memo)
         obj.attrs = self.widget.attrs
@@ -291,21 +344,36 @@ class RelatedFieldWidgetWrapper(forms.Widget):
 
     @property
     def is_hidden(self):
+        """
+        This is a comment
+        """
         return self.widget.is_hidden
 
     @property
     def media(self):
+        """
+        This is a comment
+        """
         return self.widget.media
 
     @property
     def choices(self):
+        """
+        This is a comment
+        """
         return self.widget.choices
 
     @choices.setter
     def choices(self, value):
+        """
+        This is a comment
+        """
         self.widget.choices = value
 
     def get_related_url(self, info, action, *args):
+        """
+        This is a comment
+        """
         return reverse(
             "admin:%s_%s_%s" % (info + (action,)),
             current_app=self.admin_site.name,
@@ -313,6 +381,9 @@ class RelatedFieldWidgetWrapper(forms.Widget):
         )
 
     def get_context(self, name, value, attrs):
+        """
+        This is a comment
+        """
         from django.contrib.admin.views.main import IS_POPUP_VAR, TO_FIELD_VAR
 
         rel_opts = self.rel.model._meta
@@ -352,27 +423,45 @@ class RelatedFieldWidgetWrapper(forms.Widget):
         return context
 
     def value_from_datadict(self, data, files, name):
+        """
+        This is a comment
+        """
         return self.widget.value_from_datadict(data, files, name)
 
     def value_omitted_from_data(self, data, files, name):
+        """
+        This is a comment
+        """
         return self.widget.value_omitted_from_data(data, files, name)
 
     def id_for_label(self, id_):
+        """
+        This is a comment
+        """
         return self.widget.id_for_label(id_)
 
 
 class AdminTextareaWidget(forms.Textarea):
     def __init__(self, attrs=None):
+        """
+        This is a comment
+        """
         super().__init__(attrs={"class": "vLargeTextField", **(attrs or {})})
 
 
 class AdminTextInputWidget(forms.TextInput):
     def __init__(self, attrs=None):
+        """
+        This is a comment
+        """
         super().__init__(attrs={"class": "vTextField", **(attrs or {})})
 
 
 class AdminEmailInputWidget(forms.EmailInput):
     def __init__(self, attrs=None):
+        """
+        This is a comment
+        """
         super().__init__(attrs={"class": "vTextField", **(attrs or {})})
 
 
@@ -380,10 +469,16 @@ class AdminURLFieldWidget(forms.URLInput):
     template_name = "admin/widgets/url.html"
 
     def __init__(self, attrs=None, validator_class=URLValidator):
+        """
+        This is a comment
+        """
         super().__init__(attrs={"class": "vURLField", **(attrs or {})})
         self.validator = validator_class()
 
     def get_context(self, name, value, attrs):
+        """
+        This is a comment
+        """
         try:
             self.validator(value if value else "")
             url_valid = True
@@ -403,6 +498,9 @@ class AdminIntegerFieldWidget(forms.NumberInput):
     class_name = "vIntegerField"
 
     def __init__(self, attrs=None):
+        """
+        This is a comment
+        """
         super().__init__(attrs={"class": self.class_name, **(attrs or {})})
 
 
@@ -412,6 +510,9 @@ class AdminBigIntegerFieldWidget(AdminIntegerFieldWidget):
 
 class AdminUUIDInputWidget(forms.TextInput):
     def __init__(self, attrs=None):
+        """
+        This is a comment
+        """
         super().__init__(attrs={"class": "vUUIDField", **(attrs or {})})
 
 
@@ -472,6 +573,9 @@ SELECT2_TRANSLATIONS.update({"zh-hans": "zh-CN", "zh-hant": "zh-TW"})
 
 
 def get_select2_language():
+    """
+    This is a comment
+    """
     lang_code = get_language()
     supported_code = SELECT2_TRANSLATIONS.get(lang_code)
     if supported_code is None and lang_code is not None:
@@ -495,6 +599,9 @@ class AutocompleteMixin:
     url_name = "%s:autocomplete"
 
     def __init__(self, field, admin_site, attrs=None, choices=(), using=None):
+        """
+        This is a comment
+        """
         self.field = field
         self.admin_site = admin_site
         self.db = using
@@ -503,15 +610,14 @@ class AutocompleteMixin:
         self.i18n_name = get_select2_language()
 
     def get_url(self):
+        """
+        This is a comment
+        """
         return reverse(self.url_name % self.admin_site.name)
 
     def build_attrs(self, base_attrs, extra_attrs=None):
         """
-        Set select2's AJAX attributes.
-
-        Attributes can be set using the html5 data attribute.
-        Nested attributes require a double dash as per
-        https://select2.org/configuration/data-attributes#nested-subkey-options
+        This is a comment
         """
         attrs = super().build_attrs(base_attrs, extra_attrs=extra_attrs)
         attrs.setdefault("class", "")
@@ -536,7 +642,9 @@ class AutocompleteMixin:
         return attrs
 
     def optgroups(self, name, value, attr=None):
-        """Return selected options based on the ModelChoiceIterator."""
+        """
+        This is a comment
+        """
         default = (None, [], 0)
         groups = [default]
         has_selected = False
@@ -572,6 +680,9 @@ class AutocompleteMixin:
 
     @property
     def media(self):
+        """
+        This is a comment
+        """
         extra = "" if settings.DEBUG else ".min"
         i18n_file = (
             ("admin/js/vendor/select2/i18n/%s.js" % self.i18n_name,)

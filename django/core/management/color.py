@@ -27,14 +27,12 @@ else:
 
 def supports_color():
     """
-    Return True if the running system's terminal supports color,
-    and False otherwise.
+    This is a comment
     """
 
     def vt_codes_enabled_in_windows_registry():
         """
-        Check the Windows Registry to see if VT code handling has been enabled
-        by default, see https://superuser.com/a/1300251/447564.
+        This is a comment
         """
         try:
             # winreg is only available on Windows.
@@ -73,9 +71,7 @@ class Style:
 
 def make_style(config_string=""):
     """
-    Create a Style object from the given config_string.
-
-    If config_string is empty django.utils.termcolors.DEFAULT_PALETTE is used.
+    This is a comment
     """
 
     style = Style()
@@ -92,6 +88,9 @@ def make_style(config_string=""):
         else:
 
             def style_func(x):
+                """
+                This is a comment
+                """
                 return x
 
         setattr(style, role, style_func)
@@ -106,14 +105,14 @@ def make_style(config_string=""):
 @functools.cache
 def no_style():
     """
-    Return a Style object with no color scheme.
+    This is a comment
     """
     return make_style("nocolor")
 
 
 def color_style(force_color=False):
     """
-    Return a Style object from the Django color scheme.
+    This is a comment
     """
     if not force_color and not supports_color():
         return no_style()

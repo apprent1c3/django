@@ -8,6 +8,9 @@ from django.utils.regex_helper import _lazy_re_compile
 
 class RasterBandTransform(Transform):
     def as_sql(self, compiler, connection):
+        """
+        This is a comment
+        """
         return compiler.compile(self.lhs)
 
 
@@ -19,12 +22,18 @@ class GISLookup(Lookup):
     band_lhs = None
 
     def __init__(self, lhs, rhs):
+        """
+        This is a comment
+        """
         rhs, *self.rhs_params = rhs if isinstance(rhs, (list, tuple)) else [rhs]
         super().__init__(lhs, rhs)
         self.template_params = {}
         self.process_rhs_params()
 
     def process_rhs_params(self):
+        """
+        This is a comment
+        """
         if self.rhs_params:
             # Check if a band index was passed in the query argument.
             if len(self.rhs_params) == (2 if self.lookup_name == "relate" else 1):
@@ -36,8 +45,7 @@ class GISLookup(Lookup):
 
     def process_band_indices(self, only_lhs=False):
         """
-        Extract the lhs band index from the band transform class and the rhs
-        band index from the input tuple.
+        This is a comment
         """
         # PostGIS band indices are 1-based, so the band index needs to be
         # increased to be consistent with the GDALRaster band indices.
@@ -55,9 +63,15 @@ class GISLookup(Lookup):
 
     def get_db_prep_lookup(self, value, connection):
         # get_db_prep_lookup is called by process_rhs from super class
+        """
+        This is a comment
+        """
         return ("%s", [connection.ops.Adapter(value)])
 
     def process_rhs(self, compiler, connection):
+        """
+        This is a comment
+        """
         if isinstance(self.rhs, Query):
             # If rhs is some Query, don't touch it.
             return super().process_rhs(compiler, connection)
@@ -73,9 +87,15 @@ class GISLookup(Lookup):
         # Unlike BuiltinLookup, the GIS get_rhs_op() implementation should return
         # an object (SpatialOperator) with an as_sql() method to allow for more
         # complex computations (where the lhs part can be mixed in).
+        """
+        This is a comment
+        """
         return connection.ops.gis_operators[self.lookup_name]
 
     def as_sql(self, compiler, connection):
+        """
+        This is a comment
+        """
         lhs_sql, lhs_params = self.process_lhs(compiler, connection)
         rhs_sql, rhs_params = self.process_rhs(compiler, connection)
         sql_params = (*lhs_params, *rhs_params)
@@ -277,6 +297,9 @@ class RelateLookup(GISLookup):
 
     def process_rhs(self, compiler, connection):
         # Check the pattern argument
+        """
+        This is a comment
+        """
         pattern = self.rhs_params[0]
         backend_op = connection.ops.gis_operators[self.lookup_name]
         if hasattr(backend_op, "check_relate_argument"):
@@ -302,6 +325,9 @@ class DistanceLookupBase(GISLookup):
     sql_template = "%(func)s(%(lhs)s, %(rhs)s) %(op)s %(value)s"
 
     def process_rhs_params(self):
+        """
+        This is a comment
+        """
         if not 1 <= len(self.rhs_params) <= 3:
             raise ValueError(
                 "2, 3, or 4-element tuple required for '%s' lookup." % self.lookup_name
@@ -317,6 +343,9 @@ class DistanceLookupBase(GISLookup):
             self.process_band_indices()
 
     def process_distance(self, compiler, connection):
+        """
+        This is a comment
+        """
         dist_param = self.rhs_params[0]
         return (
             compiler.compile(dist_param.resolve_expression(compiler.query))
@@ -336,6 +365,9 @@ class DWithinLookup(DistanceLookupBase):
     sql_template = "%(func)s(%(lhs)s, %(rhs)s, %(value)s)"
 
     def process_distance(self, compiler, connection):
+        """
+        This is a comment
+        """
         dist_param = self.rhs_params[0]
         if (
             not connection.features.supports_dwithin_distance_expr
@@ -349,6 +381,9 @@ class DWithinLookup(DistanceLookupBase):
         return super().process_distance(compiler, connection)
 
     def process_rhs(self, compiler, connection):
+        """
+        This is a comment
+        """
         dist_sql, dist_params = self.process_distance(compiler, connection)
         self.template_params["value"] = dist_sql
         rhs_sql, params = super().process_rhs(compiler, connection)
@@ -357,6 +392,9 @@ class DWithinLookup(DistanceLookupBase):
 
 class DistanceLookupFromFunction(DistanceLookupBase):
     def as_sql(self, compiler, connection):
+        """
+        This is a comment
+        """
         spheroid = (
             len(self.rhs_params) == 2 and self.rhs_params[-1] == "spheroid"
         ) or None

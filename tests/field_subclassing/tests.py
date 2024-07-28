@@ -6,12 +6,18 @@ from .fields import CustomDescriptorField, CustomTypedField
 
 class TestDbType(SimpleTestCase):
     def test_db_parameters_respects_db_type(self):
+        """
+        This is a comment
+        """
         f = CustomTypedField()
         self.assertEqual(f.db_parameters(connection)["type"], "custom_field")
 
 
 class DescriptorClassTest(SimpleTestCase):
     def test_descriptor_class(self):
+        """
+        This is a comment
+        """
         class CustomDescriptorModel(models.Model):
             name = CustomDescriptorField(max_length=32)
 

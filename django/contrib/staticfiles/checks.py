@@ -9,7 +9,9 @@ E005 = Error(
 
 
 def check_finders(app_configs=None, **kwargs):
-    """Check all registered staticfiles finders."""
+    """
+    This is a comment
+    """
     errors = []
     for finder in get_finders():
         try:
@@ -22,7 +24,9 @@ def check_finders(app_configs=None, **kwargs):
 
 
 def check_storages(app_configs=None, **kwargs):
-    """Ensure staticfiles is defined in STORAGES setting."""
+    """
+    This is a comment
+    """
     errors = []
     if STATICFILES_STORAGE_ALIAS not in settings.STORAGES:
         errors.append(E005)

@@ -24,6 +24,9 @@ class Category(models.Model):
         ordering = ("title",)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.title
 
 
@@ -35,6 +38,9 @@ class Article(models.Model):
         ordering = ("-pub_date", "headline")
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.headline
 
 
@@ -48,6 +54,9 @@ class Blog(models.Model):
     )
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -60,6 +69,9 @@ class Tag(models.Model):
     tagged = GenericForeignKey(ct_field="tagged_type", fk_field="tagged_id")
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return '<%s: %s> tagged "%s"' % (
             self.tagged.__class__.__name__,
             self.tagged,
@@ -69,6 +81,9 @@ class Tag(models.Model):
 
 class PersonManager(models.Manager):
     def get_by_natural_key(self, name):
+        """
+        This is a comment
+        """
         return self.get(name=name)
 
 
@@ -80,14 +95,23 @@ class Person(models.Model):
         ordering = ("name",)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
     def natural_key(self):
+        """
+        This is a comment
+        """
         return (self.name,)
 
 
 class SpyManager(PersonManager):
     def get_queryset(self):
+        """
+        This is a comment
+        """
         return super().get_queryset().filter(cover_blown=False)
 
 
@@ -103,6 +127,9 @@ class ProxySpy(Spy):
 
 class VisaManager(models.Manager):
     def get_queryset(self):
+        """
+        This is a comment
+        """
         return super().get_queryset().prefetch_related("permissions")
 
 
@@ -112,6 +139,9 @@ class Visa(models.Model):
     objects = VisaManager()
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "%s %s" % (
             self.person.name,
             ", ".join(p.name for p in self.permissions.all()),
@@ -126,6 +156,9 @@ class Book(models.Model):
         ordering = ("name",)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         authors = " and ".join(a.name for a in self.authors.all())
         return "%s by %s" % (self.name, authors) if authors else self.name
 
@@ -136,6 +169,9 @@ class PrimaryKeyUUIDModel(models.Model):
 
 class NaturalKeyManager(models.Manager):
     def get_by_natural_key(self, key):
+        """
+        This is a comment
+        """
         return self.get(key=key)
 
 
@@ -151,9 +187,15 @@ class NaturalKeyThing(models.Model):
     objects = NaturalKeyManager()
 
     def natural_key(self):
+        """
+        This is a comment
+        """
         return (self.key,)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.key
 
 
@@ -164,6 +206,9 @@ class CircularA(models.Model):
     objects = NaturalKeyManager()
 
     def natural_key(self):
+        """
+        This is a comment
+        """
         return (self.key,)
 
 
@@ -174,4 +219,7 @@ class CircularB(models.Model):
     objects = NaturalKeyManager()
 
     def natural_key(self):
+        """
+        This is a comment
+        """
         return (self.key,)

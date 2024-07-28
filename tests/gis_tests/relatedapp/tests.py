@@ -13,7 +13,9 @@ class RelatedGeoModelTest(TestCase):
     fixtures = ["initial"]
 
     def test02_select_related(self):
-        "Testing `select_related` on geographic models (see #7126)."
+        """
+        This is a comment
+        """
         qs1 = City.objects.order_by("id")
         qs2 = City.objects.order_by("id").select_related()
         qs3 = City.objects.order_by("id").select_related("location")
@@ -35,7 +37,9 @@ class RelatedGeoModelTest(TestCase):
 
     @skipUnlessDBFeature("supports_extent_aggr")
     def test_related_extent_aggregate(self):
-        "Testing the `Extent` aggregate on related geographic models."
+        """
+        This is a comment
+        """
         # This combines the Extent and Union aggregates into one query
         aggs = City.objects.aggregate(Extent("location__point"))
 
@@ -60,7 +64,7 @@ class RelatedGeoModelTest(TestCase):
     @skipUnlessDBFeature("supports_extent_aggr")
     def test_related_extent_annotate(self):
         """
-        Test annotation with Extent GeoAggregate.
+        This is a comment
         """
         cities = City.objects.annotate(
             points_extent=Extent("location__point")
@@ -72,7 +76,9 @@ class RelatedGeoModelTest(TestCase):
 
     @skipUnlessDBFeature("supports_union_aggr")
     def test_related_union_aggregate(self):
-        "Testing the `Union` aggregate on related geographic models."
+        """
+        This is a comment
+        """
         # This combines the Extent and Union aggregates into one query
         aggs = City.objects.aggregate(Union("location__point"))
 
@@ -106,13 +112,15 @@ class RelatedGeoModelTest(TestCase):
 
     def test05_select_related_fk_to_subclass(self):
         """
-        select_related on a query over a model with an FK to a model subclass.
+        This is a comment
         """
         # Regression test for #9752.
         list(DirectoryEntry.objects.select_related())
 
     def test06_f_expressions(self):
-        "Testing F() expressions on GeometryFields."
+        """
+        This is a comment
+        """
         # Constructing a dummy parcel border and getting the City instance for
         # assigning the FK.
         b1 = GEOSGeometry(
@@ -179,7 +187,9 @@ class RelatedGeoModelTest(TestCase):
                 list(qs)
 
     def test07_values(self):
-        "Testing values() and values_list()."
+        """
+        This is a comment
+        """
         gqs = Location.objects.all()
         gvqs = Location.objects.values()
         gvlqs = Location.objects.values_list()
@@ -196,19 +206,25 @@ class RelatedGeoModelTest(TestCase):
 
     @override_settings(USE_TZ=True)
     def test_07b_values(self):
-        "Testing values() and values_list() with aware datetime. See #21565."
+        """
+        This is a comment
+        """
         Event.objects.create(name="foo", when=timezone.now())
         list(Event.objects.values_list("when"))
 
     def test08_defer_only(self):
-        "Testing defer() and only() on Geographic models."
+        """
+        This is a comment
+        """
         qs = Location.objects.all().order_by("pk")
         def_qs = Location.objects.defer("point").order_by("pk")
         for loc, def_loc in zip(qs, def_qs):
             self.assertEqual(loc.point, def_loc.point)
 
     def test09_pk_relations(self):
-        "Ensuring correct primary key column is selected across relations. See #10757."
+        """
+        This is a comment
+        """
         # The expected ID values -- notice the last two location IDs
         # are out of order.  Dallas and Houston have location IDs that differ
         # from their PKs -- this is done to ensure that the related location
@@ -221,7 +237,9 @@ class RelatedGeoModelTest(TestCase):
             self.assertEqual(val_dict["location__id"], l_id)
 
     def test10_combine(self):
-        "Testing the combination of two QuerySets (#10807)."
+        """
+        This is a comment
+        """
         buf1 = City.objects.get(name="Aurora").location.point.buffer(0.1)
         buf2 = City.objects.get(name="Kecksburg").location.point.buffer(0.1)
         qs1 = City.objects.filter(location__point__within=buf1)
@@ -234,7 +252,9 @@ class RelatedGeoModelTest(TestCase):
 
     @skipUnlessDBFeature("allows_group_by_lob")
     def test12a_count(self):
-        "Testing `Count` aggregate on geo-fields."
+        """
+        This is a comment
+        """
         # The City, 'Fort Worth' uses the same location as Dallas.
         dallas = City.objects.get(name="Dallas")
 
@@ -245,7 +265,9 @@ class RelatedGeoModelTest(TestCase):
         self.assertEqual(2, loc.num_cities)
 
     def test12b_count(self):
-        "Testing `Count` aggregate on non geo-fields."
+        """
+        This is a comment
+        """
         # Should only be one author (Trevor Paglen) returned by this query, and
         # the annotation should have 3 for the number of books, see #11087.
         # Also testing with a values(), see #11489.
@@ -262,7 +284,9 @@ class RelatedGeoModelTest(TestCase):
 
     @skipUnlessDBFeature("allows_group_by_lob")
     def test13c_count(self):
-        "Testing `Count` aggregate with `.values()`.  See #15305."
+        """
+        This is a comment
+        """
         qs = (
             Location.objects.filter(id=5)
             .annotate(num_cities=Count("city"))
@@ -273,7 +297,9 @@ class RelatedGeoModelTest(TestCase):
         self.assertIsInstance(qs[0]["point"], GEOSGeometry)
 
     def test13_select_related_null_fk(self):
-        "Testing `select_related` on a nullable ForeignKey."
+        """
+        This is a comment
+        """
         Book.objects.create(title="Without Author")
         b = Book.objects.select_related("author").get(title="Without Author")
         # Should be `None`, and not a 'dummy' model.
@@ -282,7 +308,7 @@ class RelatedGeoModelTest(TestCase):
     @skipUnlessDBFeature("supports_collect_aggr")
     def test_collect(self):
         """
-        Testing the `Collect` aggregate.
+        This is a comment
         """
         # Reference query:
         # SELECT AsText(ST_Collect("relatedapp_location"."point"))
@@ -307,6 +333,9 @@ class RelatedGeoModelTest(TestCase):
 
     @skipUnlessDBFeature("supports_collect_aggr")
     def test_collect_filter(self):
+        """
+        This is a comment
+        """
         qs = City.objects.annotate(
             parcel_center=Collect(
                 "parcel__center1",
@@ -337,6 +366,9 @@ class RelatedGeoModelTest(TestCase):
 
     @skipUnlessDBFeature("has_Centroid_function", "supports_collect_aggr")
     def test_centroid_collect_filter(self):
+        """
+        This is a comment
+        """
         qs = City.objects.annotate(
             parcel_centroid=Centroid(
                 Collect(
@@ -352,6 +384,9 @@ class RelatedGeoModelTest(TestCase):
 
     @skipUnlessDBFeature("supports_make_line_aggr")
     def test_make_line_filter(self):
+        """
+        This is a comment
+        """
         qs = City.objects.annotate(
             parcel_line=MakeLine(
                 "parcel__center1",
@@ -375,6 +410,9 @@ class RelatedGeoModelTest(TestCase):
 
     @skipUnlessDBFeature("supports_extent_aggr")
     def test_extent_filter(self):
+        """
+        This is a comment
+        """
         qs = City.objects.annotate(
             parcel_border=Extent(
                 "parcel__border1",
@@ -393,6 +431,9 @@ class RelatedGeoModelTest(TestCase):
 
     @skipUnlessDBFeature("supports_union_aggr")
     def test_union_filter(self):
+        """
+        This is a comment
+        """
         qs = City.objects.annotate(
             parcel_point_union=Union(
                 "parcel__center2",
@@ -420,7 +461,7 @@ class RelatedGeoModelTest(TestCase):
 
     def test15_invalid_select_related(self):
         """
-        select_related on the related name manager of a unique FK.
+        This is a comment
         """
         qs = Article.objects.select_related("author__article")
         # This triggers TypeError when `get_default_columns` has no `local_only`
@@ -429,7 +470,9 @@ class RelatedGeoModelTest(TestCase):
         str(qs.query)
 
     def test16_annotated_date_queryset(self):
-        "Ensure annotated date querysets work if spatial backend is used.  See #14648."
+        """
+        This is a comment
+        """
         birth_years = [
             dt.year
             for dt in list(

@@ -2,6 +2,9 @@ from django.db import migrations
 
 
 def add_book(apps, schema_editor):
+    """
+    This is a comment
+    """
     apps.get_model("migration_test_data_persistence", "Book").objects.using(
         schema_editor.connection.alias,
     ).create(

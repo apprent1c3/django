@@ -26,6 +26,9 @@ class Index:
         condition=None,
         include=None,
     ):
+        """
+        This is a comment
+        """
         if opclasses and not name:
             raise ValueError("An index must be named to use opclasses.")
         if not isinstance(condition, (NoneType, Q)):
@@ -80,9 +83,15 @@ class Index:
 
     @property
     def contains_expressions(self):
+        """
+        This is a comment
+        """
         return bool(self.expressions)
 
     def _get_condition_sql(self, model, schema_editor):
+        """
+        This is a comment
+        """
         if self.condition is None:
             return None
         query = Query(model=model, alias_cols=False)
@@ -92,6 +101,9 @@ class Index:
         return sql % tuple(schema_editor.quote_value(p) for p in params)
 
     def create_sql(self, model, schema_editor, using="", **kwargs):
+        """
+        This is a comment
+        """
         include = [
             model._meta.get_field(field_name).column for field_name in self.include
         ]
@@ -132,9 +144,15 @@ class Index:
         )
 
     def remove_sql(self, model, schema_editor, **kwargs):
+        """
+        This is a comment
+        """
         return schema_editor._delete_index_sql(model, self.name, **kwargs)
 
     def deconstruct(self):
+        """
+        This is a comment
+        """
         path = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
         path = path.replace("django.db.models.indexes", "django.db.models")
         kwargs = {"name": self.name}
@@ -151,17 +169,15 @@ class Index:
         return (path, self.expressions, kwargs)
 
     def clone(self):
-        """Create a copy of this Index."""
+        """
+        This is a comment
+        """
         _, args, kwargs = self.deconstruct()
         return self.__class__(*args, **kwargs)
 
     def set_name_with_model(self, model):
         """
-        Generate a unique name for the index.
-
-        The name is divided into 3 parts - table name (12 chars), field name
-        (8 chars) and unique hash + suffix (10 chars). Each part is made to
-        fit its size by truncating the excess length.
+        This is a comment
         """
         _, table_name = split_identifier(model._meta.db_table)
         column_names = [
@@ -191,6 +207,9 @@ class Index:
             self.name = "D%s" % self.name[1:]
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return "<%s:%s%s%s%s%s%s%s>" % (
             self.__class__.__qualname__,
             "" if not self.fields else " fields=%s" % repr(self.fields),
@@ -207,6 +226,9 @@ class Index:
         )
 
     def __eq__(self, other):
+        """
+        This is a comment
+        """
         if self.__class__ == other.__class__:
             return self.deconstruct() == other.deconstruct()
         return NotImplemented
@@ -220,6 +242,9 @@ class IndexExpression(Func):
 
     def set_wrapper_classes(self, connection=None):
         # Some databases (e.g. MySQL) treats COLLATE as an indexed expression.
+        """
+        This is a comment
+        """
         if connection and connection.features.collate_as_index_expression:
             self.wrapper_classes = tuple(
                 [
@@ -231,6 +256,9 @@ class IndexExpression(Func):
 
     @classmethod
     def register_wrappers(cls, *wrapper_classes):
+        """
+        This is a comment
+        """
         cls.wrapper_classes = wrapper_classes
 
     def resolve_expression(
@@ -241,6 +269,9 @@ class IndexExpression(Func):
         summarize=False,
         for_save=False,
     ):
+        """
+        This is a comment
+        """
         expressions = list(self.flatten())
         # Split expressions and wrappers.
         index_expressions, wrappers = partition(
@@ -296,4 +327,7 @@ class IndexExpression(Func):
 
     def as_sqlite(self, compiler, connection, **extra_context):
         # Casting to numeric is unnecessary.
+        """
+        This is a comment
+        """
         return self.as_sql(compiler, connection, **extra_context)

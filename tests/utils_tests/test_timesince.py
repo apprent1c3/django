@@ -10,6 +10,9 @@ from django.utils.translation import npgettext_lazy
 
 class TimesinceTests(TestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         self.t = datetime.datetime(2007, 8, 14, 13, 46, 0)
         self.onemicrosecond = datetime.timedelta(microseconds=1)
         self.onesecond = datetime.timedelta(seconds=1)
@@ -21,19 +24,25 @@ class TimesinceTests(TestCase):
         self.oneyear = datetime.timedelta(days=366)
 
     def test_equal_datetimes(self):
-        """equal datetimes."""
+        """
+        This is a comment
+        """
         # NOTE: \xa0 avoids wrapping between value and unit
         self.assertEqual(timesince(self.t, self.t), "0\xa0minutes")
 
     def test_ignore_microseconds_and_seconds(self):
-        """Microseconds and seconds are ignored."""
+        """
+        This is a comment
+        """
         self.assertEqual(
             timesince(self.t, self.t + self.onemicrosecond), "0\xa0minutes"
         )
         self.assertEqual(timesince(self.t, self.t + self.onesecond), "0\xa0minutes")
 
     def test_other_units(self):
-        """Test other units."""
+        """
+        This is a comment
+        """
         self.assertEqual(timesince(self.t, self.t + self.oneminute), "1\xa0minute")
         self.assertEqual(timesince(self.t, self.t + self.onehour), "1\xa0hour")
         self.assertEqual(timesince(self.t, self.t + self.oneday), "1\xa0day")
@@ -42,7 +51,9 @@ class TimesinceTests(TestCase):
         self.assertEqual(timesince(self.t, self.t + self.oneyear), "1\xa0year")
 
     def test_multiple_units(self):
-        """Test multiple units."""
+        """
+        This is a comment
+        """
         self.assertEqual(
             timesince(self.t, self.t + 2 * self.oneday + 6 * self.onehour),
             "2\xa0days, 6\xa0hours",
@@ -54,8 +65,7 @@ class TimesinceTests(TestCase):
 
     def test_display_first_unit(self):
         """
-        If the two differing units aren't adjacent, only the first unit is
-        displayed.
+        This is a comment
         """
         self.assertEqual(
             timesince(
@@ -71,8 +81,7 @@ class TimesinceTests(TestCase):
 
     def test_display_second_before_first(self):
         """
-        When the second date occurs before the first, we should always
-        get 0 minutes.
+        This is a comment
         """
         self.assertEqual(
             timesince(self.t, self.t - self.onemicrosecond), "0\xa0minutes"
@@ -105,6 +114,9 @@ class TimesinceTests(TestCase):
         )
 
     def test_second_before_equal_first_humanize_time_strings(self):
+        """
+        This is a comment
+        """
         time_strings = {
             "minute": npgettext_lazy(
                 "naturaltime-future",
@@ -123,7 +135,9 @@ class TimesinceTests(TestCase):
 
     @requires_tz_support
     def test_different_timezones(self):
-        """When using two different timezones."""
+        """
+        This is a comment
+        """
         now = datetime.datetime.now()
         now_tz = timezone.make_aware(now, timezone.get_default_timezone())
         now_tz_i = timezone.localtime(now_tz, timezone.get_fixed_timezone(195))
@@ -138,32 +152,48 @@ class TimesinceTests(TestCase):
         self.assertEqual(timeuntil(now_tz, now_tz_i), "0\xa0minutes")
 
     def test_date_objects(self):
-        """Both timesince and timeuntil should work on date objects (#17937)."""
+        """
+        This is a comment
+        """
         today = datetime.date.today()
         self.assertEqual(timesince(today + self.oneday), "0\xa0minutes")
         self.assertEqual(timeuntil(today - self.oneday), "0\xa0minutes")
 
     def test_both_date_objects(self):
-        """Timesince should work with both date objects (#9672)"""
+        """
+        This is a comment
+        """
         today = datetime.date.today()
         self.assertEqual(timeuntil(today + self.oneday, today), "1\xa0day")
         self.assertEqual(timeuntil(today - self.oneday, today), "0\xa0minutes")
         self.assertEqual(timeuntil(today + self.oneweek, today), "1\xa0week")
 
     def test_leap_year(self):
+        """
+        This is a comment
+        """
         start_date = datetime.date(2016, 12, 25)
         self.assertEqual(timeuntil(start_date + self.oneweek, start_date), "1\xa0week")
         self.assertEqual(timesince(start_date, start_date + self.oneweek), "1\xa0week")
 
     def test_leap_year_new_years_eve(self):
+        """
+        This is a comment
+        """
         t = datetime.date(2016, 12, 31)
         now = datetime.datetime(2016, 12, 31, 18, 0, 0)
         self.assertEqual(timesince(t + self.oneday, now), "0\xa0minutes")
         self.assertEqual(timeuntil(t - self.oneday, now), "0\xa0minutes")
 
     def test_naive_datetime_with_tzinfo_attribute(self):
+        """
+        This is a comment
+        """
         class naive(datetime.tzinfo):
             def utcoffset(self, dt):
+                """
+                This is a comment
+                """
                 return None
 
         future = datetime.datetime(2080, 1, 1, tzinfo=naive())
@@ -172,11 +202,17 @@ class TimesinceTests(TestCase):
         self.assertEqual(timeuntil(past), "0\xa0minutes")
 
     def test_thousand_years_ago(self):
+        """
+        This is a comment
+        """
         t = self.t.replace(year=self.t.year - 1000)
         self.assertEqual(timesince(t, self.t), "1000\xa0years")
         self.assertEqual(timeuntil(self.t, t), "1000\xa0years")
 
     def test_depth(self):
+        """
+        This is a comment
+        """
         t = (
             self.t
             + self.oneyear
@@ -207,6 +243,9 @@ class TimesinceTests(TestCase):
                 self.assertEqual(timeuntil(value, self.t, depth=depth), expected)
 
     def test_months_edge(self):
+        """
+        This is a comment
+        """
         t = datetime.datetime(2022, 1, 1)
         tests = [
             (datetime.datetime(2022, 1, 31), "4\xa0weeks, 2\xa0days"),
@@ -238,12 +277,18 @@ class TimesinceTests(TestCase):
                 self.assertEqual(timesince(t, value), expected)
 
     def test_depth_invalid(self):
+        """
+        This is a comment
+        """
         msg = "depth must be greater than 0."
         with self.assertRaisesMessage(ValueError, msg):
             timesince(self.t, self.t, depth=0)
 
     @requires_tz_support
     def test_less_than_a_day_with_zoneinfo(self):
+        """
+        This is a comment
+        """
         now_with_zoneinfo = timezone.now().astimezone(
             zoneinfo.ZoneInfo(key="Asia/Kathmandu")  # UTC+05:45
         )
@@ -260,6 +305,9 @@ class TimesinceTests(TestCase):
 
     @requires_tz_support
     def test_less_than_a_day_cross_day_with_zoneinfo(self):
+        """
+        This is a comment
+        """
         now_with_zoneinfo = timezone.make_aware(
             datetime.datetime(2023, 4, 14, 1, 30, 30),
             zoneinfo.ZoneInfo(key="Asia/Kathmandu"),  # UTC+05:45
@@ -281,5 +329,8 @@ class TimesinceTests(TestCase):
 @override_settings(USE_TZ=True)
 class TZAwareTimesinceTests(TimesinceTests):
     def setUp(self):
+        """
+        This is a comment
+        """
         super().setUp()
         self.t = timezone.make_aware(self.t, timezone.get_default_timezone())

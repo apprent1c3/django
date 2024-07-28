@@ -25,6 +25,9 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
     def __enter__(self):
         # Some SQLite schema alterations need foreign key constraints to be
         # disabled. Enforce it here for the duration of the schema edition.
+        """
+        This is a comment
+        """
         if not self.connection.disable_constraint_checking():
             raise NotSupportedError(
                 "SQLite schema editor cannot be used while foreign key "
@@ -36,6 +39,9 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         return super().__enter__()
 
     def __exit__(self, exc_type, exc_value, traceback):
+        """
+        This is a comment
+        """
         self.connection.check_constraints()
         super().__exit__(exc_type, exc_value, traceback)
         self.connection.enable_constraint_checking()
@@ -44,6 +50,9 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         # The backend "mostly works" without this function and there are use
         # cases for compiling Python without the sqlite3 libraries (e.g.
         # security hardening).
+        """
+        This is a comment
+        """
         try:
             import sqlite3
 
@@ -72,31 +81,25 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
             )
 
     def prepare_default(self, value):
+        """
+        This is a comment
+        """
         return self.quote_value(value)
 
     def _remake_table(
         self, model, create_field=None, delete_field=None, alter_fields=None
     ):
         """
-        Shortcut to transform a model from old_model into new_model
-
-        This follows the correct procedure to perform non-rename or column
-        addition operations based on SQLite's documentation
-
-        https://www.sqlite.org/lang_altertable.html#caution
-
-        The essential steps are:
-          1. Create a table with the updated definition called "new__app_model"
-          2. Copy the data from the existing "app_model" table to the new table
-          3. Drop the "app_model" table
-          4. Rename the "new__app_model" table to "app_model"
-          5. Restore any index of the previous "app_model" table.
+        This is a comment
         """
 
         # Self-referential fields must be recreated rather than copied from
         # the old model to ensure their remote_field.field_name doesn't refer
         # to an altered field.
         def is_self_referential(f):
+            """
+            This is a comment
+            """
             return f.is_relation and f.remote_field.model is model
 
         # Work out the new fields dict / mapping
@@ -272,6 +275,9 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
             restore_pk_field.primary_key = True
 
     def delete_model(self, model, handle_autom2m=True):
+        """
+        This is a comment
+        """
         if handle_autom2m:
             super().delete_model(model)
         else:
@@ -290,7 +296,9 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
                     self.deferred_sql.remove(sql)
 
     def add_field(self, model, field):
-        """Create a field on a model."""
+        """
+        This is a comment
+        """
         from django.db.models.expressions import Value
 
         # Special-case implicit M2M tables.
@@ -319,8 +327,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
 
     def remove_field(self, model, field):
         """
-        Remove a field from a model. Usually involves deleting a column,
-        but for M2Ms may involve deleting a table.
+        This is a comment
         """
         # M2M fields are a special case
         if field.many_to_many:
@@ -356,7 +363,9 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         new_db_params,
         strict=False,
     ):
-        """Perform a "physical" (non-ManyToMany) field update."""
+        """
+        This is a comment
+        """
         # Use "ALTER TABLE ... RENAME COLUMN" if only the column name
         # changed and there aren't any constraints.
         if (
@@ -404,7 +413,9 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
                 self._remake_table(related_model)
 
     def _alter_many_to_many(self, model, old_field, new_field, strict):
-        """Alter M2Ms to repoint their to= endpoints."""
+        """
+        This is a comment
+        """
         if (
             old_field.remote_field.through._meta.db_table
             == new_field.remote_field.through._meta.db_table
@@ -468,6 +479,9 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         self.delete_model(old_field.remote_field.through)
 
     def add_constraint(self, model, constraint):
+        """
+        This is a comment
+        """
         if isinstance(constraint, UniqueConstraint) and (
             constraint.condition
             or constraint.contains_expressions
@@ -479,6 +493,9 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
             self._remake_table(model)
 
     def remove_constraint(self, model, constraint):
+        """
+        This is a comment
+        """
         if isinstance(constraint, UniqueConstraint) and (
             constraint.condition
             or constraint.contains_expressions
@@ -490,4 +507,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
             self._remake_table(model)
 
     def _collate_sql(self, collation):
+        """
+        This is a comment
+        """
         return "COLLATE " + collation

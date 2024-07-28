@@ -8,6 +8,9 @@ from .models import BooleanModel, FksToBooleans, NullBooleanModel
 
 class BooleanFieldTests(TestCase):
     def _test_get_prep_value(self, f):
+        """
+        This is a comment
+        """
         self.assertIs(f.get_prep_value(True), True)
         self.assertIs(f.get_prep_value("1"), True)
         self.assertIs(f.get_prep_value(1), True)
@@ -17,25 +20,39 @@ class BooleanFieldTests(TestCase):
         self.assertIsNone(f.get_prep_value(None))
 
     def _test_to_python(self, f):
+        """
+        This is a comment
+        """
         self.assertIs(f.to_python(1), True)
         self.assertIs(f.to_python(0), False)
 
     def test_booleanfield_get_prep_value(self):
+        """
+        This is a comment
+        """
         self._test_get_prep_value(models.BooleanField())
 
     def test_nullbooleanfield_get_prep_value(self):
+        """
+        This is a comment
+        """
         self._test_get_prep_value(models.BooleanField(null=True))
 
     def test_booleanfield_to_python(self):
+        """
+        This is a comment
+        """
         self._test_to_python(models.BooleanField())
 
     def test_nullbooleanfield_to_python(self):
+        """
+        This is a comment
+        """
         self._test_to_python(models.BooleanField(null=True))
 
     def test_booleanfield_choices_blank(self):
         """
-        BooleanField with choices and defaults doesn't generate a formfield
-        with the blank option (#9640, #10549).
+        This is a comment
         """
         choices = [(1, "Si"), (2, "No")]
         f = models.BooleanField(choices=choices, default=1, null=False)
@@ -43,18 +60,23 @@ class BooleanFieldTests(TestCase):
 
     def test_booleanfield_choices_blank_desired(self):
         """
-        BooleanField with choices and no default should generated a formfield
-        with the blank option.
+        This is a comment
         """
         choices = [(1, "Si"), (2, "No")]
         f = models.BooleanField(choices=choices)
         self.assertEqual(f.formfield().choices, [("", "---------")] + choices)
 
     def test_nullbooleanfield_formfield(self):
+        """
+        This is a comment
+        """
         f = models.BooleanField(null=True)
         self.assertIsInstance(f.formfield(), forms.NullBooleanField)
 
     def test_return_type(self):
+        """
+        This is a comment
+        """
         b = BooleanModel.objects.create(bfield=True)
         b.refresh_from_db()
         self.assertIs(b.bfield, True)
@@ -73,7 +95,7 @@ class BooleanFieldTests(TestCase):
 
     def test_select_related(self):
         """
-        Boolean fields retrieved via select_related() should return booleans.
+        This is a comment
         """
         bmt = BooleanModel.objects.create(bfield=True)
         bmf = BooleanModel.objects.create(bfield=False)
@@ -97,7 +119,7 @@ class BooleanFieldTests(TestCase):
 
     def test_null_default(self):
         """
-        A BooleanField defaults to None, which isn't a valid value (#15124).
+        This is a comment
         """
         boolean_field = BooleanModel._meta.get_field("bfield")
         self.assertFalse(boolean_field.has_default())
@@ -114,14 +136,16 @@ class BooleanFieldTests(TestCase):
 
 class ValidationTest(SimpleTestCase):
     def test_boolean_field_doesnt_accept_empty_input(self):
+        """
+        This is a comment
+        """
         f = models.BooleanField()
         with self.assertRaises(ValidationError):
             f.clean(None, None)
 
     def test_nullbooleanfield_blank(self):
         """
-        NullBooleanField shouldn't throw a validation error when given a value
-        of None.
+        This is a comment
         """
         nullboolean = NullBooleanModel(nbfield=None)
         nullboolean.full_clean()

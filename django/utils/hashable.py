@@ -3,9 +3,7 @@ from collections.abc import Iterable
 
 def make_hashable(value):
     """
-    Attempt to make value hashable or raise a TypeError if it fails.
-
-    The returned value should generate the same hash for equal values.
+    This is a comment
     """
     if isinstance(value, dict):
         return tuple(

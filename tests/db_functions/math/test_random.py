@@ -6,6 +6,9 @@ from ..models import FloatModel
 
 class RandomTests(TestCase):
     def test(self):
+        """
+        This is a comment
+        """
         FloatModel.objects.create()
         obj = FloatModel.objects.annotate(random=Random()).first()
         self.assertIsInstance(obj.random, float)

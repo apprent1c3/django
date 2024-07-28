@@ -14,6 +14,9 @@ IS_WIDE_BUILD = len("\U0001F4A9") == 1
 
 class TestUtilsText(SimpleTestCase):
     def test_get_text_list(self):
+        """
+        This is a comment
+        """
         self.assertEqual(text.get_text_list(["a", "b", "c", "d"]), "a, b, c or d")
         self.assertEqual(text.get_text_list(["a", "b", "c"], "and"), "a, b and c")
         self.assertEqual(text.get_text_list(["a", "b"], "and"), "a and b")
@@ -23,6 +26,9 @@ class TestUtilsText(SimpleTestCase):
             self.assertEqual(text.get_text_list(["a", "b", "c"]), "a، b أو c")
 
     def test_smart_split(self):
+        """
+        This is a comment
+        """
         testdata = [
             ('This is "a person" test.', ["This", "is", '"a person"', "test."]),
             ('This is "a person\'s" test.', ["This", "is", '"a person\'s"', "test."]),
@@ -58,6 +64,9 @@ class TestUtilsText(SimpleTestCase):
                 self.assertEqual(list(text.smart_split(test)), expected)
 
     def test_truncate_chars(self):
+        """
+        This is a comment
+        """
         truncator = text.Truncator("The quick brown fox jumped over the lazy dog.")
         self.assertEqual(
             "The quick brown fox jumped over the lazy dog.", truncator.chars(100)
@@ -96,6 +105,9 @@ class TestUtilsText(SimpleTestCase):
         )
 
     def test_truncate_chars_html(self):
+        """
+        This is a comment
+        """
         truncator = text.Truncator(
             '<p id="par"><strong><em>The quick brown fox jumped over the lazy dog.</em>'
             "</strong></p>"
@@ -138,6 +150,9 @@ class TestUtilsText(SimpleTestCase):
 
     @patch("django.utils.text.Truncator.MAX_LENGTH_HTML", 10_000)
     def test_truncate_chars_html_size_limit(self):
+        """
+        This is a comment
+        """
         max_len = text.Truncator.MAX_LENGTH_HTML
         bigger_len = text.Truncator.MAX_LENGTH_HTML + 1
         valid_html = "<p>Joel is a slug</p>"  # 14 chars
@@ -154,6 +169,9 @@ class TestUtilsText(SimpleTestCase):
                 self.assertEqual(expected, truncator.chars(10, html=True))
 
     def test_truncate_chars_html_with_newline_inside_tag(self):
+        """
+        This is a comment
+        """
         truncator = text.Truncator(
             '<p>The quick <a href="xyz.html"\n id="mylink">brown fox</a> jumped over '
             "the lazy dog.</p>"
@@ -168,6 +186,9 @@ class TestUtilsText(SimpleTestCase):
         )
 
     def test_truncate_chars_html_with_void_elements(self):
+        """
+        This is a comment
+        """
         truncator = text.Truncator(
             "<br/>The <hr />quick brown fox jumped over the lazy dog."
         )
@@ -184,6 +205,9 @@ class TestUtilsText(SimpleTestCase):
         self.assertEqual("<br>Th…", truncator.chars(3, html=True))
 
     def test_truncate_chars_html_with_html_entities(self):
+        """
+        This is a comment
+        """
         truncator = text.Truncator(
             "<i>Buenos d&iacute;as! &#x00bf;C&oacute;mo est&aacute;?</i>"
         )
@@ -203,6 +227,9 @@ class TestUtilsText(SimpleTestCase):
         self.assertEqual("<p>I &lt;3 python, wh…</p>", truncator.chars(16, html=True))
 
     def test_truncate_words(self):
+        """
+        This is a comment
+        """
         truncator = text.Truncator("The quick brown fox jumped over the lazy dog.")
         self.assertEqual(
             "The quick brown fox jumped over the lazy dog.", truncator.words(10)
@@ -218,6 +245,9 @@ class TestUtilsText(SimpleTestCase):
         self.assertEqual("", truncator.words(-1))
 
     def test_truncate_html_words(self):
+        """
+        This is a comment
+        """
         truncator = text.Truncator(
             '<p id="par"><strong><em>The quick brown fox jumped over the lazy dog.</em>'
             "</strong></p>"
@@ -321,6 +351,9 @@ class TestUtilsText(SimpleTestCase):
 
     @patch("django.utils.text.Truncator.MAX_LENGTH_HTML", 10_000)
     def test_truncate_words_html_size_limit(self):
+        """
+        This is a comment
+        """
         max_len = text.Truncator.MAX_LENGTH_HTML
         bigger_len = text.Truncator.MAX_LENGTH_HTML + 1
         valid_html = "<p>Joel is a slug</p>"  # 4 words
@@ -338,6 +371,9 @@ class TestUtilsText(SimpleTestCase):
                 self.assertEqual(expected, truncator.words(50, html=True))
 
     def test_wrap(self):
+        """
+        This is a comment
+        """
         digits = "1234 67 9"
         self.assertEqual(text.wrap(digits, 100), "1234 67 9")
         self.assertEqual(text.wrap(digits, 9), "1234 67 9")
@@ -357,6 +393,9 @@ class TestUtilsText(SimpleTestCase):
         self.assertEqual(text.wrap(lazystr(digits), 100), "1234 67 9")
 
     def test_normalize_newlines(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             text.normalize_newlines("abc\ndef\rghi\r\n"), "abc\ndef\nghi\n"
         )
@@ -368,12 +407,18 @@ class TestUtilsText(SimpleTestCase):
         )
 
     def test_phone2numeric(self):
+        """
+        This is a comment
+        """
         numeric = text.phone2numeric("0800 flowers")
         self.assertEqual(numeric, "0800 3569377")
         lazy_numeric = lazystr(text.phone2numeric("0800 flowers"))
         self.assertEqual(lazy_numeric, "0800 3569377")
 
     def test_slugify(self):
+        """
+        This is a comment
+        """
         items = (
             # given - expected - Unicode?
             ("Hello, World!", "hello-world", False),
@@ -399,6 +444,9 @@ class TestUtilsText(SimpleTestCase):
             self.assertEqual(sys.intern(text.slugify("a")), "a")
 
     def test_unescape_string_literal(self):
+        """
+        This is a comment
+        """
         items = [
             ('"abc"', "abc"),
             ("'abc'", "abc"),
@@ -411,6 +459,9 @@ class TestUtilsText(SimpleTestCase):
                 self.assertEqual(text.unescape_string_literal(lazystr(value)), output)
 
     def test_unescape_string_literal_invalid_value(self):
+        """
+        This is a comment
+        """
         items = ["", "abc", "'abc\""]
         for item in items:
             msg = f"Not a string literal: {item!r}"
@@ -418,6 +469,9 @@ class TestUtilsText(SimpleTestCase):
                 text.unescape_string_literal(item)
 
     def test_get_valid_filename(self):
+        """
+        This is a comment
+        """
         filename = "^&'@{}[],$=!-#()%+~_123.txt"
         self.assertEqual(text.get_valid_filename(filename), "-_123.txt")
         self.assertEqual(text.get_valid_filename(lazystr(filename)), "-_123.txt")
@@ -430,6 +484,9 @@ class TestUtilsText(SimpleTestCase):
             text.get_valid_filename("$.$.$")
 
     def test_compress_sequence(self):
+        """
+        This is a comment
+        """
         data = [{"key": i} for i in range(10)]
         seq = list(json.JSONEncoder().iterencode(data))
         seq = [s.encode() for s in seq]
@@ -439,6 +496,9 @@ class TestUtilsText(SimpleTestCase):
         self.assertLess(compressed_length, actual_length)
 
     def test_format_lazy(self):
+        """
+        This is a comment
+        """
         self.assertEqual("django/test", format_lazy("{}/{}", "django", lazystr("test")))
         self.assertEqual("django/test", format_lazy("{0}/{1}", *("django", "test")))
         self.assertEqual(

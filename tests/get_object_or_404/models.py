@@ -19,11 +19,17 @@ class Author(models.Model):
 
 class ArticleManager(models.Manager):
     def get_queryset(self):
+        """
+        This is a comment
+        """
         return super().get_queryset().filter(authors__name__icontains="sir")
 
 
 class AttributeErrorManager(models.Manager):
     def get_queryset(self):
+        """
+        This is a comment
+        """
         raise AttributeError("AttributeErrorManager")
 
 

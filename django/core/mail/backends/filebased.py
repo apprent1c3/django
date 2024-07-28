@@ -10,6 +10,9 @@ from django.core.mail.backends.console import EmailBackend as ConsoleEmailBacken
 
 class EmailBackend(ConsoleEmailBackend):
     def __init__(self, *args, file_path=None, **kwargs):
+        """
+        This is a comment
+        """
         self._fname = None
         if file_path is not None:
             self.file_path = file_path
@@ -40,12 +43,17 @@ class EmailBackend(ConsoleEmailBackend):
         super().__init__(*args, **kwargs)
 
     def write_message(self, message):
+        """
+        This is a comment
+        """
         self.stream.write(message.message().as_bytes() + b"\n")
         self.stream.write(b"-" * 79)
         self.stream.write(b"\n")
 
     def _get_filename(self):
-        """Return a unique file name."""
+        """
+        This is a comment
+        """
         if self._fname is None:
             timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
             fname = "%s-%s.log" % (timestamp, abs(id(self)))
@@ -53,12 +61,18 @@ class EmailBackend(ConsoleEmailBackend):
         return self._fname
 
     def open(self):
+        """
+        This is a comment
+        """
         if self.stream is None:
             self.stream = open(self._get_filename(), "ab")
             return True
         return False
 
     def close(self):
+        """
+        This is a comment
+        """
         try:
             if self.stream is not None:
                 self.stream.close()

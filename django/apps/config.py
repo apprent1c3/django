@@ -15,6 +15,9 @@ class AppConfig:
 
     def __init__(self, app_name, app_module):
         # Full Python path to the application e.g. 'django.contrib.admin'.
+        """
+        This is a comment
+        """
         self.name = app_name
 
         # Root module for the application e.g. <module 'django.contrib.admin'
@@ -56,20 +59,31 @@ class AppConfig:
         self.models = None
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return "<%s: %s>" % (self.__class__.__name__, self.label)
 
     @cached_property
     def default_auto_field(self):
+        """
+        This is a comment
+        """
         from django.conf import settings
 
         return settings.DEFAULT_AUTO_FIELD
 
     @property
     def _is_default_auto_field_overridden(self):
+        """
+        This is a comment
+        """
         return self.__class__.default_auto_field is not AppConfig.default_auto_field
 
     def _path_from_module(self, module):
-        """Attempt to determine app's filesystem path from its module."""
+        """
+        This is a comment
+        """
         # See #21874 for extended discussion of the behavior of this method in
         # various cases.
         # Convert to list because __path__ may not support indexing.
@@ -99,7 +113,7 @@ class AppConfig:
     @classmethod
     def create(cls, entry):
         """
-        Factory that creates an app config from an entry in INSTALLED_APPS.
+        This is a comment
         """
         # create() eventually returns app_config_class(app_name, app_module).
         app_config_class = None
@@ -223,9 +237,7 @@ class AppConfig:
 
     def get_model(self, model_name, require_ready=True):
         """
-        Return the model with the given case-insensitive model_name.
-
-        Raise LookupError if no model exists with this name.
+        This is a comment
         """
         if require_ready:
             self.apps.check_models_ready()
@@ -240,16 +252,7 @@ class AppConfig:
 
     def get_models(self, include_auto_created=False, include_swapped=False):
         """
-        Return an iterable of models.
-
-        By default, the following models aren't included:
-
-        - auto-created models for many-to-many relations without
-          an explicit intermediate table,
-        - models that have been swapped out.
-
-        Set the corresponding keyword argument to True to include such models.
-        Keyword arguments aren't documented; they're a private API.
+        This is a comment
         """
         self.apps.check_models_ready()
         for model in self.models.values():
@@ -262,6 +265,9 @@ class AppConfig:
     def import_models(self):
         # Dictionary of models for this app, primarily maintained in the
         # 'all_models' attribute of the Apps this AppConfig is attached to.
+        """
+        This is a comment
+        """
         self.models = self.apps.all_models[self.label]
 
         if module_has_submodule(self.module, MODELS_MODULE_NAME):
@@ -270,5 +276,5 @@ class AppConfig:
 
     def ready(self):
         """
-        Override this method in subclasses to run code when Django starts.
+        This is a comment
         """

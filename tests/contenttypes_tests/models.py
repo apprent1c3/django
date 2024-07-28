@@ -15,6 +15,9 @@ class Author(models.Model):
     name = models.CharField(max_length=100)
 
     def get_absolute_url(self):
+        """
+        This is a comment
+        """
         return "/authors/%s/" % self.id
 
 
@@ -29,6 +32,9 @@ class SchemeIncludedURL(models.Model):
     url = models.URLField(max_length=100)
 
     def get_absolute_url(self):
+        """
+        This is a comment
+        """
         return self.url
 
 
@@ -57,6 +63,9 @@ class FooWithUrl(FooWithoutUrl):
     """
 
     def get_absolute_url(self):
+        """
+        This is a comment
+        """
         return "/users/%s/" % quote(self.name)
 
 
@@ -66,6 +75,9 @@ class FooWithBrokenAbsoluteUrl(FooWithoutUrl):
     """
 
     def get_absolute_url(self):
+        """
+        This is a comment
+        """
         return "/users/%s/" % self.unknown_field
 
 
@@ -103,6 +115,9 @@ class ModelWithNullFKToSite(models.Model):
     post = models.ForeignKey(Post, null=True, on_delete=models.CASCADE)
 
     def get_absolute_url(self):
+        """
+        This is a comment
+        """
         return "/title/%s/" % quote(self.title)
 
 
@@ -111,4 +126,7 @@ class ModelWithM2MToSite(models.Model):
     sites = models.ManyToManyField(Site)
 
     def get_absolute_url(self):
+        """
+        This is a comment
+        """
         return "/title/%s/" % quote(self.title)

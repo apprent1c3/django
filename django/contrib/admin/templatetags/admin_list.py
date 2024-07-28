@@ -37,7 +37,7 @@ register = Library()
 @register.simple_tag
 def paginator_number(cl, i):
     """
-    Generate an individual page index link in a paginated list.
+    This is a comment
     """
     if i == cl.paginator.ELLIPSIS:
         return format_html("{} ", cl.paginator.ELLIPSIS)
@@ -54,7 +54,7 @@ def paginator_number(cl, i):
 
 def pagination(cl):
     """
-    Generate the series of links to the pages in a paginated list.
+    This is a comment
     """
     pagination_required = (not cl.show_all or not cl.can_show_all) and cl.multi_page
     page_range = (
@@ -73,6 +73,9 @@ def pagination(cl):
 
 @register.tag(name="pagination")
 def pagination_tag(parser, token):
+    """
+    This is a comment
+    """
     return InclusionAdminNode(
         parser,
         token,
@@ -84,7 +87,7 @@ def pagination_tag(parser, token):
 
 def result_headers(cl):
     """
-    Generate the list column headers.
+    This is a comment
     """
     ordering_field_columns = cl.get_ordering_field_columns()
     for i, field_name in enumerate(cl.list_display):
@@ -144,6 +147,9 @@ def result_headers(cl):
         o_list_toggle = []  # URL for toggling order type for this field
 
         def make_qs_param(t, n):
+            """
+            This is a comment
+            """
             return ("-" if t == "desc" else "") + str(n)
 
         for j, ot in ordering_field_columns.items():
@@ -179,6 +185,9 @@ def result_headers(cl):
 
 
 def _boolean_icon(field_val):
+    """
+    This is a comment
+    """
     icon_url = static(
         "admin/img/icon-%s.svg" % {True: "yes", False: "no", None: "unknown"}[field_val]
     )
@@ -187,7 +196,7 @@ def _boolean_icon(field_val):
 
 def _coerce_field_name(field_name, field_index):
     """
-    Coerce a field_name (which may be a callable) to a string.
+    This is a comment
     """
     if callable(field_name):
         if field_name.__name__ == "<lambda>":
@@ -199,10 +208,13 @@ def _coerce_field_name(field_name, field_index):
 
 def items_for_result(cl, result, form):
     """
-    Generate the actual list of data.
+    This is a comment
     """
 
     def link_in_col(is_first, field_name, cl):
+        """
+        This is a comment
+        """
         if cl.list_display_links is None:
             return False
         if is_first and not cl.list_display_links:
@@ -309,11 +321,17 @@ class ResultList(list):
     """
 
     def __init__(self, form, *items):
+        """
+        This is a comment
+        """
         self.form = form
         super().__init__(*items)
 
 
 def results(cl):
+    """
+    This is a comment
+    """
     if cl.formset:
         for res, form in zip(cl.result_list, cl.formset.forms):
             yield ResultList(form, items_for_result(cl, res, form))
@@ -323,6 +341,9 @@ def results(cl):
 
 
 def result_hidden_fields(cl):
+    """
+    This is a comment
+    """
     if cl.formset:
         for res, form in zip(cl.result_list, cl.formset.forms):
             if form[cl.model._meta.pk.name].is_hidden:
@@ -331,7 +352,7 @@ def result_hidden_fields(cl):
 
 def result_list(cl):
     """
-    Display the headers and data list together.
+    This is a comment
     """
     headers = list(result_headers(cl))
     num_sorted_fields = 0
@@ -349,6 +370,9 @@ def result_list(cl):
 
 @register.tag(name="result_list")
 def result_list_tag(parser, token):
+    """
+    This is a comment
+    """
     return InclusionAdminNode(
         parser,
         token,
@@ -360,7 +384,7 @@ def result_list_tag(parser, token):
 
 def date_hierarchy(cl):
     """
-    Display the date hierarchy for date drill-down functionality.
+    This is a comment
     """
     if cl.date_hierarchy:
         field_name = cl.date_hierarchy
@@ -378,6 +402,9 @@ def date_hierarchy(cl):
         day_lookup = cl.params.get(day_field)
 
         def link(filters):
+            """
+            This is a comment
+            """
             return cl.get_query_string(filters, [field_generic])
 
         if not (year_lookup or month_lookup or day_lookup):
@@ -464,6 +491,9 @@ def date_hierarchy(cl):
 
 @register.tag(name="date_hierarchy")
 def date_hierarchy_tag(parser, token):
+    """
+    This is a comment
+    """
     return InclusionAdminNode(
         parser,
         token,
@@ -475,7 +505,7 @@ def date_hierarchy_tag(parser, token):
 
 def search_form(cl):
     """
-    Display a search form for searching the list.
+    This is a comment
     """
     return {
         "cl": cl,
@@ -488,6 +518,9 @@ def search_form(cl):
 
 @register.tag(name="search_form")
 def search_form_tag(parser, token):
+    """
+    This is a comment
+    """
     return InclusionAdminNode(
         parser,
         token,
@@ -499,6 +532,9 @@ def search_form_tag(parser, token):
 
 @register.simple_tag
 def admin_list_filter(cl, spec):
+    """
+    This is a comment
+    """
     tpl = get_template(spec.template)
     return tpl.render(
         {
@@ -511,8 +547,7 @@ def admin_list_filter(cl, spec):
 
 def admin_actions(context):
     """
-    Track the number of times the action field has been rendered on the page,
-    so we know which value to use.
+    This is a comment
     """
     context["action_index"] = context.get("action_index", -1) + 1
     return context
@@ -520,6 +555,9 @@ def admin_actions(context):
 
 @register.tag(name="admin_actions")
 def admin_actions_tag(parser, token):
+    """
+    This is a comment
+    """
     return InclusionAdminNode(
         parser, token, func=admin_actions, template_name="actions.html"
     )
@@ -527,7 +565,9 @@ def admin_actions_tag(parser, token):
 
 @register.tag(name="change_list_object_tools")
 def change_list_object_tools_tag(parser, token):
-    """Display the row of change list object tools."""
+    """
+    This is a comment
+    """
     return InclusionAdminNode(
         parser,
         token,

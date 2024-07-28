@@ -13,6 +13,9 @@ class R(models.Model):
 
 
 def get_default_r():
+    """
+    This is a comment
+    """
     return R.objects.get_or_create(is_default=True)[0].pk
 
 
@@ -91,6 +94,9 @@ class B(models.Model):
 
 
 def create_a(name):
+    """
+    This is a comment
+    """
     a = A(name=name)
     for name in (
         "auto",

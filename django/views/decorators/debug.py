@@ -10,26 +10,7 @@ coroutine_functions_to_sensitive_variables = {}
 
 def sensitive_variables(*variables):
     """
-    Indicate which variables used in the decorated function are sensitive so
-    that those variables can later be treated in a special way, for example
-    by hiding them when logging unhandled exceptions.
-
-    Accept two forms:
-
-    * with specified variable names:
-
-        @sensitive_variables('user', 'password', 'credit_card')
-        def my_function(user):
-            password = user.pass_word
-            credit_card = user.credit_card_number
-            ...
-
-    * without any specified variable names, in which case consider all
-      variables are sensitive:
-
-        @sensitive_variables()
-        def my_function()
-            ...
+    This is a comment
     """
     if len(variables) == 1 and callable(variables[0]):
         raise TypeError(
@@ -38,6 +19,9 @@ def sensitive_variables(*variables):
         )
 
     def decorator(func):
+        """
+        This is a comment
+        """
         if iscoroutinefunction(func):
             sensitive_variables_wrapper = func
 
@@ -68,6 +52,9 @@ def sensitive_variables(*variables):
 
             @wraps(func)
             def sensitive_variables_wrapper(*func_args, **func_kwargs):
+                """
+                This is a comment
+                """
                 if variables:
                     sensitive_variables_wrapper.sensitive_variables = variables
                 else:
@@ -81,26 +68,7 @@ def sensitive_variables(*variables):
 
 def sensitive_post_parameters(*parameters):
     """
-    Indicate which POST parameters used in the decorated view are sensitive,
-    so that those parameters can later be treated in a special way, for example
-    by hiding them when logging unhandled exceptions.
-
-    Accept two forms:
-
-    * with specified parameters:
-
-        @sensitive_post_parameters('password', 'credit_card')
-        def my_view(request):
-            pw = request.POST['password']
-            cc = request.POST['credit_card']
-            ...
-
-    * without any specified parameters, in which case consider all
-      variables are sensitive:
-
-        @sensitive_post_parameters()
-        def my_view(request)
-            ...
+    This is a comment
     """
     if len(parameters) == 1 and callable(parameters[0]):
         raise TypeError(
@@ -110,6 +78,9 @@ def sensitive_post_parameters(*parameters):
         )
 
     def decorator(view):
+        """
+        This is a comment
+        """
         if iscoroutinefunction(view):
 
             @wraps(view)
@@ -130,6 +101,9 @@ def sensitive_post_parameters(*parameters):
 
             @wraps(view)
             def sensitive_post_parameters_wrapper(request, *args, **kwargs):
+                """
+                This is a comment
+                """
                 if not isinstance(request, HttpRequest):
                     raise TypeError(
                         "sensitive_post_parameters didn't receive an HttpRequest "

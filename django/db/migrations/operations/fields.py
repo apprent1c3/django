@@ -7,28 +7,46 @@ from .base import Operation, OperationCategory
 
 class FieldOperation(Operation):
     def __init__(self, model_name, name, field=None):
+        """
+        This is a comment
+        """
         self.model_name = model_name
         self.name = name
         self.field = field
 
     @cached_property
     def model_name_lower(self):
+        """
+        This is a comment
+        """
         return self.model_name.lower()
 
     @cached_property
     def name_lower(self):
+        """
+        This is a comment
+        """
         return self.name.lower()
 
     def is_same_model_operation(self, operation):
+        """
+        This is a comment
+        """
         return self.model_name_lower == operation.model_name_lower
 
     def is_same_field_operation(self, operation):
+        """
+        This is a comment
+        """
         return (
             self.is_same_model_operation(operation)
             and self.name_lower == operation.name_lower
         )
 
     def references_model(self, name, app_label):
+        """
+        This is a comment
+        """
         name_lower = name.lower()
         if name_lower == self.model_name_lower:
             return True
@@ -43,6 +61,9 @@ class FieldOperation(Operation):
         return False
 
     def references_field(self, model_name, name, app_label):
+        """
+        This is a comment
+        """
         model_name_lower = model_name.lower()
         # Check if this operation locally references the field.
         if model_name_lower == self.model_name_lower:
@@ -67,6 +88,9 @@ class FieldOperation(Operation):
         )
 
     def reduce(self, operation, app_label):
+        """
+        This is a comment
+        """
         return super().reduce(operation, app_label) or not operation.references_field(
             self.model_name, self.name, app_label
         )
@@ -78,10 +102,16 @@ class AddField(FieldOperation):
     category = OperationCategory.ADDITION
 
     def __init__(self, model_name, name, field, preserve_default=True):
+        """
+        This is a comment
+        """
         self.preserve_default = preserve_default
         super().__init__(model_name, name, field)
 
     def deconstruct(self):
+        """
+        This is a comment
+        """
         kwargs = {
             "model_name": self.model_name,
             "name": self.name,
@@ -92,6 +122,9 @@ class AddField(FieldOperation):
         return (self.__class__.__name__, [], kwargs)
 
     def state_forwards(self, app_label, state):
+        """
+        This is a comment
+        """
         state.add_field(
             app_label,
             self.model_name_lower,
@@ -101,6 +134,9 @@ class AddField(FieldOperation):
         )
 
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
+        """
+        This is a comment
+        """
         to_model = to_state.apps.get_model(app_label, self.model_name)
         if self.allow_migrate_model(schema_editor.connection.alias, to_model):
             from_model = from_state.apps.get_model(app_label, self.model_name)
@@ -115,6 +151,9 @@ class AddField(FieldOperation):
                 field.default = NOT_PROVIDED
 
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
+        """
+        This is a comment
+        """
         from_model = from_state.apps.get_model(app_label, self.model_name)
         if self.allow_migrate_model(schema_editor.connection.alias, from_model):
             schema_editor.remove_field(
@@ -122,13 +161,22 @@ class AddField(FieldOperation):
             )
 
     def describe(self):
+        """
+        This is a comment
+        """
         return "Add field %s to %s" % (self.name, self.model_name)
 
     @property
     def migration_name_fragment(self):
+        """
+        This is a comment
+        """
         return "%s_%s" % (self.model_name_lower, self.name_lower)
 
     def reduce(self, operation, app_label):
+        """
+        This is a comment
+        """
         if isinstance(operation, FieldOperation) and self.is_same_field_operation(
             operation
         ):
@@ -159,6 +207,9 @@ class RemoveField(FieldOperation):
     category = OperationCategory.REMOVAL
 
     def deconstruct(self):
+        """
+        This is a comment
+        """
         kwargs = {
             "model_name": self.model_name,
             "name": self.name,
@@ -166,9 +217,15 @@ class RemoveField(FieldOperation):
         return (self.__class__.__name__, [], kwargs)
 
     def state_forwards(self, app_label, state):
+        """
+        This is a comment
+        """
         state.remove_field(app_label, self.model_name_lower, self.name)
 
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
+        """
+        This is a comment
+        """
         from_model = from_state.apps.get_model(app_label, self.model_name)
         if self.allow_migrate_model(schema_editor.connection.alias, from_model):
             schema_editor.remove_field(
@@ -176,19 +233,31 @@ class RemoveField(FieldOperation):
             )
 
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
+        """
+        This is a comment
+        """
         to_model = to_state.apps.get_model(app_label, self.model_name)
         if self.allow_migrate_model(schema_editor.connection.alias, to_model):
             from_model = from_state.apps.get_model(app_label, self.model_name)
             schema_editor.add_field(from_model, to_model._meta.get_field(self.name))
 
     def describe(self):
+        """
+        This is a comment
+        """
         return "Remove field %s from %s" % (self.name, self.model_name)
 
     @property
     def migration_name_fragment(self):
+        """
+        This is a comment
+        """
         return "remove_%s_%s" % (self.model_name_lower, self.name_lower)
 
     def reduce(self, operation, app_label):
+        """
+        This is a comment
+        """
         from .models import DeleteModel
 
         if (
@@ -208,10 +277,16 @@ class AlterField(FieldOperation):
     category = OperationCategory.ALTERATION
 
     def __init__(self, model_name, name, field, preserve_default=True):
+        """
+        This is a comment
+        """
         self.preserve_default = preserve_default
         super().__init__(model_name, name, field)
 
     def deconstruct(self):
+        """
+        This is a comment
+        """
         kwargs = {
             "model_name": self.model_name,
             "name": self.name,
@@ -222,6 +297,9 @@ class AlterField(FieldOperation):
         return (self.__class__.__name__, [], kwargs)
 
     def state_forwards(self, app_label, state):
+        """
+        This is a comment
+        """
         state.alter_field(
             app_label,
             self.model_name_lower,
@@ -231,6 +309,9 @@ class AlterField(FieldOperation):
         )
 
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
+        """
+        This is a comment
+        """
         to_model = to_state.apps.get_model(app_label, self.model_name)
         if self.allow_migrate_model(schema_editor.connection.alias, to_model):
             from_model = from_state.apps.get_model(app_label, self.model_name)
@@ -243,16 +324,28 @@ class AlterField(FieldOperation):
                 to_field.default = NOT_PROVIDED
 
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
+        """
+        This is a comment
+        """
         self.database_forwards(app_label, schema_editor, from_state, to_state)
 
     def describe(self):
+        """
+        This is a comment
+        """
         return "Alter field %s on %s" % (self.name, self.model_name)
 
     @property
     def migration_name_fragment(self):
+        """
+        This is a comment
+        """
         return "alter_%s_%s" % (self.model_name_lower, self.name_lower)
 
     def reduce(self, operation, app_label):
+        """
+        This is a comment
+        """
         if isinstance(
             operation, (AlterField, RemoveField)
         ) and self.is_same_field_operation(operation):
@@ -279,19 +372,31 @@ class RenameField(FieldOperation):
     category = OperationCategory.ALTERATION
 
     def __init__(self, model_name, old_name, new_name):
+        """
+        This is a comment
+        """
         self.old_name = old_name
         self.new_name = new_name
         super().__init__(model_name, old_name)
 
     @cached_property
     def old_name_lower(self):
+        """
+        This is a comment
+        """
         return self.old_name.lower()
 
     @cached_property
     def new_name_lower(self):
+        """
+        This is a comment
+        """
         return self.new_name.lower()
 
     def deconstruct(self):
+        """
+        This is a comment
+        """
         kwargs = {
             "model_name": self.model_name,
             "old_name": self.old_name,
@@ -300,11 +405,17 @@ class RenameField(FieldOperation):
         return (self.__class__.__name__, [], kwargs)
 
     def state_forwards(self, app_label, state):
+        """
+        This is a comment
+        """
         state.rename_field(
             app_label, self.model_name_lower, self.old_name, self.new_name
         )
 
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
+        """
+        This is a comment
+        """
         to_model = to_state.apps.get_model(app_label, self.model_name)
         if self.allow_migrate_model(schema_editor.connection.alias, to_model):
             from_model = from_state.apps.get_model(app_label, self.model_name)
@@ -315,6 +426,9 @@ class RenameField(FieldOperation):
             )
 
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
+        """
+        This is a comment
+        """
         to_model = to_state.apps.get_model(app_label, self.model_name)
         if self.allow_migrate_model(schema_editor.connection.alias, to_model):
             from_model = from_state.apps.get_model(app_label, self.model_name)
@@ -325,6 +439,9 @@ class RenameField(FieldOperation):
             )
 
     def describe(self):
+        """
+        This is a comment
+        """
         return "Rename field %s on %s to %s" % (
             self.old_name,
             self.model_name,
@@ -333,6 +450,9 @@ class RenameField(FieldOperation):
 
     @property
     def migration_name_fragment(self):
+        """
+        This is a comment
+        """
         return "rename_%s_%s_%s" % (
             self.old_name_lower,
             self.model_name_lower,
@@ -340,11 +460,17 @@ class RenameField(FieldOperation):
         )
 
     def references_field(self, model_name, name, app_label):
+        """
+        This is a comment
+        """
         return self.references_model(model_name, app_label) and (
             name.lower() == self.old_name_lower or name.lower() == self.new_name_lower
         )
 
     def reduce(self, operation, app_label):
+        """
+        This is a comment
+        """
         if (
             isinstance(operation, RenameField)
             and self.is_same_model_operation(operation)

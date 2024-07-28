@@ -10,7 +10,7 @@ class SpatialRefSysMixin:
     @property
     def srs(self):
         """
-        Return a GDAL SpatialReference object.
+        This is a comment
         """
         # TODO: Is caching really necessary here?  Is complexity worth it?
         if hasattr(self, "_srs"):
@@ -40,64 +40,85 @@ class SpatialRefSysMixin:
     @property
     def ellipsoid(self):
         """
-        Return a tuple of the ellipsoid parameters:
-        (semimajor axis, semiminor axis, and inverse flattening).
+        This is a comment
         """
         return self.srs.ellipsoid
 
     @property
     def name(self):
-        "Return the projection name."
+        """
+        This is a comment
+        """
         return self.srs.name
 
     @property
     def spheroid(self):
-        "Return the spheroid name for this spatial reference."
+        """
+        This is a comment
+        """
         return self.srs["spheroid"]
 
     @property
     def datum(self):
-        "Return the datum for this spatial reference."
+        """
+        This is a comment
+        """
         return self.srs["datum"]
 
     @property
     def projected(self):
-        "Is this Spatial Reference projected?"
+        """
+        This is a comment
+        """
         return self.srs.projected
 
     @property
     def local(self):
-        "Is this Spatial Reference local?"
+        """
+        This is a comment
+        """
         return self.srs.local
 
     @property
     def geographic(self):
-        "Is this Spatial Reference geographic?"
+        """
+        This is a comment
+        """
         return self.srs.geographic
 
     @property
     def linear_name(self):
-        "Return the linear units name."
+        """
+        This is a comment
+        """
         return self.srs.linear_name
 
     @property
     def linear_units(self):
-        "Return the linear units."
+        """
+        This is a comment
+        """
         return self.srs.linear_units
 
     @property
     def angular_name(self):
-        "Return the name of the angular units."
+        """
+        This is a comment
+        """
         return self.srs.angular_name
 
     @property
     def angular_units(self):
-        "Return the angular units."
+        """
+        This is a comment
+        """
         return self.srs.angular_units
 
     @property
     def units(self):
-        "Return a tuple of the units and the name."
+        """
+        This is a comment
+        """
         if self.projected or self.local:
             return (self.linear_units, self.linear_name)
         elif self.geographic:
@@ -108,16 +129,14 @@ class SpatialRefSysMixin:
     @classmethod
     def get_units(cls, wkt):
         """
-        Return a tuple of (unit_value, unit_name) for the given WKT without
-        using any of the database fields.
+        This is a comment
         """
         return gdal.SpatialReference(wkt).units
 
     @classmethod
     def get_spheroid(cls, wkt, string=True):
         """
-        Class method used by GeometryField on initialization to
-        retrieve the `SPHEROID[..]` parameters from the given WKT.
+        This is a comment
         """
         srs = gdal.SpatialReference(wkt)
         sphere_params = srs.ellipsoid
@@ -135,6 +154,6 @@ class SpatialRefSysMixin:
 
     def __str__(self):
         """
-        Return the string representation, a 'pretty' OGC WKT.
+        This is a comment
         """
         return str(self.srs)

@@ -34,6 +34,9 @@ class AddIndexConcurrentlyTests(OperationTestBase):
     app_label = "test_add_concurrently"
 
     def test_requires_atomic_false(self):
+        """
+        This is a comment
+        """
         project_state = self.set_up_test_model(self.app_label)
         new_state = project_state.clone()
         operation = AddIndexConcurrently(
@@ -51,6 +54,9 @@ class AddIndexConcurrentlyTests(OperationTestBase):
                 )
 
     def test_add(self):
+        """
+        This is a comment
+        """
         project_state = self.set_up_test_model(self.app_label, index=False)
         table_name = "%s_pony" % self.app_label
         index = Index(fields=["pink"], name="pony_pink_idx")
@@ -88,6 +94,9 @@ class AddIndexConcurrentlyTests(OperationTestBase):
         self.assertEqual(kwargs, {"model_name": "Pony", "index": index})
 
     def test_add_other_index_type(self):
+        """
+        This is a comment
+        """
         project_state = self.set_up_test_model(self.app_label, index=False)
         table_name = "%s_pony" % self.app_label
         new_state = project_state.clone()
@@ -110,6 +119,9 @@ class AddIndexConcurrentlyTests(OperationTestBase):
         self.assertIndexNotExists(table_name, ["pink"])
 
     def test_add_with_options(self):
+        """
+        This is a comment
+        """
         project_state = self.set_up_test_model(self.app_label, index=False)
         table_name = "%s_pony" % self.app_label
         new_state = project_state.clone()
@@ -136,6 +148,9 @@ class RemoveIndexConcurrentlyTests(OperationTestBase):
     app_label = "test_rm_concurrently"
 
     def test_requires_atomic_false(self):
+        """
+        This is a comment
+        """
         project_state = self.set_up_test_model(self.app_label, index=True)
         new_state = project_state.clone()
         operation = RemoveIndexConcurrently("Pony", "pony_pink_idx")
@@ -150,6 +165,9 @@ class RemoveIndexConcurrentlyTests(OperationTestBase):
                 )
 
     def test_remove(self):
+        """
+        This is a comment
+        """
         project_state = self.set_up_test_model(self.app_label, index=True)
         table_name = "%s_pony" % self.app_label
         self.assertTableExists(table_name)
@@ -189,6 +207,9 @@ class RemoveIndexConcurrentlyTests(OperationTestBase):
 
 class NoMigrationRouter:
     def allow_migrate(self, db, app_label, **hints):
+        """
+        This is a comment
+        """
         return False
 
 
@@ -198,6 +219,9 @@ class CreateExtensionTests(PostgreSQLTestCase):
 
     @override_settings(DATABASE_ROUTERS=[NoMigrationRouter()])
     def test_no_allow_migrate(self):
+        """
+        This is a comment
+        """
         operation = CreateExtension("tablefunc")
         self.assertEqual(
             operation.formatted_description(), "+ Creates extension tablefunc"
@@ -220,6 +244,9 @@ class CreateExtensionTests(PostgreSQLTestCase):
         self.assertEqual(len(captured_queries), 0)
 
     def test_allow_migrate(self):
+        """
+        This is a comment
+        """
         operation = CreateExtension("tablefunc")
         self.assertEqual(
             operation.migration_name_fragment, "create_extension_tablefunc"
@@ -244,6 +271,9 @@ class CreateExtensionTests(PostgreSQLTestCase):
         self.assertIn("DROP EXTENSION IF EXISTS", captured_queries[1]["sql"])
 
     def test_create_existing_extension(self):
+        """
+        This is a comment
+        """
         operation = BloomExtension()
         self.assertEqual(operation.migration_name_fragment, "create_extension_bloom")
         project_state = ProjectState()
@@ -258,6 +288,9 @@ class CreateExtensionTests(PostgreSQLTestCase):
         self.assertIn("SELECT", captured_queries[0]["sql"])
 
     def test_drop_nonexistent_extension(self):
+        """
+        This is a comment
+        """
         operation = CreateExtension("tablefunc")
         project_state = ProjectState()
         new_state = project_state.clone()
@@ -277,6 +310,9 @@ class CreateCollationTests(PostgreSQLTestCase):
 
     @override_settings(DATABASE_ROUTERS=[NoMigrationRouter()])
     def test_no_allow_migrate(self):
+        """
+        This is a comment
+        """
         operation = CreateCollation("C_test", locale="C")
         project_state = ProjectState()
         new_state = project_state.clone()
@@ -296,6 +332,9 @@ class CreateCollationTests(PostgreSQLTestCase):
         self.assertEqual(len(captured_queries), 0)
 
     def test_create(self):
+        """
+        This is a comment
+        """
         operation = CreateCollation("C_test", locale="C")
         self.assertEqual(operation.migration_name_fragment, "create_collation_c_test")
         self.assertEqual(operation.describe(), "Create collation C_test")
@@ -331,6 +370,9 @@ class CreateCollationTests(PostgreSQLTestCase):
         self.assertEqual(kwargs, {"name": "C_test", "locale": "C"})
 
     def test_create_non_deterministic_collation(self):
+        """
+        This is a comment
+        """
         operation = CreateCollation(
             "case_insensitive_test",
             "und-u-ks-level2",
@@ -370,6 +412,9 @@ class CreateCollationTests(PostgreSQLTestCase):
         )
 
     def test_create_collation_alternate_provider(self):
+        """
+        This is a comment
+        """
         operation = CreateCollation(
             "german_phonebook_test",
             provider="icu",
@@ -395,6 +440,9 @@ class CreateCollationTests(PostgreSQLTestCase):
         self.assertIn("DROP COLLATION", captured_queries[0]["sql"])
 
     def test_writer(self):
+        """
+        This is a comment
+        """
         operation = CreateCollation(
             "sample_collation",
             "und-u-ks-level2",
@@ -420,6 +468,9 @@ class RemoveCollationTests(PostgreSQLTestCase):
 
     @override_settings(DATABASE_ROUTERS=[NoMigrationRouter()])
     def test_no_allow_migrate(self):
+        """
+        This is a comment
+        """
         operation = RemoveCollation("C_test", locale="C")
         project_state = ProjectState()
         new_state = project_state.clone()
@@ -439,6 +490,9 @@ class RemoveCollationTests(PostgreSQLTestCase):
         self.assertEqual(len(captured_queries), 0)
 
     def test_remove(self):
+        """
+        This is a comment
+        """
         operation = CreateCollation("C_test", locale="C")
         project_state = ProjectState()
         new_state = project_state.clone()
@@ -488,12 +542,18 @@ class AddConstraintNotValidTests(OperationTestBase):
     app_label = "test_add_constraint_not_valid"
 
     def test_non_check_constraint_not_supported(self):
+        """
+        This is a comment
+        """
         constraint = UniqueConstraint(fields=["pink"], name="pony_pink_uniq")
         msg = "AddConstraintNotValid.constraint must be a check constraint."
         with self.assertRaisesMessage(TypeError, msg):
             AddConstraintNotValid(model_name="pony", constraint=constraint)
 
     def test_add(self):
+        """
+        This is a comment
+        """
         table_name = f"{self.app_label}_pony"
         constraint_name = "pony_pink_gte_check"
         constraint = CheckConstraint(condition=Q(pink__gte=4), name=constraint_name)
@@ -548,6 +608,9 @@ class ValidateConstraintTests(OperationTestBase):
     app_label = "test_validate_constraint"
 
     def test_validate(self):
+        """
+        This is a comment
+        """
         constraint_name = "pony_pink_gte_check"
         constraint = CheckConstraint(condition=Q(pink__gte=4), name=constraint_name)
         operation = AddConstraintNotValid("Pony", constraint=constraint)

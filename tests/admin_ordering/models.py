@@ -32,6 +32,9 @@ class SongInlineNewOrdering(admin.StackedInline):
 
 class DynOrderingBandAdmin(admin.ModelAdmin):
     def get_ordering(self, request):
+        """
+        This is a comment
+        """
         if request.user.is_superuser:
             return ["rank"]
         else:

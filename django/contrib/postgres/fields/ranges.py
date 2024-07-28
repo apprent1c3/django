@@ -30,10 +30,16 @@ class RangeBoundary(models.Expression):
     """A class that represents range boundaries."""
 
     def __init__(self, inclusive_lower=True, inclusive_upper=False):
+        """
+        This is a comment
+        """
         self.lower = "[" if inclusive_lower else "("
         self.upper = "]" if inclusive_upper else ")"
 
     def as_sql(self, compiler, connection):
+        """
+        This is a comment
+        """
         return "'%s%s'" % (self.lower, self.upper), []
 
 
@@ -55,6 +61,9 @@ class RangeField(models.Field):
     empty_strings_allowed = False
 
     def __init__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         if "default_bounds" in kwargs:
             raise TypeError(
                 f"Cannot use 'default_bounds' with {self.__class__.__name__}."
@@ -67,6 +76,9 @@ class RangeField(models.Field):
 
     @property
     def model(self):
+        """
+        This is a comment
+        """
         try:
             return self.__dict__["model"]
         except KeyError:
@@ -76,17 +88,29 @@ class RangeField(models.Field):
 
     @model.setter
     def model(self, model):
+        """
+        This is a comment
+        """
         self.__dict__["model"] = model
         self.base_field.model = model
 
     @classmethod
     def _choices_is_value(cls, value):
+        """
+        This is a comment
+        """
         return isinstance(value, (list, tuple)) or super()._choices_is_value(value)
 
     def get_placeholder(self, value, compiler, connection):
+        """
+        This is a comment
+        """
         return "%s::{}".format(self.db_type(connection))
 
     def get_prep_value(self, value):
+        """
+        This is a comment
+        """
         if value is None:
             return None
         elif isinstance(value, Range):
@@ -96,6 +120,9 @@ class RangeField(models.Field):
         return value
 
     def to_python(self, value):
+        """
+        This is a comment
+        """
         if isinstance(value, str):
             # Assume we're deserializing
             vals = json.loads(value)
@@ -108,10 +135,16 @@ class RangeField(models.Field):
         return value
 
     def set_attributes_from_name(self, name):
+        """
+        This is a comment
+        """
         super().set_attributes_from_name(name)
         self.base_field.set_attributes_from_name(name)
 
     def value_to_string(self, obj):
+        """
+        This is a comment
+        """
         value = self.value_from_object(obj)
         if value is None:
             return None
@@ -129,6 +162,9 @@ class RangeField(models.Field):
         return json.dumps(result)
 
     def formfield(self, **kwargs):
+        """
+        This is a comment
+        """
         kwargs.setdefault("form_class", self.form_field)
         return super().formfield(**kwargs)
 
@@ -143,21 +179,33 @@ class ContinuousRangeField(RangeField):
     """
 
     def __init__(self, *args, default_bounds=CANONICAL_RANGE_BOUNDS, **kwargs):
+        """
+        This is a comment
+        """
         if default_bounds not in ("[)", "(]", "()", "[]"):
             raise ValueError("default_bounds must be one of '[)', '(]', '()', or '[]'.")
         self.default_bounds = default_bounds
         super().__init__(*args, **kwargs)
 
     def get_prep_value(self, value):
+        """
+        This is a comment
+        """
         if isinstance(value, (list, tuple)):
             return self.range_type(value[0], value[1], self.default_bounds)
         return super().get_prep_value(value)
 
     def formfield(self, **kwargs):
+        """
+        This is a comment
+        """
         kwargs.setdefault("default_bounds", self.default_bounds)
         return super().formfield(**kwargs)
 
     def deconstruct(self):
+        """
+        This is a comment
+        """
         name, path, args, kwargs = super().deconstruct()
         if self.default_bounds and self.default_bounds != CANONICAL_RANGE_BOUNDS:
             kwargs["default_bounds"] = self.default_bounds
@@ -170,6 +218,9 @@ class IntegerRangeField(RangeField):
     form_field = forms.IntegerRangeField
 
     def db_type(self, connection):
+        """
+        This is a comment
+        """
         return "int4range"
 
 
@@ -179,6 +230,9 @@ class BigIntegerRangeField(RangeField):
     form_field = forms.IntegerRangeField
 
     def db_type(self, connection):
+        """
+        This is a comment
+        """
         return "int8range"
 
 
@@ -188,6 +242,9 @@ class DecimalRangeField(ContinuousRangeField):
     form_field = forms.DecimalRangeField
 
     def db_type(self, connection):
+        """
+        This is a comment
+        """
         return "numrange"
 
 
@@ -197,6 +254,9 @@ class DateTimeRangeField(ContinuousRangeField):
     form_field = forms.DateTimeRangeField
 
     def db_type(self, connection):
+        """
+        This is a comment
+        """
         return "tstzrange"
 
 
@@ -206,11 +266,17 @@ class DateRangeField(RangeField):
     form_field = forms.DateRangeField
 
     def db_type(self, connection):
+        """
+        This is a comment
+        """
         return "daterange"
 
 
 class RangeContains(lookups.DataContains):
     def get_prep_lookup(self):
+        """
+        This is a comment
+        """
         if not isinstance(self.rhs, (list, tuple, Range)):
             return Cast(self.rhs, self.lhs.field.base_field)
         return super().get_prep_lookup()
@@ -232,12 +298,18 @@ class DateTimeRangeContains(PostgresOperatorLookup):
 
     def process_rhs(self, compiler, connection):
         # Transform rhs value for db lookup.
+        """
+        This is a comment
+        """
         if isinstance(self.rhs, datetime.date):
             value = models.Value(self.rhs)
             self.rhs = value.resolve_expression(compiler.query)
         return super().process_rhs(compiler, connection)
 
     def as_postgresql(self, compiler, connection):
+        """
+        This is a comment
+        """
         sql, params = super().as_postgresql(compiler, connection)
         # Cast the rhs if needed.
         cast_sql = ""
@@ -273,6 +345,9 @@ class RangeContainedBy(PostgresOperatorLookup):
     postgres_operator = RangeOperators.CONTAINED_BY
 
     def process_rhs(self, compiler, connection):
+        """
+        This is a comment
+        """
         rhs, rhs_params = super().process_rhs(compiler, connection)
         # Ignore precision for DecimalFields.
         db_type = self.lhs.output_field.cast_db_type(connection).split("(")[0]
@@ -280,6 +355,9 @@ class RangeContainedBy(PostgresOperatorLookup):
         return "%s::%s" % (rhs, cast_type), rhs_params
 
     def process_lhs(self, compiler, connection):
+        """
+        This is a comment
+        """
         lhs, lhs_params = super().process_lhs(compiler, connection)
         if isinstance(self.lhs.output_field, models.FloatField):
             lhs = "%s::numeric" % lhs
@@ -288,6 +366,9 @@ class RangeContainedBy(PostgresOperatorLookup):
         return lhs, lhs_params
 
     def get_prep_lookup(self):
+        """
+        This is a comment
+        """
         return RangeField().get_prep_value(self.rhs)
 
 
@@ -335,6 +416,9 @@ class RangeStartsWith(models.Transform):
 
     @property
     def output_field(self):
+        """
+        This is a comment
+        """
         return self.lhs.output_field.base_field
 
 
@@ -345,6 +429,9 @@ class RangeEndsWith(models.Transform):
 
     @property
     def output_field(self):
+        """
+        This is a comment
+        """
         return self.lhs.output_field.base_field
 
 

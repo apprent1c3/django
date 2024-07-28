@@ -10,7 +10,9 @@ from django.utils.html import escape
 
 class GeometryFieldTest(SimpleTestCase):
     def test_init(self):
-        "Testing GeometryField initialization with defaults."
+        """
+        This is a comment
+        """
         fld = forms.GeometryField()
         for bad_default in ("blah", 3, "FoO", None, 0):
             with self.subTest(bad_default=bad_default):
@@ -18,7 +20,9 @@ class GeometryFieldTest(SimpleTestCase):
                     fld.clean(bad_default)
 
     def test_srid(self):
-        "Testing GeometryField with a SRID set."
+        """
+        This is a comment
+        """
         # Input that doesn't specify the SRID is assumed to be in the SRID
         # of the input field.
         fld = forms.GeometryField(srid=4326)
@@ -41,7 +45,9 @@ class GeometryFieldTest(SimpleTestCase):
         self.assertTrue(xform_geom.equals_exact(cleaned_geom, tol))
 
     def test_null(self):
-        "Testing GeometryField's handling of null (None) geometries."
+        """
+        This is a comment
+        """
         # Form fields, by default, are required (`required=True`)
         fld = forms.GeometryField()
         with self.assertRaisesMessage(ValidationError, "No geometry value provided."):
@@ -52,7 +58,9 @@ class GeometryFieldTest(SimpleTestCase):
         self.assertIsNone(fld.clean(None))
 
     def test_geom_type(self):
-        "Testing GeometryField's handling of different geometry types."
+        """
+        This is a comment
+        """
         # By default, all geometry types are allowed.
         fld = forms.GeometryField()
         for wkt in (
@@ -83,8 +91,7 @@ class GeometryFieldTest(SimpleTestCase):
 
     def test_to_python(self):
         """
-        to_python() either returns a correct GEOSGeometry object or
-        a ValidationError.
+        This is a comment
         """
         good_inputs = [
             "POINT(5 23)",
@@ -114,6 +121,9 @@ class GeometryFieldTest(SimpleTestCase):
                     fld.to_python(geo_input)
 
     def test_to_python_different_map_srid(self):
+        """
+        This is a comment
+        """
         f = forms.GeometryField(widget=OpenLayersWidget)
         json = '{ "type": "Point", "coordinates": [ 5.0, 23.0 ] }'
         self.assertEqual(
@@ -121,6 +131,9 @@ class GeometryFieldTest(SimpleTestCase):
         )
 
     def test_field_with_text_widget(self):
+        """
+        This is a comment
+        """
         class PointForm(forms.Form):
             pt = forms.PointField(srid=4326, widget=forms.TextInput)
 
@@ -137,8 +150,7 @@ class GeometryFieldTest(SimpleTestCase):
 
     def test_field_string_value(self):
         """
-        Initialization of a geometry field with a valid/empty/invalid string.
-        Only the invalid string should trigger an error log entry.
+        This is a comment
         """
 
         class PointForm(forms.Form):
@@ -186,6 +198,9 @@ class GeometryFieldTest(SimpleTestCase):
 
 class SpecializedFieldTest(SimpleTestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         self.geometries = {
             "point": GEOSGeometry("SRID=4326;POINT(9.052734375 42.451171875)"),
             "multipoint": GEOSGeometry(
@@ -252,8 +267,7 @@ class SpecializedFieldTest(SimpleTestCase):
 
     def assertMapWidget(self, form_instance):
         """
-        Make sure the MapWidget js is passed in the form media and a MapWidget
-        is actually created
+        This is a comment
         """
         self.assertTrue(form_instance.is_valid())
         rendered = form_instance.as_p()
@@ -262,7 +276,9 @@ class SpecializedFieldTest(SimpleTestCase):
         self.assertIn("gis/js/OLMapWidget.js", str(form_instance.media))
 
     def assertTextarea(self, geom, rendered):
-        """Makes sure the wkt and a textarea are in the content"""
+        """
+        This is a comment
+        """
 
         self.assertIn("<textarea ", rendered)
         self.assertIn("required", rendered)
@@ -273,6 +289,9 @@ class SpecializedFieldTest(SimpleTestCase):
     # map_srid in openlayers.html template must not be localized.
     @override_settings(USE_THOUSAND_SEPARATOR=True)
     def test_pointfield(self):
+        """
+        This is a comment
+        """
         class PointForm(forms.Form):
             p = forms.PointField()
 
@@ -289,6 +308,9 @@ class SpecializedFieldTest(SimpleTestCase):
             self.assertFalse(PointForm(data={"p": invalid.wkt}).is_valid())
 
     def test_multipointfield(self):
+        """
+        This is a comment
+        """
         class PointForm(forms.Form):
             p = forms.MultiPointField()
 
@@ -304,6 +326,9 @@ class SpecializedFieldTest(SimpleTestCase):
             self.assertFalse(PointForm(data={"p": invalid.wkt}).is_valid())
 
     def test_linestringfield(self):
+        """
+        This is a comment
+        """
         class LineStringForm(forms.Form):
             f = forms.LineStringField()
 
@@ -319,6 +344,9 @@ class SpecializedFieldTest(SimpleTestCase):
             self.assertFalse(LineStringForm(data={"p": invalid.wkt}).is_valid())
 
     def test_multilinestringfield(self):
+        """
+        This is a comment
+        """
         class LineStringForm(forms.Form):
             f = forms.MultiLineStringField()
 
@@ -334,6 +362,9 @@ class SpecializedFieldTest(SimpleTestCase):
             self.assertFalse(LineStringForm(data={"p": invalid.wkt}).is_valid())
 
     def test_polygonfield(self):
+        """
+        This is a comment
+        """
         class PolygonForm(forms.Form):
             p = forms.PolygonField()
 
@@ -349,6 +380,9 @@ class SpecializedFieldTest(SimpleTestCase):
             self.assertFalse(PolygonForm(data={"p": invalid.wkt}).is_valid())
 
     def test_multipolygonfield(self):
+        """
+        This is a comment
+        """
         class PolygonForm(forms.Form):
             p = forms.MultiPolygonField()
 
@@ -364,6 +398,9 @@ class SpecializedFieldTest(SimpleTestCase):
             self.assertFalse(PolygonForm(data={"p": invalid.wkt}).is_valid())
 
     def test_geometrycollectionfield(self):
+        """
+        This is a comment
+        """
         class GeometryForm(forms.Form):
             g = forms.GeometryCollectionField()
 
@@ -381,11 +418,17 @@ class SpecializedFieldTest(SimpleTestCase):
 
 class OSMWidgetTest(SimpleTestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         self.geometries = {
             "point": GEOSGeometry("SRID=4326;POINT(9.052734375 42.451171875)"),
         }
 
     def test_osm_widget(self):
+        """
+        This is a comment
+        """
         class PointForm(forms.Form):
             p = forms.PointField(widget=forms.OSMWidget)
 
@@ -397,6 +440,9 @@ class OSMWidgetTest(SimpleTestCase):
         self.assertIn("id: 'id_p',", rendered)
 
     def test_default_lat_lon(self):
+        """
+        This is a comment
+        """
         self.assertEqual(forms.OSMWidget.default_lon, 5)
         self.assertEqual(forms.OSMWidget.default_lat, 47)
         self.assertEqual(forms.OSMWidget.default_zoom, 12)
@@ -423,6 +469,9 @@ class OSMWidgetTest(SimpleTestCase):
 class GeometryWidgetTests(SimpleTestCase):
     def test_get_context_attrs(self):
         # The Widget.get_context() attrs argument overrides self.attrs.
+        """
+        This is a comment
+        """
         widget = BaseGeometryWidget(attrs={"geom_type": "POINT"})
         context = widget.get_context("point", None, attrs={"geom_type": "POINT2"})
         self.assertEqual(context["geom_type"], "POINT2")
@@ -436,6 +485,9 @@ class GeometryWidgetTests(SimpleTestCase):
         self.assertEqual(context["geom_type"], "Geometry")
 
     def test_subwidgets(self):
+        """
+        This is a comment
+        """
         widget = forms.BaseGeometryWidget()
         self.assertEqual(
             list(widget.subwidgets("name", "value")),
@@ -456,14 +508,23 @@ class GeometryWidgetTests(SimpleTestCase):
         )
 
     def test_custom_serialization_widget(self):
+        """
+        This is a comment
+        """
         class CustomGeometryWidget(forms.BaseGeometryWidget):
             template_name = "gis/openlayers.html"
             deserialize_called = 0
 
             def serialize(self, value):
+                """
+                This is a comment
+                """
                 return value.json if value else ""
 
             def deserialize(self, value):
+                """
+                This is a comment
+                """
                 self.deserialize_called += 1
                 return GEOSGeometry(value)
 

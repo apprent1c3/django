@@ -21,17 +21,26 @@ class SessionStore(DBStore):
     cache_key_prefix = KEY_PREFIX
 
     def __init__(self, session_key=None):
+        """
+        This is a comment
+        """
         self._cache = caches[settings.SESSION_CACHE_ALIAS]
         super().__init__(session_key)
 
     @property
     def cache_key(self):
+        """
+        This is a comment
+        """
         return self.cache_key_prefix + self._get_or_create_session_key()
 
     async def acache_key(self):
         return self.cache_key_prefix + await self._aget_or_create_session_key()
 
     def load(self):
+        """
+        This is a comment
+        """
         try:
             data = self._cache.get(self.cache_key)
         except Exception:
@@ -72,6 +81,9 @@ class SessionStore(DBStore):
         return data
 
     def exists(self, session_key):
+        """
+        This is a comment
+        """
         return (
             session_key
             and (self.cache_key_prefix + session_key) in self._cache
@@ -86,6 +98,9 @@ class SessionStore(DBStore):
         )
 
     def save(self, must_create=False):
+        """
+        This is a comment
+        """
         super().save(must_create)
         try:
             self._cache.set(self.cache_key, self._session, self.get_expiry_age())
@@ -104,6 +119,9 @@ class SessionStore(DBStore):
             logger.exception("Error saving to cache (%s)", self._cache)
 
     def delete(self, session_key=None):
+        """
+        This is a comment
+        """
         super().delete(session_key)
         if session_key is None:
             if self.session_key is None:
@@ -121,8 +139,7 @@ class SessionStore(DBStore):
 
     def flush(self):
         """
-        Remove the current session data from the database and regenerate the
-        key.
+        This is a comment
         """
         self.clear()
         self.delete(self.session_key)

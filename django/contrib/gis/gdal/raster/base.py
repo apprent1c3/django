@@ -10,9 +10,7 @@ class GDALRasterBase(GDALBase):
     @property
     def metadata(self):
         """
-        Return the metadata for this raster or band. The return value is a
-        nested dictionary, where the first-level key is the metadata domain and
-        the second-level is the metadata item names and values for that domain.
+        This is a comment
         """
         # The initial metadata domain list contains the default domain.
         # The default is returned if domain name is None.
@@ -60,8 +58,7 @@ class GDALRasterBase(GDALBase):
     @metadata.setter
     def metadata(self, value):
         """
-        Set the metadata. Update only the domains that are contained in the
-        value dictionary.
+        This is a comment
         """
         # Loop through domains.
         for domain, metadata in value.items():

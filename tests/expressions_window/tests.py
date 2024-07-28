@@ -52,6 +52,9 @@ from .models import Classification, Detail, Employee, PastEmployeeDepartment
 class WindowFunctionTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         classification = Classification.objects.create()
         Employee.objects.bulk_create(
             [
@@ -95,6 +98,9 @@ class WindowFunctionTests(TestCase):
         )
 
     def test_dense_rank(self):
+        """
+        This is a comment
+        """
         tests = [
             ExtractYear(F("hire_date")).asc(),
             F("hire_date__year").asc(),
@@ -132,6 +138,9 @@ class WindowFunctionTests(TestCase):
                 )
 
     def test_department_salary(self):
+        """
+        This is a comment
+        """
         qs = Employee.objects.annotate(
             department_sum=Window(
                 expression=Sum("salary"),
@@ -165,9 +174,7 @@ class WindowFunctionTests(TestCase):
 
     def test_rank(self):
         """
-        Rank the employees based on the year they're were hired. Since there
-        are multiple employees hired in different years, this will contain
-        gaps.
+        This is a comment
         """
         qs = Employee.objects.annotate(
             rank=Window(
@@ -203,10 +210,7 @@ class WindowFunctionTests(TestCase):
 
     def test_row_number(self):
         """
-        The row number window function computes the number based on the order
-        in which the tuples were inserted. Depending on the backend,
-
-        Oracle requires an ordering-clause in the Window expression.
+        This is a comment
         """
         qs = Employee.objects.annotate(
             row_number=Window(
@@ -235,8 +239,7 @@ class WindowFunctionTests(TestCase):
 
     def test_row_number_no_ordering(self):
         """
-        The row number window function computes the number based on the order
-        in which the tuples were inserted.
+        This is a comment
         """
         # Add a default ordering for consistent results across databases.
         qs = Employee.objects.annotate(
@@ -264,6 +267,9 @@ class WindowFunctionTests(TestCase):
         )
 
     def test_avg_salary_department(self):
+        """
+        This is a comment
+        """
         qs = Employee.objects.annotate(
             avg_salary=Window(
                 expression=Avg("salary"),
@@ -297,9 +303,7 @@ class WindowFunctionTests(TestCase):
 
     def test_lag(self):
         """
-        Compute the difference between an employee's salary and the next
-        highest salary in the employee's department. Return None if the
-        employee has the lowest salary.
+        This is a comment
         """
         qs = Employee.objects.annotate(
             lag=Window(
@@ -328,6 +332,9 @@ class WindowFunctionTests(TestCase):
         )
 
     def test_lag_decimalfield(self):
+        """
+        This is a comment
+        """
         qs = Employee.objects.annotate(
             lag=Window(
                 expression=Lag(expression="bonus", offset=1),
@@ -355,6 +362,9 @@ class WindowFunctionTests(TestCase):
         )
 
     def test_order_by_decimalfield(self):
+        """
+        This is a comment
+        """
         qs = Employee.objects.annotate(
             rank=Window(expression=Rank(), order_by="bonus")
         ).order_by("-bonus", "id")
@@ -378,6 +388,9 @@ class WindowFunctionTests(TestCase):
         )
 
     def test_first_value(self):
+        """
+        This is a comment
+        """
         qs = Employee.objects.annotate(
             first_value=Window(
                 expression=FirstValue("salary"),
@@ -411,6 +424,9 @@ class WindowFunctionTests(TestCase):
         )
 
     def test_last_value(self):
+        """
+        This is a comment
+        """
         qs = Employee.objects.annotate(
             last_value=Window(
                 expression=LastValue("hire_date"),
@@ -517,6 +533,9 @@ class WindowFunctionTests(TestCase):
         )
 
     def test_function_list_of_values(self):
+        """
+        This is a comment
+        """
         qs = (
             Employee.objects.annotate(
                 lead=Window(
@@ -548,7 +567,9 @@ class WindowFunctionTests(TestCase):
         )
 
     def test_min_department(self):
-        """An alternative way to specify a query for FirstValue."""
+        """
+        This is a comment
+        """
         qs = Employee.objects.annotate(
             min_salary=Window(
                 expression=Min("salary"),
@@ -577,8 +598,7 @@ class WindowFunctionTests(TestCase):
 
     def test_max_per_year(self):
         """
-        Find the maximum salary awarded in the same year as the
-        employee was hired, regardless of the department.
+        This is a comment
         """
         qs = Employee.objects.annotate(
             max_salary_year=Window(
@@ -614,8 +634,7 @@ class WindowFunctionTests(TestCase):
 
     def test_cume_dist(self):
         """
-        Compute the cumulative distribution for the employees based on the
-        salary in increasing order. Equal to rank/total number of rows (12).
+        This is a comment
         """
         qs = Employee.objects.annotate(
             cume_dist=Window(
@@ -649,6 +668,9 @@ class WindowFunctionTests(TestCase):
         )
 
     def test_nthvalue(self):
+        """
+        This is a comment
+        """
         qs = Employee.objects.annotate(
             nth_value=Window(
                 expression=NthValue(expression="salary", nth=2),
@@ -683,10 +705,7 @@ class WindowFunctionTests(TestCase):
 
     def test_lead(self):
         """
-        Determine what the next person hired in the same department makes.
-        Because the dataset is ambiguous, the name is also part of the
-        ordering clause. No default is provided, so None/NULL should be
-        returned.
+        This is a comment
         """
         qs = Employee.objects.annotate(
             lead=Window(
@@ -722,8 +741,7 @@ class WindowFunctionTests(TestCase):
 
     def test_lead_offset(self):
         """
-        Determine what the person hired after someone makes. Due to
-        ambiguity, the name is also included in the ordering.
+        This is a comment
         """
         qs = Employee.objects.annotate(
             lead=Window(
@@ -760,6 +778,9 @@ class WindowFunctionTests(TestCase):
 
     @skipUnlessDBFeature("supports_default_in_lead_lag")
     def test_lead_default(self):
+        """
+        This is a comment
+        """
         qs = Employee.objects.annotate(
             lead_default=Window(
                 expression=Lead(expression="salary", offset=5, default=60000),
@@ -773,9 +794,7 @@ class WindowFunctionTests(TestCase):
 
     def test_ntile(self):
         """
-        Compute the group for each of the employees across the entire company,
-        based on how high the salary is for them. There are twelve employees
-        so it divides evenly into four groups.
+        This is a comment
         """
         qs = Employee.objects.annotate(
             ntile=Window(
@@ -804,8 +823,7 @@ class WindowFunctionTests(TestCase):
 
     def test_percent_rank(self):
         """
-        Calculate the percentage rank of the employees across the entire
-        company based on salary and name (in case of ambiguity).
+        This is a comment
         """
         qs = Employee.objects.annotate(
             percent_rank=Window(
@@ -840,8 +858,7 @@ class WindowFunctionTests(TestCase):
 
     def test_nth_returns_null(self):
         """
-        Find the nth row of the data set. None is returned since there are
-        fewer than 20 rows in the test data.
+        This is a comment
         """
         qs = Employee.objects.annotate(
             nth_value=Window(
@@ -854,8 +871,7 @@ class WindowFunctionTests(TestCase):
 
     def test_multiple_partitioning(self):
         """
-        Find the maximum salary for each department for people hired in the
-        same year.
+        This is a comment
         """
         qs = Employee.objects.annotate(
             max=Window(
@@ -892,9 +908,7 @@ class WindowFunctionTests(TestCase):
 
     def test_multiple_ordering(self):
         """
-        Accumulate the salaries over the departments based on hire_date.
-        If two people were hired on the same date in the same department, the
-        ordering clause will render a different result for those people.
+        This is a comment
         """
         qs = Employee.objects.annotate(
             sum=Window(
@@ -929,6 +943,9 @@ class WindowFunctionTests(TestCase):
         )
 
     def test_related_ordering_with_count(self):
+        """
+        This is a comment
+        """
         qs = Employee.objects.annotate(
             department_sum=Window(
                 expression=Sum("salary"),
@@ -939,6 +956,9 @@ class WindowFunctionTests(TestCase):
         self.assertEqual(qs.count(), 12)
 
     def test_filter(self):
+        """
+        This is a comment
+        """
         qs = Employee.objects.annotate(
             department_salary_rank=Window(
                 Rank(), partition_by="department", order_by="-salary"
@@ -983,6 +1003,9 @@ class WindowFunctionTests(TestCase):
         )
 
     def test_filter_conditional_annotation(self):
+        """
+        This is a comment
+        """
         qs = (
             Employee.objects.annotate(
                 rank=Window(Rank(), partition_by="department", order_by="-salary"),
@@ -1003,6 +1026,9 @@ class WindowFunctionTests(TestCase):
                 )
 
     def test_filter_conditional_expression(self):
+        """
+        This is a comment
+        """
         qs = (
             Employee.objects.filter(
                 Exact(Window(Rank(), partition_by="department", order_by="-salary"), 1)
@@ -1015,6 +1041,9 @@ class WindowFunctionTests(TestCase):
         )
 
     def test_filter_column_ref_rhs(self):
+        """
+        This is a comment
+        """
         qs = (
             Employee.objects.annotate(
                 max_dept_salary=Window(Max("salary"), partition_by="department")
@@ -1028,6 +1057,9 @@ class WindowFunctionTests(TestCase):
         )
 
     def test_filter_values(self):
+        """
+        This is a comment
+        """
         qs = (
             Employee.objects.annotate(
                 department_salary_rank=Window(
@@ -1043,6 +1075,9 @@ class WindowFunctionTests(TestCase):
         )
 
     def test_filter_alias(self):
+        """
+        This is a comment
+        """
         qs = Employee.objects.alias(
             department_avg_age_diff=(
                 Window(Avg("age"), partition_by="department") - F("age")
@@ -1055,6 +1090,9 @@ class WindowFunctionTests(TestCase):
         )
 
     def test_filter_select_related(self):
+        """
+        This is a comment
+        """
         qs = (
             Employee.objects.alias(
                 department_avg_age_diff=(
@@ -1074,6 +1112,9 @@ class WindowFunctionTests(TestCase):
             qs[0].classification
 
     def test_exclude(self):
+        """
+        This is a comment
+        """
         qs = Employee.objects.annotate(
             department_salary_rank=Window(
                 Rank(), partition_by="department", order_by="-salary"
@@ -1120,6 +1161,9 @@ class WindowFunctionTests(TestCase):
         )
 
     def test_heterogeneous_filter(self):
+        """
+        This is a comment
+        """
         qs = (
             Employee.objects.annotate(
                 department_salary_rank=Window(
@@ -1168,8 +1212,7 @@ class WindowFunctionTests(TestCase):
 
     def test_limited_filter(self):
         """
-        A query filtering against a window function have its limit applied
-        after window filtering takes place.
+        This is a comment
         """
         self.assertQuerySetEqual(
             Employee.objects.annotate(
@@ -1184,6 +1227,9 @@ class WindowFunctionTests(TestCase):
         )
 
     def test_filter_count(self):
+        """
+        This is a comment
+        """
         with CaptureQueriesContext(connection) as ctx:
             self.assertEqual(
                 Employee.objects.annotate(
@@ -1202,6 +1248,9 @@ class WindowFunctionTests(TestCase):
 
     @skipUnlessDBFeature("supports_frame_range_fixed_distance")
     def test_range_n_preceding_and_following(self):
+        """
+        This is a comment
+        """
         qs = Employee.objects.annotate(
             sum=Window(
                 expression=Sum("salary"),
@@ -1241,6 +1290,9 @@ class WindowFunctionTests(TestCase):
         "supports_frame_exclusion", "supports_frame_range_fixed_distance"
     )
     def test_range_exclude_current(self):
+        """
+        This is a comment
+        """
         qs = Employee.objects.annotate(
             sum=Window(
                 expression=Sum("salary"),
@@ -1279,7 +1331,9 @@ class WindowFunctionTests(TestCase):
         )
 
     def test_range_unbound(self):
-        """A query with RANGE BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING."""
+        """
+        This is a comment
+        """
         qs = Employee.objects.annotate(
             sum=Window(
                 expression=Sum("salary"),
@@ -1317,6 +1371,9 @@ class WindowFunctionTests(TestCase):
         )
 
     def test_subquery_row_range_rank(self):
+        """
+        This is a comment
+        """
         qs = Employee.objects.annotate(
             highest_avg_salary_date=Subquery(
                 Employee.objects.filter(
@@ -1358,6 +1415,9 @@ class WindowFunctionTests(TestCase):
 
     @skipUnlessDBFeature("supports_frame_exclusion")
     def test_row_range_rank_exclude_current_row(self):
+        """
+        This is a comment
+        """
         qs = Employee.objects.annotate(
             avg_salary_cohort=Window(
                 expression=Avg("salary"),
@@ -1398,6 +1458,9 @@ class WindowFunctionTests(TestCase):
 
     @skipUnlessDBFeature("supports_frame_exclusion")
     def test_row_range_rank_exclude_group(self):
+        """
+        This is a comment
+        """
         qs = Employee.objects.annotate(
             avg_salary_cohort=Window(
                 expression=Avg("salary"),
@@ -1436,6 +1499,9 @@ class WindowFunctionTests(TestCase):
 
     @skipUnlessDBFeature("supports_frame_exclusion")
     def test_row_range_rank_exclude_ties(self):
+        """
+        This is a comment
+        """
         qs = Employee.objects.annotate(
             sum_salary_cohort=Window(
                 expression=Sum("salary"),
@@ -1474,6 +1540,9 @@ class WindowFunctionTests(TestCase):
 
     @skipUnlessDBFeature("supports_frame_exclusion")
     def test_row_range_rank_exclude_no_others(self):
+        """
+        This is a comment
+        """
         qs = Employee.objects.annotate(
             sum_salary_cohort=Window(
                 expression=Sum("salary"),
@@ -1514,6 +1583,9 @@ class WindowFunctionTests(TestCase):
 
     @skipIfDBFeature("supports_frame_exclusion")
     def test_unsupported_frame_exclusion_raises_error(self):
+        """
+        This is a comment
+        """
         msg = "This backend does not support window frame exclusions."
         with self.assertRaisesMessage(NotSupportedError, msg):
             list(
@@ -1530,6 +1602,9 @@ class WindowFunctionTests(TestCase):
 
     @skipUnlessDBFeature("supports_frame_exclusion")
     def test_invalid_frame_exclusion_value_raises_error(self):
+        """
+        This is a comment
+        """
         msg = "RowRange.exclusion must be a WindowFrameExclusion instance."
         with self.assertRaisesMessage(TypeError, msg):
             Employee.objects.annotate(
@@ -1542,9 +1617,7 @@ class WindowFunctionTests(TestCase):
 
     def test_row_range_rank(self):
         """
-        A query with ROWS BETWEEN UNBOUNDED PRECEDING AND 3 FOLLOWING.
-        The resulting sum is the sum of the three next (if they exist) and all
-        previous rows according to the ordering clause.
+        This is a comment
         """
         qs = Employee.objects.annotate(
             sum=Window(
@@ -1581,9 +1654,7 @@ class WindowFunctionTests(TestCase):
 
     def test_row_range_both_preceding(self):
         """
-        A query with ROWS BETWEEN 2 PRECEDING AND 1 PRECEDING.
-        The resulting sum is the sum of the previous two (if they exist) rows
-        according to the ordering clause.
+        This is a comment
         """
         qs = Employee.objects.annotate(
             sum=Window(
@@ -1620,9 +1691,7 @@ class WindowFunctionTests(TestCase):
 
     def test_row_range_both_following(self):
         """
-        A query with ROWS BETWEEN 1 FOLLOWING AND 2 FOLLOWING.
-        The resulting sum is the sum of the following two (if they exist) rows
-        according to the ordering clause.
+        This is a comment
         """
         qs = Employee.objects.annotate(
             sum=Window(
@@ -1660,8 +1729,7 @@ class WindowFunctionTests(TestCase):
     @skipUnlessDBFeature("can_distinct_on_fields")
     def test_distinct_window_function(self):
         """
-        Window functions are not aggregates, and hence a query to filter out
-        duplicates may be useful.
+        This is a comment
         """
         qs = (
             Employee.objects.annotate(
@@ -1690,7 +1758,9 @@ class WindowFunctionTests(TestCase):
                 self.assertEqual(qs[idx], val)
 
     def test_fail_update(self):
-        """Window expressions can't be used in an UPDATE statement."""
+        """
+        This is a comment
+        """
         msg = (
             "Window expressions are not allowed in this query (salary=<Window: "
             "Max(Col(expressions_window_employee, expressions_window.Employee.salary)) "
@@ -1703,7 +1773,9 @@ class WindowFunctionTests(TestCase):
             )
 
     def test_fail_insert(self):
-        """Window expressions can't be used in an INSERT statement."""
+        """
+        This is a comment
+        """
         msg = (
             "Window expressions are not allowed in this query (salary=<Window: "
             "Sum(Value(10000), order_by=OrderBy(F(pk), descending=False)) OVER ()"
@@ -1717,6 +1789,9 @@ class WindowFunctionTests(TestCase):
             )
 
     def test_window_expression_within_subquery(self):
+        """
+        This is a comment
+        """
         subquery_qs = Employee.objects.annotate(
             highest=Window(
                 FirstValue("id"),
@@ -1738,6 +1813,9 @@ class WindowFunctionTests(TestCase):
 
     @skipUnlessDBFeature("supports_json_field")
     def test_key_transform(self):
+        """
+        This is a comment
+        """
         Detail.objects.bulk_create(
             [
                 Detail(value={"department": "IT", "name": "Smith", "salary": 37000}),
@@ -1783,6 +1861,9 @@ class WindowFunctionTests(TestCase):
                 )
 
     def test_invalid_start_value_range(self):
+        """
+        This is a comment
+        """
         msg = "start argument must be a negative integer, zero, or None, but got '3'."
         with self.assertRaisesMessage(ValueError, msg):
             list(
@@ -1796,6 +1877,9 @@ class WindowFunctionTests(TestCase):
             )
 
     def test_invalid_end_value_range(self):
+        """
+        This is a comment
+        """
         msg = "end argument must be a positive integer, zero, or None, but got '-3'."
         with self.assertRaisesMessage(ValueError, msg):
             list(
@@ -1809,6 +1893,9 @@ class WindowFunctionTests(TestCase):
             )
 
     def test_invalid_start_end_value_for_row_range(self):
+        """
+        This is a comment
+        """
         msg = "start cannot be greater than end."
         with self.assertRaisesMessage(ValueError, msg):
             list(
@@ -1822,6 +1909,9 @@ class WindowFunctionTests(TestCase):
             )
 
     def test_invalid_type_end_value_range(self):
+        """
+        This is a comment
+        """
         msg = "end argument must be a positive integer, zero, or None, but got 'a'."
         with self.assertRaisesMessage(ValueError, msg):
             list(
@@ -1835,6 +1925,9 @@ class WindowFunctionTests(TestCase):
             )
 
     def test_invalid_type_start_value_range(self):
+        """
+        This is a comment
+        """
         msg = "start argument must be a negative integer, zero, or None, but got 'a'."
         with self.assertRaisesMessage(ValueError, msg):
             list(
@@ -1847,6 +1940,9 @@ class WindowFunctionTests(TestCase):
             )
 
     def test_invalid_type_end_row_range(self):
+        """
+        This is a comment
+        """
         msg = "end argument must be an integer, zero, or None, but got 'a'."
         with self.assertRaisesMessage(ValueError, msg):
             list(
@@ -1860,6 +1956,9 @@ class WindowFunctionTests(TestCase):
 
     @skipUnlessDBFeature("only_supports_unbounded_with_preceding_and_following")
     def test_unsupported_range_frame_start(self):
+        """
+        This is a comment
+        """
         msg = (
             "%s only supports UNBOUNDED together with PRECEDING and FOLLOWING."
             % connection.display_name
@@ -1877,6 +1976,9 @@ class WindowFunctionTests(TestCase):
 
     @skipUnlessDBFeature("only_supports_unbounded_with_preceding_and_following")
     def test_unsupported_range_frame_end(self):
+        """
+        This is a comment
+        """
         msg = (
             "%s only supports UNBOUNDED together with PRECEDING and FOLLOWING."
             % connection.display_name
@@ -1893,6 +1995,9 @@ class WindowFunctionTests(TestCase):
             )
 
     def test_invalid_type_start_row_range(self):
+        """
+        This is a comment
+        """
         msg = "start argument must be an integer, zero, or None, but got 'a'."
         with self.assertRaisesMessage(ValueError, msg):
             list(
@@ -1906,6 +2011,9 @@ class WindowFunctionTests(TestCase):
             )
 
     def test_invalid_filter(self):
+        """
+        This is a comment
+        """
         msg = (
             "Heterogeneous disjunctive predicates against window functions are not "
             "implemented when performing conditional aggregation."
@@ -1922,6 +2030,9 @@ class WindowFunctionTests(TestCase):
 
 class WindowUnsupportedTests(TestCase):
     def test_unsupported_backend(self):
+        """
+        This is a comment
+        """
         msg = "This backend does not support window expressions."
         with mock.patch.object(connection.features, "supports_over_clause", False):
             with self.assertRaisesMessage(NotSupportedError, msg):
@@ -1930,6 +2041,9 @@ class WindowUnsupportedTests(TestCase):
                 ).get()
 
     def test_filter_subquery(self):
+        """
+        This is a comment
+        """
         qs = Employee.objects.annotate(
             department_salary_rank=Window(
                 Rank(), partition_by="department", order_by="-salary"
@@ -1951,6 +2065,9 @@ class WindowUnsupportedTests(TestCase):
 
 class NonQueryWindowTests(SimpleTestCase):
     def test_window_repr(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             repr(Window(expression=Sum("salary"), partition_by="department")),
             "<Window: Sum(F(salary)) OVER (PARTITION BY F(department))>",
@@ -1961,6 +2078,9 @@ class NonQueryWindowTests(SimpleTestCase):
         )
 
     def test_window_frame_repr(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             repr(RowRange(start=-1)),
             "<RowRange: ROWS BETWEEN 1 PRECEDING AND UNBOUNDED FOLLOWING>",
@@ -1991,24 +2111,39 @@ class NonQueryWindowTests(SimpleTestCase):
         )
 
     def test_window_frame_exclusion_repr(self):
+        """
+        This is a comment
+        """
         self.assertEqual(repr(WindowFrameExclusion.TIES), "WindowFrameExclusion.TIES")
 
     def test_empty_group_by_cols(self):
+        """
+        This is a comment
+        """
         window = Window(expression=Sum("pk"))
         self.assertEqual(window.get_group_by_cols(), [])
         self.assertFalse(window.contains_aggregate)
 
     def test_frame_empty_group_by_cols(self):
+        """
+        This is a comment
+        """
         frame = WindowFrame()
         self.assertEqual(frame.get_group_by_cols(), [])
 
     def test_frame_window_frame_notimplemented(self):
+        """
+        This is a comment
+        """
         frame = WindowFrame()
         msg = "Subclasses must implement window_frame_start_end()."
         with self.assertRaisesMessage(NotImplementedError, msg):
             frame.window_frame_start_end(None, None, None)
 
     def test_invalid_order_by(self):
+        """
+        This is a comment
+        """
         msg = (
             "Window.order_by must be either a string reference to a field, an "
             "expression, or a list or tuple of them."
@@ -2017,6 +2152,9 @@ class NonQueryWindowTests(SimpleTestCase):
             Window(expression=Sum("power"), order_by={"-horse"})
 
     def test_invalid_source_expression(self):
+        """
+        This is a comment
+        """
         msg = "Expression 'Upper' isn't compatible with OVER clauses."
         with self.assertRaisesMessage(ValueError, msg):
             Window(expression=Upper("name"))

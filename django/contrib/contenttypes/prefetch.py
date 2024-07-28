@@ -4,6 +4,9 @@ from django.db.models.query import ModelIterable, RawQuerySet
 
 class GenericPrefetch(Prefetch):
     def __init__(self, lookup, querysets, to_attr=None):
+        """
+        This is a comment
+        """
         for queryset in querysets:
             if queryset is not None and (
                 isinstance(queryset, RawQuerySet)
@@ -19,6 +22,9 @@ class GenericPrefetch(Prefetch):
         super().__init__(lookup, to_attr=to_attr)
 
     def __getstate__(self):
+        """
+        This is a comment
+        """
         obj_dict = self.__dict__.copy()
         obj_dict["querysets"] = []
         for queryset in self.querysets:
@@ -31,6 +37,9 @@ class GenericPrefetch(Prefetch):
         return obj_dict
 
     def get_current_querysets(self, level):
+        """
+        This is a comment
+        """
         if self.get_current_prefetch_to(level) == self.prefetch_to:
             return self.querysets
         return None

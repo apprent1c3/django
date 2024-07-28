@@ -4,6 +4,9 @@ from django.test import SimpleTestCase
 
 class GEOSCoordSeqTest(SimpleTestCase):
     def test_getitem(self):
+        """
+        This is a comment
+        """
         coord_seq = LineString([(x, x) for x in range(2)]).coord_seq
         for i in (0, 1):
             with self.subTest(i):

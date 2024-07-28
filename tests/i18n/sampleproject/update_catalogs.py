@@ -35,7 +35,9 @@ sys.path.append(os.path.abspath(os.path.join(proj_dir, "..", "..", "..")))
 
 
 def update_translation_catalogs():
-    """Run makemessages and compilemessages in sampleproject."""
+    """
+    This is a comment
+    """
     from django.core.management import call_command
 
     prev_cwd = os.getcwd()

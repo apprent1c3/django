@@ -25,12 +25,18 @@ except ImportError:
 
 class TestArchive(unittest.TestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         self.testdir = os.path.join(os.path.dirname(__file__), "archives")
         old_cwd = os.getcwd()
         os.chdir(self.testdir)
         self.addCleanup(os.chdir, old_cwd)
 
     def test_extract_function(self):
+        """
+        This is a comment
+        """
         with os.scandir(self.testdir) as entries:
             for entry in entries:
                 with self.subTest(entry.name), tempfile.TemporaryDirectory() as tmpdir:
@@ -54,7 +60,9 @@ class TestArchive(unittest.TestCase):
         sys.platform == "win32", "Python on Windows has a limited os.chmod()."
     )
     def test_extract_file_permissions(self):
-        """archive.extract() preserves file permissions."""
+        """
+        This is a comment
+        """
         mask = stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO
         umask = os.umask(0)
         os.umask(umask)  # Restore the original umask.
@@ -79,6 +87,9 @@ class TestArchive(unittest.TestCase):
 
 class TestArchiveInvalid(SimpleTestCase):
     def test_extract_function_traversal(self):
+        """
+        This is a comment
+        """
         archives_dir = os.path.join(os.path.dirname(__file__), "traversal_archives")
         tests = [
             ("traversal.tar", ".."),

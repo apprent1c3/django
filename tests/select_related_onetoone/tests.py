@@ -24,6 +24,9 @@ from .models import (
 class ReverseSelectRelatedTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         user = User.objects.create(username="test")
         UserProfile.objects.create(user=user, state="KS", city="Lawrence")
         results = UserStatResult.objects.create(results="first results")
@@ -46,17 +49,26 @@ class ReverseSelectRelatedTestCase(TestCase):
         c2.save()
 
     def test_basic(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(1):
             u = User.objects.select_related("userprofile").get(username="test")
             self.assertEqual(u.userprofile.state, "KS")
 
     def test_follow_next_level(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(1):
             u = User.objects.select_related("userstat__results").get(username="test")
             self.assertEqual(u.userstat.posts, 150)
             self.assertEqual(u.userstat.results.results, "first results")
 
     def test_follow_two(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(1):
             u = User.objects.select_related("userprofile", "userstat").get(
                 username="test"
@@ -65,6 +77,9 @@ class ReverseSelectRelatedTestCase(TestCase):
             self.assertEqual(u.userstat.posts, 150)
 
     def test_follow_two_next_level(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(1):
             u = User.objects.select_related(
                 "userstat__results", "userstat__statdetails"
@@ -73,6 +88,9 @@ class ReverseSelectRelatedTestCase(TestCase):
             self.assertEqual(u.userstat.statdetails.comments, 259)
 
     def test_forward_and_back(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(1):
             stat = UserStat.objects.select_related("user__userprofile").get(
                 user__username="test"
@@ -81,16 +99,25 @@ class ReverseSelectRelatedTestCase(TestCase):
             self.assertEqual(stat.user.userstat.posts, 150)
 
     def test_back_and_forward(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(1):
             u = User.objects.select_related("userstat").get(username="test")
             self.assertEqual(u.userstat.user.username, "test")
 
     def test_not_followed_by_default(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(2):
             u = User.objects.select_related().get(username="test")
             self.assertEqual(u.userstat.posts, 150)
 
     def test_follow_from_child_class(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(1):
             stat = AdvancedUserStat.objects.select_related("user", "statdetails").get(
                 posts=200
@@ -99,6 +126,9 @@ class ReverseSelectRelatedTestCase(TestCase):
             self.assertEqual(stat.user.username, "bob")
 
     def test_follow_inheritance(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(1):
             stat = UserStat.objects.select_related("user", "advanceduserstat").get(
                 posts=200
@@ -109,6 +139,9 @@ class ReverseSelectRelatedTestCase(TestCase):
             self.assertEqual(stat.advanceduserstat.user.username, "bob")
 
     def test_nullable_relation(self):
+        """
+        This is a comment
+        """
         im = Image.objects.create(name="imag1")
         p1 = Product.objects.create(name="Django Plushie", image=im)
         p2 = Product.objects.create(name="Talking Django Plushie")
@@ -127,8 +160,7 @@ class ReverseSelectRelatedTestCase(TestCase):
 
     def test_missing_reverse(self):
         """
-        Ticket #13839: select_related() should NOT cache None
-        for missing objects on a reverse 1-1 relation.
+        This is a comment
         """
         with self.assertNumQueries(1):
             user = User.objects.select_related("userprofile").get(username="bob")
@@ -137,8 +169,7 @@ class ReverseSelectRelatedTestCase(TestCase):
 
     def test_nullable_missing_reverse(self):
         """
-        Ticket #13839: select_related() should NOT cache None
-        for missing objects on a reverse 0-1 relation.
+        This is a comment
         """
         Image.objects.create(name="imag1")
 
@@ -148,6 +179,9 @@ class ReverseSelectRelatedTestCase(TestCase):
                 image.product
 
     def test_parent_only(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(1):
             p = Parent1.objects.select_related("child1").get(name1="Only Parent1")
         with self.assertNumQueries(0):
@@ -155,16 +189,25 @@ class ReverseSelectRelatedTestCase(TestCase):
                 p.child1
 
     def test_multiple_subclass(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(1):
             p = Parent1.objects.select_related("child1").get(name1="Child1 Parent1")
             self.assertEqual(p.child1.name2, "Child1 Parent2")
 
     def test_onetoone_with_subclass(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(1):
             p = Parent2.objects.select_related("child2").get(name2="Child2 Parent2")
             self.assertEqual(p.child2.name1, "Child2 Parent1")
 
     def test_onetoone_with_two_subclasses(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(1):
             p = Parent2.objects.select_related("child2", "child2__child3").get(
                 name2="Child2 Parent2"
@@ -186,6 +229,9 @@ class ReverseSelectRelatedTestCase(TestCase):
             self.assertEqual(p.child2.name1, p.child2.child3.name1)
 
     def test_multiinheritance_two_subclasses(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(1):
             p = Parent1.objects.select_related("child1", "child1__child4").get(
                 name1="Child1 Parent1"
@@ -209,6 +255,9 @@ class ReverseSelectRelatedTestCase(TestCase):
             self.assertEqual(p.child1.child4.value4, 4)
 
     def test_inheritance_deferred(self):
+        """
+        This is a comment
+        """
         c = Child4.objects.create(name1="n1", name2="n2", value=1, value4=4)
         with self.assertNumQueries(1):
             p = (
@@ -234,6 +283,9 @@ class ReverseSelectRelatedTestCase(TestCase):
             self.assertEqual(p.child1.name2, "n2")
 
     def test_inheritance_deferred2(self):
+        """
+        This is a comment
+        """
         c = Child4.objects.create(name1="n1", name2="n2", value=1, value4=4)
         qs = Parent2.objects.select_related("child1", "child1__child4").only(
             "id2", "child1__value", "child1__child4__value4"
@@ -256,6 +308,9 @@ class ReverseSelectRelatedTestCase(TestCase):
             self.assertEqual(p.child1.child4.name1, "n1")
 
     def test_self_relation(self):
+        """
+        This is a comment
+        """
         item1 = LinkedList.objects.create(name="item1")
         LinkedList.objects.create(name="item2", previous_item=item1)
         with self.assertNumQueries(1):
@@ -277,6 +332,9 @@ class ReverseSelectRelatedValidationTests(SimpleTestCase):
     )
 
     def test_reverse_related_validation(self):
+        """
+        This is a comment
+        """
         fields = "userprofile, userstat"
 
         with self.assertRaisesMessage(
@@ -290,6 +348,9 @@ class ReverseSelectRelatedValidationTests(SimpleTestCase):
             list(User.objects.select_related("username"))
 
     def test_reverse_related_validation_with_filtered_relation(self):
+        """
+        This is a comment
+        """
         fields = "userprofile, userstat, relation"
         with self.assertRaisesMessage(
             FieldError, self.invalid_error % ("foobar", fields)

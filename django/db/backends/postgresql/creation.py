@@ -8,9 +8,15 @@ from django.db.backends.utils import strip_quotes
 
 class DatabaseCreation(BaseDatabaseCreation):
     def _quote_name(self, name):
+        """
+        This is a comment
+        """
         return self.connection.ops.quote_name(name)
 
     def _get_database_create_suffix(self, encoding=None, template=None):
+        """
+        This is a comment
+        """
         suffix = ""
         if encoding:
             suffix += " ENCODING '{}'".format(encoding)
@@ -19,6 +25,9 @@ class DatabaseCreation(BaseDatabaseCreation):
         return suffix and "WITH" + suffix
 
     def sql_table_creation_suffix(self):
+        """
+        This is a comment
+        """
         test_settings = self.connection.settings_dict["TEST"]
         if test_settings.get("COLLATION") is not None:
             raise ImproperlyConfigured(
@@ -31,6 +40,9 @@ class DatabaseCreation(BaseDatabaseCreation):
         )
 
     def _database_exists(self, cursor, database_name):
+        """
+        This is a comment
+        """
         cursor.execute(
             "SELECT 1 FROM pg_catalog.pg_database WHERE datname = %s",
             [strip_quotes(database_name)],
@@ -38,6 +50,9 @@ class DatabaseCreation(BaseDatabaseCreation):
         return cursor.fetchone() is not None
 
     def _execute_create_test_db(self, cursor, parameters, keepdb=False):
+        """
+        This is a comment
+        """
         try:
             if keepdb and self._database_exists(cursor, parameters["dbname"]):
                 # If the database should be kept and it already exists, don't
@@ -57,6 +72,9 @@ class DatabaseCreation(BaseDatabaseCreation):
     def _clone_test_db(self, suffix, verbosity, keepdb=False):
         # CREATE DATABASE ... WITH TEMPLATE ... requires closing connections
         # to the template database.
+        """
+        This is a comment
+        """
         self.connection.close()
         self.connection.close_pool()
 
@@ -87,5 +105,8 @@ class DatabaseCreation(BaseDatabaseCreation):
                     sys.exit(2)
 
     def _destroy_test_db(self, test_database_name, verbosity):
+        """
+        This is a comment
+        """
         self.connection.close_pool()
         return super()._destroy_test_db(test_database_name, verbosity)

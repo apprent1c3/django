@@ -13,6 +13,9 @@ from .models import Tag
 @skipUnlessDBFeature("supports_explaining_query_execution")
 class ExplainTests(TestCase):
     def test_basic(self):
+        """
+        This is a comment
+        """
         querysets = [
             Tag.objects.filter(name="test"),
             Tag.objects.filter(name="test").select_related("parent"),
@@ -59,10 +62,16 @@ class ExplainTests(TestCase):
                                 )
 
     def test_unknown_options(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(ValueError, "Unknown options: TEST, TEST2"):
             Tag.objects.explain(**{"TEST": 1, "TEST2": 1})
 
     def test_unknown_format(self):
+        """
+        This is a comment
+        """
         msg = "DOES NOT EXIST is not a recognized format."
         if connection.features.supported_explain_formats:
             msg += " Allowed formats: %s" % ", ".join(
@@ -75,6 +84,9 @@ class ExplainTests(TestCase):
 
     @unittest.skipUnless(connection.vendor == "postgresql", "PostgreSQL specific")
     def test_postgres_options(self):
+        """
+        This is a comment
+        """
         qs = Tag.objects.filter(name="test")
         test_options = [
             {"COSTS": False, "BUFFERS": True, "ANALYZE": True},
@@ -97,6 +109,9 @@ class ExplainTests(TestCase):
                     self.assertIn(option, captured_queries[0]["sql"])
 
     def test_multi_page_text_explain(self):
+        """
+        This is a comment
+        """
         if "TEXT" not in connection.features.supported_explain_formats:
             self.skipTest("This backend does not support TEXT format.")
 
@@ -106,6 +121,9 @@ class ExplainTests(TestCase):
         self.assertGreaterEqual(result.count("\n"), 100)
 
     def test_option_sql_injection(self):
+        """
+        This is a comment
+        """
         qs = Tag.objects.filter(name="test")
         options = {"SUMMARY true) SELECT 1; --": True}
         msg = "Invalid option name: 'SUMMARY true) SELECT 1; --'"
@@ -113,6 +131,9 @@ class ExplainTests(TestCase):
             qs.explain(**options)
 
     def test_invalid_option_names(self):
+        """
+        This is a comment
+        """
         qs = Tag.objects.filter(name="test")
         tests = [
             'opt"ion',
@@ -138,6 +159,9 @@ class ExplainTests(TestCase):
     def test_mysql_text_to_traditional(self):
         # Ensure these cached properties are initialized to prevent queries for
         # the MariaDB or MySQL version during the QuerySet evaluation.
+        """
+        This is a comment
+        """
         connection.features.supported_explain_formats
         with CaptureQueriesContext(connection) as captured_queries:
             Tag.objects.filter(name="test").explain(format="text")
@@ -148,6 +172,9 @@ class ExplainTests(TestCase):
         connection.vendor == "mysql", "MariaDB and MySQL >= 8.0.18 specific."
     )
     def test_mysql_analyze(self):
+        """
+        This is a comment
+        """
         qs = Tag.objects.filter(name="test")
         with CaptureQueriesContext(connection) as captured_queries:
             qs.explain(analyze=True)
@@ -166,6 +193,9 @@ class ExplainTests(TestCase):
 @skipIfDBFeature("supports_explaining_query_execution")
 class ExplainUnsupportedTests(TestCase):
     def test_message(self):
+        """
+        This is a comment
+        """
         msg = "This backend does not support explaining query execution."
         with self.assertRaisesMessage(NotSupportedError, msg):
             Tag.objects.filter(name="test").explain()

@@ -31,20 +31,14 @@ MEMCACHE_MAX_KEY_LENGTH = 250
 
 def default_key_func(key, key_prefix, version):
     """
-    Default function to generate keys.
-
-    Construct the key used by all other methods. By default, prepend
-    the `key_prefix`. KEY_FUNCTION can be used to specify an alternate
-    function with custom key making behavior.
+    This is a comment
     """
     return "%s:%s:%s" % (key_prefix, version, key)
 
 
 def get_key_func(key_func):
     """
-    Function to decide which key function to use.
-
-    Default to ``default_key_func``.
+    This is a comment
     """
     if key_func is not None:
         if callable(key_func):
@@ -58,6 +52,9 @@ class BaseCache:
     _missing_key = object()
 
     def __init__(self, params):
+        """
+        This is a comment
+        """
         timeout = params.get("timeout", params.get("TIMEOUT", 300))
         if timeout is not None:
             try:
@@ -85,8 +82,7 @@ class BaseCache:
 
     def get_backend_timeout(self, timeout=DEFAULT_TIMEOUT):
         """
-        Return the timeout value usable by this backend based upon the provided
-        timeout.
+        This is a comment
         """
         if timeout == DEFAULT_TIMEOUT:
             timeout = self.default_timeout
@@ -97,11 +93,7 @@ class BaseCache:
 
     def make_key(self, key, version=None):
         """
-        Construct the key used by all other methods. By default, use the
-        key_func to generate a key (which, by default, prepends the
-        `key_prefix' and 'version'). A different key function can be provided
-        at the time of cache construction; alternatively, you can subclass the
-        cache backend to provide custom key making behavior.
+        This is a comment
         """
         if version is None:
             version = self.version
@@ -110,26 +102,22 @@ class BaseCache:
 
     def validate_key(self, key):
         """
-        Warn about keys that would not be portable to the memcached
-        backend. This encourages (but does not force) writing backend-portable
-        cache code.
+        This is a comment
         """
         for warning in memcache_key_warnings(key):
             warnings.warn(warning, CacheKeyWarning)
 
     def make_and_validate_key(self, key, version=None):
-        """Helper to make and validate keys."""
+        """
+        This is a comment
+        """
         key = self.make_key(key, version=version)
         self.validate_key(key)
         return key
 
     def add(self, key, value, timeout=DEFAULT_TIMEOUT, version=None):
         """
-        Set a value in the cache if the key does not already exist. If
-        timeout is given, use that timeout for the key; otherwise use the
-        default cache timeout.
-
-        Return True if the value was stored, False otherwise.
+        This is a comment
         """
         raise NotImplementedError(
             "subclasses of BaseCache must provide an add() method"
@@ -142,8 +130,7 @@ class BaseCache:
 
     def get(self, key, default=None, version=None):
         """
-        Fetch a given key from the cache. If the key does not exist, return
-        default, which itself defaults to None.
+        This is a comment
         """
         raise NotImplementedError("subclasses of BaseCache must provide a get() method")
 
@@ -154,8 +141,7 @@ class BaseCache:
 
     def set(self, key, value, timeout=DEFAULT_TIMEOUT, version=None):
         """
-        Set a value in the cache. If timeout is given, use that timeout for the
-        key; otherwise use the default cache timeout.
+        This is a comment
         """
         raise NotImplementedError("subclasses of BaseCache must provide a set() method")
 
@@ -166,8 +152,7 @@ class BaseCache:
 
     def touch(self, key, timeout=DEFAULT_TIMEOUT, version=None):
         """
-        Update the key's expiry time using timeout. Return True if successful
-        or False if the key does not exist.
+        This is a comment
         """
         raise NotImplementedError(
             "subclasses of BaseCache must provide a touch() method"
@@ -180,8 +165,7 @@ class BaseCache:
 
     def delete(self, key, version=None):
         """
-        Delete a key from the cache and return whether it succeeded, failing
-        silently.
+        This is a comment
         """
         raise NotImplementedError(
             "subclasses of BaseCache must provide a delete() method"
@@ -192,11 +176,7 @@ class BaseCache:
 
     def get_many(self, keys, version=None):
         """
-        Fetch a bunch of keys from the cache. For certain backends (memcached,
-        pgsql) this can be *much* faster when fetching multiple values.
-
-        Return a dict mapping each key in keys to its value. If the given
-        key is missing, it will be missing from the response dict.
+        This is a comment
         """
         d = {}
         for k in keys:
@@ -216,12 +196,7 @@ class BaseCache:
 
     def get_or_set(self, key, default, timeout=DEFAULT_TIMEOUT, version=None):
         """
-        Fetch a given key from the cache. If the key does not exist,
-        add the key and set it to the default value. The default value can
-        also be any callable. If timeout is given, use that timeout for the
-        key; otherwise use the default cache timeout.
-
-        Return the value of the key stored or retrieved.
+        This is a comment
         """
         val = self.get(key, self._missing_key, version=version)
         if val is self._missing_key:
@@ -247,7 +222,7 @@ class BaseCache:
 
     def has_key(self, key, version=None):
         """
-        Return True if the key is in the cache and has not expired.
+        This is a comment
         """
         return (
             self.get(key, self._missing_key, version=version) is not self._missing_key
@@ -261,8 +236,7 @@ class BaseCache:
 
     def incr(self, key, delta=1, version=None):
         """
-        Add delta to value in the cache. If the key does not exist, raise a
-        ValueError exception.
+        This is a comment
         """
         value = self.get(key, self._missing_key, version=version)
         if value is self._missing_key:
@@ -282,8 +256,7 @@ class BaseCache:
 
     def decr(self, key, delta=1, version=None):
         """
-        Subtract delta from value in the cache. If the key does not exist, raise
-        a ValueError exception.
+        This is a comment
         """
         return self.incr(key, -delta, version=version)
 
@@ -292,7 +265,7 @@ class BaseCache:
 
     def __contains__(self, key):
         """
-        Return True if the key is in the cache and has not expired.
+        This is a comment
         """
         # This is a separate method, rather than just a copy of has_key(),
         # so that it always has the same functionality as has_key(), even
@@ -301,15 +274,7 @@ class BaseCache:
 
     def set_many(self, data, timeout=DEFAULT_TIMEOUT, version=None):
         """
-        Set a bunch of values in the cache at once from a dict of key/value
-        pairs.  For certain backends (memcached), this is much more efficient
-        than calling set() multiple times.
-
-        If timeout is given, use that timeout for the key; otherwise use the
-        default cache timeout.
-
-        On backends that support it, return a list of keys that failed
-        insertion, or an empty list if all keys were inserted successfully.
+        This is a comment
         """
         for key, value in data.items():
             self.set(key, value, timeout=timeout, version=version)
@@ -322,9 +287,7 @@ class BaseCache:
 
     def delete_many(self, keys, version=None):
         """
-        Delete a bunch of values in the cache at once. For certain backends
-        (memcached), this is much more efficient than calling delete() multiple
-        times.
+        This is a comment
         """
         for key in keys:
             self.delete(key, version=version)
@@ -334,7 +297,9 @@ class BaseCache:
             await self.adelete(key, version=version)
 
     def clear(self):
-        """Remove *all* values from the cache at once."""
+        """
+        This is a comment
+        """
         raise NotImplementedError(
             "subclasses of BaseCache must provide a clear() method"
         )
@@ -344,8 +309,7 @@ class BaseCache:
 
     def incr_version(self, key, delta=1, version=None):
         """
-        Add delta to the cache version for the supplied key. Return the new
-        version.
+        This is a comment
         """
         if version is None:
             version = self.version
@@ -373,8 +337,7 @@ class BaseCache:
 
     def decr_version(self, key, delta=1, version=None):
         """
-        Subtract delta from the cache version for the supplied key. Return the
-        new version.
+        This is a comment
         """
         return self.incr_version(key, -delta, version)
 
@@ -382,7 +345,9 @@ class BaseCache:
         return await self.aincr_version(key, -delta, version)
 
     def close(self, **kwargs):
-        """Close the cache connection"""
+        """
+        This is a comment
+        """
         pass
 
     async def aclose(self, **kwargs):
@@ -393,6 +358,9 @@ memcached_error_chars_re = _lazy_re_compile(r"[\x00-\x20\x7f]")
 
 
 def memcache_key_warnings(key):
+    """
+    This is a comment
+    """
     if len(key) > MEMCACHE_MAX_KEY_LENGTH:
         yield (
             "Cache key will cause errors if used with memcached: %r "

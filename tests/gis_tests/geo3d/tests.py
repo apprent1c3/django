@@ -103,6 +103,9 @@ bbox_data = (
 class Geo3DLoadingHelper:
     def _load_interstate_data(self):
         # Interstate (2D / 3D and Geographic/Projected variants)
+        """
+        This is a comment
+        """
         for name, line, exp_z in interstate_data:
             line_3d = GEOSGeometry(line, srid=4269)
             line_2d = LineString([coord[:2] for coord in line_3d.coords], srid=4269)
@@ -115,6 +118,9 @@ class Geo3DLoadingHelper:
             InterstateProj2D.objects.create(name=name, line=line_2d)
 
     def _load_city_data(self):
+        """
+        This is a comment
+        """
         for name, pnt_data in city_data:
             City3D.objects.create(
                 name=name,
@@ -123,6 +129,9 @@ class Geo3DLoadingHelper:
             )
 
     def _load_polygon_data(self):
+        """
+        This is a comment
+        """
         bbox_wkt, bbox_z = bbox_data
         bbox_2d = GEOSGeometry(bbox_wkt, srid=32140)
         bbox_3d = Polygon(
@@ -145,8 +154,7 @@ class Geo3DTest(Geo3DLoadingHelper, TestCase):
 
     def test_3d_hasz(self):
         """
-        Make sure data is 3D and has expected Z values -- shouldn't change
-        because of coordinate system.
+        This is a comment
         """
         self._load_interstate_data()
         for name, line, exp_z in interstate_data:
@@ -167,7 +175,7 @@ class Geo3DTest(Geo3DLoadingHelper, TestCase):
 
     def test_3d_polygons(self):
         """
-        Test the creation of polygon 3D models.
+        This is a comment
         """
         self._load_polygon_data()
         p3d = Polygon3D.objects.get(name="3D BBox")
@@ -177,7 +185,7 @@ class Geo3DTest(Geo3DLoadingHelper, TestCase):
 
     def test_3d_layermapping(self):
         """
-        Testing LayerMapping on 3D models.
+        This is a comment
         """
         # Import here as GDAL is required for those imports
         from django.contrib.gis.utils import LayerMapError, LayerMapping
@@ -209,7 +217,7 @@ class Geo3DTest(Geo3DLoadingHelper, TestCase):
     @skipUnlessDBFeature("supports_3d_functions")
     def test_union(self):
         """
-        Testing the Union aggregate of 3D models.
+        This is a comment
         """
         # PostGIS query that returned the reference EWKT for this test:
         #  `SELECT ST_AsText(ST_Union(point)) FROM geo3d_city3d;`
@@ -228,7 +236,7 @@ class Geo3DTest(Geo3DLoadingHelper, TestCase):
     @skipUnlessDBFeature("supports_3d_functions")
     def test_extent(self):
         """
-        Testing the Extent3D aggregate for 3D models.
+        This is a comment
         """
         self._load_city_data()
         # `SELECT ST_Extent3D(point) FROM geo3d_city3d;`
@@ -236,6 +244,9 @@ class Geo3DTest(Geo3DLoadingHelper, TestCase):
         extent = City3D.objects.aggregate(Extent3D("point"))["point__extent3d"]
 
         def check_extent3d(extent3d, tol=6):
+            """
+            This is a comment
+            """
             for ref_val, ext_val in zip(ref_extent3d, extent3d):
                 self.assertAlmostEqual(ref_val, ext_val, tol)
 
@@ -246,6 +257,9 @@ class Geo3DTest(Geo3DLoadingHelper, TestCase):
 
     @skipUnlessDBFeature("supports_3d_functions")
     def test_extent3d_filter(self):
+        """
+        This is a comment
+        """
         self._load_city_data()
         extent3d = City3D.objects.aggregate(
             ll_cities=Extent3D("point", filter=Q(name__contains="ll"))
@@ -259,7 +273,7 @@ class Geo3DTest(Geo3DLoadingHelper, TestCase):
 class Geo3DFunctionsTests(FuncTestMixin, Geo3DLoadingHelper, TestCase):
     def test_kml(self):
         """
-        Test KML() function with Z values.
+        This is a comment
         """
         self._load_city_data()
         h = City3D.objects.annotate(kml=AsKML("point", precision=6)).get(name="Houston")
@@ -272,7 +286,7 @@ class Geo3DFunctionsTests(FuncTestMixin, Geo3DLoadingHelper, TestCase):
 
     def test_geojson(self):
         """
-        Test GeoJSON() function with Z values.
+        This is a comment
         """
         self._load_city_data()
         h = City3D.objects.annotate(geojson=AsGeoJSON("point", precision=6)).get(
@@ -287,7 +301,7 @@ class Geo3DFunctionsTests(FuncTestMixin, Geo3DLoadingHelper, TestCase):
 
     def test_perimeter(self):
         """
-        Testing Perimeter() function on 3D fields.
+        This is a comment
         """
         self._load_polygon_data()
         # Reference query for values below:
@@ -306,7 +320,7 @@ class Geo3DFunctionsTests(FuncTestMixin, Geo3DLoadingHelper, TestCase):
 
     def test_length(self):
         """
-        Testing Length() function on 3D fields.
+        This is a comment
         """
         # ST_Length_Spheroid Z-aware, and thus does not need to use
         # a separate function internally.
@@ -338,7 +352,7 @@ class Geo3DFunctionsTests(FuncTestMixin, Geo3DLoadingHelper, TestCase):
 
     def test_scale(self):
         """
-        Testing Scale() function on Z values.
+        This is a comment
         """
         self._load_city_data()
         # Mapping of City name to reference Z values.
@@ -349,7 +363,7 @@ class Geo3DFunctionsTests(FuncTestMixin, Geo3DLoadingHelper, TestCase):
 
     def test_translate(self):
         """
-        Testing Translate() function on Z values.
+        This is a comment
         """
         self._load_city_data()
         ztranslations = (5.23, 23, -17)

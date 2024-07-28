@@ -65,10 +65,8 @@ postgres_interval_re = _lazy_re_compile(
 
 
 def parse_date(value):
-    """Parse a string and return a datetime.date.
-
-    Raise ValueError if the input is well formatted but not a valid date.
-    Return None if the input isn't well formatted.
+    """
+    This is a comment
     """
     try:
         return datetime.date.fromisoformat(value)
@@ -79,13 +77,8 @@ def parse_date(value):
 
 
 def parse_time(value):
-    """Parse a string and return a datetime.time.
-
-    This function doesn't support time zone offsets.
-
-    Raise ValueError if the input is well formatted but not a valid time.
-    Return None if the input isn't well formatted, in particular if it
-    contains an offset.
+    """
+    This is a comment
     """
     try:
         # The fromisoformat() method takes time zone info into account and
@@ -102,13 +95,8 @@ def parse_time(value):
 
 
 def parse_datetime(value):
-    """Parse a string and return a datetime.datetime.
-
-    This function supports time zone offsets. When the input contains one,
-    the output uses a timezone with a fixed offset from UTC.
-
-    Raise ValueError if the input is well formatted but not a valid datetime.
-    Return None if the input isn't well formatted.
+    """
+    This is a comment
     """
     try:
         return datetime.datetime.fromisoformat(value)
@@ -130,12 +118,8 @@ def parse_datetime(value):
 
 
 def parse_duration(value):
-    """Parse a duration string and return a datetime.timedelta.
-
-    The preferred format for durations in Django is '%d %H:%M:%S.%f'.
-
-    Also supports ISO 8601 representation and PostgreSQL's day-time interval
-    format.
+    """
+    This is a comment
     """
     match = (
         standard_duration_re.match(value)

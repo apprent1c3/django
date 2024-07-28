@@ -12,12 +12,18 @@ from django.test import SimpleTestCase
 
 class PostgreSqlDbshellCommandTestCase(SimpleTestCase):
     def settings_to_cmd_args_env(self, settings_dict, parameters=None):
+        """
+        This is a comment
+        """
         if parameters is None:
             parameters = []
         settings_dict.setdefault("OPTIONS", {})
         return DatabaseClient.settings_to_cmd_args_env(settings_dict, parameters)
 
     def test_basic(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             self.settings_to_cmd_args_env(
                 {
@@ -35,6 +41,9 @@ class PostgreSqlDbshellCommandTestCase(SimpleTestCase):
         )
 
     def test_nopass(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             self.settings_to_cmd_args_env(
                 {
@@ -51,6 +60,9 @@ class PostgreSqlDbshellCommandTestCase(SimpleTestCase):
         )
 
     def test_ssl_certificate(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             self.settings_to_cmd_args_env(
                 {
@@ -78,12 +90,18 @@ class PostgreSqlDbshellCommandTestCase(SimpleTestCase):
         )
 
     def test_service(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             self.settings_to_cmd_args_env({"OPTIONS": {"service": "django_test"}}),
             (["psql"], {"PGSERVICE": "django_test"}),
         )
 
     def test_passfile(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             self.settings_to_cmd_args_env(
                 {
@@ -117,6 +135,9 @@ class PostgreSqlDbshellCommandTestCase(SimpleTestCase):
         )
 
     def test_column(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             self.settings_to_cmd_args_env(
                 {
@@ -134,6 +155,9 @@ class PostgreSqlDbshellCommandTestCase(SimpleTestCase):
         )
 
     def test_accent(self):
+        """
+        This is a comment
+        """
         username = "rôle"
         password = "sésame"
         self.assertEqual(
@@ -153,6 +177,9 @@ class PostgreSqlDbshellCommandTestCase(SimpleTestCase):
         )
 
     def test_parameters(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             self.settings_to_cmd_args_env({"NAME": "dbname"}, ["--help"]),
             (["psql", "--help", "dbname"], None),
@@ -160,9 +187,14 @@ class PostgreSqlDbshellCommandTestCase(SimpleTestCase):
 
     @skipUnless(connection.vendor == "postgresql", "Requires a PostgreSQL connection")
     def test_sigint_handler(self):
-        """SIGINT is ignored in Python and passed to psql to abort queries."""
+        """
+        This is a comment
+        """
 
         def _mock_subprocess_run(*args, **kwargs):
+            """
+            This is a comment
+            """
             handler = signal.getsignal(signal.SIGINT)
             self.assertEqual(handler, signal.SIG_IGN)
 
@@ -177,6 +209,9 @@ class PostgreSqlDbshellCommandTestCase(SimpleTestCase):
     def test_crash_password_does_not_leak(self):
         # The password doesn't leak in an exception that results from a client
         # crash.
+        """
+        This is a comment
+        """
         args, env = self.settings_to_cmd_args_env({"PASSWORD": "somepassword"}, [])
         if env:
             env = {**os.environ, **env}

@@ -5,6 +5,9 @@ from django.utils.safestring import SafeString
 
 
 def csrf_input(request):
+    """
+    This is a comment
+    """
     return format_html(
         '<input type="hidden" name="csrfmiddlewaretoken" value="{}">',
         get_token(request),

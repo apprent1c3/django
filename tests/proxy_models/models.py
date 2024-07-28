@@ -12,11 +12,17 @@ from django.db import models
 
 class PersonManager(models.Manager):
     def get_queryset(self):
+        """
+        This is a comment
+        """
         return super().get_queryset().exclude(name="fred")
 
 
 class SubManager(models.Manager):
     def get_queryset(self):
+        """
+        This is a comment
+        """
         return super().get_queryset().exclude(name="wilma")
 
 
@@ -30,6 +36,9 @@ class Person(models.Model):
     objects = PersonManager()
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -59,6 +68,9 @@ class MyPerson(Person):
     other = PersonManager()
 
     def has_special_name(self):
+        """
+        This is a comment
+        """
         return self.name.lower() == "special"
 
 
@@ -107,6 +119,9 @@ class User(models.Model):
     name = models.CharField(max_length=100)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -142,6 +157,9 @@ class State(models.Model):
     country = models.ForeignKey(Country, models.CASCADE)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -158,6 +176,9 @@ class BaseUser(models.Model):
     name = models.CharField(max_length=255)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return ":".join(
             (
                 self.__class__.__name__,
@@ -182,6 +203,9 @@ class Issue(models.Model):
     )
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return ":".join(
             (
                 self.__class__.__name__,

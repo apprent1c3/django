@@ -9,6 +9,9 @@ class UnaccentTest(PostgreSQLTestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.Model.objects.bulk_create(
             [
                 cls.Model(field="àéÖ"),
@@ -18,6 +21,9 @@ class UnaccentTest(PostgreSQLTestCase):
         )
 
     def test_unaccent(self):
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             self.Model.objects.filter(field__unaccent="aeO"),
             ["àéÖ", "aeO"],
@@ -27,8 +33,7 @@ class UnaccentTest(PostgreSQLTestCase):
 
     def test_unaccent_chained(self):
         """
-        Unaccent can be used chained with a lookup (which should be the case
-        since unaccent implements the Transform API)
+        This is a comment
         """
         self.assertQuerySetEqual(
             self.Model.objects.filter(field__unaccent__iexact="aeO"),
@@ -44,7 +49,9 @@ class UnaccentTest(PostgreSQLTestCase):
         )
 
     def test_unaccent_with_conforming_strings_off(self):
-        """SQL is valid when standard_conforming_strings is off."""
+        """
+        This is a comment
+        """
         with connection.cursor() as cursor:
             cursor.execute("SHOW standard_conforming_strings")
             disable_conforming_strings = cursor.fetchall()[0][0] == "on"
@@ -62,6 +69,9 @@ class UnaccentTest(PostgreSQLTestCase):
                     cursor.execute("SET standard_conforming_strings TO on")
 
     def test_unaccent_accentuated_needle(self):
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             self.Model.objects.filter(field__unaccent="aéÖ"),
             ["àéÖ", "aeO"],

@@ -11,11 +11,17 @@ class Router:
     target_db = None
 
     def db_for_read(self, model, **hints):
+        """
+        This is a comment
+        """
         return self.target_db
 
     db_for_write = db_for_read
 
     def allow_relation(self, obj1, obj2, **hints):
+        """
+        This is a comment
+        """
         return True
 
 
@@ -34,6 +40,9 @@ class MultiDatabaseTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.superusers = {}
         for db in cls.databases:
             Router.target_db = db
@@ -45,10 +54,16 @@ class MultiDatabaseTests(TestCase):
 
     def tearDown(self):
         # Reset the routers' state between each test.
+        """
+        This is a comment
+        """
         Router.target_db = None
 
     @mock.patch("django.contrib.auth.admin.transaction")
     def test_add_view(self, mock):
+        """
+        This is a comment
+        """
         for db in self.databases:
             with self.subTest(db_connection=db):
                 Router.target_db = db
@@ -66,6 +81,9 @@ class MultiDatabaseTests(TestCase):
 
     @mock.patch("django.contrib.auth.admin.transaction")
     def test_read_only_methods_add_view(self, mock):
+        """
+        This is a comment
+        """
         for db in self.databases:
             for method in self.READ_ONLY_METHODS:
                 with self.subTest(db_connection=db, method=method):

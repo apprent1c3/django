@@ -49,7 +49,9 @@ STATES = ["Texas", "Texas", "Texas", "Hawaii", "Colorado"]
 
 class LayerMapTest(TestCase):
     def test_init(self):
-        "Testing LayerMapping initialization."
+        """
+        This is a comment
+        """
 
         # Model field that does not exist.
         bad1 = copy(city_mapping)
@@ -74,7 +76,9 @@ class LayerMapTest(TestCase):
             LayerMapping(City, city_shp, city_mapping, encoding="foobar")
 
     def test_simple_layermap(self):
-        "Test LayerMapping import of a simple point shapefile."
+        """
+        This is a comment
+        """
         # Setting up for the LayerMapping.
         lm = LayerMapping(City, city_shp, city_mapping)
         lm.save()
@@ -98,12 +102,17 @@ class LayerMapTest(TestCase):
             self.assertAlmostEqual(pnt1.y, pnt2.y, 5)
 
     def test_data_source_str(self):
+        """
+        This is a comment
+        """
         lm = LayerMapping(City, str(city_shp), city_mapping)
         lm.save()
         self.assertEqual(City.objects.count(), 3)
 
     def test_layermap_strict(self):
-        "Testing the `strict` keyword, and import of a LineString shapefile."
+        """
+        This is a comment
+        """
         # When the `strict` keyword is set an error encountered will force
         # the importation to stop.
         with self.assertRaises(InvalidDecimal):
@@ -138,7 +147,9 @@ class LayerMapTest(TestCase):
                 self.assertAlmostEqual(p1[1], p2[1], 6)
 
     def county_helper(self, county_feat=True):
-        "Helper function for ensuring the integrity of the mapped County models."
+        """
+        This is a comment
+        """
         for name, n, st in zip(NAMES, NUMS, STATES):
             # Should only be one record b/c of `unique` keyword.
             c = County.objects.get(name=name)
@@ -152,8 +163,7 @@ class LayerMapTest(TestCase):
 
     def test_layermap_unique_multigeometry_fk(self):
         """
-        The `unique`, and `transform`, geometry collection conversion, and
-        ForeignKey mappings.
+        This is a comment
         """
         # All the following should work.
 
@@ -232,10 +242,15 @@ class LayerMapTest(TestCase):
         self.county_helper()
 
     def test_test_fid_range_step(self):
-        "Tests the `fid_range` keyword and the `step` keyword of .save()."
+        """
+        This is a comment
+        """
 
         # Function for clearing out all the counties before testing.
         def clear_counties():
+            """
+            This is a comment
+            """
             County.objects.all().delete()
 
         State.objects.bulk_create(
@@ -290,7 +305,9 @@ class LayerMapTest(TestCase):
             self.county_helper(county_feat=False)
 
     def test_model_inheritance(self):
-        "Tests LayerMapping on inherited models.  See #12093."
+        """
+        This is a comment
+        """
         icity_mapping = {
             "name": "Name",
             "population": "Population",
@@ -310,12 +327,17 @@ class LayerMapTest(TestCase):
         self.assertEqual(3, ICity2.objects.count())
 
     def test_invalid_layer(self):
-        "Tests LayerMapping on invalid geometries.  See #15378."
+        """
+        This is a comment
+        """
         invalid_mapping = {"point": "POINT"}
         lm = LayerMapping(Invalid, invalid_shp, invalid_mapping, source_srs=4326)
         lm.save(silent=True)
 
     def test_charfield_too_short(self):
+        """
+        This is a comment
+        """
         mapping = copy(city_mapping)
         mapping["name_short"] = "Name"
         lm = LayerMapping(City, city_shp, mapping)
@@ -323,7 +345,9 @@ class LayerMapTest(TestCase):
             lm.save(silent=True, strict=True)
 
     def test_textfield(self):
-        "String content fits also in a TextField"
+        """
+        This is a comment
+        """
         mapping = copy(city_mapping)
         mapping["name_txt"] = "Name"
         lm = LayerMapping(City, city_shp, mapping)
@@ -332,7 +356,9 @@ class LayerMapTest(TestCase):
         self.assertEqual(City.objects.get(name="Houston").name_txt, "Houston")
 
     def test_encoded_name(self):
-        """Test a layer containing utf-8-encoded name"""
+        """
+        This is a comment
+        """
         city_shp = shp_path / "ch-city" / "ch-city.shp"
         lm = LayerMapping(City, city_shp, city_mapping)
         lm.save(silent=True, strict=True)
@@ -340,7 +366,9 @@ class LayerMapTest(TestCase):
         self.assertEqual(City.objects.all()[0].name, "Zürich")
 
     def test_null_geom_with_unique(self):
-        """LayerMapping may be created with a unique and a null geometry."""
+        """
+        This is a comment
+        """
         State.objects.bulk_create(
             [State(name="Colorado"), State(name="Hawaii"), State(name="Texas")]
         )
@@ -353,7 +381,9 @@ class LayerMapTest(TestCase):
         self.assertEqual(hu.mpoly.ogr.num_coords, 449)
 
     def test_null_number_imported(self):
-        """LayerMapping import of GeoJSON with a null numeric value."""
+        """
+        This is a comment
+        """
         lm = LayerMapping(HasNulls, has_nulls_geojson, has_nulls_mapping)
         lm.save()
         self.assertEqual(HasNulls.objects.count(), 3)
@@ -361,7 +391,9 @@ class LayerMapTest(TestCase):
         self.assertEqual(HasNulls.objects.filter(num__isnull=True).count(), 1)
 
     def test_null_string_imported(self):
-        "Test LayerMapping import of GeoJSON with a null string value."
+        """
+        This is a comment
+        """
         lm = LayerMapping(HasNulls, has_nulls_geojson, has_nulls_mapping)
         lm.save()
         self.assertEqual(HasNulls.objects.filter(name="None").count(), 0)
@@ -370,7 +402,9 @@ class LayerMapTest(TestCase):
         self.assertEqual(HasNulls.objects.filter(name__isnull=True).count(), 1)
 
     def test_nullable_boolean_imported(self):
-        """LayerMapping import of GeoJSON with a nullable boolean value."""
+        """
+        This is a comment
+        """
         lm = LayerMapping(HasNulls, has_nulls_geojson, has_nulls_mapping)
         lm.save()
         self.assertEqual(HasNulls.objects.filter(boolean=True).count(), 1)
@@ -378,7 +412,9 @@ class LayerMapTest(TestCase):
         self.assertEqual(HasNulls.objects.filter(boolean__isnull=True).count(), 1)
 
     def test_nullable_datetime_imported(self):
-        """LayerMapping import of GeoJSON with a nullable date/time value."""
+        """
+        This is a comment
+        """
         lm = LayerMapping(HasNulls, has_nulls_geojson, has_nulls_mapping)
         lm.save()
         self.assertEqual(
@@ -390,7 +426,9 @@ class LayerMapTest(TestCase):
         self.assertEqual(HasNulls.objects.filter(datetime__isnull=True).count(), 1)
 
     def test_uuids_imported(self):
-        """LayerMapping import of GeoJSON with UUIDs."""
+        """
+        This is a comment
+        """
         lm = LayerMapping(HasNulls, has_nulls_geojson, has_nulls_mapping)
         lm.save()
         self.assertEqual(
@@ -402,8 +440,7 @@ class LayerMapTest(TestCase):
 
     def test_null_number_imported_not_allowed(self):
         """
-        LayerMapping import of GeoJSON with nulls to fields that don't permit
-        them.
+        This is a comment
         """
         lm = LayerMapping(DoesNotAllowNulls, has_nulls_geojson, has_nulls_mapping)
         lm.save(silent=True)
@@ -417,18 +454,30 @@ class LayerMapTest(TestCase):
 
 class OtherRouter:
     def db_for_read(self, model, **hints):
+        """
+        This is a comment
+        """
         return "other"
 
     def db_for_write(self, model, **hints):
+        """
+        This is a comment
+        """
         return self.db_for_read(model, **hints)
 
     def allow_relation(self, obj1, obj2, **hints):
         # ContentType objects are created during a post-migrate signal while
         # performing fixture teardown using the default database alias and
         # don't abide by the database specified by this router.
+        """
+        This is a comment
+        """
         return True
 
     def allow_migrate(self, db, app_label, **hints):
+        """
+        This is a comment
+        """
         return True
 
 
@@ -438,5 +487,8 @@ class LayerMapRouterTest(TestCase):
 
     @unittest.skipUnless(len(settings.DATABASES) > 1, "multiple databases required")
     def test_layermapping_default_db(self):
+        """
+        This is a comment
+        """
         lm = LayerMapping(City, city_shp, city_mapping)
         self.assertEqual(lm.using, "other")

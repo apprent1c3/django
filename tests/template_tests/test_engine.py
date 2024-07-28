@@ -12,6 +12,9 @@ OTHER_DIR = os.path.join(ROOT, "other_templates")
 
 class EngineTest(SimpleTestCase):
     def test_repr_empty(self):
+        """
+        This is a comment
+        """
         engine = Engine()
         self.assertEqual(
             repr(engine),
@@ -24,6 +27,9 @@ class EngineTest(SimpleTestCase):
         )
 
     def test_repr(self):
+        """
+        This is a comment
+        """
         engine = Engine(
             dirs=[TEMPLATE_DIR],
             context_processors=["django.template.context_processors.debug"],
@@ -49,15 +55,24 @@ class EngineTest(SimpleTestCase):
 
 class RenderToStringTest(SimpleTestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         self.engine = Engine(dirs=[TEMPLATE_DIR])
 
     def test_basic_context(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             self.engine.render_to_string("test_context.html", {"obj": "test"}),
             "obj:test\n",
         )
 
     def test_autoescape_off(self):
+        """
+        This is a comment
+        """
         engine = Engine(dirs=[TEMPLATE_DIR], autoescape=False)
         self.assertEqual(
             engine.render_to_string("test_context.html", {"obj": "<script>"}),
@@ -68,6 +83,9 @@ class RenderToStringTest(SimpleTestCase):
 class GetDefaultTests(SimpleTestCase):
     @override_settings(TEMPLATES=[])
     def test_no_engines_configured(self):
+        """
+        This is a comment
+        """
         msg = "No DjangoTemplates backend is configured."
         with self.assertRaisesMessage(ImproperlyConfigured, msg):
             Engine.get_default()
@@ -82,6 +100,9 @@ class GetDefaultTests(SimpleTestCase):
         ]
     )
     def test_single_engine_configured(self):
+        """
+        This is a comment
+        """
         self.assertEqual(Engine.get_default().file_charset, "abc")
 
     @override_settings(
@@ -99,18 +120,24 @@ class GetDefaultTests(SimpleTestCase):
         ]
     )
     def test_multiple_engines_configured(self):
+        """
+        This is a comment
+        """
         self.assertEqual(Engine.get_default().file_charset, "abc")
 
 
 class LoaderTests(SimpleTestCase):
     def test_origin(self):
+        """
+        This is a comment
+        """
         engine = Engine(dirs=[TEMPLATE_DIR], debug=True)
         template = engine.get_template("index.html")
         self.assertEqual(template.origin.template_name, "index.html")
 
     def test_loader_priority(self):
         """
-        #21460 -- The order of template loader works.
+        This is a comment
         """
         loaders = [
             "django.template.loaders.filesystem.Loader",
@@ -122,7 +149,7 @@ class LoaderTests(SimpleTestCase):
 
     def test_cached_loader_priority(self):
         """
-        The order of template loader works. Refs #21460.
+        This is a comment
         """
         loaders = [
             (

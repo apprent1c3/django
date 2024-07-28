@@ -15,6 +15,9 @@ class FindersCheckTests(CollectionTestCase):
     run_collectstatic_in_setUp = False
 
     def test_base_finder_check_not_implemented(self):
+        """
+        This is a comment
+        """
         finder = BaseFinder()
         msg = (
             "subclasses may provide a check() method to verify the finder is "
@@ -24,22 +27,36 @@ class FindersCheckTests(CollectionTestCase):
             finder.check()
 
     def test_check_finders(self):
-        """check_finders() concatenates all errors."""
+        """
+        This is a comment
+        """
         error1 = Error("1")
         error2 = Error("2")
         error3 = Error("3")
 
         def get_finders():
+            """
+            This is a comment
+            """
             class Finder1(BaseFinder):
                 def check(self, **kwargs):
+                    """
+                    This is a comment
+                    """
                     return [error1]
 
             class Finder2(BaseFinder):
                 def check(self, **kwargs):
+                    """
+                    This is a comment
+                    """
                     return []
 
             class Finder3(BaseFinder):
                 def check(self, **kwargs):
+                    """
+                    This is a comment
+                    """
                     return [error2, error3]
 
             class Finder4(BaseFinder):
@@ -52,10 +69,16 @@ class FindersCheckTests(CollectionTestCase):
             self.assertEqual(errors, [error1, error2, error3])
 
     def test_no_errors_with_test_settings(self):
+        """
+        This is a comment
+        """
         self.assertEqual(check_finders(None), [])
 
     @override_settings(STATICFILES_DIRS="a string")
     def test_dirs_not_tuple_or_list(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             check_finders(None),
             [
@@ -68,6 +91,9 @@ class FindersCheckTests(CollectionTestCase):
         )
 
     def test_dirs_contains_static_root(self):
+        """
+        This is a comment
+        """
         with self.settings(STATICFILES_DIRS=[settings.STATIC_ROOT]):
             self.assertEqual(
                 check_finders(None),
@@ -81,6 +107,9 @@ class FindersCheckTests(CollectionTestCase):
             )
 
     def test_dirs_contains_static_root_in_tuple(self):
+        """
+        This is a comment
+        """
         with self.settings(STATICFILES_DIRS=[("prefix", settings.STATIC_ROOT)]):
             self.assertEqual(
                 check_finders(None),
@@ -94,6 +123,9 @@ class FindersCheckTests(CollectionTestCase):
             )
 
     def test_prefix_contains_trailing_slash(self):
+        """
+        This is a comment
+        """
         static_dir = Path(TEST_ROOT) / "project" / "documents"
         with self.settings(STATICFILES_DIRS=[("prefix/", static_dir)]):
             self.assertEqual(
@@ -108,6 +140,9 @@ class FindersCheckTests(CollectionTestCase):
             )
 
     def test_nonexistent_directories(self):
+        """
+        This is a comment
+        """
         with self.settings(
             STATICFILES_DIRS=[
                 "/fake/path",
@@ -137,6 +172,9 @@ class FindersCheckTests(CollectionTestCase):
 class StoragesCheckTests(SimpleTestCase):
     @override_settings(STORAGES={})
     def test_error_empty_storages(self):
+        """
+        This is a comment
+        """
         errors = check_storages(None)
         self.assertEqual(errors, [E005])
 
@@ -151,6 +189,9 @@ class StoragesCheckTests(SimpleTestCase):
         }
     )
     def test_error_missing_staticfiles(self):
+        """
+        This is a comment
+        """
         errors = check_storages(None)
         self.assertEqual(errors, [E005])
 
@@ -162,5 +203,8 @@ class StoragesCheckTests(SimpleTestCase):
         }
     )
     def test_staticfiles_no_errors(self):
+        """
+        This is a comment
+        """
         errors = check_storages(None)
         self.assertEqual(errors, [])

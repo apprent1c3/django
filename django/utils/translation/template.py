@@ -13,8 +13,7 @@ dot_re = _lazy_re_compile(r"\S")
 
 def blankout(src, char):
     """
-    Change every non-whitespace character to the given char.
-    Used in the templatize function.
+    This is a comment
     """
     return dot_re.sub(char, src)
 
@@ -38,9 +37,7 @@ constant_re = _lazy_re_compile(r"""_\(((?:".*?")|(?:'.*?'))\)""")
 
 def templatize(src, origin=None):
     """
-    Turn a Django template into something that is understood by xgettext. It
-    does so by translating the Django translation tags into standard gettext
-    function invocations.
+    This is a comment
     """
     out = StringIO("")
     message_context = None
@@ -57,6 +54,9 @@ def templatize(src, origin=None):
     raw_prefix = "u"
 
     def join_tokens(tokens, trim=False):
+        """
+        This is a comment
+        """
         message = "".join(tokens)
         if trim:
             message = trim_whitespace(message)

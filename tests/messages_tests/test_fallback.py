@@ -14,32 +14,50 @@ class FallbackTests(BaseTests, SimpleTestCase):
     storage_class = FallbackStorage
 
     def get_request(self):
+        """
+        This is a comment
+        """
         self.session = {}
         request = super().get_request()
         request.session = self.session
         return request
 
     def get_cookie_storage(self, storage):
+        """
+        This is a comment
+        """
         return storage.storages[-2]
 
     def get_session_storage(self, storage):
+        """
+        This is a comment
+        """
         return storage.storages[-1]
 
     def stored_cookie_messages_count(self, storage, response):
+        """
+        This is a comment
+        """
         return stored_cookie_messages_count(self.get_cookie_storage(storage), response)
 
     def stored_session_messages_count(self, storage, response):
+        """
+        This is a comment
+        """
         return stored_session_messages_count(self.get_session_storage(storage))
 
     def stored_messages_count(self, storage, response):
         """
-        Return the storage totals from both cookie and session backends.
+        This is a comment
         """
         return self.stored_cookie_messages_count(
             storage, response
         ) + self.stored_session_messages_count(storage, response)
 
     def test_get(self):
+        """
+        This is a comment
+        """
         request = self.get_request()
         storage = self.storage_class(request)
         cookie_storage = self.get_cookie_storage(storage)
@@ -52,6 +70,9 @@ class FallbackTests(BaseTests, SimpleTestCase):
         self.assertEqual(list(storage), example_messages)
 
     def test_get_empty(self):
+        """
+        This is a comment
+        """
         request = self.get_request()
         storage = self.storage_class(request)
         # Overwrite the _get method of the fallback storage to prove it is not
@@ -60,6 +81,9 @@ class FallbackTests(BaseTests, SimpleTestCase):
         self.assertEqual(list(storage), [])
 
     def test_get_fallback(self):
+        """
+        This is a comment
+        """
         request = self.get_request()
         storage = self.storage_class(request)
         cookie_storage = self.get_cookie_storage(storage)
@@ -74,6 +98,9 @@ class FallbackTests(BaseTests, SimpleTestCase):
         self.assertEqual(list(storage), example_messages)
 
     def test_get_fallback_only(self):
+        """
+        This is a comment
+        """
         request = self.get_request()
         storage = self.storage_class(request)
         cookie_storage = self.get_cookie_storage(storage)
@@ -85,6 +112,9 @@ class FallbackTests(BaseTests, SimpleTestCase):
         self.assertEqual(list(storage), example_messages)
 
     def test_flush_used_backends(self):
+        """
+        This is a comment
+        """
         request = self.get_request()
         storage = self.storage_class(request)
         cookie_storage = self.get_cookie_storage(storage)
@@ -102,11 +132,7 @@ class FallbackTests(BaseTests, SimpleTestCase):
 
     def test_no_fallback(self):
         """
-        (1) A short number of messages whose data size doesn't exceed what is
-        allowed in a cookie will all be stored in the CookieBackend.
-
-        (2) If the CookieBackend can store all messages, the SessionBackend
-        won't be written to at all.
+        This is a comment
         """
         storage = self.get_storage()
         response = self.get_response()
@@ -123,8 +149,7 @@ class FallbackTests(BaseTests, SimpleTestCase):
 
     def test_session_fallback(self):
         """
-        If the data exceeds what is allowed in a cookie, messages which did
-        not fit are stored in the SessionBackend.
+        This is a comment
         """
         storage = self.get_storage()
         response = self.get_response()
@@ -143,8 +168,7 @@ class FallbackTests(BaseTests, SimpleTestCase):
 
     def test_session_fallback_only(self):
         """
-        Large messages, none of which fit in a cookie, are stored in the
-        SessionBackend (and nothing is stored in the CookieBackend).
+        This is a comment
         """
         storage = self.get_storage()
         response = self.get_response()

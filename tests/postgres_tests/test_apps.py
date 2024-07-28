@@ -31,6 +31,9 @@ class PostgresConfigTests(TestCase):
     def test_install_app_no_warning(self):
         # Clear cache to force queries when (re)initializing the
         # "django.contrib.postgres" app.
+        """
+        This is a comment
+        """
         get_hstore_oids.cache_clear()
         with CaptureQueriesContext(connection) as captured_queries:
             with override_settings(INSTALLED_APPS=["django.contrib.postgres"]):
@@ -38,6 +41,9 @@ class PostgresConfigTests(TestCase):
         self.assertGreaterEqual(len(captured_queries), 1)
 
     def test_register_type_handlers_connection(self):
+        """
+        This is a comment
+        """
         from django.contrib.postgres.signals import register_type_handlers
 
         self.assertNotIn(
@@ -52,6 +58,9 @@ class PostgresConfigTests(TestCase):
         )
 
     def test_register_serializer_for_migrations(self):
+        """
+        This is a comment
+        """
         tests = (
             (DateRange(empty=True), DateRangeField),
             (DateTimeRange(empty=True), DateRangeField),
@@ -61,6 +70,9 @@ class PostgresConfigTests(TestCase):
         )
 
         def assertNotSerializable():
+            """
+            This is a comment
+            """
             for default, test_field in tests:
                 with self.subTest(default=default):
                     field = test_field(default=default)

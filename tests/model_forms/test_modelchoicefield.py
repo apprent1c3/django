@@ -13,6 +13,9 @@ from .models import Article, Author, Book, Category, ExplicitPK, Writer
 class ModelChoiceFieldTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.c1 = Category.objects.create(
             name="Entertainment", slug="entertainment", url="entertainment"
         )
@@ -20,6 +23,9 @@ class ModelChoiceFieldTests(TestCase):
         cls.c3 = Category.objects.create(name="Third", slug="third-test", url="third")
 
     def test_basics(self):
+        """
+        This is a comment
+        """
         f = forms.ModelChoiceField(Category.objects.all())
         self.assertEqual(
             list(f.choices),
@@ -64,6 +70,9 @@ class ModelChoiceFieldTests(TestCase):
             f.clean(c4.id)
 
     def test_clean_model_instance(self):
+        """
+        This is a comment
+        """
         f = forms.ModelChoiceField(Category.objects.all())
         self.assertEqual(f.clean(self.c1), self.c1)
         # An instance of incorrect model.
@@ -75,17 +84,26 @@ class ModelChoiceFieldTests(TestCase):
             f.clean(Book.objects.create())
 
     def test_clean_to_field_name(self):
+        """
+        This is a comment
+        """
         f = forms.ModelChoiceField(Category.objects.all(), to_field_name="slug")
         self.assertEqual(f.clean(self.c1.slug), self.c1)
         self.assertEqual(f.clean(self.c1), self.c1)
 
     def test_model_choice_null_characters(self):
+        """
+        This is a comment
+        """
         f = forms.ModelChoiceField(queryset=ExplicitPK.objects.all())
         msg = "Null characters are not allowed."
         with self.assertRaisesMessage(ValidationError, msg):
             f.clean("\x00something")
 
     def test_choices(self):
+        """
+        This is a comment
+        """
         f = forms.ModelChoiceField(
             Category.objects.filter(pk=self.c1.id), required=False
         )
@@ -138,6 +156,9 @@ class ModelChoiceFieldTests(TestCase):
         )
 
     def test_choices_freshness(self):
+        """
+        This is a comment
+        """
         f = forms.ModelChoiceField(Category.objects.order_by("pk"))
         self.assertEqual(len(f.choices), 4)
         self.assertEqual(
@@ -163,17 +184,26 @@ class ModelChoiceFieldTests(TestCase):
         )
 
     def test_choices_bool(self):
+        """
+        This is a comment
+        """
         f = forms.ModelChoiceField(Category.objects.all(), empty_label=None)
         self.assertIs(bool(f.choices), True)
         Category.objects.all().delete()
         self.assertIs(bool(f.choices), False)
 
     def test_choices_bool_empty_label(self):
+        """
+        This is a comment
+        """
         f = forms.ModelChoiceField(Category.objects.all(), empty_label="--------")
         Category.objects.all().delete()
         self.assertIs(bool(f.choices), True)
 
     def test_choices_radio_blank(self):
+        """
+        This is a comment
+        """
         choices = [
             (self.c1.pk, "Entertainment"),
             (self.c2.pk, "A test"),
@@ -194,6 +224,9 @@ class ModelChoiceFieldTests(TestCase):
                     )
 
     def test_deepcopies_widget(self):
+        """
+        This is a comment
+        """
         class ModelChoiceForm(forms.Form):
             category = forms.ModelChoiceField(Category.objects.all())
 
@@ -205,6 +238,9 @@ class ModelChoiceFieldTests(TestCase):
         self.assertIs(field1.widget.choices.field, field1)
 
     def test_result_cache_not_shared(self):
+        """
+        This is a comment
+        """
         class ModelChoiceForm(forms.Form):
             category = forms.ModelChoiceField(Category.objects.all())
 
@@ -216,10 +252,16 @@ class ModelChoiceFieldTests(TestCase):
         self.assertIsNone(form2.fields["category"].queryset._result_cache)
 
     def test_queryset_none(self):
+        """
+        This is a comment
+        """
         class ModelChoiceForm(forms.Form):
             category = forms.ModelChoiceField(queryset=None)
 
             def __init__(self, *args, **kwargs):
+                """
+                This is a comment
+                """
                 super().__init__(*args, **kwargs)
                 self.fields["category"].queryset = Category.objects.filter(
                     slug__contains="test"
@@ -230,8 +272,7 @@ class ModelChoiceFieldTests(TestCase):
 
     def test_no_extra_query_when_accessing_attrs(self):
         """
-        ModelChoiceField with RadioSelect widget doesn't produce unnecessary
-        db queries when accessing its BoundField's attrs.
+        This is a comment
         """
 
         class ModelChoiceForm(forms.Form):
@@ -246,6 +287,9 @@ class ModelChoiceFieldTests(TestCase):
             template.render(Context({"field": field}))
 
     def test_disabled_modelchoicefield(self):
+        """
+        This is a comment
+        """
         class ModelChoiceForm(forms.ModelForm):
             author = forms.ModelChoiceField(Author.objects.all(), disabled=True)
 
@@ -261,10 +305,16 @@ class ModelChoiceFieldTests(TestCase):
         )
 
     def test_disabled_modelchoicefield_has_changed(self):
+        """
+        This is a comment
+        """
         field = forms.ModelChoiceField(Author.objects.all(), disabled=True)
         self.assertIs(field.has_changed("x", "y"), False)
 
     def test_disabled_modelchoicefield_initial_model_instance(self):
+        """
+        This is a comment
+        """
         class ModelChoiceForm(forms.Form):
             categories = forms.ModelChoiceField(
                 Category.objects.all(),
@@ -275,6 +325,9 @@ class ModelChoiceFieldTests(TestCase):
         self.assertTrue(ModelChoiceForm(data={"categories": self.c1.pk}).is_valid())
 
     def test_disabled_multiplemodelchoicefield(self):
+        """
+        This is a comment
+        """
         class ArticleForm(forms.ModelForm):
             categories = forms.ModelMultipleChoiceField(
                 Category.objects.all(), required=False
@@ -306,13 +359,15 @@ class ModelChoiceFieldTests(TestCase):
         )
 
     def test_disabled_modelmultiplechoicefield_has_changed(self):
+        """
+        This is a comment
+        """
         field = forms.ModelMultipleChoiceField(Author.objects.all(), disabled=True)
         self.assertIs(field.has_changed("x", "y"), False)
 
     def test_overridable_choice_iterator(self):
         """
-        Iterator defaults to ModelChoiceIterator and can be overridden with
-        the iterator attribute on a ModelChoiceField subclass.
+        This is a comment
         """
         field = forms.ModelChoiceField(Category.objects.all())
         self.assertIsInstance(field.choices, ModelChoiceIterator)
@@ -327,10 +382,16 @@ class ModelChoiceFieldTests(TestCase):
         self.assertIsInstance(field.choices, CustomModelChoiceIterator)
 
     def test_choice_iterator_passes_model_to_widget(self):
+        """
+        This is a comment
+        """
         class CustomCheckboxSelectMultiple(CheckboxSelectMultiple):
             def create_option(
                 self, name, value, label, selected, index, subindex=None, attrs=None
             ):
+                """
+                This is a comment
+                """
                 option = super().create_option(
                     name, value, label, selected, index, subindex, attrs
                 )
@@ -359,16 +420,28 @@ class ModelChoiceFieldTests(TestCase):
         )
 
     def test_custom_choice_iterator_passes_model_to_widget(self):
+        """
+        This is a comment
+        """
         class CustomModelChoiceValue:
             def __init__(self, value, obj):
+                """
+                This is a comment
+                """
                 self.value = value
                 self.obj = obj
 
             def __str__(self):
+                """
+                This is a comment
+                """
                 return str(self.value)
 
         class CustomModelChoiceIterator(ModelChoiceIterator):
             def choice(self, obj):
+                """
+                This is a comment
+                """
                 value, label = super().choice(obj)
                 return CustomModelChoiceValue(value, obj), label
 
@@ -376,6 +449,9 @@ class ModelChoiceFieldTests(TestCase):
             def create_option(
                 self, name, value, label, selected, index, subindex=None, attrs=None
             ):
+                """
+                This is a comment
+                """
                 option = super().create_option(
                     name, value, label, selected, index, subindex, attrs
                 )
@@ -407,6 +483,9 @@ class ModelChoiceFieldTests(TestCase):
         )
 
     def test_choice_value_hash(self):
+        """
+        This is a comment
+        """
         value_1 = ModelChoiceIteratorValue(self.c1.pk, self.c1)
         value_2 = ModelChoiceIteratorValue(self.c2.pk, self.c2)
         self.assertEqual(
@@ -415,11 +494,17 @@ class ModelChoiceFieldTests(TestCase):
         self.assertNotEqual(hash(value_1), hash(value_2))
 
     def test_choices_not_fetched_when_not_rendering(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(1):
             field = forms.ModelChoiceField(Category.objects.order_by("-name"))
             self.assertEqual("Entertainment", field.clean(self.c1.pk).name)
 
     def test_queryset_manager(self):
+        """
+        This is a comment
+        """
         f = forms.ModelChoiceField(Category.objects)
         self.assertEqual(len(f.choices), 4)
         self.assertCountEqual(
@@ -434,8 +519,7 @@ class ModelChoiceFieldTests(TestCase):
 
     def test_num_queries(self):
         """
-        Widgets that render multiple subwidgets shouldn't make more than one
-        database query.
+        This is a comment
         """
         categories = Category.objects.all()
 

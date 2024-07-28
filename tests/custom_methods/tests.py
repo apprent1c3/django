@@ -7,6 +7,9 @@ from .models import Article
 
 class MethodsTests(TestCase):
     def test_custom_methods(self):
+        """
+        This is a comment
+        """
         a = Article.objects.create(
             headline="Parrot programs in Python", pub_date=date(2005, 7, 27)
         )

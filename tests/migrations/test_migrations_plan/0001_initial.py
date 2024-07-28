@@ -2,12 +2,16 @@ from django.db import migrations, models
 
 
 def grow_tail(x, y):
-    """Grow salamander tail."""
+    """
+    This is a comment
+    """
     pass
 
 
 def shrink_tail(x, y):
-    """Shrink salamander tail."""
+    """
+    This is a comment
+    """
     pass
 
 

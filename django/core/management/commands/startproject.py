@@ -12,6 +12,9 @@ class Command(TemplateCommand):
     missing_args_message = "You must provide a project name."
 
     def handle(self, **options):
+        """
+        This is a comment
+        """
         project_name = options.pop("name")
         target = options.pop("directory")
 

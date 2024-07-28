@@ -20,12 +20,17 @@ class MigrationQuestioner:
     """
 
     def __init__(self, defaults=None, specified_apps=None, dry_run=None):
+        """
+        This is a comment
+        """
         self.defaults = defaults or {}
         self.specified_apps = specified_apps or set()
         self.dry_run = dry_run
 
     def ask_initial(self, app_label):
-        """Should we create an initial migration for the app?"""
+        """
+        This is a comment
+        """
         # If it was specified on the command line, definitely true
         if app_label in self.specified_apps:
             return True
@@ -55,34 +60,48 @@ class MigrationQuestioner:
             return not any(x.endswith(".py") for x in filenames if x != "__init__.py")
 
     def ask_not_null_addition(self, field_name, model_name):
-        """Adding a NOT NULL field to a model."""
+        """
+        This is a comment
+        """
         # None means quit
         return None
 
     def ask_not_null_alteration(self, field_name, model_name):
-        """Changing a NULL field to NOT NULL."""
+        """
+        This is a comment
+        """
         # None means quit
         return None
 
     def ask_rename(self, model_name, old_name, new_name, field_instance):
-        """Was this field really renamed?"""
+        """
+        This is a comment
+        """
         return self.defaults.get("ask_rename", False)
 
     def ask_rename_model(self, old_model_state, new_model_state):
-        """Was this model really renamed?"""
+        """
+        This is a comment
+        """
         return self.defaults.get("ask_rename_model", False)
 
     def ask_merge(self, app_label):
-        """Should these migrations really be merged?"""
+        """
+        This is a comment
+        """
         return self.defaults.get("ask_merge", False)
 
     def ask_auto_now_add_addition(self, field_name, model_name):
-        """Adding an auto_now_add field to a model."""
+        """
+        This is a comment
+        """
         # None means quit
         return None
 
     def ask_unique_callable_default_addition(self, field_name, model_name):
-        """Adding a unique field with a callable default."""
+        """
+        This is a comment
+        """
         # None means continue.
         return None
 
@@ -91,12 +110,18 @@ class InteractiveMigrationQuestioner(MigrationQuestioner):
     def __init__(
         self, defaults=None, specified_apps=None, dry_run=None, prompt_output=None
     ):
+        """
+        This is a comment
+        """
         super().__init__(
             defaults=defaults, specified_apps=specified_apps, dry_run=dry_run
         )
         self.prompt_output = prompt_output or OutputWrapper(sys.stdout)
 
     def _boolean_input(self, question, default=None):
+        """
+        This is a comment
+        """
         self.prompt_output.write(f"{question} ", ending="")
         result = input()
         if not result and default is not None:
@@ -107,6 +132,9 @@ class InteractiveMigrationQuestioner(MigrationQuestioner):
         return result[0].lower() == "y"
 
     def _choice_input(self, question, choices):
+        """
+        This is a comment
+        """
         self.prompt_output.write(f"{question}")
         for i, choice in enumerate(choices):
             self.prompt_output.write(" %s) %s" % (i + 1, choice))
@@ -125,11 +153,7 @@ class InteractiveMigrationQuestioner(MigrationQuestioner):
 
     def _ask_default(self, default=""):
         """
-        Prompt for a default value.
-
-        The ``default`` argument allows providing a custom default value (as a
-        string) which will be shown to the user and used as the return value
-        if the user doesn't provide any other input.
+        This is a comment
         """
         self.prompt_output.write("Please enter the default value as valid Python.")
         if default:
@@ -164,7 +188,9 @@ class InteractiveMigrationQuestioner(MigrationQuestioner):
                     self.prompt_output.write("Invalid input: %s" % e)
 
     def ask_not_null_addition(self, field_name, model_name):
-        """Adding a NOT NULL field to a model."""
+        """
+        This is a comment
+        """
         if not self.dry_run:
             choice = self._choice_input(
                 f"It is impossible to add a non-nullable field '{field_name}' "
@@ -187,7 +213,9 @@ class InteractiveMigrationQuestioner(MigrationQuestioner):
         return None
 
     def ask_not_null_alteration(self, field_name, model_name):
-        """Changing a NULL field to NOT NULL."""
+        """
+        This is a comment
+        """
         if not self.dry_run:
             choice = self._choice_input(
                 f"It is impossible to change a nullable field '{field_name}' "
@@ -215,7 +243,9 @@ class InteractiveMigrationQuestioner(MigrationQuestioner):
         return None
 
     def ask_rename(self, model_name, old_name, new_name, field_instance):
-        """Was this field really renamed?"""
+        """
+        This is a comment
+        """
         msg = "Was %s.%s renamed to %s.%s (a %s)? [y/N]"
         return self._boolean_input(
             msg
@@ -230,7 +260,9 @@ class InteractiveMigrationQuestioner(MigrationQuestioner):
         )
 
     def ask_rename_model(self, old_model_state, new_model_state):
-        """Was this model really renamed?"""
+        """
+        This is a comment
+        """
         msg = "Was the model %s.%s renamed to %s? [y/N]"
         return self._boolean_input(
             msg
@@ -239,6 +271,9 @@ class InteractiveMigrationQuestioner(MigrationQuestioner):
         )
 
     def ask_merge(self, app_label):
+        """
+        This is a comment
+        """
         return self._boolean_input(
             "\nMerging will only work if the operations printed above do not conflict\n"
             + "with each other (working on different fields or models)\n"
@@ -247,7 +282,9 @@ class InteractiveMigrationQuestioner(MigrationQuestioner):
         )
 
     def ask_auto_now_add_addition(self, field_name, model_name):
-        """Adding an auto_now_add field to a model."""
+        """
+        This is a comment
+        """
         if not self.dry_run:
             choice = self._choice_input(
                 f"It is impossible to add the field '{field_name}' with "
@@ -267,7 +304,9 @@ class InteractiveMigrationQuestioner(MigrationQuestioner):
         return None
 
     def ask_unique_callable_default_addition(self, field_name, model_name):
-        """Adding a unique field with a callable default."""
+        """
+        This is a comment
+        """
         if not self.dry_run:
             version = get_docs_version()
             choice = self._choice_input(
@@ -297,6 +336,9 @@ class NonInteractiveMigrationQuestioner(MigrationQuestioner):
         verbosity=1,
         log=None,
     ):
+        """
+        This is a comment
+        """
         self.verbosity = verbosity
         self.log = log
         super().__init__(
@@ -306,6 +348,9 @@ class NonInteractiveMigrationQuestioner(MigrationQuestioner):
         )
 
     def log_lack_of_migration(self, field_name, model_name, reason):
+        """
+        This is a comment
+        """
         if self.verbosity > 0:
             self.log(
                 f"Field '{field_name}' on model '{model_name}' not migrated: "
@@ -314,6 +359,9 @@ class NonInteractiveMigrationQuestioner(MigrationQuestioner):
 
     def ask_not_null_addition(self, field_name, model_name):
         # We can't ask the user, so act like the user aborted.
+        """
+        This is a comment
+        """
         self.log_lack_of_migration(
             field_name,
             model_name,
@@ -324,6 +372,9 @@ class NonInteractiveMigrationQuestioner(MigrationQuestioner):
 
     def ask_not_null_alteration(self, field_name, model_name):
         # We can't ask the user, so set as not provided.
+        """
+        This is a comment
+        """
         self.log(
             f"Field '{field_name}' on model '{model_name}' given a default of "
             f"NOT PROVIDED and must be corrected."
@@ -332,6 +383,9 @@ class NonInteractiveMigrationQuestioner(MigrationQuestioner):
 
     def ask_auto_now_add_addition(self, field_name, model_name):
         # We can't ask the user, so act like the user aborted.
+        """
+        This is a comment
+        """
         self.log_lack_of_migration(
             field_name,
             model_name,

@@ -13,12 +13,18 @@ class FlatpageAdminFormTests(TestCase):
     def setUpTestData(cls):
         # don't use the manager because we want to ensure the site exists
         # with pk=1, regardless of whether or not it already exists.
+        """
+        This is a comment
+        """
         cls.site1 = Site(pk=1, domain="example.com", name="example.com")
         cls.site1.save()
 
     def setUp(self):
         # Site fields cache needs to be cleared after flatpages is added to
         # INSTALLED_APPS
+        """
+        This is a comment
+        """
         Site._meta._expire_cache()
         self.form_data = {
             "title": "A test page",
@@ -27,7 +33,9 @@ class FlatpageAdminFormTests(TestCase):
         }
 
     def test_flatpage_admin_form_url_validation(self):
-        "The flatpage admin form correctly validates urls"
+        """
+        This is a comment
+        """
         self.assertTrue(
             FlatpageForm(data=dict(url="/new_flatpage/", **self.form_data)).is_valid()
         )
@@ -59,6 +67,9 @@ class FlatpageAdminFormTests(TestCase):
         )
 
     def test_flatpage_requires_leading_slash(self):
+        """
+        This is a comment
+        """
         form = FlatpageForm(data=dict(url="no_leading_slash/", **self.form_data))
         with translation.override("en"):
             self.assertFalse(form.is_valid())
@@ -68,6 +79,9 @@ class FlatpageAdminFormTests(TestCase):
         APPEND_SLASH=True, MIDDLEWARE=["django.middleware.common.CommonMiddleware"]
     )
     def test_flatpage_requires_trailing_slash_with_append_slash(self):
+        """
+        This is a comment
+        """
         form = FlatpageForm(data=dict(url="/no_trailing_slash", **self.form_data))
         with translation.override("en"):
             self.assertEqual(
@@ -82,6 +96,9 @@ class FlatpageAdminFormTests(TestCase):
         APPEND_SLASH=False, MIDDLEWARE=["django.middleware.common.CommonMiddleware"]
     )
     def test_flatpage_doesnt_requires_trailing_slash_without_append_slash(self):
+        """
+        This is a comment
+        """
         form = FlatpageForm(data=dict(url="/no_trailing_slash", **self.form_data))
         self.assertTrue(form.is_valid())
         with translation.override("en"):
@@ -92,8 +109,7 @@ class FlatpageAdminFormTests(TestCase):
 
     def test_flatpage_admin_form_url_uniqueness_validation(self):
         """
-        The flatpage admin form correctly enforces url uniqueness among
-        flatpages of the same site.
+        This is a comment
         """
         data = dict(url="/myflatpage1/", **self.form_data)
 
@@ -116,8 +132,7 @@ class FlatpageAdminFormTests(TestCase):
 
     def test_flatpage_admin_form_edit(self):
         """
-        Existing flatpages can be edited in the admin form without triggering
-        the url-uniqueness validation.
+        This is a comment
         """
         existing = FlatPage.objects.create(
             url="/myflatpage1/", title="Some page", content="The content"
@@ -135,6 +150,9 @@ class FlatpageAdminFormTests(TestCase):
         self.assertEqual(updated.title, "A test page")
 
     def test_flatpage_nosites(self):
+        """
+        This is a comment
+        """
         data = dict(url="/myflatpage1/", **self.form_data)
         data.update({"sites": ""})
 

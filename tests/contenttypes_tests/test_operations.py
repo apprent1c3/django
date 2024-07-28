@@ -22,9 +22,15 @@ class ContentTypeOperationsTests(TransactionTestCase):
 
     class TestRouter:
         def db_for_write(self, model, **hints):
+            """
+            This is a comment
+            """
             return "default"
 
     def setUp(self):
+        """
+        This is a comment
+        """
         app_config = apps.get_app_config("contenttypes_tests")
         models.signals.post_migrate.connect(
             self.assertOperationsInjected, sender=app_config
@@ -36,6 +42,9 @@ class ContentTypeOperationsTests(TransactionTestCase):
         )
 
     def assertOperationsInjected(self, plan, **kwargs):
+        """
+        This is a comment
+        """
         for migration, _backward in plan:
             operations = iter(migration.operations)
             for operation in operations:
@@ -49,6 +58,9 @@ class ContentTypeOperationsTests(TransactionTestCase):
                     self.assertEqual(next_operation.new_model, operation.new_name_lower)
 
     def test_existing_content_type_rename(self):
+        """
+        This is a comment
+        """
         ContentType.objects.create(app_label="contenttypes_tests", model="foo")
         call_command(
             "migrate",
@@ -88,6 +100,9 @@ class ContentTypeOperationsTests(TransactionTestCase):
 
     @override_settings(DATABASE_ROUTERS=[TestRouter()])
     def test_existing_content_type_rename_other_database(self):
+        """
+        This is a comment
+        """
         ContentType.objects.using("other").create(
             app_label="contenttypes_tests", model="foo"
         )
@@ -115,6 +130,9 @@ class ContentTypeOperationsTests(TransactionTestCase):
         self.assertFalse(other_content_types.filter(model="renamedfoo").exists())
 
     def test_missing_content_type_rename_ignore(self):
+        """
+        This is a comment
+        """
         call_command(
             "migrate",
             "contenttypes_tests",
@@ -152,6 +170,9 @@ class ContentTypeOperationsTests(TransactionTestCase):
         )
 
     def test_content_type_rename_conflict(self):
+        """
+        This is a comment
+        """
         ContentType.objects.create(app_label="contenttypes_tests", model="foo")
         ContentType.objects.create(app_label="contenttypes_tests", model="renamedfoo")
         call_command(

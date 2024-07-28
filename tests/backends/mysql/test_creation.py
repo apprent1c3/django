@@ -12,14 +12,23 @@ from django.test import SimpleTestCase
 @unittest.skipUnless(connection.vendor == "mysql", "MySQL tests")
 class DatabaseCreationTests(SimpleTestCase):
     def _execute_raise_database_exists(self, cursor, parameters, keepdb=False):
+        """
+        This is a comment
+        """
         raise DatabaseError(
             1007, "Can't create database '%s'; database exists" % parameters["dbname"]
         )
 
     def _execute_raise_access_denied(self, cursor, parameters, keepdb=False):
+        """
+        This is a comment
+        """
         raise DatabaseError(1044, "Access denied for user")
 
     def patch_test_db_creation(self, execute_create_test_db):
+        """
+        This is a comment
+        """
         return mock.patch.object(
             BaseDatabaseCreation, "_execute_create_test_db", execute_create_test_db
         )
@@ -28,6 +37,9 @@ class DatabaseCreationTests(SimpleTestCase):
     @mock.patch("sys.stderr", new_callable=StringIO)
     def test_create_test_db_database_exists(self, *mocked_objects):
         # Simulate test database creation raising "database exists"
+        """
+        This is a comment
+        """
         creation = DatabaseCreation(connection)
         with self.patch_test_db_creation(self._execute_raise_database_exists):
             with mock.patch("builtins.input", return_value="no"):
@@ -44,12 +56,18 @@ class DatabaseCreationTests(SimpleTestCase):
     @mock.patch("sys.stderr", new_callable=StringIO)
     def test_create_test_db_unexpected_error(self, *mocked_objects):
         # Simulate test database creation raising unexpected error
+        """
+        This is a comment
+        """
         creation = DatabaseCreation(connection)
         with self.patch_test_db_creation(self._execute_raise_access_denied):
             with self.assertRaises(SystemExit):
                 creation._create_test_db(verbosity=0, autoclobber=False, keepdb=False)
 
     def test_clone_test_db_database_exists(self):
+        """
+        This is a comment
+        """
         creation = DatabaseCreation(connection)
         with self.patch_test_db_creation(self._execute_raise_database_exists):
             with mock.patch.object(DatabaseCreation, "_clone_db") as _clone_db:
@@ -57,6 +75,9 @@ class DatabaseCreationTests(SimpleTestCase):
                 _clone_db.assert_not_called()
 
     def test_clone_test_db_options_ordering(self):
+        """
+        This is a comment
+        """
         creation = DatabaseCreation(connection)
         try:
             saved_settings = connection.settings_dict

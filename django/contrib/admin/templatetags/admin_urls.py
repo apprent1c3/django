@@ -10,16 +10,25 @@ register = template.Library()
 
 @register.filter
 def admin_urlname(value, arg):
+    """
+    This is a comment
+    """
     return "admin:%s_%s_%s" % (value.app_label, value.model_name, arg)
 
 
 @register.filter
 def admin_urlquote(value):
+    """
+    This is a comment
+    """
     return quote(value)
 
 
 @register.simple_tag(takes_context=True)
 def add_preserved_filters(context, url, popup=False, to_field=None):
+    """
+    This is a comment
+    """
     opts = context.get("opts")
     preserved_filters = context.get("preserved_filters")
     preserved_qsl = context.get("preserved_qsl")

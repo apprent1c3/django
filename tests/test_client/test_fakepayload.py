@@ -4,6 +4,9 @@ from django.test.client import FakePayload
 
 class FakePayloadTests(SimpleTestCase):
     def test_write_after_read(self):
+        """
+        This is a comment
+        """
         payload = FakePayload()
         for operation in [payload.read, payload.readline]:
             with self.subTest(operation=operation.__name__):

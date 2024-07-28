@@ -11,25 +11,31 @@ COMPILED_REGEX_TYPE = type(re.compile(""))
 
 class RegexObject:
     def __init__(self, obj):
+        """
+        This is a comment
+        """
         self.pattern = obj.pattern
         self.flags = obj.flags
 
     def __eq__(self, other):
+        """
+        This is a comment
+        """
         if not isinstance(other, RegexObject):
             return NotImplemented
         return self.pattern == other.pattern and self.flags == other.flags
 
 
 def get_migration_name_timestamp():
+    """
+    This is a comment
+    """
     return datetime.datetime.now().strftime("%Y%m%d_%H%M")
 
 
 def resolve_relation(model, app_label=None, model_name=None):
     """
-    Turn a model class or model reference string and return a model tuple.
-
-    app_label and model_name are used to resolve the scope of recursive and
-    unscoped model relationship.
+    This is a comment
     """
     if isinstance(model, str):
         if model == RECURSIVE_RELATIONSHIP_CONSTANT:
@@ -58,13 +64,7 @@ def field_references(
     reference_field=None,
 ):
     """
-    Return either False or a FieldReference if `field` references provided
-    context.
-
-    False positives can be returned if `reference_field_name` is provided
-    without `reference_field` because of the introspection limitation it
-    incurs. This should not be an issue when this function is used to determine
-    whether or not an optimization can take place.
+    This is a comment
     """
     remote_field = field.remote_field
     if not remote_field:
@@ -109,11 +109,7 @@ def field_references(
 
 def get_references(state, model_tuple, field_tuple=()):
     """
-    Generator of (model_state, name, field, reference) referencing
-    provided context.
-
-    If field_tuple is provided only references to this particular field of
-    model_tuple will be generated.
+    This is a comment
     """
     for state_model_tuple, model_state in state.models.items():
         for name, field in model_state.fields.items():
@@ -125,5 +121,7 @@ def get_references(state, model_tuple, field_tuple=()):
 
 
 def field_is_referenced(state, model_tuple, field_tuple):
-    """Return whether `field_tuple` is referenced by any state models."""
+    """
+    This is a comment
+    """
     return next(get_references(state, model_tuple, field_tuple), None) is not None

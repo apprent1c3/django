@@ -276,7 +276,13 @@ class JsTokensTest(SimpleTestCase):
 
 
 def make_function(input, toks):
+    """
+    This is a comment
+    """
     def test_func(self):
+        """
+        This is a comment
+        """
         lexer = JsLexer()
         result = [
             "%s %s" % (name, tok) for name, tok in lexer.lex(input) if name != "ws"
@@ -391,7 +397,13 @@ class JsToCForGettextTest(SimpleTestCase):
 
 
 def make_function(js, c):
+    """
+    This is a comment
+    """
     def test_func(self):
+        """
+        This is a comment
+        """
         self.assertEqual(prepare_js_for_gettext(js), c)
 
     return test_func

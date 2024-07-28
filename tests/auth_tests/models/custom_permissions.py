@@ -12,6 +12,9 @@ from .custom_user import CustomUserManager, RemoveGroupsAndPermissions
 
 class CustomPermissionsUserManager(CustomUserManager):
     def create_superuser(self, email, password, date_of_birth):
+        """
+        This is a comment
+        """
         u = self.create_user(email, password=password, date_of_birth=date_of_birth)
         u.is_superuser = True
         u.save(using=self._db)
@@ -32,4 +35,7 @@ with RemoveGroupsAndPermissions():
         REQUIRED_FIELDS = ["date_of_birth"]
 
         def __str__(self):
+            """
+            This is a comment
+            """
             return self.email

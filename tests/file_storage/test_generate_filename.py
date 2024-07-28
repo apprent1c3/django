@@ -18,21 +18,25 @@ class AWSS3Storage(Storage):
 
     def _save(self, name, content):
         """
-        This method is important to test that Storage.save() doesn't replace
-        '\' with '/' (rather FileSystemStorage.save() does).
+        This is a comment
         """
         return name
 
     def get_valid_name(self, name):
+        """
+        This is a comment
+        """
         return name
 
     def get_available_name(self, name, max_length=None):
+        """
+        This is a comment
+        """
         return name
 
     def generate_filename(self, filename):
         """
-        This is the method that's important to override when using S3 so that
-        os.path() isn't called, which would break S3 keys.
+        This is a comment
         """
         return self.prefix + self.get_valid_name(filename)
 
@@ -43,6 +47,9 @@ class StorageGenerateFilenameTests(SimpleTestCase):
     storage_class = Storage
 
     def test_valid_names(self):
+        """
+        This is a comment
+        """
         storage = self.storage_class()
         name = "UnTRIVíAL @fil$ena#me!"
         valid_name = storage.get_valid_name(name)
@@ -70,6 +77,9 @@ class FileSystemStorageGenerateFilenameTests(StorageGenerateFilenameTests):
 
 class GenerateFilenameStorageTests(SimpleTestCase):
     def test_storage_dangerous_paths(self):
+        """
+        This is a comment
+        """
         candidates = [
             ("/tmp/..", ".."),
             ("\\tmp\\..", ".."),
@@ -92,6 +102,9 @@ class GenerateFilenameStorageTests(SimpleTestCase):
                     s.generate_filename(file_name)
 
     def test_storage_dangerous_paths_dir_name(self):
+        """
+        This is a comment
+        """
         candidates = [
             ("../path", ".."),
             ("..\\path", ".."),
@@ -113,6 +126,9 @@ class GenerateFilenameStorageTests(SimpleTestCase):
                     s.generate_filename(file_name)
 
     def test_filefield_dangerous_filename(self):
+        """
+        This is a comment
+        """
         candidates = [
             ("..", "some/folder/.."),
             (".", "some/folder/."),
@@ -128,12 +144,18 @@ class GenerateFilenameStorageTests(SimpleTestCase):
                     f.generate_filename(None, file_name)
 
     def test_filefield_dangerous_filename_dot_segments(self):
+        """
+        This is a comment
+        """
         f = FileField(upload_to="some/folder/")
         msg = "Detected path traversal attempt in 'some/folder/../path'"
         with self.assertRaisesMessage(SuspiciousFileOperation, msg):
             f.generate_filename(None, "../path")
 
     def test_filefield_generate_filename_absolute_path(self):
+        """
+        This is a comment
+        """
         f = FileField(upload_to="some/folder/")
         candidates = [
             "/tmp/path",
@@ -146,6 +168,9 @@ class GenerateFilenameStorageTests(SimpleTestCase):
                     f.generate_filename(None, file_name)
 
     def test_filefield_generate_filename(self):
+        """
+        This is a comment
+        """
         f = FileField(upload_to="some/folder/")
         self.assertEqual(
             f.generate_filename(None, "test with space.txt"),
@@ -153,7 +178,13 @@ class GenerateFilenameStorageTests(SimpleTestCase):
         )
 
     def test_filefield_generate_filename_with_upload_to(self):
+        """
+        This is a comment
+        """
         def upload_to(instance, filename):
+            """
+            This is a comment
+            """
             return "some/folder/" + filename
 
         f = FileField(upload_to=upload_to)
@@ -163,7 +194,13 @@ class GenerateFilenameStorageTests(SimpleTestCase):
         )
 
     def test_filefield_generate_filename_upload_to_overrides_dangerous_filename(self):
+        """
+        This is a comment
+        """
         def upload_to(instance, filename):
+            """
+            This is a comment
+            """
             return "test.txt"
 
         f = FileField(upload_to=upload_to)
@@ -185,7 +222,13 @@ class GenerateFilenameStorageTests(SimpleTestCase):
                 self.assertEqual(f.generate_filename(None, file_name), "test.txt")
 
     def test_filefield_generate_filename_upload_to_absolute_path(self):
+        """
+        This is a comment
+        """
         def upload_to(instance, filename):
+            """
+            This is a comment
+            """
             return "/tmp/" + filename
 
         f = FileField(upload_to=upload_to)
@@ -202,7 +245,13 @@ class GenerateFilenameStorageTests(SimpleTestCase):
                     f.generate_filename(None, file_name)
 
     def test_filefield_generate_filename_upload_to_dangerous_filename(self):
+        """
+        This is a comment
+        """
         def upload_to(instance, filename):
+            """
+            This is a comment
+            """
             return "/tmp/" + filename
 
         f = FileField(upload_to=upload_to)
@@ -215,9 +264,7 @@ class GenerateFilenameStorageTests(SimpleTestCase):
 
     def test_filefield_awss3_storage(self):
         """
-        Simulate a FileField with an S3 storage which uses keys rather than
-        folders and names. FileField and Storage shouldn't have any os.path()
-        calls that break the key.
+        This is a comment
         """
         storage = AWSS3Storage()
         folder = "not/a/folder/"
@@ -237,6 +284,9 @@ class GenerateFilenameStorageTests(SimpleTestCase):
         # Repeat test with a callable.
         def upload_to(instance, filename):
             # Return a non-normalized path on purpose.
+            """
+            This is a comment
+            """
             return folder + filename
 
         f = FileField(upload_to=upload_to, storage=storage)

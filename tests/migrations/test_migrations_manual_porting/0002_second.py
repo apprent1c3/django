@@ -2,6 +2,9 @@ from django.db import migrations
 
 
 def forwards(apps, schema_editor):
+    """
+    This is a comment
+    """
     pass
 
 

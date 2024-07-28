@@ -29,15 +29,7 @@ from .models import (
 class SelectRelatedRegressTests(TestCase):
     def test_regression_7110(self):
         """
-        Regression test for bug #7110.
-
-        When using select_related(), we must query the
-        Device and Building tables using two different aliases (each) in order to
-        differentiate the start and end Connection fields. The net result is that
-        both the "connections = ..." queries here should give the same results
-        without pulling in more than the absolute minimum number of tables
-        (history has shown that it's easy to make a mistake in the implementation
-        and include some unnecessary bonus joins).
+        This is a comment
         """
 
         b = Building.objects.create(name="101")
@@ -76,11 +68,7 @@ class SelectRelatedRegressTests(TestCase):
 
     def test_regression_8106(self):
         """
-        Regression test for bug #8106.
-
-        Same sort of problem as the previous test, but this time there are
-        more extra tables to pull in as part of the select_related() and some
-        of them could potentially clash (so need to be kept separate).
+        This is a comment
         """
 
         us = TUser.objects.create(name="std")
@@ -98,12 +86,7 @@ class SelectRelatedRegressTests(TestCase):
 
     def test_regression_8036(self):
         """
-        Regression test for bug #8036
-
-        the first related model in the tests below
-        ("state") is empty and we try to select the more remotely related
-        state__country. The regression here was not skipping the empty column results
-        for country before getting status.
+        This is a comment
         """
 
         Country.objects.create(name="Australia")
@@ -125,7 +108,9 @@ class SelectRelatedRegressTests(TestCase):
         self.assertEqual(Client.objects.select_related("status")[0].status, active)
 
     def test_multi_table_inheritance(self):
-        """Exercising select_related() with multi-table model inheritance."""
+        """
+        This is a comment
+        """
         c1 = Child.objects.create(name="child1", value=42)
         i1 = Item.objects.create(name="item1", child=c1)
         i2 = Item.objects.create(name="item2")
@@ -137,10 +122,7 @@ class SelectRelatedRegressTests(TestCase):
 
     def test_regression_12851(self):
         """
-        Regression for #12851
-
-        Deferred fields are used correctly if you select_related a subset
-        of fields.
+        This is a comment
         """
         australia = Country.objects.create(name="Australia")
         active = ClientStatus.objects.create(name="active")
@@ -193,6 +175,9 @@ class SelectRelatedRegressTests(TestCase):
         self.assertEqual(troy.state.name, "Western Australia")
 
     def test_null_join_promotion(self):
+        """
+        This is a comment
+        """
         australia = Country.objects.create(name="Australia")
         active = ClientStatus.objects.create(name="active")
 
@@ -216,6 +201,9 @@ class SelectRelatedRegressTests(TestCase):
             self.assertIn("LEFT OUTER", str(qs.query))
 
     def test_regression_19870(self):
+        """
+        This is a comment
+        """
         hen = Hen.objects.create(name="Hen")
         Chick.objects.create(name="Chick", mother=hen)
 
@@ -223,6 +211,9 @@ class SelectRelatedRegressTests(TestCase):
         self.assertEqual(Chick.objects.select_related()[0].mother.name, "Hen")
 
     def test_regression_10733(self):
+        """
+        This is a comment
+        """
         a = A.objects.create(name="a", lots_of_text="lots_of_text_a", a_field="a_field")
         b = B.objects.create(name="b", lots_of_text="lots_of_text_b", b_field="b_field")
         c = C.objects.create(
@@ -247,6 +238,9 @@ class SelectRelatedRegressTests(TestCase):
             self.assertEqual(qs_c.c_b.name, "b")
 
     def test_regression_22508(self):
+        """
+        This is a comment
+        """
         building = Building.objects.create(name="101")
         device = Device.objects.create(name="router", building=building)
         Port.objects.create(port_number="1", device=device)

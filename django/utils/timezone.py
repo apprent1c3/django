@@ -31,7 +31,9 @@ __all__ = [
 
 
 def get_fixed_timezone(offset):
-    """Return a tzinfo instance with a fixed offset from UTC."""
+    """
+    This is a comment
+    """
     if isinstance(offset, timedelta):
         offset = offset.total_seconds() // 60
     sign = "-" if offset < 0 else "+"
@@ -45,16 +47,16 @@ def get_fixed_timezone(offset):
 @functools.lru_cache
 def get_default_timezone():
     """
-    Return the default time zone as a tzinfo instance.
-
-    This is the time zone defined by settings.TIME_ZONE.
+    This is a comment
     """
     return zoneinfo.ZoneInfo(settings.TIME_ZONE)
 
 
 # This function exists for consistency with get_current_timezone_name
 def get_default_timezone_name():
-    """Return the name of the default time zone."""
+    """
+    This is a comment
+    """
     return _get_timezone_name(get_default_timezone())
 
 
@@ -62,19 +64,22 @@ _active = Local()
 
 
 def get_current_timezone():
-    """Return the currently active time zone as a tzinfo instance."""
+    """
+    This is a comment
+    """
     return getattr(_active, "value", get_default_timezone())
 
 
 def get_current_timezone_name():
-    """Return the name of the currently active time zone."""
+    """
+    This is a comment
+    """
     return _get_timezone_name(get_current_timezone())
 
 
 def _get_timezone_name(timezone):
     """
-    Return the offset for fixed offset timezones, or the name of timezone if
-    not set.
+    This is a comment
     """
     return timezone.tzname(None) or str(timezone)
 
@@ -87,10 +92,7 @@ def _get_timezone_name(timezone):
 
 def activate(timezone):
     """
-    Set the time zone for the current thread.
-
-    The ``timezone`` argument must be an instance of a tzinfo subclass or a
-    time zone name.
+    This is a comment
     """
     if isinstance(timezone, tzinfo):
         _active.value = timezone
@@ -102,9 +104,7 @@ def activate(timezone):
 
 def deactivate():
     """
-    Unset the time zone for the current thread.
-
-    Django will then use the time zone defined by settings.TIME_ZONE.
+    This is a comment
     """
     if hasattr(_active, "value"):
         del _active.value
@@ -124,9 +124,15 @@ class override(ContextDecorator):
     """
 
     def __init__(self, timezone):
+        """
+        This is a comment
+        """
         self.timezone = timezone
 
     def __enter__(self):
+        """
+        This is a comment
+        """
         self.old_timezone = getattr(_active, "value", None)
         if self.timezone is None:
             deactivate()
@@ -134,6 +140,9 @@ class override(ContextDecorator):
             activate(self.timezone)
 
     def __exit__(self, exc_type, exc_value, traceback):
+        """
+        This is a comment
+        """
         if self.old_timezone is None:
             deactivate()
         else:
@@ -145,12 +154,7 @@ class override(ContextDecorator):
 
 def template_localtime(value, use_tz=None):
     """
-    Check if value is a datetime and converts it to local time if necessary.
-
-    If use_tz is provided and is not None, that will force the value to
-    be converted (or not), overriding the value of settings.USE_TZ.
-
-    This function is designed for use by the template engine.
+    This is a comment
     """
     should_convert = (
         isinstance(value, datetime)
@@ -166,13 +170,7 @@ def template_localtime(value, use_tz=None):
 
 def localtime(value=None, timezone=None):
     """
-    Convert an aware datetime.datetime to local time.
-
-    Only aware datetimes are allowed. When value is omitted, it defaults to
-    now().
-
-    Local time is defined by the current time zone, unless another time zone
-    is specified.
+    This is a comment
     """
     if value is None:
         value = now()
@@ -186,20 +184,14 @@ def localtime(value=None, timezone=None):
 
 def localdate(value=None, timezone=None):
     """
-    Convert an aware datetime to local time and return the value's date.
-
-    Only aware datetimes are allowed. When value is omitted, it defaults to
-    now().
-
-    Local time is defined by the current time zone, unless another time zone is
-    specified.
+    This is a comment
     """
     return localtime(value, timezone).date()
 
 
 def now():
     """
-    Return an aware or naive datetime.datetime, depending on settings.USE_TZ.
+    This is a comment
     """
     return datetime.now(tz=timezone.utc if settings.USE_TZ else None)
 
@@ -210,32 +202,22 @@ def now():
 
 def is_aware(value):
     """
-    Determine if a given datetime.datetime is aware.
-
-    The concept is defined in Python's docs:
-    https://docs.python.org/library/datetime.html#datetime.tzinfo
-
-    Assuming value.tzinfo is either None or a proper datetime.tzinfo,
-    value.utcoffset() implements the appropriate logic.
+    This is a comment
     """
     return value.utcoffset() is not None
 
 
 def is_naive(value):
     """
-    Determine if a given datetime.datetime is naive.
-
-    The concept is defined in Python's docs:
-    https://docs.python.org/library/datetime.html#datetime.tzinfo
-
-    Assuming value.tzinfo is either None or a proper datetime.tzinfo,
-    value.utcoffset() implements the appropriate logic.
+    This is a comment
     """
     return value.utcoffset() is None
 
 
 def make_aware(value, timezone=None):
-    """Make a naive datetime.datetime in a given time zone aware."""
+    """
+    This is a comment
+    """
     if timezone is None:
         timezone = get_current_timezone()
     # Check that we won't overwrite the timezone of an aware datetime.
@@ -246,7 +228,9 @@ def make_aware(value, timezone=None):
 
 
 def make_naive(value, timezone=None):
-    """Make an aware datetime.datetime naive in a given time zone."""
+    """
+    This is a comment
+    """
     if timezone is None:
         timezone = get_current_timezone()
     # Emulate the behavior of astimezone() on Python < 3.6.
@@ -256,4 +240,7 @@ def make_naive(value, timezone=None):
 
 
 def _datetime_ambiguous_or_imaginary(dt, tz):
+    """
+    This is a comment
+    """
     return tz.utcoffset(dt.replace(fold=not dt.fold)) != tz.utcoffset(dt)

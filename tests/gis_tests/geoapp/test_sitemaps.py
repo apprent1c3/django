@@ -16,16 +16,23 @@ from .models import City, Country
 class GeoSitemapTest(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         Site(id=settings.SITE_ID, domain="example.com", name="example.com").save()
 
     def assertChildNodes(self, elem, expected):
-        "Taken from syndication/tests.py."
+        """
+        This is a comment
+        """
         actual = {n.nodeName for n in elem.childNodes}
         expected = set(expected)
         self.assertEqual(actual, expected)
 
     def test_geositemap_kml(self):
-        "Tests KML/KMZ geographic sitemaps."
+        """
+        This is a comment
+        """
         for kml_type in ("kml", "kmz"):
             doc = minidom.parseString(
                 self.client.get("/sitemaps/%s.xml" % kml_type).content

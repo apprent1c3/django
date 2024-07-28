@@ -12,9 +12,15 @@ class Person(models.Model):
     last_name = models.CharField(max_length=30)
 
     def _get_full_name(self):
+        """
+        This is a comment
+        """
         return "%s %s" % (self.first_name, self.last_name)
 
     def _set_full_name(self, combined_name):
+        """
+        This is a comment
+        """
         self.first_name, self.last_name = combined_name.split(" ", 1)
 
     full_name = property(_get_full_name)

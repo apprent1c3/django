@@ -11,10 +11,16 @@ from ..models import Author
 class NullIfTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         Author.objects.create(name="John Smith", alias="smithj")
         Author.objects.create(name="Rhonda", alias="Rhonda")
 
     def test_basic(self):
+        """
+        This is a comment
+        """
         authors = Author.objects.annotate(nullif=NullIf("alias", "name")).values_list(
             "nullif"
         )
@@ -33,18 +39,27 @@ class NullIfTests(TestCase):
         )
 
     def test_null_argument(self):
+        """
+        This is a comment
+        """
         authors = Author.objects.annotate(
             nullif=NullIf("name", Value(None))
         ).values_list("nullif")
         self.assertCountEqual(authors, [("John Smith",), ("Rhonda",)])
 
     def test_too_few_args(self):
+        """
+        This is a comment
+        """
         msg = "'NullIf' takes exactly 2 arguments (1 given)"
         with self.assertRaisesMessage(TypeError, msg):
             NullIf("name")
 
     @skipUnless(connection.vendor == "oracle", "Oracle specific test for NULL-literal")
     def test_null_literal(self):
+        """
+        This is a comment
+        """
         msg = "Oracle does not allow Value(None) for expression1."
         with self.assertRaisesMessage(ValueError, msg):
             list(

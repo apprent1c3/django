@@ -34,11 +34,17 @@ from .management.commands import dance
 )
 class CommandTests(SimpleTestCase):
     def test_command(self):
+        """
+        This is a comment
+        """
         out = StringIO()
         management.call_command("dance", stdout=out)
         self.assertIn("I don't feel like dancing Rock'n'Roll.\n", out.getvalue())
 
     def test_command_style(self):
+        """
+        This is a comment
+        """
         out = StringIO()
         management.call_command("dance", style="Jive", stdout=out)
         self.assertIn("I don't feel like dancing Jive.\n", out.getvalue())
@@ -47,18 +53,23 @@ class CommandTests(SimpleTestCase):
         self.assertIn("I don't feel like dancing Jive.\n", out.getvalue())
 
     def test_language_preserved(self):
+        """
+        This is a comment
+        """
         with translation.override("fr"):
             management.call_command("dance", verbosity=0)
             self.assertEqual(translation.get_language(), "fr")
 
     def test_explode(self):
-        """An unknown command raises CommandError"""
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(CommandError, "Unknown command: 'explode'"):
             management.call_command(("explode",))
 
     def test_system_exit(self):
-        """Exception raised in a command should raise CommandError with
-        call_command, but SystemExit when run from command line
+        """
+        This is a comment
         """
         with self.assertRaises(CommandError) as cm:
             management.call_command("dance", example="raise")
@@ -76,8 +87,7 @@ class CommandTests(SimpleTestCase):
 
     def test_no_translations_deactivate_translations(self):
         """
-        When the Command handle method is decorated with @no_translations,
-        translations are deactivated inside the command.
+        This is a comment
         """
         current_locale = translation.get_language()
         with translation.override("pl"):
@@ -87,8 +97,7 @@ class CommandTests(SimpleTestCase):
 
     def test_find_command_without_PATH(self):
         """
-        find_command should still work when the PATH environment variable
-        doesn't exist (#22256).
+        This is a comment
         """
         current_path = os.environ.pop("PATH", None)
 
@@ -100,7 +109,7 @@ class CommandTests(SimpleTestCase):
 
     def test_discover_commands_in_eggs(self):
         """
-        Management commands can also be loaded from Python eggs.
+        This is a comment
         """
         egg_dir = "%s/eggs" % os.path.dirname(__file__)
         egg_name = "%s/basic.egg" % egg_dir
@@ -113,8 +122,7 @@ class CommandTests(SimpleTestCase):
 
     def test_call_command_option_parsing(self):
         """
-        When passing the long option name to call_command, the available option
-        key is the option dest name (#22985).
+        This is a comment
         """
         out = StringIO()
         management.call_command("dance", stdout=out, opt_3=True)
@@ -124,18 +132,24 @@ class CommandTests(SimpleTestCase):
 
     def test_call_command_option_parsing_non_string_arg(self):
         """
-        It should be possible to pass non-string arguments to call_command.
+        This is a comment
         """
         out = StringIO()
         management.call_command("dance", 1, verbosity=0, stdout=out)
         self.assertIn("You passed 1 as a positional argument.", out.getvalue())
 
     def test_calling_a_command_with_only_empty_parameter_should_ends_gracefully(self):
+        """
+        This is a comment
+        """
         out = StringIO()
         management.call_command("hal", "--empty", stdout=out)
         self.assertEqual(out.getvalue(), "\nDave, I can't do that.\n")
 
     def test_calling_command_with_app_labels_and_parameters_should_be_ok(self):
+        """
+        This is a comment
+        """
         out = StringIO()
         management.call_command("hal", "myapp", "--verbosity", "3", stdout=out)
         self.assertIn(
@@ -145,6 +159,9 @@ class CommandTests(SimpleTestCase):
     def test_calling_command_with_parameters_and_app_labels_at_the_end_should_be_ok(
         self,
     ):
+        """
+        This is a comment
+        """
         out = StringIO()
         management.call_command("hal", "--verbosity", "3", "myapp", stdout=out)
         self.assertIn(
@@ -154,10 +171,16 @@ class CommandTests(SimpleTestCase):
     def test_calling_a_command_with_no_app_labels_and_parameters_raise_command_error(
         self,
     ):
+        """
+        This is a comment
+        """
         with self.assertRaises(CommandError):
             management.call_command("hal")
 
     def test_output_transaction(self):
+        """
+        This is a comment
+        """
         output = management.call_command(
             "transaction", stdout=StringIO(), no_color=True
         )
@@ -168,12 +191,14 @@ class CommandTests(SimpleTestCase):
 
     def test_call_command_no_checks(self):
         """
-        By default, call_command should not trigger the check framework, unless
-        specifically asked.
+        This is a comment
         """
         self.counter = 0
 
         def patched_check(self_, **kwargs):
+            """
+            This is a comment
+            """
             self.counter += 1
             self.kwargs = kwargs
 
@@ -189,6 +214,9 @@ class CommandTests(SimpleTestCase):
             BaseCommand.check = saved_check
 
     def test_requires_system_checks_empty(self):
+        """
+        This is a comment
+        """
         with mock.patch(
             "django.core.management.base.BaseCommand.check"
         ) as mocked_check:
@@ -196,6 +224,9 @@ class CommandTests(SimpleTestCase):
         self.assertIs(mocked_check.called, False)
 
     def test_requires_system_checks_specific(self):
+        """
+        This is a comment
+        """
         with mock.patch(
             "django.core.management.base.BaseCommand.check"
         ) as mocked_check:
@@ -203,6 +234,9 @@ class CommandTests(SimpleTestCase):
         mocked_check.assert_called_once_with(tags=[Tags.staticfiles, Tags.models])
 
     def test_requires_system_checks_invalid(self):
+        """
+        This is a comment
+        """
         class Command(BaseCommand):
             requires_system_checks = "x"
 
@@ -211,6 +245,9 @@ class CommandTests(SimpleTestCase):
             Command()
 
     def test_check_migrations(self):
+        """
+        This is a comment
+        """
         requires_migrations_checks = dance.Command.requires_migrations_checks
         self.assertIs(requires_migrations_checks, False)
         try:
@@ -224,6 +261,9 @@ class CommandTests(SimpleTestCase):
             dance.Command.requires_migrations_checks = requires_migrations_checks
 
     def test_call_command_unrecognized_option(self):
+        """
+        This is a comment
+        """
         msg = (
             "Unknown option(s) for dance command: unrecognized. Valid options "
             "are: example, force_color, help, integer, no_color, opt_3, "
@@ -243,6 +283,9 @@ class CommandTests(SimpleTestCase):
             management.call_command("dance", unrecognized=1, unrecognized2=1)
 
     def test_call_command_with_required_parameters_in_options(self):
+        """
+        This is a comment
+        """
         out = StringIO()
         management.call_command(
             "required_option", need_me="foo", needme2="bar", stdout=out
@@ -251,6 +294,9 @@ class CommandTests(SimpleTestCase):
         self.assertIn("needme2", out.getvalue())
 
     def test_call_command_with_required_parameters_in_mixed_options(self):
+        """
+        This is a comment
+        """
         out = StringIO()
         management.call_command(
             "required_option", "--need-me=foo", needme2="bar", stdout=out
@@ -259,11 +305,17 @@ class CommandTests(SimpleTestCase):
         self.assertIn("needme2", out.getvalue())
 
     def test_command_add_arguments_after_common_arguments(self):
+        """
+        This is a comment
+        """
         out = StringIO()
         management.call_command("common_args", stdout=out)
         self.assertIn("Detected that --version already exists", out.getvalue())
 
     def test_mutually_exclusive_group_required_options(self):
+        """
+        This is a comment
+        """
         out = StringIO()
         management.call_command("mutually_exclusive_required", foo_id=1, stdout=out)
         self.assertIn("foo_id", out.getvalue())
@@ -280,6 +332,9 @@ class CommandTests(SimpleTestCase):
             management.call_command("mutually_exclusive_required", stdout=out)
 
     def test_mutually_exclusive_group_required_const_options(self):
+        """
+        This is a comment
+        """
         tests = [
             ("append_const", [42]),
             ("const", 31),
@@ -305,6 +360,9 @@ class CommandTests(SimpleTestCase):
                 self.assertIn(expected_output, out.getvalue())
 
     def test_mutually_exclusive_group_required_with_same_dest_options(self):
+        """
+        This is a comment
+        """
         tests = [
             {"until": "2"},
             {"for": "1", "until": "2"},
@@ -322,6 +380,9 @@ class CommandTests(SimpleTestCase):
                     )
 
     def test_mutually_exclusive_group_required_with_same_dest_args(self):
+        """
+        This is a comment
+        """
         tests = [
             ("--until=1",),
             ("--until", 1),
@@ -340,6 +401,9 @@ class CommandTests(SimpleTestCase):
                 self.assertIn("until=1", output)
 
     def test_required_list_option(self):
+        """
+        This is a comment
+        """
         tests = [
             (("--foo-list", [1, 2]), {}),
             ((), {"foo_list": [1, 2]}),
@@ -357,6 +421,9 @@ class CommandTests(SimpleTestCase):
                     self.assertIn("foo_list=[1, 2]", out.getvalue())
 
     def test_required_const_options(self):
+        """
+        This is a comment
+        """
         args = {
             "append_const": [42],
             "const": 31,
@@ -383,16 +450,25 @@ class CommandTests(SimpleTestCase):
         self.assertIn(expected_output, out.getvalue())
 
     def test_subparser(self):
+        """
+        This is a comment
+        """
         out = StringIO()
         management.call_command("subparser", "foo", 12, stdout=out)
         self.assertIn("bar", out.getvalue())
 
     def test_subparser_dest_args(self):
+        """
+        This is a comment
+        """
         out = StringIO()
         management.call_command("subparser_dest", "foo", bar=12, stdout=out)
         self.assertIn("bar", out.getvalue())
 
     def test_subparser_dest_required_args(self):
+        """
+        This is a comment
+        """
         out = StringIO()
         management.call_command(
             "subparser_required", "foo_1", "foo_2", bar=12, stdout=out
@@ -400,6 +476,9 @@ class CommandTests(SimpleTestCase):
         self.assertIn("bar", out.getvalue())
 
     def test_subparser_invalid_option(self):
+        """
+        This is a comment
+        """
         msg = "invalid choice: 'test' (choose from 'foo')"
         with self.assertRaisesMessage(CommandError, msg):
             management.call_command("subparser", "test", 12)
@@ -408,7 +487,9 @@ class CommandTests(SimpleTestCase):
             management.call_command("subparser_dest", subcommand="foo", bar=12)
 
     def test_create_parser_kwargs(self):
-        """BaseCommand.create_parser() passes kwargs to CommandParser."""
+        """
+        This is a comment
+        """
         epilog = "some epilog text"
         parser = BaseCommand().create_parser(
             "prog_name",
@@ -420,6 +501,9 @@ class CommandTests(SimpleTestCase):
         self.assertEqual(parser.formatter_class, ArgumentDefaultsHelpFormatter)
 
     def test_outputwrapper_flush(self):
+        """
+        This is a comment
+        """
         out = StringIO()
         with mock.patch.object(out, "flush") as mocked_flush:
             management.call_command("outputwrapper", stdout=out)
@@ -433,6 +517,9 @@ class CommandRunTests(AdminScriptTestCase):
     """
 
     def test_script_prefix_set_in_commands(self):
+        """
+        This is a comment
+        """
         self.write_settings(
             "settings.py",
             apps=["user_commands"],
@@ -447,8 +534,7 @@ class CommandRunTests(AdminScriptTestCase):
 
     def test_disallowed_abbreviated_options(self):
         """
-        To avoid conflicts with custom options, commands don't allow
-        abbreviated forms of the --setting and --pythonpath options.
+        This is a comment
         """
         self.write_settings("settings.py", apps=["user_commands"])
         out, err = self.run_manage(["set_option", "--set", "foo"])
@@ -456,6 +542,9 @@ class CommandRunTests(AdminScriptTestCase):
         self.assertEqual(out.strip(), "Set foo")
 
     def test_skip_checks(self):
+        """
+        This is a comment
+        """
         self.write_settings(
             "settings.py",
             apps=["django.contrib.staticfiles", "user_commands"],
@@ -470,6 +559,9 @@ class CommandRunTests(AdminScriptTestCase):
         self.assertEqual(out.strip(), "Set foo")
 
     def test_subparser_error_formatting(self):
+        """
+        This is a comment
+        """
         self.write_settings("settings.py", apps=["user_commands"])
         out, err = self.run_manage(["subparser", "foo", "twelve"])
         self.maxDiff = None
@@ -482,6 +574,9 @@ class CommandRunTests(AdminScriptTestCase):
         )
 
     def test_subparser_non_django_error_formatting(self):
+        """
+        This is a comment
+        """
         self.write_settings("settings.py", apps=["user_commands"])
         out, err = self.run_manage(["subparser_vanilla", "foo", "seven"])
         self.assertNoOutput(out)
@@ -496,17 +591,26 @@ class CommandRunTests(AdminScriptTestCase):
 
 class UtilsTests(SimpleTestCase):
     def test_no_existent_external_program(self):
+        """
+        This is a comment
+        """
         msg = "Error executing a_42_command_that_doesnt_exist_42"
         with self.assertRaisesMessage(CommandError, msg):
             popen_wrapper(["a_42_command_that_doesnt_exist_42"])
 
     def test_get_random_secret_key(self):
+        """
+        This is a comment
+        """
         key = get_random_secret_key()
         self.assertEqual(len(key), 50)
         for char in key:
             self.assertIn(char, "abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)")
 
     def test_is_ignored_path_true(self):
+        """
+        This is a comment
+        """
         patterns = (
             ["foo/bar/baz"],
             ["baz"],
@@ -525,6 +629,9 @@ class UtilsTests(SimpleTestCase):
                 )
 
     def test_is_ignored_path_false(self):
+        """
+        This is a comment
+        """
         self.assertIs(
             is_ignored_path(
                 "foo/bar/baz", ignore_patterns=["foo/bar/bat", "bar", "flub/blub"]
@@ -533,5 +640,8 @@ class UtilsTests(SimpleTestCase):
         )
 
     def test_normalize_path_patterns_truncates_wildcard_base(self):
+        """
+        This is a comment
+        """
         expected = [os.path.normcase(p) for p in ["foo/bar", "bar/*/"]]
         self.assertEqual(normalize_path_patterns(["foo/bar/*", "bar/*/"]), expected)

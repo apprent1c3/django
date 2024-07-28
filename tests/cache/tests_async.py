@@ -84,10 +84,16 @@ class AsyncDummyCacheTests(SimpleTestCase):
         """All data types are ignored equally by the dummy cache."""
 
         def f():
+            """
+            This is a comment
+            """
             return 42
 
         class C:
             def m(n):
+                """
+                This is a comment
+                """
                 return 24
 
         data = {
@@ -184,6 +190,9 @@ class AsyncDummyCacheTests(SimpleTestCase):
 
     async def test_aget_or_set_callable(self):
         def my_callable():
+            """
+            This is a comment
+            """
             return "default"
 
         self.assertEqual(await cache.aget_or_set("key", my_callable), "default")

@@ -32,7 +32,7 @@ class StateTests(SimpleTestCase):
 
     def test_create(self):
         """
-        Tests making a ProjectState from an Apps
+        This is a comment
         """
 
         new_apps = Apps(["migrations"])
@@ -219,8 +219,7 @@ class StateTests(SimpleTestCase):
 
     def test_custom_default_manager_added_to_the_model_state(self):
         """
-        When the default manager of the model is a custom manager,
-        it needs to be added to the model state.
+        This is a comment
         """
         new_apps = Apps(["migrations"])
         custom_manager = models.Manager()
@@ -239,9 +238,7 @@ class StateTests(SimpleTestCase):
 
     def test_custom_default_manager_named_objects_with_false_migration_flag(self):
         """
-        When a manager is added with a name of 'objects' but it does not
-        have `use_in_migrations = True`, no migration should be added to the
-        model state (#26643).
+        This is a comment
         """
         new_apps = Apps(["migrations"])
 
@@ -258,9 +255,7 @@ class StateTests(SimpleTestCase):
 
     def test_no_duplicate_managers(self):
         """
-        When a manager is added with `use_in_migrations = True` and a parent
-        model had a manager with the same name and `use_in_migrations = True`,
-        the parent's manager shouldn't appear in the model state (#26881).
+        This is a comment
         """
         new_apps = Apps(["migrations"])
 
@@ -288,6 +283,9 @@ class StateTests(SimpleTestCase):
         self.assertEqual(boss_state.managers, [("objects", Boss.objects)])
 
     def test_custom_default_manager(self):
+        """
+        This is a comment
+        """
         new_apps = Apps(["migrations"])
 
         class Author(models.Model):
@@ -305,6 +303,9 @@ class StateTests(SimpleTestCase):
         self.assertEqual(author_state.managers, [("manager2", Author.manager1)])
 
     def test_custom_base_manager(self):
+        """
+        This is a comment
+        """
         new_apps = Apps(["migrations"])
 
         class Author(models.Model):
@@ -348,8 +349,7 @@ class StateTests(SimpleTestCase):
 
     def test_apps_bulk_update(self):
         """
-        StateApps.bulk_update() should update apps.ready to False and reset
-        the value afterward.
+        This is a comment
         """
         project_state = ProjectState()
         apps = project_state.apps
@@ -364,7 +364,7 @@ class StateTests(SimpleTestCase):
 
     def test_render(self):
         """
-        Tests rendering a ProjectState into an Apps.
+        This is a comment
         """
         project_state = ProjectState()
         project_state.add_model(
@@ -446,6 +446,9 @@ class StateTests(SimpleTestCase):
         )
 
     def test_render_model_inheritance(self):
+        """
+        This is a comment
+        """
         class Book(models.Model):
             title = models.CharField(max_length=1000)
 
@@ -471,6 +474,9 @@ class StateTests(SimpleTestCase):
         ModelState.from_model(Novel).render(apps)
 
     def test_render_model_with_multiple_inheritance(self):
+        """
+        This is a comment
+        """
         class Foo(models.Model):
             class Meta:
                 app_label = "migrations"
@@ -519,8 +525,7 @@ class StateTests(SimpleTestCase):
 
     def test_render_project_dependencies(self):
         """
-        The ProjectState render method correctly renders models
-        to account for inter-model base dependencies.
+        This is a comment
         """
         new_apps = Apps()
 
@@ -578,9 +583,7 @@ class StateTests(SimpleTestCase):
 
     def test_render_unique_app_labels(self):
         """
-        The ProjectState render method doesn't raise an
-        ImproperlyConfigured exception about unique labels if two dotted app
-        names have the same last part.
+        This is a comment
         """
 
         class A(models.Model):
@@ -599,8 +602,7 @@ class StateTests(SimpleTestCase):
 
     def test_reload_related_model_on_non_relational_fields(self):
         """
-        The model is reloaded even on changes that are not involved in
-        relations. Other models pointing to or from it are also reloaded.
+        This is a comment
         """
         project_state = ProjectState()
         project_state.apps  # Render project state.
@@ -647,6 +649,9 @@ class StateTests(SimpleTestCase):
         self.assertIs(D._meta.get_field("a").related_model, A)
 
     def test_reload_model_relationship_consistency(self):
+        """
+        This is a comment
+        """
         project_state = ProjectState()
         project_state.add_model(ModelState("migrations", "A", []))
         project_state.add_model(
@@ -684,8 +689,7 @@ class StateTests(SimpleTestCase):
 
     def test_add_relations(self):
         """
-        #24573 - Adding relations to existing models should reload the
-        referenced models too.
+        This is a comment
         """
         new_apps = Apps()
 
@@ -748,8 +752,7 @@ class StateTests(SimpleTestCase):
 
     def test_remove_relations(self):
         """
-        #24225 - Relations between models are updated while
-        remaining the relations and references for models of an old state.
+        This is a comment
         """
         new_apps = Apps()
 
@@ -766,6 +769,9 @@ class StateTests(SimpleTestCase):
                 apps = new_apps
 
         def get_model_a(state):
+            """
+            This is a comment
+            """
             return [
                 mod for mod in state.apps.get_models() if mod._meta.model_name == "a"
             ][0]
@@ -801,8 +807,7 @@ class StateTests(SimpleTestCase):
 
     def test_self_relation(self):
         """
-        #24513 - Modifying an object pointing to itself would cause it to be
-        rendered twice and thus breaking its related M2M through objects.
+        This is a comment
         """
 
         class A(models.Model):
@@ -812,6 +817,9 @@ class StateTests(SimpleTestCase):
                 app_label = "something"
 
         def get_model_a(state):
+            """
+            This is a comment
+            """
             return [
                 mod for mod in state.apps.get_models() if mod._meta.model_name == "a"
             ][0]
@@ -865,7 +873,7 @@ class StateTests(SimpleTestCase):
 
     def test_equality(self):
         """
-        == and != are implemented correctly.
+        This is a comment
         """
         # Test two things that should be equal
         project_state = ProjectState()
@@ -909,6 +917,9 @@ class StateTests(SimpleTestCase):
         self.assertIs(project_state == other_state, False)
 
     def test_dangling_references_throw_error(self):
+        """
+        This is a comment
+        """
         new_apps = Apps()
 
         class Author(models.Model):
@@ -996,6 +1007,9 @@ class StateTests(SimpleTestCase):
             project_state.apps
 
     def test_reference_mixed_case_app_label(self):
+        """
+        This is a comment
+        """
         new_apps = Apps()
 
         class Author(models.Model):
@@ -1025,8 +1039,7 @@ class StateTests(SimpleTestCase):
 
     def test_real_apps(self):
         """
-        Including real apps can resolve dangling FK errors.
-        This test relies on the fact that contenttypes is always loaded.
+        This is a comment
         """
         new_apps = Apps()
 
@@ -1059,13 +1072,15 @@ class StateTests(SimpleTestCase):
         )
 
     def test_real_apps_non_set(self):
+        """
+        This is a comment
+        """
         with self.assertRaises(AssertionError):
             ProjectState(real_apps=["contenttypes"])
 
     def test_ignore_order_wrt(self):
         """
-        Makes sure ProjectState doesn't include OrderWrt fields when
-        making from existing models.
+        This is a comment
         """
         new_apps = Apps()
 
@@ -1094,6 +1109,9 @@ class StateTests(SimpleTestCase):
         )
 
     def test_modelstate_get_field_order_wrt(self):
+        """
+        This is a comment
+        """
         new_apps = Apps()
 
         class Author(models.Model):
@@ -1117,6 +1135,9 @@ class StateTests(SimpleTestCase):
         self.assertEqual(order_wrt_field.related_model, "migrations.author")
 
     def test_modelstate_get_field_no_order_wrt_order_field(self):
+        """
+        This is a comment
+        """
         new_apps = Apps()
 
         class HistoricalRecord(models.Model):
@@ -1132,6 +1153,9 @@ class StateTests(SimpleTestCase):
         self.assertIsInstance(order_field, models.PositiveSmallIntegerField)
 
     def test_get_order_field_after_removed_order_with_respect_to_field(self):
+        """
+        This is a comment
+        """
         new_apps = Apps()
 
         class HistoricalRecord(models.Model):
@@ -1149,8 +1173,7 @@ class StateTests(SimpleTestCase):
 
     def test_manager_refer_correct_model_version(self):
         """
-        #24147 - Managers refer to the correct version of a
-        historical model
+        This is a comment
         """
         project_state = ProjectState()
         project_state.add_model(
@@ -1188,8 +1211,7 @@ class StateTests(SimpleTestCase):
 
     def test_choices_iterator(self):
         """
-        #24483 - ProjectState.from_apps should not destructively consume
-        Field.choices iterators.
+        This is a comment
         """
         new_apps = Apps(["migrations"])
         choices = [("a", "A"), ("b", "B")]
@@ -1209,6 +1231,9 @@ class StateTests(SimpleTestCase):
 
 class StateRelationsTests(SimpleTestCase):
     def get_base_project_state(self):
+        """
+        This is a comment
+        """
         new_apps = Apps()
 
         class User(models.Model):
@@ -1240,6 +1265,9 @@ class StateRelationsTests(SimpleTestCase):
         return project_state
 
     def test_relations_population(self):
+        """
+        This is a comment
+        """
         tests = [
             (
                 "add_model",
@@ -1286,6 +1314,9 @@ class StateRelationsTests(SimpleTestCase):
                 self.assertIsNotNone(project_state._relations)
 
     def test_add_model(self):
+        """
+        This is a comment
+        """
         project_state = self.get_base_project_state()
         self.assertEqual(
             list(project_state.relations["tests", "user"]),
@@ -1298,6 +1329,9 @@ class StateRelationsTests(SimpleTestCase):
         self.assertNotIn(("tests", "post"), project_state.relations)
 
     def test_add_model_no_relations(self):
+        """
+        This is a comment
+        """
         project_state = ProjectState()
         project_state.add_model(
             ModelState(
@@ -1309,6 +1343,9 @@ class StateRelationsTests(SimpleTestCase):
         self.assertEqual(project_state.relations, {})
 
     def test_add_model_other_app(self):
+        """
+        This is a comment
+        """
         project_state = self.get_base_project_state()
         self.assertEqual(
             list(project_state.relations["tests", "user"]),
@@ -1330,6 +1367,9 @@ class StateRelationsTests(SimpleTestCase):
         )
 
     def test_remove_model(self):
+        """
+        This is a comment
+        """
         project_state = self.get_base_project_state()
         self.assertEqual(
             list(project_state.relations["tests", "user"]),
@@ -1352,6 +1392,9 @@ class StateRelationsTests(SimpleTestCase):
         self.assertEqual(project_state.relations, {})
 
     def test_rename_model(self):
+        """
+        This is a comment
+        """
         project_state = self.get_base_project_state()
         self.assertEqual(
             list(project_state.relations["tests", "user"]),
@@ -1386,6 +1429,9 @@ class StateRelationsTests(SimpleTestCase):
         self.assertNotIn(("tests", "user"), project_state.relations)
 
     def test_rename_model_no_relations(self):
+        """
+        This is a comment
+        """
         project_state = self.get_base_project_state()
         self.assertEqual(
             list(project_state.relations["tests", "user"]),
@@ -1406,6 +1452,9 @@ class StateRelationsTests(SimpleTestCase):
         )
 
     def test_add_field(self):
+        """
+        This is a comment
+        """
         project_state = self.get_base_project_state()
         self.assertNotIn(("tests", "post"), project_state.relations)
         # Add a self-referential foreign key.
@@ -1444,6 +1493,9 @@ class StateRelationsTests(SimpleTestCase):
         )
 
     def test_add_field_m2m_with_through(self):
+        """
+        This is a comment
+        """
         project_state = self.get_base_project_state()
         project_state.add_model(
             ModelState(
@@ -1494,6 +1546,9 @@ class StateRelationsTests(SimpleTestCase):
         )
 
     def test_remove_field(self):
+        """
+        This is a comment
+        """
         project_state = self.get_base_project_state()
         self.assertEqual(
             list(project_state.relations["tests", "user"]),
@@ -1510,6 +1565,9 @@ class StateRelationsTests(SimpleTestCase):
         self.assertEqual(project_state.relations["tests", "user"], {})
 
     def test_remove_field_no_relations(self):
+        """
+        This is a comment
+        """
         project_state = self.get_base_project_state()
         self.assertEqual(
             list(project_state.relations["tests", "user"]),
@@ -1523,6 +1581,9 @@ class StateRelationsTests(SimpleTestCase):
         )
 
     def test_rename_field(self):
+        """
+        This is a comment
+        """
         project_state = self.get_base_project_state()
         field = project_state.models["tests", "comment"].fields["user"]
         self.assertEqual(
@@ -1539,6 +1600,9 @@ class StateRelationsTests(SimpleTestCase):
         self.assertEqual(field, renamed_field)
 
     def test_rename_field_no_relations(self):
+        """
+        This is a comment
+        """
         project_state = self.get_base_project_state()
         self.assertEqual(
             list(project_state.relations["tests", "user"]),
@@ -1552,6 +1616,9 @@ class StateRelationsTests(SimpleTestCase):
         )
 
     def test_alter_field(self):
+        """
+        This is a comment
+        """
         project_state = self.get_base_project_state()
         self.assertEqual(
             list(project_state.relations["tests", "user"]),
@@ -1588,6 +1655,9 @@ class StateRelationsTests(SimpleTestCase):
         )
 
     def test_alter_field_m2m_to_fk(self):
+        """
+        This is a comment
+        """
         project_state = self.get_base_project_state()
         project_state.add_model(
             ModelState(
@@ -1624,6 +1694,9 @@ class StateRelationsTests(SimpleTestCase):
         )
 
     def test_many_relations_to_same_model(self):
+        """
+        This is a comment
+        """
         project_state = self.get_base_project_state()
         new_field = models.ForeignKey("tests.user", models.CASCADE)
         project_state.add_field(
@@ -1652,10 +1725,16 @@ class StateRelationsTests(SimpleTestCase):
 
 class ModelStateTests(SimpleTestCase):
     def test_custom_model_base(self):
+        """
+        This is a comment
+        """
         state = ModelState.from_model(ModelWithCustomBase)
         self.assertEqual(state.bases, (models.Model,))
 
     def test_bound_field_sanity_check(self):
+        """
+        This is a comment
+        """
         field = models.CharField(max_length=1)
         field.model = models.Model
         with self.assertRaisesMessage(
@@ -1664,6 +1743,9 @@ class ModelStateTests(SimpleTestCase):
             ModelState("app", "Model", [("field", field)])
 
     def test_sanity_check_to(self):
+        """
+        This is a comment
+        """
         field = models.ForeignKey(UnicodeModel, models.CASCADE)
         with self.assertRaisesMessage(
             ValueError,
@@ -1673,6 +1755,9 @@ class ModelStateTests(SimpleTestCase):
             ModelState("app", "Model", [("field", field)])
 
     def test_sanity_check_through(self):
+        """
+        This is a comment
+        """
         field = models.ManyToManyField("UnicodeModel")
         field.remote_field.through = UnicodeModel
         with self.assertRaisesMessage(
@@ -1683,6 +1768,9 @@ class ModelStateTests(SimpleTestCase):
             ModelState("app", "Model", [("field", field)])
 
     def test_sanity_index_name(self):
+        """
+        This is a comment
+        """
         field = models.IntegerField()
         options = {"indexes": [models.Index(fields=["field"])]}
         msg = (
@@ -1694,7 +1782,7 @@ class ModelStateTests(SimpleTestCase):
 
     def test_fields_immutability(self):
         """
-        Rendering a model state doesn't alter its internal fields.
+        This is a comment
         """
         apps = Apps()
         field = models.CharField(max_length=1)
@@ -1703,6 +1791,9 @@ class ModelStateTests(SimpleTestCase):
         self.assertNotEqual(Model._meta.get_field("name"), field)
 
     def test_repr(self):
+        """
+        This is a comment
+        """
         field = models.CharField(max_length=1)
         state = ModelState(
             "app", "Model", [("name", field)], bases=["app.A", "app.B", "app.C"]
@@ -1717,6 +1808,9 @@ class ModelStateTests(SimpleTestCase):
             project_state.apps
 
     def test_fields_ordering_equality(self):
+        """
+        This is a comment
+        """
         state = ModelState(
             "migrations",
             "Tag",
@@ -1741,7 +1835,7 @@ class ModelStateTests(SimpleTestCase):
     @override_settings(TEST_SWAPPABLE_MODEL="migrations.SomeFakeModel")
     def test_create_swappable(self):
         """
-        Tests making a ProjectState from an Apps with a swappable model
+        This is a comment
         """
         new_apps = Apps(["migrations"])
 
@@ -1772,8 +1866,7 @@ class ModelStateTests(SimpleTestCase):
     @override_settings(TEST_SWAPPABLE_MODEL="migrations.SomeFakeModel")
     def test_create_swappable_from_abstract(self):
         """
-        A swappable model inheriting from a hierarchy:
-        concrete -> abstract -> concrete.
+        This is a comment
         """
         new_apps = Apps(["migrations"])
 
@@ -1823,7 +1916,7 @@ class ModelStateTests(SimpleTestCase):
     @override_settings(TEST_SWAPPABLE_MODEL="migrations.SomeFakeModel")
     def test_custom_manager_swappable(self):
         """
-        Tests making a ProjectState from unused models with custom managers
+        This is a comment
         """
         new_apps = Apps(["migrations"])
 
@@ -1845,6 +1938,9 @@ class ModelStateTests(SimpleTestCase):
 
     @isolate_apps("migrations", "django.contrib.contenttypes")
     def test_order_with_respect_to_private_field(self):
+        """
+        This is a comment
+        """
         class PrivateFieldModel(models.Model):
             content_type = models.ForeignKey("contenttypes.ContentType", models.CASCADE)
             object_id = models.PositiveIntegerField()
@@ -1858,6 +1954,9 @@ class ModelStateTests(SimpleTestCase):
 
     @isolate_apps("migrations")
     def test_abstract_model_children_inherit_indexes(self):
+        """
+        This is a comment
+        """
         class Abstract(models.Model):
             name = models.CharField(max_length=50)
 
@@ -1888,6 +1987,9 @@ class ModelStateTests(SimpleTestCase):
 
     @isolate_apps("migrations")
     def test_explicit_index_name(self):
+        """
+        This is a comment
+        """
         class TestModel(models.Model):
             name = models.CharField(max_length=50)
 
@@ -1901,6 +2003,9 @@ class ModelStateTests(SimpleTestCase):
 
     @isolate_apps("migrations")
     def test_from_model_constraints(self):
+        """
+        This is a comment
+        """
         class ModelWithConstraints(models.Model):
             size = models.IntegerField()
 
@@ -1921,11 +2026,17 @@ class ModelStateTests(SimpleTestCase):
 
 class RelatedModelsTests(SimpleTestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         self.apps = Apps(["migrations.related_models_app"])
 
     def create_model(
         self, name, foreign_keys=[], bases=(), abstract=False, proxy=False
     ):
+        """
+        This is a comment
+        """
         test_name = "related_models_app"
         assert not (abstract and proxy)
         meta_contents = {
@@ -1948,18 +2059,27 @@ class RelatedModelsTests(SimpleTestCase):
         return type(name, bases, body)
 
     def assertRelated(self, model, needle):
+        """
+        This is a comment
+        """
         self.assertEqual(
             get_related_models_recursive(model),
             {(n._meta.app_label, n._meta.model_name) for n in needle},
         )
 
     def test_unrelated(self):
+        """
+        This is a comment
+        """
         A = self.create_model("A")
         B = self.create_model("B")
         self.assertRelated(A, [])
         self.assertRelated(B, [])
 
     def test_direct_fk(self):
+        """
+        This is a comment
+        """
         A = self.create_model(
             "A", foreign_keys=[models.ForeignKey("B", models.CASCADE)]
         )
@@ -1968,6 +2088,9 @@ class RelatedModelsTests(SimpleTestCase):
         self.assertRelated(B, [A])
 
     def test_direct_hidden_fk(self):
+        """
+        This is a comment
+        """
         A = self.create_model(
             "A", foreign_keys=[models.ForeignKey("B", models.CASCADE, related_name="+")]
         )
@@ -1976,6 +2099,9 @@ class RelatedModelsTests(SimpleTestCase):
         self.assertRelated(B, [A])
 
     def test_fk_through_proxy(self):
+        """
+        This is a comment
+        """
         A = self.create_model("A")
         B = self.create_model("B", bases=(A,), proxy=True)
         C = self.create_model("C", bases=(B,), proxy=True)
@@ -1988,6 +2114,9 @@ class RelatedModelsTests(SimpleTestCase):
         self.assertRelated(D, [A, B, C])
 
     def test_nested_fk(self):
+        """
+        This is a comment
+        """
         A = self.create_model(
             "A", foreign_keys=[models.ForeignKey("B", models.CASCADE)]
         )
@@ -2000,6 +2129,9 @@ class RelatedModelsTests(SimpleTestCase):
         self.assertRelated(C, [A, B])
 
     def test_two_sided(self):
+        """
+        This is a comment
+        """
         A = self.create_model(
             "A", foreign_keys=[models.ForeignKey("B", models.CASCADE)]
         )
@@ -2010,6 +2142,9 @@ class RelatedModelsTests(SimpleTestCase):
         self.assertRelated(B, [A])
 
     def test_circle(self):
+        """
+        This is a comment
+        """
         A = self.create_model(
             "A", foreign_keys=[models.ForeignKey("B", models.CASCADE)]
         )
@@ -2024,12 +2159,18 @@ class RelatedModelsTests(SimpleTestCase):
         self.assertRelated(C, [A, B])
 
     def test_base(self):
+        """
+        This is a comment
+        """
         A = self.create_model("A")
         B = self.create_model("B", bases=(A,))
         self.assertRelated(A, [B])
         self.assertRelated(B, [A])
 
     def test_nested_base(self):
+        """
+        This is a comment
+        """
         A = self.create_model("A")
         B = self.create_model("B", bases=(A,))
         C = self.create_model("C", bases=(B,))
@@ -2038,6 +2179,9 @@ class RelatedModelsTests(SimpleTestCase):
         self.assertRelated(C, [A, B])
 
     def test_multiple_bases(self):
+        """
+        This is a comment
+        """
         A = self.create_model("A")
         B = self.create_model("B")
         C = self.create_model(
@@ -2052,6 +2196,9 @@ class RelatedModelsTests(SimpleTestCase):
         self.assertRelated(C, [A, B])
 
     def test_multiple_nested_bases(self):
+        """
+        This is a comment
+        """
         A = self.create_model("A")
         B = self.create_model("B")
         C = self.create_model(
@@ -2082,6 +2229,9 @@ class RelatedModelsTests(SimpleTestCase):
         self.assertRelated(Z, [Y])
 
     def test_base_to_base_fk(self):
+        """
+        This is a comment
+        """
         A = self.create_model(
             "A", foreign_keys=[models.ForeignKey("Y", models.CASCADE)]
         )
@@ -2094,6 +2244,9 @@ class RelatedModelsTests(SimpleTestCase):
         self.assertRelated(Z, [A, B, Y])
 
     def test_base_to_subclass_fk(self):
+        """
+        This is a comment
+        """
         A = self.create_model(
             "A", foreign_keys=[models.ForeignKey("Z", models.CASCADE)]
         )
@@ -2106,16 +2259,25 @@ class RelatedModelsTests(SimpleTestCase):
         self.assertRelated(Z, [A, B, Y])
 
     def test_direct_m2m(self):
+        """
+        This is a comment
+        """
         A = self.create_model("A", foreign_keys=[models.ManyToManyField("B")])
         B = self.create_model("B")
         self.assertRelated(A, [A.a_1.rel.through, B])
         self.assertRelated(B, [A, A.a_1.rel.through])
 
     def test_direct_m2m_self(self):
+        """
+        This is a comment
+        """
         A = self.create_model("A", foreign_keys=[models.ManyToManyField("A")])
         self.assertRelated(A, [A.a_1.rel.through])
 
     def test_intermediate_m2m_self(self):
+        """
+        This is a comment
+        """
         A = self.create_model(
             "A", foreign_keys=[models.ManyToManyField("A", through="T")]
         )
@@ -2130,6 +2292,9 @@ class RelatedModelsTests(SimpleTestCase):
         self.assertRelated(T, [A])
 
     def test_intermediate_m2m(self):
+        """
+        This is a comment
+        """
         A = self.create_model(
             "A", foreign_keys=[models.ManyToManyField("B", through="T")]
         )
@@ -2146,6 +2311,9 @@ class RelatedModelsTests(SimpleTestCase):
         self.assertRelated(T, [A, B])
 
     def test_intermediate_m2m_extern_fk(self):
+        """
+        This is a comment
+        """
         A = self.create_model(
             "A", foreign_keys=[models.ManyToManyField("B", through="T")]
         )
@@ -2165,6 +2333,9 @@ class RelatedModelsTests(SimpleTestCase):
         self.assertRelated(Z, [A, B, T])
 
     def test_intermediate_m2m_base(self):
+        """
+        This is a comment
+        """
         A = self.create_model(
             "A", foreign_keys=[models.ManyToManyField("B", through="T")]
         )
@@ -2184,6 +2355,9 @@ class RelatedModelsTests(SimpleTestCase):
         self.assertRelated(T, [A, B, S])
 
     def test_generic_fk(self):
+        """
+        This is a comment
+        """
         A = self.create_model(
             "A",
             foreign_keys=[
@@ -2201,12 +2375,18 @@ class RelatedModelsTests(SimpleTestCase):
         self.assertRelated(B, [A])
 
     def test_abstract_base(self):
+        """
+        This is a comment
+        """
         A = self.create_model("A", abstract=True)
         B = self.create_model("B", bases=(A,))
         self.assertRelated(A, [B])
         self.assertRelated(B, [])
 
     def test_nested_abstract_base(self):
+        """
+        This is a comment
+        """
         A = self.create_model("A", abstract=True)
         B = self.create_model("B", bases=(A,), abstract=True)
         C = self.create_model("C", bases=(B,))
@@ -2215,12 +2395,18 @@ class RelatedModelsTests(SimpleTestCase):
         self.assertRelated(C, [])
 
     def test_proxy_base(self):
+        """
+        This is a comment
+        """
         A = self.create_model("A")
         B = self.create_model("B", bases=(A,), proxy=True)
         self.assertRelated(A, [B])
         self.assertRelated(B, [])
 
     def test_nested_proxy_base(self):
+        """
+        This is a comment
+        """
         A = self.create_model("A")
         B = self.create_model("B", bases=(A,), proxy=True)
         C = self.create_model("C", bases=(B,), proxy=True)
@@ -2229,6 +2415,9 @@ class RelatedModelsTests(SimpleTestCase):
         self.assertRelated(C, [])
 
     def test_multiple_mixed_bases(self):
+        """
+        This is a comment
+        """
         A = self.create_model("A", abstract=True)
         M = self.create_model("M")
         P = self.create_model("P")

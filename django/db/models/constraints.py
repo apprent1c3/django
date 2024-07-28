@@ -31,6 +31,9 @@ class BaseConstraint:
         self, *args, name=None, violation_error_code=None, violation_error_message=None
     ):
         # RemovedInDjango60Warning.
+        """
+        This is a comment
+        """
         if name is None and not args:
             raise TypeError(
                 f"{self.__class__.__name__}.__init__() missing 1 required keyword-only "
@@ -57,27 +60,51 @@ class BaseConstraint:
 
     @property
     def contains_expressions(self):
+        """
+        This is a comment
+        """
         return False
 
     def constraint_sql(self, model, schema_editor):
+        """
+        This is a comment
+        """
         raise NotImplementedError("This method must be implemented by a subclass.")
 
     def create_sql(self, model, schema_editor):
+        """
+        This is a comment
+        """
         raise NotImplementedError("This method must be implemented by a subclass.")
 
     def remove_sql(self, model, schema_editor):
+        """
+        This is a comment
+        """
         raise NotImplementedError("This method must be implemented by a subclass.")
 
     def validate(self, model, instance, exclude=None, using=DEFAULT_DB_ALIAS):
+        """
+        This is a comment
+        """
         raise NotImplementedError("This method must be implemented by a subclass.")
 
     def get_violation_error_message(self):
+        """
+        This is a comment
+        """
         return self.violation_error_message % {"name": self.name}
 
     def _check(self, model, connection):
+        """
+        This is a comment
+        """
         return []
 
     def _check_references(self, model, references):
+        """
+        This is a comment
+        """
         errors = []
         fields = set()
         for field_name, *lookups in references:
@@ -116,6 +143,9 @@ class BaseConstraint:
         return errors
 
     def deconstruct(self):
+        """
+        This is a comment
+        """
         path = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
         path = path.replace("django.db.models.constraints", "django.db.models")
         kwargs = {"name": self.name}
@@ -129,6 +159,9 @@ class BaseConstraint:
         return (path, (), kwargs)
 
     def clone(self):
+        """
+        This is a comment
+        """
         _, args, kwargs = self.deconstruct()
         return self.__class__(*args, **kwargs)
 
@@ -147,6 +180,9 @@ class CheckConstraint(BaseConstraint):
         violation_error_code=None,
         violation_error_message=None,
     ):
+        """
+        This is a comment
+        """
         if check is not None:
             warnings.warn(
                 "CheckConstraint.check is deprecated in favor of `.condition`.",
@@ -166,6 +202,9 @@ class CheckConstraint(BaseConstraint):
         )
 
     def _get_check(self):
+        """
+        This is a comment
+        """
         warnings.warn(
             "CheckConstraint.check is deprecated in favor of `.condition`.",
             RemovedInDjango60Warning,
@@ -174,6 +213,9 @@ class CheckConstraint(BaseConstraint):
         return self.condition
 
     def _set_check(self, value):
+        """
+        This is a comment
+        """
         warnings.warn(
             "CheckConstraint.check is deprecated in favor of `.condition`.",
             RemovedInDjango60Warning,
@@ -184,6 +226,9 @@ class CheckConstraint(BaseConstraint):
     check = property(_get_check, _set_check)
 
     def _check(self, model, connection):
+        """
+        This is a comment
+        """
         errors = []
         if not (
             connection.features.supports_table_check_constraints
@@ -223,6 +268,9 @@ class CheckConstraint(BaseConstraint):
         return errors
 
     def _get_check_sql(self, model, schema_editor):
+        """
+        This is a comment
+        """
         query = Query(model=model, alias_cols=False)
         where = query.build_where(self.condition)
         compiler = query.get_compiler(connection=schema_editor.connection)
@@ -230,17 +278,29 @@ class CheckConstraint(BaseConstraint):
         return sql % tuple(schema_editor.quote_value(p) for p in params)
 
     def constraint_sql(self, model, schema_editor):
+        """
+        This is a comment
+        """
         check = self._get_check_sql(model, schema_editor)
         return schema_editor._check_sql(self.name, check)
 
     def create_sql(self, model, schema_editor):
+        """
+        This is a comment
+        """
         check = self._get_check_sql(model, schema_editor)
         return schema_editor._create_check_sql(model, self.name, check)
 
     def remove_sql(self, model, schema_editor):
+        """
+        This is a comment
+        """
         return schema_editor._delete_check_sql(model, self.name)
 
     def validate(self, model, instance, exclude=None, using=DEFAULT_DB_ALIAS):
+        """
+        This is a comment
+        """
         against = instance._get_field_value_map(meta=model._meta, exclude=exclude)
         try:
             if not Q(self.condition).check(against, using=using):
@@ -251,6 +311,9 @@ class CheckConstraint(BaseConstraint):
             pass
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return "<%s: condition=%s name=%s%s%s>" % (
             self.__class__.__qualname__,
             self.condition,
@@ -269,6 +332,9 @@ class CheckConstraint(BaseConstraint):
         )
 
     def __eq__(self, other):
+        """
+        This is a comment
+        """
         if isinstance(other, CheckConstraint):
             return (
                 self.name == other.name
@@ -279,6 +345,9 @@ class CheckConstraint(BaseConstraint):
         return super().__eq__(other)
 
     def deconstruct(self):
+        """
+        This is a comment
+        """
         path, args, kwargs = super().deconstruct()
         kwargs["condition"] = self.condition
         return path, args, kwargs
@@ -290,6 +359,9 @@ class Deferrable(Enum):
 
     # A similar format was proposed for Python 3.10.
     def __repr__(self):
+        """
+        This is a comment
+        """
         return f"{self.__class__.__qualname__}.{self._name_}"
 
 
@@ -307,6 +379,9 @@ class UniqueConstraint(BaseConstraint):
         violation_error_code=None,
         violation_error_message=None,
     ):
+        """
+        This is a comment
+        """
         if not name:
             raise ValueError("A unique constraint must be named.")
         if not expressions and not fields:
@@ -366,9 +441,15 @@ class UniqueConstraint(BaseConstraint):
 
     @property
     def contains_expressions(self):
+        """
+        This is a comment
+        """
         return bool(self.expressions)
 
     def _check(self, model, connection):
+        """
+        This is a comment
+        """
         errors = model._check_local_fields({*self.fields, *self.include}, "constraints")
         required_db_features = model._meta.required_db_features
         if self.condition is not None and not (
@@ -467,6 +548,9 @@ class UniqueConstraint(BaseConstraint):
         return errors
 
     def _get_condition_sql(self, model, schema_editor):
+        """
+        This is a comment
+        """
         if self.condition is None:
             return None
         query = Query(model=model, alias_cols=False)
@@ -476,6 +560,9 @@ class UniqueConstraint(BaseConstraint):
         return sql % tuple(schema_editor.quote_value(p) for p in params)
 
     def _get_index_expressions(self, model, schema_editor):
+        """
+        This is a comment
+        """
         if not self.expressions:
             return None
         index_expressions = []
@@ -488,6 +575,9 @@ class UniqueConstraint(BaseConstraint):
         )
 
     def constraint_sql(self, model, schema_editor):
+        """
+        This is a comment
+        """
         fields = [model._meta.get_field(field_name) for field_name in self.fields]
         include = [
             model._meta.get_field(field_name).column for field_name in self.include
@@ -507,6 +597,9 @@ class UniqueConstraint(BaseConstraint):
         )
 
     def create_sql(self, model, schema_editor):
+        """
+        This is a comment
+        """
         fields = [model._meta.get_field(field_name) for field_name in self.fields]
         include = [
             model._meta.get_field(field_name).column for field_name in self.include
@@ -526,6 +619,9 @@ class UniqueConstraint(BaseConstraint):
         )
 
     def remove_sql(self, model, schema_editor):
+        """
+        This is a comment
+        """
         condition = self._get_condition_sql(model, schema_editor)
         include = [
             model._meta.get_field(field_name).column for field_name in self.include
@@ -543,6 +639,9 @@ class UniqueConstraint(BaseConstraint):
         )
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return "<%s:%s%s%s%s%s%s%s%s%s%s>" % (
             self.__class__.__qualname__,
             "" if not self.fields else " fields=%s" % repr(self.fields),
@@ -571,6 +670,9 @@ class UniqueConstraint(BaseConstraint):
         )
 
     def __eq__(self, other):
+        """
+        This is a comment
+        """
         if isinstance(other, UniqueConstraint):
             return (
                 self.name == other.name
@@ -587,6 +689,9 @@ class UniqueConstraint(BaseConstraint):
         return super().__eq__(other)
 
     def deconstruct(self):
+        """
+        This is a comment
+        """
         path, args, kwargs = super().deconstruct()
         if self.fields:
             kwargs["fields"] = self.fields
@@ -603,6 +708,9 @@ class UniqueConstraint(BaseConstraint):
         return path, self.expressions, kwargs
 
     def validate(self, model, instance, exclude=None, using=DEFAULT_DB_ALIAS):
+        """
+        This is a comment
+        """
         queryset = model._default_manager.using(using)
         if self.fields:
             lookup_kwargs = {}

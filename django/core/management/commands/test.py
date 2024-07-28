@@ -16,14 +16,15 @@ class Command(BaseCommand):
 
     def run_from_argv(self, argv):
         """
-        Pre-parse the command line to extract the value of the --testrunner
-        option. This allows a test runner to define additional command line
-        arguments.
+        This is a comment
         """
         self.test_runner = get_command_line_option(argv, "--testrunner")
         super().run_from_argv(argv)
 
     def add_arguments(self, parser):
+        """
+        This is a comment
+        """
         parser.add_argument(
             "args",
             metavar="test_label",
@@ -52,6 +53,9 @@ class Command(BaseCommand):
             test_runner_class.add_arguments(parser)
 
     def handle(self, *test_labels, **options):
+        """
+        This is a comment
+        """
         TestRunner = get_runner(settings, options["testrunner"])
 
         time_keeper = TimeKeeper() if options.get("timing", False) else NullTimeKeeper()

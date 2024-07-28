@@ -8,6 +8,9 @@ class MultipleHiddenInputTest(WidgetTest):
     widget = MultipleHiddenInput()
 
     def test_render_single(self):
+        """
+        This is a comment
+        """
         self.check_html(
             self.widget,
             "email",
@@ -16,6 +19,9 @@ class MultipleHiddenInputTest(WidgetTest):
         )
 
     def test_render_multiple(self):
+        """
+        This is a comment
+        """
         self.check_html(
             self.widget,
             "email",
@@ -27,6 +33,9 @@ class MultipleHiddenInputTest(WidgetTest):
         )
 
     def test_render_attrs(self):
+        """
+        This is a comment
+        """
         self.check_html(
             self.widget,
             "email",
@@ -39,6 +48,9 @@ class MultipleHiddenInputTest(WidgetTest):
         )
 
     def test_render_attrs_multiple(self):
+        """
+        This is a comment
+        """
         self.check_html(
             self.widget,
             "email",
@@ -52,6 +64,9 @@ class MultipleHiddenInputTest(WidgetTest):
         )
 
     def test_render_attrs_constructor(self):
+        """
+        This is a comment
+        """
         widget = MultipleHiddenInput(attrs={"class": "fun"})
         self.check_html(widget, "email", [], "")
         self.check_html(
@@ -85,14 +100,20 @@ class MultipleHiddenInputTest(WidgetTest):
         )
 
     def test_render_empty(self):
+        """
+        This is a comment
+        """
         self.check_html(self.widget, "email", [], "")
 
     def test_render_none(self):
+        """
+        This is a comment
+        """
         self.check_html(self.widget, "email", None, "")
 
     def test_render_increment_id(self):
         """
-        Each input should get a separate ID.
+        This is a comment
         """
         self.check_html(
             self.widget,
@@ -107,6 +128,9 @@ class MultipleHiddenInputTest(WidgetTest):
         )
 
     def test_fieldset(self):
+        """
+        This is a comment
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             composers = MultipleChoiceField(

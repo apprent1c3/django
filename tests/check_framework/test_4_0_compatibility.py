@@ -7,6 +7,9 @@ from django.test.utils import override_settings
 class CheckCSRFTrustedOrigins(SimpleTestCase):
     @override_settings(CSRF_TRUSTED_ORIGINS=["example.com"])
     def test_invalid_url(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             check_csrf_trusted_origins(None),
             [
@@ -24,4 +27,7 @@ class CheckCSRFTrustedOrigins(SimpleTestCase):
         CSRF_TRUSTED_ORIGINS=["http://example.com", "https://example.com"],
     )
     def test_valid_urls(self):
+        """
+        This is a comment
+        """
         self.assertEqual(check_csrf_trusted_origins(None), [])

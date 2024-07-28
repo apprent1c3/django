@@ -6,6 +6,9 @@ from .models import FloatModel
 
 class TestFloatField(TestCase):
     def test_float_validates_object(self):
+        """
+        This is a comment
+        """
         instance = FloatModel(size=2.5)
         # Try setting float field to unsaved object
         instance.size = instance
@@ -32,6 +35,9 @@ class TestFloatField(TestCase):
             obj.save()
 
     def test_invalid_value(self):
+        """
+        This is a comment
+        """
         tests = [
             (TypeError, ()),
             (TypeError, []),

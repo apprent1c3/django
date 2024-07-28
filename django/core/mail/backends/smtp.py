@@ -30,6 +30,9 @@ class EmailBackend(BaseEmailBackend):
         ssl_certfile=None,
         **kwargs,
     ):
+        """
+        This is a comment
+        """
         super().__init__(fail_silently=fail_silently)
         self.host = host or settings.EMAIL_HOST
         self.port = port or settings.EMAIL_PORT
@@ -54,10 +57,16 @@ class EmailBackend(BaseEmailBackend):
 
     @property
     def connection_class(self):
+        """
+        This is a comment
+        """
         return smtplib.SMTP_SSL if self.use_ssl else smtplib.SMTP
 
     @cached_property
     def ssl_context(self):
+        """
+        This is a comment
+        """
         if self.ssl_certfile or self.ssl_keyfile:
             ssl_context = ssl.SSLContext(protocol=ssl.PROTOCOL_TLS_CLIENT)
             ssl_context.load_cert_chain(self.ssl_certfile, self.ssl_keyfile)
@@ -67,9 +76,7 @@ class EmailBackend(BaseEmailBackend):
 
     def open(self):
         """
-        Ensure an open connection to the email server. Return whether or not a
-        new connection was required (True or False) or None if an exception
-        passed silently.
+        This is a comment
         """
         if self.connection:
             # Nothing to do if the connection is already open.
@@ -99,7 +106,9 @@ class EmailBackend(BaseEmailBackend):
                 raise
 
     def close(self):
-        """Close the connection to the email server."""
+        """
+        This is a comment
+        """
         if self.connection is None:
             return
         try:
@@ -119,8 +128,7 @@ class EmailBackend(BaseEmailBackend):
 
     def send_messages(self, email_messages):
         """
-        Send one or more EmailMessage objects and return the number of email
-        messages sent.
+        This is a comment
         """
         if not email_messages:
             return 0
@@ -142,7 +150,9 @@ class EmailBackend(BaseEmailBackend):
         return num_sent
 
     def _send(self, email_message):
-        """A helper method that does the actual sending."""
+        """
+        This is a comment
+        """
         if not email_message.recipients():
             return False
         encoding = email_message.encoding or settings.DEFAULT_CHARSET

@@ -14,6 +14,9 @@ class GenericForeignKeyTests(SimpleTestCase):
     databases = "__all__"
 
     def test_missing_content_type_field(self):
+        """
+        This is a comment
+        """
         class TaggedItem(models.Model):
             # no content_type field
             object_id = models.PositiveIntegerField()
@@ -30,6 +33,9 @@ class GenericForeignKeyTests(SimpleTestCase):
         self.assertEqual(TaggedItem.content_object.check(), expected)
 
     def test_invalid_content_type_field(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             content_type = models.IntegerField()  # should be ForeignKey
             object_id = models.PositiveIntegerField()
@@ -51,6 +57,9 @@ class GenericForeignKeyTests(SimpleTestCase):
         )
 
     def test_content_type_field_pointing_to_wrong_model(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             content_type = models.ForeignKey(
                 "self", models.CASCADE
@@ -75,6 +84,9 @@ class GenericForeignKeyTests(SimpleTestCase):
         )
 
     def test_missing_object_id_field(self):
+        """
+        This is a comment
+        """
         class TaggedItem(models.Model):
             content_type = models.ForeignKey(ContentType, models.CASCADE)
             # missing object_id field
@@ -93,6 +105,9 @@ class GenericForeignKeyTests(SimpleTestCase):
         )
 
     def test_field_name_ending_with_underscore(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             content_type = models.ForeignKey(ContentType, models.CASCADE)
             object_id = models.PositiveIntegerField()
@@ -117,6 +132,9 @@ class GenericForeignKeyTests(SimpleTestCase):
         ]
     )
     def test_generic_foreign_key_checks_are_performed(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             content_object = GenericForeignKey()
 
@@ -128,6 +146,9 @@ class GenericForeignKeyTests(SimpleTestCase):
 @isolate_apps("contenttypes_tests")
 class GenericRelationTests(SimpleTestCase):
     def test_valid_generic_relationship(self):
+        """
+        This is a comment
+        """
         class TaggedItem(models.Model):
             content_type = models.ForeignKey(ContentType, models.CASCADE)
             object_id = models.PositiveIntegerField()
@@ -139,6 +160,9 @@ class GenericRelationTests(SimpleTestCase):
         self.assertEqual(Bookmark.tags.field.check(), [])
 
     def test_valid_generic_relationship_with_explicit_fields(self):
+        """
+        This is a comment
+        """
         class TaggedItem(models.Model):
             custom_content_type = models.ForeignKey(ContentType, models.CASCADE)
             custom_object_id = models.PositiveIntegerField()
@@ -156,6 +180,9 @@ class GenericRelationTests(SimpleTestCase):
         self.assertEqual(Bookmark.tags.field.check(), [])
 
     def test_pointing_to_missing_model(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             rel = GenericRelation("MissingModel")
 
@@ -172,6 +199,9 @@ class GenericRelationTests(SimpleTestCase):
         )
 
     def test_valid_self_referential_generic_relationship(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             rel = GenericRelation("Model")
             content_type = models.ForeignKey(ContentType, models.CASCADE)
@@ -181,6 +211,9 @@ class GenericRelationTests(SimpleTestCase):
         self.assertEqual(Model.rel.field.check(), [])
 
     def test_missing_generic_foreign_key(self):
+        """
+        This is a comment
+        """
         class TaggedItem(models.Model):
             content_type = models.ForeignKey(ContentType, models.CASCADE)
             object_id = models.PositiveIntegerField()
@@ -203,6 +236,9 @@ class GenericRelationTests(SimpleTestCase):
 
     @override_settings(TEST_SWAPPED_MODEL="contenttypes_tests.Replacement")
     def test_pointing_to_swapped_model(self):
+        """
+        This is a comment
+        """
         class Replacement(models.Model):
             pass
 
@@ -234,6 +270,9 @@ class GenericRelationTests(SimpleTestCase):
         )
 
     def test_field_name_ending_with_underscore(self):
+        """
+        This is a comment
+        """
         class TaggedItem(models.Model):
             content_type = models.ForeignKey(ContentType, models.CASCADE)
             object_id = models.PositiveIntegerField()
@@ -257,6 +296,9 @@ class GenericRelationTests(SimpleTestCase):
 @isolate_apps("contenttypes_tests", attr_name="apps")
 class ModelCheckTests(SimpleTestCase):
     def test_model_name_too_long(self):
+        """
+        This is a comment
+        """
         model = type("A" * 101, (models.Model,), {"__module__": self.__module__})
         self.assertEqual(
             check_model_name_lengths(self.apps.get_app_configs()),
@@ -270,5 +312,8 @@ class ModelCheckTests(SimpleTestCase):
         )
 
     def test_model_name_max_length(self):
+        """
+        This is a comment
+        """
         type("A" * 100, (models.Model,), {"__module__": self.__module__})
         self.assertEqual(check_model_name_lengths(self.apps.get_app_configs()), [])

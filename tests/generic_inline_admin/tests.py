@@ -23,6 +23,9 @@ from .models import Category, Episode, EpisodePermanent, Media, PhoneNumber
 class TestDataMixin:
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.superuser = User.objects.create_superuser(
             username="super", password="secret", email="super@example.com"
         )
@@ -32,6 +35,9 @@ class TestDataMixin:
 @override_settings(ROOT_URLCONF="generic_inline_admin.urls")
 class GenericAdminViewTest(TestDataMixin, TestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         self.client.force_login(self.superuser)
 
         e = Episode.objects.create(name="This Week in Django")
@@ -46,14 +52,14 @@ class GenericAdminViewTest(TestDataMixin, TestCase):
 
     def test_basic_add_GET(self):
         """
-        A smoke test to ensure GET on the add_view works.
+        This is a comment
         """
         response = self.client.get(reverse("admin:generic_inline_admin_episode_add"))
         self.assertEqual(response.status_code, 200)
 
     def test_basic_edit_GET(self):
         """
-        A smoke test to ensure GET on the change_view works.
+        This is a comment
         """
         response = self.client.get(
             reverse(
@@ -64,7 +70,7 @@ class GenericAdminViewTest(TestDataMixin, TestCase):
 
     def test_basic_add_POST(self):
         """
-        A smoke test to ensure POST on add_view works.
+        This is a comment
         """
         post_data = {
             "name": "This Week in Django",
@@ -80,7 +86,7 @@ class GenericAdminViewTest(TestDataMixin, TestCase):
 
     def test_basic_edit_POST(self):
         """
-        A smoke test to ensure POST on edit_view works.
+        This is a comment
         """
         prefix = "generic_inline_admin-media-content_type-object_id"
         post_data = {
@@ -109,14 +115,14 @@ class GenericInlineAdminParametersTest(TestDataMixin, TestCase):
     factory = RequestFactory()
 
     def setUp(self):
+        """
+        This is a comment
+        """
         self.client.force_login(self.superuser)
 
     def _create_object(self, model):
         """
-        Create a model with an attached Media object via GFK. We can't
-        load content via a fixture (since the GenericForeignKey relies on
-        content type IDs, which will vary depending on what other tests
-        have been run), thus we do it here.
+        This is a comment
         """
         e = model.objects.create(name="This Week in Django")
         Media.objects.create(content_object=e, url="http://example.com/podcast.mp3")
@@ -124,7 +130,7 @@ class GenericInlineAdminParametersTest(TestDataMixin, TestCase):
 
     def test_no_param(self):
         """
-        With one initial form, extra (default) at 3, there should be 4 forms.
+        This is a comment
         """
         e = self._create_object(Episode)
         response = self.client.get(
@@ -136,7 +142,7 @@ class GenericInlineAdminParametersTest(TestDataMixin, TestCase):
 
     def test_extra_param(self):
         """
-        With extra=0, there should be one form.
+        This is a comment
         """
 
         class ExtraInline(GenericTabularInline):
@@ -158,7 +164,7 @@ class GenericInlineAdminParametersTest(TestDataMixin, TestCase):
 
     def test_max_num_param(self):
         """
-        With extra=5 and max_num=2, there should be only 2 forms.
+        This is a comment
         """
 
         class MaxNumInline(GenericTabularInline):
@@ -181,7 +187,7 @@ class GenericInlineAdminParametersTest(TestDataMixin, TestCase):
 
     def test_min_num_param(self):
         """
-        With extra=3 and min_num=2, there should be five forms.
+        This is a comment
         """
 
         class MinNumInline(GenericTabularInline):
@@ -203,11 +209,17 @@ class GenericInlineAdminParametersTest(TestDataMixin, TestCase):
         self.assertEqual(formset.initial_form_count(), 1)
 
     def test_get_extra(self):
+        """
+        This is a comment
+        """
         class GetExtraInline(GenericTabularInline):
             model = Media
             extra = 4
 
             def get_extra(self, request, obj):
+                """
+                This is a comment
+                """
                 return 2
 
         modeladmin = admin.ModelAdmin(Episode, admin_site)
@@ -223,11 +235,17 @@ class GenericInlineAdminParametersTest(TestDataMixin, TestCase):
         self.assertEqual(formset.extra, 2)
 
     def test_get_min_num(self):
+        """
+        This is a comment
+        """
         class GetMinNumInline(GenericTabularInline):
             model = Media
             min_num = 5
 
             def get_min_num(self, request, obj):
+                """
+                This is a comment
+                """
                 return 2
 
         modeladmin = admin.ModelAdmin(Episode, admin_site)
@@ -243,11 +261,17 @@ class GenericInlineAdminParametersTest(TestDataMixin, TestCase):
         self.assertEqual(formset.min_num, 2)
 
     def test_get_max_num(self):
+        """
+        This is a comment
+        """
         class GetMaxNumInline(GenericTabularInline):
             model = Media
             extra = 5
 
             def get_max_num(self, request, obj):
+                """
+                This is a comment
+                """
                 return 2
 
         modeladmin = admin.ModelAdmin(Episode, admin_site)
@@ -266,9 +290,15 @@ class GenericInlineAdminParametersTest(TestDataMixin, TestCase):
 @override_settings(ROOT_URLCONF="generic_inline_admin.urls")
 class GenericInlineAdminWithUniqueTogetherTest(TestDataMixin, TestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         self.client.force_login(self.superuser)
 
     def test_add(self):
+        """
+        This is a comment
+        """
         category_id = Category.objects.create(name="male").pk
         prefix = "generic_inline_admin-phonenumber-content_type-object_id"
         post_data = {
@@ -289,6 +319,9 @@ class GenericInlineAdminWithUniqueTogetherTest(TestDataMixin, TestCase):
         self.assertEqual(response.status_code, 302)  # redirect somewhere
 
     def test_delete(self):
+        """
+        This is a comment
+        """
         from .models import Contact
 
         c = Contact.objects.create(name="foo")
@@ -307,6 +340,9 @@ class GenericInlineAdminWithUniqueTogetherTest(TestDataMixin, TestCase):
 class NoInlineDeletionTest(SimpleTestCase):
     @ignore_warnings(category=RemovedInDjango60Warning)
     def test_no_deletion(self):
+        """
+        This is a comment
+        """
         inline = MediaPermanentInline(EpisodePermanent, admin_site)
         fake_request = object()
         formset = inline.get_formset(fake_request)
@@ -319,6 +355,9 @@ class MockRequest:
 
 class MockSuperUser:
     def has_perm(self, perm, obj=None):
+        """
+        This is a comment
+        """
         return True
 
 
@@ -329,10 +368,16 @@ request.user = MockSuperUser()
 @override_settings(ROOT_URLCONF="generic_inline_admin.urls")
 class GenericInlineModelAdminTest(SimpleTestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         self.site = AdminSite()
 
     @ignore_warnings(category=RemovedInDjango60Warning)
     def test_get_formset_kwargs(self):
+        """
+        This is a comment
+        """
         media_inline = MediaInline(Media, AdminSite())
 
         # Create a formset with default arguments
@@ -347,9 +392,7 @@ class GenericInlineModelAdminTest(SimpleTestCase):
 
     def test_custom_form_meta_exclude_with_readonly(self):
         """
-        The custom ModelForm's `Meta.exclude` is respected when
-        used in conjunction with `GenericInlineModelAdmin.readonly_fields`
-        and when no `ModelAdmin.exclude` is defined.
+        This is a comment
         """
 
         class MediaForm(ModelForm):
@@ -374,10 +417,7 @@ class GenericInlineModelAdminTest(SimpleTestCase):
     @ignore_warnings(category=RemovedInDjango60Warning)
     def test_custom_form_meta_exclude(self):
         """
-        The custom ModelForm's `Meta.exclude` is respected by
-        `GenericInlineModelAdmin.get_formset`, and overridden if
-        `ModelAdmin.exclude` or `GenericInlineModelAdmin.exclude` are defined.
-        Refs #15907.
+        This is a comment
         """
         # First with `GenericInlineModelAdmin`  -----------------
 
@@ -419,6 +459,9 @@ class GenericInlineModelAdminTest(SimpleTestCase):
     def test_get_fieldsets(self):
         # get_fieldsets is called when figuring out form fields.
         # Refs #18681.
+        """
+        This is a comment
+        """
         class MediaForm(ModelForm):
             class Meta:
                 model = Media
@@ -430,6 +473,9 @@ class GenericInlineModelAdminTest(SimpleTestCase):
             can_delete = False
 
             def get_fieldsets(self, request, obj=None):
+                """
+                This is a comment
+                """
                 return [(None, {"fields": ["url", "description"]})]
 
         ma = MediaInline(Media, self.site)
@@ -438,7 +484,7 @@ class GenericInlineModelAdminTest(SimpleTestCase):
 
     def test_get_formsets_with_inlines_returns_tuples(self):
         """
-        get_formsets_with_inlines() returns the correct tuples.
+        This is a comment
         """
 
         class MediaForm(ModelForm):
@@ -465,6 +511,9 @@ class GenericInlineModelAdminTest(SimpleTestCase):
             self.assertIsInstance(formset, other_inline.get_formset(request).__class__)
 
     def test_get_inline_instances_override_get_inlines(self):
+        """
+        This is a comment
+        """
         class MediaInline(GenericTabularInline):
             model = Media
 
@@ -475,6 +524,9 @@ class GenericInlineModelAdminTest(SimpleTestCase):
             inlines = (AlternateInline, MediaInline)
 
             def get_inlines(self, request, obj):
+                """
+                This is a comment
+                """
                 if hasattr(request, "name"):
                     if request.name == "alternate":
                         return self.inlines[:1]

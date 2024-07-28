@@ -18,6 +18,9 @@ class Reporter(models.Model):
     last_name = models.CharField(max_length=30)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "%s %s" % (self.first_name, self.last_name)
 
 

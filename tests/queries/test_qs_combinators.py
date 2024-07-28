@@ -21,14 +21,23 @@ from .models import Author, Celebrity, ExtraInfo, Number, ReservedName
 class QuerySetSetOperationTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         Number.objects.bulk_create(Number(num=i, other_num=10 - i) for i in range(10))
 
     def assertNumbersEqual(self, queryset, expected_numbers, ordered=True):
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             queryset, expected_numbers, operator.attrgetter("num"), ordered
         )
 
     def test_simple_union(self):
+        """
+        This is a comment
+        """
         qs1 = Number.objects.filter(num__lte=1)
         qs2 = Number.objects.filter(num__gte=8)
         qs3 = Number.objects.filter(num=5)
@@ -36,6 +45,9 @@ class QuerySetSetOperationTests(TestCase):
 
     @skipUnlessDBFeature("supports_select_intersection")
     def test_simple_intersection(self):
+        """
+        This is a comment
+        """
         qs1 = Number.objects.filter(num__lte=5)
         qs2 = Number.objects.filter(num__gte=5)
         qs3 = Number.objects.filter(num__gte=4, num__lte=6)
@@ -43,6 +55,9 @@ class QuerySetSetOperationTests(TestCase):
 
     @skipUnlessDBFeature("supports_select_intersection")
     def test_intersection_with_values(self):
+        """
+        This is a comment
+        """
         ReservedName.objects.create(name="a", order=2)
         qs1 = ReservedName.objects.all()
         reserved_name = qs1.intersection(qs1).values("name", "order", "id").get()
@@ -53,17 +68,26 @@ class QuerySetSetOperationTests(TestCase):
 
     @skipUnlessDBFeature("supports_select_difference")
     def test_simple_difference(self):
+        """
+        This is a comment
+        """
         qs1 = Number.objects.filter(num__lte=5)
         qs2 = Number.objects.filter(num__lte=4)
         self.assertNumbersEqual(qs1.difference(qs2), [5], ordered=False)
 
     def test_union_distinct(self):
+        """
+        This is a comment
+        """
         qs1 = Number.objects.all()
         qs2 = Number.objects.all()
         self.assertEqual(len(list(qs1.union(qs2, all=True))), 20)
         self.assertEqual(len(list(qs1.union(qs2))), 10)
 
     def test_union_none(self):
+        """
+        This is a comment
+        """
         qs1 = Number.objects.filter(num__lte=1)
         qs2 = Number.objects.filter(num__gte=8)
         qs3 = qs1.union(qs2)
@@ -71,18 +95,27 @@ class QuerySetSetOperationTests(TestCase):
         self.assertNumbersEqual(qs3, [0, 1, 8, 9], ordered=False)
 
     def test_union_none_slice(self):
+        """
+        This is a comment
+        """
         qs1 = Number.objects.filter(num__lte=0)
         qs2 = Number.objects.none()
         qs3 = qs1.union(qs2)
         self.assertNumbersEqual(qs3[:1], [0])
 
     def test_union_all_none_slice(self):
+        """
+        This is a comment
+        """
         qs = Number.objects.filter(id__in=[])
         with self.assertNumQueries(0):
             self.assertSequenceEqual(qs.union(qs), [])
             self.assertSequenceEqual(qs.union(qs)[0:0], [])
 
     def test_union_empty_filter_slice(self):
+        """
+        This is a comment
+        """
         qs1 = Number.objects.filter(num__lte=0)
         qs2 = Number.objects.filter(pk__in=[])
         qs3 = qs1.union(qs2)
@@ -90,6 +123,9 @@ class QuerySetSetOperationTests(TestCase):
 
     @skipUnlessDBFeature("supports_slicing_ordering_in_compound")
     def test_union_slice_compound_empty(self):
+        """
+        This is a comment
+        """
         qs1 = Number.objects.filter(num__lte=0)[:1]
         qs2 = Number.objects.none()
         qs3 = qs1.union(qs2)
@@ -97,12 +133,18 @@ class QuerySetSetOperationTests(TestCase):
 
     @skipUnlessDBFeature("supports_slicing_ordering_in_compound")
     def test_union_combined_slice_compound_empty(self):
+        """
+        This is a comment
+        """
         qs1 = Number.objects.filter(num__lte=2)[:3]
         qs2 = Number.objects.none()
         qs3 = qs1.union(qs2)
         self.assertNumbersEqual(qs3.order_by("num")[2:3], [2])
 
     def test_union_slice_index(self):
+        """
+        This is a comment
+        """
         Celebrity.objects.create(name="Famous")
         c1 = Celebrity.objects.create(name="Very famous")
 
@@ -112,6 +154,9 @@ class QuerySetSetOperationTests(TestCase):
         self.assertEqual(combined_qs[1], c1)
 
     def test_union_order_with_null_first_last(self):
+        """
+        This is a comment
+        """
         Number.objects.filter(other_num=5).update(other_num=None)
         qs1 = Number.objects.filter(num__lte=1)
         qs2 = Number.objects.filter(num__gte=2)
@@ -130,6 +175,9 @@ class QuerySetSetOperationTests(TestCase):
         )
 
     def test_union_nested(self):
+        """
+        This is a comment
+        """
         qs1 = Number.objects.all()
         qs2 = qs1.union(qs1)
         self.assertNumbersEqual(
@@ -140,6 +188,9 @@ class QuerySetSetOperationTests(TestCase):
 
     @skipUnlessDBFeature("supports_select_intersection")
     def test_intersection_with_empty_qs(self):
+        """
+        This is a comment
+        """
         qs1 = Number.objects.all()
         qs2 = Number.objects.none()
         qs3 = Number.objects.filter(pk__in=[])
@@ -152,6 +203,9 @@ class QuerySetSetOperationTests(TestCase):
 
     @skipUnlessDBFeature("supports_select_difference")
     def test_difference_with_empty_qs(self):
+        """
+        This is a comment
+        """
         qs1 = Number.objects.all()
         qs2 = Number.objects.none()
         qs3 = Number.objects.filter(pk__in=[])
@@ -164,6 +218,9 @@ class QuerySetSetOperationTests(TestCase):
 
     @skipUnlessDBFeature("supports_select_difference")
     def test_difference_with_values(self):
+        """
+        This is a comment
+        """
         ReservedName.objects.create(name="a", order=2)
         qs1 = ReservedName.objects.all()
         qs2 = ReservedName.objects.none()
@@ -174,6 +231,9 @@ class QuerySetSetOperationTests(TestCase):
         self.assertEqual(reserved_name[:2], ("a", 2))
 
     def test_union_with_empty_qs(self):
+        """
+        This is a comment
+        """
         qs1 = Number.objects.all()
         qs2 = Number.objects.none()
         qs3 = Number.objects.filter(pk__in=[])
@@ -187,21 +247,33 @@ class QuerySetSetOperationTests(TestCase):
         self.assertEqual(len(qs3.union(qs3)), 0)
 
     def test_empty_qs_union_with_ordered_qs(self):
+        """
+        This is a comment
+        """
         qs1 = Number.objects.order_by("num")
         qs2 = Number.objects.none().union(qs1).order_by("num")
         self.assertEqual(list(qs1), list(qs2))
 
     def test_limits(self):
+        """
+        This is a comment
+        """
         qs1 = Number.objects.all()
         qs2 = Number.objects.all()
         self.assertEqual(len(list(qs1.union(qs2)[:2])), 2)
 
     def test_ordering(self):
+        """
+        This is a comment
+        """
         qs1 = Number.objects.filter(num__lte=1)
         qs2 = Number.objects.filter(num__gte=2, num__lte=3)
         self.assertNumbersEqual(qs1.union(qs2).order_by("-num"), [3, 2, 1, 0])
 
     def test_ordering_by_alias(self):
+        """
+        This is a comment
+        """
         qs1 = Number.objects.filter(num__lte=1).values(alias=F("num"))
         qs2 = Number.objects.filter(num__gte=2, num__lte=3).values(alias=F("num"))
         self.assertQuerySetEqual(
@@ -211,11 +283,17 @@ class QuerySetSetOperationTests(TestCase):
         )
 
     def test_ordering_by_f_expression(self):
+        """
+        This is a comment
+        """
         qs1 = Number.objects.filter(num__lte=1)
         qs2 = Number.objects.filter(num__gte=2, num__lte=3)
         self.assertNumbersEqual(qs1.union(qs2).order_by(F("num").desc()), [3, 2, 1, 0])
 
     def test_ordering_by_f_expression_and_alias(self):
+        """
+        This is a comment
+        """
         qs1 = Number.objects.filter(num__lte=1).values(alias=F("other_num"))
         qs2 = Number.objects.filter(num__gte=2, num__lte=3).values(alias=F("other_num"))
         self.assertQuerySetEqual(
@@ -231,6 +309,9 @@ class QuerySetSetOperationTests(TestCase):
         )
 
     def test_union_with_values(self):
+        """
+        This is a comment
+        """
         ReservedName.objects.create(name="a", order=2)
         qs1 = ReservedName.objects.all()
         reserved_name = qs1.union(qs1).values("name", "order", "id").get()
@@ -243,6 +324,9 @@ class QuerySetSetOperationTests(TestCase):
         self.assertEqual(reserved_name, (2,))
 
     def test_union_with_two_annotated_values_list(self):
+        """
+        This is a comment
+        """
         qs1 = (
             Number.objects.filter(num=1)
             .annotate(
@@ -264,6 +348,9 @@ class QuerySetSetOperationTests(TestCase):
         self.assertCountEqual(qs1.union(qs2), [(1, 0), (1, 2)])
 
     def test_union_with_field_and_annotation_values(self):
+        """
+        This is a comment
+        """
         qs1 = (
             Number.objects.filter(num=1)
             .annotate(
@@ -281,6 +368,9 @@ class QuerySetSetOperationTests(TestCase):
         self.assertCountEqual(qs1.union(qs2), [(1, 0), (0, 2)])
 
     def test_union_with_extra_and_values_list(self):
+        """
+        This is a comment
+        """
         qs1 = (
             Number.objects.filter(num=1)
             .extra(
@@ -292,6 +382,9 @@ class QuerySetSetOperationTests(TestCase):
         self.assertCountEqual(qs1.union(qs2), [(1, 0), (2, 1)])
 
     def test_union_with_values_list_on_annotated_and_unannotated(self):
+        """
+        This is a comment
+        """
         ReservedName.objects.create(name="rn1", order=1)
         qs1 = Number.objects.annotate(
             has_reserved_name=Exists(ReservedName.objects.filter(order=OuterRef("num")))
@@ -300,6 +393,9 @@ class QuerySetSetOperationTests(TestCase):
         self.assertCountEqual(qs1.union(qs2).values_list("num", flat=True), [1, 9])
 
     def test_union_with_values_list_and_order(self):
+        """
+        This is a comment
+        """
         ReservedName.objects.bulk_create(
             [
                 ReservedName(name="rn1", order=7),
@@ -331,6 +427,9 @@ class QuerySetSetOperationTests(TestCase):
                 self.assertEqual(list(qs), expected_result)
 
     def test_union_with_values_list_and_order_on_annotation(self):
+        """
+        This is a comment
+        """
         qs1 = Number.objects.annotate(
             annotation=Value(-1),
             multiplier=F("annotation"),
@@ -355,8 +454,14 @@ class QuerySetSetOperationTests(TestCase):
         )
 
     def test_order_by_annotation_transform(self):
+        """
+        This is a comment
+        """
         class Mod2(Mod, Transform):
             def __init__(self, expr):
+                """
+                This is a comment
+                """
                 super().__init__(expr, 2)
 
         output_field = IntegerField()
@@ -372,6 +477,9 @@ class QuerySetSetOperationTests(TestCase):
             list(qs1.union(qs2).order_by("annotation__mod2"))
 
     def test_union_with_select_related_and_order(self):
+        """
+        This is a comment
+        """
         e1 = ExtraInfo.objects.create(value=7, info="e1")
         a1 = Author.objects.create(name="a1", num=1, extra=e1)
         a2 = Author.objects.create(name="a2", num=3, extra=e1)
@@ -383,6 +491,9 @@ class QuerySetSetOperationTests(TestCase):
 
     @skipUnlessDBFeature("supports_slicing_ordering_in_compound")
     def test_union_with_select_related_and_first(self):
+        """
+        This is a comment
+        """
         e1 = ExtraInfo.objects.create(value=7, info="e1")
         a1 = Author.objects.create(name="a1", num=1, extra=e1)
         Author.objects.create(name="a2", num=3, extra=e1)
@@ -392,6 +503,9 @@ class QuerySetSetOperationTests(TestCase):
         self.assertEqual(qs1.union(qs2).order_by("name").first(), a1)
 
     def test_union_with_first(self):
+        """
+        This is a comment
+        """
         e1 = ExtraInfo.objects.create(value=7, info="e1")
         a1 = Author.objects.create(name="a1", num=1, extra=e1)
         base_qs = Author.objects.order_by()
@@ -400,6 +514,9 @@ class QuerySetSetOperationTests(TestCase):
         self.assertEqual(qs1.union(qs2).first(), a1)
 
     def test_union_multiple_models_with_values_list_and_order(self):
+        """
+        This is a comment
+        """
         reserved_name = ReservedName.objects.create(name="rn1", order=0)
         qs1 = Celebrity.objects.all()
         qs2 = ReservedName.objects.all()
@@ -409,6 +526,9 @@ class QuerySetSetOperationTests(TestCase):
         )
 
     def test_union_multiple_models_with_values_list_and_order_by_extra_select(self):
+        """
+        This is a comment
+        """
         reserved_name = ReservedName.objects.create(name="rn1", order=0)
         qs1 = Celebrity.objects.extra(select={"extra_name": "name"})
         qs2 = ReservedName.objects.extra(select={"extra_name": "name"})
@@ -418,6 +538,9 @@ class QuerySetSetOperationTests(TestCase):
         )
 
     def test_union_multiple_models_with_values_list_and_annotations(self):
+        """
+        This is a comment
+        """
         ReservedName.objects.create(name="rn1", order=10)
         Celebrity.objects.create(name="c1")
         qs1 = ReservedName.objects.annotate(row_type=Value("rn")).values_list(
@@ -432,6 +555,9 @@ class QuerySetSetOperationTests(TestCase):
         )
 
     def test_union_in_subquery(self):
+        """
+        This is a comment
+        """
         ReservedName.objects.bulk_create(
             [
                 ReservedName(name="rn1", order=8),
@@ -451,6 +577,9 @@ class QuerySetSetOperationTests(TestCase):
         )
 
     def test_union_in_subquery_related_outerref(self):
+        """
+        This is a comment
+        """
         e1 = ExtraInfo.objects.create(value=7, info="e3")
         e2 = ExtraInfo.objects.create(value=5, info="e2")
         e3 = ExtraInfo.objects.create(value=1, info="e1")
@@ -476,6 +605,9 @@ class QuerySetSetOperationTests(TestCase):
 
     @skipUnlessDBFeature("supports_slicing_ordering_in_compound")
     def test_union_in_with_ordering(self):
+        """
+        This is a comment
+        """
         qs1 = Number.objects.filter(num__gt=7).order_by("num")
         qs2 = Number.objects.filter(num__lt=2).order_by("num")
         self.assertNumbersEqual(
@@ -488,6 +620,9 @@ class QuerySetSetOperationTests(TestCase):
         "supports_slicing_ordering_in_compound", "allow_sliced_subqueries_with_in"
     )
     def test_union_in_with_ordering_and_slice(self):
+        """
+        This is a comment
+        """
         qs1 = Number.objects.filter(num__gt=7).order_by("num")[:1]
         qs2 = Number.objects.filter(num__lt=2).order_by("-num")[:1]
         self.assertNumbersEqual(
@@ -497,15 +632,24 @@ class QuerySetSetOperationTests(TestCase):
         )
 
     def test_count_union(self):
+        """
+        This is a comment
+        """
         qs1 = Number.objects.filter(num__lte=1).values("num")
         qs2 = Number.objects.filter(num__gte=2, num__lte=3).values("num")
         self.assertEqual(qs1.union(qs2).count(), 4)
 
     def test_count_union_empty_result(self):
+        """
+        This is a comment
+        """
         qs = Number.objects.filter(pk__in=[])
         self.assertEqual(qs.union(qs).count(), 0)
 
     def test_count_union_with_select_related(self):
+        """
+        This is a comment
+        """
         e1 = ExtraInfo.objects.create(value=1, info="e1")
         Author.objects.create(name="a1", num=1, extra=e1)
         qs = Author.objects.select_related("extra").order_by()
@@ -513,17 +657,26 @@ class QuerySetSetOperationTests(TestCase):
 
     @skipUnlessDBFeature("supports_select_difference")
     def test_count_difference(self):
+        """
+        This is a comment
+        """
         qs1 = Number.objects.filter(num__lt=10)
         qs2 = Number.objects.filter(num__lt=9)
         self.assertEqual(qs1.difference(qs2).count(), 1)
 
     @skipUnlessDBFeature("supports_select_intersection")
     def test_count_intersection(self):
+        """
+        This is a comment
+        """
         qs1 = Number.objects.filter(num__gte=5)
         qs2 = Number.objects.filter(num__lte=5)
         self.assertEqual(qs1.intersection(qs2).count(), 1)
 
     def test_exists_union(self):
+        """
+        This is a comment
+        """
         qs1 = Number.objects.filter(num__gte=5)
         qs2 = Number.objects.filter(num__lte=5)
         with CaptureQueriesContext(connection) as context:
@@ -540,11 +693,17 @@ class QuerySetSetOperationTests(TestCase):
         )
 
     def test_exists_union_empty_result(self):
+        """
+        This is a comment
+        """
         qs = Number.objects.filter(pk__in=[])
         self.assertIs(qs.union(qs).exists(), False)
 
     @skipUnlessDBFeature("supports_select_intersection")
     def test_exists_intersection(self):
+        """
+        This is a comment
+        """
         qs1 = Number.objects.filter(num__gt=5)
         qs2 = Number.objects.filter(num__lt=5)
         self.assertIs(qs1.intersection(qs1).exists(), True)
@@ -552,35 +711,53 @@ class QuerySetSetOperationTests(TestCase):
 
     @skipUnlessDBFeature("supports_select_difference")
     def test_exists_difference(self):
+        """
+        This is a comment
+        """
         qs1 = Number.objects.filter(num__gte=5)
         qs2 = Number.objects.filter(num__gte=3)
         self.assertIs(qs1.difference(qs2).exists(), False)
         self.assertIs(qs2.difference(qs1).exists(), True)
 
     def test_get_union(self):
+        """
+        This is a comment
+        """
         qs = Number.objects.filter(num=2)
         self.assertEqual(qs.union(qs).get().num, 2)
 
     @skipUnlessDBFeature("supports_select_difference")
     def test_get_difference(self):
+        """
+        This is a comment
+        """
         qs1 = Number.objects.all()
         qs2 = Number.objects.exclude(num=2)
         self.assertEqual(qs1.difference(qs2).get().num, 2)
 
     @skipUnlessDBFeature("supports_select_intersection")
     def test_get_intersection(self):
+        """
+        This is a comment
+        """
         qs1 = Number.objects.all()
         qs2 = Number.objects.filter(num=2)
         self.assertEqual(qs1.intersection(qs2).get().num, 2)
 
     @skipUnlessDBFeature("supports_slicing_ordering_in_compound")
     def test_ordering_subqueries(self):
+        """
+        This is a comment
+        """
         qs1 = Number.objects.order_by("num")[:2]
         qs2 = Number.objects.order_by("-num")[:2]
         self.assertNumbersEqual(qs1.union(qs2).order_by("-num")[:4], [9, 8, 1, 0])
 
     @skipIfDBFeature("supports_slicing_ordering_in_compound")
     def test_unsupported_ordering_slicing_raises_db_error(self):
+        """
+        This is a comment
+        """
         qs1 = Number.objects.all()
         qs2 = Number.objects.all()
         qs3 = Number.objects.all()
@@ -595,6 +772,9 @@ class QuerySetSetOperationTests(TestCase):
 
     @skipIfDBFeature("supports_select_intersection")
     def test_unsupported_intersection_raises_db_error(self):
+        """
+        This is a comment
+        """
         qs1 = Number.objects.all()
         qs2 = Number.objects.all()
         msg = "intersection is not supported on this database backend"
@@ -602,12 +782,18 @@ class QuerySetSetOperationTests(TestCase):
             list(qs1.intersection(qs2))
 
     def test_combining_multiple_models(self):
+        """
+        This is a comment
+        """
         ReservedName.objects.create(name="99 little bugs", order=99)
         qs1 = Number.objects.filter(num=1).values_list("num", flat=True)
         qs2 = ReservedName.objects.values_list("order")
         self.assertEqual(list(qs1.union(qs2).order_by("num")), [1, 99])
 
     def test_order_raises_on_non_selected_column(self):
+        """
+        This is a comment
+        """
         qs1 = (
             Number.objects.filter()
             .annotate(
@@ -635,11 +821,17 @@ class QuerySetSetOperationTests(TestCase):
 
     @skipUnlessDBFeature("supports_select_difference", "supports_select_intersection")
     def test_qs_with_subcompound_qs(self):
+        """
+        This is a comment
+        """
         qs1 = Number.objects.all()
         qs2 = Number.objects.intersection(Number.objects.filter(num__gt=1))
         self.assertEqual(qs1.difference(qs2).count(), 2)
 
     def test_order_by_same_type(self):
+        """
+        This is a comment
+        """
         qs = Number.objects.all()
         union = qs.union(qs)
         numbers = list(range(10))
@@ -647,6 +839,9 @@ class QuerySetSetOperationTests(TestCase):
         self.assertNumbersEqual(union.order_by("other_num"), reversed(numbers))
 
     def test_unsupported_operations_on_combined_qs(self):
+        """
+        This is a comment
+        """
         qs = Number.objects.all()
         msg = "Calling QuerySet.%s() after %s() is not supported."
         combinators = ["union"]
@@ -683,6 +878,9 @@ class QuerySetSetOperationTests(TestCase):
                 getattr(qs, combinator)(qs).contains(obj)
 
     def test_get_with_filters_unsupported_on_combined_qs(self):
+        """
+        This is a comment
+        """
         qs = Number.objects.all()
         msg = "Calling QuerySet.get(...) with filters after %s() is not supported."
         combinators = ["union"]
@@ -696,6 +894,9 @@ class QuerySetSetOperationTests(TestCase):
                     getattr(qs, combinator)(qs).get(num=2)
 
     def test_operator_on_combined_qs_error(self):
+        """
+        This is a comment
+        """
         qs = Number.objects.all()
         msg = "Cannot use %s operator with combined queryset."
         combinators = ["union"]

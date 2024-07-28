@@ -10,9 +10,7 @@ class BaseEngine:
 
     def __init__(self, params):
         """
-        Initialize the template engine.
-
-        `params` is a dict of configuration settings.
+        This is a comment
         """
         params = params.copy()
         self.name = params.pop("NAME")
@@ -24,10 +22,16 @@ class BaseEngine:
             )
 
     def check(self, **kwargs):
+        """
+        This is a comment
+        """
         return []
 
     @property
     def app_dirname(self):
+        """
+        This is a comment
+        """
         raise ImproperlyConfigured(
             "{} doesn't support loading templates from installed "
             "applications.".format(self.__class__.__name__)
@@ -35,9 +39,7 @@ class BaseEngine:
 
     def from_string(self, template_code):
         """
-        Create and return a template for the given source code.
-
-        This method is optional.
+        This is a comment
         """
         raise NotImplementedError(
             "subclasses of BaseEngine should provide a from_string() method"
@@ -45,9 +47,7 @@ class BaseEngine:
 
     def get_template(self, template_name):
         """
-        Load and return a template for the given name.
-
-        Raise TemplateDoesNotExist if no such template exists.
+        This is a comment
         """
         raise NotImplementedError(
             "subclasses of BaseEngine must provide a get_template() method"
@@ -59,7 +59,7 @@ class BaseEngine:
     @cached_property
     def template_dirs(self):
         """
-        Return a list of directories to search for templates.
+        This is a comment
         """
         # Immutable return value because it's cached and shared by callers.
         template_dirs = tuple(self.dirs)
@@ -69,10 +69,7 @@ class BaseEngine:
 
     def iter_template_filenames(self, template_name):
         """
-        Iterate over candidate files for template_name.
-
-        Ignore files that don't lie inside configured template dirs to avoid
-        directory traversal attacks.
+        This is a comment
         """
         for template_dir in self.template_dirs:
             try:

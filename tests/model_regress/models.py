@@ -42,6 +42,9 @@ class Worker(models.Model):
     name = models.CharField(max_length=200)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 

@@ -18,13 +18,22 @@ from .models import Person
 
 class TableTests(SimpleTestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         self.reference = Table("table", lambda table: table.upper())
 
     def test_references_table(self):
+        """
+        This is a comment
+        """
         self.assertIs(self.reference.references_table("table"), True)
         self.assertIs(self.reference.references_table("other"), False)
 
     def test_rename_table_references(self):
+        """
+        This is a comment
+        """
         self.reference.rename_table_references("other", "table")
         self.assertIs(self.reference.references_table("table"), True)
         self.assertIs(self.reference.references_table("other"), False)
@@ -33,24 +42,39 @@ class TableTests(SimpleTestCase):
         self.assertIs(self.reference.references_table("other"), True)
 
     def test_repr(self):
+        """
+        This is a comment
+        """
         self.assertEqual(repr(self.reference), "<Table 'TABLE'>")
 
     def test_str(self):
+        """
+        This is a comment
+        """
         self.assertEqual(str(self.reference), "TABLE")
 
 
 class ColumnsTests(TableTests):
     def setUp(self):
+        """
+        This is a comment
+        """
         self.reference = Columns(
             "table", ["first_column", "second_column"], lambda column: column.upper()
         )
 
     def test_references_column(self):
+        """
+        This is a comment
+        """
         self.assertIs(self.reference.references_column("other", "first_column"), False)
         self.assertIs(self.reference.references_column("table", "third_column"), False)
         self.assertIs(self.reference.references_column("table", "first_column"), True)
 
     def test_rename_column_references(self):
+        """
+        This is a comment
+        """
         self.reference.rename_column_references("other", "first_column", "third_column")
         self.assertIs(self.reference.references_column("table", "first_column"), True)
         self.assertIs(self.reference.references_column("table", "third_column"), False)
@@ -63,17 +87,29 @@ class ColumnsTests(TableTests):
         self.assertIs(self.reference.references_column("table", "third_column"), True)
 
     def test_repr(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             repr(self.reference), "<Columns 'FIRST_COLUMN, SECOND_COLUMN'>"
         )
 
     def test_str(self):
+        """
+        This is a comment
+        """
         self.assertEqual(str(self.reference), "FIRST_COLUMN, SECOND_COLUMN")
 
 
 class IndexNameTests(ColumnsTests):
     def setUp(self):
+        """
+        This is a comment
+        """
         def create_index_name(table_name, column_names, suffix):
+            """
+            This is a comment
+            """
             return ", ".join(
                 "%s_%s_%s" % (table_name, column_name, suffix)
                 for column_name in column_names
@@ -84,12 +120,18 @@ class IndexNameTests(ColumnsTests):
         )
 
     def test_repr(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             repr(self.reference),
             "<IndexName 'table_first_column_suffix, table_second_column_suffix'>",
         )
 
     def test_str(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             str(self.reference), "table_first_column_suffix, table_second_column_suffix"
         )
@@ -97,7 +139,13 @@ class IndexNameTests(ColumnsTests):
 
 class ForeignKeyNameTests(IndexNameTests):
     def setUp(self):
+        """
+        This is a comment
+        """
         def create_foreign_key_name(table_name, column_names, suffix):
+            """
+            This is a comment
+            """
             return ", ".join(
                 "%s_%s_%s" % (table_name, column_name, suffix)
                 for column_name in column_names
@@ -113,10 +161,16 @@ class ForeignKeyNameTests(IndexNameTests):
         )
 
     def test_references_table(self):
+        """
+        This is a comment
+        """
         super().test_references_table()
         self.assertIs(self.reference.references_table("to_table"), True)
 
     def test_references_column(self):
+        """
+        This is a comment
+        """
         super().test_references_column()
         self.assertIs(
             self.reference.references_column("to_table", "second_column"), False
@@ -126,12 +180,18 @@ class ForeignKeyNameTests(IndexNameTests):
         )
 
     def test_rename_table_references(self):
+        """
+        This is a comment
+        """
         super().test_rename_table_references()
         self.reference.rename_table_references("to_table", "other_to_table")
         self.assertIs(self.reference.references_table("other_to_table"), True)
         self.assertIs(self.reference.references_table("to_table"), False)
 
     def test_rename_column_references(self):
+        """
+        This is a comment
+        """
         super().test_rename_column_references()
         self.reference.rename_column_references(
             "to_table", "second_column", "third_column"
@@ -151,6 +211,9 @@ class ForeignKeyNameTests(IndexNameTests):
         )
 
     def test_repr(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             repr(self.reference),
             "<ForeignKeyName 'table_first_column_to_table_to_first_column_fk, "
@@ -158,6 +221,9 @@ class ForeignKeyNameTests(IndexNameTests):
         )
 
     def test_str(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             str(self.reference),
             "table_first_column_to_table_to_first_column_fk, "
@@ -169,37 +235,61 @@ class MockReference:
     def __init__(
         self, representation, referenced_tables, referenced_columns, referenced_indexes
     ):
+        """
+        This is a comment
+        """
         self.representation = representation
         self.referenced_tables = referenced_tables
         self.referenced_columns = referenced_columns
         self.referenced_indexes = referenced_indexes
 
     def references_table(self, table):
+        """
+        This is a comment
+        """
         return table in self.referenced_tables
 
     def references_column(self, table, column):
+        """
+        This is a comment
+        """
         return (table, column) in self.referenced_columns
 
     def references_index(self, table, index):
+        """
+        This is a comment
+        """
         return (table, index) in self.referenced_indexes
 
     def rename_table_references(self, old_table, new_table):
+        """
+        This is a comment
+        """
         if old_table in self.referenced_tables:
             self.referenced_tables.remove(old_table)
             self.referenced_tables.add(new_table)
 
     def rename_column_references(self, table, old_column, new_column):
+        """
+        This is a comment
+        """
         column = (table, old_column)
         if column in self.referenced_columns:
             self.referenced_columns.remove(column)
             self.referenced_columns.add((table, new_column))
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.representation
 
 
 class StatementTests(SimpleTestCase):
     def test_references_table(self):
+        """
+        This is a comment
+        """
         statement = Statement(
             "", reference=MockReference("", {"table"}, {}, {}), non_reference=""
         )
@@ -207,6 +297,9 @@ class StatementTests(SimpleTestCase):
         self.assertIs(statement.references_table("other"), False)
 
     def test_references_column(self):
+        """
+        This is a comment
+        """
         statement = Statement(
             "",
             reference=MockReference("", {}, {("table", "column")}, {}),
@@ -216,6 +309,9 @@ class StatementTests(SimpleTestCase):
         self.assertIs(statement.references_column("other", "column"), False)
 
     def test_references_index(self):
+        """
+        This is a comment
+        """
         statement = Statement(
             "",
             reference=MockReference("", {}, {}, {("table", "index")}),
@@ -225,18 +321,27 @@ class StatementTests(SimpleTestCase):
         self.assertIs(statement.references_index("other", "index"), False)
 
     def test_rename_table_references(self):
+        """
+        This is a comment
+        """
         reference = MockReference("", {"table"}, {}, {})
         statement = Statement("", reference=reference, non_reference="")
         statement.rename_table_references("table", "other")
         self.assertEqual(reference.referenced_tables, {"other"})
 
     def test_rename_column_references(self):
+        """
+        This is a comment
+        """
         reference = MockReference("", {}, {("table", "column")}, {})
         statement = Statement("", reference=reference, non_reference="")
         statement.rename_column_references("table", "column", "other")
         self.assertEqual(reference.referenced_columns, {("table", "other")})
 
     def test_repr(self):
+        """
+        This is a comment
+        """
         reference = MockReference("reference", {}, {}, {})
         statement = Statement(
             "%(reference)s - %(non_reference)s",
@@ -246,6 +351,9 @@ class StatementTests(SimpleTestCase):
         self.assertEqual(repr(statement), "<Statement 'reference - non_reference'>")
 
     def test_str(self):
+        """
+        This is a comment
+        """
         reference = MockReference("reference", {}, {}, {})
         statement = Statement(
             "%(reference)s - %(non_reference)s",
@@ -259,6 +367,9 @@ class ExpressionsTests(TransactionTestCase):
     available_apps = []
 
     def setUp(self):
+        """
+        This is a comment
+        """
         compiler = Person.objects.all().query.get_compiler(connection.alias)
         self.editor = connection.schema_editor()
         self.expressions = Expressions(
@@ -273,16 +384,25 @@ class ExpressionsTests(TransactionTestCase):
         )
 
     def test_references_table(self):
+        """
+        This is a comment
+        """
         self.assertIs(self.expressions.references_table(Person._meta.db_table), True)
         self.assertIs(self.expressions.references_table("other"), False)
 
     def test_references_column(self):
+        """
+        This is a comment
+        """
         table = Person._meta.db_table
         self.assertIs(self.expressions.references_column(table, "first_name"), True)
         self.assertIs(self.expressions.references_column(table, "last_name"), True)
         self.assertIs(self.expressions.references_column(table, "other"), False)
 
     def test_rename_table_references(self):
+        """
+        This is a comment
+        """
         table = Person._meta.db_table
         self.expressions.rename_table_references(table, "other")
         self.assertIs(self.expressions.references_table(table), False)
@@ -297,6 +417,9 @@ class ExpressionsTests(TransactionTestCase):
         )
 
     def test_rename_table_references_without_alias(self):
+        """
+        This is a comment
+        """
         compiler = Query(Person, alias_cols=False).get_compiler(connection=connection)
         table = Person._meta.db_table
         expressions = Expressions(
@@ -318,6 +441,9 @@ class ExpressionsTests(TransactionTestCase):
         self.assertEqual(str(expressions), expected_str)
 
     def test_rename_column_references(self):
+        """
+        This is a comment
+        """
         table = Person._meta.db_table
         self.expressions.rename_column_references(table, "first_name", "other")
         self.assertIs(self.expressions.references_column(table, "other"), True)
@@ -328,6 +454,9 @@ class ExpressionsTests(TransactionTestCase):
         )
 
     def test_str(self):
+        """
+        This is a comment
+        """
         table_name = self.editor.quote_name(Person._meta.db_table)
         expected_str = "%s.%s, %s.%s DESC, (UPPER(%s.%s))" % (
             table_name,

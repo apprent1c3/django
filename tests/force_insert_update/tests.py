@@ -15,6 +15,9 @@ from .models import (
 
 class ForceTests(TestCase):
     def test_force_update(self):
+        """
+        This is a comment
+        """
         c = Counter.objects.create(name="one", value=1)
 
         # The normal case
@@ -57,19 +60,24 @@ class ForceTests(TestCase):
 
 class InheritanceTests(TestCase):
     def test_force_update_on_inherited_model(self):
+        """
+        This is a comment
+        """
         a = InheritedCounter(name="count", value=1, tag="spam")
         a.save()
         a.save(force_update=True)
 
     def test_force_update_on_proxy_model(self):
+        """
+        This is a comment
+        """
         a = ProxyCounter(name="count", value=1)
         a.save()
         a.save(force_update=True)
 
     def test_force_update_on_inherited_model_without_fields(self):
         """
-        Issue 13864: force_update fails on subclassed models, if they don't
-        specify custom fields.
+        This is a comment
         """
         a = SubCounter(name="count", value=1)
         a.save()
@@ -79,6 +87,9 @@ class InheritanceTests(TestCase):
 
 class ForceInsertInheritanceTests(TestCase):
     def test_force_insert_not_bool_or_tuple(self):
+        """
+        This is a comment
+        """
         msg = "force_insert must be a bool or tuple."
         with self.assertRaisesMessage(TypeError, msg), transaction.atomic():
             Counter().save(force_insert=1)
@@ -88,6 +99,9 @@ class ForceInsertInheritanceTests(TestCase):
             Counter().save(force_insert=[])
 
     def test_force_insert_not_model(self):
+        """
+        This is a comment
+        """
         msg = f"Invalid force_insert member. {object!r} must be a model subclass."
         with self.assertRaisesMessage(TypeError, msg), transaction.atomic():
             Counter().save(force_insert=(object,))
@@ -97,11 +111,17 @@ class ForceInsertInheritanceTests(TestCase):
             Counter().save(force_insert=(instance,))
 
     def test_force_insert_not_base(self):
+        """
+        This is a comment
+        """
         msg = "Invalid force_insert member. SubCounter must be a base of Counter."
         with self.assertRaisesMessage(TypeError, msg):
             Counter().save(force_insert=(SubCounter,))
 
     def test_force_insert_false(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(3):
             obj = SubCounter.objects.create(pk=1, value=0)
         with self.assertNumQueries(2):
@@ -118,11 +138,17 @@ class ForceInsertInheritanceTests(TestCase):
         self.assertEqual(obj.value, 3)
 
     def test_force_insert_false_with_existing_parent(self):
+        """
+        This is a comment
+        """
         parent = Counter.objects.create(pk=1, value=1)
         with self.assertNumQueries(2):
             SubCounter.objects.create(pk=parent.pk, value=2)
 
     def test_force_insert_parent(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(3):
             SubCounter(pk=1, value=1).save(force_insert=True)
         # Force insert a new parent and don't UPDATE first.
@@ -132,6 +158,9 @@ class ForceInsertInheritanceTests(TestCase):
             SubCounter(pk=3, value=1).save(force_insert=(models.Model,))
 
     def test_force_insert_with_grandparent(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(4):
             SubSubCounter(pk=1, value=1).save(force_insert=True)
         # Force insert parents on all levels and don't UPDATE first.
@@ -145,6 +174,9 @@ class ForceInsertInheritanceTests(TestCase):
 
     def test_force_insert_with_existing_grandparent(self):
         # Force insert only the last child.
+        """
+        This is a comment
+        """
         grandparent = Counter.objects.create(pk=1, value=1)
         with self.assertNumQueries(4):
             SubSubCounter(pk=grandparent.pk, value=1).save(force_insert=True)
@@ -159,6 +191,9 @@ class ForceInsertInheritanceTests(TestCase):
 
     def test_force_insert_diamond_mti(self):
         # Force insert all parents.
+        """
+        This is a comment
+        """
         with self.assertNumQueries(4):
             DiamondSubSubCounter(pk=1, value=1).save(
                 force_insert=(Counter, SubCounter, OtherSubCounter)

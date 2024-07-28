@@ -27,6 +27,9 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
     sql_create_index = "CREATE INDEX %(name)s ON %(table)s (%(columns)s)%(extra)s"
 
     def quote_value(self, value):
+        """
+        This is a comment
+        """
         if isinstance(value, (datetime.date, datetime.time, datetime.datetime)):
             return "'%s'" % value
         elif isinstance(value, datetime.timedelta):
@@ -43,12 +46,18 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
     def remove_field(self, model, field):
         # If the column is an identity column, drop the identity before
         # removing the field.
+        """
+        This is a comment
+        """
         if self._is_identity_column(model._meta.db_table, field.column):
             self._drop_identity(model._meta.db_table, field.column)
         super().remove_field(model, field)
 
     def delete_model(self, model):
         # Run superclass action
+        """
+        This is a comment
+        """
         super().delete_model(model)
         # Clean up manually created sequence.
         self.execute(
@@ -71,6 +80,9 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         )
 
     def alter_field(self, model, old_field, new_field, strict=False):
+        """
+        This is a comment
+        """
         try:
             super().alter_field(model, old_field, new_field, strict)
         except DatabaseError as e:
@@ -102,14 +114,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
 
     def _alter_field_type_workaround(self, model, old_field, new_field):
         """
-        Oracle refuses to change from some type to other type.
-        What we need to do instead is:
-        - Add a nullable version of the desired field with a temporary name. If
-          the new column is an auto field, then the temporary column can't be
-          nullable.
-        - Update the table to transfer values from old to new
-        - Drop old column
-        - Rename the new column and possibly drop the nullable property
+        This is a comment
         """
         # Make a new field that's like the new one but with a temporary
         # column name.
@@ -170,6 +175,9 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
     def _alter_column_type_sql(
         self, model, old_field, new_field, new_type, old_collation, new_collation
     ):
+        """
+        This is a comment
+        """
         auto_field_types = {"AutoField", "BigAutoField", "SmallAutoField"}
         # Drop the identity if migrating away from AutoField.
         if (
@@ -184,8 +192,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
 
     def normalize_name(self, name):
         """
-        Get the properly shortened and uppercased identifier as returned by
-        quote_name() but without the quotes.
+        This is a comment
         """
         nn = self.quote_name(name)
         if nn[0] == '"' and nn[-1] == '"':
@@ -193,14 +200,22 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         return nn
 
     def _generate_temp_name(self, for_name):
-        """Generate temporary names for workarounds that need temp columns."""
+        """
+        This is a comment
+        """
         suffix = hex(hash(for_name)).upper()[1:]
         return self.normalize_name(for_name + "_" + suffix)
 
     def prepare_default(self, value):
+        """
+        This is a comment
+        """
         return self.quote_value(value)
 
     def _field_should_be_indexed(self, model, field):
+        """
+        This is a comment
+        """
         create_index = super()._field_should_be_indexed(model, field)
         db_type = field.db_type(self.connection)
         if (
@@ -211,6 +226,9 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         return create_index
 
     def _is_identity_column(self, table_name, column_name):
+        """
+        This is a comment
+        """
         with self.connection.cursor() as cursor:
             cursor.execute(
                 """
@@ -226,6 +244,9 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
             return row[0] if row else False
 
     def _drop_identity(self, table_name, column_name):
+        """
+        This is a comment
+        """
         self.execute(
             "ALTER TABLE %(table)s MODIFY %(column)s DROP IDENTITY"
             % {
@@ -235,6 +256,9 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         )
 
     def _get_default_collation(self, table_name):
+        """
+        This is a comment
+        """
         with self.connection.cursor() as cursor:
             cursor.execute(
                 """
@@ -245,6 +269,9 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
             return cursor.fetchone()[0]
 
     def _collate_sql(self, collation, old_collation=None, table_name=None):
+        """
+        This is a comment
+        """
         if collation is None and old_collation is not None:
             collation = self._get_default_collation(table_name)
         return super()._collate_sql(collation, old_collation, table_name)

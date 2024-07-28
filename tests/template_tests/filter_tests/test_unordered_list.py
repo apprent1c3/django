@@ -9,6 +9,9 @@ from ..utils import setup
 class UnorderedListTests(SimpleTestCase):
     @setup({"unordered_list01": "{{ a|unordered_list }}"})
     def test_unordered_list01(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("unordered_list01", {"a": ["x>", ["<y"]]})
         self.assertEqual(
             output, "\t<li>x&gt;\n\t<ul>\n\t\t<li>&lt;y</li>\n\t</ul>\n\t</li>"
@@ -22,11 +25,17 @@ class UnorderedListTests(SimpleTestCase):
         }
     )
     def test_unordered_list02(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("unordered_list02", {"a": ["x>", ["<y"]]})
         self.assertEqual(output, "\t<li>x>\n\t<ul>\n\t\t<li><y</li>\n\t</ul>\n\t</li>")
 
     @setup({"unordered_list03": "{{ a|unordered_list }}"})
     def test_unordered_list03(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "unordered_list03", {"a": ["x>", [mark_safe("<y")]]}
         )
@@ -42,6 +51,9 @@ class UnorderedListTests(SimpleTestCase):
         }
     )
     def test_unordered_list04(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "unordered_list04", {"a": ["x>", [mark_safe("<y")]]}
         )
@@ -55,29 +67,44 @@ class UnorderedListTests(SimpleTestCase):
         }
     )
     def test_unordered_list05(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string("unordered_list05", {"a": ["x>", ["<y"]]})
         self.assertEqual(output, "\t<li>x>\n\t<ul>\n\t\t<li><y</li>\n\t</ul>\n\t</li>")
 
 
 class FunctionTests(SimpleTestCase):
     def test_list(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             unordered_list(["item 1", "item 2"]), "\t<li>item 1</li>\n\t<li>item 2</li>"
         )
 
     def test_list_gettext(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             unordered_list(["item 1", gettext_lazy("item 2")]),
             "\t<li>item 1</li>\n\t<li>item 2</li>",
         )
 
     def test_nested(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             unordered_list(["item 1", ["item 1.1"]]),
             "\t<li>item 1\n\t<ul>\n\t\t<li>item 1.1</li>\n\t</ul>\n\t</li>",
         )
 
     def test_nested2(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             unordered_list(["item 1", ["item 1.1", "item1.2"], "item 2"]),
             "\t<li>item 1\n\t<ul>\n\t\t<li>item 1.1</li>\n\t\t<li>item1.2"
@@ -85,6 +112,9 @@ class FunctionTests(SimpleTestCase):
         )
 
     def test_nested3(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             unordered_list(["item 1", "item 2", ["item 2.1"]]),
             "\t<li>item 1</li>\n\t<li>item 2\n\t<ul>\n\t\t<li>item 2.1"
@@ -92,6 +122,9 @@ class FunctionTests(SimpleTestCase):
         )
 
     def test_nested_multiple(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             unordered_list(["item 1", ["item 1.1", ["item 1.1.1", ["item 1.1.1.1"]]]]),
             "\t<li>item 1\n\t<ul>\n\t\t<li>item 1.1\n\t\t<ul>\n\t\t\t<li>"
@@ -100,6 +133,9 @@ class FunctionTests(SimpleTestCase):
         )
 
     def test_nested_multiple2(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             unordered_list(["States", ["Kansas", ["Lawrence", "Topeka"], "Illinois"]]),
             "\t<li>States\n\t<ul>\n\t\t<li>Kansas\n\t\t<ul>\n\t\t\t<li>"
@@ -108,23 +144,38 @@ class FunctionTests(SimpleTestCase):
         )
 
     def test_autoescape(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             unordered_list(["<a>item 1</a>", "item 2"]),
             "\t<li>&lt;a&gt;item 1&lt;/a&gt;</li>\n\t<li>item 2</li>",
         )
 
     def test_autoescape_off(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             unordered_list(["<a>item 1</a>", "item 2"], autoescape=False),
             "\t<li><a>item 1</a></li>\n\t<li>item 2</li>",
         )
 
     def test_ulitem(self):
+        """
+        This is a comment
+        """
         class ULItem:
             def __init__(self, title):
+                """
+                This is a comment
+                """
                 self.title = title
 
             def __str__(self):
+                """
+                This is a comment
+                """
                 return "ulitem-%s" % str(self.title)
 
         a = ULItem("a")
@@ -137,6 +188,9 @@ class FunctionTests(SimpleTestCase):
         )
 
         def item_generator():
+            """
+            This is a comment
+            """
             yield from (a, b, c)
 
         self.assertEqual(
@@ -146,10 +200,19 @@ class FunctionTests(SimpleTestCase):
         )
 
     def test_nested_generators(self):
+        """
+        This is a comment
+        """
         def inner_generator():
+            """
+            This is a comment
+            """
             yield from ("B", "C")
 
         def item_generator():
+            """
+            This is a comment
+            """
             yield "A"
             yield inner_generator()
             yield "D"
@@ -161,11 +224,20 @@ class FunctionTests(SimpleTestCase):
         )
 
     def test_ulitem_autoescape_off(self):
+        """
+        This is a comment
+        """
         class ULItem:
             def __init__(self, title):
+                """
+                This is a comment
+                """
                 self.title = title
 
             def __str__(self):
+                """
+                This is a comment
+                """
                 return "ulitem-%s" % str(self.title)
 
         a = ULItem("a")
@@ -177,6 +249,9 @@ class FunctionTests(SimpleTestCase):
         )
 
         def item_generator():
+            """
+            This is a comment
+            """
             yield from (a, b, c)
 
         self.assertEqual(

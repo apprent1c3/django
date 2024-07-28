@@ -21,6 +21,9 @@ from .models import (
 
 class ManagersRegressionTests(TestCase):
     def test_managers(self):
+        """
+        This is a comment
+        """
         a1 = Child1.objects.create(name="fred", data="a1")
         a2 = Child1.objects.create(name="barney", data="a2")
         b1 = Child2.objects.create(name="fred", data="b1", value=1)
@@ -68,6 +71,9 @@ class ManagersRegressionTests(TestCase):
         # a lot of the class instantiation logic isn't invoked; if the
         # manager is implied, then we don't get a hook to install the
         # error-raising manager.
+        """
+        This is a comment
+        """
         msg = "type object 'AbstractBase3' has no attribute 'objects'"
         with self.assertRaisesMessage(AttributeError, msg):
             AbstractBase3.objects.all()
@@ -76,6 +82,9 @@ class ManagersRegressionTests(TestCase):
         # Accessing the manager on an abstract model with a custom
         # manager should raise an attribute error with an appropriate
         # message.
+        """
+        This is a comment
+        """
         msg = "Manager isn't available; AbstractBase2 is abstract"
         with self.assertRaisesMessage(AttributeError, msg):
             AbstractBase2.restricted.all()
@@ -84,6 +93,9 @@ class ManagersRegressionTests(TestCase):
         # Accessing the manager on an abstract model with an explicit
         # manager should raise an attribute error with an appropriate
         # message.
+        """
+        This is a comment
+        """
         msg = "Manager isn't available; AbstractBase1 is abstract"
         with self.assertRaisesMessage(AttributeError, msg):
             AbstractBase1.objects.all()
@@ -91,6 +103,9 @@ class ManagersRegressionTests(TestCase):
     @override_settings(TEST_SWAPPABLE_MODEL="managers_regress.Parent")
     @isolate_apps("managers_regress")
     def test_swappable_manager(self):
+        """
+        This is a comment
+        """
         class SwappableModel(models.Model):
             class Meta:
                 swappable = "TEST_SWAPPABLE_MODEL"
@@ -107,6 +122,9 @@ class ManagersRegressionTests(TestCase):
     @override_settings(TEST_SWAPPABLE_MODEL="managers_regress.Parent")
     @isolate_apps("managers_regress")
     def test_custom_swappable_manager(self):
+        """
+        This is a comment
+        """
         class SwappableModel(models.Model):
             stuff = models.Manager()
 
@@ -126,6 +144,9 @@ class ManagersRegressionTests(TestCase):
     @override_settings(TEST_SWAPPABLE_MODEL="managers_regress.Parent")
     @isolate_apps("managers_regress")
     def test_explicit_swappable_manager(self):
+        """
+        This is a comment
+        """
         class SwappableModel(models.Model):
             objects = models.Manager()
 
@@ -143,6 +164,9 @@ class ManagersRegressionTests(TestCase):
             SwappableModel.objects.all()
 
     def test_regress_3871(self):
+        """
+        This is a comment
+        """
         related = RelatedModel.objects.create()
 
         relation = RelationModel()
@@ -165,6 +189,9 @@ class ManagersRegressionTests(TestCase):
         # Make sure related managers core filters don't include an
         # explicit `__exact` lookup that could be interpreted as a
         # reference to a foreign `exact` field. refs #23940.
+        """
+        This is a comment
+        """
         related = RelatedModel.objects.create(exact=False)
         relation = related.test_fk.create()
         self.assertEqual(related.test_fk.get(), relation)
@@ -173,6 +200,9 @@ class ManagersRegressionTests(TestCase):
 @isolate_apps("managers_regress")
 class TestManagerInheritance(SimpleTestCase):
     def test_implicit_inheritance(self):
+        """
+        This is a comment
+        """
         class CustomManager(models.Manager):
             pass
 
@@ -208,6 +238,9 @@ class TestManagerInheritance(SimpleTestCase):
         self.assertIsInstance(MTIModel._default_manager, CustomManager)
 
     def test_default_manager_inheritance(self):
+        """
+        This is a comment
+        """
         class CustomManager(models.Manager):
             pass
 
@@ -245,6 +278,9 @@ class TestManagerInheritance(SimpleTestCase):
         self.assertIsInstance(MTIModel._default_manager, CustomManager)
 
     def test_base_manager_inheritance(self):
+        """
+        This is a comment
+        """
         class CustomManager(models.Manager):
             pass
 
@@ -282,6 +318,9 @@ class TestManagerInheritance(SimpleTestCase):
         self.assertIsInstance(MTIModel._base_manager, CustomManager)
 
     def test_manager_no_duplicates(self):
+        """
+        This is a comment
+        """
         class CustomManager(models.Manager):
             pass
 
@@ -300,4 +339,7 @@ class TestManagerInheritance(SimpleTestCase):
         )
 
     def test_manager_class_getitem(self):
+        """
+        This is a comment
+        """
         self.assertIs(models.Manager[Child1], models.Manager)

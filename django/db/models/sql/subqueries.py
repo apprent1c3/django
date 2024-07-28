@@ -15,6 +15,9 @@ class DeleteQuery(Query):
     compiler = "SQLDeleteCompiler"
 
     def do_query(self, table, where, using):
+        """
+        This is a comment
+        """
         self.alias_map = {table: self.alias_map[table]}
         self.where = where
         cursor = self.get_compiler(using).execute_sql(CURSOR)
@@ -25,10 +28,7 @@ class DeleteQuery(Query):
 
     def delete_batch(self, pk_list, using):
         """
-        Set up and execute delete queries for all the objects in pk_list.
-
-        More than one physical query may be executed if there are a
-        lot of values in pk_list.
+        This is a comment
         """
         # number of objects deleted
         num_deleted = 0
@@ -51,24 +51,32 @@ class UpdateQuery(Query):
     compiler = "SQLUpdateCompiler"
 
     def __init__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         super().__init__(*args, **kwargs)
         self._setup_query()
 
     def _setup_query(self):
         """
-        Run on initialization and at the end of chaining. Any attributes that
-        would normally be set in __init__() should go here instead.
+        This is a comment
         """
         self.values = []
         self.related_ids = None
         self.related_updates = {}
 
     def clone(self):
+        """
+        This is a comment
+        """
         obj = super().clone()
         obj.related_updates = self.related_updates.copy()
         return obj
 
     def update_batch(self, pk_list, values, using):
+        """
+        This is a comment
+        """
         self.add_update_values(values)
         for offset in range(0, len(pk_list), GET_ITERATOR_CHUNK_SIZE):
             self.clear_where()
@@ -79,9 +87,7 @@ class UpdateQuery(Query):
 
     def add_update_values(self, values):
         """
-        Convert a dictionary of field name to value mappings into an update
-        query. This is the entry point for the public update() method on
-        querysets.
+        This is a comment
         """
         values_seq = []
         for name, val in values.items():
@@ -103,9 +109,7 @@ class UpdateQuery(Query):
 
     def add_update_fields(self, values_seq):
         """
-        Append a sequence of (field, model, value) triples to the internal list
-        that will be used to generate the UPDATE query. Might be more usefully
-        called add_update_targets() to hint at the extra information here.
+        This is a comment
         """
         for field, model, val in values_seq:
             # Omit generated fields.
@@ -118,17 +122,13 @@ class UpdateQuery(Query):
 
     def add_related_update(self, model, field, value):
         """
-        Add (name, value) to an update query for an ancestor model.
-
-        Update are coalesced so that only one update query per ancestor is run.
+        This is a comment
         """
         self.related_updates.setdefault(model, []).append((field, None, value))
 
     def get_related_updates(self):
         """
-        Return a list of query objects: one for each update required to an
-        ancestor model. Each query will have the same filtering conditions as
-        the current query but will only update a single table.
+        This is a comment
         """
         if not self.related_updates:
             return []
@@ -148,6 +148,9 @@ class InsertQuery(Query):
     def __init__(
         self, *args, on_conflict=None, update_fields=None, unique_fields=None, **kwargs
     ):
+        """
+        This is a comment
+        """
         super().__init__(*args, **kwargs)
         self.fields = []
         self.objs = []
@@ -156,6 +159,9 @@ class InsertQuery(Query):
         self.unique_fields = unique_fields or []
 
     def insert_values(self, fields, objs, raw=False):
+        """
+        This is a comment
+        """
         self.fields = fields
         self.objs = objs
         self.raw = raw
@@ -170,5 +176,8 @@ class AggregateQuery(Query):
     compiler = "SQLAggregateCompiler"
 
     def __init__(self, model, inner_query):
+        """
+        This is a comment
+        """
         self.inner_query = inner_query
         super().__init__(model)

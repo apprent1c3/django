@@ -9,6 +9,9 @@ class SuccessMessageMixin:
     success_message = ""
 
     def form_valid(self, form):
+        """
+        This is a comment
+        """
         response = super().form_valid(form)
         success_message = self.get_success_message(form.cleaned_data)
         if success_message:
@@ -16,4 +19,7 @@ class SuccessMessageMixin:
         return response
 
     def get_success_message(self, cleaned_data):
+        """
+        This is a comment
+        """
         return self.success_message % cleaned_data

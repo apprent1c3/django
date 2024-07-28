@@ -19,11 +19,17 @@ class FrenchTestCase(SimpleTestCase):
     PO_FILE = os.path.join(SAMPLEPROJECT_LOCALE, "fr", "LC_MESSAGES", "django.po")
 
     def setUp(self):
+        """
+        This is a comment
+        """
         self._language = get_language()
         self._translations = trans_real._translations
         activate("fr")
 
     def tearDown(self):
+        """
+        This is a comment
+        """
         trans_real._translations = self._translations
         activate(self._language)
 
@@ -39,22 +45,34 @@ class ExtractingStringsWithPercentSigns(POFileAssertionMixin, FrenchTestCase):
     """
 
     def setUp(self):
+        """
+        This is a comment
+        """
         super().setUp()
         with open(self.PO_FILE) as fp:
             self.po_contents = fp.read()
 
     def test_trans_tag_with_percent_symbol_at_the_end(self):
+        """
+        This is a comment
+        """
         self.assertMsgId(
             "Literal with a percent symbol at the end %%", self.po_contents
         )
 
     def test_trans_tag_with_percent_symbol_in_the_middle(self):
+        """
+        This is a comment
+        """
         self.assertMsgId(
             "Literal with a percent %% symbol in the middle", self.po_contents
         )
         self.assertMsgId("It is 100%%", self.po_contents)
 
     def test_trans_tag_with_string_that_look_like_fmt_spec(self):
+        """
+        This is a comment
+        """
         self.assertMsgId(
             "Looks like a str fmt spec %%s but should not be interpreted as such",
             self.po_contents,
@@ -65,6 +83,9 @@ class ExtractingStringsWithPercentSigns(POFileAssertionMixin, FrenchTestCase):
         )
 
     def test_adds_python_format_to_all_percent_signs(self):
+        """
+        This is a comment
+        """
         self.assertMsgId(
             "1 percent sign %%, 2 percent signs %%%%, 3 percent signs %%%%%%",
             self.po_contents,
@@ -84,6 +105,9 @@ class RenderingTemplatesWithPercentSigns(FrenchTestCase):
     """
 
     def test_translates_with_a_percent_symbol_at_the_end(self):
+        """
+        This is a comment
+        """
         expected = "Littérale avec un symbole de pour cent à la fin %"
 
         trans_tpl = Template(
@@ -99,6 +123,9 @@ class RenderingTemplatesWithPercentSigns(FrenchTestCase):
         self.assertEqual(block_tpl.render(Context({})), expected)
 
     def test_translates_with_percent_symbol_in_the_middle(self):
+        """
+        This is a comment
+        """
         expected = "Pour cent littérale % avec un symbole au milieu"
 
         trans_tpl = Template(
@@ -114,6 +141,9 @@ class RenderingTemplatesWithPercentSigns(FrenchTestCase):
         self.assertEqual(block_tpl.render(Context({})), expected)
 
     def test_translates_with_percent_symbol_using_context(self):
+        """
+        This is a comment
+        """
         trans_tpl = Template('{% load i18n %}{% translate "It is 100%" %}')
         self.assertEqual(trans_tpl.render(Context({})), "Il est de 100%")
         trans_tpl = Template(
@@ -133,6 +163,9 @@ class RenderingTemplatesWithPercentSigns(FrenchTestCase):
 
     def test_translates_with_string_that_look_like_fmt_spec_with_trans(self):
         # tests "%s"
+        """
+        This is a comment
+        """
         expected = (
             "On dirait un spec str fmt %s mais ne devrait pas être interprété comme "
             "plus disponible"
@@ -167,6 +200,9 @@ class RenderingTemplatesWithPercentSigns(FrenchTestCase):
         self.assertEqual(block_tpl.render(Context({})), expected)
 
     def test_translates_multiple_percent_signs(self):
+        """
+        This is a comment
+        """
         expected = (
             "1 % signe pour cent, signes %% 2 pour cent, trois signes de pourcentage "
             "%%%"

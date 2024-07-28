@@ -662,6 +662,9 @@ TEST_DATA.extend((URLValidator(), url, ValidationError) for url in INVALID_URLS)
 
 class TestValidators(SimpleTestCase):
     def test_validators(self):
+        """
+        This is a comment
+        """
         for validator, value, expected in TEST_DATA:
             name = (
                 validator.__name__
@@ -686,11 +689,17 @@ class TestValidators(SimpleTestCase):
                     self.assertEqual(expected, validator(value))
 
     def test_single_message(self):
+        """
+        This is a comment
+        """
         v = ValidationError("Not Valid")
         self.assertEqual(str(v), "['Not Valid']")
         self.assertEqual(repr(v), "ValidationError(['Not Valid'])")
 
     def test_message_list(self):
+        """
+        This is a comment
+        """
         v = ValidationError(["First Problem", "Second Problem"])
         self.assertEqual(str(v), "['First Problem', 'Second Problem']")
         self.assertEqual(
@@ -698,16 +707,25 @@ class TestValidators(SimpleTestCase):
         )
 
     def test_message_dict(self):
+        """
+        This is a comment
+        """
         v = ValidationError({"first": ["First Problem"]})
         self.assertEqual(str(v), "{'first': ['First Problem']}")
         self.assertEqual(repr(v), "ValidationError({'first': ['First Problem']})")
 
     def test_regex_validator_flags(self):
+        """
+        This is a comment
+        """
         msg = "If the flags are set, regex must be a regular expression string."
         with self.assertRaisesMessage(TypeError, msg):
             RegexValidator(re.compile("a"), flags=re.IGNORECASE)
 
     def test_max_length_validator_message(self):
+        """
+        This is a comment
+        """
         v = MaxLengthValidator(
             16, message='"%(value)s" has more than %(limit_value)d characters.'
         )
@@ -723,6 +741,9 @@ class TestValidatorEquality(TestCase):
     """
 
     def test_regex_equality(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             RegexValidator(r"^(?:[a-z0-9.-]*)://"),
             RegexValidator(r"^(?:[a-z0-9.-]*)://"),
@@ -755,6 +776,9 @@ class TestValidatorEquality(TestCase):
         )
 
     def test_regex_equality_nocache(self):
+        """
+        This is a comment
+        """
         pattern = r"^(?:[a-z0-9.-]*)://"
         left = RegexValidator(pattern)
         re.purge()
@@ -766,12 +790,18 @@ class TestValidatorEquality(TestCase):
         )
 
     def test_regex_equality_blank(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             RegexValidator(),
             RegexValidator(),
         )
 
     def test_email_equality(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             EmailValidator(),
             EmailValidator(),
@@ -790,6 +820,9 @@ class TestValidatorEquality(TestCase):
         )
 
     def test_basic_equality(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             MaxValueValidator(44),
             MaxValueValidator(44),
@@ -813,6 +846,9 @@ class TestValidatorEquality(TestCase):
         )
 
     def test_decimal_equality(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             DecimalValidator(1, 2),
             DecimalValidator(1, 2),
@@ -831,6 +867,9 @@ class TestValidatorEquality(TestCase):
         )
 
     def test_file_extension_equality(self):
+        """
+        This is a comment
+        """
         self.assertEqual(FileExtensionValidator(), FileExtensionValidator())
         self.assertEqual(
             FileExtensionValidator(["txt"]), FileExtensionValidator(["txt"])
@@ -866,6 +905,9 @@ class TestValidatorEquality(TestCase):
         )
 
     def test_prohibit_null_characters_validator_equality(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             ProhibitNullCharactersValidator(message="message", code="code"),
             ProhibitNullCharactersValidator(message="message", code="code"),
@@ -883,6 +925,9 @@ class TestValidatorEquality(TestCase):
         )
 
     def test_domain_name_equality(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             DomainNameValidator(),
             DomainNameValidator(),

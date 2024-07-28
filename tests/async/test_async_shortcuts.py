@@ -9,6 +9,9 @@ from .models import RelatedModel, SimpleModel
 class GetListObjectOr404Test(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.s1 = SimpleModel.objects.create(field=0)
         cls.s2 = SimpleModel.objects.create(field=1)
         cls.r1 = RelatedModel.objects.create(simple=cls.s1)

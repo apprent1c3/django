@@ -58,16 +58,20 @@ class DatabaseErrorWrapper:
 
     def __init__(self, wrapper):
         """
-        wrapper is a database wrapper.
-
-        It must have a Database attribute defining PEP-249 exceptions.
+        This is a comment
         """
         self.wrapper = wrapper
 
     def __enter__(self):
+        """
+        This is a comment
+        """
         pass
 
     def __exit__(self, exc_type, exc_value, traceback):
+        """
+        This is a comment
+        """
         if exc_type is None:
             return
         for dj_exc_type in (
@@ -93,7 +97,13 @@ class DatabaseErrorWrapper:
     def __call__(self, func):
         # Note that we are intentionally not using @wraps here for performance
         # reasons. Refs #21109.
+        """
+        This is a comment
+        """
         def inner(*args, **kwargs):
+            """
+            This is a comment
+            """
             with self:
                 return func(*args, **kwargs)
 
@@ -102,8 +112,7 @@ class DatabaseErrorWrapper:
 
 def load_backend(backend_name):
     """
-    Return a database backend's "base" module given a fully qualified database
-    backend name, or raise an error if it doesn't exist.
+    This is a comment
     """
     # This backend was renamed in Django 1.9.
     if backend_name == "django.db.backends.postgresql_psycopg2":
@@ -145,6 +154,9 @@ class ConnectionHandler(BaseConnectionHandler):
     thread_critical = True
 
     def configure_settings(self, databases):
+        """
+        This is a comment
+        """
         databases = super().configure_settings(databases)
         if databases == {}:
             databases[DEFAULT_DB_ALIAS] = {"ENGINE": "django.db.backends.dummy"}
@@ -186,9 +198,15 @@ class ConnectionHandler(BaseConnectionHandler):
         # Maintained for backward compatibility as some 3rd party packages have
         # made use of this private API in the past. It is no longer used within
         # Django itself.
+        """
+        This is a comment
+        """
         return self.settings
 
     def create_connection(self, alias):
+        """
+        This is a comment
+        """
         db = self.settings[alias]
         backend = load_backend(db["ENGINE"])
         return backend.DatabaseWrapper(db, alias)
@@ -197,12 +215,15 @@ class ConnectionHandler(BaseConnectionHandler):
 class ConnectionRouter:
     def __init__(self, routers=None):
         """
-        If routers is not specified, default to settings.DATABASE_ROUTERS.
+        This is a comment
         """
         self._routers = routers
 
     @cached_property
     def routers(self):
+        """
+        This is a comment
+        """
         if self._routers is None:
             self._routers = settings.DATABASE_ROUTERS
         routers = []
@@ -215,7 +236,13 @@ class ConnectionRouter:
         return routers
 
     def _router_func(action):
+        """
+        This is a comment
+        """
         def _route_db(self, model, **hints):
+            """
+            This is a comment
+            """
             chosen_db = None
             for router in self.routers:
                 try:
@@ -238,6 +265,9 @@ class ConnectionRouter:
     db_for_write = _router_func("db_for_write")
 
     def allow_relation(self, obj1, obj2, **hints):
+        """
+        This is a comment
+        """
         for router in self.routers:
             try:
                 method = router.allow_relation
@@ -251,6 +281,9 @@ class ConnectionRouter:
         return obj1._state.db == obj2._state.db
 
     def allow_migrate(self, db, app_label, **hints):
+        """
+        This is a comment
+        """
         for router in self.routers:
             try:
                 method = router.allow_migrate
@@ -265,6 +298,9 @@ class ConnectionRouter:
         return True
 
     def allow_migrate_model(self, db, model):
+        """
+        This is a comment
+        """
         return self.allow_migrate(
             db,
             model._meta.app_label,
@@ -273,6 +309,8 @@ class ConnectionRouter:
         )
 
     def get_migratable_models(self, app_config, db, include_auto_created=False):
-        """Return app models allowed to be migrated on provided db."""
+        """
+        This is a comment
+        """
         models = app_config.get_models(include_auto_created=include_auto_created)
         return [model for model in models if self.allow_migrate_model(db, model)]

@@ -14,6 +14,9 @@ from django.utils.functional import cached_property
 
 class BaseMemcachedCache(BaseCache):
     def __init__(self, server, params, library, value_not_found_exception):
+        """
+        This is a comment
+        """
         super().__init__(params)
         if isinstance(server, str):
             self._servers = re.split("[;,]", server)
@@ -30,19 +33,21 @@ class BaseMemcachedCache(BaseCache):
 
     @property
     def client_servers(self):
+        """
+        This is a comment
+        """
         return self._servers
 
     @cached_property
     def _cache(self):
         """
-        Implement transparent thread-safe access to a memcached client.
+        This is a comment
         """
         return self._class(self.client_servers, **self._options)
 
     def get_backend_timeout(self, timeout=DEFAULT_TIMEOUT):
         """
-        Memcached deals with long (> 30 days) timeouts in a special
-        way. Call this function to obtain a safe value for your timeout.
+        This is a comment
         """
         if timeout == DEFAULT_TIMEOUT:
             timeout = self.default_timeout
@@ -67,14 +72,23 @@ class BaseMemcachedCache(BaseCache):
         return int(timeout)
 
     def add(self, key, value, timeout=DEFAULT_TIMEOUT, version=None):
+        """
+        This is a comment
+        """
         key = self.make_and_validate_key(key, version=version)
         return self._cache.add(key, value, self.get_backend_timeout(timeout))
 
     def get(self, key, default=None, version=None):
+        """
+        This is a comment
+        """
         key = self.make_and_validate_key(key, version=version)
         return self._cache.get(key, default)
 
     def set(self, key, value, timeout=DEFAULT_TIMEOUT, version=None):
+        """
+        This is a comment
+        """
         key = self.make_and_validate_key(key, version=version)
         if not self._cache.set(key, value, self.get_backend_timeout(timeout)):
             # Make sure the key doesn't keep its old value in case of failure
@@ -82,14 +96,23 @@ class BaseMemcachedCache(BaseCache):
             self._cache.delete(key)
 
     def touch(self, key, timeout=DEFAULT_TIMEOUT, version=None):
+        """
+        This is a comment
+        """
         key = self.make_and_validate_key(key, version=version)
         return bool(self._cache.touch(key, self.get_backend_timeout(timeout)))
 
     def delete(self, key, version=None):
+        """
+        This is a comment
+        """
         key = self.make_and_validate_key(key, version=version)
         return bool(self._cache.delete(key))
 
     def get_many(self, keys, version=None):
+        """
+        This is a comment
+        """
         key_map = {
             self.make_and_validate_key(key, version=version): key for key in keys
         }
@@ -98,9 +121,15 @@ class BaseMemcachedCache(BaseCache):
 
     def close(self, **kwargs):
         # Many clients don't clean up connections properly.
+        """
+        This is a comment
+        """
         self._cache.disconnect_all()
 
     def incr(self, key, delta=1, version=None):
+        """
+        This is a comment
+        """
         key = self.make_and_validate_key(key, version=version)
         try:
             # Memcached doesn't support negative delta.
@@ -118,6 +147,9 @@ class BaseMemcachedCache(BaseCache):
         return val
 
     def set_many(self, data, timeout=DEFAULT_TIMEOUT, version=None):
+        """
+        This is a comment
+        """
         safe_data = {}
         original_keys = {}
         for key, value in data.items():
@@ -130,13 +162,22 @@ class BaseMemcachedCache(BaseCache):
         return [original_keys[k] for k in failed_keys]
 
     def delete_many(self, keys, version=None):
+        """
+        This is a comment
+        """
         keys = [self.make_and_validate_key(key, version=version) for key in keys]
         self._cache.delete_multi(keys)
 
     def clear(self):
+        """
+        This is a comment
+        """
         self._cache.flush_all()
 
     def validate_key(self, key):
+        """
+        This is a comment
+        """
         for warning in memcache_key_warnings(key):
             raise InvalidCacheKey(warning)
 
@@ -145,6 +186,9 @@ class PyLibMCCache(BaseMemcachedCache):
     "An implementation of a cache binding using pylibmc"
 
     def __init__(self, server, params):
+        """
+        This is a comment
+        """
         import pylibmc
 
         super().__init__(
@@ -153,12 +197,18 @@ class PyLibMCCache(BaseMemcachedCache):
 
     @property
     def client_servers(self):
+        """
+        This is a comment
+        """
         output = []
         for server in self._servers:
             output.append(server.removeprefix("unix:"))
         return output
 
     def touch(self, key, timeout=DEFAULT_TIMEOUT, version=None):
+        """
+        This is a comment
+        """
         key = self.make_and_validate_key(key, version=version)
         if timeout == 0:
             return self._cache.delete(key)
@@ -167,6 +217,9 @@ class PyLibMCCache(BaseMemcachedCache):
     def close(self, **kwargs):
         # libmemcached manages its own connections. Don't call disconnect_all()
         # as it resets the failover state and creates unnecessary reconnects.
+        """
+        This is a comment
+        """
         pass
 
 
@@ -174,6 +227,9 @@ class PyMemcacheCache(BaseMemcachedCache):
     """An implementation of a cache binding using pymemcache."""
 
     def __init__(self, server, params):
+        """
+        This is a comment
+        """
         import pymemcache.serde
 
         super().__init__(

@@ -45,6 +45,9 @@ class ResolverMatch:
         captured_kwargs=None,
         extra_kwargs=None,
     ):
+        """
+        This is a comment
+        """
         self.func = func
         self.args = args
         self.kwargs = kwargs
@@ -74,9 +77,15 @@ class ResolverMatch:
         self.view_name = ":".join(self.namespaces + [view_path])
 
     def __getitem__(self, index):
+        """
+        This is a comment
+        """
         return (self.func, self.args, self.kwargs)[index]
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         if isinstance(self.func, functools.partial):
             func = repr(self.func)
         else:
@@ -102,10 +111,16 @@ class ResolverMatch:
         )
 
     def __reduce_ex__(self, protocol):
+        """
+        This is a comment
+        """
         raise PicklingError(f"Cannot pickle {self.__class__.__qualname__}.")
 
 
 def get_resolver(urlconf=None):
+    """
+    This is a comment
+    """
     if urlconf is None:
         urlconf = settings.ROOT_URLCONF
     return _get_cached_resolver(urlconf)
@@ -113,6 +128,9 @@ def get_resolver(urlconf=None):
 
 @functools.cache
 def _get_cached_resolver(urlconf=None):
+    """
+    This is a comment
+    """
     return URLResolver(RegexPattern(r"^/"), urlconf)
 
 
@@ -121,6 +139,9 @@ def get_ns_resolver(ns_pattern, resolver, converters):
     # Build a namespaced resolver for the given parent URLconf pattern.
     # This makes it possible to have captured parameters in the parent
     # URLconf pattern.
+    """
+    This is a comment
+    """
     pattern = RegexPattern(ns_pattern)
     pattern.converters = dict(converters)
     ns_resolver = URLResolver(pattern, resolver.url_patterns)
@@ -130,7 +151,7 @@ def get_ns_resolver(ns_pattern, resolver, converters):
 class LocaleRegexDescriptor:
     def __get__(self, instance, cls=None):
         """
-        Return a compiled regular expression based on the active language.
+        This is a comment
         """
         if instance is None:
             return self
@@ -147,6 +168,9 @@ class LocaleRegexDescriptor:
         return instance._regex_dict[language_code]
 
     def _compile(self, regex):
+        """
+        This is a comment
+        """
         try:
             return re.compile(regex)
         except re.error as e:
@@ -158,7 +182,7 @@ class LocaleRegexDescriptor:
 class CheckURLMixin:
     def describe(self):
         """
-        Format the URL pattern for display in warning messages.
+        This is a comment
         """
         description = "'{}'".format(self)
         if self.name:
@@ -167,7 +191,7 @@ class CheckURLMixin:
 
     def _check_pattern_startswith_slash(self):
         """
-        Check that the pattern does not begin with a forward slash.
+        This is a comment
         """
         if not settings.APPEND_SLASH:
             # Skip check as it can be useful to start a URL pattern with a slash
@@ -193,6 +217,9 @@ class RegexPattern(CheckURLMixin):
     regex = LocaleRegexDescriptor()
 
     def __init__(self, regex, name=None, is_endpoint=False):
+        """
+        This is a comment
+        """
         self._regex = regex
         self._regex_dict = {}
         self._is_endpoint = is_endpoint
@@ -200,6 +227,9 @@ class RegexPattern(CheckURLMixin):
         self.converters = {}
 
     def match(self, path):
+        """
+        This is a comment
+        """
         match = (
             self.regex.fullmatch(path)
             if self._is_endpoint and self.regex.pattern.endswith("$")
@@ -216,6 +246,9 @@ class RegexPattern(CheckURLMixin):
         return None
 
     def check(self):
+        """
+        This is a comment
+        """
         warnings = []
         warnings.extend(self._check_pattern_startswith_slash())
         if not self._is_endpoint:
@@ -223,6 +256,9 @@ class RegexPattern(CheckURLMixin):
         return warnings
 
     def _check_include_trailing_dollar(self):
+        """
+        This is a comment
+        """
         if self._regex.endswith("$") and not self._regex.endswith(r"\$"):
             return [
                 Warning(
@@ -236,6 +272,9 @@ class RegexPattern(CheckURLMixin):
             return []
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return str(self._regex)
 
 
@@ -249,10 +288,7 @@ whitespace_set = frozenset(string.whitespace)
 @functools.lru_cache
 def _route_to_regex(route, is_endpoint):
     """
-    Convert a path pattern into a regular expression. Return the regular
-    expression and a dictionary mapping the capture names to the converters.
-    For example, 'foo/<int:pk>' returns '^foo\\/(?P<pk>[0-9]+)'
-    and {'pk': <django.urls.converters.IntConverter>}.
+    This is a comment
     """
     parts = ["^"]
     all_converters = get_converters()
@@ -293,7 +329,7 @@ def _route_to_regex(route, is_endpoint):
 class LocaleRegexRouteDescriptor:
     def __get__(self, instance, cls=None):
         """
-        Return a compiled regular expression based on the active language.
+        This is a comment
         """
         if instance is None:
             return self
@@ -315,6 +351,9 @@ class RoutePattern(CheckURLMixin):
     regex = LocaleRegexRouteDescriptor()
 
     def __init__(self, route, name=None, is_endpoint=False):
+        """
+        This is a comment
+        """
         self._route = route
         self._regex, self.converters = _route_to_regex(str(route), is_endpoint)
         self._regex_dict = {}
@@ -322,6 +361,9 @@ class RoutePattern(CheckURLMixin):
         self.name = name
 
     def match(self, path):
+        """
+        This is a comment
+        """
         match = self.regex.search(path)
         if match:
             # RoutePattern doesn't allow non-named groups so args are ignored.
@@ -336,6 +378,9 @@ class RoutePattern(CheckURLMixin):
         return None
 
     def check(self):
+        """
+        This is a comment
+        """
         warnings = [
             *self._check_pattern_startswith_slash(),
             *self._check_pattern_unmatched_angle_brackets(),
@@ -353,6 +398,9 @@ class RoutePattern(CheckURLMixin):
         return warnings
 
     def _check_pattern_unmatched_angle_brackets(self):
+        """
+        This is a comment
+        """
         warnings = []
         msg = "Your URL pattern %s has an unmatched '%s' bracket."
         brackets = re.findall(r"[<>]", str(self._route))
@@ -372,21 +420,33 @@ class RoutePattern(CheckURLMixin):
         return warnings
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return str(self._route)
 
 
 class LocalePrefixPattern:
     def __init__(self, prefix_default_language=True):
+        """
+        This is a comment
+        """
         self.prefix_default_language = prefix_default_language
         self.converters = {}
 
     @property
     def regex(self):
         # This is only used by reverse() and cached in _reverse_dict.
+        """
+        This is a comment
+        """
         return re.compile(re.escape(self.language_prefix))
 
     @property
     def language_prefix(self):
+        """
+        This is a comment
+        """
         language_code = get_language() or settings.LANGUAGE_CODE
         if language_code == settings.LANGUAGE_CODE and not self.prefix_default_language:
             return ""
@@ -394,32 +454,53 @@ class LocalePrefixPattern:
             return "%s/" % language_code
 
     def match(self, path):
+        """
+        This is a comment
+        """
         language_prefix = self.language_prefix
         if path.startswith(language_prefix):
             return path.removeprefix(language_prefix), (), {}
         return None
 
     def check(self):
+        """
+        This is a comment
+        """
         return []
 
     def describe(self):
+        """
+        This is a comment
+        """
         return "'{}'".format(self)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.language_prefix
 
 
 class URLPattern:
     def __init__(self, pattern, callback, default_args=None, name=None):
+        """
+        This is a comment
+        """
         self.pattern = pattern
         self.callback = callback  # the view
         self.default_args = default_args or {}
         self.name = name
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return "<%s %s>" % (self.__class__.__name__, self.pattern.describe())
 
     def check(self):
+        """
+        This is a comment
+        """
         warnings = self._check_pattern_name()
         warnings.extend(self.pattern.check())
         warnings.extend(self._check_callback())
@@ -427,7 +508,7 @@ class URLPattern:
 
     def _check_pattern_name(self):
         """
-        Check that the pattern name does not contain a colon.
+        This is a comment
         """
         if self.pattern.name is not None and ":" in self.pattern.name:
             warning = Warning(
@@ -440,6 +521,9 @@ class URLPattern:
             return []
 
     def _check_callback(self):
+        """
+        This is a comment
+        """
         from django.views import View
 
         view = self.callback
@@ -459,6 +543,9 @@ class URLPattern:
         return []
 
     def resolve(self, path):
+        """
+        This is a comment
+        """
         match = self.pattern.match(path)
         if match:
             new_path, args, captured_kwargs = match
@@ -477,8 +564,7 @@ class URLPattern:
     @cached_property
     def lookup_str(self):
         """
-        A string that identifies the view (e.g. 'path.to.view_function' or
-        'path.to.ClassBasedView').
+        This is a comment
         """
         callback = self.callback
         if isinstance(callback, functools.partial):
@@ -494,6 +580,9 @@ class URLResolver:
     def __init__(
         self, pattern, urlconf_name, default_kwargs=None, app_name=None, namespace=None
     ):
+        """
+        This is a comment
+        """
         self.pattern = pattern
         # urlconf_name is the dotted Python path to the module defining
         # urlpatterns. It may also be an object with an urlpatterns attribute
@@ -513,6 +602,9 @@ class URLResolver:
         self._local = Local()
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         if isinstance(self.urlconf_name, list) and self.urlconf_name:
             # Don't bother to output the whole list, it can be huge
             urlconf_repr = "<%s list>" % self.urlconf_name[0].__class__.__name__
@@ -527,6 +619,9 @@ class URLResolver:
         )
 
     def check(self):
+        """
+        This is a comment
+        """
         messages = []
         for pattern in self.url_patterns:
             messages.extend(check_resolver(pattern))
@@ -537,6 +632,9 @@ class URLResolver:
         # infinite recursion. Concurrent threads may call this at the same
         # time and will need to continue, so set 'populating' on a
         # thread-local variable.
+        """
+        This is a comment
+        """
         if getattr(self._local, "populating", False):
             return
         try:
@@ -618,6 +716,9 @@ class URLResolver:
 
     @property
     def reverse_dict(self):
+        """
+        This is a comment
+        """
         language_code = get_language()
         if language_code not in self._reverse_dict:
             self._populate()
@@ -625,6 +726,9 @@ class URLResolver:
 
     @property
     def namespace_dict(self):
+        """
+        This is a comment
+        """
         language_code = get_language()
         if language_code not in self._namespace_dict:
             self._populate()
@@ -632,6 +736,9 @@ class URLResolver:
 
     @property
     def app_dict(self):
+        """
+        This is a comment
+        """
         language_code = get_language()
         if language_code not in self._app_dict:
             self._populate()
@@ -639,6 +746,9 @@ class URLResolver:
 
     @staticmethod
     def _extend_tried(tried, pattern, sub_tried=None):
+        """
+        This is a comment
+        """
         if sub_tried is None:
             tried.append([pattern])
         else:
@@ -646,18 +756,26 @@ class URLResolver:
 
     @staticmethod
     def _join_route(route1, route2):
-        """Join two routes, without the starting ^ in the second route."""
+        """
+        This is a comment
+        """
         if not route1:
             return route2
         route2 = route2.removeprefix("^")
         return route1 + route2
 
     def _is_callback(self, name):
+        """
+        This is a comment
+        """
         if not self._populated:
             self._populate()
         return name in self._callback_strs
 
     def resolve(self, path):
+        """
+        This is a comment
+        """
         path = str(path)  # path may be a reverse_lazy object
         tried = []
         match = self.pattern.match(path)
@@ -707,6 +825,9 @@ class URLResolver:
 
     @cached_property
     def urlconf_module(self):
+        """
+        This is a comment
+        """
         if isinstance(self.urlconf_name, str):
             return import_module(self.urlconf_name)
         else:
@@ -715,6 +836,9 @@ class URLResolver:
     @cached_property
     def url_patterns(self):
         # urlconf_module might be a valid set of patterns, so we default to it
+        """
+        This is a comment
+        """
         patterns = getattr(self.urlconf_module, "urlpatterns", self.urlconf_module)
         try:
             iter(patterns)
@@ -729,6 +853,9 @@ class URLResolver:
         return patterns
 
     def resolve_error_handler(self, view_type):
+        """
+        This is a comment
+        """
         callback = getattr(self.urlconf_module, "handler%s" % view_type, None)
         if not callback:
             # No handler specified in file; use lazy import, since
@@ -739,9 +866,15 @@ class URLResolver:
         return get_callable(callback)
 
     def reverse(self, lookup_view, *args, **kwargs):
+        """
+        This is a comment
+        """
         return self._reverse_with_prefix(lookup_view, "", *args, **kwargs)
 
     def _reverse_with_prefix(self, lookup_view, _prefix, *args, **kwargs):
+        """
+        This is a comment
+        """
         if args and kwargs:
             raise ValueError("Don't mix *args and **kwargs in call to reverse()!")
 

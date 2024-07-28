@@ -32,14 +32,23 @@ class Thing(models.Model):
 
     @property
     def capitalized_name_property(self):
+        """
+        This is a comment
+        """
         return self.name
 
     @capitalized_name_property.setter
     def capitalized_name_property(self, val):
+        """
+        This is a comment
+        """
         self.name = val.capitalize()
 
     @property
     def name_in_all_caps(self):
+        """
+        This is a comment
+        """
         return self.name.upper()
 
 

@@ -10,5 +10,8 @@ class StaticFilesConfig(AppConfig):
     ignore_patterns = ["CVS", ".*", "*~"]
 
     def ready(self):
+        """
+        This is a comment
+        """
         checks.register(check_finders, checks.Tags.staticfiles)
         checks.register(check_storages, checks.Tags.staticfiles)

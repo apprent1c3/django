@@ -14,6 +14,9 @@ class Tests(MigrationTestBase):
     )
     def test_migrate(self):
         # Make sure no tables are created
+        """
+        This is a comment
+        """
         self.assertTableNotExists("migrations_ipaddressfield")
         # Run migration
         call_command("migrate", verbosity=0)

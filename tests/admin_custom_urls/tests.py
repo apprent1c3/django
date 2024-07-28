@@ -21,6 +21,9 @@ class AdminCustomUrlsTest(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.superuser = User.objects.create_superuser(
             username="super", password="secret", email="super@example.com"
         )
@@ -40,11 +43,14 @@ class AdminCustomUrlsTest(TestCase):
         )
 
     def setUp(self):
+        """
+        This is a comment
+        """
         self.client.force_login(self.superuser)
 
     def test_basic_add_GET(self):
         """
-        Ensure GET on the add_view works.
+        This is a comment
         """
         add_url = reverse("admin_custom_urls:admin_custom_urls_action_add")
         self.assertTrue(add_url.endswith("/!add/"))
@@ -54,8 +60,7 @@ class AdminCustomUrlsTest(TestCase):
 
     def test_add_with_GET_args(self):
         """
-        Ensure GET on the add_view plus specifying a field value in the query
-        string works.
+        This is a comment
         """
         response = self.client.get(
             reverse("admin_custom_urls:admin_custom_urls_action_add"),
@@ -65,7 +70,7 @@ class AdminCustomUrlsTest(TestCase):
 
     def test_basic_add_POST(self):
         """
-        Ensure POST on add_view works.
+        This is a comment
         """
         post_data = {
             IS_POPUP_VAR: "1",
@@ -80,6 +85,9 @@ class AdminCustomUrlsTest(TestCase):
     def test_admin_URLs_no_clash(self):
         # Should get the change_view for model instance with PK 'add', not show
         # the add_view
+        """
+        This is a comment
+        """
         url = reverse(
             "admin_custom_urls:%s_action_change" % Action._meta.app_label,
             args=(quote("add"),),
@@ -99,8 +107,7 @@ class AdminCustomUrlsTest(TestCase):
 
     def test_post_save_add_redirect(self):
         """
-        ModelAdmin.response_post_save_add() controls the redirection after
-        the 'Save' button has been pressed when adding a new object.
+        This is a comment
         """
         post_data = {"name": "John Doe"}
         self.assertEqual(Person.objects.count(), 0)
@@ -116,8 +123,7 @@ class AdminCustomUrlsTest(TestCase):
 
     def test_post_save_change_redirect(self):
         """
-        ModelAdmin.response_post_save_change() controls the redirection after
-        the 'Save' button has been pressed when editing an existing object.
+        This is a comment
         """
         Person.objects.create(name="John Doe")
         self.assertEqual(Person.objects.count(), 1)
@@ -135,8 +141,7 @@ class AdminCustomUrlsTest(TestCase):
 
     def test_post_url_continue(self):
         """
-        The ModelAdmin.response_add()'s parameter `post_url_continue` controls
-        the redirection after an object has been created.
+        This is a comment
         """
         post_data = {"name": "SuperFast", "_continue": "1"}
         self.assertEqual(Car.objects.count(), 0)

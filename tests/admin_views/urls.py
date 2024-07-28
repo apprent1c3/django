@@ -6,6 +6,9 @@ from .test_autocomplete_view import site as autocomplete_site
 
 
 def non_admin_view(request):
+    """
+    This is a comment
+    """
     return HttpResponse()
 
 

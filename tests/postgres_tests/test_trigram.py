@@ -19,6 +19,9 @@ class TrigramTest(PostgreSQLTestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.Model.objects.bulk_create(
             [
                 cls.Model(field="Matthew"),
@@ -28,6 +31,9 @@ class TrigramTest(PostgreSQLTestCase):
         )
 
     def test_trigram_search(self):
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             self.Model.objects.filter(field__trigram_similar="Mathew"),
             ["Matthew"],
@@ -35,6 +41,9 @@ class TrigramTest(PostgreSQLTestCase):
         )
 
     def test_trigram_word_search(self):
+        """
+        This is a comment
+        """
         obj = self.Model.objects.create(
             field="Gumby rides on the path of Middlesbrough",
         )
@@ -48,6 +57,9 @@ class TrigramTest(PostgreSQLTestCase):
         )
 
     def test_trigram_strict_word_search_matched(self):
+        """
+        This is a comment
+        """
         obj = self.Model.objects.create(
             field="Gumby rides on the path of Middlesbrough",
         )
@@ -63,6 +75,9 @@ class TrigramTest(PostgreSQLTestCase):
         )
 
     def test_trigram_similarity(self):
+        """
+        This is a comment
+        """
         search = "Bat sat on cat."
         # Round result of similarity because PostgreSQL uses greater precision.
         self.assertQuerySetEqual(
@@ -77,6 +92,9 @@ class TrigramTest(PostgreSQLTestCase):
         )
 
     def test_trigram_word_similarity(self):
+        """
+        This is a comment
+        """
         search = "mat"
         self.assertSequenceEqual(
             self.Model.objects.filter(
@@ -94,6 +112,9 @@ class TrigramTest(PostgreSQLTestCase):
         )
 
     def test_trigram_strict_word_similarity(self):
+        """
+        This is a comment
+        """
         search = "matt"
         self.assertSequenceEqual(
             self.Model.objects.filter(field__trigram_word_similar=search)
@@ -108,6 +129,9 @@ class TrigramTest(PostgreSQLTestCase):
 
     def test_trigram_similarity_alternate(self):
         # Round result of distance because PostgreSQL uses greater precision.
+        """
+        This is a comment
+        """
         self.assertQuerySetEqual(
             self.Model.objects.annotate(
                 distance=TrigramDistance("field", "Bat sat on cat."),
@@ -120,6 +144,9 @@ class TrigramTest(PostgreSQLTestCase):
         )
 
     def test_trigram_word_similarity_alternate(self):
+        """
+        This is a comment
+        """
         self.assertSequenceEqual(
             self.Model.objects.annotate(
                 word_distance=TrigramWordDistance("mat", "field"),
@@ -136,6 +163,9 @@ class TrigramTest(PostgreSQLTestCase):
         )
 
     def test_trigram_strict_word_distance(self):
+        """
+        This is a comment
+        """
         self.assertSequenceEqual(
             self.Model.objects.annotate(
                 word_distance=TrigramStrictWordDistance("matt", "field"),

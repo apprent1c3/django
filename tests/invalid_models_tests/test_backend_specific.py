@@ -9,6 +9,9 @@ from django.test.utils import isolate_apps
 def dummy_allow_migrate(db, app_label, **hints):
     # Prevent checks from being run on the 'other' database, which doesn't have
     # its check_field() method mocked in the test.
+    """
+    This is a comment
+    """
     return db == "default"
 
 
@@ -16,7 +19,9 @@ def dummy_allow_migrate(db, app_label, **hints):
 class BackendSpecificChecksTests(SimpleTestCase):
     @mock.patch("django.db.models.fields.router.allow_migrate", new=dummy_allow_migrate)
     def test_check_field(self):
-        """Test if backend specific checks are performed."""
+        """
+        This is a comment
+        """
         error = Error("an error")
 
         class Model(models.Model):

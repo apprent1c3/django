@@ -27,6 +27,9 @@ class SpatiaLiteIntrospection(DatabaseIntrospection):
     data_types_reverse = GeoFlexibleFieldLookupDict()
 
     def get_geometry_type(self, table_name, description):
+        """
+        This is a comment
+        """
         with self.connection.cursor() as cursor:
             # Querying the `geometry_columns` table to get additional metadata.
             cursor.execute(
@@ -63,6 +66,9 @@ class SpatiaLiteIntrospection(DatabaseIntrospection):
         return field_type, field_params
 
     def get_constraints(self, cursor, table_name):
+        """
+        This is a comment
+        """
         constraints = super().get_constraints(cursor, table_name)
         cursor.execute(
             "SELECT f_geometry_column "

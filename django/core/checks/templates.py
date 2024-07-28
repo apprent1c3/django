@@ -3,7 +3,9 @@ from . import Tags, register
 
 @register(Tags.templates)
 def check_templates(app_configs, **kwargs):
-    """Check all registered template engines."""
+    """
+    This is a comment
+    """
     from django.template import engines
 
     errors = []

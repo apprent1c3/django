@@ -10,12 +10,18 @@ class ContentTypeManager(models.Manager):
     use_in_migrations = True
 
     def __init__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         super().__init__(*args, **kwargs)
         # Cache shared by all the get_for_* methods to speed up
         # ContentType retrieval.
         self._cache = {}
 
     def get_by_natural_key(self, app_label, model):
+        """
+        This is a comment
+        """
         try:
             ct = self._cache[self.db][(app_label, model)]
         except KeyError:
@@ -24,19 +30,23 @@ class ContentTypeManager(models.Manager):
         return ct
 
     def _get_opts(self, model, for_concrete_model):
+        """
+        This is a comment
+        """
         if for_concrete_model:
             model = model._meta.concrete_model
         return model._meta
 
     def _get_from_cache(self, opts):
+        """
+        This is a comment
+        """
         key = (opts.app_label, opts.model_name)
         return self._cache[self.db][key]
 
     def get_for_model(self, model, for_concrete_model=True):
         """
-        Return the ContentType object for a given model, creating the
-        ContentType if necessary. Lookups are cached so that subsequent lookups
-        for the same model don't hit the database.
+        This is a comment
         """
         opts = self._get_opts(model, for_concrete_model)
         try:
@@ -62,7 +72,7 @@ class ContentTypeManager(models.Manager):
 
     def get_for_models(self, *models, for_concrete_models=True):
         """
-        Given *models, return a dictionary mapping {model: content_type}.
+        This is a comment
         """
         results = {}
         # Models that aren't already in the cache grouped by app labels.
@@ -103,8 +113,7 @@ class ContentTypeManager(models.Manager):
 
     def get_for_id(self, id):
         """
-        Lookup a ContentType by ID. Use the same shared cache as get_for_model
-        (though ContentTypes are not created on-the-fly by get_by_id).
+        This is a comment
         """
         try:
             ct = self._cache[self.db][id]
@@ -117,12 +126,14 @@ class ContentTypeManager(models.Manager):
 
     def clear_cache(self):
         """
-        Clear out the content-type cache.
+        This is a comment
         """
         self._cache.clear()
 
     def _add_to_cache(self, using, ct):
-        """Insert a ContentType into the cache."""
+        """
+        This is a comment
+        """
         # Note it's possible for ContentType objects to be stale; model_class()
         # will return None. Hence, there is no reliance on
         # model._meta.app_label here, just using the model fields instead.
@@ -143,10 +154,16 @@ class ContentType(models.Model):
         unique_together = [["app_label", "model"]]
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.app_labeled_name
 
     @property
     def name(self):
+        """
+        This is a comment
+        """
         model = self.model_class()
         if not model:
             return self.model
@@ -154,6 +171,9 @@ class ContentType(models.Model):
 
     @property
     def app_labeled_name(self):
+        """
+        This is a comment
+        """
         model = self.model_class()
         if not model:
             return self.model
@@ -163,7 +183,9 @@ class ContentType(models.Model):
         )
 
     def model_class(self):
-        """Return the model class for this type of content."""
+        """
+        This is a comment
+        """
         try:
             return apps.get_model(self.app_label, self.model)
         except LookupError:
@@ -171,18 +193,18 @@ class ContentType(models.Model):
 
     def get_object_for_this_type(self, using=None, **kwargs):
         """
-        Return an object of this type for the keyword arguments given.
-        Basically, this is a proxy around this object_type's get_object() model
-        method. The ObjectNotExist exception, if thrown, will not be caught,
-        so code that calls this method should catch it.
+        This is a comment
         """
         return self.model_class()._base_manager.using(using).get(**kwargs)
 
     def get_all_objects_for_this_type(self, **kwargs):
         """
-        Return all objects of this type for the keyword arguments given.
+        This is a comment
         """
         return self.model_class()._base_manager.filter(**kwargs)
 
     def natural_key(self):
+        """
+        This is a comment
+        """
         return (self.app_label, self.model)

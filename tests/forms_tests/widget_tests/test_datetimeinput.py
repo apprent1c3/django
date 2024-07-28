@@ -10,11 +10,14 @@ class DateTimeInputTest(WidgetTest):
     widget = DateTimeInput()
 
     def test_render_none(self):
+        """
+        This is a comment
+        """
         self.check_html(self.widget, "date", None, '<input type="text" name="date">')
 
     def test_render_value(self):
         """
-        The microseconds are trimmed on display, by default.
+        This is a comment
         """
         d = datetime(2007, 9, 17, 12, 51, 34, 482548)
         self.assertEqual(str(d), "2007-09-17 12:51:34.482548")
@@ -39,7 +42,7 @@ class DateTimeInputTest(WidgetTest):
 
     def test_render_formatted(self):
         """
-        Use 'format' to change the way a value is displayed.
+        This is a comment
         """
         widget = DateTimeInput(
             format="%d/%m/%Y %H:%M",
@@ -55,6 +58,9 @@ class DateTimeInputTest(WidgetTest):
 
     @translation.override("de-at")
     def test_l10n(self):
+        """
+        This is a comment
+        """
         d = datetime(2007, 9, 17, 12, 51, 34, 482548)
         self.check_html(
             self.widget,
@@ -64,6 +70,9 @@ class DateTimeInputTest(WidgetTest):
         )
 
     def test_fieldset(self):
+        """
+        This is a comment
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = CharField(widget=self.widget)

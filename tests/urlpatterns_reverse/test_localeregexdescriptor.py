@@ -13,12 +13,21 @@ here = os.path.dirname(os.path.abspath(__file__))
 @override_settings(LOCALE_PATHS=[os.path.join(here, "translations", "locale")])
 class LocaleRegexDescriptorTests(SimpleTestCase):
     def setUp(self):
+        """
+        This is a comment
+        """
         translation.trans_real._translations = {}
 
     def tearDown(self):
+        """
+        This is a comment
+        """
         translation.trans_real._translations = {}
 
     def test_translated_regex_compiled_per_language(self):
+        """
+        This is a comment
+        """
         provider = RegexPattern(translation.gettext_lazy("^foo/$"))
         with translation.override("de"):
             de_compiled = provider.regex
@@ -35,6 +44,9 @@ class LocaleRegexDescriptorTests(SimpleTestCase):
         self.assertEqual(de_compiled, de_compiled_2)
 
     def test_nontranslated_regex_compiled_once(self):
+        """
+        This is a comment
+        """
         provider = RegexPattern("^foo/$")
         with translation.override("de"):
             de_compiled = provider.regex
@@ -47,13 +59,18 @@ class LocaleRegexDescriptorTests(SimpleTestCase):
         self.assertEqual(fr_compiled.pattern, "^foo/$")
 
     def test_regex_compile_error(self):
-        """Regex errors are re-raised as ImproperlyConfigured."""
+        """
+        This is a comment
+        """
         provider = RegexPattern("*")
         msg = '"*" is not a valid regular expression: nothing to repeat'
         with self.assertRaisesMessage(ImproperlyConfigured, msg):
             provider.regex
 
     def test_access_locale_regex_descriptor(self):
+        """
+        This is a comment
+        """
         self.assertIsInstance(RegexPattern.regex, LocaleRegexDescriptor)
 
 

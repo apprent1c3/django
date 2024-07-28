@@ -8,6 +8,9 @@ class Email(models.Model):
 
 class CustomUserWithFKManager(BaseUserManager):
     def create_superuser(self, username, email, group, password):
+        """
+        This is a comment
+        """
         user = self.model(username_id=username, email_id=email, group_id=group)
         user.set_password(password)
         user.save(using=self._db)

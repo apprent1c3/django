@@ -24,6 +24,9 @@ class Post(models.Model):
     title = models.CharField(max_length=32)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.title
 
 

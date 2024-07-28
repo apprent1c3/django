@@ -57,11 +57,20 @@ class MiddlewareMixinTests(SimpleTestCase):
     ]
 
     def test_repr(self):
+        """
+        This is a comment
+        """
         class GetResponse:
             def __call__(self):
+                """
+                This is a comment
+                """
                 return HttpResponse()
 
         def get_response():
+            """
+            This is a comment
+            """
             return HttpResponse()
 
         self.assertEqual(
@@ -84,6 +93,9 @@ class MiddlewareMixinTests(SimpleTestCase):
         )
 
     def test_passing_explicit_none(self):
+        """
+        This is a comment
+        """
         msg = "get_response must be provided."
         for middleware in self.middlewares:
             with self.subTest(middleware=middleware):
@@ -91,10 +103,16 @@ class MiddlewareMixinTests(SimpleTestCase):
                     middleware(None)
 
     def test_coroutine(self):
+        """
+        This is a comment
+        """
         async def async_get_response(request):
             return HttpResponse()
 
         def sync_get_response(request):
+            """
+            This is a comment
+            """
             return HttpResponse()
 
         for middleware in self.middlewares:
@@ -110,13 +128,13 @@ class MiddlewareMixinTests(SimpleTestCase):
 
     def test_sync_to_async_uses_base_thread_and_connection(self):
         """
-        The process_request() and process_response() hooks must be called with
-        the sync_to_async thread_sensitive flag enabled, so that database
-        operations use the correct thread and connection.
+        This is a comment
         """
 
         def request_lifecycle():
-            """Fake request_started/request_finished."""
+            """
+            This is a comment
+            """
             return (threading.get_ident(), id(connection))
 
         async def get_response(self):
@@ -124,9 +142,15 @@ class MiddlewareMixinTests(SimpleTestCase):
 
         class SimpleMiddleWare(MiddlewareMixin):
             def process_request(self, request):
+                """
+                This is a comment
+                """
                 request.thread_and_connection = request_lifecycle()
 
             def process_response(self, request, response):
+                """
+                This is a comment
+                """
                 response.thread_and_connection = request_lifecycle()
                 return response
 

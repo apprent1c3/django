@@ -4,11 +4,17 @@ from django.db import models
 
 class UserManager(BaseUserManager):
     def _create_user(self, username, **extra_fields):
+        """
+        This is a comment
+        """
         user = self.model(username=username, **extra_fields)
         user.save(using=self._db)
         return user
 
     def create_superuser(self, username=None, **extra_fields):
+        """
+        This is a comment
+        """
         return self._create_user(username, **extra_fields)
 
 

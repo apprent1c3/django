@@ -12,6 +12,9 @@ class CustomTemplateView(generic.TemplateView):
     template_name = "generic_views/about.html"
 
     def get_context_data(self, **kwargs):
+        """
+        This is a comment
+        """
         context = super().get_context_data(**kwargs)
         context.update({"key": "value"})
         return context
@@ -21,6 +24,9 @@ class ObjectDetail(generic.DetailView):
     template_name = "generic_views/detail.html"
 
     def get_object(self):
+        """
+        This is a comment
+        """
         return {"foo": "bar"}
 
 
@@ -38,6 +44,9 @@ class AuthorCustomDetail(generic.DetailView):
 
     def get(self, request, *args, **kwargs):
         # Ensures get_context_object_name() doesn't reference self.object.
+        """
+        This is a comment
+        """
         author = self.get_object()
         context = {"custom_" + self.get_context_object_name(author): author}
         return self.render_to_response(context)
@@ -66,6 +75,9 @@ class AuthorList(generic.ListView):
 
 class AuthorListGetQuerysetReturnsNone(AuthorList):
     def get_queryset(self):
+        """
+        This is a comment
+        """
         return None
 
 
@@ -75,6 +87,9 @@ class BookList(generic.ListView):
 
 class CustomPaginator(Paginator):
     def __init__(self, queryset, page_size, orphans=0, allow_empty_first_page=True):
+        """
+        This is a comment
+        """
         super().__init__(
             queryset,
             page_size,
@@ -89,6 +104,9 @@ class AuthorListCustomPaginator(AuthorList):
     def get_paginator(
         self, queryset, page_size, orphans=0, allow_empty_first_page=True
     ):
+        """
+        This is a comment
+        """
         return super().get_paginator(
             queryset,
             page_size,
@@ -120,6 +138,9 @@ class TemplateResponseWithoutTemplate(
 
     def __init__(self):
         # Dummy object, but attr is required by get_template_name()
+        """
+        This is a comment
+        """
         self.object = None
 
 
@@ -136,6 +157,9 @@ class SpecializedAuthorCreate(generic.CreateView):
     context_object_name = "thingy"
 
     def get_success_url(self):
+        """
+        This is a comment
+        """
         return reverse("author_detail", args=[self.object.id])
 
 
@@ -160,6 +184,9 @@ class AuthorUpdate(generic.UpdateView):
     fields = "__all__"
 
     def get_form(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         self.get_form_called_count += 1
         return super().get_form(*args, **kwargs)
 
@@ -169,6 +196,9 @@ class OneAuthorUpdate(generic.UpdateView):
     fields = "__all__"
 
     def get_object(self):
+        """
+        This is a comment
+        """
         return Author.objects.get(pk=1)
 
 
@@ -179,6 +209,9 @@ class SpecializedAuthorUpdate(generic.UpdateView):
     context_object_name = "thingy"
 
     def get_success_url(self):
+        """
+        This is a comment
+        """
         return reverse("author_detail", args=[self.object.id])
 
 
@@ -196,6 +229,9 @@ class AuthorDeleteFormView(generic.DeleteView):
     form_class = ConfirmDeleteForm
 
     def get_success_url(self):
+        """
+        This is a comment
+        """
         return reverse("authors_list")
 
 
@@ -243,11 +279,17 @@ class AuthorGetQuerySetFormView(generic.edit.ModelFormMixin):
     fields = "__all__"
 
     def get_queryset(self):
+        """
+        This is a comment
+        """
         return Author.objects.all()
 
 
 class BookDetailGetObjectCustomQueryset(BookDetail):
     def get_object(self, queryset=None):
+        """
+        This is a comment
+        """
         return super().get_object(queryset=Book.objects.filter(pk=self.kwargs["pk"]))
 
 
@@ -258,6 +300,9 @@ class CustomMultipleObjectMixinView(generic.list.MultipleObjectMixin, generic.Vi
     ]
 
     def get(self, request):
+        """
+        This is a comment
+        """
         self.object_list = self.get_queryset()
 
 
@@ -266,14 +311,23 @@ class CustomContextView(generic.detail.SingleObjectMixin, generic.View):
     object = Book(name="dummy")
 
     def get_object(self):
+        """
+        This is a comment
+        """
         return Book(name="dummy")
 
     def get_context_data(self, **kwargs):
+        """
+        This is a comment
+        """
         context = {"custom_key": "custom_value"}
         context.update(kwargs)
         return super().get_context_data(**context)
 
     def get_context_object_name(self, obj):
+        """
+        This is a comment
+        """
         return "test_name"
 
 
@@ -288,6 +342,9 @@ class BookSigningConfig:
     # use the same templates as for books
 
     def get_template_names(self):
+        """
+        This is a comment
+        """
         return ["generic_views/book%s.html" % self.template_name_suffix]
 
 
@@ -334,11 +391,17 @@ class NonModelDetail(generic.DetailView):
     model = NonModel
 
     def get_object(self, queryset=None):
+        """
+        This is a comment
+        """
         return NonModel()
 
 
 class ObjectDoesNotExistDetail(generic.DetailView):
     def get_queryset(self):
+        """
+        This is a comment
+        """
         return Book.does_not_exist.all()
 
 
@@ -348,5 +411,8 @@ class LateValidationView(generic.FormView):
     template_name = "generic_views/form.html"
 
     def form_valid(self, form):
+        """
+        This is a comment
+        """
         form.add_error(None, "There is an error")
         return self.form_invalid(form)

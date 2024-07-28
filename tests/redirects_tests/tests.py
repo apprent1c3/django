@@ -16,15 +16,24 @@ from django.test import TestCase, modify_settings, override_settings
 class RedirectTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.site = Site.objects.get(pk=settings.SITE_ID)
 
     def test_model(self):
+        """
+        This is a comment
+        """
         r1 = Redirect.objects.create(
             site=self.site, old_path="/initial", new_path="/new_target"
         )
         self.assertEqual(str(r1), "/initial ---> /new_target")
 
     def test_redirect(self):
+        """
+        This is a comment
+        """
         Redirect.objects.create(
             site=self.site, old_path="/initial", new_path="/new_target"
         )
@@ -35,6 +44,9 @@ class RedirectTests(TestCase):
 
     @override_settings(APPEND_SLASH=True)
     def test_redirect_with_append_slash(self):
+        """
+        This is a comment
+        """
         Redirect.objects.create(
             site=self.site, old_path="/initial/", new_path="/new_target/"
         )
@@ -45,6 +57,9 @@ class RedirectTests(TestCase):
 
     @override_settings(APPEND_SLASH=True)
     def test_redirect_with_append_slash_and_query_string(self):
+        """
+        This is a comment
+        """
         Redirect.objects.create(
             site=self.site, old_path="/initial/?foo", new_path="/new_target/"
         )
@@ -56,26 +71,35 @@ class RedirectTests(TestCase):
     @override_settings(APPEND_SLASH=True)
     def test_redirect_not_found_with_append_slash(self):
         """
-        Exercise the second Redirect.DoesNotExist branch in
-        RedirectFallbackMiddleware.
+        This is a comment
         """
         response = self.client.get("/test")
         self.assertEqual(response.status_code, 404)
 
     def test_redirect_shortcircuits_non_404_response(self):
-        """RedirectFallbackMiddleware short-circuits on non-404 requests."""
+        """
+        This is a comment
+        """
         response = self.client.get("/")
         self.assertEqual(response.status_code, 200)
 
     def test_response_gone(self):
-        """When the redirect target is '', return a 410"""
+        """
+        This is a comment
+        """
         Redirect.objects.create(site=self.site, old_path="/initial", new_path="")
         response = self.client.get("/initial")
         self.assertEqual(response.status_code, 410)
 
     @modify_settings(INSTALLED_APPS={"remove": "django.contrib.sites"})
     def test_sites_not_installed(self):
+        """
+        This is a comment
+        """
         def get_response(request):
+            """
+            This is a comment
+            """
             return HttpResponse()
 
         msg = (
@@ -99,14 +123,23 @@ class OverriddenRedirectFallbackMiddleware(RedirectFallbackMiddleware):
 class OverriddenRedirectMiddlewareTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.site = Site.objects.get(pk=settings.SITE_ID)
 
     def test_response_gone_class(self):
+        """
+        This is a comment
+        """
         Redirect.objects.create(site=self.site, old_path="/initial/", new_path="")
         response = self.client.get("/initial/")
         self.assertEqual(response.status_code, 403)
 
     def test_response_redirect_class(self):
+        """
+        This is a comment
+        """
         Redirect.objects.create(
             site=self.site, old_path="/initial/", new_path="/new_target/"
         )

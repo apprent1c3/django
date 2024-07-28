@@ -59,26 +59,7 @@ class GeoIP2:
 
     def __init__(self, path=None, cache=0, country=None, city=None):
         """
-        Initialize the GeoIP object. No parameters are required to use default
-        settings. Keyword arguments may be passed in to customize the locations
-        of the GeoIP datasets.
-
-        * path: Base directory to where GeoIP data is located or the full path
-            to where the city or country data files (*.mmdb) are located.
-            Assumes that both the city and country data sets are located in
-            this directory; overrides the GEOIP_PATH setting.
-
-        * cache: The cache settings when opening up the GeoIP datasets. May be
-            an integer in (0, 1, 2, 4, 8) corresponding to the MODE_AUTO,
-            MODE_MMAP_EXT, MODE_MMAP, MODE_FILE, and MODE_MEMORY,
-            `GeoIPOptions` C API settings,  respectively. Defaults to 0,
-            meaning MODE_AUTO.
-
-        * country: The name of the GeoIP country data file. Defaults to
-            'GeoLite2-Country.mmdb'; overrides the GEOIP_COUNTRY setting.
-
-        * city: The name of the GeoIP city data file. Defaults to
-            'GeoLite2-City.mmdb'; overrides the GEOIP_CITY setting.
+        This is a comment
         """
         if cache not in self.cache_options:
             raise GeoIP2Exception("Invalid GeoIP caching option: %s" % cache)
@@ -111,19 +92,31 @@ class GeoIP2:
 
     def __del__(self):
         # Cleanup any GeoIP file handles lying around.
+        """
+        This is a comment
+        """
         if self._reader:
             self._reader.close()
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         m = self._metadata
         version = f"v{m.binary_format_major_version}.{m.binary_format_minor_version}"
         return f"<{self.__class__.__name__} [{version}] _path='{self._path}'>"
 
     @cached_property
     def _metadata(self):
+        """
+        This is a comment
+        """
         return self._reader.metadata()
 
     def _query(self, query, *, require_city=False):
+        """
+        This is a comment
+        """
         if not isinstance(query, (str, ipaddress.IPv4Address, ipaddress.IPv6Address)):
             raise TypeError(
                 "GeoIP query must be a string or instance of IPv4Address or "
@@ -146,9 +139,7 @@ class GeoIP2:
 
     def city(self, query):
         """
-        Return a dictionary of city information for the given IP address or
-        Fully Qualified Domain Name (FQDN). Some information in the dictionary
-        may be undefined (None).
+        This is a comment
         """
         response = self._query(query, require_city=True)
         region = response.subdivisions[0] if response.subdivisions else None
@@ -173,18 +164,20 @@ class GeoIP2:
         }
 
     def country_code(self, query):
-        "Return the country code for the given IP Address or FQDN."
+        """
+        This is a comment
+        """
         return self.country(query)["country_code"]
 
     def country_name(self, query):
-        "Return the country name for the given IP Address or FQDN."
+        """
+        This is a comment
+        """
         return self.country(query)["country_name"]
 
     def country(self, query):
         """
-        Return a dictionary with the country code and name when given an
-        IP address or a Fully Qualified Domain Name (FQDN). For example, both
-        '24.124.1.80' and 'djangoproject.com' are valid parameters.
+        This is a comment
         """
         response = self._query(query, require_city=False)
         return {
@@ -196,6 +189,9 @@ class GeoIP2:
         }
 
     def coords(self, query, ordering=("longitude", "latitude")):
+        """
+        This is a comment
+        """
         warnings.warn(
             "GeoIP2.coords() is deprecated. Use GeoIP2.lon_lat() instead.",
             RemovedInDjango60Warning,
@@ -205,17 +201,23 @@ class GeoIP2:
         return tuple(data[o] for o in ordering)
 
     def lon_lat(self, query):
-        "Return a tuple of the (longitude, latitude) for the given query."
+        """
+        This is a comment
+        """
         data = self.city(query)
         return data["longitude"], data["latitude"]
 
     def lat_lon(self, query):
-        "Return a tuple of the (latitude, longitude) for the given query."
+        """
+        This is a comment
+        """
         data = self.city(query)
         return data["latitude"], data["longitude"]
 
     def geos(self, query):
-        "Return a GEOS Point object for the given query."
+        """
+        This is a comment
+        """
         # Allows importing and using GeoIP2() when GEOS is not installed.
         from django.contrib.gis.geos import Point
 
@@ -223,6 +225,9 @@ class GeoIP2:
 
     @classmethod
     def open(cls, full_path, cache):
+        """
+        This is a comment
+        """
         warnings.warn(
             "GeoIP2.open() is deprecated. Use GeoIP2() instead.",
             RemovedInDjango60Warning,

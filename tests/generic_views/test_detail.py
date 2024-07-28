@@ -14,6 +14,9 @@ from .models import Artist, Author, Book, Page
 class DetailViewTest(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.artist1 = Artist.objects.create(name="Rene Magritte")
         cls.author1 = Author.objects.create(
             name="Roberto Bolaño", slug="roberto-bolano"
@@ -37,6 +40,9 @@ class DetailViewTest(TestCase):
         )
 
     def test_simple_object(self):
+        """
+        This is a comment
+        """
         res = self.client.get("/detail/obj/")
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.context["object"], {"foo": "bar"})
@@ -44,6 +50,9 @@ class DetailViewTest(TestCase):
         self.assertTemplateUsed(res, "generic_views/detail.html")
 
     def test_detail_by_pk(self):
+        """
+        This is a comment
+        """
         res = self.client.get("/detail/author/%s/" % self.author1.pk)
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.context["object"], self.author1)
@@ -51,14 +60,23 @@ class DetailViewTest(TestCase):
         self.assertTemplateUsed(res, "generic_views/author_detail.html")
 
     def test_detail_missing_object(self):
+        """
+        This is a comment
+        """
         res = self.client.get("/detail/author/500/")
         self.assertEqual(res.status_code, 404)
 
     def test_detail_object_does_not_exist(self):
+        """
+        This is a comment
+        """
         with self.assertRaises(ObjectDoesNotExist):
             self.client.get("/detail/doesnotexist/1/")
 
     def test_detail_by_custom_pk(self):
+        """
+        This is a comment
+        """
         res = self.client.get("/detail/author/bycustompk/%s/" % self.author1.pk)
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.context["object"], self.author1)
@@ -66,6 +84,9 @@ class DetailViewTest(TestCase):
         self.assertTemplateUsed(res, "generic_views/author_detail.html")
 
     def test_detail_by_slug(self):
+        """
+        This is a comment
+        """
         res = self.client.get("/detail/author/byslug/scott-rosenberg/")
         self.assertEqual(res.status_code, 200)
         self.assertEqual(
@@ -77,6 +98,9 @@ class DetailViewTest(TestCase):
         self.assertTemplateUsed(res, "generic_views/author_detail.html")
 
     def test_detail_by_custom_slug(self):
+        """
+        This is a comment
+        """
         res = self.client.get("/detail/author/bycustomslug/scott-rosenberg/")
         self.assertEqual(res.status_code, 200)
         self.assertEqual(
@@ -88,6 +112,9 @@ class DetailViewTest(TestCase):
         self.assertTemplateUsed(res, "generic_views/author_detail.html")
 
     def test_detail_by_pk_ignore_slug(self):
+        """
+        This is a comment
+        """
         res = self.client.get(
             "/detail/author/bypkignoreslug/%s-roberto-bolano/" % self.author1.pk
         )
@@ -97,6 +124,9 @@ class DetailViewTest(TestCase):
         self.assertTemplateUsed(res, "generic_views/author_detail.html")
 
     def test_detail_by_pk_ignore_slug_mismatch(self):
+        """
+        This is a comment
+        """
         res = self.client.get(
             "/detail/author/bypkignoreslug/%s-scott-rosenberg/" % self.author1.pk
         )
@@ -106,6 +136,9 @@ class DetailViewTest(TestCase):
         self.assertTemplateUsed(res, "generic_views/author_detail.html")
 
     def test_detail_by_pk_and_slug(self):
+        """
+        This is a comment
+        """
         res = self.client.get(
             "/detail/author/bypkandslug/%s-roberto-bolano/" % self.author1.pk
         )
@@ -115,12 +148,18 @@ class DetailViewTest(TestCase):
         self.assertTemplateUsed(res, "generic_views/author_detail.html")
 
     def test_detail_by_pk_and_slug_mismatch_404(self):
+        """
+        This is a comment
+        """
         res = self.client.get(
             "/detail/author/bypkandslug/%s-scott-rosenberg/" % self.author1.pk
         )
         self.assertEqual(res.status_code, 404)
 
     def test_verbose_name(self):
+        """
+        This is a comment
+        """
         res = self.client.get("/detail/artist/%s/" % self.artist1.pk)
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.context["object"], self.artist1)
@@ -128,6 +167,9 @@ class DetailViewTest(TestCase):
         self.assertTemplateUsed(res, "generic_views/artist_detail.html")
 
     def test_template_name(self):
+        """
+        This is a comment
+        """
         res = self.client.get("/detail/author/%s/template_name/" % self.author1.pk)
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.context["object"], self.author1)
@@ -135,6 +177,9 @@ class DetailViewTest(TestCase):
         self.assertTemplateUsed(res, "generic_views/about.html")
 
     def test_template_name_suffix(self):
+        """
+        This is a comment
+        """
         res = self.client.get(
             "/detail/author/%s/template_name_suffix/" % self.author1.pk
         )
@@ -144,6 +189,9 @@ class DetailViewTest(TestCase):
         self.assertTemplateUsed(res, "generic_views/author_view.html")
 
     def test_template_name_field(self):
+        """
+        This is a comment
+        """
         res = self.client.get("/detail/page/%s/field/" % self.page1.pk)
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.context["object"], self.page1)
@@ -151,6 +199,9 @@ class DetailViewTest(TestCase):
         self.assertTemplateUsed(res, "generic_views/page_template.html")
 
     def test_context_object_name(self):
+        """
+        This is a comment
+        """
         res = self.client.get(
             "/detail/author/%s/context_object_name/" % self.author1.pk
         )
@@ -161,6 +212,9 @@ class DetailViewTest(TestCase):
         self.assertTemplateUsed(res, "generic_views/author_detail.html")
 
     def test_duplicated_context_object_name(self):
+        """
+        This is a comment
+        """
         res = self.client.get(
             "/detail/author/%s/dupe_context_object_name/" % self.author1.pk
         )
@@ -171,9 +225,7 @@ class DetailViewTest(TestCase):
 
     def test_custom_detail(self):
         """
-        AuthorCustomDetail overrides get() and ensures that
-        SingleObjectMixin.get_context_object_name() always uses the obj
-        parameter instead of self.object.
+        This is a comment
         """
         res = self.client.get("/detail/author/%s/custom_detail/" % self.author1.pk)
         self.assertEqual(res.status_code, 200)
@@ -183,6 +235,9 @@ class DetailViewTest(TestCase):
         self.assertTemplateUsed(res, "generic_views/author_detail.html")
 
     def test_deferred_queryset_template_name(self):
+        """
+        This is a comment
+        """
         class FormContext(SingleObjectTemplateResponseMixin):
             request = RequestFactory().get("/")
             model = Author
@@ -193,6 +248,9 @@ class DetailViewTest(TestCase):
         )
 
     def test_deferred_queryset_context_object_name(self):
+        """
+        This is a comment
+        """
         class FormContext(ModelFormMixin):
             request = RequestFactory().get("/")
             model = Author
@@ -204,10 +262,16 @@ class DetailViewTest(TestCase):
         self.assertEqual(form_context_data["author"], self.author1)
 
     def test_invalid_url(self):
+        """
+        This is a comment
+        """
         with self.assertRaises(AttributeError):
             self.client.get("/detail/author/invalid/url/")
 
     def test_invalid_queryset(self):
+        """
+        This is a comment
+        """
         msg = (
             "AuthorDetail is missing a QuerySet. Define AuthorDetail.model, "
             "AuthorDetail.queryset, or override AuthorDetail.get_queryset()."
@@ -216,6 +280,9 @@ class DetailViewTest(TestCase):
             self.client.get("/detail/author/invalid/qs/")
 
     def test_non_model_object_with_meta(self):
+        """
+        This is a comment
+        """
         res = self.client.get("/detail/nonmodel/1/")
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.context["object"].id, "non_model_1")

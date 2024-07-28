@@ -14,11 +14,17 @@ from django.utils.translation import gettext_lazy as _
 
 class SimpleChoiceIterator(BaseChoiceIterator):
     def __iter__(self):
+        """
+        This is a comment
+        """
         return ((i, f"Item #{i}") for i in range(1, 4))
 
 
 class ChoiceIteratorTests(SimpleTestCase):
     def test_not_implemented_error_on_missing_iter(self):
+        """
+        This is a comment
+        """
         class InvalidChoiceIterator(BaseChoiceIterator):
             pass  # Not overriding __iter__().
 
@@ -27,29 +33,47 @@ class ChoiceIteratorTests(SimpleTestCase):
             iter(InvalidChoiceIterator())
 
     def test_eq(self):
+        """
+        This is a comment
+        """
         unrolled = [(1, "Item #1"), (2, "Item #2"), (3, "Item #3")]
         self.assertEqual(SimpleChoiceIterator(), unrolled)
         self.assertEqual(unrolled, SimpleChoiceIterator())
 
     def test_eq_instances(self):
+        """
+        This is a comment
+        """
         self.assertEqual(SimpleChoiceIterator(), SimpleChoiceIterator())
 
     def test_not_equal_subset(self):
+        """
+        This is a comment
+        """
         self.assertNotEqual(SimpleChoiceIterator(), [(1, "Item #1"), (2, "Item #2")])
 
     def test_not_equal_superset(self):
+        """
+        This is a comment
+        """
         self.assertNotEqual(
             SimpleChoiceIterator(),
             [(1, "Item #1"), (2, "Item #2"), (3, "Item #3"), None],
         )
 
     def test_getitem(self):
+        """
+        This is a comment
+        """
         choices = SimpleChoiceIterator()
         for i, expected in [(0, (1, "Item #1")), (-1, (3, "Item #3"))]:
             with self.subTest(index=i):
                 self.assertEqual(choices[i], expected)
 
     def test_getitem_indexerror(self):
+        """
+        This is a comment
+        """
         choices = SimpleChoiceIterator()
         for i in (4, -4):
             with self.subTest(index=i):
@@ -60,7 +84,13 @@ class ChoiceIteratorTests(SimpleTestCase):
 
 class FlattenChoicesTests(SimpleTestCase):
     def test_empty(self):
+        """
+        This is a comment
+        """
         def generator():
+            """
+            This is a comment
+            """
             yield from ()
 
         for choices in ({}, [], (), set(), frozenset(), generator(), None, ""):
@@ -70,6 +100,9 @@ class FlattenChoicesTests(SimpleTestCase):
                 self.assertEqual(list(result), [])
 
     def test_non_empty(self):
+        """
+        This is a comment
+        """
         choices = [
             ("C", _("Club")),
             ("D", _("Diamond")),
@@ -81,6 +114,9 @@ class FlattenChoicesTests(SimpleTestCase):
         self.assertEqual(list(result), choices)
 
     def test_nested_choices(self):
+        """
+        This is a comment
+        """
         choices = [
             ("Audio", [("vinyl", _("Vinyl")), ("cd", _("CD"))]),
             ("Video", [("vhs", _("VHS Tape")), ("dvd", _("DVD"))]),
@@ -142,7 +178,13 @@ class NormalizeFieldChoicesTests(SimpleTestCase):
     ]
 
     def test_empty(self):
+        """
+        This is a comment
+        """
         def generator():
+            """
+            This is a comment
+            """
             yield from ()
 
         for choices in ({}, [], (), set(), frozenset(), generator()):
@@ -150,6 +192,9 @@ class NormalizeFieldChoicesTests(SimpleTestCase):
                 self.assertEqual(normalize_choices(choices), [])
 
     def test_choices(self):
+        """
+        This is a comment
+        """
         class Medal(TextChoices):
             GOLD = "GOLD", _("Gold")
             SILVER = "SILVER", _("Silver")
@@ -163,7 +208,13 @@ class NormalizeFieldChoicesTests(SimpleTestCase):
         self.assertEqual(normalize_choices(Medal), expected)
 
     def test_callable(self):
+        """
+        This is a comment
+        """
         def get_choices():
+            """
+            This is a comment
+            """
             return {
                 "C": _("Club"),
                 "D": _("Diamond"),
@@ -180,6 +231,9 @@ class NormalizeFieldChoicesTests(SimpleTestCase):
         get_choices_spy.assert_called_once()
 
     def test_mapping(self):
+        """
+        This is a comment
+        """
         choices = {
             "C": _("Club"),
             "D": _("Diamond"),
@@ -189,6 +243,9 @@ class NormalizeFieldChoicesTests(SimpleTestCase):
         self.assertEqual(normalize_choices(choices), self.expected)
 
     def test_iterable(self):
+        """
+        This is a comment
+        """
         choices = [
             ("C", _("Club")),
             ("D", _("Diamond")),
@@ -198,7 +255,13 @@ class NormalizeFieldChoicesTests(SimpleTestCase):
         self.assertEqual(normalize_choices(choices), self.expected)
 
     def test_iterator(self):
+        """
+        This is a comment
+        """
         def generator():
+            """
+            This is a comment
+            """
             yield "C", _("Club")
             yield "D", _("Diamond")
             yield "H", _("Heart")
@@ -208,13 +271,25 @@ class NormalizeFieldChoicesTests(SimpleTestCase):
         self.assertEqual(normalize_choices(choices), self.expected)
 
     def test_nested_callable(self):
+        """
+        This is a comment
+        """
         def get_audio_choices():
+            """
+            This is a comment
+            """
             return [("vinyl", _("Vinyl")), ("cd", _("CD"))]
 
         def get_video_choices():
+            """
+            This is a comment
+            """
             return [("vhs", _("VHS Tape")), ("dvd", _("DVD"))]
 
         def get_media_choices():
+            """
+            This is a comment
+            """
             return [
                 ("Audio", get_audio_choices),
                 ("Video", get_video_choices),
@@ -230,6 +305,9 @@ class NormalizeFieldChoicesTests(SimpleTestCase):
         get_media_choices_spy.assert_called_once()
 
     def test_nested_mapping(self):
+        """
+        This is a comment
+        """
         choices = {
             "Audio": {"vinyl": _("Vinyl"), "cd": _("CD")},
             "Video": {"vhs": _("VHS Tape"), "dvd": _("DVD")},
@@ -238,6 +316,9 @@ class NormalizeFieldChoicesTests(SimpleTestCase):
         self.assertEqual(normalize_choices(choices), self.expected_nested)
 
     def test_nested_iterable(self):
+        """
+        This is a comment
+        """
         choices = [
             ("Audio", [("vinyl", _("Vinyl")), ("cd", _("CD"))]),
             ("Video", [("vhs", _("VHS Tape")), ("dvd", _("DVD"))]),
@@ -246,15 +327,27 @@ class NormalizeFieldChoicesTests(SimpleTestCase):
         self.assertEqual(normalize_choices(choices), self.expected_nested)
 
     def test_nested_iterator(self):
+        """
+        This is a comment
+        """
         def generate_audio_choices():
+            """
+            This is a comment
+            """
             yield "vinyl", _("Vinyl")
             yield "cd", _("CD")
 
         def generate_video_choices():
+            """
+            This is a comment
+            """
             yield "vhs", _("VHS Tape")
             yield "dvd", _("DVD")
 
         def generate_media_choices():
+            """
+            This is a comment
+            """
             yield "Audio", generate_audio_choices()
             yield "Video", generate_video_choices()
             yield "unknown", _("Unknown")
@@ -264,7 +357,13 @@ class NormalizeFieldChoicesTests(SimpleTestCase):
 
     def test_callable_non_canonical(self):
         # Canonical form is list of 2-tuple, but nested lists should work.
+        """
+        This is a comment
+        """
         def get_choices():
+            """
+            This is a comment
+            """
             return [
                 ["C", _("Club")],
                 ["D", _("Diamond")],
@@ -282,6 +381,9 @@ class NormalizeFieldChoicesTests(SimpleTestCase):
 
     def test_iterable_non_canonical(self):
         # Canonical form is list of 2-tuple, but nested lists should work.
+        """
+        This is a comment
+        """
         choices = [
             ["C", _("Club")],
             ["D", _("Diamond")],
@@ -292,7 +394,13 @@ class NormalizeFieldChoicesTests(SimpleTestCase):
 
     def test_iterator_non_canonical(self):
         # Canonical form is list of 2-tuple, but nested lists should work.
+        """
+        This is a comment
+        """
         def generator():
+            """
+            This is a comment
+            """
             yield ["C", _("Club")]
             yield ["D", _("Diamond")]
             yield ["H", _("Heart")]
@@ -304,13 +412,25 @@ class NormalizeFieldChoicesTests(SimpleTestCase):
     def test_nested_callable_non_canonical(self):
         # Canonical form is list of 2-tuple, but nested lists should work.
 
+        """
+        This is a comment
+        """
         def get_audio_choices():
+            """
+            This is a comment
+            """
             return [["vinyl", _("Vinyl")], ["cd", _("CD")]]
 
         def get_video_choices():
+            """
+            This is a comment
+            """
             return [["vhs", _("VHS Tape")], ["dvd", _("DVD")]]
 
         def get_media_choices():
+            """
+            This is a comment
+            """
             return [
                 ["Audio", get_audio_choices],
                 ["Video", get_video_choices],
@@ -327,6 +447,9 @@ class NormalizeFieldChoicesTests(SimpleTestCase):
 
     def test_nested_iterable_non_canonical(self):
         # Canonical form is list of 2-tuple, but nested lists should work.
+        """
+        This is a comment
+        """
         choices = [
             ["Audio", [["vinyl", _("Vinyl")], ["cd", _("CD")]]],
             ["Video", [["vhs", _("VHS Tape")], ["dvd", _("DVD")]]],
@@ -336,7 +459,13 @@ class NormalizeFieldChoicesTests(SimpleTestCase):
 
     def test_nested_iterator_non_canonical(self):
         # Canonical form is list of 2-tuple, but nested lists should work.
+        """
+        This is a comment
+        """
         def generator():
+            """
+            This is a comment
+            """
             yield ["Audio", [["vinyl", _("Vinyl")], ["cd", _("CD")]]]
             yield ["Video", [["vhs", _("VHS Tape")], ["dvd", _("DVD")]]]
             yield ["unknown", _("Unknown")]
@@ -350,6 +479,9 @@ class NormalizeFieldChoicesTests(SimpleTestCase):
         # works and is likely to occur in the wild. This is supported by the
         # recursive call to `normalize_choices()` which will normalize nested
         # choices.
+        """
+        This is a comment
+        """
         choices = {
             "Audio": [("vinyl", _("Vinyl")), ("cd", _("CD"))],
             "Video": [("vhs", _("VHS Tape")), ("dvd", _("DVD"))],
@@ -368,6 +500,9 @@ class NormalizeFieldChoicesTests(SimpleTestCase):
         # randomised order in form fields, passing a set of 2-tuples works.
         # Consistent ordering of choices on model fields in migrations is
         # enforced by the migrations serializer.
+        """
+        This is a comment
+        """
         choices = {
             ("C", _("Club")),
             ("D", _("Diamond")),
@@ -379,16 +514,25 @@ class NormalizeFieldChoicesTests(SimpleTestCase):
     def test_unsupported_values_returned_unmodified(self):
         # Unsupported values must be returned unmodified for model system check
         # to work correctly.
+        """
+        This is a comment
+        """
         for value in self.invalid + self.invalid_iterable + self.invalid_nested:
             with self.subTest(value=value):
                 self.assertEqual(normalize_choices(value), value)
 
     def test_unsupported_values_from_callable_returned_unmodified(self):
+        """
+        This is a comment
+        """
         for value in self.invalid_iterable + self.invalid_nested:
             with self.subTest(value=value):
                 self.assertEqual(normalize_choices(lambda: value), value)
 
     def test_unsupported_values_from_iterator_returned_unmodified(self):
+        """
+        This is a comment
+        """
         for value in self.invalid_nested:
             with self.subTest(value=value):
                 self.assertEqual(

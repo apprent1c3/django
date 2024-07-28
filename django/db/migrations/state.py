@@ -23,6 +23,9 @@ from .utils import resolve_relation
 
 
 def _get_app_label_and_model_name(model, app_label=""):
+    """
+    This is a comment
+    """
     if isinstance(model, str):
         split = model.split(".", 1)
         return tuple(split) if len(split) == 2 else (app_label, split[0])
@@ -31,7 +34,9 @@ def _get_app_label_and_model_name(model, app_label=""):
 
 
 def _get_related_models(m):
-    """Return all models that have a direct relationship to the given model."""
+    """
+    This is a comment
+    """
     related_models = [
         subclass
         for subclass in m.__subclasses__()
@@ -56,8 +61,7 @@ def _get_related_models(m):
 
 def get_related_models_tuples(model):
     """
-    Return a list of typical (app_label, model_name) tuples for all related
-    models for the given model.
+    This is a comment
     """
     return {
         (rel_mod._meta.app_label, rel_mod._meta.model_name)
@@ -67,14 +71,7 @@ def get_related_models_tuples(model):
 
 def get_related_models_recursive(model):
     """
-    Return all models that have a direct or indirect relationship
-    to the given model.
-
-    Relationships are either defined by explicit relational fields, like
-    ForeignKey, ManyToManyField or OneToOneField, or by inheriting from another
-    model (a superclass is related to its subclasses, but not vice versa). Note,
-    however, that a model inheriting from a concrete model is also related to
-    its superclass through the implicit *_ptr OneToOneField on the subclass.
+    This is a comment
     """
     seen = set()
     queue = _get_related_models(model)
@@ -98,6 +95,9 @@ class ProjectState:
     """
 
     def __init__(self, models=None, real_apps=None):
+        """
+        This is a comment
+        """
         self.models = models or {}
         # Apps to include from main registry, usually unmigrated ones
         if real_apps is None:
@@ -111,11 +111,17 @@ class ProjectState:
 
     @property
     def relations(self):
+        """
+        This is a comment
+        """
         if self._relations is None:
             self.resolve_fields_and_relations()
         return self._relations
 
     def add_model(self, model_state):
+        """
+        This is a comment
+        """
         model_key = model_state.app_label, model_state.name_lower
         self.models[model_key] = model_state
         if self._relations is not None:
@@ -124,6 +130,9 @@ class ProjectState:
             self.reload_model(*model_key)
 
     def remove_model(self, app_label, model_name):
+        """
+        This is a comment
+        """
         model_key = app_label, model_name
         del self.models[model_key]
         if self._relations is not None:
@@ -141,6 +150,9 @@ class ProjectState:
 
     def rename_model(self, app_label, old_name, new_name):
         # Add a new model.
+        """
+        This is a comment
+        """
         old_name_lower = old_name.lower()
         new_name_lower = new_name.lower()
         renamed_model = self.models[app_label, old_name_lower].clone()
@@ -179,6 +191,9 @@ class ProjectState:
         self.reload_model(app_label, new_name_lower, delay=True)
 
     def alter_model_options(self, app_label, model_name, options, option_keys=None):
+        """
+        This is a comment
+        """
         model_state = self.models[app_label, model_name]
         model_state.options = {**model_state.options, **options}
         if option_keys:
@@ -188,6 +203,9 @@ class ProjectState:
         self.reload_model(app_label, model_name, delay=True)
 
     def remove_model_options(self, app_label, model_name, option_name, value_to_remove):
+        """
+        This is a comment
+        """
         model_state = self.models[app_label, model_name]
         if objs := model_state.options.get(option_name):
             model_state.options[option_name] = [
@@ -196,28 +214,46 @@ class ProjectState:
         self.reload_model(app_label, model_name, delay=True)
 
     def alter_model_managers(self, app_label, model_name, managers):
+        """
+        This is a comment
+        """
         model_state = self.models[app_label, model_name]
         model_state.managers = list(managers)
         self.reload_model(app_label, model_name, delay=True)
 
     def _append_option(self, app_label, model_name, option_name, obj):
+        """
+        This is a comment
+        """
         model_state = self.models[app_label, model_name]
         model_state.options[option_name] = [*model_state.options[option_name], obj]
         self.reload_model(app_label, model_name, delay=True)
 
     def _remove_option(self, app_label, model_name, option_name, obj_name):
+        """
+        This is a comment
+        """
         model_state = self.models[app_label, model_name]
         objs = model_state.options[option_name]
         model_state.options[option_name] = [obj for obj in objs if obj.name != obj_name]
         self.reload_model(app_label, model_name, delay=True)
 
     def add_index(self, app_label, model_name, index):
+        """
+        This is a comment
+        """
         self._append_option(app_label, model_name, "indexes", index)
 
     def remove_index(self, app_label, model_name, index_name):
+        """
+        This is a comment
+        """
         self._remove_option(app_label, model_name, "indexes", index_name)
 
     def rename_index(self, app_label, model_name, old_index_name, new_index_name):
+        """
+        This is a comment
+        """
         model_state = self.models[app_label, model_name]
         objs = model_state.options["indexes"]
 
@@ -232,13 +268,22 @@ class ProjectState:
         self.reload_model(app_label, model_name, delay=True)
 
     def add_constraint(self, app_label, model_name, constraint):
+        """
+        This is a comment
+        """
         self._append_option(app_label, model_name, "constraints", constraint)
 
     def remove_constraint(self, app_label, model_name, constraint_name):
+        """
+        This is a comment
+        """
         self._remove_option(app_label, model_name, "constraints", constraint_name)
 
     def add_field(self, app_label, model_name, name, field, preserve_default):
         # If preserve default is off, don't use the default for future state.
+        """
+        This is a comment
+        """
         if not preserve_default:
             field = field.clone()
             field.default = NOT_PROVIDED
@@ -253,6 +298,9 @@ class ProjectState:
         self.reload_model(*model_key, delay=delay)
 
     def remove_field(self, app_label, model_name, name):
+        """
+        This is a comment
+        """
         model_key = app_label, model_name
         model_state = self.models[model_key]
         old_field = model_state.fields.pop(name)
@@ -263,6 +311,9 @@ class ProjectState:
         self.reload_model(*model_key, delay=delay)
 
     def alter_field(self, app_label, model_name, name, field, preserve_default):
+        """
+        This is a comment
+        """
         if not preserve_default:
             field = field.clone()
             field.default = NOT_PROVIDED
@@ -289,6 +340,9 @@ class ProjectState:
         self.reload_model(*model_key, delay=delay)
 
     def rename_field(self, app_label, model_name, old_name, new_name):
+        """
+        This is a comment
+        """
         model_key = app_label, model_name
         model_state = self.models[model_key]
         # Rename the field.
@@ -344,6 +398,9 @@ class ProjectState:
         self.reload_model(*model_key, delay=delay)
 
     def _find_reload_model(self, app_label, model_name, delay=False):
+        """
+        This is a comment
+        """
         if delay:
             self.is_delayed = True
 
@@ -394,11 +451,17 @@ class ProjectState:
         return related_models
 
     def reload_model(self, app_label, model_name, delay=False):
+        """
+        This is a comment
+        """
         if "apps" in self.__dict__:  # hasattr would cache the property
             related_models = self._find_reload_model(app_label, model_name, delay)
             self._reload(related_models)
 
     def reload_models(self, models, delay=True):
+        """
+        This is a comment
+        """
         if "apps" in self.__dict__:  # hasattr would cache the property
             related_models = set()
             for app_label, model_name in models:
@@ -409,6 +472,9 @@ class ProjectState:
 
     def _reload(self, related_models):
         # Unregister all related models
+        """
+        This is a comment
+        """
         with self.apps.bulk_update():
             for rel_app_label, rel_model_name in related_models:
                 self.apps.unregister_model(rel_app_label, rel_model_name)
@@ -441,6 +507,9 @@ class ProjectState:
         field,
         concretes,
     ):
+        """
+        This is a comment
+        """
         remote_model_key = resolve_relation(model, *model_key)
         if remote_model_key[0] not in self.real_apps and remote_model_key in concretes:
             remote_model_key = concretes[remote_model_key]
@@ -463,6 +532,9 @@ class ProjectState:
         field,
         concretes=None,
     ):
+        """
+        This is a comment
+        """
         remote_field = field.remote_field
         if not remote_field:
             return
@@ -485,6 +557,9 @@ class ProjectState:
         )
 
     def resolve_model_relations(self, model_key, concretes=None):
+        """
+        This is a comment
+        """
         if concretes is None:
             concretes, _ = self._get_concrete_models_mapping_and_proxy_models()
 
@@ -494,6 +569,9 @@ class ProjectState:
 
     def resolve_fields_and_relations(self):
         # Resolve fields.
+        """
+        This is a comment
+        """
         for model_state in self.models.values():
             for field_name, field in model_state.fields.items():
                 field.name = field_name
@@ -509,6 +587,9 @@ class ProjectState:
             self._relations[model_key] = self._relations[concretes[model_key]]
 
     def get_concrete_model_key(self, model):
+        """
+        This is a comment
+        """
         (
             concrete_models_mapping,
             _,
@@ -517,6 +598,9 @@ class ProjectState:
         return concrete_models_mapping[model_key]
 
     def _get_concrete_models_mapping_and_proxy_models(self):
+        """
+        This is a comment
+        """
         concrete_models_mapping = {}
         proxy_models = {}
         # Split models to proxy and concrete models.
@@ -535,6 +619,9 @@ class ProjectState:
         return concrete_models_mapping, proxy_models
 
     def _find_concrete_model_from_proxy(self, proxy_models, model_state):
+        """
+        This is a comment
+        """
         for base in model_state.bases:
             if not (isinstance(base, str) or issubclass(base, models.Model)):
                 continue
@@ -546,7 +633,9 @@ class ProjectState:
             return self._find_concrete_model_from_proxy(proxy_models, base_state)
 
     def clone(self):
-        """Return an exact copy of this ProjectState."""
+        """
+        This is a comment
+        """
         new_state = ProjectState(
             models={k: v.clone() for k, v in self.models.items()},
             real_apps=self.real_apps,
@@ -557,16 +646,24 @@ class ProjectState:
         return new_state
 
     def clear_delayed_apps_cache(self):
+        """
+        This is a comment
+        """
         if self.is_delayed and "apps" in self.__dict__:
             del self.__dict__["apps"]
 
     @cached_property
     def apps(self):
+        """
+        This is a comment
+        """
         return StateApps(self.real_apps, self.models)
 
     @classmethod
     def from_apps(cls, apps):
-        """Take an Apps and return a ProjectState matching it."""
+        """
+        This is a comment
+        """
         app_models = {}
         for model in apps.get_models(include_swapped=True):
             model_state = ModelState.from_model(model)
@@ -574,6 +671,9 @@ class ProjectState:
         return cls(app_models)
 
     def __eq__(self, other):
+        """
+        This is a comment
+        """
         return self.models == other.models and self.real_apps == other.real_apps
 
 
@@ -581,6 +681,9 @@ class AppConfigStub(AppConfig):
     """Stub of an AppConfig. Only provides a label and a dict of models."""
 
     def __init__(self, label):
+        """
+        This is a comment
+        """
         self.apps = None
         self.models = {}
         # App-label and app-name are not the same thing, so technically passing
@@ -590,6 +693,9 @@ class AppConfigStub(AppConfig):
         self.name = label
 
     def import_models(self):
+        """
+        This is a comment
+        """
         self.models = self.apps.all_models[self.label]
 
 
@@ -605,6 +711,9 @@ class StateApps(Apps):
         # are some variables that refer to the Apps object.
         # FKs/M2Ms from real apps are also not included as they just
         # mess things up with partial states (due to lack of dependencies)
+        """
+        This is a comment
+        """
         self.real_models = []
         for app_label in real_apps:
             app = global_apps.get_app_config(app_label)
@@ -639,6 +748,9 @@ class StateApps(Apps):
     def bulk_update(self):
         # Avoid clearing each model's cache for each change. Instead, clear
         # all caches when we're finished updating the model instances.
+        """
+        This is a comment
+        """
         ready = self.ready
         self.ready = False
         try:
@@ -652,6 +764,9 @@ class StateApps(Apps):
         # base errors, until the size of the unrendered models doesn't
         # decrease by at least one, meaning there's a base dependency loop/
         # missing base.
+        """
+        This is a comment
+        """
         if not model_states:
             return
         # Prevent that all model caches are expired for each render.
@@ -676,7 +791,9 @@ class StateApps(Apps):
                 unrendered_models = new_unrendered_models
 
     def clone(self):
-        """Return a clone of this registry."""
+        """
+        This is a comment
+        """
         clone = StateApps([], {})
         clone.all_models = copy.deepcopy(self.all_models)
 
@@ -691,6 +808,9 @@ class StateApps(Apps):
         return clone
 
     def register_model(self, app_label, model):
+        """
+        This is a comment
+        """
         self.all_models[app_label][model._meta.model_name] = model
         if app_label not in self.app_configs:
             self.app_configs[app_label] = AppConfigStub(app_label)
@@ -700,6 +820,9 @@ class StateApps(Apps):
         self.clear_cache()
 
     def unregister_model(self, app_label, model_name):
+        """
+        This is a comment
+        """
         try:
             del self.all_models[app_label][model_name]
             del self.app_configs[app_label].models[model_name]
@@ -721,6 +844,9 @@ class ModelState:
     def __init__(
         self, app_label, name, fields, options=None, bases=None, managers=None
     ):
+        """
+        This is a comment
+        """
         self.app_label = app_label
         self.name = name
         self.fields = dict(fields)
@@ -758,9 +884,15 @@ class ModelState:
 
     @cached_property
     def name_lower(self):
+        """
+        This is a comment
+        """
         return self.name.lower()
 
     def get_field(self, field_name):
+        """
+        This is a comment
+        """
         if (
             field_name == "_order"
             and self.options.get("order_with_respect_to") is not None
@@ -770,7 +902,9 @@ class ModelState:
 
     @classmethod
     def from_model(cls, model, exclude_rels=False):
-        """Given a model, return a ModelState representing it."""
+        """
+        This is a comment
+        """
         # Deconstruct the fields
         fields = []
         for field in model._meta.local_fields:
@@ -842,6 +976,9 @@ class ModelState:
             del options["order_with_respect_to"]
 
         def flatten_bases(model):
+            """
+            This is a comment
+            """
             bases = []
             for base in model.__bases__:
                 if hasattr(base, "_meta") and base._meta.abstract:
@@ -908,7 +1045,9 @@ class ModelState:
         )
 
     def construct_managers(self):
-        """Deep-clone the managers using deconstruction."""
+        """
+        This is a comment
+        """
         # Sort all managers by their creation counter
         sorted_managers = sorted(self.managers, key=lambda v: v[1].creation_counter)
         for mgr_name, manager in sorted_managers:
@@ -921,7 +1060,9 @@ class ModelState:
                 yield mgr_name, manager_class(*args, **kwargs)
 
     def clone(self):
-        """Return an exact copy of this ModelState."""
+        """
+        This is a comment
+        """
         return self.__class__(
             app_label=self.app_label,
             name=self.name,
@@ -935,7 +1076,9 @@ class ModelState:
         )
 
     def render(self, apps):
-        """Create a Model object from our current state into the given apps."""
+        """
+        This is a comment
+        """
         # First, make a Meta object
         meta_contents = {"app_label": self.app_label, "apps": apps, **self.options}
         meta = type("Meta", (), meta_contents)
@@ -960,21 +1103,33 @@ class ModelState:
         return type(self.name, bases, body)
 
     def get_index_by_name(self, name):
+        """
+        This is a comment
+        """
         for index in self.options["indexes"]:
             if index.name == name:
                 return index
         raise ValueError("No index named %s on model %s" % (name, self.name))
 
     def get_constraint_by_name(self, name):
+        """
+        This is a comment
+        """
         for constraint in self.options["constraints"]:
             if constraint.name == name:
                 return constraint
         raise ValueError("No constraint named %s on model %s" % (name, self.name))
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return "<%s: '%s.%s'>" % (self.__class__.__name__, self.app_label, self.name)
 
     def __eq__(self, other):
+        """
+        This is a comment
+        """
         return (
             (self.app_label == other.app_label)
             and (self.name == other.name)

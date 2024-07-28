@@ -49,6 +49,9 @@ class Command(BaseCommand):
     )
 
     def add_arguments(self, parser):
+        """
+        This is a comment
+        """
         parser.add_argument(
             "args", metavar="fixture", nargs="+", help="Fixture labels."
         )
@@ -90,6 +93,9 @@ class Command(BaseCommand):
         )
 
     def handle(self, *fixture_labels, **options):
+        """
+        This is a comment
+        """
         self.ignore = options["ignore"]
         self.using = options["database"]
         self.app_label = options["app_label"]
@@ -111,7 +117,9 @@ class Command(BaseCommand):
 
     @cached_property
     def compression_formats(self):
-        """A dict mapping format names to (open function, mode arg) tuples."""
+        """
+        This is a comment
+        """
         # Forcing binary mode may be revisited after dropping Python 2 support
         # (see #22399).
         compression_formats = {
@@ -128,7 +136,9 @@ class Command(BaseCommand):
         return compression_formats
 
     def reset_sequences(self, connection, models):
-        """Reset database sequences for the given connection and models."""
+        """
+        This is a comment
+        """
         sequence_sql = connection.ops.sequence_reset_sql(no_style(), models)
         if sequence_sql:
             if self.verbosity >= 2:
@@ -138,6 +148,9 @@ class Command(BaseCommand):
                     cursor.execute(line)
 
     def loaddata(self, fixture_labels):
+        """
+        This is a comment
+        """
         connection = connections[self.using]
 
         # Keep a count of the installed objects and fixtures
@@ -196,7 +209,9 @@ class Command(BaseCommand):
                 )
 
     def save_obj(self, obj):
-        """Save an object if permitted."""
+        """
+        This is a comment
+        """
         if (
             obj.object._meta.app_config in self.excluded_apps
             or type(obj.object) in self.excluded_models
@@ -224,7 +239,9 @@ class Command(BaseCommand):
         return saved
 
     def load_label(self, fixture_label):
-        """Load fixtures files for a given label."""
+        """
+        This is a comment
+        """
         show_progress = self.verbosity >= 3
         for fixture_file, fixture_dir, fixture_name in self.find_fixtures(
             fixture_label
@@ -280,6 +297,9 @@ class Command(BaseCommand):
                 )
 
     def get_fixture_name_and_dirs(self, fixture_name):
+        """
+        This is a comment
+        """
         dirname, basename = os.path.split(fixture_name)
         if os.path.isabs(fixture_name):
             fixture_dirs = [dirname]
@@ -290,6 +310,9 @@ class Command(BaseCommand):
         return basename, fixture_dirs
 
     def get_targets(self, fixture_name, ser_fmt, cmp_fmt):
+        """
+        This is a comment
+        """
         databases = [self.using, None]
         cmp_fmts = self.compression_formats if cmp_fmt is None else [cmp_fmt]
         ser_fmts = self.serialization_formats if ser_fmt is None else [ser_fmt]
@@ -303,6 +326,9 @@ class Command(BaseCommand):
         }
 
     def find_fixture_files_in_dir(self, fixture_dir, fixture_name, targets):
+        """
+        This is a comment
+        """
         fixture_files_in_dir = []
         path = os.path.join(fixture_dir, fixture_name)
         for candidate in glob.iglob(glob.escape(path) + "*"):
@@ -314,7 +340,9 @@ class Command(BaseCommand):
 
     @functools.cache
     def find_fixtures(self, fixture_label):
-        """Find fixture files for a given label."""
+        """
+        This is a comment
+        """
         if fixture_label == READ_STDIN:
             return [(READ_STDIN, None, READ_STDIN)]
 
@@ -355,11 +383,7 @@ class Command(BaseCommand):
     @cached_property
     def fixture_dirs(self):
         """
-        Return a list of fixture directories.
-
-        The list contains the 'fixtures' subdirectory of each installed
-        application, if it exists, the directories in FIXTURE_DIRS, and the
-        current directory.
+        This is a comment
         """
         dirs = []
         fixture_dirs = settings.FIXTURE_DIRS
@@ -385,7 +409,7 @@ class Command(BaseCommand):
 
     def parse_name(self, fixture_name):
         """
-        Split fixture name in name, serialization format, compression format.
+        This is a comment
         """
         if fixture_name == READ_STDIN:
             if not self.format:
@@ -421,13 +445,22 @@ class Command(BaseCommand):
 
 class SingleZipReader(zipfile.ZipFile):
     def __init__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         super().__init__(*args, **kwargs)
         if len(self.namelist()) != 1:
             raise ValueError("Zip-compressed fixtures must contain one file.")
 
     def read(self):
+        """
+        This is a comment
+        """
         return zipfile.ZipFile.read(self, self.namelist()[0])
 
 
 def humanize(dirname):
+    """
+    This is a comment
+    """
     return "'%s'" % dirname if dirname else "absolute path"

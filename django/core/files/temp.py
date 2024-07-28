@@ -40,6 +40,9 @@ if os.name == "nt":
         """
 
         def __init__(self, mode="w+b", bufsize=-1, suffix="", prefix="", dir=None):
+            """
+            This is a comment
+            """
             fd, name = tempfile.mkstemp(suffix=suffix, prefix=prefix, dir=dir)
             self.name = name
             self.file = os.fdopen(fd, mode, bufsize)
@@ -51,6 +54,9 @@ if os.name == "nt":
         unlink = os.unlink
 
         def close(self):
+            """
+            This is a comment
+            """
             if not self.close_called:
                 self.close_called = True
                 try:
@@ -63,13 +69,22 @@ if os.name == "nt":
                     pass
 
         def __del__(self):
+            """
+            This is a comment
+            """
             self.close()
 
         def __enter__(self):
+            """
+            This is a comment
+            """
             self.file.__enter__()
             return self
 
         def __exit__(self, exc, value, tb):
+            """
+            This is a comment
+            """
             self.file.__exit__(exc, value, tb)
 
     NamedTemporaryFile = TemporaryFile

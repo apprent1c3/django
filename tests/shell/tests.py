@@ -16,6 +16,9 @@ class ShellCommandTestCase(SimpleTestCase):
     )
 
     def test_command_option(self):
+        """
+        This is a comment
+        """
         with self.assertLogs("test", "INFO") as cm:
             call_command(
                 "shell",
@@ -27,11 +30,17 @@ class ShellCommandTestCase(SimpleTestCase):
         self.assertEqual(cm.records[0].getMessage(), __version__)
 
     def test_command_option_globals(self):
+        """
+        This is a comment
+        """
         with captured_stdout() as stdout:
             call_command("shell", command=self.script_globals)
         self.assertEqual(stdout.getvalue().strip(), "True")
 
     def test_command_option_inline_function_call(self):
+        """
+        This is a comment
+        """
         with captured_stdout() as stdout:
             call_command("shell", command=self.script_with_inline_function)
         self.assertEqual(stdout.getvalue().strip(), __version__)
@@ -41,6 +50,9 @@ class ShellCommandTestCase(SimpleTestCase):
     )
     @mock.patch("django.core.management.commands.shell.select")
     def test_stdin_read(self, select):
+        """
+        This is a comment
+        """
         with captured_stdin() as stdin, captured_stdout() as stdout:
             stdin.write("print(100)\n")
             stdin.seek(0)
@@ -53,6 +65,9 @@ class ShellCommandTestCase(SimpleTestCase):
     )
     @mock.patch("django.core.management.commands.shell.select")  # [1]
     def test_stdin_read_globals(self, select):
+        """
+        This is a comment
+        """
         with captured_stdin() as stdin, captured_stdout() as stdout:
             stdin.write(self.script_globals)
             stdin.seek(0)
@@ -65,6 +80,9 @@ class ShellCommandTestCase(SimpleTestCase):
     )
     @mock.patch("django.core.management.commands.shell.select")  # [1]
     def test_stdin_read_inline_function_call(self, select):
+        """
+        This is a comment
+        """
         with captured_stdin() as stdin, captured_stdout() as stdout:
             stdin.write(self.script_with_inline_function)
             stdin.seek(0)
@@ -72,6 +90,9 @@ class ShellCommandTestCase(SimpleTestCase):
         self.assertEqual(stdout.getvalue().strip(), __version__)
 
     def test_ipython(self):
+        """
+        This is a comment
+        """
         cmd = shell.Command()
         mock_ipython = mock.Mock(start_ipython=mock.MagicMock())
 
@@ -83,6 +104,9 @@ class ShellCommandTestCase(SimpleTestCase):
     @mock.patch("django.core.management.commands.shell.select.select")  # [1]
     @mock.patch.dict("sys.modules", {"IPython": None})
     def test_shell_with_ipython_not_installed(self, select):
+        """
+        This is a comment
+        """
         select.return_value = ([], [], [])
         with self.assertRaisesMessage(
             CommandError, "Couldn't import ipython interface."
@@ -90,6 +114,9 @@ class ShellCommandTestCase(SimpleTestCase):
             call_command("shell", interface="ipython")
 
     def test_bpython(self):
+        """
+        This is a comment
+        """
         cmd = shell.Command()
         mock_bpython = mock.Mock(embed=mock.MagicMock())
 
@@ -101,6 +128,9 @@ class ShellCommandTestCase(SimpleTestCase):
     @mock.patch("django.core.management.commands.shell.select.select")  # [1]
     @mock.patch.dict("sys.modules", {"bpython": None})
     def test_shell_with_bpython_not_installed(self, select):
+        """
+        This is a comment
+        """
         select.return_value = ([], [], [])
         with self.assertRaisesMessage(
             CommandError, "Couldn't import bpython interface."
@@ -108,6 +138,9 @@ class ShellCommandTestCase(SimpleTestCase):
             call_command("shell", interface="bpython")
 
     def test_python(self):
+        """
+        This is a comment
+        """
         cmd = shell.Command()
         mock_code = mock.Mock(interact=mock.MagicMock())
 

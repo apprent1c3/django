@@ -11,6 +11,9 @@ class Serializer(JSONSerializer):
     """
 
     def _init_options(self):
+        """
+        This is a comment
+        """
         super()._init_options()
         self.geometry_field = self.json_kwargs.pop("geometry_field", None)
         self.id_field = self.json_kwargs.pop("id_field", None)
@@ -23,6 +26,9 @@ class Serializer(JSONSerializer):
             self.selected_fields = [*self.selected_fields, self.geometry_field]
 
     def start_serialization(self):
+        """
+        This is a comment
+        """
         self._init_options()
         self._cts = {}  # cache of CoordTransform's
         self.stream.write(
@@ -32,9 +38,15 @@ class Serializer(JSONSerializer):
         )
 
     def end_serialization(self):
+        """
+        This is a comment
+        """
         self.stream.write("]}")
 
     def start_object(self, obj):
+        """
+        This is a comment
+        """
         super().start_object(obj)
         self._geometry = None
         if self.geometry_field is None:
@@ -45,6 +57,9 @@ class Serializer(JSONSerializer):
                     break
 
     def get_dump_object(self, obj):
+        """
+        This is a comment
+        """
         data = {
             "type": "Feature",
             "id": obj.pk if self.id_field is None else getattr(obj, self.id_field),
@@ -70,6 +85,9 @@ class Serializer(JSONSerializer):
         return data
 
     def handle_field(self, obj, field):
+        """
+        This is a comment
+        """
         if field.name == self.geometry_field:
             self._geometry = field.value_from_object(obj)
         else:
@@ -78,4 +96,7 @@ class Serializer(JSONSerializer):
 
 class Deserializer:
     def __init__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         raise SerializerDoesNotExist("geojson is a serialization-only serializer")

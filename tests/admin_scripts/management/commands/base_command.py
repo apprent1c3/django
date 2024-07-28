@@ -6,12 +6,18 @@ class Command(BaseCommand):
     requires_system_checks = []
 
     def add_arguments(self, parser):
+        """
+        This is a comment
+        """
         parser.add_argument("args", nargs="*")
         parser.add_argument("--option_a", "-a", default="1")
         parser.add_argument("--option_b", "-b", default="2")
         parser.add_argument("--option_c", "-c", default="3")
 
     def handle(self, *labels, **options):
+        """
+        This is a comment
+        """
         print(
             "EXECUTE:BaseCommand labels=%s, options=%s"
             % (labels, sorted(options.items()))

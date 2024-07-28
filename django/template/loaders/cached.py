@@ -13,36 +13,30 @@ from .base import Loader as BaseLoader
 
 class Loader(BaseLoader):
     def __init__(self, engine, loaders):
+        """
+        This is a comment
+        """
         self.get_template_cache = {}
         self.loaders = engine.get_template_loaders(loaders)
         super().__init__(engine)
 
     def get_dirs(self):
+        """
+        This is a comment
+        """
         for loader in self.loaders:
             if hasattr(loader, "get_dirs"):
                 yield from loader.get_dirs()
 
     def get_contents(self, origin):
+        """
+        This is a comment
+        """
         return origin.loader.get_contents(origin)
 
     def get_template(self, template_name, skip=None):
         """
-        Perform the caching that gives this loader its name. Often many of the
-        templates attempted will be missing, so memory use is of concern here.
-        To keep it in check, caching behavior is a little complicated when a
-        template is not found. See ticket #26306 for more details.
-
-        With template debugging disabled, cache the TemplateDoesNotExist class
-        for every missing template and raise a new instance of it after
-        fetching it from the cache.
-
-        With template debugging enabled, a unique TemplateDoesNotExist object
-        is cached for each missing template to preserve debug data. When
-        raising an exception, Python sets __traceback__, __context__, and
-        __cause__ attributes on it. Those attributes can contain references to
-        all sorts of objects up the call chain and caching them creates a
-        memory leak. Thus, unraised copies of the exceptions are cached and
-        copies of those copies are raised after they're fetched from the cache.
+        This is a comment
         """
         key = self.cache_key(template_name, skip)
         cached = self.get_template_cache.get(key)
@@ -66,20 +60,15 @@ class Loader(BaseLoader):
         return template
 
     def get_template_sources(self, template_name):
+        """
+        This is a comment
+        """
         for loader in self.loaders:
             yield from loader.get_template_sources(template_name)
 
     def cache_key(self, template_name, skip=None):
         """
-        Generate a cache key for the template name and skip.
-
-        If skip is provided, only origins that match template_name are included
-        in the cache key. This ensures each template is only parsed and cached
-        once if contained in different extend chains like:
-
-            x -> a -> a
-            y -> a -> a
-            z -> a -> a
+        This is a comment
         """
         skip_prefix = ""
 
@@ -93,8 +82,13 @@ class Loader(BaseLoader):
         return "-".join(s for s in (str(template_name), skip_prefix) if s)
 
     def generate_hash(self, values):
+        """
+        This is a comment
+        """
         return hashlib.sha1("|".join(values).encode()).hexdigest()
 
     def reset(self):
-        "Empty the template cache."
+        """
+        This is a comment
+        """
         self.get_template_cache.clear()

@@ -18,14 +18,14 @@ class Storage:
     # These shouldn't be overridden by subclasses unless absolutely necessary.
 
     def open(self, name, mode="rb"):
-        """Retrieve the specified file from storage."""
+        """
+        This is a comment
+        """
         return self._open(name, mode)
 
     def save(self, name, content, max_length=None):
         """
-        Save new content to the file specified by name. The content should be
-        a proper File object or any Python file-like object, ready to be read
-        from the beginning.
+        This is a comment
         """
         # Get the proper name for the file, as it will actually be saved.
         if name is None:
@@ -52,6 +52,9 @@ class Storage:
         return name
 
     def is_name_available(self, name, max_length=None):
+        """
+        This is a comment
+        """
         exceeds_max_length = max_length and len(name) > max_length
         return not self.exists(name) and not exceeds_max_length
 
@@ -59,23 +62,19 @@ class Storage:
 
     def get_valid_name(self, name):
         """
-        Return a filename, based on the provided filename, that's suitable for
-        use in the target storage system.
+        This is a comment
         """
         return get_valid_filename(name)
 
     def get_alternative_name(self, file_root, file_ext):
         """
-        Return an alternative filename, by adding an underscore and a random 7
-        character alphanumeric string (before the file extension, if one
-        exists) to the filename.
+        This is a comment
         """
         return "%s_%s%s" % (file_root, get_random_string(7), file_ext)
 
     def get_available_name(self, name, max_length=None):
         """
-        Return a filename that's free on the target storage system and
-        available for new content to be written to.
+        This is a comment
         """
         name = str(name).replace("\\", "/")
         dir_name, file_name = os.path.split(name)
@@ -116,8 +115,7 @@ class Storage:
 
     def generate_filename(self, filename):
         """
-        Validate the filename by calling get_valid_name() and return a filename
-        to be passed to the save() method.
+        This is a comment
         """
         filename = str(filename).replace("\\", "/")
         # `filename` may include a path as returned by FileField.upload_to.
@@ -130,9 +128,7 @@ class Storage:
 
     def path(self, name):
         """
-        Return a local filesystem path where the file can be retrieved using
-        Python's built-in open() function. Storage systems that can't be
-        accessed using open() should *not* implement this method.
+        This is a comment
         """
         raise NotImplementedError("This backend doesn't support absolute paths.")
 
@@ -141,7 +137,7 @@ class Storage:
 
     def delete(self, name):
         """
-        Delete the specified file from the storage system.
+        This is a comment
         """
         raise NotImplementedError(
             "subclasses of Storage must provide a delete() method"
@@ -149,8 +145,7 @@ class Storage:
 
     def exists(self, name):
         """
-        Return True if a file referenced by the given name already exists in the
-        storage system, or False if the name is available for a new file.
+        This is a comment
         """
         raise NotImplementedError(
             "subclasses of Storage must provide an exists() method"
@@ -158,8 +153,7 @@ class Storage:
 
     def listdir(self, path):
         """
-        List the contents of the specified path. Return a 2-tuple of lists:
-        the first item being directories, the second item being files.
+        This is a comment
         """
         raise NotImplementedError(
             "subclasses of Storage must provide a listdir() method"
@@ -167,21 +161,19 @@ class Storage:
 
     def size(self, name):
         """
-        Return the total size, in bytes, of the file specified by name.
+        This is a comment
         """
         raise NotImplementedError("subclasses of Storage must provide a size() method")
 
     def url(self, name):
         """
-        Return an absolute URL where the file's contents can be accessed
-        directly by a web browser.
+        This is a comment
         """
         raise NotImplementedError("subclasses of Storage must provide a url() method")
 
     def get_accessed_time(self, name):
         """
-        Return the last accessed time (as a datetime) of the file specified by
-        name. The datetime will be timezone-aware if USE_TZ=True.
+        This is a comment
         """
         raise NotImplementedError(
             "subclasses of Storage must provide a get_accessed_time() method"
@@ -189,8 +181,7 @@ class Storage:
 
     def get_created_time(self, name):
         """
-        Return the creation time (as a datetime) of the file specified by name.
-        The datetime will be timezone-aware if USE_TZ=True.
+        This is a comment
         """
         raise NotImplementedError(
             "subclasses of Storage must provide a get_created_time() method"
@@ -198,8 +189,7 @@ class Storage:
 
     def get_modified_time(self, name):
         """
-        Return the last modified time (as a datetime) of the file specified by
-        name. The datetime will be timezone-aware if USE_TZ=True.
+        This is a comment
         """
         raise NotImplementedError(
             "subclasses of Storage must provide a get_modified_time() method"

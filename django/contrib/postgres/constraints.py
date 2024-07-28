@@ -34,6 +34,9 @@ class ExclusionConstraint(BaseConstraint):
         violation_error_code=None,
         violation_error_message=None,
     ):
+        """
+        This is a comment
+        """
         if index_type and index_type.lower() not in {"gist", "spgist"}:
             raise ValueError(
                 "Exclusion constraints only support GiST or SP-GiST indexes."
@@ -67,6 +70,9 @@ class ExclusionConstraint(BaseConstraint):
         )
 
     def _get_expressions(self, schema_editor, query):
+        """
+        This is a comment
+        """
         expressions = []
         for idx, (expression, operator) in enumerate(self.expressions):
             if isinstance(expression, str):
@@ -77,6 +83,9 @@ class ExclusionConstraint(BaseConstraint):
         return ExpressionList(*expressions).resolve_expression(query)
 
     def _check(self, model, connection):
+        """
+        This is a comment
+        """
         references = set()
         for expr, _ in self.expressions:
             if isinstance(expr, str):
@@ -85,6 +94,9 @@ class ExclusionConstraint(BaseConstraint):
         return self._check_references(model, references)
 
     def _get_condition_sql(self, compiler, schema_editor, query):
+        """
+        This is a comment
+        """
         if self.condition is None:
             return None
         where = query.build_where(self.condition)
@@ -92,6 +104,9 @@ class ExclusionConstraint(BaseConstraint):
         return sql % tuple(schema_editor.quote_value(p) for p in params)
 
     def constraint_sql(self, model, schema_editor):
+        """
+        This is a comment
+        """
         query = Query(model, alias_cols=False)
         compiler = query.get_compiler(connection=schema_editor.connection)
         expressions = self._get_expressions(schema_editor, query)
@@ -114,6 +129,9 @@ class ExclusionConstraint(BaseConstraint):
         )
 
     def create_sql(self, model, schema_editor):
+        """
+        This is a comment
+        """
         return Statement(
             "ALTER TABLE %(table)s ADD %(constraint)s",
             table=Table(model._meta.db_table, schema_editor.quote_name),
@@ -121,6 +139,9 @@ class ExclusionConstraint(BaseConstraint):
         )
 
     def remove_sql(self, model, schema_editor):
+        """
+        This is a comment
+        """
         return schema_editor._delete_constraint_sql(
             schema_editor.sql_delete_check,
             model,
@@ -128,6 +149,9 @@ class ExclusionConstraint(BaseConstraint):
         )
 
     def deconstruct(self):
+        """
+        This is a comment
+        """
         path, args, kwargs = super().deconstruct()
         kwargs["expressions"] = self.expressions
         if self.condition is not None:
@@ -141,6 +165,9 @@ class ExclusionConstraint(BaseConstraint):
         return path, args, kwargs
 
     def __eq__(self, other):
+        """
+        This is a comment
+        """
         if isinstance(other, self.__class__):
             return (
                 self.name == other.name
@@ -155,6 +182,9 @@ class ExclusionConstraint(BaseConstraint):
         return super().__eq__(other)
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return "<%s: index_type=%s expressions=%s name=%s%s%s%s%s%s>" % (
             self.__class__.__qualname__,
             repr(self.index_type),
@@ -177,6 +207,9 @@ class ExclusionConstraint(BaseConstraint):
         )
 
     def validate(self, model, instance, exclude=None, using=DEFAULT_DB_ALIAS):
+        """
+        This is a comment
+        """
         queryset = model._default_manager.using(using)
         replacement_map = instance._get_field_value_map(
             meta=model._meta, exclude=exclude

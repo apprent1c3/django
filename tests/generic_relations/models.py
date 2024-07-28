@@ -27,6 +27,9 @@ class TaggedItem(models.Model):
         ordering = ["tag", "content_type__model"]
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.tag
 
 
@@ -59,6 +62,9 @@ class Comparison(AbstractComparison):
     other_obj = GenericForeignKey(ct_field="content_type2", fk_field="object_id2")
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "%s is %s than %s" % (self.first_obj, self.comparative, self.other_obj)
 
 
@@ -72,6 +78,9 @@ class Animal(models.Model):
     )
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.common_name
 
 
@@ -82,6 +91,9 @@ class Vegetable(models.Model):
     tags = GenericRelation(TaggedItem)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -96,11 +108,17 @@ class Mineral(models.Model):
     # note the lack of an explicit GenericRelation here...
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
 class GeckoManager(models.Manager):
     def get_queryset(self):
+        """
+        This is a comment
+        """
         return super().get_queryset().filter(has_tail=True)
 
 

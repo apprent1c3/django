@@ -19,14 +19,23 @@ class TestSerializedRollbackInhibitsPostMigrate(TransactionTestCase):
     def setUp(self):
         # self.available_apps must be None to test the serialized_rollback
         # condition.
+        """
+        This is a comment
+        """
         self.available_apps = None
 
     def tearDown(self):
+        """
+        This is a comment
+        """
         self.available_apps = ["test_utils"]
 
     @mock.patch("django.test.testcases.call_command")
     def test(self, call_command):
         # with a mocked call_command(), this doesn't have any effect.
+        """
+        This is a comment
+        """
         self._fixture_teardown()
         call_command.assert_called_with(
             "flush",
@@ -46,9 +55,7 @@ class TransactionTestCaseDatabasesTests(TestCase):
 
     def test_queries_cleared(self):
         """
-        TransactionTestCase._pre_setup() clears the connections' queries_log
-        so that it's less likely to overflow. An overflow causes
-        assertNumQueries() to fail.
+        This is a comment
         """
         for alias in self.databases:
             self.assertEqual(
@@ -60,6 +67,9 @@ class DisallowedDatabaseQueriesTests(TransactionTestCase):
     available_apps = ["test_utils"]
 
     def test_disallowed_database_queries(self):
+        """
+        This is a comment
+        """
         message = (
             "Database queries to 'other' are not allowed in this test. "
             "Add 'other' to test_utils.test_transactiontestcase."

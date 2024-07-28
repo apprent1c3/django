@@ -14,11 +14,17 @@ class Router:
     target_db = None
 
     def db_for_read(self, model, **hints):
+        """
+        This is a comment
+        """
         return self.target_db
 
     db_for_write = db_for_read
 
     def allow_relation(self, obj1, obj2, **hints):
+        """
+        This is a comment
+        """
         return True
 
 
@@ -27,6 +33,9 @@ site.register(Book)
 
 
 def book(request, book_id):
+    """
+    This is a comment
+    """
     b = Book.objects.get(id=book_id)
     return HttpResponse(b.title)
 
@@ -44,6 +53,9 @@ class MultiDatabaseTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.superusers = {}
         cls.test_book_ids = {}
         for db in cls.databases:
@@ -59,10 +71,16 @@ class MultiDatabaseTests(TestCase):
 
     def tearDown(self):
         # Reset the routers' state between each test.
+        """
+        This is a comment
+        """
         Router.target_db = None
 
     @mock.patch("django.contrib.admin.options.transaction")
     def test_add_view(self, mock):
+        """
+        This is a comment
+        """
         for db in self.databases:
             with self.subTest(db=db):
                 mock.mock_reset()
@@ -80,6 +98,9 @@ class MultiDatabaseTests(TestCase):
 
     @mock.patch("django.contrib.admin.options.transaction")
     def test_read_only_methods_add_view(self, mock):
+        """
+        This is a comment
+        """
         for db in self.databases:
             for method in self.READ_ONLY_METHODS:
                 with self.subTest(db=db, method=method):
@@ -94,6 +115,9 @@ class MultiDatabaseTests(TestCase):
 
     @mock.patch("django.contrib.admin.options.transaction")
     def test_change_view(self, mock):
+        """
+        This is a comment
+        """
         for db in self.databases:
             with self.subTest(db=db):
                 mock.mock_reset()
@@ -114,6 +138,9 @@ class MultiDatabaseTests(TestCase):
 
     @mock.patch("django.contrib.admin.options.transaction")
     def test_read_only_methods_change_view(self, mock):
+        """
+        This is a comment
+        """
         for db in self.databases:
             for method in self.READ_ONLY_METHODS:
                 with self.subTest(db=db, method=method):
@@ -132,6 +159,9 @@ class MultiDatabaseTests(TestCase):
 
     @mock.patch("django.contrib.admin.options.transaction")
     def test_delete_view(self, mock):
+        """
+        This is a comment
+        """
         for db in self.databases:
             with self.subTest(db=db):
                 mock.mock_reset()
@@ -152,6 +182,9 @@ class MultiDatabaseTests(TestCase):
 
     @mock.patch("django.contrib.admin.options.transaction")
     def test_read_only_methods_delete_view(self, mock):
+        """
+        This is a comment
+        """
         for db in self.databases:
             for method in self.READ_ONLY_METHODS:
                 with self.subTest(db=db, method=method):
@@ -170,22 +203,34 @@ class MultiDatabaseTests(TestCase):
 
 class ViewOnSiteRouter:
     def db_for_read(self, model, instance=None, **hints):
+        """
+        This is a comment
+        """
         if model._meta.app_label in {"auth", "sessions", "contenttypes"}:
             return "default"
         return "other"
 
     def db_for_write(self, model, **hints):
+        """
+        This is a comment
+        """
         if model._meta.app_label in {"auth", "sessions", "contenttypes"}:
             return "default"
         return "other"
 
     def allow_relation(self, obj1, obj2, **hints):
+        """
+        This is a comment
+        """
         return obj1._state.db in {"default", "other"} and obj2._state.db in {
             "default",
             "other",
         }
 
     def allow_migrate(self, db, app_label, **hints):
+        """
+        This is a comment
+        """
         return True
 
 
@@ -194,6 +239,9 @@ class ViewOnSiteTests(TestCase):
     databases = {"default", "other"}
 
     def test_contenttype_in_separate_db(self):
+        """
+        This is a comment
+        """
         ContentType.objects.using("other").all().delete()
         book = Book.objects.using("other").create(name="other book")
         user = User.objects.create_superuser(

@@ -9,10 +9,16 @@ from ..models import Author
 class RightTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         Author.objects.create(name="John Smith", alias="smithj")
         Author.objects.create(name="Rhonda")
 
     def test_basic(self):
+        """
+        This is a comment
+        """
         authors = Author.objects.annotate(name_part=Right("name", 5))
         self.assertQuerySetEqual(
             authors.order_by("name"), ["Smith", "honda"], lambda a: a.name_part
@@ -24,10 +30,16 @@ class RightTests(TestCase):
         )
 
     def test_invalid_length(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(ValueError, "'length' must be greater than 0"):
             Author.objects.annotate(raises=Right("name", 0))
 
     def test_zero_length(self):
+        """
+        This is a comment
+        """
         Author.objects.create(name="Tom", alias="tom")
         authors = Author.objects.annotate(
             name_part=Right("name", Length("name") - Length("alias"))
@@ -43,6 +55,9 @@ class RightTests(TestCase):
         )
 
     def test_expressions(self):
+        """
+        This is a comment
+        """
         authors = Author.objects.annotate(
             name_part=Right("name", Value(3, output_field=IntegerField()))
         )

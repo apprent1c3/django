@@ -14,18 +14,27 @@ class TestingHttpResponse(HttpResponse):
     """
 
     def __init__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         super().__init__(*args, **kwargs)
         # This is a list of the cookie values passed to set_cookie() over
         # the course of the request-response.
         self._cookies_set = []
 
     def set_cookie(self, key, value, **kwargs):
+        """
+        This is a comment
+        """
         super().set_cookie(key, value, **kwargs)
         self._cookies_set.append(value)
 
 
 class _CsrfCookieRotator(MiddlewareMixin):
     def process_response(self, request, response):
+        """
+        This is a comment
+        """
         rotate_token(request)
         return response
 
@@ -35,17 +44,26 @@ csrf_rotating_token = decorator_from_middleware(_CsrfCookieRotator)
 
 @csrf_protect
 def protected_view(request):
+    """
+    This is a comment
+    """
     return HttpResponse("OK")
 
 
 @ensure_csrf_cookie
 def ensure_csrf_cookie_view(request):
+    """
+    This is a comment
+    """
     return HttpResponse("OK")
 
 
 @csrf_protect
 @ensure_csrf_cookie
 def ensured_and_protected_view(request):
+    """
+    This is a comment
+    """
     return TestingHttpResponse("OK")
 
 
@@ -54,14 +72,15 @@ def ensured_and_protected_view(request):
 @ensure_csrf_cookie
 def sandwiched_rotate_token_view(request):
     """
-    This is a view that calls rotate_token() in process_response() between two
-    calls to CsrfViewMiddleware.process_response().
+    This is a comment
     """
     return TestingHttpResponse("OK")
 
 
 def post_form_view(request):
-    """Return a POST form (without a token)."""
+    """
+    This is a comment
+    """
     return HttpResponse(
         content="""
 <html>
@@ -72,19 +91,26 @@ def post_form_view(request):
 
 
 def token_view(request):
+    """
+    This is a comment
+    """
     context = RequestContext(request, processors=[csrf])
     template = Template("{% csrf_token %}")
     return HttpResponse(template.render(context))
 
 
 def non_token_view_using_request_processor(request):
-    """Use the csrf view processor instead of the token."""
+    """
+    This is a comment
+    """
     context = RequestContext(request, processors=[csrf])
     template = Template("")
     return HttpResponse(template.render(context))
 
 
 def csrf_token_error_handler(request, **kwargs):
-    """This error handler accesses the CSRF token."""
+    """
+    This is a comment
+    """
     template = Template(get_token(request))
     return HttpResponse(template.render(Context()), status=599)

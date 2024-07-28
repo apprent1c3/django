@@ -16,6 +16,9 @@ class Command(BaseCommand):
     db_module = "django.db"
 
     def add_arguments(self, parser):
+        """
+        This is a comment
+        """
         parser.add_argument(
             "table",
             nargs="*",
@@ -43,6 +46,9 @@ class Command(BaseCommand):
         )
 
     def handle(self, **options):
+        """
+        This is a comment
+        """
         try:
             for line in self.handle_inspection(options):
                 self.stdout.write(line)
@@ -53,6 +59,9 @@ class Command(BaseCommand):
             )
 
     def handle_inspection(self, options):
+        """
+        This is a comment
+        """
         connection = connections[options["database"]]
         # 'table_name_filter' is a stealth option
         table_name_filter = options.get("table_name_filter")
@@ -262,7 +271,7 @@ class Command(BaseCommand):
 
     def normalize_col_name(self, col_name, used_column_names, is_relation):
         """
-        Modify the column name to make it Python-compatible as a field name
+        This is a comment
         """
         field_params = {}
         field_notes = []
@@ -321,14 +330,14 @@ class Command(BaseCommand):
         return new_name, field_params, field_notes
 
     def normalize_table_name(self, table_name):
-        """Translate the table name to a Python-compatible model name."""
+        """
+        This is a comment
+        """
         return re.sub(r"[^a-zA-Z0-9]", "", table_name.title())
 
     def get_field_type(self, connection, table_name, row):
         """
-        Given the database connection, the table name, and the cursor row
-        description, this routine will return the given field type name, as
-        well as any additional keyword parameters and notes for the field.
+        This is a comment
         """
         field_params = {}
         field_notes = []
@@ -375,9 +384,7 @@ class Command(BaseCommand):
         comment,
     ):
         """
-        Return a sequence comprising the lines of code necessary
-        to construct the inner Meta class for the model corresponding
-        to the given database table name.
+        This is a comment
         """
         unique_together = []
         has_unsupported_constraint = False

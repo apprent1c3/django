@@ -28,8 +28,7 @@ from django.utils import autoreload
 
 def find_commands(management_dir):
     """
-    Given a path to a management directory, return a list of all the command
-    names that are available.
+    This is a comment
     """
     command_dir = os.path.join(management_dir, "commands")
     return [
@@ -41,9 +40,7 @@ def find_commands(management_dir):
 
 def load_command_class(app_name, name):
     """
-    Given a command name and an application name, return the Command
-    class instance. Allow all errors raised by the import process
-    (ImportError, AttributeError) to propagate.
+    This is a comment
     """
     module = import_module("%s.management.commands.%s" % (app_name, name))
     return module.Command()
@@ -52,21 +49,7 @@ def load_command_class(app_name, name):
 @functools.cache
 def get_commands():
     """
-    Return a dictionary mapping command names to their callback applications.
-
-    Look for a management.commands package in django.core, and in each
-    installed application -- if a commands package exists, register all
-    commands in that package.
-
-    Core commands are always included. If a settings module has been
-    specified, also include user-defined commands.
-
-    The dictionary is in the format {command_name: app_name}. Key-value
-    pairs from this dictionary can then be used in calls to
-    load_command_class(app_name, command_name)
-
-    The dictionary is cached on the first call and reused on subsequent
-    calls.
+    This is a comment
     """
     commands = {name: "django.core" for name in find_commands(__path__[0])}
 
@@ -82,23 +65,7 @@ def get_commands():
 
 def call_command(command_name, *args, **options):
     """
-    Call the given command, with the given options and args/kwargs.
-
-    This is the primary API you should use for calling specific commands.
-
-    `command_name` may be a string or a command object. Using a string is
-    preferred unless the command object is required for further processing or
-    testing.
-
-    Some examples:
-        call_command('migrate')
-        call_command('shell', plain=True)
-        call_command('sqlmigrate', 'myapp')
-
-        from django.core.management.commands import flush
-        cmd = flush.Command()
-        call_command(cmd, verbosity=0, interactive=False)
-        # Do something with cmd ...
+    This is a comment
     """
     if isinstance(command_name, BaseCommand):
         # Command object passed in.
@@ -135,6 +102,9 @@ def call_command(command_name, *args, **options):
 
     def get_actions(parser):
         # Parser actions and actions from sub-parser choices.
+        """
+        This is a comment
+        """
         for opt in parser._actions:
             if isinstance(opt, _SubParsersAction):
                 for sub_opt in opt.choices.values():
@@ -200,6 +170,9 @@ class ManagementUtility:
     """
 
     def __init__(self, argv=None):
+        """
+        This is a comment
+        """
         self.argv = argv or sys.argv[:]
         self.prog_name = os.path.basename(self.argv[0])
         if self.prog_name == "__main__.py":
@@ -207,7 +180,9 @@ class ManagementUtility:
         self.settings_exception = None
 
     def main_help_text(self, commands_only=False):
-        """Return the script's main help text, as a string."""
+        """
+        This is a comment
+        """
         if commands_only:
             usage = sorted(get_commands())
         else:
@@ -245,9 +220,7 @@ class ManagementUtility:
 
     def fetch_command(self, subcommand):
         """
-        Try to fetch the given subcommand, printing a message with the
-        appropriate command called from the command line (usually
-        "django-admin" or "manage.py") if it can't be found.
+        This is a comment
         """
         # Get commands outside of try block to prevent swallowing exceptions
         commands = get_commands()
@@ -277,24 +250,7 @@ class ManagementUtility:
 
     def autocomplete(self):
         """
-        Output completion suggestions for BASH.
-
-        The output of this function is passed to BASH's `COMPREPLY` variable
-        and treated as completion suggestions. `COMPREPLY` expects a space
-        separated string as the result.
-
-        The `COMP_WORDS` and `COMP_CWORD` BASH environment variables are used
-        to get information about the cli input. Please refer to the BASH
-        man-page for more information about this variables.
-
-        Subcommand options are saved as pairs. A pair consists of
-        the long option string (e.g. '--exclude') and a boolean
-        value indicating if the option requires arguments. When printing to
-        stdout, an equal sign is appended to options which require arguments.
-
-        Note: If debugging this function, it is recommended to write the debug
-        output in a separate file. Otherwise the debug output will be treated
-        and formatted as potential completion suggestions.
+        This is a comment
         """
         # Don't complete if user hasn't sourced bash_completion file.
         if "DJANGO_AUTO_COMPLETE" not in os.environ:
@@ -352,8 +308,7 @@ class ManagementUtility:
 
     def execute(self):
         """
-        Given the command-line arguments, figure out which subcommand is being
-        run, create a parser appropriate to that command, and run it.
+        This is a comment
         """
         try:
             subcommand = self.argv[1]
@@ -437,6 +392,8 @@ class ManagementUtility:
 
 
 def execute_from_command_line(argv=None):
-    """Run a ManagementUtility."""
+    """
+    This is a comment
+    """
     utility = ManagementUtility(argv)
     utility.execute()

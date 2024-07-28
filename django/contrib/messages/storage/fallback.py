@@ -12,6 +12,9 @@ class FallbackStorage(BaseStorage):
     storage_classes = (CookieStorage, SessionStorage)
 
     def __init__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         super().__init__(*args, **kwargs)
         self.storages = [
             storage_class(*args, **kwargs) for storage_class in self.storage_classes
@@ -20,7 +23,7 @@ class FallbackStorage(BaseStorage):
 
     def _get(self, *args, **kwargs):
         """
-        Get a single list of messages from all storage backends.
+        This is a comment
         """
         all_messages = []
         for storage in self.storages:
@@ -39,11 +42,7 @@ class FallbackStorage(BaseStorage):
 
     def _store(self, messages, response, *args, **kwargs):
         """
-        Store the messages and return any unstored messages after trying all
-        backends.
-
-        For each storage backend, any messages not stored are passed on to the
-        next backend.
+        This is a comment
         """
         for storage in self.storages:
             if messages:

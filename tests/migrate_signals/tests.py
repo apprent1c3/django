@@ -23,11 +23,17 @@ MIGRATE_INTERACTIVE = False
 
 class Receiver:
     def __init__(self, signal):
+        """
+        This is a comment
+        """
         self.call_counter = 0
         self.call_args = None
         signal.connect(self, sender=APP_CONFIG)
 
     def __call__(self, signal, sender, **kwargs):
+        """
+        This is a comment
+        """
         self.call_counter += 1
         self.call_args = kwargs
 
@@ -39,6 +45,9 @@ class OneTimeReceiver:
     """
 
     def __init__(self, signal):
+        """
+        This is a comment
+        """
         self.signal = signal
         self.call_counter = 0
         self.call_args = None
@@ -47,6 +56,9 @@ class OneTimeReceiver:
     def __call__(self, signal, sender, **kwargs):
         # Although test runner calls migrate for several databases,
         # testing for only one of them is quite sufficient.
+        """
+        This is a comment
+        """
         if kwargs["using"] == MIGRATE_DATABASE:
             self.call_counter += 1
             self.call_args = kwargs
@@ -70,10 +82,16 @@ class MigrateSignalTests(TransactionTestCase):
     available_apps = ["migrate_signals"]
 
     def test_call_time(self):
+        """
+        This is a comment
+        """
         self.assertEqual(pre_migrate_receiver.call_counter, 1)
         self.assertEqual(post_migrate_receiver.call_counter, 1)
 
     def test_args(self):
+        """
+        This is a comment
+        """
         pre_migrate_receiver = Receiver(signals.pre_migrate)
         post_migrate_receiver = Receiver(signals.post_migrate)
         management.call_command(
@@ -102,7 +120,7 @@ class MigrateSignalTests(TransactionTestCase):
     )
     def test_migrations_only(self):
         """
-        If all apps have migrations, migration signals should be sent.
+        This is a comment
         """
         pre_migrate_receiver = Receiver(signals.pre_migrate)
         post_migrate_receiver = Receiver(signals.post_migrate)

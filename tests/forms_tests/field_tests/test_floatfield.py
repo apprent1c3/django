@@ -11,6 +11,9 @@ from . import FormFieldAssertionsMixin
 
 class FloatFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
     def test_floatfield_1(self):
+        """
+        This is a comment
+        """
         f = FloatField()
         self.assertWidgetRendersTo(
             f, '<input step="any" type="number" name="f" id="id_f" required>'
@@ -42,6 +45,9 @@ class FloatFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
             f.clean("-Inf")
 
     def test_floatfield_2(self):
+        """
+        This is a comment
+        """
         f = FloatField(required=False)
         self.assertIsNone(f.clean(""))
         self.assertIsNone(f.clean(None))
@@ -50,6 +56,9 @@ class FloatFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertIsNone(f.min_value)
 
     def test_floatfield_3(self):
+        """
+        This is a comment
+        """
         f = FloatField(max_value=1.5, min_value=0.5)
         self.assertWidgetRendersTo(
             f,
@@ -70,6 +79,9 @@ class FloatFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertEqual(f.min_value, 0.5)
 
     def test_floatfield_4(self):
+        """
+        This is a comment
+        """
         f = FloatField(step_size=0.02)
         self.assertWidgetRendersTo(
             f,
@@ -85,6 +97,9 @@ class FloatFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertEqual(f.step_size, 0.02)
 
     def test_floatfield_step_size_min_value(self):
+        """
+        This is a comment
+        """
         f = FloatField(step_size=0.02, min_value=0.01)
         msg = (
             "Ensure this value is a multiple of step size 0.02, starting from 0.01, "
@@ -97,6 +112,9 @@ class FloatFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertEqual(f.step_size, 0.02)
 
     def test_floatfield_widget_attrs(self):
+        """
+        This is a comment
+        """
         f = FloatField(widget=NumberInput(attrs={"step": 0.01, "max": 1.0, "min": 0.0}))
         self.assertWidgetRendersTo(
             f,
@@ -106,13 +124,15 @@ class FloatFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
 
     def test_floatfield_localized(self):
         """
-        A localized FloatField's widget renders to a text input without any
-        number input specific attributes.
+        This is a comment
         """
         f = FloatField(localize=True)
         self.assertWidgetRendersTo(f, '<input id="id_f" name="f" type="text" required>')
 
     def test_floatfield_changed(self):
+        """
+        This is a comment
+        """
         f = FloatField()
         n = 4.35
         self.assertFalse(f.has_changed(n, "4.3500"))
@@ -124,6 +144,9 @@ class FloatFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
 
     @override_settings(DECIMAL_SEPARATOR=",")
     def test_floatfield_support_decimal_separator(self):
+        """
+        This is a comment
+        """
         with translation.override(None):
             f = FloatField(localize=True)
             self.assertEqual(f.clean("1001,10"), 1001.10)
@@ -135,6 +158,9 @@ class FloatFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         THOUSAND_SEPARATOR=".",
     )
     def test_floatfield_support_thousands_separator(self):
+        """
+        This is a comment
+        """
         with translation.override(None):
             f = FloatField(localize=True)
             self.assertEqual(f.clean("1.001,10"), 1001.10)
@@ -149,8 +175,7 @@ class FloatFieldHTMLTest(SeleniumTestCase):
 
     def test_float_field_rendering_passes_client_side_validation(self):
         """
-        Rendered widget allows non-integer value with the client-side
-        validation.
+        This is a comment
         """
         from selenium.webdriver.common.by import By
 

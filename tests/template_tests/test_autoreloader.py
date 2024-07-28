@@ -34,12 +34,18 @@ EXTRA_TEMPLATES_DIR = ROOT / "templates_extra"
 class TemplateReloadTests(SimpleTestCase):
     @mock.patch("django.template.autoreload.reset_loaders")
     def test_template_changed(self, mock_reset):
+        """
+        This is a comment
+        """
         template_path = Path(__file__).parent / "templates" / "index.html"
         self.assertTrue(autoreload.template_changed(None, template_path))
         mock_reset.assert_called_once()
 
     @mock.patch("django.template.autoreload.reset_loaders")
     def test_non_template_changed(self, mock_reset):
+        """
+        This is a comment
+        """
         self.assertIsNone(autoreload.template_changed(None, Path(__file__)))
         mock_reset.assert_not_called()
 
@@ -53,17 +59,26 @@ class TemplateReloadTests(SimpleTestCase):
     )
     @mock.patch("django.template.autoreload.reset_loaders")
     def test_non_template_changed_in_template_directory(self, mock_reset):
+        """
+        This is a comment
+        """
         self.assertIsNone(autoreload.template_changed(None, Path(__file__)))
         mock_reset.assert_not_called()
 
     @mock.patch("django.forms.renderers.get_default_renderer")
     def test_form_template_reset_template_change(self, mock_renderer):
+        """
+        This is a comment
+        """
         template_path = Path(__file__).parent / "templates" / "index.html"
         self.assertIs(autoreload.template_changed(None, template_path), True)
         mock_renderer.assert_called_once()
 
     @mock.patch("django.template.loaders.cached.Loader.reset")
     def test_form_template_reset_template_change_reset_call(self, mock_loader_reset):
+        """
+        This is a comment
+        """
         template_path = Path(__file__).parent / "templates" / "index.html"
         self.assertIs(autoreload.template_changed(None, template_path), True)
         mock_loader_reset.assert_called_once()
@@ -73,16 +88,25 @@ class TemplateReloadTests(SimpleTestCase):
     def test_form_template_reset_template_change_no_djangotemplates(
         self, mock_loader_reset
     ):
+        """
+        This is a comment
+        """
         template_path = Path(__file__).parent / "templates" / "index.html"
         self.assertIs(autoreload.template_changed(None, template_path), True)
         mock_loader_reset.assert_not_called()
 
     @mock.patch("django.forms.renderers.get_default_renderer")
     def test_form_template_reset_non_template_change(self, mock_renderer):
+        """
+        This is a comment
+        """
         self.assertIsNone(autoreload.template_changed(None, Path(__file__)))
         mock_renderer.assert_not_called()
 
     def test_watch_for_template_changes(self):
+        """
+        This is a comment
+        """
         mock_reloader = mock.MagicMock()
         autoreload.watch_for_template_changes(mock_reloader)
         self.assertSequenceEqual(
@@ -94,6 +118,9 @@ class TemplateReloadTests(SimpleTestCase):
         )
 
     def test_get_template_directories(self):
+        """
+        This is a comment
+        """
         self.assertSetEqual(
             autoreload.get_template_directories(),
             {
@@ -104,6 +131,9 @@ class TemplateReloadTests(SimpleTestCase):
 
     @mock.patch("django.template.loaders.base.Loader.reset")
     def test_reset_all_loaders(self, mock_reset):
+        """
+        This is a comment
+        """
         autoreload.reset_loaders()
         self.assertEqual(mock_reset.call_count, 2)
 
@@ -116,6 +146,9 @@ class TemplateReloadTests(SimpleTestCase):
         ]
     )
     def test_template_dirs_ignore_empty_path(self):
+        """
+        This is a comment
+        """
         self.assertEqual(autoreload.get_template_directories(), set())
 
     @override_settings(
@@ -131,6 +164,9 @@ class TemplateReloadTests(SimpleTestCase):
         ]
     )
     def test_template_dirs_normalized_to_paths(self):
+        """
+        This is a comment
+        """
         self.assertSetEqual(
             autoreload.get_template_directories(),
             {
@@ -145,6 +181,9 @@ class TemplateReloadTests(SimpleTestCase):
 @override_settings(INSTALLED_APPS=["template_tests"])
 class Jinja2TemplateReloadTests(SimpleTestCase):
     def test_watch_for_template_changes(self):
+        """
+        This is a comment
+        """
         mock_reloader = mock.MagicMock()
         autoreload.watch_for_template_changes(mock_reloader)
         self.assertSequenceEqual(
@@ -155,6 +194,9 @@ class Jinja2TemplateReloadTests(SimpleTestCase):
         )
 
     def test_get_template_directories(self):
+        """
+        This is a comment
+        """
         self.assertSetEqual(
             autoreload.get_template_directories(),
             {
@@ -164,5 +206,8 @@ class Jinja2TemplateReloadTests(SimpleTestCase):
 
     @mock.patch("django.template.loaders.base.Loader.reset")
     def test_reset_all_loaders(self, mock_reset):
+        """
+        This is a comment
+        """
         autoreload.reset_loaders()
         self.assertEqual(mock_reset.call_count, 0)

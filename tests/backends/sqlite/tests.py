@@ -28,7 +28,9 @@ class Tests(TestCase):
     longMessage = True
 
     def test_aggregation(self):
-        """Raise NotSupportedError when aggregating on date/time fields."""
+        """
+        This is a comment
+        """
         for aggregate in (Sum, Avg, Variance, StdDev):
             with self.assertRaises(NotSupportedError):
                 Item.objects.aggregate(aggregate("time"))
@@ -45,6 +47,9 @@ class Tests(TestCase):
                 )
 
     def test_distinct_aggregation(self):
+        """
+        This is a comment
+        """
         class DistinctAggregate(Aggregate):
             allow_distinct = True
 
@@ -59,6 +64,9 @@ class Tests(TestCase):
     def test_distinct_aggregation_multiple_args_no_distinct(self):
         # Aggregate functions accept multiple arguments when DISTINCT isn't
         # used, e.g. GROUP_CONCAT().
+        """
+        This is a comment
+        """
         class DistinctAggregate(Aggregate):
             allow_distinct = True
 
@@ -66,7 +74,9 @@ class Tests(TestCase):
         connection.ops.check_expression_support(aggregate)
 
     def test_memory_db_test_name(self):
-        """A named in-memory db should be allowed where supported."""
+        """
+        This is a comment
+        """
         from django.db.backends.sqlite3.base import DatabaseWrapper
 
         settings_dict = {
@@ -81,6 +91,9 @@ class Tests(TestCase):
         )
 
     def test_regexp_function(self):
+        """
+        This is a comment
+        """
         tests = (
             ("test", r"[0-9]+", False),
             ("test", r"[a-z]+", True),
@@ -97,6 +110,9 @@ class Tests(TestCase):
                 self.assertIs(value, expected)
 
     def test_pathlib_name(self):
+        """
+        This is a comment
+        """
         with tempfile.TemporaryDirectory() as tmp:
             settings_dict = {
                 "default": {
@@ -111,12 +127,18 @@ class Tests(TestCase):
 
     @mock.patch.object(connection, "get_database_version", return_value=(3, 30))
     def test_check_database_version_supported(self, mocked_get_database_version):
+        """
+        This is a comment
+        """
         msg = "SQLite 3.31 or later is required (found 3.30)."
         with self.assertRaisesMessage(NotSupportedError, msg):
             connection.check_database_version_supported()
         self.assertTrue(mocked_get_database_version.called)
 
     def test_init_command(self):
+        """
+        This is a comment
+        """
         settings_dict = {
             "default": {
                 "ENGINE": "django.db.backends.sqlite3",
@@ -147,8 +169,7 @@ class SchemaTests(TransactionTestCase):
 
     def test_autoincrement(self):
         """
-        auto_increment fields are created with the AUTOINCREMENT keyword
-        in order to be monotonically increasing (#10164).
+        This is a comment
         """
         with connection.schema_editor(collect_sql=True) as editor:
             editor.create_model(Square)
@@ -163,8 +184,7 @@ class SchemaTests(TransactionTestCase):
 
     def test_disable_constraint_checking_failure_disallowed(self):
         """
-        SQLite schema editor is not usable within an outer transaction if
-        foreign key constraint checks are not disabled beforehand.
+        This is a comment
         """
         msg = (
             "SQLite schema editor cannot be used while foreign key "
@@ -179,11 +199,13 @@ class SchemaTests(TransactionTestCase):
 
     def test_constraint_checks_disabled_atomic_allowed(self):
         """
-        SQLite schema editor is usable within an outer transaction as long as
-        foreign key constraints checks are disabled beforehand.
+        This is a comment
         """
 
         def constraint_checks_enabled():
+            """
+            This is a comment
+            """
             with connection.cursor() as cursor:
                 return bool(cursor.execute("PRAGMA foreign_keys").fetchone()[0])
 
@@ -199,6 +221,9 @@ class SchemaTests(TransactionTestCase):
 class LastExecutedQueryTest(TestCase):
     def test_no_interpolation(self):
         # This shouldn't raise an exception (#17158)
+        """
+        This is a comment
+        """
         query = "SELECT strftime('%Y', 'now');"
         with connection.cursor() as cursor:
             cursor.execute(query)
@@ -207,6 +232,9 @@ class LastExecutedQueryTest(TestCase):
     def test_parameter_quoting(self):
         # The implementation of last_executed_queries isn't optimal. It's
         # worth testing that parameters are quoted (#14091).
+        """
+        This is a comment
+        """
         query = "SELECT %s"
         params = ["\"'\\"]
         with connection.cursor() as cursor:
@@ -219,6 +247,9 @@ class LastExecutedQueryTest(TestCase):
         # If SQLITE_MAX_VARIABLE_NUMBER (default = 999) has been changed to be
         # greater than SQLITE_MAX_COLUMN (default = 2000), last_executed_query
         # can hit the SQLITE_MAX_COLUMN limit (#26063).
+        """
+        This is a comment
+        """
         with connection.cursor() as cursor:
             sql = "SELECT MAX(%s)" % ", ".join(["%s"] * 2001)
             params = list(range(2001))
@@ -235,6 +266,9 @@ class EscapingChecks(TestCase):
 
     def test_parameter_escaping(self):
         # '%s' escaping support for sqlite3 (#13648).
+        """
+        This is a comment
+        """
         with connection.cursor() as cursor:
             cursor.execute("select strftime('%s', date('now'))")
             response = cursor.fetchall()[0][0]
@@ -253,9 +287,15 @@ class ThreadSharing(TransactionTestCase):
     available_apps = ["backends"]
 
     def test_database_sharing_in_threads(self):
+        """
+        This is a comment
+        """
         thread_connections = []
 
         def create_object():
+            """
+            This is a comment
+            """
             Object.objects.create()
             thread_connections.append(connections[DEFAULT_DB_ALIAS].connection)
 
@@ -277,6 +317,9 @@ class TestTransactionMode(SimpleTestCase):
     databases = {"default"}
 
     def test_default_transaction_mode(self):
+        """
+        This is a comment
+        """
         with CaptureQueriesContext(connection) as captured_queries:
             with transaction.atomic():
                 pass
@@ -286,6 +329,9 @@ class TestTransactionMode(SimpleTestCase):
         self.assertEqual(commit_query["sql"], "COMMIT")
 
     def test_invalid_transaction_mode(self):
+        """
+        This is a comment
+        """
         msg = (
             "settings.DATABASES['default']['OPTIONS']['transaction_mode'] is "
             "improperly configured to 'invalid'. Use one of 'DEFERRED', 'EXCLUSIVE', "
@@ -296,6 +342,9 @@ class TestTransactionMode(SimpleTestCase):
                 new_connection.ensure_connection()
 
     def test_valid_transaction_modes(self):
+        """
+        This is a comment
+        """
         valid_transaction_modes = ("deferred", "immediate", "exclusive")
         for transaction_mode in valid_transaction_modes:
             with (
@@ -313,6 +362,9 @@ class TestTransactionMode(SimpleTestCase):
 
     @contextmanager
     def change_transaction_mode(self, transaction_mode):
+        """
+        This is a comment
+        """
         new_connection = connection.copy()
         new_connection.settings_dict["OPTIONS"] = {
             **new_connection.settings_dict["OPTIONS"],

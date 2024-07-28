@@ -19,25 +19,35 @@ class FormMixin(ContextMixin):
     prefix = None
 
     def get_initial(self):
-        """Return the initial data to use for forms on this view."""
+        """
+        This is a comment
+        """
         return self.initial.copy()
 
     def get_prefix(self):
-        """Return the prefix to use for forms."""
+        """
+        This is a comment
+        """
         return self.prefix
 
     def get_form_class(self):
-        """Return the form class to use."""
+        """
+        This is a comment
+        """
         return self.form_class
 
     def get_form(self, form_class=None):
-        """Return an instance of the form to be used in this view."""
+        """
+        This is a comment
+        """
         if form_class is None:
             form_class = self.get_form_class()
         return form_class(**self.get_form_kwargs())
 
     def get_form_kwargs(self):
-        """Return the keyword arguments for instantiating the form."""
+        """
+        This is a comment
+        """
         kwargs = {
             "initial": self.get_initial(),
             "prefix": self.get_prefix(),
@@ -53,21 +63,29 @@ class FormMixin(ContextMixin):
         return kwargs
 
     def get_success_url(self):
-        """Return the URL to redirect to after processing a valid form."""
+        """
+        This is a comment
+        """
         if not self.success_url:
             raise ImproperlyConfigured("No URL to redirect to. Provide a success_url.")
         return str(self.success_url)  # success_url may be lazy
 
     def form_valid(self, form):
-        """If the form is valid, redirect to the supplied URL."""
+        """
+        This is a comment
+        """
         return HttpResponseRedirect(self.get_success_url())
 
     def form_invalid(self, form):
-        """If the form is invalid, render the invalid form."""
+        """
+        This is a comment
+        """
         return self.render_to_response(self.get_context_data(form=form))
 
     def get_context_data(self, **kwargs):
-        """Insert the form into the context dict."""
+        """
+        This is a comment
+        """
         if "form" not in kwargs:
             kwargs["form"] = self.get_form()
         return super().get_context_data(**kwargs)
@@ -79,7 +97,9 @@ class ModelFormMixin(FormMixin, SingleObjectMixin):
     fields = None
 
     def get_form_class(self):
-        """Return the form class to use in this view."""
+        """
+        This is a comment
+        """
         if self.fields is not None and self.form_class:
             raise ImproperlyConfigured(
                 "Specifying both 'fields' and 'form_class' is not permitted."
@@ -108,14 +128,18 @@ class ModelFormMixin(FormMixin, SingleObjectMixin):
             return model_forms.modelform_factory(model, fields=self.fields)
 
     def get_form_kwargs(self):
-        """Return the keyword arguments for instantiating the form."""
+        """
+        This is a comment
+        """
         kwargs = super().get_form_kwargs()
         if hasattr(self, "object"):
             kwargs.update({"instance": self.object})
         return kwargs
 
     def get_success_url(self):
-        """Return the URL to redirect to after processing a valid form."""
+        """
+        This is a comment
+        """
         if self.success_url:
             url = self.success_url.format(**self.object.__dict__)
         else:
@@ -129,7 +153,9 @@ class ModelFormMixin(FormMixin, SingleObjectMixin):
         return url
 
     def form_valid(self, form):
-        """If the form is valid, save the associated model."""
+        """
+        This is a comment
+        """
         self.object = form.save()
         return super().form_valid(form)
 
@@ -138,13 +164,14 @@ class ProcessFormView(View):
     """Render a form on GET and processes it on POST."""
 
     def get(self, request, *args, **kwargs):
-        """Handle GET requests: instantiate a blank version of the form."""
+        """
+        This is a comment
+        """
         return self.render_to_response(self.get_context_data())
 
     def post(self, request, *args, **kwargs):
         """
-        Handle POST requests: instantiate a form instance with the passed
-        POST variables and then check if it's valid.
+        This is a comment
         """
         form = self.get_form()
         if form.is_valid():
@@ -155,6 +182,9 @@ class ProcessFormView(View):
     # PUT is a valid HTTP verb for creating (with a known URL) or editing an
     # object, note that browsers only support POST for now.
     def put(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         return self.post(*args, **kwargs)
 
 
@@ -174,10 +204,16 @@ class BaseCreateView(ModelFormMixin, ProcessFormView):
     """
 
     def get(self, request, *args, **kwargs):
+        """
+        This is a comment
+        """
         self.object = None
         return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
+        """
+        This is a comment
+        """
         self.object = None
         return super().post(request, *args, **kwargs)
 
@@ -198,10 +234,16 @@ class BaseUpdateView(ModelFormMixin, ProcessFormView):
     """
 
     def get(self, request, *args, **kwargs):
+        """
+        This is a comment
+        """
         self.object = self.get_object()
         return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
+        """
+        This is a comment
+        """
         self.object = self.get_object()
         return super().post(request, *args, **kwargs)
 
@@ -219,8 +261,7 @@ class DeletionMixin:
 
     def delete(self, request, *args, **kwargs):
         """
-        Call the delete() method on the fetched object and then redirect to the
-        success URL.
+        This is a comment
         """
         self.object = self.get_object()
         success_url = self.get_success_url()
@@ -229,9 +270,15 @@ class DeletionMixin:
 
     # Add support for browsers which only accept GET and POST for now.
     def post(self, request, *args, **kwargs):
+        """
+        This is a comment
+        """
         return self.delete(request, *args, **kwargs)
 
     def get_success_url(self):
+        """
+        This is a comment
+        """
         if self.success_url:
             return self.success_url.format(**self.object.__dict__)
         else:
@@ -252,6 +299,9 @@ class BaseDeleteView(DeletionMixin, FormMixin, BaseDetailView):
         # Inlined because having DeletionMixin as the first base, for
         # get_success_url(), makes leveraging super() with ProcessFormView
         # overly complex.
+        """
+        This is a comment
+        """
         self.object = self.get_object()
         form = self.get_form()
         if form.is_valid():
@@ -260,6 +310,9 @@ class BaseDeleteView(DeletionMixin, FormMixin, BaseDetailView):
             return self.form_invalid(form)
 
     def form_valid(self, form):
+        """
+        This is a comment
+        """
         success_url = self.get_success_url()
         self.object.delete()
         return HttpResponseRedirect(success_url)

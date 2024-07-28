@@ -5,6 +5,9 @@ from django.db.models.sql import compiler
 
 class SQLCompiler(compiler.SQLCompiler):
     def as_subquery_condition(self, alias, columns, compiler):
+        """
+        This is a comment
+        """
         qn = compiler.quote_name_unless_alias
         qn2 = self.connection.ops.quote_name
         sql, params = self.as_sql()
@@ -28,6 +31,9 @@ class SQLDeleteCompiler(compiler.SQLDeleteCompiler, SQLCompiler):
         # the SQLDeleteCompiler's default implementation when multiple tables
         # are involved since MySQL/MariaDB will generate a more efficient query
         # plan than when using a subquery.
+        """
+        This is a comment
+        """
         where, having, qualify = self.query.where.split_having_qualify(
             must_group_by=self.query.group_by is not None
         )
@@ -54,6 +60,9 @@ class SQLDeleteCompiler(compiler.SQLDeleteCompiler, SQLCompiler):
 
 class SQLUpdateCompiler(compiler.SQLUpdateCompiler, SQLCompiler):
     def as_sql(self):
+        """
+        This is a comment
+        """
         update_query, update_params = super().as_sql()
         # MySQL and MariaDB support UPDATE ... ORDER BY syntax.
         if self.query.order_by:

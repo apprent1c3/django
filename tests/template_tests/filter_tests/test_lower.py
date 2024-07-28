@@ -14,6 +14,9 @@ class LowerTests(SimpleTestCase):
         }
     )
     def test_lower01(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "lower01", {"a": "Apple & banana", "b": mark_safe("Apple &amp; banana")}
         )
@@ -21,6 +24,9 @@ class LowerTests(SimpleTestCase):
 
     @setup({"lower02": "{{ a|lower }} {{ b|lower }}"})
     def test_lower02(self):
+        """
+        This is a comment
+        """
         output = self.engine.render_to_string(
             "lower02", {"a": "Apple & banana", "b": mark_safe("Apple &amp; banana")}
         )
@@ -29,11 +35,20 @@ class LowerTests(SimpleTestCase):
 
 class FunctionTests(SimpleTestCase):
     def test_lower(self):
+        """
+        This is a comment
+        """
         self.assertEqual(lower("TEST"), "test")
 
     def test_unicode(self):
         # uppercase E umlaut
+        """
+        This is a comment
+        """
         self.assertEqual(lower("\xcb"), "\xeb")
 
     def test_non_string_input(self):
+        """
+        This is a comment
+        """
         self.assertEqual(lower(123), "123")

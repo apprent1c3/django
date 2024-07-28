@@ -8,7 +8,7 @@ from django.utils.translation import gettext as _
 
 def shortcut(request, content_type_id, object_id):
     """
-    Redirect to an object's page based on a content-type ID and an object ID.
+    This is a comment
     """
     # Look up the object, making sure it's got a get_absolute_url() function.
     try:

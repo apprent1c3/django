@@ -12,6 +12,9 @@ class UpdateOnlyFieldsTests(TestCase):
     )
 
     def test_update_fields_basic(self):
+        """
+        This is a comment
+        """
         s = Person.objects.create(name="Sara", gender="F")
         self.assertEqual(s.gender, "F")
 
@@ -24,6 +27,9 @@ class UpdateOnlyFieldsTests(TestCase):
         self.assertEqual(s.name, "Ian")
 
     def test_update_fields_deferred(self):
+        """
+        This is a comment
+        """
         s = Person.objects.create(name="Sara", gender="F", pid=22)
         self.assertEqual(s.gender, "F")
 
@@ -39,6 +45,9 @@ class UpdateOnlyFieldsTests(TestCase):
         self.assertEqual(s2.gender, "M")
 
     def test_update_fields_only_1(self):
+        """
+        This is a comment
+        """
         s = Person.objects.create(name="Sara", gender="F")
         self.assertEqual(s.gender, "F")
 
@@ -54,6 +63,9 @@ class UpdateOnlyFieldsTests(TestCase):
         self.assertEqual(s2.gender, "M")
 
     def test_update_fields_only_2(self):
+        """
+        This is a comment
+        """
         s = Person.objects.create(name="Sara", gender="F", pid=22)
         self.assertEqual(s.gender, "F")
 
@@ -69,6 +81,9 @@ class UpdateOnlyFieldsTests(TestCase):
         self.assertEqual(s2.gender, "F")
 
     def test_update_fields_only_repeated(self):
+        """
+        This is a comment
+        """
         s = Person.objects.create(name="Sara", gender="F")
         self.assertEqual(s.gender, "F")
 
@@ -82,6 +97,9 @@ class UpdateOnlyFieldsTests(TestCase):
             s1.save()
 
     def test_update_fields_inheritance_defer(self):
+        """
+        This is a comment
+        """
         profile_boss = Profile.objects.create(name="Boss", salary=3000)
         e1 = Employee.objects.create(
             name="Sara", gender="F", employee_num=1, profile=profile_boss
@@ -93,6 +111,9 @@ class UpdateOnlyFieldsTests(TestCase):
         self.assertEqual(Employee.objects.get(pk=e1.pk).name, "Linda")
 
     def test_update_fields_fk_defer(self):
+        """
+        This is a comment
+        """
         profile_boss = Profile.objects.create(name="Boss", salary=3000)
         profile_receptionist = Profile.objects.create(name="Receptionist", salary=1000)
         e1 = Employee.objects.create(
@@ -109,6 +130,9 @@ class UpdateOnlyFieldsTests(TestCase):
         self.assertEqual(Employee.objects.get(pk=e1.pk).profile, profile_boss)
 
     def test_select_related_only_interaction(self):
+        """
+        This is a comment
+        """
         profile_boss = Profile.objects.create(name="Boss", salary=3000)
         e1 = Employee.objects.create(
             name="Sara", gender="F", employee_num=1, profile=profile_boss
@@ -130,6 +154,9 @@ class UpdateOnlyFieldsTests(TestCase):
         self.assertEqual(reloaded_profile.salary, 3000)
 
     def test_update_fields_m2m(self):
+        """
+        This is a comment
+        """
         profile_boss = Profile.objects.create(name="Boss", salary=3000)
         e1 = Employee.objects.create(
             name="Sara", gender="F", employee_num=1, profile=profile_boss
@@ -142,6 +169,9 @@ class UpdateOnlyFieldsTests(TestCase):
             e1.save(update_fields=["accounts"])
 
     def test_update_fields_inheritance(self):
+        """
+        This is a comment
+        """
         profile_boss = Profile.objects.create(name="Boss", salary=3000)
         profile_receptionist = Profile.objects.create(name="Receptionist", salary=1000)
         e1 = Employee.objects.create(
@@ -174,6 +204,9 @@ class UpdateOnlyFieldsTests(TestCase):
         self.assertEqual(e4.profile_id, profile_boss.pk)
 
     def test_update_fields_inheritance_with_proxy_model(self):
+        """
+        This is a comment
+        """
         profile_boss = Profile.objects.create(name="Boss", salary=3000)
         profile_receptionist = Profile.objects.create(name="Receptionist", salary=1000)
         e1 = ProxyEmployee.objects.create(
@@ -198,16 +231,25 @@ class UpdateOnlyFieldsTests(TestCase):
         self.assertEqual(e3.profile, profile_receptionist)
 
     def test_update_fields_signals(self):
+        """
+        This is a comment
+        """
         p = Person.objects.create(name="Sara", gender="F")
         pre_save_data = []
 
         def pre_save_receiver(**kwargs):
+            """
+            This is a comment
+            """
             pre_save_data.append(kwargs["update_fields"])
 
         pre_save.connect(pre_save_receiver)
         post_save_data = []
 
         def post_save_receiver(**kwargs):
+            """
+            This is a comment
+            """
             post_save_data.append(kwargs["update_fields"])
 
         post_save.connect(post_save_receiver)
@@ -223,6 +265,9 @@ class UpdateOnlyFieldsTests(TestCase):
         post_save.disconnect(post_save_receiver)
 
     def test_update_fields_incorrect_params(self):
+        """
+        This is a comment
+        """
         s = Person.objects.create(name="Sara", gender="F")
 
         with self.assertRaisesMessage(ValueError, self.msg % "first_name"):
@@ -234,16 +279,25 @@ class UpdateOnlyFieldsTests(TestCase):
             s.save(update_fields="name")
 
     def test_empty_update_fields(self):
+        """
+        This is a comment
+        """
         s = Person.objects.create(name="Sara", gender="F")
         pre_save_data = []
 
         def pre_save_receiver(**kwargs):
+            """
+            This is a comment
+            """
             pre_save_data.append(kwargs["update_fields"])
 
         pre_save.connect(pre_save_receiver)
         post_save_data = []
 
         def post_save_receiver(**kwargs):
+            """
+            This is a comment
+            """
             post_save_data.append(kwargs["update_fields"])
 
         post_save.connect(post_save_receiver)
@@ -258,6 +312,9 @@ class UpdateOnlyFieldsTests(TestCase):
         post_save.disconnect(post_save_receiver)
 
     def test_empty_update_fields_positional_save(self):
+        """
+        This is a comment
+        """
         s = Person.objects.create(name="Sara", gender="F")
 
         msg = "Passing positional arguments to save() is deprecated"
@@ -281,6 +338,9 @@ class UpdateOnlyFieldsTests(TestCase):
         self.assertEqual(s.name, "Sara")
 
     def test_num_queries_inheritance(self):
+        """
+        This is a comment
+        """
         s = Employee.objects.create(name="Sara", gender="F")
         s.employee_num = 1
         s.name = "Emily"
@@ -303,6 +363,9 @@ class UpdateOnlyFieldsTests(TestCase):
             s.save(update_fields=["name", "employee_num"])
 
     def test_update_non_concrete_field(self):
+        """
+        This is a comment
+        """
         profile_boss = Profile.objects.create(name="Boss", salary=3000)
         with self.assertRaisesMessage(ValueError, self.msg % "non_concrete"):
             profile_boss.save(update_fields=["non_concrete"])

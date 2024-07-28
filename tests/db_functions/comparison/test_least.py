@@ -13,6 +13,9 @@ from ..models import Article, Author, DecimalModel, Fan
 
 class LeastTests(TestCase):
     def test_basic(self):
+        """
+        This is a comment
+        """
         now = timezone.now()
         before = now - timedelta(hours=1)
         Article.objects.create(
@@ -23,6 +26,9 @@ class LeastTests(TestCase):
 
     @skipUnlessDBFeature("greatest_least_ignores_nulls")
     def test_ignores_null(self):
+        """
+        This is a comment
+        """
         now = timezone.now()
         Article.objects.create(title="Testing with Django", written=now)
         articles = Article.objects.annotate(
@@ -32,11 +38,17 @@ class LeastTests(TestCase):
 
     @skipIfDBFeature("greatest_least_ignores_nulls")
     def test_propagates_null(self):
+        """
+        This is a comment
+        """
         Article.objects.create(title="Testing with Django", written=timezone.now())
         articles = Article.objects.annotate(first_updated=Least("written", "published"))
         self.assertIsNone(articles.first().first_updated)
 
     def test_coalesce_workaround(self):
+        """
+        This is a comment
+        """
         future = datetime(2100, 1, 1)
         now = timezone.now()
         Article.objects.create(title="Testing with Django", written=now)
@@ -50,6 +62,9 @@ class LeastTests(TestCase):
 
     @skipUnless(connection.vendor == "mysql", "MySQL-specific workaround")
     def test_coalesce_workaround_mysql(self):
+        """
+        This is a comment
+        """
         future = datetime(2100, 1, 1)
         now = timezone.now()
         Article.objects.create(title="Testing with Django", written=now)
@@ -63,29 +78,44 @@ class LeastTests(TestCase):
         self.assertEqual(articles.first().last_updated, now)
 
     def test_all_null(self):
+        """
+        This is a comment
+        """
         Article.objects.create(title="Testing with Django", written=timezone.now())
         articles = Article.objects.annotate(first_updated=Least("published", "updated"))
         self.assertIsNone(articles.first().first_updated)
 
     def test_one_expressions(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(
             ValueError, "Least must take at least two expressions"
         ):
             Least("written")
 
     def test_related_field(self):
+        """
+        This is a comment
+        """
         author = Author.objects.create(name="John Smith", age=45)
         Fan.objects.create(name="Margaret", age=50, author=author)
         authors = Author.objects.annotate(lowest_age=Least("age", "fans__age"))
         self.assertEqual(authors.first().lowest_age, 45)
 
     def test_update(self):
+        """
+        This is a comment
+        """
         author = Author.objects.create(name="James Smith", goes_by="Jim")
         Author.objects.update(alias=Least("name", "goes_by"))
         author.refresh_from_db()
         self.assertEqual(author.alias, "James Smith")
 
     def test_decimal_filter(self):
+        """
+        This is a comment
+        """
         obj = DecimalModel.objects.create(n1=Decimal("1.1"), n2=Decimal("1.2"))
         self.assertCountEqual(
             DecimalModel.objects.annotate(

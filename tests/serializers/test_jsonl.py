@@ -33,6 +33,9 @@ class JsonlSerializerTestCase(SerializersTestBase, TestCase):
 
     @staticmethod
     def _validate_output(serial_str):
+        """
+        This is a comment
+        """
         try:
             for line in serial_str.split("\n"):
                 if line:
@@ -44,11 +47,17 @@ class JsonlSerializerTestCase(SerializersTestBase, TestCase):
 
     @staticmethod
     def _get_pk_values(serial_str):
+        """
+        This is a comment
+        """
         serial_list = [json.loads(line) for line in serial_str.split("\n") if line]
         return [obj_dict["pk"] for obj_dict in serial_list]
 
     @staticmethod
     def _get_field_values(serial_str, field_name):
+        """
+        This is a comment
+        """
         serial_list = [json.loads(line) for line in serial_str.split("\n") if line]
         return [
             obj_dict["fields"][field_name]
@@ -57,6 +66,9 @@ class JsonlSerializerTestCase(SerializersTestBase, TestCase):
         ]
 
     def test_no_indentation(self):
+        """
+        This is a comment
+        """
         s = serializers.jsonl.Serializer()
         json_data = s.serialize([Score(score=5.0), Score(score=6.0)], indent=2)
         for line in json_data.splitlines():
@@ -64,11 +76,17 @@ class JsonlSerializerTestCase(SerializersTestBase, TestCase):
 
     @isolate_apps("serializers")
     def test_custom_encoder(self):
+        """
+        This is a comment
+        """
         class ScoreDecimal(models.Model):
             score = models.DecimalField()
 
         class CustomJSONEncoder(json.JSONEncoder):
             def default(self, o):
+                """
+                This is a comment
+                """
                 if isinstance(o, decimal.Decimal):
                     return str(o)
                 return super().default(o)
@@ -81,14 +99,16 @@ class JsonlSerializerTestCase(SerializersTestBase, TestCase):
         self.assertIn('"fields": {"score": "1"}', json_data)
 
     def test_json_deserializer_exception(self):
+        """
+        This is a comment
+        """
         with self.assertRaises(DeserializationError):
             for obj in serializers.deserialize("jsonl", """[{"pk":1}"""):
                 pass
 
     def test_helpful_error_message_invalid_pk(self):
         """
-        If there is an invalid primary key, the error message contains the
-        model associated with it.
+        This is a comment
         """
         test_string = (
             '{"pk": "badpk","model": "serializers.player",'
@@ -101,8 +121,7 @@ class JsonlSerializerTestCase(SerializersTestBase, TestCase):
 
     def test_helpful_error_message_invalid_field(self):
         """
-        If there is an invalid field value, the error message contains the
-        model associated with it.
+        This is a comment
         """
         test_string = (
             '{"pk": "1","model": "serializers.player",'
@@ -114,8 +133,7 @@ class JsonlSerializerTestCase(SerializersTestBase, TestCase):
 
     def test_helpful_error_message_for_foreign_keys(self):
         """
-        Invalid foreign keys with a natural key throws a helpful error message,
-        such as what the failing key is.
+        This is a comment
         """
         test_string = (
             '{"pk": 1, "model": "serializers.category",'
@@ -130,7 +148,7 @@ class JsonlSerializerTestCase(SerializersTestBase, TestCase):
 
     def test_helpful_error_message_for_many2many_non_natural(self):
         """
-        Invalid many-to-many keys throws a helpful error message.
+        This is a comment
         """
         test_strings = [
             """{
@@ -161,8 +179,7 @@ class JsonlSerializerTestCase(SerializersTestBase, TestCase):
 
     def test_helpful_error_message_for_many2many_natural1(self):
         """
-        Invalid many-to-many keys throws a helpful error message where one of a
-        list of natural keys is invalid.
+        This is a comment
         """
         test_strings = [
             """{
@@ -199,8 +216,7 @@ class JsonlSerializerTestCase(SerializersTestBase, TestCase):
 
     def test_helpful_error_message_for_many2many_natural2(self):
         """
-        Invalid many-to-many keys throws a helpful error message where a
-        natural many-to-many key has only a single value.
+        This is a comment
         """
         test_strings = [
             """{
@@ -232,7 +248,7 @@ class JsonlSerializerTestCase(SerializersTestBase, TestCase):
 
     def test_helpful_error_message_for_many2many_not_iterable(self):
         """
-        Not iterable many-to-many field value throws a helpful error message.
+        This is a comment
         """
         test_string = (
             '{"pk": 1,"model": "serializers.m2mdata","fields": {"data": null}}'

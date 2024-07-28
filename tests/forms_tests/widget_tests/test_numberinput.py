@@ -9,6 +9,9 @@ class NumberInputTests(WidgetTest):
 
     @override_settings(USE_THOUSAND_SEPARATOR=True)
     def test_attrs_not_localized(self):
+        """
+        This is a comment
+        """
         self.check_html(
             self.widget,
             "name",
@@ -18,6 +21,9 @@ class NumberInputTests(WidgetTest):
         )
 
     def test_fieldset(self):
+        """
+        This is a comment
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = CharField(widget=self.widget)

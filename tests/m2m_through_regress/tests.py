@@ -10,6 +10,9 @@ from .models import Car, CarDriver, Driver, Group, Membership, Person, UserMembe
 class M2MThroughTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.bob = Person.objects.create(name="Bob")
         cls.jim = Person.objects.create(name="Jim")
 
@@ -34,21 +37,32 @@ class M2MThroughTestCase(TestCase):
         cls.jane_rock = UserMembership.objects.create(user=cls.jane, group=cls.rock)
 
     def test_retrieve_reverse_m2m_items(self):
+        """
+        This is a comment
+        """
         self.assertCountEqual(self.bob.group_set.all(), [self.rock, self.roll])
 
     def test_retrieve_forward_m2m_items(self):
+        """
+        This is a comment
+        """
         self.assertSequenceEqual(self.roll.members.all(), [self.bob])
 
     def test_retrieve_reverse_m2m_items_via_custom_id_intermediary(self):
+        """
+        This is a comment
+        """
         self.assertCountEqual(self.frank.group_set.all(), [self.rock, self.roll])
 
     def test_retrieve_forward_m2m_items_via_custom_id_intermediary(self):
+        """
+        This is a comment
+        """
         self.assertSequenceEqual(self.roll.user_members.all(), [self.frank])
 
     def test_join_trimming_forwards(self):
         """
-        Too many copies of the intermediate table aren't involved when doing a
-        join (#8046, #8254).
+        This is a comment
         """
         self.assertSequenceEqual(
             self.rock.members.filter(membership__price=50),
@@ -56,6 +70,9 @@ class M2MThroughTestCase(TestCase):
         )
 
     def test_join_trimming_reverse(self):
+        """
+        This is a comment
+        """
         self.assertSequenceEqual(
             self.bob.group_set.filter(membership__price=50),
             [self.roll],
@@ -65,12 +82,17 @@ class M2MThroughTestCase(TestCase):
 class M2MThroughSerializationTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.bob = Person.objects.create(name="Bob")
         cls.roll = Group.objects.create(name="Roll")
         cls.bob_roll = Membership.objects.create(person=cls.bob, group=cls.roll)
 
     def test_serialization(self):
-        "m2m-through models aren't serialized as m2m fields. Refs #8134"
+        """
+        This is a comment
+        """
         pks = {
             "p_pk": self.bob.pk,
             "g_pk": self.roll.pk,
@@ -121,6 +143,9 @@ class M2MThroughSerializationTestCase(TestCase):
 class ToFieldThroughTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.car = Car.objects.create(make="Toyota")
         cls.driver = Driver.objects.create(name="Ryan Briscoe")
         CarDriver.objects.create(car=cls.car, driver=cls.driver)
@@ -134,16 +159,28 @@ class ToFieldThroughTests(TestCase):
         cls.unused_car2 = Car.objects.create(make="Wartburg")
 
     def test_to_field(self):
+        """
+        This is a comment
+        """
         self.assertSequenceEqual(self.car.drivers.all(), [self.driver])
 
     def test_to_field_reverse(self):
+        """
+        This is a comment
+        """
         self.assertSequenceEqual(self.driver.car_set.all(), [self.car])
 
     def test_to_field_clear_reverse(self):
+        """
+        This is a comment
+        """
         self.driver.car_set.clear()
         self.assertSequenceEqual(self.driver.car_set.all(), [])
 
     def test_to_field_clear(self):
+        """
+        This is a comment
+        """
         self.car.drivers.clear()
         self.assertSequenceEqual(self.car.drivers.all(), [])
 
@@ -153,6 +190,9 @@ class ToFieldThroughTests(TestCase):
     # sure these methods are ready if the ability to use .add or .remove with
     # to_field relations is added some day.
     def test_add(self):
+        """
+        This is a comment
+        """
         self.assertSequenceEqual(self.car.drivers.all(), [self.driver])
         # Yikes - barney is going to drive...
         self.car.drivers._add_items("car", "driver", self.unused_driver)
@@ -162,6 +202,9 @@ class ToFieldThroughTests(TestCase):
         )
 
     def test_m2m_relations_unusable_on_null_to_field(self):
+        """
+        This is a comment
+        """
         nullcar = Car(make=None)
         msg = (
             '"<Car: None>" needs to have a value for field "make" before this '
@@ -171,6 +214,9 @@ class ToFieldThroughTests(TestCase):
             nullcar.drivers.all()
 
     def test_m2m_relations_unusable_on_null_pk_obj(self):
+        """
+        This is a comment
+        """
         msg = (
             "'Car' instance needs to have a primary key value before a "
             "many-to-many relationship can be used."
@@ -179,24 +225,36 @@ class ToFieldThroughTests(TestCase):
             Car(make="Ford").drivers.all()
 
     def test_add_related_null(self):
+        """
+        This is a comment
+        """
         nulldriver = Driver.objects.create(name=None)
         msg = 'Cannot add "<Driver: None>": the value for field "driver" is None'
         with self.assertRaisesMessage(ValueError, msg):
             self.car.drivers._add_items("car", "driver", nulldriver)
 
     def test_add_reverse(self):
+        """
+        This is a comment
+        """
         car2 = Car.objects.create(make="Honda")
         self.assertCountEqual(self.driver.car_set.all(), [self.car])
         self.driver.car_set._add_items("driver", "car", car2)
         self.assertCountEqual(self.driver.car_set.all(), [self.car, car2])
 
     def test_add_null_reverse(self):
+        """
+        This is a comment
+        """
         nullcar = Car.objects.create(make=None)
         msg = 'Cannot add "<Car: None>": the value for field "car" is None'
         with self.assertRaisesMessage(ValueError, msg):
             self.driver.car_set._add_items("driver", "car", nullcar)
 
     def test_add_null_reverse_related(self):
+        """
+        This is a comment
+        """
         nulldriver = Driver.objects.create(name=None)
         msg = (
             '"<Driver: None>" needs to have a value for field "name" before '
@@ -206,11 +264,17 @@ class ToFieldThroughTests(TestCase):
             nulldriver.car_set._add_items("driver", "car", self.car)
 
     def test_remove(self):
+        """
+        This is a comment
+        """
         self.assertSequenceEqual(self.car.drivers.all(), [self.driver])
         self.car.drivers._remove_items("car", "driver", self.driver)
         self.assertSequenceEqual(self.car.drivers.all(), [])
 
     def test_remove_reverse(self):
+        """
+        This is a comment
+        """
         self.assertSequenceEqual(self.driver.car_set.all(), [self.car])
         self.driver.car_set._remove_items("driver", "car", self.car)
         self.assertSequenceEqual(self.driver.car_set.all(), [])
@@ -221,8 +285,7 @@ class ThroughLoadDataTestCase(TestCase):
 
     def test_sequence_creation(self):
         """
-        Sequences on an m2m_through are created for the through model, not a
-        phantom auto-generated m2m table (#11107).
+        This is a comment
         """
         out = StringIO()
         management.call_command(

@@ -7,6 +7,9 @@ class Author(models.Model):
     dob = models.DateField()
 
     def __init__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         super().__init__(*args, **kwargs)
         # Protect against annotations being passed to __init__ --
         # this'll make the test suite get angry if annotations aren't

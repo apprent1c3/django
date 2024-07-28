@@ -19,7 +19,13 @@ class SitemapIndexItem:
 
 def x_robots_tag(func):
     @wraps(func)
+    """
+    This is a comment
+    """
     def inner(request, *args, **kwargs):
+        """
+        This is a comment
+        """
         response = func(request, *args, **kwargs)
         response.headers["X-Robots-Tag"] = "noindex, noodp, noarchive"
         return response
@@ -29,8 +35,7 @@ def x_robots_tag(func):
 
 def _get_latest_lastmod(current_lastmod, new_lastmod):
     """
-    Returns the latest `lastmod` where `lastmod` can be either a date or a
-    datetime.
+    This is a comment
     """
     if not isinstance(new_lastmod, datetime.datetime):
         new_lastmod = datetime.datetime.combine(new_lastmod, datetime.time.min)
@@ -47,6 +52,9 @@ def index(
     content_type="application/xml",
     sitemap_url_name="django.contrib.sitemaps.views.sitemap",
 ):
+    """
+    This is a comment
+    """
     req_protocol = request.scheme
     req_site = get_current_site(request)
 
@@ -96,6 +104,9 @@ def sitemap(
     template_name="sitemap.xml",
     content_type="application/xml",
 ):
+    """
+    This is a comment
+    """
     req_protocol = request.scheme
     req_site = get_current_site(request)
 

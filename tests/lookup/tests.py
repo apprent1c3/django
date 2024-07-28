@@ -49,6 +49,9 @@ class LookupTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         # Create a few Authors.
+        """
+        This is a comment
+        """
         cls.au1 = Author.objects.create(name="Author 1", alias="a1", bio="x" * 4001)
         cls.au2 = Author.objects.create(name="Author 2", alias="a2")
         # Create a few Articles.
@@ -104,6 +107,9 @@ class LookupTests(TestCase):
 
     def test_exists(self):
         # We can use .exists() to check that there are some
+        """
+        This is a comment
+        """
         self.assertTrue(Article.objects.exists())
         for a in Article.objects.all():
             a.delete()
@@ -112,6 +118,9 @@ class LookupTests(TestCase):
 
     def test_lookup_int_as_str(self):
         # Integer value can be queried using string
+        """
+        This is a comment
+        """
         self.assertSequenceEqual(
             Article.objects.filter(id__iexact=str(self.a1.id)),
             [self.a1],
@@ -120,6 +129,9 @@ class LookupTests(TestCase):
     @skipUnlessDBFeature("supports_date_lookup_using_string")
     def test_lookup_date_as_str(self):
         # A date lookup can be performed using a string search
+        """
+        This is a comment
+        """
         self.assertSequenceEqual(
             Article.objects.filter(pub_date__startswith="2005"),
             [self.a5, self.a6, self.a4, self.a2, self.a3, self.a7, self.a1],
@@ -128,6 +140,9 @@ class LookupTests(TestCase):
     def test_iterator(self):
         # Each QuerySet gets iterator(), which is a generator that "lazily"
         # returns results using database-level iteration.
+        """
+        This is a comment
+        """
         self.assertIsInstance(Article.objects.iterator(), collections.abc.Iterator)
 
         self.assertQuerySetEqual(
@@ -152,6 +167,9 @@ class LookupTests(TestCase):
 
     def test_count(self):
         # count() returns the number of objects matching search criteria.
+        """
+        This is a comment
+        """
         self.assertEqual(Article.objects.count(), 7)
         self.assertEqual(
             Article.objects.filter(pub_date__exact=datetime(2005, 7, 27)).count(), 3
@@ -174,6 +192,9 @@ class LookupTests(TestCase):
 
     def test_in_bulk(self):
         # in_bulk() takes a list of IDs and returns a dictionary mapping IDs to objects.
+        """
+        This is a comment
+        """
         arts = Article.objects.in_bulk([self.a1.id, self.a2.id])
         self.assertEqual(arts[self.a1.id], self.a1)
         self.assertEqual(arts[self.a2.id], self.a2)
@@ -205,6 +226,9 @@ class LookupTests(TestCase):
             Article.objects.in_bulk(headline__startswith="Blah")
 
     def test_in_bulk_lots_of_ids(self):
+        """
+        This is a comment
+        """
         test_range = 2000
         max_query_params = connection.features.max_query_params
         expected_num_queries = (
@@ -218,6 +242,9 @@ class LookupTests(TestCase):
             self.assertEqual(Author.objects.in_bulk(authors), authors)
 
     def test_in_bulk_with_field(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             Article.objects.in_bulk(
                 [self.a1.slug, self.a2.slug, self.a3.slug], field_name="slug"
@@ -230,6 +257,9 @@ class LookupTests(TestCase):
         )
 
     def test_in_bulk_meta_constraint(self):
+        """
+        This is a comment
+        """
         season_2011 = Season.objects.create(year=2011)
         season_2012 = Season.objects.create(year=2012)
         Season.objects.create(year=2013)
@@ -242,12 +272,18 @@ class LookupTests(TestCase):
         )
 
     def test_in_bulk_non_unique_field(self):
+        """
+        This is a comment
+        """
         msg = "in_bulk()'s field_name must be a unique field but 'author' isn't."
         with self.assertRaisesMessage(ValueError, msg):
             Article.objects.in_bulk([self.au1], field_name="author")
 
     @skipUnlessDBFeature("can_distinct_on_fields")
     def test_in_bulk_preserve_ordering(self):
+        """
+        This is a comment
+        """
         articles = (
             Article.objects.order_by("author_id", "-pub_date")
             .distinct("author_id")
@@ -260,6 +296,9 @@ class LookupTests(TestCase):
 
     @skipUnlessDBFeature("can_distinct_on_fields")
     def test_in_bulk_preserve_ordering_with_batch_size(self):
+        """
+        This is a comment
+        """
         old_max_query_params = connection.features.max_query_params
         connection.features.max_query_params = 1
         try:
@@ -277,6 +316,9 @@ class LookupTests(TestCase):
 
     @skipUnlessDBFeature("can_distinct_on_fields")
     def test_in_bulk_distinct_field(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             Article.objects.order_by("headline")
             .distinct("headline")
@@ -289,6 +331,9 @@ class LookupTests(TestCase):
 
     @skipUnlessDBFeature("can_distinct_on_fields")
     def test_in_bulk_multiple_distinct_field(self):
+        """
+        This is a comment
+        """
         msg = "in_bulk()'s field_name must be a unique field but 'pub_date' isn't."
         with self.assertRaisesMessage(ValueError, msg):
             Article.objects.order_by("headline", "pub_date").distinct(
@@ -298,6 +343,9 @@ class LookupTests(TestCase):
 
     @isolate_apps("lookup")
     def test_in_bulk_non_unique_meta_constaint(self):
+        """
+        This is a comment
+        """
         class Model(models.Model):
             ean = models.CharField(max_length=100)
             brand = models.CharField(max_length=100)
@@ -323,6 +371,9 @@ class LookupTests(TestCase):
                     Model.objects.in_bulk(field_name=field_name)
 
     def test_in_bulk_sliced_queryset(self):
+        """
+        This is a comment
+        """
         msg = "Cannot use 'limit' or 'offset' with in_bulk()."
         with self.assertRaisesMessage(TypeError, msg):
             Article.objects.all()[0:5].in_bulk([self.a1.id, self.a2.id])
@@ -330,6 +381,9 @@ class LookupTests(TestCase):
     def test_values(self):
         # values() returns a list of dictionaries instead of object instances --
         # and you can specify which fields you want to retrieve.
+        """
+        This is a comment
+        """
         self.assertSequenceEqual(
             Article.objects.values("headline"),
             [
@@ -523,6 +577,9 @@ class LookupTests(TestCase):
         # returned as a list of tuples, rather than a list of dictionaries.
         # Within each tuple, the order of the elements is the same as the order
         # of fields in the values_list() call.
+        """
+        This is a comment
+        """
         self.assertSequenceEqual(
             Article.objects.values_list("headline"),
             [
@@ -624,6 +681,9 @@ class LookupTests(TestCase):
         # get_previous_by_FOO() methods. In the case of identical date values,
         # these methods will use the ID as a fallback check. This guarantees
         # that no records are skipped or duplicated.
+        """
+        This is a comment
+        """
         self.assertEqual(repr(self.a1.get_next_by_pub_date()), "<Article: Article 2>")
         self.assertEqual(repr(self.a2.get_next_by_pub_date()), "<Article: Article 3>")
         self.assertEqual(
@@ -659,6 +719,9 @@ class LookupTests(TestCase):
     def test_escaping(self):
         # Underscores, percent signs and backslashes have special meaning in the
         # underlying SQL code, but Django handles the quoting of them automatically.
+        """
+        This is a comment
+        """
         a8 = Article.objects.create(
             headline="Article_ with underscore", pub_date=datetime(2005, 11, 20)
         )
@@ -691,6 +754,9 @@ class LookupTests(TestCase):
         )
 
     def test_exclude(self):
+        """
+        This is a comment
+        """
         a8 = Article.objects.create(
             headline="Article_ with underscore", pub_date=datetime(2005, 11, 20)
         )
@@ -718,6 +784,9 @@ class LookupTests(TestCase):
 
     def test_none(self):
         # none() returns a QuerySet that behaves like any other QuerySet object
+        """
+        This is a comment
+        """
         self.assertSequenceEqual(Article.objects.none(), [])
         self.assertSequenceEqual(
             Article.objects.none().filter(headline__startswith="Article"), []
@@ -732,15 +801,24 @@ class LookupTests(TestCase):
         self.assertSequenceEqual(list(Article.objects.none().iterator()), [])
 
     def test_in(self):
+        """
+        This is a comment
+        """
         self.assertSequenceEqual(
             Article.objects.exclude(id__in=[]),
             [self.a5, self.a6, self.a4, self.a2, self.a3, self.a7, self.a1],
         )
 
     def test_in_empty_list(self):
+        """
+        This is a comment
+        """
         self.assertSequenceEqual(Article.objects.filter(id__in=[]), [])
 
     def test_in_different_database(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(
             ValueError,
             "Subqueries aren't allowed across different databases. Force the "
@@ -749,6 +827,9 @@ class LookupTests(TestCase):
             list(Article.objects.filter(id__in=Article.objects.using("other").all()))
 
     def test_in_keeps_value_ordering(self):
+        """
+        This is a comment
+        """
         query = (
             Article.objects.filter(slug__in=["a%d" % i for i in range(1, 8)])
             .values("pk")
@@ -757,6 +838,9 @@ class LookupTests(TestCase):
         self.assertIn(" IN (a1, a2, a3, a4, a5, a6, a7) ", str(query))
 
     def test_in_ignore_none(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(1) as ctx:
             self.assertSequenceEqual(
                 Article.objects.filter(id__in=[None, self.a1.id]),
@@ -766,10 +850,16 @@ class LookupTests(TestCase):
         self.assertIn("IN (%s)" % self.a1.pk, sql)
 
     def test_in_ignore_solo_none(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(0):
             self.assertSequenceEqual(Article.objects.filter(id__in=[None]), [])
 
     def test_in_ignore_none_with_unhashable_items(self):
+        """
+        This is a comment
+        """
         class UnhashableInt(int):
             __hash__ = None
 
@@ -783,6 +873,9 @@ class LookupTests(TestCase):
 
     def test_error_messages(self):
         # Programming errors are pointed out with nice error messages
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(
             FieldError,
             "Cannot resolve keyword 'pub_date_year' into field. Choices are: "
@@ -791,6 +884,9 @@ class LookupTests(TestCase):
             Article.objects.filter(pub_date_year="2005").count()
 
     def test_unsupported_lookups(self):
+        """
+        This is a comment
+        """
         with self.assertRaisesMessage(
             FieldError,
             "Unsupported lookup 'starts' for CharField or join on the field "
@@ -841,6 +937,9 @@ class LookupTests(TestCase):
             Article.objects.filter(pub_date__gt__lt__foo="blahblah")
 
     def test_unsupported_lookups_custom_lookups(self):
+        """
+        This is a comment
+        """
         slug_field = Article._meta.get_field("slug")
         msg = (
             "Unsupported lookup 'lengtp' for SlugField or join on the field not "
@@ -852,6 +951,9 @@ class LookupTests(TestCase):
 
     def test_relation_nested_lookup_error(self):
         # An invalid nested lookup on a related field raises a useful error.
+        """
+        This is a comment
+        """
         msg = (
             "Unsupported lookup 'editor__name' for ForeignKey or join on the field not "
             "permitted."
@@ -866,6 +968,9 @@ class LookupTests(TestCase):
             Tag.objects.filter(articles__foo="bar")
 
     def test_unsupported_lookup_reverse_foreign_key(self):
+        """
+        This is a comment
+        """
         msg = (
             "Unsupported lookup 'title' for ManyToOneRel or join on the field not "
             "permitted."
@@ -874,6 +979,9 @@ class LookupTests(TestCase):
             Author.objects.filter(article__title="Article 1")
 
     def test_unsupported_lookup_reverse_foreign_key_custom_lookups(self):
+        """
+        This is a comment
+        """
         msg = (
             "Unsupported lookup 'abspl' for ManyToOneRel or join on the field not "
             "permitted, perhaps you meant abspk?"
@@ -884,6 +992,9 @@ class LookupTests(TestCase):
                 Author.objects.filter(article__abspl=2)
 
     def test_filter_by_reverse_related_field_transform(self):
+        """
+        This is a comment
+        """
         fk_field = Article._meta.get_field("author")
         with register_lookup(fk_field, Abs):
             self.assertSequenceEqual(
@@ -893,6 +1004,9 @@ class LookupTests(TestCase):
     def test_regex(self):
         # Create some articles with a bit more interesting headlines for
         # testing field lookups.
+        """
+        This is a comment
+        """
         Article.objects.all().delete()
         now = datetime.now()
         Article.objects.bulk_create(
@@ -1030,6 +1144,9 @@ class LookupTests(TestCase):
     @skipUnlessDBFeature("supports_regex_backreferencing")
     def test_regex_backreferencing(self):
         # grouping and backreferences
+        """
+        This is a comment
+        """
         now = datetime.now()
         Article.objects.bulk_create(
             [
@@ -1051,12 +1168,15 @@ class LookupTests(TestCase):
 
     def test_regex_null(self):
         """
-        A regex lookup does not fail on null/None values
+        This is a comment
         """
         Season.objects.create(year=2012, gt=None)
         self.assertQuerySetEqual(Season.objects.filter(gt__regex=r"^$"), [])
 
     def test_textfield_exact_null(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(1) as ctx:
             self.assertSequenceEqual(Author.objects.filter(bio=None), [self.au2])
         # Columns with IS NULL condition are not wrapped (except PostgreSQL).
@@ -1065,21 +1185,21 @@ class LookupTests(TestCase):
 
     def test_regex_non_string(self):
         """
-        A regex lookup does not fail on non-string fields
+        This is a comment
         """
         s = Season.objects.create(year=2013, gt=444)
         self.assertQuerySetEqual(Season.objects.filter(gt__regex=r"^444$"), [s])
 
     def test_regex_non_ascii(self):
         """
-        A regex lookup does not trip on non-ASCII characters.
+        This is a comment
         """
         Player.objects.create(name="\u2660")
         Player.objects.get(name__regex="\u2660")
 
     def test_nonfield_lookups(self):
         """
-        A lookup query containing non-fields raises the proper exception.
+        This is a comment
         """
         msg = (
             "Unsupported lookup 'blahblah' for CharField or join on the field not "
@@ -1102,8 +1222,7 @@ class LookupTests(TestCase):
 
     def test_lookup_collision(self):
         """
-        Genuine field names don't collide with built-in lookup types
-        ('year', 'gt', 'range', 'in' etc.) (#11670).
+        This is a comment
         """
         # 'gt' is used as a code number for the year, e.g. 111=>2009.
         season_2009 = Season.objects.create(year=2009, gt=111)
@@ -1190,6 +1309,9 @@ class LookupTests(TestCase):
         )
 
     def test_chain_date_time_lookups(self):
+        """
+        This is a comment
+        """
         self.assertCountEqual(
             Article.objects.filter(pub_date__month__gt=7),
             [self.a5, self.a6],
@@ -1208,7 +1330,9 @@ class LookupTests(TestCase):
         )
 
     def test_exact_none_transform(self):
-        """Transforms are used for __exact=None."""
+        """
+        This is a comment
+        """
         Season.objects.create(year=1, nulled_text_field="not null")
         self.assertFalse(Season.objects.filter(nulled_text_field__isnull=True))
         self.assertTrue(Season.objects.filter(nulled_text_field__nulled__isnull=True))
@@ -1216,18 +1340,27 @@ class LookupTests(TestCase):
         self.assertTrue(Season.objects.filter(nulled_text_field__nulled=None))
 
     def test_exact_sliced_queryset_limit_one(self):
+        """
+        This is a comment
+        """
         self.assertCountEqual(
             Article.objects.filter(author=Author.objects.all()[:1]),
             [self.a1, self.a2, self.a3, self.a4],
         )
 
     def test_exact_sliced_queryset_limit_one_offset(self):
+        """
+        This is a comment
+        """
         self.assertCountEqual(
             Article.objects.filter(author=Author.objects.all()[1:2]),
             [self.a5, self.a6, self.a7],
         )
 
     def test_exact_sliced_queryset_not_limited_to_one(self):
+        """
+        This is a comment
+        """
         msg = (
             "The QuerySet value for an exact lookup must be limited to one "
             "result using slicing."
@@ -1241,6 +1374,9 @@ class LookupTests(TestCase):
     def test_exact_booleanfield(self):
         # MySQL ignores indexes with boolean fields unless they're compared
         # directly to a boolean value.
+        """
+        This is a comment
+        """
         product = Product.objects.create(name="Paper", qty_target=5000)
         Stock.objects.create(product=product, short=False, qty_available=5100)
         stock_1 = Stock.objects.create(product=product, short=True, qty_available=180)
@@ -1255,6 +1391,9 @@ class LookupTests(TestCase):
     def test_exact_booleanfield_annotation(self):
         # MySQL ignores indexes with boolean fields unless they're compared
         # directly to a boolean value.
+        """
+        This is a comment
+        """
         qs = Author.objects.annotate(
             case=Case(
                 When(alias="a1", then=True),
@@ -1279,8 +1418,7 @@ class LookupTests(TestCase):
 
     def test_custom_field_none_rhs(self):
         """
-        __exact=value is transformed to __isnull=True if Field.get_prep_value()
-        converts value to None.
+        This is a comment
         """
         season = Season.objects.create(year=2012, nulled_text_field=None)
         self.assertTrue(
@@ -1289,6 +1427,9 @@ class LookupTests(TestCase):
         self.assertTrue(Season.objects.filter(pk=season.pk, nulled_text_field=""))
 
     def test_pattern_lookups_with_substr(self):
+        """
+        This is a comment
+        """
         a = Author.objects.create(name="John Smith", alias="Johx")
         b = Author.objects.create(name="Rhonda Simpson", alias="sonx")
         tests = (
@@ -1307,7 +1448,9 @@ class LookupTests(TestCase):
                 self.assertCountEqual(authors, result)
 
     def test_custom_lookup_none_rhs(self):
-        """Lookup.can_use_none_as_rhs=True allows None as a lookup value."""
+        """
+        This is a comment
+        """
         season = Season.objects.create(year=2012, nulled_text_field=None)
         query = Season.objects.get_queryset().query
         field = query.model._meta.get_field("nulled_text_field")
@@ -1319,6 +1462,9 @@ class LookupTests(TestCase):
         )
 
     def test_exact_exists(self):
+        """
+        This is a comment
+        """
         qs = Article.objects.filter(pk=OuterRef("pk"))
         seasons = Season.objects.annotate(pk_exists=Exists(qs)).filter(
             pk_exists=Exists(qs),
@@ -1326,6 +1472,9 @@ class LookupTests(TestCase):
         self.assertCountEqual(seasons, Season.objects.all())
 
     def test_nested_outerref_lhs(self):
+        """
+        This is a comment
+        """
         tag = Tag.objects.create(name=self.au1.alias)
         tag.articles.add(self.a1)
         qs = Tag.objects.annotate(
@@ -1340,6 +1489,9 @@ class LookupTests(TestCase):
         self.assertEqual(qs.get(has_author_alias_match=True), tag)
 
     def test_exact_query_rhs_with_selected_columns(self):
+        """
+        This is a comment
+        """
         newest_author = Author.objects.create(name="Author 2")
         authors_max_ids = (
             Author.objects.filter(
@@ -1357,6 +1509,9 @@ class LookupTests(TestCase):
         self.assertEqual(authors.get(), newest_author)
 
     def test_isnull_non_boolean_value(self):
+        """
+        This is a comment
+        """
         msg = "The QuerySet value for an isnull lookup must be True or False."
         tests = [
             Author.objects.filter(alias__isnull=1),
@@ -1370,6 +1525,9 @@ class LookupTests(TestCase):
                     qs.exists()
 
     def test_isnull_textfield(self):
+        """
+        This is a comment
+        """
         self.assertSequenceEqual(
             Author.objects.filter(bio__isnull=True),
             [self.au2],
@@ -1380,6 +1538,9 @@ class LookupTests(TestCase):
         )
 
     def test_lookup_rhs(self):
+        """
+        This is a comment
+        """
         product = Product.objects.create(name="GME", qty_target=5000)
         stock_1 = Stock.objects.create(product=product, short=True, qty_available=180)
         stock_2 = Stock.objects.create(product=product, short=False, qty_available=5100)
@@ -1399,6 +1560,9 @@ class LookupTests(TestCase):
         )
 
     def test_lookup_direct_value_rhs_unwrapped(self):
+        """
+        This is a comment
+        """
         with self.assertNumQueries(1) as ctx:
             self.assertIs(Author.objects.filter(GreaterThan(2, 1)).exists(), True)
         # Direct values on RHS are not wrapped.
@@ -1408,6 +1572,9 @@ class LookupTests(TestCase):
 class LookupQueryingTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.s1 = Season.objects.create(year=1942, gt=1942)
         cls.s2 = Season.objects.create(year=1842, gt=1942, nulled_text_field="text")
         cls.s3 = Season.objects.create(year=2042, gt=1942)
@@ -1416,6 +1583,9 @@ class LookupQueryingTests(TestCase):
         Game.objects.create(season=cls.s3, home="Boston", away="Tampa")
 
     def test_annotate(self):
+        """
+        This is a comment
+        """
         qs = Season.objects.annotate(equal=Exact(F("year"), 1942))
         self.assertCountEqual(
             qs.values_list("year", "equal"),
@@ -1423,10 +1593,16 @@ class LookupQueryingTests(TestCase):
         )
 
     def test_alias(self):
+        """
+        This is a comment
+        """
         qs = Season.objects.alias(greater=GreaterThan(F("year"), 1910))
         self.assertCountEqual(qs.filter(greater=True), [self.s1, self.s3])
 
     def test_annotate_value_greater_than_value(self):
+        """
+        This is a comment
+        """
         qs = Season.objects.annotate(greater=GreaterThan(Value(40), Value(30)))
         self.assertCountEqual(
             qs.values_list("year", "greater"),
@@ -1434,6 +1610,9 @@ class LookupQueryingTests(TestCase):
         )
 
     def test_annotate_field_greater_than_field(self):
+        """
+        This is a comment
+        """
         qs = Season.objects.annotate(greater=GreaterThan(F("year"), F("gt")))
         self.assertCountEqual(
             qs.values_list("year", "greater"),
@@ -1441,6 +1620,9 @@ class LookupQueryingTests(TestCase):
         )
 
     def test_annotate_field_greater_than_value(self):
+        """
+        This is a comment
+        """
         qs = Season.objects.annotate(greater=GreaterThan(F("year"), Value(1930)))
         self.assertCountEqual(
             qs.values_list("year", "greater"),
@@ -1448,6 +1630,9 @@ class LookupQueryingTests(TestCase):
         )
 
     def test_annotate_field_greater_than_literal(self):
+        """
+        This is a comment
+        """
         qs = Season.objects.annotate(greater=GreaterThan(F("year"), 1930))
         self.assertCountEqual(
             qs.values_list("year", "greater"),
@@ -1455,6 +1640,9 @@ class LookupQueryingTests(TestCase):
         )
 
     def test_annotate_literal_greater_than_field(self):
+        """
+        This is a comment
+        """
         qs = Season.objects.annotate(greater=GreaterThan(1930, F("year")))
         self.assertCountEqual(
             qs.values_list("year", "greater"),
@@ -1462,6 +1650,9 @@ class LookupQueryingTests(TestCase):
         )
 
     def test_annotate_less_than_float(self):
+        """
+        This is a comment
+        """
         qs = Season.objects.annotate(lesser=LessThan(F("year"), 1942.1))
         self.assertCountEqual(
             qs.values_list("year", "lesser"),
@@ -1469,6 +1660,9 @@ class LookupQueryingTests(TestCase):
         )
 
     def test_annotate_greater_than_or_equal(self):
+        """
+        This is a comment
+        """
         qs = Season.objects.annotate(greater=GreaterThanOrEqual(F("year"), 1942))
         self.assertCountEqual(
             qs.values_list("year", "greater"),
@@ -1476,6 +1670,9 @@ class LookupQueryingTests(TestCase):
         )
 
     def test_annotate_greater_than_or_equal_float(self):
+        """
+        This is a comment
+        """
         qs = Season.objects.annotate(greater=GreaterThanOrEqual(F("year"), 1942.1))
         self.assertCountEqual(
             qs.values_list("year", "greater"),
@@ -1483,6 +1680,9 @@ class LookupQueryingTests(TestCase):
         )
 
     def test_combined_lookups(self):
+        """
+        This is a comment
+        """
         expression = Exact(F("year"), 1942) | GreaterThan(F("year"), 1942)
         qs = Season.objects.annotate(gte=expression)
         self.assertCountEqual(
@@ -1491,10 +1691,16 @@ class LookupQueryingTests(TestCase):
         )
 
     def test_lookup_in_filter(self):
+        """
+        This is a comment
+        """
         qs = Season.objects.filter(GreaterThan(F("year"), 1910))
         self.assertCountEqual(qs, [self.s1, self.s3])
 
     def test_isnull_lookup_in_filter(self):
+        """
+        This is a comment
+        """
         self.assertSequenceEqual(
             Season.objects.filter(IsNull(F("nulled_text_field"), False)),
             [self.s2],
@@ -1505,12 +1711,18 @@ class LookupQueryingTests(TestCase):
         )
 
     def test_filter_lookup_lhs(self):
+        """
+        This is a comment
+        """
         qs = Season.objects.annotate(before_20=LessThan(F("year"), 2000)).filter(
             before_20=LessThan(F("year"), 1900),
         )
         self.assertCountEqual(qs, [self.s2, self.s3])
 
     def test_filter_wrapped_lookup_lhs(self):
+        """
+        This is a comment
+        """
         qs = (
             Season.objects.annotate(
                 before_20=ExpressionWrapper(
@@ -1524,6 +1736,9 @@ class LookupQueryingTests(TestCase):
         self.assertCountEqual(qs, [1842, 2042])
 
     def test_filter_exists_lhs(self):
+        """
+        This is a comment
+        """
         qs = Season.objects.annotate(
             before_20=Exists(
                 Season.objects.filter(pk=OuterRef("pk"), year__lt=2000),
@@ -1532,6 +1747,9 @@ class LookupQueryingTests(TestCase):
         self.assertCountEqual(qs, [self.s2, self.s3])
 
     def test_filter_subquery_lhs(self):
+        """
+        This is a comment
+        """
         qs = Season.objects.annotate(
             before_20=Subquery(
                 Season.objects.filter(pk=OuterRef("pk")).values(
@@ -1542,30 +1760,48 @@ class LookupQueryingTests(TestCase):
         self.assertCountEqual(qs, [self.s2, self.s3])
 
     def test_combined_lookups_in_filter(self):
+        """
+        This is a comment
+        """
         expression = Exact(F("year"), 1942) | GreaterThan(F("year"), 1942)
         qs = Season.objects.filter(expression)
         self.assertCountEqual(qs, [self.s1, self.s3])
 
     def test_combined_annotated_lookups_in_filter(self):
+        """
+        This is a comment
+        """
         expression = Exact(F("year"), 1942) | GreaterThan(F("year"), 1942)
         qs = Season.objects.annotate(gte=expression).filter(gte=True)
         self.assertCountEqual(qs, [self.s1, self.s3])
 
     def test_combined_annotated_lookups_in_filter_false(self):
+        """
+        This is a comment
+        """
         expression = Exact(F("year"), 1942) | GreaterThan(F("year"), 1942)
         qs = Season.objects.annotate(gte=expression).filter(gte=False)
         self.assertSequenceEqual(qs, [self.s2])
 
     def test_lookup_in_order_by(self):
+        """
+        This is a comment
+        """
         qs = Season.objects.order_by(LessThan(F("year"), 1910), F("year"))
         self.assertSequenceEqual(qs, [self.s1, self.s3, self.s2])
 
     def test_aggregate_combined_lookup(self):
+        """
+        This is a comment
+        """
         expression = Cast(GreaterThan(F("year"), 1900), models.IntegerField())
         qs = Season.objects.aggregate(modern=models.Sum(expression))
         self.assertEqual(qs["modern"], 2)
 
     def test_conditional_expression(self):
+        """
+        This is a comment
+        """
         qs = Season.objects.annotate(
             century=Case(
                 When(
@@ -1585,6 +1821,9 @@ class LookupQueryingTests(TestCase):
         )
 
     def test_multivalued_join_reuse(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             Season.objects.get(Exact(F("games__home"), "NY"), games__away="Boston"),
             self.s1,

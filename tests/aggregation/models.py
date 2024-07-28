@@ -8,6 +8,9 @@ class Author(models.Model):
     rating = models.FloatField(null=True)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -17,6 +20,9 @@ class Publisher(models.Model):
     duration = models.DurationField(blank=True, null=True)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -32,6 +38,9 @@ class Book(models.Model):
     pubdate = models.DateField()
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name
 
 
@@ -42,4 +51,7 @@ class Store(models.Model):
     friday_night_closing = models.TimeField()
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name

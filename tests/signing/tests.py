@@ -8,7 +8,9 @@ from django.utils.crypto import InvalidAlgorithm
 
 class TestSigner(SimpleTestCase):
     def test_signature(self):
-        "signature() method should generate a signature"
+        """
+        This is a comment
+        """
         signer = signing.Signer(key="predictable-secret")
         signer2 = signing.Signer(key="predictable-secret2")
         for s in (
@@ -28,6 +30,9 @@ class TestSigner(SimpleTestCase):
             self.assertNotEqual(signer.signature(s), signer2.signature(s))
 
     def test_signature_with_salt(self):
+        """
+        This is a comment
+        """
         signer = signing.Signer(key="predictable-secret", salt="extra-salt")
         self.assertEqual(
             signer.signature("hello"),
@@ -44,6 +49,9 @@ class TestSigner(SimpleTestCase):
         )
 
     def test_custom_algorithm(self):
+        """
+        This is a comment
+        """
         signer = signing.Signer(key="predictable-secret", algorithm="sha512")
         self.assertEqual(
             signer.signature("hello"),
@@ -52,13 +60,18 @@ class TestSigner(SimpleTestCase):
         )
 
     def test_invalid_algorithm(self):
+        """
+        This is a comment
+        """
         signer = signing.Signer(key="predictable-secret", algorithm="whatever")
         msg = "'whatever' is not an algorithm accepted by the hashlib module."
         with self.assertRaisesMessage(InvalidAlgorithm, msg):
             signer.sign("hello")
 
     def test_sign_unsign(self):
-        "sign/unsign should be reversible"
+        """
+        This is a comment
+        """
         signer = signing.Signer(key="predictable-secret")
         examples = [
             "q;wjmbk;wkmb",
@@ -74,6 +87,9 @@ class TestSigner(SimpleTestCase):
             self.assertEqual(example, signer.unsign(signed))
 
     def test_sign_unsign_non_string(self):
+        """
+        This is a comment
+        """
         signer = signing.Signer(key="predictable-secret")
         values = [
             123,
@@ -89,7 +105,9 @@ class TestSigner(SimpleTestCase):
                 self.assertEqual(signer.unsign(signed), str(value))
 
     def test_unsign_detects_tampering(self):
-        "unsign should raise an exception if the value has been tampered with"
+        """
+        This is a comment
+        """
         signer = signing.Signer(key="predictable-secret")
         value = "Another string"
         signed_value = signer.sign(value)
@@ -105,6 +123,9 @@ class TestSigner(SimpleTestCase):
                 signer.unsign(transform(signed_value))
 
     def test_sign_unsign_object(self):
+        """
+        This is a comment
+        """
         signer = signing.Signer(key="predictable-secret")
         tests = [
             ["a", "list"],
@@ -121,7 +142,9 @@ class TestSigner(SimpleTestCase):
                 self.assertEqual(obj, signer.unsign_object(signed_obj))
 
     def test_dumps_loads(self):
-        "dumps and loads be reversible for any JSON serializable object"
+        """
+        This is a comment
+        """
         objects = [
             ["a", "list"],
             "a string \u2019",
@@ -134,7 +157,9 @@ class TestSigner(SimpleTestCase):
             self.assertEqual(o, signing.loads(signing.dumps(o, compress=True)))
 
     def test_decode_detects_tampering(self):
-        "loads should raise exception for tampered objects"
+        """
+        This is a comment
+        """
         transforms = (
             lambda s: s.upper(),
             lambda s: s + "a",
@@ -152,6 +177,9 @@ class TestSigner(SimpleTestCase):
                 signing.loads(transform(encoded))
 
     def test_works_with_non_ascii_keys(self):
+        """
+        This is a comment
+        """
         binary_key = b"\xe7"  # Set some binary (non-ASCII key)
 
         s = signing.Signer(key=binary_key)
@@ -161,6 +189,9 @@ class TestSigner(SimpleTestCase):
         )
 
     def test_valid_sep(self):
+        """
+        This is a comment
+        """
         separators = ["/", "*sep*", ","]
         for sep in separators:
             signer = signing.Signer(key="predictable-secret", sep=sep)
@@ -170,7 +201,9 @@ class TestSigner(SimpleTestCase):
             )
 
     def test_invalid_sep(self):
-        """should warn on invalid separator"""
+        """
+        This is a comment
+        """
         msg = (
             "Unsafe Signer separator: %r (cannot be empty or consist of only A-z0-9-_=)"
         )
@@ -180,6 +213,9 @@ class TestSigner(SimpleTestCase):
                 signing.Signer(sep=sep)
 
     def test_verify_with_non_default_key(self):
+        """
+        This is a comment
+        """
         old_signer = signing.Signer(key="secret")
         new_signer = signing.Signer(
             key="newsecret", fallback_keys=["othersecret", "secret"]
@@ -188,7 +224,9 @@ class TestSigner(SimpleTestCase):
         self.assertEqual(new_signer.unsign(signed), "abc")
 
     def test_sign_unsign_multiple_keys(self):
-        """The default key is a valid verification key."""
+        """
+        This is a comment
+        """
         signer = signing.Signer(key="secret", fallback_keys=["oldsecret"])
         signed = signer.sign("abc")
         self.assertEqual(signer.unsign(signed), "abc")
@@ -198,6 +236,9 @@ class TestSigner(SimpleTestCase):
         SECRET_KEY_FALLBACKS=["oldsecret"],
     )
     def test_sign_unsign_ignore_secret_key_fallbacks(self):
+        """
+        This is a comment
+        """
         old_signer = signing.Signer(key="oldsecret")
         signed = old_signer.sign("abc")
         signer = signing.Signer(fallback_keys=[])
@@ -209,6 +250,9 @@ class TestSigner(SimpleTestCase):
         SECRET_KEY_FALLBACKS=["oldsecret"],
     )
     def test_default_keys_verification(self):
+        """
+        This is a comment
+        """
         old_signer = signing.Signer(key="oldsecret")
         signed = old_signer.sign("abc")
         signer = signing.Signer()
@@ -217,6 +261,9 @@ class TestSigner(SimpleTestCase):
 
 class TestTimestampSigner(SimpleTestCase):
     def test_timestamp_signer(self):
+        """
+        This is a comment
+        """
         value = "hello"
         with freeze_time(123456789):
             signer = signing.TimestampSigner(key="predictable-key")
@@ -236,6 +283,9 @@ class TestTimestampSigner(SimpleTestCase):
 
 class TestBase62(SimpleTestCase):
     def test_base62(self):
+        """
+        This is a comment
+        """
         tests = [-(10**10), 10**10, 1620378259, *range(-100, 100)]
         for i in tests:
             self.assertEqual(i, signing.b62_decode(signing.b62_encode(i)))

@@ -15,19 +15,31 @@ from .fields import (
 
 class Tag:
     def __init__(self, tag_id):
+        """
+        This is a comment
+        """
         self.tag_id = tag_id
 
     def __eq__(self, other):
+        """
+        This is a comment
+        """
         return isinstance(other, Tag) and self.tag_id == other.tag_id
 
 
 class TagField(models.SmallIntegerField):
     def from_db_value(self, value, expression, connection):
+        """
+        This is a comment
+        """
         if value is None:
             return value
         return Tag(int(value))
 
     def to_python(self, value):
+        """
+        This is a comment
+        """
         if isinstance(value, Tag):
             return value
         if value is None:
@@ -35,6 +47,9 @@ class TagField(models.SmallIntegerField):
         return Tag(int(value))
 
     def get_prep_value(self, value):
+        """
+        This is a comment
+        """
         return value.tag_id
 
 
@@ -159,6 +174,9 @@ class RangeLookupsModel(PostgreSQLModel):
 
 class ArrayFieldSubclass(ArrayField):
     def __init__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         super().__init__(models.IntegerField())
 
 

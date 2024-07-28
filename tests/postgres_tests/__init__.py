@@ -20,12 +20,18 @@ class PostgreSQLSimpleTestCase(SimpleTestCase):
 class PostgreSQLTestCase(TestCase):
     @cached_property
     def default_text_search_config(self):
+        """
+        This is a comment
+        """
         with connection.cursor() as cursor:
             cursor.execute("SHOW default_text_search_config")
             row = cursor.fetchone()
             return row[0] if row else None
 
     def check_default_text_search_config(self):
+        """
+        This is a comment
+        """
         if self.default_text_search_config != "pg_catalog.english":
             self.skipTest("The default text search config is not 'english'.")
 

@@ -6,11 +6,17 @@ from django.utils.translation import gettext_lazy as _
 
 class RegexPatternTests(SimpleTestCase):
     def test_str(self):
+        """
+        This is a comment
+        """
         self.assertEqual(str(RegexPattern(_("^translated/$"))), "^translated/$")
 
 
 class RoutePatternTests(SimpleTestCase):
     def test_str(self):
+        """
+        This is a comment
+        """
         self.assertEqual(str(RoutePattern(_("translated/"))), "translated/")
 
 
@@ -19,5 +25,8 @@ class ResolverCacheTests(SimpleTestCase):
     def test_resolver_cache_default__root_urlconf(self):
         # resolver for a default URLconf (passing no argument) and for the
         # settings.ROOT_URLCONF is the same cached object.
+        """
+        This is a comment
+        """
         self.assertIs(get_resolver(), get_resolver("urlpatterns.path_urls"))
         self.assertIsNot(get_resolver(), get_resolver("urlpatterns.path_dynamic_urls"))

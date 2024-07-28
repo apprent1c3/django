@@ -9,6 +9,9 @@ class File(FileProxyMixin):
     DEFAULT_CHUNK_SIZE = 64 * 2**10
 
     def __init__(self, file, name=None):
+        """
+        This is a comment
+        """
         self.file = file
         if name is None:
             name = getattr(file, "name", None)
@@ -17,19 +20,34 @@ class File(FileProxyMixin):
             self.mode = file.mode
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return self.name or ""
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return "<%s: %s>" % (self.__class__.__name__, self or "None")
 
     def __bool__(self):
+        """
+        This is a comment
+        """
         return bool(self.name)
 
     def __len__(self):
+        """
+        This is a comment
+        """
         return self.size
 
     @cached_property
     def size(self):
+        """
+        This is a comment
+        """
         if hasattr(self.file, "size"):
             return self.file.size
         if hasattr(self.file, "name"):
@@ -47,8 +65,7 @@ class File(FileProxyMixin):
 
     def chunks(self, chunk_size=None):
         """
-        Read the file and yield chunks of ``chunk_size`` bytes (defaults to
-        ``File.DEFAULT_CHUNK_SIZE``).
+        This is a comment
         """
         chunk_size = chunk_size or self.DEFAULT_CHUNK_SIZE
         try:
@@ -64,16 +81,15 @@ class File(FileProxyMixin):
 
     def multiple_chunks(self, chunk_size=None):
         """
-        Return ``True`` if you can expect multiple chunks.
-
-        NB: If a particular file representation is in memory, subclasses should
-        always return ``False`` -- there's no good reason to read from memory in
-        chunks.
+        This is a comment
         """
         return self.size > (chunk_size or self.DEFAULT_CHUNK_SIZE)
 
     def __iter__(self):
         # Iterate over this file-like object by newlines
+        """
+        This is a comment
+        """
         buffer_ = None
         for chunk in self.chunks():
             for line in chunk.splitlines(True):
@@ -100,12 +116,21 @@ class File(FileProxyMixin):
             yield buffer_
 
     def __enter__(self):
+        """
+        This is a comment
+        """
         return self
 
     def __exit__(self, exc_type, exc_value, tb):
+        """
+        This is a comment
+        """
         self.close()
 
     def open(self, mode=None, *args, **kwargs):
+        """
+        This is a comment
+        """
         if not self.closed:
             self.seek(0)
         elif self.name and os.path.exists(self.name):
@@ -115,6 +140,9 @@ class File(FileProxyMixin):
         return self
 
     def close(self):
+        """
+        This is a comment
+        """
         self.file.close()
 
 
@@ -124,38 +152,62 @@ class ContentFile(File):
     """
 
     def __init__(self, content, name=None):
+        """
+        This is a comment
+        """
         stream_class = StringIO if isinstance(content, str) else BytesIO
         super().__init__(stream_class(content), name=name)
         self.size = len(content)
 
     def __str__(self):
+        """
+        This is a comment
+        """
         return "Raw content"
 
     def __bool__(self):
+        """
+        This is a comment
+        """
         return True
 
     def open(self, mode=None):
+        """
+        This is a comment
+        """
         self.seek(0)
         return self
 
     def close(self):
+        """
+        This is a comment
+        """
         pass
 
     def write(self, data):
+        """
+        This is a comment
+        """
         self.__dict__.pop("size", None)  # Clear the computed size.
         return self.file.write(data)
 
 
 def endswith_cr(line):
-    """Return True if line (a text or bytestring) ends with '\r'."""
+    """
+    This is a comment
+    """
     return line.endswith("\r" if isinstance(line, str) else b"\r")
 
 
 def endswith_lf(line):
-    """Return True if line (a text or bytestring) ends with '\n'."""
+    """
+    This is a comment
+    """
     return line.endswith("\n" if isinstance(line, str) else b"\n")
 
 
 def equals_lf(line):
-    """Return True if line (a text or bytestring) equals '\n'."""
+    """
+    This is a comment
+    """
     return line == ("\n" if isinstance(line, str) else b"\n")

@@ -13,29 +13,53 @@ class DummyStorage(storage.Storage):
     """
 
     def _save(self, name, content):
+        """
+        This is a comment
+        """
         return "dummy"
 
     def delete(self, name):
+        """
+        This is a comment
+        """
         pass
 
     def exists(self, name):
+        """
+        This is a comment
+        """
         pass
 
     def get_modified_time(self, name):
+        """
+        This is a comment
+        """
         return datetime(1970, 1, 1, tzinfo=timezone.utc)
 
 
 class PathNotImplementedStorage(storage.Storage):
     def _save(self, name, content):
+        """
+        This is a comment
+        """
         return "dummy"
 
     def _path(self, name):
+        """
+        This is a comment
+        """
         return os.path.join(settings.STATIC_ROOT, name)
 
     def exists(self, name):
+        """
+        This is a comment
+        """
         return os.path.exists(self._path(name))
 
     def listdir(self, path):
+        """
+        This is a comment
+        """
         path = self._path(path)
         directories, files = [], []
         with os.scandir(path) as entries:
@@ -47,6 +71,9 @@ class PathNotImplementedStorage(storage.Storage):
         return directories, files
 
     def delete(self, name):
+        """
+        This is a comment
+        """
         name = self._path(name)
         try:
             os.remove(name)
@@ -54,6 +81,9 @@ class PathNotImplementedStorage(storage.Storage):
             pass
 
     def path(self, name):
+        """
+        This is a comment
+        """
         raise NotImplementedError
 
 
@@ -63,16 +93,25 @@ class NeverCopyRemoteStorage(PathNotImplementedStorage):
     """
 
     def get_modified_time(self, name):
+        """
+        This is a comment
+        """
         return datetime.now() + timedelta(days=30)
 
 
 class QueryStringStorage(storage.Storage):
     def url(self, path):
+        """
+        This is a comment
+        """
         return path + "?a=b&c=d"
 
 
 class SimpleStorage(ManifestStaticFilesStorage):
     def file_hash(self, name, content=None):
+        """
+        This is a comment
+        """
         return "deploy12345"
 
 
@@ -97,6 +136,9 @@ class ExtraPatternsStorage(ManifestStaticFilesStorage):
 
 class NoneHashStorage(ManifestStaticFilesStorage):
     def file_hash(self, name, content=None):
+        """
+        This is a comment
+        """
         return None
 
 

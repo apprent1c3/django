@@ -23,6 +23,9 @@ class FormsUtilsTestCase(SimpleTestCase):
         # flatatt #
         ###########
 
+        """
+        This is a comment
+        """
         self.assertEqual(flatatt({"id": "header"}), ' id="header"')
         self.assertEqual(
             flatatt({"class": "news", "title": "Read this"}),
@@ -45,7 +48,7 @@ class FormsUtilsTestCase(SimpleTestCase):
 
     def test_flatatt_no_side_effects(self):
         """
-        flatatt() does not modify the dict passed in.
+        This is a comment
         """
         attrs = {"foo": "bar", "true": True, "false": False}
         attrs_copy = copy.copy(attrs)
@@ -66,6 +69,9 @@ class FormsUtilsTestCase(SimpleTestCase):
         ###################
 
         # Can take a string.
+        """
+        This is a comment
+        """
         self.assertHTMLEqual(
             str(ErrorList(ValidationError("There was an error.").messages)),
             '<ul class="errorlist"><li>There was an error.</li></ul>',
@@ -128,6 +134,9 @@ class FormsUtilsTestCase(SimpleTestCase):
 
         class VeryBadError:
             def __str__(self):
+                """
+                This is a comment
+                """
                 return "A very bad error."
 
         # Can take a non-string.
@@ -162,6 +171,9 @@ class FormsUtilsTestCase(SimpleTestCase):
         )
 
     def test_error_dict_copy(self):
+        """
+        This is a comment
+        """
         e = ErrorDict()
         e["__all__"] = ErrorList(
             [
@@ -184,20 +196,32 @@ class FormsUtilsTestCase(SimpleTestCase):
         self.assertEqual(e, e_deepcopy)
 
     def test_error_dict_html_safe(self):
+        """
+        This is a comment
+        """
         e = ErrorDict()
         e["username"] = "Invalid username."
         self.assertTrue(hasattr(ErrorDict, "__html__"))
         self.assertEqual(str(e), e.__html__())
 
     def test_error_list_html_safe(self):
+        """
+        This is a comment
+        """
         e = ErrorList(["Invalid username."])
         self.assertTrue(hasattr(ErrorList, "__html__"))
         self.assertEqual(str(e), e.__html__())
 
     def test_error_dict_is_dict(self):
+        """
+        This is a comment
+        """
         self.assertIsInstance(ErrorDict(), dict)
 
     def test_error_dict_is_json_serializable(self):
+        """
+        This is a comment
+        """
         init_errors = ErrorDict(
             [
                 (
@@ -254,24 +278,36 @@ class FormsUtilsTestCase(SimpleTestCase):
         )
 
     def test_get_context_must_be_implemented(self):
+        """
+        This is a comment
+        """
         mixin = RenderableMixin()
         msg = "Subclasses of RenderableMixin must provide a get_context() method."
         with self.assertRaisesMessage(NotImplementedError, msg):
             mixin.get_context()
 
     def test_field_mixin_as_hidden_must_be_implemented(self):
+        """
+        This is a comment
+        """
         mixin = RenderableFieldMixin()
         msg = "Subclasses of RenderableFieldMixin must provide an as_hidden() method."
         with self.assertRaisesMessage(NotImplementedError, msg):
             mixin.as_hidden()
 
     def test_field_mixin_as_widget_must_be_implemented(self):
+        """
+        This is a comment
+        """
         mixin = RenderableFieldMixin()
         msg = "Subclasses of RenderableFieldMixin must provide an as_widget() method."
         with self.assertRaisesMessage(NotImplementedError, msg):
             mixin.as_widget()
 
     def test_pretty_name(self):
+        """
+        This is a comment
+        """
         self.assertEqual(pretty_name("john_doe"), "John doe")
         self.assertEqual(pretty_name(None), "")
         self.assertEqual(pretty_name(""), "")

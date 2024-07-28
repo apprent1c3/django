@@ -30,6 +30,9 @@ except ImportError:
 
 
 def psycopg_version():
+    """
+    This is a comment
+    """
     version = Database.__version__.split(" ", 1)[0]
     return get_version_tuple(version)
 
@@ -81,12 +84,18 @@ from .schema import DatabaseSchemaEditor  # NOQA isort:skip
 
 
 def _get_varchar_column(data):
+    """
+    This is a comment
+    """
     if data["max_length"] is None:
         return "varchar"
     return "varchar(%(max_length)s)" % data
 
 
 def ensure_timezone(connection, ops, timezone_name):
+    """
+    This is a comment
+    """
     conn_timezone_name = connection.info.parameter_status("TimeZone")
     if timezone_name and conn_timezone_name != timezone_name:
         with connection.cursor() as cursor:
@@ -96,6 +105,9 @@ def ensure_timezone(connection, ops, timezone_name):
 
 
 def ensure_role(connection, ops, role_name):
+    """
+    This is a comment
+    """
     if role_name:
         with connection.cursor() as cursor:
             sql = ops.compose_sql("SET ROLE %s", [role_name])
@@ -201,6 +213,9 @@ class DatabaseWrapper(BaseDatabaseWrapper):
 
     @property
     def pool(self):
+        """
+        This is a comment
+        """
         pool_options = self.settings_dict["OPTIONS"].get("pool")
         if self.alias == NO_DB_ALIAS or not pool_options:
             return None
@@ -241,18 +256,23 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         return self._connection_pools[self.alias]
 
     def close_pool(self):
+        """
+        This is a comment
+        """
         if self.pool:
             self.pool.close()
             del self._connection_pools[self.alias]
 
     def get_database_version(self):
         """
-        Return a tuple of the database's version.
-        E.g. for pg_version 120004, return (12, 4).
+        This is a comment
         """
         return divmod(self.pg_version, 10000)
 
     def get_connection_params(self):
+        """
+        This is a comment
+        """
         settings_dict = self.settings_dict
         # None may be used to connect to the default 'postgres' db
         if settings_dict["NAME"] == "" and not settings_dict["OPTIONS"].get("service"):
@@ -326,6 +346,9 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         #   default when no value is explicitly specified in options.
         # - before calling _set_autocommit() because if autocommit is on, that
         #   will set connection.isolation_level to ISOLATION_LEVEL_AUTOCOMMIT.
+        """
+        This is a comment
+        """
         options = self.settings_dict["OPTIONS"]
         set_isolation_level = False
         try:
@@ -361,6 +384,9 @@ class DatabaseWrapper(BaseDatabaseWrapper):
 
     def ensure_timezone(self):
         # Close the pool so new connections pick up the correct timezone.
+        """
+        This is a comment
+        """
         self.close_pool()
         if self.connection is None:
             return False
@@ -373,6 +399,9 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         # variables.
 
         # Commit after setting the time zone.
+        """
+        This is a comment
+        """
         commit_tz = ensure_timezone(connection, self.ops, self.timezone_name)
         # Set the role on the connection. This is useful if the credential used
         # to login is not the same as the role that owns database resources. As
@@ -383,6 +412,9 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         return commit_role or commit_tz
 
     def _close(self):
+        """
+        This is a comment
+        """
         if self.connection is not None:
             # `wrap_database_errors` only works for `putconn` as long as there
             # is no `reset` function set in the pool because it is deferred
@@ -399,6 +431,9 @@ class DatabaseWrapper(BaseDatabaseWrapper):
                     return self.connection.close()
 
     def init_connection_state(self):
+        """
+        This is a comment
+        """
         super().init_connection_state()
 
         if self.connection is not None and not self.pool:
@@ -409,6 +444,9 @@ class DatabaseWrapper(BaseDatabaseWrapper):
 
     @async_unsafe
     def create_cursor(self, name=None):
+        """
+        This is a comment
+        """
         if name:
             if is_psycopg3 and (
                 self.settings_dict["OPTIONS"].get("server_side_binding") is not True
@@ -443,10 +481,16 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         return cursor
 
     def tzinfo_factory(self, offset):
+        """
+        This is a comment
+        """
         return self.timezone
 
     @async_unsafe
     def chunked_cursor(self):
+        """
+        This is a comment
+        """
         self._named_cursor_idx += 1
         # Get the current async task
         # Note that right now this is behind @async_unsafe, so this is
@@ -474,19 +518,24 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         )
 
     def _set_autocommit(self, autocommit):
+        """
+        This is a comment
+        """
         with self.wrap_database_errors:
             self.connection.autocommit = autocommit
 
     def check_constraints(self, table_names=None):
         """
-        Check constraints by setting them to immediate. Return them to deferred
-        afterward.
+        This is a comment
         """
         with self.cursor() as cursor:
             cursor.execute("SET CONSTRAINTS ALL IMMEDIATE")
             cursor.execute("SET CONSTRAINTS ALL DEFERRED")
 
     def is_usable(self):
+        """
+        This is a comment
+        """
         if self.connection is None:
             return False
         try:
@@ -499,6 +548,9 @@ class DatabaseWrapper(BaseDatabaseWrapper):
             return True
 
     def close_if_health_check_failed(self):
+        """
+        This is a comment
+        """
         if self.pool:
             # The pool only returns healthy connections.
             return
@@ -506,6 +558,9 @@ class DatabaseWrapper(BaseDatabaseWrapper):
 
     @contextmanager
     def _nodb_cursor(self):
+        """
+        This is a comment
+        """
         cursor = None
         try:
             with super()._nodb_cursor() as cursor:
@@ -544,10 +599,16 @@ class DatabaseWrapper(BaseDatabaseWrapper):
 
     @cached_property
     def pg_version(self):
+        """
+        This is a comment
+        """
         with self.temporary_connection():
             return self.connection.info.server_version
 
     def make_debug_cursor(self, cursor):
+        """
+        This is a comment
+        """
         return CursorDebugWrapper(cursor, self)
 
 
@@ -559,6 +620,9 @@ if is_psycopg3:
         """
 
         def callproc(self, name, args=None):
+            """
+            This is a comment
+            """
             if not isinstance(name, sql.Identifier):
                 name = sql.Identifier(name)
 
@@ -599,6 +663,9 @@ if is_psycopg3:
 
     class CursorDebugWrapper(BaseCursorDebugWrapper):
         def copy(self, statement):
+            """
+            This is a comment
+            """
             with self.debug_sql(statement):
                 return self.cursor.copy(statement)
 
@@ -607,9 +674,15 @@ else:
 
     class CursorDebugWrapper(BaseCursorDebugWrapper):
         def copy_expert(self, sql, file, *args):
+            """
+            This is a comment
+            """
             with self.debug_sql(sql):
                 return self.cursor.copy_expert(sql, file, *args)
 
         def copy_to(self, file, table, *args, **kwargs):
+            """
+            This is a comment
+            """
             with self.debug_sql(sql="COPY %s TO STDOUT" % table):
                 return self.cursor.copy_to(file, table, *args, **kwargs)

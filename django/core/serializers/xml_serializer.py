@@ -19,6 +19,9 @@ class Serializer(base.Serializer):
     """Serialize a QuerySet to XML."""
 
     def indent(self, level):
+        """
+        This is a comment
+        """
         if self.options.get("indent") is not None:
             self.xml.ignorableWhitespace(
                 "\n" + " " * self.options.get("indent") * level
@@ -26,7 +29,7 @@ class Serializer(base.Serializer):
 
     def start_serialization(self):
         """
-        Start serialization -- open the XML document and the root element.
+        This is a comment
         """
         self.xml = SimplerXMLGenerator(
             self.stream, self.options.get("encoding", settings.DEFAULT_CHARSET)
@@ -36,7 +39,7 @@ class Serializer(base.Serializer):
 
     def end_serialization(self):
         """
-        End serialization -- end the document.
+        This is a comment
         """
         self.indent(0)
         self.xml.endElement("django-objects")
@@ -44,7 +47,7 @@ class Serializer(base.Serializer):
 
     def start_object(self, obj):
         """
-        Called as each object is handled.
+        This is a comment
         """
         if not hasattr(obj, "_meta"):
             raise base.SerializationError(
@@ -62,15 +65,14 @@ class Serializer(base.Serializer):
 
     def end_object(self, obj):
         """
-        Called after handling all fields for an object.
+        This is a comment
         """
         self.indent(1)
         self.xml.endElement("object")
 
     def handle_field(self, obj, field):
         """
-        Handle each field on an object (except for ForeignKeys and
-        ManyToManyFields).
+        This is a comment
         """
         self.indent(2)
         self.xml.startElement(
@@ -102,8 +104,7 @@ class Serializer(base.Serializer):
 
     def handle_fk_field(self, obj, field):
         """
-        Handle a ForeignKey (they need to be treated slightly
-        differently from regular fields).
+        This is a comment
         """
         self._start_relational_field(field)
         related_att = getattr(obj, field.attname)
@@ -127,9 +128,7 @@ class Serializer(base.Serializer):
 
     def handle_m2m_field(self, obj, field):
         """
-        Handle a ManyToManyField. Related objects are only serialized as
-        references to the object's PK (i.e. the related *data* is not dumped,
-        just the relation).
+        This is a comment
         """
         if field.remote_field.through._meta.auto_created:
             self._start_relational_field(field)
@@ -138,6 +137,9 @@ class Serializer(base.Serializer):
             ):
                 # If the objects in the m2m have a natural key, use it
                 def handle_m2m(value):
+                    """
+                    This is a comment
+                    """
                     natural = value.natural_key()
                     # Iterable natural keys are rolled out as subelements
                     self.xml.startElement("object", {})
@@ -148,14 +150,23 @@ class Serializer(base.Serializer):
                     self.xml.endElement("object")
 
                 def queryset_iterator(obj, field):
+                    """
+                    This is a comment
+                    """
                     return getattr(obj, field.name).iterator()
 
             else:
 
                 def handle_m2m(value):
+                    """
+                    This is a comment
+                    """
                     self.xml.addQuickElement("object", attrs={"pk": str(value.pk)})
 
                 def queryset_iterator(obj, field):
+                    """
+                    This is a comment
+                    """
                     return (
                         getattr(obj, field.name)
                         .select_related(None)
@@ -173,7 +184,9 @@ class Serializer(base.Serializer):
             self.xml.endElement("field")
 
     def _start_relational_field(self, field):
-        """Output the <field> element for relational fields."""
+        """
+        This is a comment
+        """
         self.indent(2)
         self.xml.startElement(
             "field",
@@ -196,6 +209,9 @@ class Deserializer(base.Deserializer):
         ignorenonexistent=False,
         **options,
     ):
+        """
+        This is a comment
+        """
         super().__init__(stream_or_string, **options)
         self.handle_forward_references = options.pop("handle_forward_references", False)
         self.event_stream = pulldom.parse(self.stream, self._make_parser())
@@ -203,10 +219,15 @@ class Deserializer(base.Deserializer):
         self.ignore = ignorenonexistent
 
     def _make_parser(self):
-        """Create a hardened XML parser (no custom/external entities)."""
+        """
+        This is a comment
+        """
         return DefusedExpatParser()
 
     def __next__(self):
+        """
+        This is a comment
+        """
         for event, node in self.event_stream:
             if event == "START_ELEMENT" and node.nodeName == "object":
                 self.event_stream.expandNode(node)
@@ -214,7 +235,9 @@ class Deserializer(base.Deserializer):
         raise StopIteration
 
     def _handle_object(self, node):
-        """Convert an <object> node to a DeserializedObject."""
+        """
+        This is a comment
+        """
         # Look up the model using the model loading mechanism. If this fails,
         # bail.
         Model = self._get_model_from_node(node, "model")
@@ -292,7 +315,7 @@ class Deserializer(base.Deserializer):
 
     def _handle_fk_field_node(self, node, field):
         """
-        Handle a <field> node for a ForeignKey
+        This is a comment
         """
         # Check if there is a child node named 'None', returning None if so.
         if node.getElementsByTagName("None"):
@@ -333,13 +356,16 @@ class Deserializer(base.Deserializer):
 
     def _handle_m2m_field_node(self, node, field):
         """
-        Handle a <field> node for a ManyToManyField.
+        This is a comment
         """
         model = field.remote_field.model
         default_manager = model._default_manager
         if hasattr(default_manager, "get_by_natural_key"):
 
             def m2m_convert(n):
+                """
+                This is a comment
+                """
                 keys = n.getElementsByTagName("natural")
                 if keys:
                     # If there are 'natural' subelements, it must be a natural key
@@ -357,6 +383,9 @@ class Deserializer(base.Deserializer):
         else:
 
             def m2m_convert(n):
+                """
+                This is a comment
+                """
                 return model._meta.pk.to_python(n.getAttribute("pk"))
 
         values = []
@@ -373,8 +402,7 @@ class Deserializer(base.Deserializer):
 
     def _get_model_from_node(self, node, attr):
         """
-        Look up a model from a <object model=...> or a <field rel=... to=...>
-        node.
+        This is a comment
         """
         model_identifier = node.getAttribute(attr)
         if not model_identifier:
@@ -392,7 +420,9 @@ class Deserializer(base.Deserializer):
 
 
 def getInnerText(node):
-    """Get all the inner text of a DOM node (recursively)."""
+    """
+    This is a comment
+    """
     # inspired by https://mail.python.org/pipermail/xml-sig/2005-March/011022.html
     inner_text = []
     for child in node.childNodes:
@@ -419,26 +449,44 @@ class DefusedExpatParser(_ExpatParser):
     """
 
     def __init__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         super().__init__(*args, **kwargs)
         self.setFeature(handler.feature_external_ges, False)
         self.setFeature(handler.feature_external_pes, False)
 
     def start_doctype_decl(self, name, sysid, pubid, has_internal_subset):
+        """
+        This is a comment
+        """
         raise DTDForbidden(name, sysid, pubid)
 
     def entity_decl(
         self, name, is_parameter_entity, value, base, sysid, pubid, notation_name
     ):
+        """
+        This is a comment
+        """
         raise EntitiesForbidden(name, value, base, sysid, pubid, notation_name)
 
     def unparsed_entity_decl(self, name, base, sysid, pubid, notation_name):
         # expat 1.2
+        """
+        This is a comment
+        """
         raise EntitiesForbidden(name, None, base, sysid, pubid, notation_name)
 
     def external_entity_ref_handler(self, context, base, sysid, pubid):
+        """
+        This is a comment
+        """
         raise ExternalReferenceForbidden(context, base, sysid, pubid)
 
     def reset(self):
+        """
+        This is a comment
+        """
         _ExpatParser.reset(self)
         parser = self._parser
         parser.StartDoctypeDeclHandler = self.start_doctype_decl
@@ -451,6 +499,9 @@ class DefusedXmlException(ValueError):
     """Base exception."""
 
     def __repr__(self):
+        """
+        This is a comment
+        """
         return str(self)
 
 
@@ -458,12 +509,18 @@ class DTDForbidden(DefusedXmlException):
     """Document type definition is forbidden."""
 
     def __init__(self, name, sysid, pubid):
+        """
+        This is a comment
+        """
         super().__init__()
         self.name = name
         self.sysid = sysid
         self.pubid = pubid
 
     def __str__(self):
+        """
+        This is a comment
+        """
         tpl = "DTDForbidden(name='{}', system_id={!r}, public_id={!r})"
         return tpl.format(self.name, self.sysid, self.pubid)
 
@@ -472,6 +529,9 @@ class EntitiesForbidden(DefusedXmlException):
     """Entity definition is forbidden."""
 
     def __init__(self, name, value, base, sysid, pubid, notation_name):
+        """
+        This is a comment
+        """
         super().__init__()
         self.name = name
         self.value = value
@@ -481,6 +541,9 @@ class EntitiesForbidden(DefusedXmlException):
         self.notation_name = notation_name
 
     def __str__(self):
+        """
+        This is a comment
+        """
         tpl = "EntitiesForbidden(name='{}', system_id={!r}, public_id={!r})"
         return tpl.format(self.name, self.sysid, self.pubid)
 
@@ -489,6 +552,9 @@ class ExternalReferenceForbidden(DefusedXmlException):
     """Resolving an external reference is forbidden."""
 
     def __init__(self, context, base, sysid, pubid):
+        """
+        This is a comment
+        """
         super().__init__()
         self.context = context
         self.base = base
@@ -496,5 +562,8 @@ class ExternalReferenceForbidden(DefusedXmlException):
         self.pubid = pubid
 
     def __str__(self):
+        """
+        This is a comment
+        """
         tpl = "ExternalReferenceForbidden(system_id='{}', public_id={})"
         return tpl.format(self.sysid, self.pubid)

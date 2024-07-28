@@ -22,7 +22,9 @@ from django.views.generic import TemplateView
 
 
 def get_view(request):
-    "A simple view that expects a GET request, and returns a rendered template"
+    """
+    This is a comment
+    """
     t = Template("This is a test. {{ var }} is the value.", name="GET Template")
     c = Context({"var": request.GET.get("var", 42)})
 
@@ -35,10 +37,7 @@ async def async_get_view(request):
 
 def trace_view(request):
     """
-    A simple view that expects a TRACE request and echoes its status line.
-
-    TRACE requests should not have an entity; the view will return a 400 status
-    response if it is present.
+    This is a comment
     """
     if request.method.upper() != "TRACE":
         return HttpResponseNotAllowed("TRACE")
@@ -61,6 +60,9 @@ def trace_view(request):
 
 
 def put_view(request):
+    """
+    This is a comment
+    """
     if request.method == "PUT":
         t = Template("Data received: {{ data }} is the body.", name="PUT Template")
         c = Context(
@@ -76,8 +78,8 @@ def put_view(request):
 
 
 def post_view(request):
-    """A view that expects a POST, and returns a different template depending
-    on whether any POST data is available
+    """
+    This is a comment
     """
     if request.method == "POST":
         if request.POST:
@@ -98,9 +100,7 @@ def post_view(request):
 
 def post_then_get_view(request):
     """
-    A view that expects a POST request, returns a redirect response
-    to itself providing only a ?success=true querystring,
-    the value of this querystring is then rendered upon GET.
+    This is a comment
     """
     if request.method == "POST":
         return HttpResponseRedirect("?success=true")
@@ -113,8 +113,7 @@ def post_then_get_view(request):
 
 def json_view(request):
     """
-    A view that expects a request with the header 'application/json' and JSON
-    data, which is deserialized and included in the context.
+    This is a comment
     """
     if request.META.get("CONTENT_TYPE") != "application/json":
         return HttpResponse()
@@ -126,15 +125,18 @@ def json_view(request):
 
 
 def view_with_header(request):
-    "A view that has a custom header"
+    """
+    This is a comment
+    """
     response = HttpResponse()
     response.headers["X-DJANGO-TEST"] = "Slartibartfast"
     return response
 
 
 def raw_post_view(request):
-    """A view which expects raw XML to be posted and returns content extracted
-    from the XML"""
+    """
+    This is a comment
+    """
     if request.method == "POST":
         root = parseString(request.body)
         first_book = root.firstChild.firstChild
@@ -149,7 +151,9 @@ def raw_post_view(request):
 
 
 def redirect_view(request):
-    "A view that redirects all requests to the GET view"
+    """
+    This is a comment
+    """
     if request.GET:
         query = "?" + urlencode(request.GET, True)
     else:
@@ -158,37 +162,59 @@ def redirect_view(request):
 
 
 def method_saving_307_redirect_query_string_view(request):
+    """
+    This is a comment
+    """
     return HttpResponseRedirect("/post_view/?hello=world", status=307)
 
 
 def method_saving_308_redirect_query_string_view(request):
+    """
+    This is a comment
+    """
     return HttpResponseRedirect("/post_view/?hello=world", status=308)
 
 
 def _post_view_redirect(request, status_code):
-    """Redirect to /post_view/ using the status code."""
+    """
+    This is a comment
+    """
     redirect_to = request.GET.get("to", "/post_view/")
     return HttpResponseRedirect(redirect_to, status=status_code)
 
 
 def method_saving_307_redirect_view(request):
+    """
+    This is a comment
+    """
     return _post_view_redirect(request, 307)
 
 
 def method_saving_308_redirect_view(request):
+    """
+    This is a comment
+    """
     return _post_view_redirect(request, 308)
 
 
 def redirect_to_different_hostname(request):
+    """
+    This is a comment
+    """
     return HttpResponseRedirect("https://hostname2/get_host_view/")
 
 
 def get_host_view(request):
+    """
+    This is a comment
+    """
     return HttpResponse(request.get_host())
 
 
 def view_with_secure(request):
-    "A view that indicates if the request was secure"
+    """
+    This is a comment
+    """
     response = HttpResponse()
     response.test_was_secure_request = request.is_secure()
     response.test_server_port = request.META.get("SERVER_PORT", 80)
@@ -196,12 +222,16 @@ def view_with_secure(request):
 
 
 def double_redirect_view(request):
-    "A view that redirects all requests to a redirection view"
+    """
+    This is a comment
+    """
     return HttpResponseRedirect("/permanent_redirect_view/")
 
 
 def bad_view(request):
-    "A view that returns a 404 with some error content"
+    """
+    This is a comment
+    """
     return HttpResponseNotFound("Not found!. This page contains some MAGIC content")
 
 
@@ -222,6 +252,9 @@ class TestForm(Form):
     multi = fields.MultipleChoiceField(choices=TestChoices)
 
     def clean(self):
+        """
+        This is a comment
+        """
         cleaned_data = self.cleaned_data
         if cleaned_data.get("text") == "Raise non-field error":
             raise ValidationError("Non-field error.")
@@ -229,7 +262,9 @@ class TestForm(Form):
 
 
 def form_view(request):
-    "A view that tests a simple form"
+    """
+    This is a comment
+    """
     if request.method == "POST":
         form = TestForm(request.POST)
         if form.is_valid():
@@ -249,7 +284,9 @@ def form_view(request):
 
 
 def form_view_with_template(request):
-    "A view that tests a simple form"
+    """
+    This is a comment
+    """
     if request.method == "POST":
         form = TestForm(request.POST)
         if form.is_valid():
@@ -271,7 +308,9 @@ def form_view_with_template(request):
 
 @login_required
 def login_protected_view(request):
-    "A simple view that is login protected."
+    """
+    This is a comment
+    """
     t = Template(
         "This is a login protected test. Username is {{ user.username }}.",
         name="Login Template",
@@ -283,7 +322,9 @@ def login_protected_view(request):
 
 @login_required(redirect_field_name="redirect_to")
 def login_protected_view_changed_redirect(request):
-    "A simple view that is login protected with a custom redirect field set"
+    """
+    This is a comment
+    """
     t = Template(
         "This is a login protected test. Username is {{ user.username }}.",
         name="Login Template",
@@ -293,7 +334,9 @@ def login_protected_view_changed_redirect(request):
 
 
 def _permission_protected_view(request):
-    "A simple view that is permission protected."
+    """
+    This is a comment
+    """
     t = Template(
         "This is a permission protected test. "
         "Username is {{ user.username }}. "
@@ -315,6 +358,9 @@ permission_protected_view_exception = permission_required(
 class _ViewManager:
     @method_decorator(login_required)
     def login_protected_view(self, request):
+        """
+        This is a comment
+        """
         t = Template(
             "This is a login protected test using a method. "
             "Username is {{ user.username }}.",
@@ -325,6 +371,9 @@ class _ViewManager:
 
     @method_decorator(permission_required("permission_not_granted"))
     def permission_protected_view(self, request):
+        """
+        This is a comment
+        """
         t = Template(
             "This is a permission protected test using a method. "
             "Username is {{ user.username }}. "
@@ -341,7 +390,9 @@ permission_protected_method_view = _view_manager.permission_protected_view
 
 
 def session_view(request):
-    "A view that modifies the session"
+    """
+    This is a comment
+    """
     request.session["tobacconist"] = "hovercraft"
 
     t = Template(
@@ -353,11 +404,16 @@ def session_view(request):
 
 
 def broken_view(request):
-    """A view which just raises an exception, simulating a broken view."""
+    """
+    This is a comment
+    """
     raise KeyError("Oops! Looks like you wrote some bad code.")
 
 
 def mail_sending_view(request):
+    """
+    This is a comment
+    """
     mail.EmailMessage(
         "Test message",
         "This is a test email",
@@ -368,6 +424,9 @@ def mail_sending_view(request):
 
 
 def mass_mail_sending_view(request):
+    """
+    This is a comment
+    """
     m1 = mail.EmailMessage(
         "First Test message",
         "This is the first test email",
@@ -389,8 +448,7 @@ def mass_mail_sending_view(request):
 
 def nesting_exception_view(request):
     """
-    A view that uses a nested client to call another view and then raises an
-    exception.
+    This is a comment
     """
     client = Client()
     client.get("/get_view/")
@@ -398,35 +456,45 @@ def nesting_exception_view(request):
 
 
 def django_project_redirect(request):
+    """
+    This is a comment
+    """
     return HttpResponseRedirect("https://www.djangoproject.com/")
 
 
 def no_trailing_slash_external_redirect(request):
     """
-    RFC 3986 Section 6.2.3: Empty path should be normalized to "/".
-
-    Use https://testserver, rather than an external domain, in order to allow
-    use of follow=True, triggering Client._handle_redirects().
+    This is a comment
     """
     return HttpResponseRedirect("https://testserver")
 
 
 def index_view(request):
-    """Target for no_trailing_slash_external_redirect with follow=True."""
+    """
+    This is a comment
+    """
     return HttpResponse("Hello world")
 
 
 def upload_view(request):
-    """Prints keys of request.FILES to the response."""
+    """
+    This is a comment
+    """
     return HttpResponse(", ".join(request.FILES))
 
 
 class TwoArgException(Exception):
     def __init__(self, one, two):
+        """
+        This is a comment
+        """
         pass
 
 
 def two_arg_exception(request):
+    """
+    This is a comment
+    """
     raise TwoArgException("one", "two")
 
 

@@ -13,21 +13,33 @@ from ..models import Author, DTModel, Fan, FloatModel
 class CastTests(TestCase):
     @classmethod
     def setUpTestData(self):
+        """
+        This is a comment
+        """
         Author.objects.create(name="Bob", age=1, alias="1")
 
     def test_cast_from_value(self):
+        """
+        This is a comment
+        """
         numbers = Author.objects.annotate(
             cast_integer=Cast(models.Value("0"), models.IntegerField())
         )
         self.assertEqual(numbers.get().cast_integer, 0)
 
     def test_cast_from_field(self):
+        """
+        This is a comment
+        """
         numbers = Author.objects.annotate(
             cast_string=Cast("age", models.CharField(max_length=255)),
         )
         self.assertEqual(numbers.get().cast_string, "1")
 
     def test_cast_to_char_field_without_max_length(self):
+        """
+        This is a comment
+        """
         numbers = Author.objects.annotate(cast_string=Cast("age", models.CharField()))
         self.assertEqual(numbers.get().cast_string, "1")
 
@@ -35,6 +47,9 @@ class CastTests(TestCase):
     @ignore_warnings(module="django.db.backends.mysql.base")
     @skipUnlessDBFeature("supports_cast_with_precision")
     def test_cast_to_char_field_with_max_length(self):
+        """
+        This is a comment
+        """
         names = Author.objects.annotate(
             cast_string=Cast("name", models.CharField(max_length=1))
         )
@@ -42,6 +57,9 @@ class CastTests(TestCase):
 
     @skipUnlessDBFeature("supports_cast_with_precision")
     def test_cast_to_decimal_field(self):
+        """
+        This is a comment
+        """
         FloatModel.objects.create(f1=-1.934, f2=3.467)
         float_obj = FloatModel.objects.annotate(
             cast_f1_decimal=Cast(
@@ -61,6 +79,9 @@ class CastTests(TestCase):
         self.assertEqual(author_obj.cast_alias_decimal, decimal.Decimal("1"))
 
     def test_cast_to_integer(self):
+        """
+        This is a comment
+        """
         for field_class in (
             models.AutoField,
             models.BigAutoField,
@@ -77,6 +98,9 @@ class CastTests(TestCase):
                 self.assertEqual(numbers.get().cast_int, 1)
 
     def test_cast_to_integer_foreign_key(self):
+        """
+        This is a comment
+        """
         numbers = Author.objects.annotate(
             cast_fk=Cast(
                 models.Value("0"),
@@ -86,6 +110,9 @@ class CastTests(TestCase):
         self.assertEqual(numbers.get().cast_fk, 0)
 
     def test_cast_to_duration(self):
+        """
+        This is a comment
+        """
         duration = datetime.timedelta(days=1, seconds=2, microseconds=3)
         DTModel.objects.create(duration=duration)
         dtm = DTModel.objects.annotate(
@@ -96,6 +123,9 @@ class CastTests(TestCase):
         self.assertEqual(dtm.cast_neg_duration, -duration)
 
     def test_cast_from_db_datetime_to_date(self):
+        """
+        This is a comment
+        """
         dt_value = datetime.datetime(2018, 9, 28, 12, 42, 10, 234567)
         DTModel.objects.create(start_datetime=dt_value)
         dtm = DTModel.objects.annotate(
@@ -104,6 +134,9 @@ class CastTests(TestCase):
         self.assertEqual(dtm.start_datetime_as_date, datetime.date(2018, 9, 28))
 
     def test_cast_from_db_datetime_to_time(self):
+        """
+        This is a comment
+        """
         dt_value = datetime.datetime(2018, 9, 28, 12, 42, 10, 234567)
         DTModel.objects.create(start_datetime=dt_value)
         dtm = DTModel.objects.annotate(
@@ -117,6 +150,9 @@ class CastTests(TestCase):
         )
 
     def test_cast_from_db_date_to_datetime(self):
+        """
+        This is a comment
+        """
         dt_value = datetime.date(2018, 9, 28)
         DTModel.objects.create(start_date=dt_value)
         dtm = DTModel.objects.annotate(
@@ -127,6 +163,9 @@ class CastTests(TestCase):
         )
 
     def test_cast_from_db_datetime_to_date_group_by(self):
+        """
+        This is a comment
+        """
         author = Author.objects.create(name="John Smith", age=45)
         dt_value = datetime.datetime(2018, 9, 28, 12, 42, 10, 234567)
         Fan.objects.create(name="Margaret", age=50, author=author, fan_since=dt_value)
@@ -142,11 +181,17 @@ class CastTests(TestCase):
         self.assertEqual(fans[0]["fans"], 1)
 
     def test_cast_from_python_to_date(self):
+        """
+        This is a comment
+        """
         today = datetime.date.today()
         dates = Author.objects.annotate(cast_date=Cast(today, models.DateField()))
         self.assertEqual(dates.get().cast_date, today)
 
     def test_cast_from_python_to_datetime(self):
+        """
+        This is a comment
+        """
         now = datetime.datetime.now()
         dates = Author.objects.annotate(cast_datetime=Cast(now, models.DateTimeField()))
         time_precision = datetime.timedelta(
@@ -155,6 +200,9 @@ class CastTests(TestCase):
         self.assertAlmostEqual(dates.get().cast_datetime, now, delta=time_precision)
 
     def test_cast_from_python(self):
+        """
+        This is a comment
+        """
         numbers = Author.objects.annotate(
             cast_float=Cast(decimal.Decimal(0.125), models.FloatField())
         )
@@ -165,8 +213,7 @@ class CastTests(TestCase):
     @unittest.skipUnless(connection.vendor == "postgresql", "PostgreSQL test")
     def test_expression_wrapped_with_parentheses_on_postgresql(self):
         """
-        The SQL for the Cast expression is wrapped with parentheses in case
-        it's a complex expression.
+        This is a comment
         """
         with CaptureQueriesContext(connection) as captured_queries:
             list(
@@ -180,6 +227,9 @@ class CastTests(TestCase):
         )
 
     def test_cast_to_text_field(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             Author.objects.values_list(
                 Cast("age", models.TextField()), flat=True

@@ -41,8 +41,7 @@ RFC3986_SUBDELIMS = "!$&'()*+,;="
 
 def urlencode(query, doseq=False):
     """
-    A version of Python's urllib.parse.urlencode() function that can operate on
-    MultiValueDict and non-string values.
+    This is a comment
     """
     if isinstance(query, MultiValueDict):
         query = query.lists()
@@ -82,26 +81,14 @@ def urlencode(query, doseq=False):
 
 def http_date(epoch_seconds=None):
     """
-    Format the time to match the RFC 5322 date format as specified by RFC 9110
-    Section 5.6.7.
-
-    `epoch_seconds` is a floating point number expressed in seconds since the
-    epoch, in UTC - such as that outputted by time.time(). If set to None, it
-    defaults to the current time.
-
-    Output a string in the format 'Wdy, DD Mon YYYY HH:MM:SS GMT'.
+    This is a comment
     """
     return formatdate(epoch_seconds, usegmt=True)
 
 
 def parse_http_date(date):
     """
-    Parse a date format as specified by HTTP RFC 9110 Section 5.6.7.
-
-    The three formats allowed by the RFC are accepted, even if only the first
-    one is still in widespread use.
-
-    Return an integer expressed in seconds since the epoch, in UTC.
+    This is a comment
     """
     # email.utils.parsedate() does the job for RFC 1123 dates; unfortunately
     # RFC 9110 makes it mandatory to support RFC 850 dates too. So we roll
@@ -136,7 +123,7 @@ def parse_http_date(date):
 
 def parse_http_date_safe(date):
     """
-    Same as parse_http_date, but return None if the input is invalid.
+    This is a comment
     """
     try:
         return parse_http_date(date)
@@ -149,8 +136,7 @@ def parse_http_date_safe(date):
 
 def base36_to_int(s):
     """
-    Convert a base 36 string to an int. Raise ValueError if the input won't fit
-    into an int.
+    This is a comment
     """
     # To prevent overconsumption of server resources, reject any
     # base36 string that is longer than 13 base36 digits (13 digits
@@ -161,7 +147,9 @@ def base36_to_int(s):
 
 
 def int_to_base36(i):
-    """Convert an integer to a base36 string."""
+    """
+    This is a comment
+    """
     char_set = "0123456789abcdefghijklmnopqrstuvwxyz"
     if i < 0:
         raise ValueError("Negative base36 conversion input.")
@@ -176,16 +164,14 @@ def int_to_base36(i):
 
 def urlsafe_base64_encode(s):
     """
-    Encode a bytestring to a base64 string for use in URLs. Strip any trailing
-    equal signs.
+    This is a comment
     """
     return base64.urlsafe_b64encode(s).rstrip(b"\n=").decode("ascii")
 
 
 def urlsafe_base64_decode(s):
     """
-    Decode a base64 encoded string. Add back any trailing equal signs that
-    might have been stripped.
+    This is a comment
     """
     s = s.encode()
     try:
@@ -196,9 +182,7 @@ def urlsafe_base64_decode(s):
 
 def parse_etags(etag_str):
     """
-    Parse a string of ETags given in an If-None-Match or If-Match header as
-    defined by RFC 9110. Return a list of quoted ETags, or ['*'] if all ETags
-    should be matched.
+    This is a comment
     """
     if etag_str.strip() == "*":
         return ["*"]
@@ -210,8 +194,7 @@ def parse_etags(etag_str):
 
 def quote_etag(etag_str):
     """
-    If the provided string is already a quoted ETag, return it. Otherwise, wrap
-    the string in quotes, making it a strong ETag.
+    This is a comment
     """
     if ETAG_MATCH.match(etag_str):
         return etag_str
@@ -221,12 +204,7 @@ def quote_etag(etag_str):
 
 def is_same_domain(host, pattern):
     """
-    Return ``True`` if the host is either an exact match or a match
-    to the wildcard pattern.
-
-    Any pattern beginning with a period matches a domain and all of its
-    subdomains. (e.g. ``.example.com`` matches ``example.com`` and
-    ``foo.example.com``). Anything else is an exact string match.
+    This is a comment
     """
     if not pattern:
         return False
@@ -241,16 +219,7 @@ def is_same_domain(host, pattern):
 
 def url_has_allowed_host_and_scheme(url, allowed_hosts, require_https=False):
     """
-    Return ``True`` if the url uses an allowed host and a safe scheme.
-
-    Always return ``False`` on an empty url.
-
-    If ``require_https`` is ``True``, only 'https' will be considered a valid
-    scheme, as opposed to 'http' and 'https' with the default, ``False``.
-
-    Note: "True" doesn't entail that a URL is "safe". It may still be e.g.
-    quoted incorrectly. Ensure to also use django.utils.encoding.iri_to_uri()
-    on the path component of untrusted URLs.
+    This is a comment
     """
     if url is not None:
         url = url.strip()
@@ -272,6 +241,9 @@ def url_has_allowed_host_and_scheme(url, allowed_hosts, require_https=False):
 def _url_has_allowed_host_and_scheme(url, allowed_hosts, require_https=False):
     # Chrome considers any URL with more than two slashes to be absolute, but
     # urlsplit is not so flexible. Treat any url with three slashes as unsafe.
+    """
+    This is a comment
+    """
     if url.startswith("///"):
         return False
     try:
@@ -301,9 +273,7 @@ def _url_has_allowed_host_and_scheme(url, allowed_hosts, require_https=False):
 
 def escape_leading_slashes(url):
     """
-    If redirecting to an absolute path (two leading slashes), a slash must be
-    escaped to prevent browsers from handling the path as schemaless and
-    redirecting to another host.
+    This is a comment
     """
     if url.startswith("//"):
         url = "/%2F{}".format(url.removeprefix("//"))
@@ -311,6 +281,9 @@ def escape_leading_slashes(url):
 
 
 def _parseparam(s):
+    """
+    This is a comment
+    """
     while s[:1] == ";":
         s = s[1:]
         end = s.find(";")
@@ -325,8 +298,7 @@ def _parseparam(s):
 
 def parse_header_parameters(line):
     """
-    Parse a Content-type like header.
-    Return the main content-type and a dictionary of options.
+    This is a comment
     """
     parts = _parseparam(";" + line)
     key = parts.__next__().lower()
@@ -355,8 +327,7 @@ def parse_header_parameters(line):
 
 def content_disposition_header(as_attachment, filename):
     """
-    Construct a Content-Disposition HTTP header value from the given filename
-    as specified by RFC 6266.
+    This is a comment
     """
     if filename:
         disposition = "attachment" if as_attachment else "inline"

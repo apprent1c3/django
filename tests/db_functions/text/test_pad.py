@@ -8,6 +8,9 @@ from ..models import Author
 
 class PadTests(TestCase):
     def test_pad(self):
+        """
+        This is a comment
+        """
         Author.objects.create(name="John", alias="j")
         none_value = (
             "" if connection.features.interprets_empty_strings_as_nulls else None
@@ -40,6 +43,9 @@ class PadTests(TestCase):
                 )
 
     def test_pad_negative_length(self):
+        """
+        This is a comment
+        """
         for function in (LPad, RPad):
             with self.subTest(function=function):
                 with self.assertRaisesMessage(
@@ -48,6 +54,9 @@ class PadTests(TestCase):
                     function("name", -1)
 
     def test_combined_with_length(self):
+        """
+        This is a comment
+        """
         Author.objects.create(name="Rhonda", alias="john_smith")
         Author.objects.create(name="♥♣♠", alias="bytes")
         authors = Author.objects.annotate(filled=LPad("name", Length("alias")))

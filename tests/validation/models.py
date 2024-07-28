@@ -6,6 +6,9 @@ from django.db.models.functions import Lower
 
 
 def validate_answer_to_universe(value):
+    """
+    This is a comment
+    """
     if value != 42:
         raise ValidationError(
             "This is not the answer to life, universe and everything!", code="not42"
@@ -41,6 +44,9 @@ class ModelToValidate(models.Model):
     slug = models.SlugField(blank=True)
 
     def clean(self):
+        """
+        This is a comment
+        """
         super().clean()
         if self.number == 11:
             raise ValidationError("Invalid number supplied!")
@@ -92,6 +98,9 @@ class CustomMessagesModel(models.Model):
 
 class AuthorManager(models.Manager):
     def get_queryset(self):
+        """
+        This is a comment
+        """
         qs = super().get_queryset()
         return qs.filter(archived=False)
 
@@ -109,6 +118,9 @@ class Article(models.Model):
     pub_date = models.DateTimeField(blank=True)
 
     def clean(self):
+        """
+        This is a comment
+        """
         if self.pub_date is None:
             self.pub_date = datetime.now()
 

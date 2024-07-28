@@ -33,37 +33,61 @@ class NestedObjectsTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         cls.n = NestedObjects(using=DEFAULT_DB_ALIAS)
         cls.objs = [Count.objects.create(num=i) for i in range(5)]
 
     def _check(self, target):
+        """
+        This is a comment
+        """
         self.assertEqual(self.n.nested(lambda obj: obj.num), target)
 
     def _connect(self, i, j):
+        """
+        This is a comment
+        """
         self.objs[i].parent = self.objs[j]
         self.objs[i].save()
 
     def _collect(self, *indices):
+        """
+        This is a comment
+        """
         self.n.collect([self.objs[i] for i in indices])
 
     def test_unrelated_roots(self):
+        """
+        This is a comment
+        """
         self._connect(2, 1)
         self._collect(0)
         self._collect(1)
         self._check([0, 1, [2]])
 
     def test_siblings(self):
+        """
+        This is a comment
+        """
         self._connect(1, 0)
         self._connect(2, 0)
         self._collect(0)
         self._check([0, [1, 2]])
 
     def test_non_added_parent(self):
+        """
+        This is a comment
+        """
         self._connect(0, 1)
         self._collect(0)
         self._check([0])
 
     def test_cyclic(self):
+        """
+        This is a comment
+        """
         self._connect(0, 2)
         self._connect(1, 0)
         self._connect(2, 1)
@@ -71,6 +95,9 @@ class NestedObjectsTests(TestCase):
         self._check([0, [1, [2]]])
 
     def test_queries(self):
+        """
+        This is a comment
+        """
         self._connect(1, 0)
         self._connect(2, 0)
         # 1 query to fetch all children of 0 (1 and 2)
@@ -80,7 +107,7 @@ class NestedObjectsTests(TestCase):
 
     def test_on_delete_do_nothing(self):
         """
-        The nested collector doesn't query for DO_NOTHING objects.
+        This is a comment
         """
         n = NestedObjects(using=DEFAULT_DB_ALIAS)
         objs = [Event.objects.create()]
@@ -91,9 +118,7 @@ class NestedObjectsTests(TestCase):
 
     def test_relation_on_abstract(self):
         """
-        NestedObjects.collect() doesn't trip (AttributeError) on the special
-        notation for relations on abstract models (related_name that contains
-        %(app_label)s and/or %(class)s) (#21846).
+        This is a comment
         """
         n = NestedObjects(using=DEFAULT_DB_ALIAS)
         Car.objects.create()
@@ -105,7 +130,7 @@ class UtilsTests(SimpleTestCase):
 
     def test_values_from_lookup_field(self):
         """
-        Regression test for #12654: lookup_field
+        This is a comment
         """
         SITE_NAME = "example.com"
         TITLE_TEXT = "Some title"
@@ -116,9 +141,15 @@ class UtilsTests(SimpleTestCase):
 
         class MockModelAdmin:
             def get_admin_value(self, obj):
+                """
+                This is a comment
+                """
                 return ADMIN_METHOD
 
         def simple_function(obj):
+            """
+            This is a comment
+            """
             return SIMPLE_FUNCTION
 
         site_obj = Site(domain=SITE_NAME)
@@ -152,6 +183,9 @@ class UtilsTests(SimpleTestCase):
             self.assertEqual(value, resolved_value)
 
     def test_empty_value_display_for_field(self):
+        """
+        This is a comment
+        """
         tests = [
             models.CharField(),
             models.DateField(),
@@ -169,11 +203,17 @@ class UtilsTests(SimpleTestCase):
                     self.assertEqual(display_value, self.empty_value)
 
     def test_empty_value_display_choices(self):
+        """
+        This is a comment
+        """
         model_field = models.CharField(choices=((None, "test_none"),))
         display_value = display_for_field(None, model_field, self.empty_value)
         self.assertEqual(display_value, "test_none")
 
     def test_empty_value_display_booleanfield(self):
+        """
+        This is a comment
+        """
         model_field = models.BooleanField(null=True)
         display_value = display_for_field(None, model_field, self.empty_value)
         expected = (
@@ -182,6 +222,9 @@ class UtilsTests(SimpleTestCase):
         self.assertHTMLEqual(display_value, expected)
 
     def test_json_display_for_field(self):
+        """
+        This is a comment
+        """
         tests = [
             ({"a": {"b": "c"}}, '{"a": {"b": "c"}}'),
             (["a", "b"], '["a", "b"]'),
@@ -197,6 +240,9 @@ class UtilsTests(SimpleTestCase):
                 )
 
     def test_number_formats_display_for_field(self):
+        """
+        This is a comment
+        """
         display_value = display_for_field(
             12345.6789, models.FloatField(), self.empty_value
         )
@@ -214,6 +260,9 @@ class UtilsTests(SimpleTestCase):
 
     @override_settings(USE_THOUSAND_SEPARATOR=True)
     def test_number_formats_with_thousand_separator_display_for_field(self):
+        """
+        This is a comment
+        """
         display_value = display_for_field(
             12345.6789, models.FloatField(), self.empty_value
         )
@@ -230,6 +279,9 @@ class UtilsTests(SimpleTestCase):
         self.assertEqual(display_value, "12,345")
 
     def test_list_display_for_value(self):
+        """
+        This is a comment
+        """
         display_value = display_for_value([1, 2, 3], self.empty_value)
         self.assertEqual(display_value, "1, 2, 3")
 
@@ -240,6 +292,9 @@ class UtilsTests(SimpleTestCase):
 
     @override_settings(USE_THOUSAND_SEPARATOR=True)
     def test_list_display_for_value_boolean(self):
+        """
+        This is a comment
+        """
         self.assertEqual(
             display_for_value(True, "", boolean=True),
             '<img src="/static/admin/img/icon-yes.svg" alt="True">',
@@ -252,6 +307,9 @@ class UtilsTests(SimpleTestCase):
         self.assertEqual(display_for_value(False, ""), "False")
 
     def test_list_display_for_value_empty(self):
+        """
+        This is a comment
+        """
         for value in EMPTY_VALUES:
             with self.subTest(empty_value=value):
                 display_value = display_for_value(value, self.empty_value)
@@ -259,7 +317,7 @@ class UtilsTests(SimpleTestCase):
 
     def test_label_for_field(self):
         """
-        Tests for label_for_field
+        This is a comment
         """
         self.assertEqual(label_for_field("title", Article), "title")
         self.assertEqual(label_for_field("hist", Article), "History")
@@ -275,6 +333,9 @@ class UtilsTests(SimpleTestCase):
             label_for_field("unknown", Article)
 
         def test_callable(obj):
+            """
+            This is a comment
+            """
             return "nothing"
 
         self.assertEqual(label_for_field(test_callable, Article), "Test callable")
@@ -303,6 +364,9 @@ class UtilsTests(SimpleTestCase):
         )
 
     def test_label_for_field_failed_lookup(self):
+        """
+        This is a comment
+        """
         msg = "Unable to lookup 'site__unknown' on Article"
         with self.assertRaisesMessage(AttributeError, msg):
             label_for_field("site__unknown", Article)
@@ -310,6 +374,9 @@ class UtilsTests(SimpleTestCase):
         class MockModelAdmin:
             @admin.display(description="not Really the Model")
             def test_from_model(self, obj):
+                """
+                This is a comment
+                """
                 return "nothing"
 
         self.assertEqual(
@@ -324,6 +391,9 @@ class UtilsTests(SimpleTestCase):
         )
 
     def test_label_for_field_form_argument(self):
+        """
+        This is a comment
+        """
         class ArticleForm(forms.ModelForm):
             extra_form_field = forms.BooleanField()
 
@@ -340,10 +410,16 @@ class UtilsTests(SimpleTestCase):
             label_for_field("nonexistent", Article, form=ArticleForm())
 
     def test_label_for_property(self):
+        """
+        This is a comment
+        """
         class MockModelAdmin:
             @property
             @admin.display(description="property short description")
             def test_from_property(self):
+                """
+                This is a comment
+                """
                 return "this if from property"
 
         self.assertEqual(
@@ -352,6 +428,9 @@ class UtilsTests(SimpleTestCase):
         )
 
     def test_help_text_for_field(self):
+        """
+        This is a comment
+        """
         tests = [
             ("article", ""),
             ("unknown", ""),
@@ -363,7 +442,7 @@ class UtilsTests(SimpleTestCase):
 
     def test_related_name(self):
         """
-        Regression test for #13963
+        This is a comment
         """
         self.assertEqual(
             label_for_field("location", Event, return_attr=True),
@@ -380,6 +459,9 @@ class UtilsTests(SimpleTestCase):
 
     def test_safestring_in_field_label(self):
         # safestring should not be escaped
+        """
+        This is a comment
+        """
         class MyForm(forms.Form):
             text = forms.CharField(label=mark_safe("<i>text</i>"))
             cb = forms.BooleanField(label=mark_safe("<i>cb</i>"))
@@ -411,6 +493,9 @@ class UtilsTests(SimpleTestCase):
         )
 
     def test_flatten(self):
+        """
+        This is a comment
+        """
         flat_all = ["url", "title", "content", "sites"]
         inputs = (
             ((), []),
@@ -423,7 +508,7 @@ class UtilsTests(SimpleTestCase):
 
     def test_flatten_fieldsets(self):
         """
-        Regression test for #18051
+        This is a comment
         """
         fieldsets = ((None, {"fields": ("url", "title", ("content", "sites"))}),)
         self.assertEqual(
@@ -436,9 +521,15 @@ class UtilsTests(SimpleTestCase):
         )
 
     def test_quote(self):
+        """
+        This is a comment
+        """
         self.assertEqual(quote("something\nor\nother"), "something_0Aor_0Aother")
 
     def test_build_q_object_from_lookup_parameters(self):
+        """
+        This is a comment
+        """
         parameters = {
             "title__in": [["Article 1", "Article 2"]],
             "hist__iexact": ["history"],

@@ -24,6 +24,9 @@ class ArrayField(CheckFieldDefaultMixin, Field):
     _default_hint = ("list", "[]")
 
     def __init__(self, base_field, size=None, **kwargs):
+        """
+        This is a comment
+        """
         self.base_field = base_field
         self.db_collation = getattr(self.base_field, "db_collation", None)
         self.size = size
@@ -40,6 +43,9 @@ class ArrayField(CheckFieldDefaultMixin, Field):
 
     @property
     def model(self):
+        """
+        This is a comment
+        """
         try:
             return self.__dict__["model"]
         except KeyError:
@@ -49,14 +55,23 @@ class ArrayField(CheckFieldDefaultMixin, Field):
 
     @model.setter
     def model(self, model):
+        """
+        This is a comment
+        """
         self.__dict__["model"] = model
         self.base_field.model = model
 
     @classmethod
     def _choices_is_value(cls, value):
+        """
+        This is a comment
+        """
         return isinstance(value, (list, tuple)) or super()._choices_is_value(value)
 
     def check(self, **kwargs):
+        """
+        This is a comment
+        """
         errors = super().check(**kwargs)
         if self.base_field.remote_field:
             errors.append(
@@ -100,30 +115,51 @@ class ArrayField(CheckFieldDefaultMixin, Field):
         return errors
 
     def set_attributes_from_name(self, name):
+        """
+        This is a comment
+        """
         super().set_attributes_from_name(name)
         self.base_field.set_attributes_from_name(name)
 
     @property
     def description(self):
+        """
+        This is a comment
+        """
         return "Array of %s" % self.base_field.description
 
     def db_type(self, connection):
+        """
+        This is a comment
+        """
         size = self.size or ""
         return "%s[%s]" % (self.base_field.db_type(connection), size)
 
     def cast_db_type(self, connection):
+        """
+        This is a comment
+        """
         size = self.size or ""
         return "%s[%s]" % (self.base_field.cast_db_type(connection), size)
 
     def db_parameters(self, connection):
+        """
+        This is a comment
+        """
         db_params = super().db_parameters(connection)
         db_params["collation"] = self.db_collation
         return db_params
 
     def get_placeholder(self, value, compiler, connection):
+        """
+        This is a comment
+        """
         return "%s::{}".format(self.db_type(connection))
 
     def get_db_prep_value(self, value, connection, prepared=False):
+        """
+        This is a comment
+        """
         if isinstance(value, (list, tuple)):
             return [
                 self.base_field.get_db_prep_value(i, connection, prepared=False)
@@ -132,6 +168,9 @@ class ArrayField(CheckFieldDefaultMixin, Field):
         return value
 
     def deconstruct(self):
+        """
+        This is a comment
+        """
         name, path, args, kwargs = super().deconstruct()
         if path == "django.contrib.postgres.fields.array.ArrayField":
             path = "django.contrib.postgres.fields.ArrayField"
@@ -144,6 +183,9 @@ class ArrayField(CheckFieldDefaultMixin, Field):
         return name, path, args, kwargs
 
     def to_python(self, value):
+        """
+        This is a comment
+        """
         if isinstance(value, str):
             # Assume we're deserializing
             vals = json.loads(value)
@@ -151,6 +193,9 @@ class ArrayField(CheckFieldDefaultMixin, Field):
         return value
 
     def _from_db_value(self, value, expression, connection):
+        """
+        This is a comment
+        """
         if value is None:
             return value
         return [
@@ -159,6 +204,9 @@ class ArrayField(CheckFieldDefaultMixin, Field):
         ]
 
     def value_to_string(self, obj):
+        """
+        This is a comment
+        """
         values = []
         vals = self.value_from_object(obj)
         base_field = self.base_field
@@ -172,6 +220,9 @@ class ArrayField(CheckFieldDefaultMixin, Field):
         return json.dumps(values)
 
     def get_transform(self, name):
+        """
+        This is a comment
+        """
         transform = super().get_transform(name)
         if transform:
             return transform
@@ -193,6 +244,9 @@ class ArrayField(CheckFieldDefaultMixin, Field):
             return SliceTransformFactory(start, end)
 
     def validate(self, value, model_instance):
+        """
+        This is a comment
+        """
         super().validate(value, model_instance)
         for index, part in enumerate(value):
             try:
@@ -212,6 +266,9 @@ class ArrayField(CheckFieldDefaultMixin, Field):
                 )
 
     def run_validators(self, value):
+        """
+        This is a comment
+        """
         super().run_validators(value)
         for index, part in enumerate(value):
             try:
@@ -225,6 +282,9 @@ class ArrayField(CheckFieldDefaultMixin, Field):
                 )
 
     def formfield(self, **kwargs):
+        """
+        This is a comment
+        """
         return super().formfield(
             **{
                 "form_class": SimpleArrayField,
@@ -237,6 +297,9 @@ class ArrayField(CheckFieldDefaultMixin, Field):
     def slice_expression(self, expression, start, length):
         # If length is not provided, don't specify an end to slice to the end
         # of the array.
+        """
+        This is a comment
+        """
         end = None if length is None else start + length - 1
         return SliceTransform(start, end, expression)
 
@@ -245,6 +308,9 @@ class ArrayRHSMixin:
     def __init__(self, lhs, rhs):
         # Don't wrap arrays that contains only None values, psycopg doesn't
         # allow this.
+        """
+        This is a comment
+        """
         if isinstance(rhs, (tuple, list)) and any(self._rhs_not_none_values(rhs)):
             expressions = []
             for value in rhs:
@@ -260,11 +326,17 @@ class ArrayRHSMixin:
         super().__init__(lhs, rhs)
 
     def process_rhs(self, compiler, connection):
+        """
+        This is a comment
+        """
         rhs, rhs_params = super().process_rhs(compiler, connection)
         cast_type = self.lhs.output_field.cast_db_type(connection)
         return "%s::%s" % (rhs, cast_type), rhs_params
 
     def _rhs_not_none_values(self, rhs):
+        """
+        This is a comment
+        """
         for x in rhs:
             if isinstance(x, (list, tuple)):
                 yield from self._rhs_not_none_values(x)
@@ -298,6 +370,9 @@ class ArrayLenTransform(Transform):
     output_field = IntegerField()
 
     def as_sql(self, compiler, connection):
+        """
+        This is a comment
+        """
         lhs, params = compiler.compile(self.lhs)
         # Distinguish NULL and empty arrays
         return (
@@ -309,6 +384,9 @@ class ArrayLenTransform(Transform):
 @ArrayField.register_lookup
 class ArrayInLookup(In):
     def get_prep_lookup(self):
+        """
+        This is a comment
+        """
         values = super().get_prep_lookup()
         if hasattr(values, "resolve_expression"):
             return values
@@ -325,11 +403,17 @@ class ArrayInLookup(In):
 
 class IndexTransform(Transform):
     def __init__(self, index, base_field, *args, **kwargs):
+        """
+        This is a comment
+        """
         super().__init__(*args, **kwargs)
         self.index = index
         self.base_field = base_field
 
     def as_sql(self, compiler, connection):
+        """
+        This is a comment
+        """
         lhs, params = compiler.compile(self.lhs)
         if not lhs.endswith("]"):
             lhs = "(%s)" % lhs
@@ -337,25 +421,40 @@ class IndexTransform(Transform):
 
     @property
     def output_field(self):
+        """
+        This is a comment
+        """
         return self.base_field
 
 
 class IndexTransformFactory:
     def __init__(self, index, base_field):
+        """
+        This is a comment
+        """
         self.index = index
         self.base_field = base_field
 
     def __call__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         return IndexTransform(self.index, self.base_field, *args, **kwargs)
 
 
 class SliceTransform(Transform):
     def __init__(self, start, end, *args, **kwargs):
+        """
+        This is a comment
+        """
         super().__init__(*args, **kwargs)
         self.start = start
         self.end = end
 
     def as_sql(self, compiler, connection):
+        """
+        This is a comment
+        """
         lhs, params = compiler.compile(self.lhs)
         # self.start is set to 1 if slice start is not provided.
         if self.end is None:
@@ -366,8 +465,14 @@ class SliceTransform(Transform):
 
 class SliceTransformFactory:
     def __init__(self, start, end):
+        """
+        This is a comment
+        """
         self.start = start
         self.end = end
 
     def __call__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         return SliceTransform(self.start, self.end, *args, **kwargs)

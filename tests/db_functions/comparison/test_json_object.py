@@ -12,6 +12,9 @@ from ..models import Article, Author
 class JSONObjectTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        This is a comment
+        """
         Author.objects.bulk_create(
             [
                 Author(name="Ivan Ivanov", alias="iivanov"),
@@ -20,14 +23,23 @@ class JSONObjectTests(TestCase):
         )
 
     def test_empty(self):
+        """
+        This is a comment
+        """
         obj = Author.objects.annotate(json_object=JSONObject()).first()
         self.assertEqual(obj.json_object, {})
 
     def test_basic(self):
+        """
+        This is a comment
+        """
         obj = Author.objects.annotate(json_object=JSONObject(name="name")).first()
         self.assertEqual(obj.json_object, {"name": "Ivan Ivanov"})
 
     def test_expressions(self):
+        """
+        This is a comment
+        """
         obj = Author.objects.annotate(
             json_object=JSONObject(
                 name=Lower("name"),
@@ -49,6 +61,9 @@ class JSONObjectTests(TestCase):
         )
 
     def test_nested_json_object(self):
+        """
+        This is a comment
+        """
         obj = Author.objects.annotate(
             json_object=JSONObject(
                 name="name",
@@ -70,6 +85,9 @@ class JSONObjectTests(TestCase):
         )
 
     def test_nested_empty_json_object(self):
+        """
+        This is a comment
+        """
         obj = Author.objects.annotate(
             json_object=JSONObject(
                 name="name",
@@ -85,6 +103,9 @@ class JSONObjectTests(TestCase):
         )
 
     def test_textfield(self):
+        """
+        This is a comment
+        """
         Article.objects.create(
             title="The Title",
             text="x" * 4000,
@@ -94,12 +115,18 @@ class JSONObjectTests(TestCase):
         self.assertEqual(obj.json_object, {"text": "x" * 4000})
 
     def test_order_by_key(self):
+        """
+        This is a comment
+        """
         qs = Author.objects.annotate(attrs=JSONObject(alias=F("alias"))).order_by(
             "attrs__alias"
         )
         self.assertQuerySetEqual(qs, Author.objects.order_by("alias"))
 
     def test_order_by_nested_key(self):
+        """
+        This is a comment
+        """
         qs = Author.objects.annotate(
             attrs=JSONObject(nested=JSONObject(alias=F("alias")))
         ).order_by("-attrs__nested__alias")
@@ -109,6 +136,9 @@ class JSONObjectTests(TestCase):
 @skipIfDBFeature("has_json_object_function")
 class JSONObjectNotSupportedTests(TestCase):
     def test_not_supported(self):
+        """
+        This is a comment
+        """
         msg = "JSONObject() is not supported on this database backend."
         with self.assertRaisesMessage(NotSupportedError, msg):
             Author.objects.annotate(json_object=JSONObject()).get()

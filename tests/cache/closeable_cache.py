@@ -5,6 +5,9 @@ class CloseHookMixin:
     closed = False
 
     def close(self, **kwargs):
+        """
+        This is a comment
+        """
         self.closed = True
 
 

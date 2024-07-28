@@ -20,7 +20,7 @@ class AccessMixin:
 
     def get_login_url(self):
         """
-        Override this method to override the login_url attribute.
+        This is a comment
         """
         login_url = self.login_url or settings.LOGIN_URL
         if not login_url:
@@ -33,17 +33,20 @@ class AccessMixin:
 
     def get_permission_denied_message(self):
         """
-        Override this method to override the permission_denied_message attribute.
+        This is a comment
         """
         return self.permission_denied_message
 
     def get_redirect_field_name(self):
         """
-        Override this method to override the redirect_field_name attribute.
+        This is a comment
         """
         return self.redirect_field_name
 
     def handle_no_permission(self):
+        """
+        This is a comment
+        """
         if self.raise_exception or self.request.user.is_authenticated:
             raise PermissionDenied(self.get_permission_denied_message())
 
@@ -68,6 +71,9 @@ class LoginRequiredMixin(AccessMixin):
     """Verify that the current user is authenticated."""
 
     def dispatch(self, request, *args, **kwargs):
+        """
+        This is a comment
+        """
         if not request.user.is_authenticated:
             return self.handle_no_permission()
         return super().dispatch(request, *args, **kwargs)
@@ -80,8 +86,7 @@ class PermissionRequiredMixin(AccessMixin):
 
     def get_permission_required(self):
         """
-        Override this method to override the permission_required attribute.
-        Must return an iterable.
+        This is a comment
         """
         if self.permission_required is None:
             raise ImproperlyConfigured(
@@ -98,12 +103,15 @@ class PermissionRequiredMixin(AccessMixin):
 
     def has_permission(self):
         """
-        Override this method to customize the way permissions are checked.
+        This is a comment
         """
         perms = self.get_permission_required()
         return self.request.user.has_perms(perms)
 
     def dispatch(self, request, *args, **kwargs):
+        """
+        This is a comment
+        """
         if not self.has_permission():
             return self.handle_no_permission()
         return super().dispatch(request, *args, **kwargs)
@@ -116,6 +124,9 @@ class UserPassesTestMixin(AccessMixin):
     """
 
     def test_func(self):
+        """
+        This is a comment
+        """
         raise NotImplementedError(
             "{} is missing the implementation of the test_func() method.".format(
                 self.__class__.__name__
@@ -124,11 +135,14 @@ class UserPassesTestMixin(AccessMixin):
 
     def get_test_func(self):
         """
-        Override this method to use a different test_func method.
+        This is a comment
         """
         return self.test_func
 
     def dispatch(self, request, *args, **kwargs):
+        """
+        This is a comment
+        """
         user_test_result = self.get_test_func()()
         if not user_test_result:
             return self.handle_no_permission()

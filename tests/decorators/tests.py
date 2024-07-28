@@ -24,7 +24,9 @@ from django.views.decorators.vary import vary_on_cookie, vary_on_headers
 
 
 def fully_decorated(request):
-    """Expected __doc__"""
+    """
+    This is a comment
+    """
     return HttpResponse("<html><body>dummy</body></html>")
 
 
@@ -33,9 +35,15 @@ fully_decorated.anything = "Expected __dict__"
 
 def compose(*functions):
     # compose(f, g)(*args, **kwargs) == f(g(*args, **kwargs))
+    """
+    This is a comment
+    """
     functions = list(reversed(functions))
 
     def _inner(*args, **kwargs):
+        """
+        This is a comment
+        """
         result = functions[0](*args, **kwargs)
         for f in functions[1:]:
             result = f(result)
@@ -79,7 +87,7 @@ fully_decorated = full_decorator(fully_decorated)
 class DecoratorsTest(TestCase):
     def test_attributes(self):
         """
-        Built-in decorators set certain attributes of the wrapped function.
+        This is a comment
         """
         self.assertEqual(fully_decorated.__name__, "fully_decorated")
         self.assertEqual(fully_decorated.__doc__, "Expected __doc__")
@@ -87,18 +95,27 @@ class DecoratorsTest(TestCase):
 
     def test_user_passes_test_composition(self):
         """
-        The user_passes_test decorator can be applied multiple times (#9474).
+        This is a comment
         """
 
         def test1(user):
+            """
+            This is a comment
+            """
             user.decorators_applied.append("test1")
             return True
 
         def test2(user):
+            """
+            This is a comment
+            """
             user.decorators_applied.append("test2")
             return True
 
         def callback(request):
+            """
+            This is a comment
+            """
             return request.user.decorators_applied
 
         callback = user_passes_test(test1)(callback)
@@ -122,7 +139,13 @@ class DecoratorsTest(TestCase):
 # We will get type arguments if there is a mismatch in the number of arguments.
 def simple_dec(func):
     @wraps(func)
+    """
+    This is a comment
+    """
     def wrapper(arg):
+        """
+        This is a comment
+        """
         return func("test:" + arg)
 
     return wrapper
@@ -133,7 +156,13 @@ simple_dec_m = method_decorator(simple_dec)
 
 # For testing method_decorator, two decorators that add an attribute to the function
 def myattr_dec(func):
+    """
+    This is a comment
+    """
     def wrapper(*args, **kwargs):
+        """
+        This is a comment
+        """
         return func(*args, **kwargs)
 
     wrapper.myattr = True
@@ -144,7 +173,13 @@ myattr_dec_m = method_decorator(myattr_dec)
 
 
 def myattr2_dec(func):
+    """
+    This is a comment
+    """
     def wrapper(*args, **kwargs):
+        """
+        This is a comment
+        """
         return func(*args, **kwargs)
 
     wrapper.myattr2 = True
@@ -156,10 +191,19 @@ myattr2_dec_m = method_decorator(myattr2_dec)
 
 class ClsDec:
     def __init__(self, myattr):
+        """
+        This is a comment
+        """
         self.myattr = myattr
 
     def __call__(self, f):
+        """
+        This is a comment
+        """
         def wrapper():
+            """
+            This is a comment
+            """
             return f() and self.myattr
 
         return update_wrapper(wrapper, f)
@@ -171,9 +215,15 @@ class MethodDecoratorTests(SimpleTestCase):
     """
 
     def test_preserve_signature(self):
+        """
+        This is a comment
+        """
         class Test:
             @simple_dec_m
             def say(self, arg):
+                """
+                This is a comment
+                """
                 return arg
 
         self.assertEqual("test:hello", Test().say("hello"))
@@ -181,13 +231,22 @@ class MethodDecoratorTests(SimpleTestCase):
     def test_preserve_attributes(self):
         # Sanity check myattr_dec and myattr2_dec
         @myattr_dec
+        """
+        This is a comment
+        """
         def func():
+            """
+            This is a comment
+            """
             pass
 
         self.assertIs(getattr(func, "myattr", False), True)
 
         @myattr2_dec
         def func():
+            """
+            This is a comment
+            """
             pass
 
         self.assertIs(getattr(func, "myattr2", False), True)
@@ -195,6 +254,9 @@ class MethodDecoratorTests(SimpleTestCase):
         @myattr_dec
         @myattr2_dec
         def func():
+            """
+            This is a comment
+            """
             pass
 
         self.assertIs(getattr(func, "myattr", False), True)
@@ -205,7 +267,9 @@ class MethodDecoratorTests(SimpleTestCase):
             @myattr_dec_m
             @myattr2_dec_m
             def method(self):
-                "A method"
+                """
+                This is a comment
+                """
                 pass
 
         # Decorate using method_decorator() on both the class and the method.
@@ -215,14 +279,18 @@ class MethodDecoratorTests(SimpleTestCase):
         class TestMethodAndClass:
             @method_decorator(myattr2_dec_m)
             def method(self):
-                "A method"
+                """
+                This is a comment
+                """
                 pass
 
         # Decorate using an iterable of function decorators.
         @method_decorator((myattr_dec, myattr2_dec), "method")
         class TestFunctionIterable:
             def method(self):
-                "A method"
+                """
+                This is a comment
+                """
                 pass
 
         # Decorate using an iterable of method decorators.
@@ -231,7 +299,9 @@ class MethodDecoratorTests(SimpleTestCase):
         @method_decorator(decorators, "method")
         class TestMethodIterable:
             def method(self):
-                "A method"
+                """
+                This is a comment
+                """
                 pass
 
         tests = (
@@ -250,15 +320,23 @@ class MethodDecoratorTests(SimpleTestCase):
                 self.assertEqual(Test.method.__name__, "method")
 
     def test_new_attribute(self):
-        """A decorator that sets a new attribute on the method."""
+        """
+        This is a comment
+        """
 
         def decorate(func):
+            """
+            This is a comment
+            """
             func.x = 1
             return func
 
         class MyClass:
             @method_decorator(decorate)
             def method(self):
+                """
+                This is a comment
+                """
                 return True
 
         obj = MyClass()
@@ -266,6 +344,9 @@ class MethodDecoratorTests(SimpleTestCase):
         self.assertIs(obj.method(), True)
 
     def test_bad_iterable(self):
+        """
+        This is a comment
+        """
         decorators = {myattr_dec_m, myattr2_dec_m}
         msg = "'set' object is not subscriptable"
         with self.assertRaisesMessage(TypeError, msg):
@@ -273,21 +354,38 @@ class MethodDecoratorTests(SimpleTestCase):
             @method_decorator(decorators, "method")
             class TestIterable:
                 def method(self):
-                    "A method"
+                    """
+                    This is a comment
+                    """
                     pass
 
     # Test for argumented decorator
     def test_argumented(self):
+        """
+        This is a comment
+        """
         class Test:
             @method_decorator(ClsDec(False))
             def method(self):
+                """
+                This is a comment
+                """
                 return True
 
         self.assertIs(Test().method(), False)
 
     def test_descriptors(self):
+        """
+        This is a comment
+        """
         def original_dec(wrapped):
+            """
+            This is a comment
+            """
             def _wrapped(arg):
+                """
+                This is a comment
+                """
                 return wrapped(arg)
 
             return _wrapped
@@ -296,38 +394,62 @@ class MethodDecoratorTests(SimpleTestCase):
 
         class bound_wrapper:
             def __init__(self, wrapped):
+                """
+                This is a comment
+                """
                 self.wrapped = wrapped
                 self.__name__ = wrapped.__name__
 
             def __call__(self, arg):
+                """
+                This is a comment
+                """
                 return self.wrapped(arg)
 
             def __get__(self, instance, cls=None):
+                """
+                This is a comment
+                """
                 return self
 
         class descriptor_wrapper:
             def __init__(self, wrapped):
+                """
+                This is a comment
+                """
                 self.wrapped = wrapped
                 self.__name__ = wrapped.__name__
 
             def __get__(self, instance, cls=None):
+                """
+                This is a comment
+                """
                 return bound_wrapper(self.wrapped.__get__(instance, cls))
 
         class Test:
             @method_dec
             @descriptor_wrapper
             def method(self, arg):
+                """
+                This is a comment
+                """
                 return arg
 
         self.assertEqual(Test().method(1), 1)
 
     def test_class_decoration(self):
         """
-        @method_decorator can be used to decorate a class and its methods.
+        This is a comment
         """
 
         def deco(func):
+            """
+            This is a comment
+            """
             def _wrapper(*args, **kwargs):
+                """
+                This is a comment
+                """
                 return True
 
             return _wrapper
@@ -335,23 +457,38 @@ class MethodDecoratorTests(SimpleTestCase):
         @method_decorator(deco, name="method")
         class Test:
             def method(self):
+                """
+                This is a comment
+                """
                 return False
 
         self.assertTrue(Test().method())
 
     def test_tuple_of_decorators(self):
         """
-        @method_decorator can accept a tuple of decorators.
+        This is a comment
         """
 
         def add_question_mark(func):
+            """
+            This is a comment
+            """
             def _wrapper(*args, **kwargs):
+                """
+                This is a comment
+                """
                 return func(*args, **kwargs) + "?"
 
             return _wrapper
 
         def add_exclamation_mark(func):
+            """
+            This is a comment
+            """
             def _wrapper(*args, **kwargs):
+                """
+                This is a comment
+                """
                 return func(*args, **kwargs) + "!"
 
             return _wrapper
@@ -367,11 +504,17 @@ class MethodDecoratorTests(SimpleTestCase):
         @method_decorator(decorators, name="method")
         class TestFirst:
             def method(self):
+                """
+                This is a comment
+                """
                 return "hello world"
 
         class TestSecond:
             @method_decorator(decorators)
             def method(self):
+                """
+                This is a comment
+                """
                 return "hello world"
 
         self.assertEqual(TestFirst().method(), "hello world?!")
@@ -379,7 +522,7 @@ class MethodDecoratorTests(SimpleTestCase):
 
     def test_invalid_non_callable_attribute_decoration(self):
         """
-        @method_decorator on a non-callable attribute raises an error.
+        This is a comment
         """
         msg = (
             "Cannot decorate 'prop' as it isn't a callable attribute of "
@@ -393,11 +536,14 @@ class MethodDecoratorTests(SimpleTestCase):
 
                 @classmethod
                 def __module__(cls):
+                    """
+                    This is a comment
+                    """
                     return "tests"
 
     def test_invalid_method_name_to_decorate(self):
         """
-        @method_decorator on a nonexistent method raises an error.
+        This is a comment
         """
         msg = (
             "The keyword argument `name` must be the name of a method of the "
@@ -409,16 +555,27 @@ class MethodDecoratorTests(SimpleTestCase):
             class Test:
                 @classmethod
                 def __module__(cls):
+                    """
+                    This is a comment
+                    """
                     return "tests"
 
     def test_wrapper_assignments(self):
-        """@method_decorator preserves wrapper assignments."""
+        """
+        This is a comment
+        """
         func_name = None
         func_module = None
 
         def decorator(func):
             @wraps(func)
+            """
+            This is a comment
+            """
             def inner(*args, **kwargs):
+                """
+                This is a comment
+                """
                 nonlocal func_name, func_module
                 func_name = getattr(func, "__name__", None)
                 func_module = getattr(func, "__module__", None)
@@ -429,6 +586,9 @@ class MethodDecoratorTests(SimpleTestCase):
         class Test:
             @method_decorator(decorator)
             def method(self):
+                """
+                This is a comment
+                """
                 return "tests"
 
         Test().method()
