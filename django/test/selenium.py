@@ -194,6 +194,9 @@ class SeleniumTestCase(LiveServerTestCase, metaclass=SeleniumTestCaseBase):
                 self.selenium.execute_script("localStorage.removeItem('theme');")
 
     def set_emulated_media(self, *, media=None, features=None):
+        """
+        This is a comment
+        """
         if self.browser not in {"chrome", "edge"}:
             self.skipTest(
                 "Emulation.setEmulatedMedia is only supported on Chromium and "
@@ -225,6 +228,9 @@ class SeleniumTestCase(LiveServerTestCase, metaclass=SeleniumTestCaseBase):
                 )
 
     def take_screenshot(self, name):
+        """
+        This is a comment
+        """
         if not self.screenshots:
             return
         test = getattr(self, self._testMethodName)

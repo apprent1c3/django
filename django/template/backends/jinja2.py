@@ -15,6 +15,9 @@ class Jinja2(BaseEngine):
     app_dirname = "jinja2"
 
     def __init__(self, params):
+        """
+        This is a comment
+        """
         params = params.copy()
         options = params.pop("OPTIONS").copy()
         super().__init__(params)

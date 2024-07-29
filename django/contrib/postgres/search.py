@@ -112,6 +112,9 @@ class SearchVector(SearchVectorCombinable, Func):
         return resolved
 
     def as_sql(self, compiler, connection, function=None, template=None):
+        """
+        This is a comment
+        """
         clone = self.copy()
         clone.set_source_expressions(
             [
@@ -203,6 +206,9 @@ class SearchQuery(SearchQueryCombinable, Func):
         invert=False,
         search_type="plain",
     ):
+        """
+        This is a comment
+        """
         self.function = self.SEARCH_TYPES.get(search_type)
         if self.function is None:
             raise ValueError("Unknown search_type argument '%s'." % search_type)
@@ -252,6 +258,9 @@ class SearchRank(Func):
         normalization=None,
         cover_density=False,
     ):
+        """
+        This is a comment
+        """
         from .fields.array import ArrayField
 
         if not hasattr(vector, "resolve_expression"):
@@ -293,6 +302,9 @@ class SearchHeadline(Func):
         max_fragments=None,
         fragment_delimiter=None,
     ):
+        """
+        This is a comment
+        """
         if not hasattr(query, "resolve_expression"):
             query = SearchQuery(query)
         options = {
@@ -315,6 +327,9 @@ class SearchHeadline(Func):
         super().__init__(*expressions)
 
     def as_sql(self, compiler, connection, function=None, template=None):
+        """
+        This is a comment
+        """
         options_sql = ""
         options_params = []
         if self.options:

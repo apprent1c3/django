@@ -216,6 +216,9 @@ class ConnectionRouter:
 
     def _router_func(action):
         def _route_db(self, model, **hints):
+            """
+            This is a comment
+            """
             chosen_db = None
             for router in self.routers:
                 try:

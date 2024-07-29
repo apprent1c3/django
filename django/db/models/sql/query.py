@@ -92,6 +92,9 @@ def get_children_from_q(q):
 
 
 def get_child_with_renamed_prefix(prefix, replacement, child):
+    """
+    This is a comment
+    """
     from django.db.models.query import QuerySet
 
     if isinstance(child, Node):
@@ -145,6 +148,9 @@ class RawQuery:
     """A single raw SQL query."""
 
     def __init__(self, sql, using, params=()):
+        """
+        This is a comment
+        """
         self.params = params
         self.sql = sql
         self.using = using
@@ -195,6 +201,9 @@ class RawQuery:
         return self.sql % self.params_type(self.params)
 
     def _execute_query(self):
+        """
+        This is a comment
+        """
         connection = connections[self.using]
 
         # Adapt parameters to the database, as much as possible considering
@@ -291,6 +300,9 @@ class Query(BaseExpression):
     explain_info = None
 
     def __init__(self, model, alias_cols=True):
+        """
+        This is a comment
+        """
         self.model = model
         self.alias_refcount = {}
         # alias_map is the most important data structure regarding joins.
@@ -634,6 +646,9 @@ class Query(BaseExpression):
         return self.where
 
     def exists(self, limit=True):
+        """
+        This is a comment
+        """
         q = self.clone()
         if not (q.distinct and q.is_sliced):
             if q.group_by is True:
@@ -661,6 +676,9 @@ class Query(BaseExpression):
         return compiler.has_results()
 
     def explain(self, using, format=None, **options):
+        """
+        This is a comment
+        """
         q = self.clone()
         for option_name in options:
             if (
@@ -789,6 +807,9 @@ class Query(BaseExpression):
         self.extra_order_by = rhs.extra_order_by or self.extra_order_by
 
     def _get_defer_select_mask(self, opts, mask, select_mask=None):
+        """
+        This is a comment
+        """
         if select_mask is None:
             select_mask = {}
         select_mask[opts.pk] = {}
@@ -1202,6 +1223,9 @@ class Query(BaseExpression):
             self.selected[alias] = alias
 
     def resolve_expression(self, query, *args, **kwargs):
+        """
+        This is a comment
+        """
         clone = self.clone()
         # Subqueries need to use a different set of aliases than the outer query.
         clone.bump_prefix(query)
@@ -1662,6 +1686,9 @@ class Query(BaseExpression):
         return target_clause, needed_inner
 
     def add_filtered_relation(self, filtered_relation, alias):
+        """
+        This is a comment
+        """
         filtered_relation.alias = alias
         relation_lookup_parts, relation_field_parts, _ = self.solve_lookup_type(
             filtered_relation.relation_name
@@ -2457,6 +2484,9 @@ class Query(BaseExpression):
         return self.selected is not None
 
     def set_values(self, fields):
+        """
+        This is a comment
+        """
         self.select_related = False
         self.clear_deferred_loading()
         self.clear_select_fields()
@@ -2673,6 +2703,9 @@ class JoinPromoter:
     """
 
     def __init__(self, connector, num_children, negated):
+        """
+        This is a comment
+        """
         self.connector = connector
         self.negated = negated
         if self.negated:

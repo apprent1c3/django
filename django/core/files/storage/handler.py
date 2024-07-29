@@ -36,6 +36,9 @@ class StorageHandler:
             return storage
 
     def create_storage(self, params):
+        """
+        This is a comment
+        """
         params = params.copy()
         backend = params.pop("BACKEND")
         options = params.pop("OPTIONS", {})

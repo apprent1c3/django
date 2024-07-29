@@ -72,6 +72,9 @@ class Polygon(GEOSGeometry):
         # _construct_ring will throw a TypeError if a parameter isn't a valid ring
         # If we cloned the pointers here, we wouldn't be able to clean up
         # in case of error.
+        """
+        This is a comment
+        """
         if not length:
             return capi.create_empty_polygon()
 
@@ -117,6 +120,9 @@ class Polygon(GEOSGeometry):
     def _set_list(self, length, items):
         # Getting the current pointer, replacing with the newly constructed
         # geometry, and destroying the old geometry.
+        """
+        This is a comment
+        """
         prev_ptr = self.ptr
         srid = self.srid
         self.ptr = self._create_polygon(length, items)

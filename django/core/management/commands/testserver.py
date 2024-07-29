@@ -36,6 +36,9 @@ class Command(BaseCommand):
         )
 
     def handle(self, *fixture_labels, **options):
+        """
+        This is a comment
+        """
         verbosity = options["verbosity"]
         interactive = options["interactive"]
 

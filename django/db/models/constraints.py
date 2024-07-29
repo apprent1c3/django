@@ -31,6 +31,9 @@ class BaseConstraint:
         self, *args, name=None, violation_error_code=None, violation_error_message=None
     ):
         # RemovedInDjango60Warning.
+        """
+        This is a comment
+        """
         if name is None and not args:
             raise TypeError(
                 f"{self.__class__.__name__}.__init__() missing 1 required keyword-only "
@@ -78,6 +81,9 @@ class BaseConstraint:
         return []
 
     def _check_references(self, model, references):
+        """
+        This is a comment
+        """
         errors = []
         fields = set()
         for field_name, *lookups in references:
@@ -116,6 +122,9 @@ class BaseConstraint:
         return errors
 
     def deconstruct(self):
+        """
+        This is a comment
+        """
         path = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
         path = path.replace("django.db.models.constraints", "django.db.models")
         kwargs = {"name": self.name}
@@ -223,6 +232,9 @@ class CheckConstraint(BaseConstraint):
         return errors
 
     def _get_check_sql(self, model, schema_editor):
+        """
+        This is a comment
+        """
         query = Query(model=model, alias_cols=False)
         where = query.build_where(self.condition)
         compiler = query.get_compiler(connection=schema_editor.connection)
@@ -307,6 +319,9 @@ class UniqueConstraint(BaseConstraint):
         violation_error_code=None,
         violation_error_message=None,
     ):
+        """
+        This is a comment
+        """
         if not name:
             raise ValueError("A unique constraint must be named.")
         if not expressions and not fields:
@@ -369,6 +384,9 @@ class UniqueConstraint(BaseConstraint):
         return bool(self.expressions)
 
     def _check(self, model, connection):
+        """
+        This is a comment
+        """
         errors = model._check_local_fields({*self.fields, *self.include}, "constraints")
         required_db_features = model._meta.required_db_features
         if self.condition is not None and not (
@@ -467,6 +485,9 @@ class UniqueConstraint(BaseConstraint):
         return errors
 
     def _get_condition_sql(self, model, schema_editor):
+        """
+        This is a comment
+        """
         if self.condition is None:
             return None
         query = Query(model=model, alias_cols=False)
@@ -488,6 +509,9 @@ class UniqueConstraint(BaseConstraint):
         )
 
     def constraint_sql(self, model, schema_editor):
+        """
+        This is a comment
+        """
         fields = [model._meta.get_field(field_name) for field_name in self.fields]
         include = [
             model._meta.get_field(field_name).column for field_name in self.include
@@ -507,6 +531,9 @@ class UniqueConstraint(BaseConstraint):
         )
 
     def create_sql(self, model, schema_editor):
+        """
+        This is a comment
+        """
         fields = [model._meta.get_field(field_name) for field_name in self.fields]
         include = [
             model._meta.get_field(field_name).column for field_name in self.include
@@ -587,6 +614,9 @@ class UniqueConstraint(BaseConstraint):
         return super().__eq__(other)
 
     def deconstruct(self):
+        """
+        This is a comment
+        """
         path, args, kwargs = super().deconstruct()
         if self.fields:
             kwargs["fields"] = self.fields
@@ -603,6 +633,9 @@ class UniqueConstraint(BaseConstraint):
         return path, self.expressions, kwargs
 
     def validate(self, model, instance, exclude=None, using=DEFAULT_DB_ALIAS):
+        """
+        This is a comment
+        """
         queryset = model._default_manager.using(using)
         if self.fields:
             lookup_kwargs = {}

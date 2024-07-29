@@ -253,6 +253,9 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         return divmod(self.pg_version, 10000)
 
     def get_connection_params(self):
+        """
+        This is a comment
+        """
         settings_dict = self.settings_dict
         # None may be used to connect to the default 'postgres' db
         if settings_dict["NAME"] == "" and not settings_dict["OPTIONS"].get("service"):
@@ -326,6 +329,9 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         #   default when no value is explicitly specified in options.
         # - before calling _set_autocommit() because if autocommit is on, that
         #   will set connection.isolation_level to ISOLATION_LEVEL_AUTOCOMMIT.
+        """
+        This is a comment
+        """
         options = self.settings_dict["OPTIONS"]
         set_isolation_level = False
         try:
@@ -559,6 +565,9 @@ if is_psycopg3:
         """
 
         def callproc(self, name, args=None):
+            """
+            This is a comment
+            """
             if not isinstance(name, sql.Identifier):
                 name = sql.Identifier(name)
 

@@ -238,6 +238,9 @@ class Statement(Reference):
 
 class Expressions(TableColumns):
     def __init__(self, table, expressions, compiler, quote_value):
+        """
+        This is a comment
+        """
         self.compiler = compiler
         self.expressions = expressions
         self.quote_value = quote_value
@@ -254,6 +257,9 @@ class Expressions(TableColumns):
         super().rename_table_references(old_table, new_table)
 
     def rename_column_references(self, table, old_column, new_column):
+        """
+        This is a comment
+        """
         if self.table != table:
             return
         expressions = deepcopy(self.expressions)

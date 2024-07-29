@@ -26,6 +26,9 @@ class Index:
         condition=None,
         include=None,
     ):
+        """
+        This is a comment
+        """
         if opclasses and not name:
             raise ValueError("An index must be named to use opclasses.")
         if not isinstance(condition, (NoneType, Q)):
@@ -83,6 +86,9 @@ class Index:
         return bool(self.expressions)
 
     def _get_condition_sql(self, model, schema_editor):
+        """
+        This is a comment
+        """
         if self.condition is None:
             return None
         query = Query(model=model, alias_cols=False)
@@ -135,6 +141,9 @@ class Index:
         return schema_editor._delete_index_sql(model, self.name, **kwargs)
 
     def deconstruct(self):
+        """
+        This is a comment
+        """
         path = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
         path = path.replace("django.db.models.indexes", "django.db.models")
         kwargs = {"name": self.name}
@@ -241,6 +250,9 @@ class IndexExpression(Func):
         summarize=False,
         for_save=False,
     ):
+        """
+        This is a comment
+        """
         expressions = list(self.flatten())
         # Split expressions and wrappers.
         index_expressions, wrappers = partition(

@@ -33,6 +33,9 @@ class Feed:
     language = None
 
     def __call__(self, request, *args, **kwargs):
+        """
+        This is a comment
+        """
         try:
             obj = self.get_object(request, *args, **kwargs)
         except ObjectDoesNotExist:

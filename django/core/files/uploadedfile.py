@@ -36,6 +36,9 @@ class UploadedFile(File):
         charset=None,
         content_type_extra=None,
     ):
+        """
+        This is a comment
+        """
         super().__init__(file, name)
         self.size = size
         self.content_type = content_type

@@ -167,6 +167,9 @@ class ForwardManyToOneDescriptor:
         return self.get_prefetch_querysets(instances, [queryset])
 
     def get_prefetch_querysets(self, instances, querysets=None):
+        """
+        This is a comment
+        """
         if querysets and len(querysets) != 1:
             raise ValueError(
                 "querysets argument of get_prefetch_querysets() should have a length "
@@ -459,6 +462,9 @@ class ReverseOneToOneDescriptor:
         return self.get_prefetch_querysets(instances, [queryset])
 
     def get_prefetch_querysets(self, instances, querysets=None):
+        """
+        This is a comment
+        """
         if querysets and len(querysets) != 1:
             raise ValueError(
                 "querysets argument of get_prefetch_querysets() should have a length "
@@ -678,6 +684,9 @@ def create_reverse_many_to_one_manager(superclass, rel):
 
     class RelatedManager(superclass, AltersData):
         def __init__(self, instance):
+            """
+            This is a comment
+            """
             super().__init__()
 
             self.instance = instance
@@ -778,6 +787,9 @@ def create_reverse_many_to_one_manager(superclass, rel):
             return self.get_prefetch_querysets(instances, [queryset])
 
         def get_prefetch_querysets(self, instances, querysets=None):
+            """
+            This is a comment
+            """
             if querysets and len(querysets) != 1:
                 raise ValueError(
                     "querysets argument of get_prefetch_querysets() should have a "
@@ -802,6 +814,9 @@ def create_reverse_many_to_one_manager(superclass, rel):
             return queryset, rel_obj_attr, instance_attr, False, cache_name, False
 
         def add(self, *objs, bulk=True):
+            """
+            This is a comment
+            """
             self._check_fk_val()
             self._remove_prefetched_objects()
             db = router.db_for_write(self.model, instance=self.instance)
@@ -846,6 +861,9 @@ def create_reverse_many_to_one_manager(superclass, rel):
         aadd.alters_data = True
 
         def create(self, **kwargs):
+            """
+            This is a comment
+            """
             self._check_fk_val()
             self._remove_prefetched_objects()
             kwargs[self.field.name] = self.instance
@@ -890,6 +908,9 @@ def create_reverse_many_to_one_manager(superclass, rel):
         if rel.field.null:
 
             def remove(self, *objs, bulk=True):
+                """
+                This is a comment
+                """
                 if not objs:
                     return
                 self._check_fk_val()
@@ -1039,6 +1060,9 @@ def create_forward_many_to_many_manager(superclass, rel, reverse):
 
     class ManyRelatedManager(superclass, AltersData):
         def __init__(self, instance=None):
+            """
+            This is a comment
+            """
             super().__init__()
 
             self.instance = instance
@@ -1098,6 +1122,9 @@ def create_forward_many_to_many_manager(superclass, rel, reverse):
         do_not_call_in_templates = True
 
         def _build_remove_filters(self, removed_vals):
+            """
+            This is a comment
+            """
             filters = Q.create([(self.source_field_name, self.related_val)])
             # No need to add a subquery condition if removed_vals is a QuerySet without
             # filters.
@@ -1158,6 +1185,9 @@ def create_forward_many_to_many_manager(superclass, rel, reverse):
             return self.get_prefetch_querysets(instances, [queryset])
 
         def get_prefetch_querysets(self, instances, querysets=None):
+            """
+            This is a comment
+            """
             if querysets and len(querysets) != 1:
                 raise ValueError(
                     "querysets argument of get_prefetch_querysets() should have a "
@@ -1212,6 +1242,9 @@ def create_forward_many_to_many_manager(superclass, rel, reverse):
             # If the through relation's target field's foreign integrity is
             # enforced, the query can be performed solely against the through
             # table as the INNER JOIN'ing against target table is unnecessary.
+            """
+            This is a comment
+            """
             if not self.target_field.db_constraint:
                 return None
             db = router.db_for_read(self.through, instance=self.instance)
@@ -1506,6 +1539,9 @@ def create_forward_many_to_many_manager(superclass, rel, reverse):
             # target_field_name: the PK fieldname in join table for the target object
             # *objs - objects to add. Either object instances, or primary keys
             # of object instances.
+            """
+            This is a comment
+            """
             if not objs:
                 return
 
@@ -1575,6 +1611,9 @@ def create_forward_many_to_many_manager(superclass, rel, reverse):
             # target_field_name: the PK colname in join table for the target object
             # *objs - objects to remove. Either object instances, or primary
             # keys of object instances.
+            """
+            This is a comment
+            """
             if not objs:
                 return
 

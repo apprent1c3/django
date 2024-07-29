@@ -216,6 +216,9 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
         return name.lower()
 
     def get_sequences(self, cursor, table_name, table_fields=()):
+        """
+        This is a comment
+        """
         cursor.execute(
             """
             SELECT

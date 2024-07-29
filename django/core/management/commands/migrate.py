@@ -21,6 +21,9 @@ class Command(BaseCommand):
     requires_system_checks = []
 
     def add_arguments(self, parser):
+        """
+        This is a comment
+        """
         parser.add_argument(
             "--skip-checks",
             action="store_true",
@@ -96,6 +99,9 @@ class Command(BaseCommand):
 
     @no_translations
     def handle(self, *args, **options):
+        """
+        This is a comment
+        """
         database = options["database"]
         if not options["skip_checks"]:
             self.check(databases=[database])

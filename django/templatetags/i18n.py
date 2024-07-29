@@ -73,6 +73,9 @@ class TranslateNode(Node):
     child_nodelists = ()
 
     def __init__(self, filter_expression, noop, asvar=None, message_context=None):
+        """
+        This is a comment
+        """
         self.noop = noop
         self.asvar = asvar
         self.message_context = message_context
@@ -82,6 +85,9 @@ class TranslateNode(Node):
             self.filter_expression.var = Variable("'%s'" % self.filter_expression.var)
 
     def render(self, context):
+        """
+        This is a comment
+        """
         self.filter_expression.var.translate = not self.noop
         if self.message_context:
             self.filter_expression.var.message_context = self.message_context.resolve(
@@ -114,6 +120,9 @@ class BlockTranslateNode(Node):
         asvar=None,
         tag_name="blocktranslate",
     ):
+        """
+        This is a comment
+        """
         self.extra_context = extra_context
         self.singular = singular
         self.plural = plural
@@ -132,6 +141,9 @@ class BlockTranslateNode(Node):
         )
 
     def render_token_list(self, tokens):
+        """
+        This is a comment
+        """
         result = []
         vars = []
         for token in tokens:
@@ -146,6 +158,9 @@ class BlockTranslateNode(Node):
         return msg, vars
 
     def render(self, context, nested=False):
+        """
+        This is a comment
+        """
         if self.message_context:
             message_context = self.message_context.resolve(context)
         else:

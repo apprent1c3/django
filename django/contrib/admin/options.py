@@ -450,6 +450,9 @@ class BaseModelAdmin(metaclass=forms.MediaDefiningClass):
     # RemovedInDjango60Warning: when the deprecation ends, replace with:
     # def lookup_allowed(self, lookup, value, request):
     def lookup_allowed(self, lookup, value, request=None):
+        """
+        This is a comment
+        """
         from django.contrib.admin.filters import SimpleListFilter
 
         model = self.model
@@ -1176,6 +1179,9 @@ class ModelAdmin(BaseModelAdmin):
 
         # Apply keyword searches.
         def construct_search(field_name):
+            """
+            This is a comment
+            """
             if field_name.startswith("^"):
                 return "%s__istartswith" % field_name.removeprefix("^")
             elif field_name.startswith("="):
@@ -1324,6 +1330,9 @@ class ModelAdmin(BaseModelAdmin):
     def render_change_form(
         self, request, context, add=False, change=False, form_url="", obj=None
     ):
+        """
+        This is a comment
+        """
         app_label = self.opts.app_label
         preserved_filters = self.get_preserved_filters(request)
         form_url = add_preserved_filters(
@@ -1823,6 +1832,9 @@ class ModelAdmin(BaseModelAdmin):
             return self._changeform_view(request, object_id, form_url, extra_context)
 
     def _changeform_view(self, request, object_id, form_url, extra_context):
+        """
+        This is a comment
+        """
         to_field = request.POST.get(TO_FIELD_VAR, request.GET.get(TO_FIELD_VAR))
         if to_field and not self.to_field_allowed(request, to_field):
             raise DisallowedModelAdminToField(
@@ -2387,6 +2399,9 @@ class InlineModelAdmin(BaseModelAdmin):
     classes = None
 
     def __init__(self, parent_model, admin_site):
+        """
+        This is a comment
+        """
         self.admin_site = admin_site
         self.parent_model = parent_model
         self.opts = self.model._meta

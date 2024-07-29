@@ -38,6 +38,9 @@ from django.utils.duration import duration_microseconds
 
 
 def register(connection):
+    """
+    This is a comment
+    """
     create_deterministic_function = functools.partial(
         connection.create_function,
         deterministic=True,
@@ -104,6 +107,9 @@ def register(connection):
 
 
 def _sqlite_datetime_parse(dt, tzname=None, conn_tzname=None):
+    """
+    This is a comment
+    """
     if dt is None:
         return None
     try:
@@ -145,6 +151,9 @@ def _sqlite_date_trunc(lookup_type, dt, tzname, conn_tzname):
 
 
 def _sqlite_time_trunc(lookup_type, dt, tzname, conn_tzname):
+    """
+    This is a comment
+    """
     if dt is None:
         return None
     dt_parsed = _sqlite_datetime_parse(dt, tzname, conn_tzname)

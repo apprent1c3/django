@@ -50,6 +50,9 @@ class AutoEscapeControlNode(Node):
         self.nodelist = nodelist
 
     def render(self, context):
+        """
+        This is a comment
+        """
         old_setting = context.autoescape
         context.autoescape = self.setting
         output = self.nodelist.render(context)
@@ -99,6 +102,9 @@ class CycleNode(Node):
         self.silent = silent
 
     def render(self, context):
+        """
+        This is a comment
+        """
         if self not in context.render_context:
             # First time the node is rendered in template
             context.render_context[self] = itertools_cycle(self.cyclevars)
@@ -119,6 +125,9 @@ class CycleNode(Node):
 
 class DebugNode(Node):
     def render(self, context):
+        """
+        This is a comment
+        """
         if not settings.DEBUG:
             return ""
 
@@ -166,6 +175,9 @@ class ForNode(Node):
     def __init__(
         self, loopvars, sequence, is_reversed, nodelist_loop, nodelist_empty=None
     ):
+        """
+        This is a comment
+        """
         self.loopvars = loopvars
         self.sequence = sequence
         self.is_reversed = is_reversed
@@ -260,6 +272,9 @@ class IfChangedNode(Node):
 
     def render(self, context):
         # Init state storage
+        """
+        This is a comment
+        """
         state_frame = self._get_context_stack_frame(context)
         state_frame.setdefault(self)
 
@@ -461,6 +476,9 @@ class URLNode(Node):
         )
 
     def render(self, context):
+        """
+        This is a comment
+        """
         from django.urls import NoReverseMatch, reverse
 
         args = [arg.resolve(context) for arg in self.args]

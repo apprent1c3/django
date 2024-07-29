@@ -48,6 +48,9 @@ class CheckRegistry:
         """
 
         def inner(check):
+            """
+            This is a comment
+            """
             if not func_accepts_kwargs(check):
                 raise TypeError(
                     "Check functions must accept keyword arguments (**kwargs)."

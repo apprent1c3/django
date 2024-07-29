@@ -19,6 +19,9 @@ class FlatpageNode(template.Node):
             self.user = None
 
     def render(self, context):
+        """
+        This is a comment
+        """
         if "request" in context:
             site_pk = get_current_site(context["request"]).pk
         else:

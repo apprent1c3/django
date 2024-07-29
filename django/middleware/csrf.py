@@ -269,6 +269,9 @@ class CsrfViewMiddleware(MiddlewareMixin):
             patch_vary_headers(response, ("Cookie",))
 
     def _origin_verified(self, request):
+        """
+        This is a comment
+        """
         request_origin = request.META["HTTP_ORIGIN"]
         try:
             good_host = request.get_host()
@@ -295,6 +298,9 @@ class CsrfViewMiddleware(MiddlewareMixin):
         )
 
     def _check_referer(self, request):
+        """
+        This is a comment
+        """
         referer = request.META.get("HTTP_REFERER")
         if referer is None:
             raise RejectRequest(REASON_NO_REFERER)
@@ -350,6 +356,9 @@ class CsrfViewMiddleware(MiddlewareMixin):
         # Access csrf_secret via self._get_secret() as rotate_token() may have
         # been called by an authentication middleware during the
         # process_request() phase.
+        """
+        This is a comment
+        """
         try:
             csrf_secret = self._get_secret(request)
         except InvalidTokenFormat as exc:
@@ -412,6 +421,9 @@ class CsrfViewMiddleware(MiddlewareMixin):
                 request.META["CSRF_COOKIE"] = csrf_secret
 
     def process_view(self, request, callback, callback_args, callback_kwargs):
+        """
+        This is a comment
+        """
         if getattr(request, "csrf_processing_done", False):
             return None
 

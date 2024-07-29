@@ -62,6 +62,9 @@ class Archive:
 
     @staticmethod
     def _archive_cls(file):
+        """
+        This is a comment
+        """
         cls = None
         if isinstance(file, str):
             filename = file

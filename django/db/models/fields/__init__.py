@@ -210,6 +210,9 @@ class Field(RegisterLookupMixin):
         db_comment=None,
         db_default=NOT_PROVIDED,
     ):
+        """
+        This is a comment
+        """
         self.name = name
         self.verbose_name = verbose_name  # May be set by set_attributes_from_name
         self._verbose_name = verbose_name  # Store original for deconstruction
@@ -315,6 +318,9 @@ class Field(RegisterLookupMixin):
         return isinstance(value, (str, Promise)) or not isinstance(value, Iterable)
 
     def _check_choices(self):
+        """
+        This is a comment
+        """
         if not self.choices:
             return []
 
@@ -388,6 +394,9 @@ class Field(RegisterLookupMixin):
         ]
 
     def _check_db_default(self, databases=None, **kwargs):
+        """
+        This is a comment
+        """
         from django.db.models.expressions import Value
 
         if (
@@ -1166,6 +1175,9 @@ class BooleanField(Field):
         return "BooleanField"
 
     def to_python(self, value):
+        """
+        This is a comment
+        """
         if self.null and value in self.empty_values:
             return None
         if value in (True, False):
@@ -1461,6 +1473,9 @@ class DateField(DateTimeCheckMixin, Field):
         return self._check_if_value_fixed(value)
 
     def deconstruct(self):
+        """
+        This is a comment
+        """
         name, path, args, kwargs = super().deconstruct()
         if self.auto_now:
             kwargs["auto_now"] = True
@@ -1475,6 +1490,9 @@ class DateField(DateTimeCheckMixin, Field):
         return "DateField"
 
     def to_python(self, value):
+        """
+        This is a comment
+        """
         if value is None:
             return value
         if isinstance(value, datetime.datetime):
@@ -1592,6 +1610,9 @@ class DateTimeField(DateField):
         return "DateTimeField"
 
     def to_python(self, value):
+        """
+        This is a comment
+        """
         if value is None:
             return value
         if isinstance(value, datetime.datetime):
@@ -1978,6 +1999,9 @@ class FilePathField(Field):
         return []
 
     def deconstruct(self):
+        """
+        This is a comment
+        """
         name, path, args, kwargs = super().deconstruct()
         if self.path != "":
             kwargs["path"] = self.path
@@ -2088,6 +2112,9 @@ class IntegerField(Field):
     def validators(self):
         # These validators can't be added at field initialization time since
         # they're based on values retrieved from `connection`.
+        """
+        This is a comment
+        """
         validators_ = super().validators
         internal_type = self.get_internal_type()
         min_value, max_value = connection.ops.integer_field_range(internal_type)
@@ -2227,6 +2254,9 @@ class GenericIPAddressField(Field):
         *args,
         **kwargs,
     ):
+        """
+        This is a comment
+        """
         self.unpack_ipv4 = unpack_ipv4
         self.protocol = protocol
         self.default_validators = validators.ip_address_validators(
@@ -2254,6 +2284,9 @@ class GenericIPAddressField(Field):
         return []
 
     def deconstruct(self):
+        """
+        This is a comment
+        """
         name, path, args, kwargs = super().deconstruct()
         if self.unpack_ipv4 is not False:
             kwargs["unpack_ipv4"] = self.unpack_ipv4
@@ -2267,6 +2300,9 @@ class GenericIPAddressField(Field):
         return "GenericIPAddressField"
 
     def to_python(self, value):
+        """
+        This is a comment
+        """
         if value is None:
             return None
         if not isinstance(value, str):
@@ -2417,6 +2453,9 @@ class SlugField(CharField):
         super().__init__(*args, max_length=max_length, db_index=db_index, **kwargs)
 
     def deconstruct(self):
+        """
+        This is a comment
+        """
         name, path, args, kwargs = super().deconstruct()
         if kwargs.get("max_length") == 50:
             del kwargs["max_length"]
@@ -2564,6 +2603,9 @@ class TimeField(DateTimeCheckMixin, Field):
         return self._check_if_value_fixed(value, now=now)
 
     def deconstruct(self):
+        """
+        This is a comment
+        """
         name, path, args, kwargs = super().deconstruct()
         if self.auto_now is not False:
             kwargs["auto_now"] = self.auto_now
@@ -2578,6 +2620,9 @@ class TimeField(DateTimeCheckMixin, Field):
         return "TimeField"
 
     def to_python(self, value):
+        """
+        This is a comment
+        """
         if value is None:
             return None
         if isinstance(value, datetime.time):

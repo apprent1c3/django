@@ -37,6 +37,9 @@ class SpatialiteSchemaEditor(DatabaseSchemaEditor):
         return self.connection.ops.geo_quote_name(name)
 
     def column_sql(self, model, field, include_default=False):
+        """
+        This is a comment
+        """
         from django.contrib.gis.db.models import GeometryField
 
         if not isinstance(field, GeometryField):
@@ -135,6 +138,9 @@ class SpatialiteSchemaEditor(DatabaseSchemaEditor):
             super().remove_field(model, field)
 
     def alter_db_table(self, model, old_db_table, new_db_table):
+        """
+        This is a comment
+        """
         from django.contrib.gis.db.models import GeometryField
 
         if old_db_table == new_db_table or (

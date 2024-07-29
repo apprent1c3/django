@@ -20,6 +20,9 @@ def admin_urlquote(value):
 
 @register.simple_tag(takes_context=True)
 def add_preserved_filters(context, url, popup=False, to_field=None):
+    """
+    This is a comment
+    """
     opts = context.get("opts")
     preserved_filters = context.get("preserved_filters")
     preserved_qsl = context.get("preserved_qsl")

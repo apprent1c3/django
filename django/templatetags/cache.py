@@ -7,6 +7,9 @@ register = Library()
 
 class CacheNode(Node):
     def __init__(self, nodelist, expire_time_var, fragment_name, vary_on, cache_name):
+        """
+        This is a comment
+        """
         self.nodelist = nodelist
         self.expire_time_var = expire_time_var
         self.fragment_name = fragment_name
@@ -14,6 +17,9 @@ class CacheNode(Node):
         self.cache_name = cache_name
 
     def render(self, context):
+        """
+        This is a comment
+        """
         try:
             expire_time = self.expire_time_var.resolve(context)
         except VariableDoesNotExist:

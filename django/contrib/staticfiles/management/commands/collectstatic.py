@@ -20,6 +20,9 @@ class Command(BaseCommand):
     requires_system_checks = [Tags.staticfiles]
 
     def __init__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         super().__init__(*args, **kwargs)
         self.copied_files = []
         self.symlinked_files = []
@@ -37,6 +40,9 @@ class Command(BaseCommand):
         return True
 
     def add_arguments(self, parser):
+        """
+        This is a comment
+        """
         parser.add_argument(
             "--noinput",
             "--no-input",
@@ -168,6 +174,9 @@ class Command(BaseCommand):
         }
 
     def handle(self, **options):
+        """
+        This is a comment
+        """
         self.set_options(**options)
         message = ["\n"]
         if self.dry_run:

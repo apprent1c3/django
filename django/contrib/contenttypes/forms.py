@@ -19,6 +19,9 @@ class BaseGenericInlineFormSet(BaseModelFormSet):
         queryset=None,
         **kwargs,
     ):
+        """
+        This is a comment
+        """
         opts = self.model._meta
         self.instance = instance
         self.rel_name = (

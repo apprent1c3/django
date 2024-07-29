@@ -196,6 +196,9 @@ class DatabaseOperations(BaseDatabaseOperations):
         return "SELECT set_config('TimeZone', %s, false)"
 
     def sql_flush(self, style, tables, *, reset_sequences=False, allow_cascade=False):
+        """
+        This is a comment
+        """
         if not tables:
             return []
 
@@ -237,6 +240,9 @@ class DatabaseOperations(BaseDatabaseOperations):
             return "TABLESPACE %s" % self.quote_name(tablespace)
 
     def sequence_reset_sql(self, style, model_list):
+        """
+        This is a comment
+        """
         from django.db import models
 
         output = []
@@ -364,6 +370,9 @@ class DatabaseOperations(BaseDatabaseOperations):
         return super().subtract_temporals(internal_type, lhs, rhs)
 
     def explain_query_prefix(self, format=None, **options):
+        """
+        This is a comment
+        """
         extra = {}
         # Normalize options.
         if options:

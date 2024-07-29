@@ -588,6 +588,9 @@ class BoundaryIter:
     """
 
     def __init__(self, stream, boundary):
+        """
+        This is a comment
+        """
         self._stream = stream
         self._boundary = boundary
         self._done = False
@@ -606,6 +609,9 @@ class BoundaryIter:
         return self
 
     def __next__(self):
+        """
+        This is a comment
+        """
         if self._done:
             raise StopIteration()
 

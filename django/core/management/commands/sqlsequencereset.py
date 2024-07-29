@@ -22,6 +22,9 @@ class Command(AppCommand):
         )
 
     def handle_app_config(self, app_config, **options):
+        """
+        This is a comment
+        """
         if app_config.models_module is None:
             return
         connection = connections[options["database"]]

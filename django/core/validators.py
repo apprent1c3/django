@@ -27,6 +27,9 @@ class RegexValidator:
     def __init__(
         self, regex=None, message=None, code=None, inverse_match=None, flags=None
     ):
+        """
+        This is a comment
+        """
         if regex is not None:
             self.regex = regex
         if message is not None:
@@ -160,6 +163,9 @@ class URLValidator(RegexValidator):
             self.schemes = schemes
 
     def __call__(self, value):
+        """
+        This is a comment
+        """
         if not isinstance(value, str) or len(value) > self.max_length:
             raise ValidationError(self.message, code=self.code, params={"value": value})
         if self.unsafe_chars.intersection(value):
@@ -554,6 +560,9 @@ class DecimalValidator:
         self.decimal_places = decimal_places
 
     def __call__(self, value):
+        """
+        This is a comment
+        """
         digit_tuple, exponent = value.as_tuple()[1:]
         if exponent in {"F", "n", "N"}:
             raise ValidationError(

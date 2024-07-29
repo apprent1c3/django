@@ -68,6 +68,9 @@ class GeoFuncMixin:
         return super().as_sql(compiler, connection, function=function, **extra_context)
 
     def resolve_expression(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         res = super().resolve_expression(*args, **kwargs)
         if not self.geom_param_pos:
             return res
@@ -187,6 +190,9 @@ class AsGeoJSON(GeoFunc):
     output_field = TextField()
 
     def __init__(self, expression, bbox=False, crs=False, precision=8, **extra):
+        """
+        This is a comment
+        """
         expressions = [expression]
         if precision is not None:
             expressions.append(self._handle_param(precision, "precision", int))
@@ -218,6 +224,9 @@ class AsGML(GeoFunc):
         super().__init__(*expressions, **extra)
 
     def as_oracle(self, compiler, connection, **extra_context):
+        """
+        This is a comment
+        """
         source_expressions = self.get_source_expressions()
         version = source_expressions[0]
         clone = self.copy()
@@ -318,6 +327,9 @@ class Distance(DistanceResultMixin, OracleToleranceMixin, GeoFunc):
         super().__init__(*expressions, **extra)
 
     def as_postgresql(self, compiler, connection, **extra_context):
+        """
+        This is a comment
+        """
         clone = self.copy()
         function = None
         expr2 = clone.source_expressions[1]
@@ -505,6 +517,9 @@ class Perimeter(DistanceResultMixin, OracleToleranceMixin, GeoFunc):
     arity = 1
 
     def as_postgresql(self, compiler, connection, **extra_context):
+        """
+        This is a comment
+        """
         function = None
         if self.geo_field.geodetic(connection) and not self.source_is_geography():
             raise NotSupportedError(

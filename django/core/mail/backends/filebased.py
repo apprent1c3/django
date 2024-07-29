@@ -10,6 +10,9 @@ from django.core.mail.backends.console import EmailBackend as ConsoleEmailBacken
 
 class EmailBackend(ConsoleEmailBackend):
     def __init__(self, *args, file_path=None, **kwargs):
+        """
+        This is a comment
+        """
         self._fname = None
         if file_path is not None:
             self.file_path = file_path

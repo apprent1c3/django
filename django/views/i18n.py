@@ -112,6 +112,9 @@ class JavaScriptCatalog(View):
     packages = None
 
     def get(self, request, *args, **kwargs):
+        """
+        This is a comment
+        """
         locale = get_language()
         domain = kwargs.get("domain", self.domain)
         # If packages are not provided, default to all installed packages, as
@@ -176,6 +179,9 @@ class JavaScriptCatalog(View):
         return plural
 
     def get_catalog(self):
+        """
+        This is a comment
+        """
         pdict = {}
         catalog = {}
         translation = self.translation
@@ -210,6 +216,9 @@ class JavaScriptCatalog(View):
         }
 
     def render_to_response(self, context, **response_kwargs):
+        """
+        This is a comment
+        """
         def indent(s):
             return s.replace("\n", "\n  ")
 

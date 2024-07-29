@@ -22,6 +22,9 @@ class OperationWriter:
         self.indentation = indentation
 
     def serialize(self):
+        """
+        This is a comment
+        """
         def _write(_arg_name, _arg_value):
             if _arg_name in self.operation.serialization_expand_args and isinstance(
                 _arg_value, (list, tuple, dict)
@@ -210,6 +213,9 @@ class MigrationWriter:
 
     @property
     def basedir(self):
+        """
+        This is a comment
+        """
         migrations_package_name, _ = MigrationLoader.migrations_module(
             self.migration.app_label
         )

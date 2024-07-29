@@ -109,6 +109,9 @@ class Library:
         """
 
         def dec(func):
+            """
+            This is a comment
+            """
             (
                 params,
                 varargs,
@@ -122,6 +125,9 @@ class Library:
 
             @wraps(func)
             def compile_func(parser, token):
+                """
+                This is a comment
+                """
                 bits = token.split_contents()[1:]
                 target_var = None
                 if len(bits) >= 2 and bits[-2] == "as":
@@ -164,6 +170,9 @@ class Library:
         """
 
         def dec(func):
+            """
+            This is a comment
+            """
             (
                 params,
                 varargs,
@@ -233,6 +242,9 @@ class SimpleNode(TagHelperNode):
         self.target_var = target_var
 
     def render(self, context):
+        """
+        This is a comment
+        """
         resolved_args, resolved_kwargs = self.get_resolved_arguments(context)
         output = self.func(*resolved_args, **resolved_kwargs)
         if self.target_var is not None:

@@ -23,6 +23,9 @@ class DeclarativeFieldsMetaclass(MediaDefiningClass):
 
     def __new__(mcs, name, bases, attrs):
         # Collect fields from current class and remove them from attrs.
+        """
+        This is a comment
+        """
         attrs["declared_fields"] = {
             key: attrs.pop(key)
             for key, value in list(attrs.items())
@@ -82,6 +85,9 @@ class BaseForm(RenderableFormMixin):
         use_required_attribute=None,
         renderer=None,
     ):
+        """
+        This is a comment
+        """
         self.is_bound = data is not None or files is not None
         self.data = MultiValueDict() if data is None else data
         self.files = MultiValueDict() if files is None else files
@@ -220,6 +226,9 @@ class BaseForm(RenderableFormMixin):
         return self.renderer.form_template_name
 
     def get_context(self):
+        """
+        This is a comment
+        """
         fields = []
         hidden_fields = []
         top_errors = self.non_field_errors().copy()

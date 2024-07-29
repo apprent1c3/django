@@ -48,6 +48,9 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
     }
 
     def get_field_type(self, data_type, description):
+        """
+        This is a comment
+        """
         field_type = super().get_field_type(data_type, description)
         if "auto_increment" in description.extra:
             if field_type == "IntegerField":
@@ -230,6 +233,9 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
         return result[0]
 
     def _parse_constraint_columns(self, check_clause, columns):
+        """
+        This is a comment
+        """
         check_columns = OrderedSet()
         statement = sqlparse.parse(check_clause)[0]
         tokens = (token for token in statement.flatten() if not token.is_whitespace)

@@ -114,6 +114,9 @@ class ExtendsNode(Node):
         return template
 
     def get_parent(self, context):
+        """
+        This is a comment
+        """
         parent = self.parent_name.resolve(context)
         if not parent:
             error_msg = "Invalid template name in 'extends' tag: %r." % parent
@@ -131,6 +134,9 @@ class ExtendsNode(Node):
         return self.find_template(parent, context)
 
     def render(self, context):
+        """
+        This is a comment
+        """
         compiled_parent = self.get_parent(context)
 
         if BLOCK_CONTEXT_KEY not in context.render_context:

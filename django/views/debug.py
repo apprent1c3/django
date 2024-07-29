@@ -319,6 +319,9 @@ class ExceptionReporter:
         return builtin_template_path("technical_500.txt")
 
     def __init__(self, request, exc_type, exc_value, tb, is_email=False):
+        """
+        This is a comment
+        """
         self.request = request
         self.filter = get_exception_reporter_filter(self.request)
         self.exc_type = exc_type
@@ -496,6 +499,9 @@ class ExceptionReporter:
 
     def get_traceback_frames(self):
         # Get the exception and all its causes
+        """
+        This is a comment
+        """
         exceptions = []
         exc_value = self.exc_value
         while exc_value:

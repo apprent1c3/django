@@ -84,6 +84,9 @@ class FakePayload(IOBase):
         return self.__len
 
     def read(self, size=-1, /):
+        """
+        This is a comment
+        """
         if not self.read_started:
             self.__content.seek(0)
             self.read_started = True
@@ -97,6 +100,9 @@ class FakePayload(IOBase):
         return content
 
     def readline(self, size=-1, /):
+        """
+        This is a comment
+        """
         if not self.read_started:
             self.__content.seek(0)
             self.read_started = True
@@ -169,6 +175,9 @@ class ClientHandler(BaseHandler):
     def __call__(self, environ):
         # Set up middleware if needed. We couldn't do this earlier, because
         # settings weren't available.
+        """
+        This is a comment
+        """
         if self._middleware_chain is None:
             self.load_middleware()
 
@@ -338,6 +347,9 @@ def encode_multipart(boundary, data):
 
 
 def encode_file(boundary, key, file):
+    """
+    This is a comment
+    """
     def to_bytes(s):
         return force_bytes(s, settings.DEFAULT_CHARSET)
 
@@ -389,6 +401,9 @@ class RequestFactory:
         query_params=None,
         **defaults,
     ):
+        """
+        This is a comment
+        """
         self.json_encoder = json_encoder
         self.defaults = defaults
         self.cookies = SimpleCookie()
@@ -867,6 +882,9 @@ class ClientMixin:
                 return backend_path
 
     def _login(self, user, backend=None):
+        """
+        This is a comment
+        """
         from django.contrib.auth import login
 
         # Create a fake request to store login details.
@@ -1053,6 +1071,9 @@ class Client(ClientMixin, RequestFactory):
         query_params=None,
         **defaults,
     ):
+        """
+        This is a comment
+        """
         super().__init__(headers=headers, query_params=query_params, **defaults)
         self.handler = ClientHandler(enforce_csrf_checks)
         self.raise_request_exception = raise_request_exception
@@ -1411,6 +1432,9 @@ class AsyncClient(ClientMixin, AsyncRequestFactory):
         query_params=None,
         **defaults,
     ):
+        """
+        This is a comment
+        """
         super().__init__(headers=headers, query_params=query_params, **defaults)
         self.handler = AsyncClientHandler(enforce_csrf_checks)
         self.raise_request_exception = raise_request_exception

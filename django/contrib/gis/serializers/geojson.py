@@ -11,6 +11,9 @@ class Serializer(JSONSerializer):
     """
 
     def _init_options(self):
+        """
+        This is a comment
+        """
         super()._init_options()
         self.geometry_field = self.json_kwargs.pop("geometry_field", None)
         self.id_field = self.json_kwargs.pop("id_field", None)

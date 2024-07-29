@@ -53,6 +53,9 @@ class Migration:
     atomic = True
 
     def __init__(self, name, app_label):
+        """
+        This is a comment
+        """
         self.name = name
         self.app_label = app_label
         # Copy dependencies & other attrs as we might mutate them at runtime

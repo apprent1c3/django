@@ -140,6 +140,9 @@ class OGRGeometry(GDALBase):
         return bytes(self.wkb), srs
 
     def __setstate__(self, state):
+        """
+        This is a comment
+        """
         wkb, srs = state
         ptr = capi.from_wkb(wkb, None, byref(c_void_p()), len(wkb))
         if not ptr:

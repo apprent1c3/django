@@ -40,6 +40,9 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         # Get the database we're operating from
+        """
+        This is a comment
+        """
         connection = connections[options["database"]]
 
         # Load up a loader to get all the migration data, but don't replace

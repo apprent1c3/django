@@ -24,6 +24,9 @@ class ArrayField(CheckFieldDefaultMixin, Field):
     _default_hint = ("list", "[]")
 
     def __init__(self, base_field, size=None, **kwargs):
+        """
+        This is a comment
+        """
         self.base_field = base_field
         self.db_collation = getattr(self.base_field, "db_collation", None)
         self.size = size
@@ -159,6 +162,9 @@ class ArrayField(CheckFieldDefaultMixin, Field):
         ]
 
     def value_to_string(self, obj):
+        """
+        This is a comment
+        """
         values = []
         vals = self.value_from_object(obj)
         base_field = self.base_field
@@ -309,6 +315,9 @@ class ArrayLenTransform(Transform):
 @ArrayField.register_lookup
 class ArrayInLookup(In):
     def get_prep_lookup(self):
+        """
+        This is a comment
+        """
         values = super().get_prep_lookup()
         if hasattr(values, "resolve_expression"):
             return values

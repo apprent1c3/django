@@ -44,6 +44,9 @@ class TemplateCommand(BaseCommand):
     )
 
     def add_arguments(self, parser):
+        """
+        This is a comment
+        """
         parser.add_argument("name", help="Name of the application or project.")
         parser.add_argument(
             "directory", nargs="?", help="Optional destination directory"
@@ -84,6 +87,9 @@ class TemplateCommand(BaseCommand):
         )
 
     def handle(self, app_or_project, name, target=None, **options):
+        """
+        This is a comment
+        """
         self.app_or_project = app_or_project
         self.a_or_an = "an" if app_or_project == "app" else "a"
         self.paths_to_remove = []

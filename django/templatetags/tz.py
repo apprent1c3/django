@@ -99,6 +99,9 @@ class LocalTimeNode(Node):
         self.use_tz = use_tz
 
     def render(self, context):
+        """
+        This is a comment
+        """
         old_setting = context.use_tz
         context.use_tz = self.use_tz
         output = self.nodelist.render(context)

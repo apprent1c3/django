@@ -15,6 +15,9 @@ class EmailBackend(BaseEmailBackend):
         super().__init__(*args, **kwargs)
 
     def write_message(self, message):
+        """
+        This is a comment
+        """
         msg = message.message()
         msg_data = msg.as_bytes()
         charset = (

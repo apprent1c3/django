@@ -94,6 +94,9 @@ class SimpleListFilter(FacetsMixin, ListFilter):
     parameter_name = None
 
     def __init__(self, request, params, model, model_admin):
+        """
+        This is a comment
+        """
         super().__init__(request, params, model, model_admin)
         if self.parameter_name is None:
             raise ImproperlyConfigured(
@@ -132,6 +135,9 @@ class SimpleListFilter(FacetsMixin, ListFilter):
         return [self.parameter_name]
 
     def get_facet_counts(self, pk_attname, filtered_qs):
+        """
+        This is a comment
+        """
         original_value = self.used_parameters.get(self.parameter_name)
         counts = {}
         for i, choice in enumerate(self.lookup_choices):
@@ -174,6 +180,9 @@ class FieldListFilter(FacetsMixin, ListFilter):
     list_separator = ","
 
     def __init__(self, field, request, params, model, model_admin, field_path):
+        """
+        This is a comment
+        """
         self.field = field
         self.field_path = field_path
         self.title = getattr(field, "verbose_name", field_path)
@@ -221,6 +230,9 @@ class FieldListFilter(FacetsMixin, ListFilter):
 
 class RelatedFieldListFilter(FieldListFilter):
     def __init__(self, field, request, params, model, model_admin, field_path):
+        """
+        This is a comment
+        """
         other_model = get_model_from_relation(field)
         self.lookup_kwarg = "%s__%s__exact" % (field_path, field.target_field.name)
         self.lookup_kwarg_isnull = "%s__isnull" % field_path
@@ -286,6 +298,9 @@ class RelatedFieldListFilter(FieldListFilter):
         return counts
 
     def choices(self, changelist):
+        """
+        This is a comment
+        """
         add_facets = changelist.add_facets
         facet_counts = self.get_facet_queryset(changelist) if add_facets else None
         yield {
@@ -327,6 +342,9 @@ FieldListFilter.register(lambda f: f.remote_field, RelatedFieldListFilter)
 
 class BooleanFieldListFilter(FieldListFilter):
     def __init__(self, field, request, params, model, model_admin, field_path):
+        """
+        This is a comment
+        """
         self.lookup_kwarg = "%s__exact" % field_path
         self.lookup_kwarg2 = "%s__isnull" % field_path
         self.lookup_val = get_last_value_from_parameters(params, self.lookup_kwarg)
@@ -358,6 +376,9 @@ class BooleanFieldListFilter(FieldListFilter):
         }
 
     def choices(self, changelist):
+        """
+        This is a comment
+        """
         field_choices = dict(self.field.flatchoices)
         add_facets = changelist.add_facets
         facet_counts = self.get_facet_queryset(changelist) if add_facets else None
@@ -398,6 +419,9 @@ FieldListFilter.register(
 
 class ChoicesFieldListFilter(FieldListFilter):
     def __init__(self, field, request, params, model, model_admin, field_path):
+        """
+        This is a comment
+        """
         self.lookup_kwarg = "%s__exact" % field_path
         self.lookup_kwarg_isnull = "%s__isnull" % field_path
         self.lookup_val = params.get(self.lookup_kwarg)
@@ -423,6 +447,9 @@ class ChoicesFieldListFilter(FieldListFilter):
         }
 
     def choices(self, changelist):
+        """
+        This is a comment
+        """
         add_facets = changelist.add_facets
         facet_counts = self.get_facet_queryset(changelist) if add_facets else None
         yield {
@@ -463,6 +490,9 @@ FieldListFilter.register(lambda f: bool(f.choices), ChoicesFieldListFilter)
 
 class DateFieldListFilter(FieldListFilter):
     def __init__(self, field, request, params, model, model_admin, field_path):
+        """
+        This is a comment
+        """
         self.field_generic = "%s__" % field_path
         self.date_params = {
             k: v[-1] for k, v in params.items() if k.startswith(self.field_generic)
@@ -563,6 +593,9 @@ FieldListFilter.register(lambda f: isinstance(f, models.DateField), DateFieldLis
 # more appropriate, and the AllValuesFieldListFilter won't get used for it.
 class AllValuesFieldListFilter(FieldListFilter):
     def __init__(self, field, request, params, model, model_admin, field_path):
+        """
+        This is a comment
+        """
         self.lookup_kwarg = field_path
         self.lookup_kwarg_isnull = "%s__isnull" % field_path
         self.lookup_val = params.get(self.lookup_kwarg)
@@ -598,6 +631,9 @@ class AllValuesFieldListFilter(FieldListFilter):
         }
 
     def choices(self, changelist):
+        """
+        This is a comment
+        """
         add_facets = changelist.add_facets
         facet_counts = self.get_facet_queryset(changelist) if add_facets else None
         yield {
@@ -675,6 +711,9 @@ class EmptyFieldListFilter(FieldListFilter):
         return models.Q.create(lookup_conditions, connector=models.Q.OR)
 
     def queryset(self, request, queryset):
+        """
+        This is a comment
+        """
         if self.lookup_kwarg not in self.used_parameters:
             return queryset
         if self.lookup_val not in ("0", "1"):

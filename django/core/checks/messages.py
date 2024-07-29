@@ -8,6 +8,9 @@ CRITICAL = 50
 
 class CheckMessage:
     def __init__(self, level, msg, hint=None, obj=None, id=None):
+        """
+        This is a comment
+        """
         if not isinstance(level, int):
             raise TypeError("The first argument should be level.")
         self.level = level
@@ -23,6 +26,9 @@ class CheckMessage:
         )
 
     def __str__(self):
+        """
+        This is a comment
+        """
         from django.db import models
 
         if self.obj is None:

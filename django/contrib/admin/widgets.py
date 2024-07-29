@@ -40,6 +40,9 @@ class FilteredSelectMultiple(forms.SelectMultiple):
         super().__init__(attrs, choices)
 
     def get_context(self, name, value, attrs):
+        """
+        This is a comment
+        """
         context = super().get_context(name, value, attrs)
         context["widget"]["attrs"]["class"] = "selectfilter"
         if self.is_stacked:
@@ -144,6 +147,9 @@ class ForeignKeyRawIdWidget(forms.TextInput):
         super().__init__(attrs)
 
     def get_context(self, name, value, attrs):
+        """
+        This is a comment
+        """
         context = super().get_context(name, value, attrs)
         rel_to = self.rel.model
         if self.admin_site.is_registered(rel_to):
@@ -261,6 +267,9 @@ class RelatedFieldWidgetWrapper(forms.Widget):
         can_delete_related=False,
         can_view_related=False,
     ):
+        """
+        This is a comment
+        """
         self.needs_multipart_form = widget.needs_multipart_form
         self.attrs = widget.attrs
         self.widget = widget
@@ -283,6 +292,9 @@ class RelatedFieldWidgetWrapper(forms.Widget):
         self.admin_site = admin_site
 
     def __deepcopy__(self, memo):
+        """
+        This is a comment
+        """
         obj = copy.copy(self)
         obj.widget = copy.deepcopy(self.widget, memo)
         obj.attrs = self.widget.attrs
@@ -313,6 +325,9 @@ class RelatedFieldWidgetWrapper(forms.Widget):
         )
 
     def get_context(self, name, value, attrs):
+        """
+        This is a comment
+        """
         from django.contrib.admin.views.main import IS_POPUP_VAR, TO_FIELD_VAR
 
         rel_opts = self.rel.model._meta
@@ -384,6 +399,9 @@ class AdminURLFieldWidget(forms.URLInput):
         self.validator = validator_class()
 
     def get_context(self, name, value, attrs):
+        """
+        This is a comment
+        """
         try:
             self.validator(value if value else "")
             url_valid = True
@@ -495,6 +513,9 @@ class AutocompleteMixin:
     url_name = "%s:autocomplete"
 
     def __init__(self, field, admin_site, attrs=None, choices=(), using=None):
+        """
+        This is a comment
+        """
         self.field = field
         self.admin_site = admin_site
         self.db = using

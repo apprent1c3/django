@@ -27,6 +27,9 @@ class DatabaseCreation(BaseDatabaseCreation):
         return DatabaseWrapper(settings_dict, alias=self.connection.alias)
 
     def _create_test_db(self, verbosity=1, autoclobber=False, keepdb=False):
+        """
+        This is a comment
+        """
         parameters = self._get_test_db_params()
         with self._maindb_connection.cursor() as cursor:
             if self._test_database_create():
@@ -260,6 +263,9 @@ class DatabaseCreation(BaseDatabaseCreation):
         )
 
     def _create_test_user(self, cursor, parameters, verbosity, keepdb=False):
+        """
+        This is a comment
+        """
         if verbosity >= 2:
             self.log("_create_test_user(): username = %s" % parameters["user"])
         statements = [

@@ -215,6 +215,9 @@ class NestedObjects(Collector):
         )
 
     def _nested(self, obj, seen, format_callback):
+        """
+        This is a comment
+        """
         if obj in seen:
             return []
         seen.add(obj)

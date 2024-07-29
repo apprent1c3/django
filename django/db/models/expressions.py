@@ -403,6 +403,9 @@ class BaseExpression:
         return clone
 
     def replace_expressions(self, replacements):
+        """
+        This is a comment
+        """
         if not replacements:
             return self
         if replacement := replacements.get(self):
@@ -512,6 +515,9 @@ class Expression(BaseExpression, Combinable):
 
     @cached_property
     def identity(self):
+        """
+        This is a comment
+        """
         args, kwargs = self._constructor_args
         signature = self._constructor_signature.bind_partial(self, *args, **kwargs)
         signature.apply_defaults()
@@ -734,6 +740,9 @@ class CombinedExpression(SQLiteNumericMixin, Expression):
         return combined_type()
 
     def as_sql(self, compiler, connection):
+        """
+        This is a comment
+        """
         expressions = []
         expression_params = []
         sql, params = compiler.compile(self.lhs)
@@ -750,6 +759,9 @@ class CombinedExpression(SQLiteNumericMixin, Expression):
     def resolve_expression(
         self, query=None, allow_joins=True, reuse=None, summarize=False, for_save=False
     ):
+        """
+        This is a comment
+        """
         lhs = self.lhs.resolve_expression(
             query, allow_joins, reuse, summarize, for_save
         )
@@ -812,6 +824,9 @@ class DurationExpression(CombinedExpression):
         return compiler.compile(side)
 
     def as_sql(self, compiler, connection):
+        """
+        This is a comment
+        """
         if connection.features.has_native_duration_field:
             return super().as_sql(compiler, connection)
         connection.ops.check_expression_support(self)
@@ -1084,6 +1099,9 @@ class Func(SQLiteNumericMixin, Expression):
         arg_joiner=None,
         **extra_context,
     ):
+        """
+        This is a comment
+        """
         connection.ops.check_expression_support(self)
         sql_parts = []
         params = []
@@ -1150,6 +1168,9 @@ class Value(SQLiteNumericMixin, Expression):
         return f"{self.__class__.__name__}({self.value!r})"
 
     def as_sql(self, compiler, connection):
+        """
+        This is a comment
+        """
         connection.ops.check_expression_support(self)
         val = self.value
         output_field = self._output_field_or_none
@@ -1178,6 +1199,9 @@ class Value(SQLiteNumericMixin, Expression):
         return []
 
     def _resolve_output_field(self):
+        """
+        This is a comment
+        """
         if isinstance(self.value, str):
             return fields.CharField()
         if isinstance(self.value, bool):
@@ -1477,6 +1501,9 @@ class When(Expression):
     conditional = False
 
     def __init__(self, condition=None, then=None, **lookups):
+        """
+        This is a comment
+        """
         if lookups:
             if condition is None:
                 condition, lookups = Q(**lookups), None
@@ -1512,6 +1539,9 @@ class When(Expression):
     def resolve_expression(
         self, query=None, allow_joins=True, reuse=None, summarize=False, for_save=False
     ):
+        """
+        This is a comment
+        """
         c = self.copy()
         c.is_summary = summarize
         if hasattr(c.condition, "resolve_expression"):
@@ -1524,6 +1554,9 @@ class When(Expression):
         return c
 
     def as_sql(self, compiler, connection, template=None, **extra_context):
+        """
+        This is a comment
+        """
         connection.ops.check_expression_support(self)
         template_params = extra_context
         sql_params = []
@@ -1568,6 +1601,9 @@ class Case(SQLiteNumericMixin, Expression):
     case_joiner = " "
 
     def __init__(self, *cases, default=None, output_field=None, **extra):
+        """
+        This is a comment
+        """
         if not all(isinstance(case, When) for case in cases):
             raise TypeError("Positional arguments must all be When objects.")
         super().__init__(output_field)
@@ -1593,6 +1629,9 @@ class Case(SQLiteNumericMixin, Expression):
     def resolve_expression(
         self, query=None, allow_joins=True, reuse=None, summarize=False, for_save=False
     ):
+        """
+        This is a comment
+        """
         c = self.copy()
         c.is_summary = summarize
         for pos, case in enumerate(c.cases):
@@ -1612,6 +1651,9 @@ class Case(SQLiteNumericMixin, Expression):
     def as_sql(
         self, compiler, connection, template=None, case_joiner=None, **extra_context
     ):
+        """
+        This is a comment
+        """
         connection.ops.check_expression_support(self)
         if not self.cases:
             return compiler.compile(self.default)
@@ -1694,6 +1736,9 @@ class Subquery(BaseExpression, Combinable):
         return self.query.get_external_cols()
 
     def as_sql(self, compiler, connection, template=None, **extra_context):
+        """
+        This is a comment
+        """
         connection.ops.check_expression_support(self)
         template_params = {**self.extra, **extra_context}
         subquery_sql, sql_params = self.query.as_sql(compiler, connection)
@@ -1741,6 +1786,9 @@ class OrderBy(Expression):
     constraint_validation_compatible = False
 
     def __init__(self, expression, descending=False, nulls_first=None, nulls_last=None):
+        """
+        This is a comment
+        """
         if nulls_first and nulls_last:
             raise ValueError("nulls_first and nulls_last are mutually exclusive")
         if nulls_first is False or nulls_last is False:
@@ -1764,6 +1812,9 @@ class OrderBy(Expression):
         return [self.expression]
 
     def as_sql(self, compiler, connection, template=None, **extra_context):
+        """
+        This is a comment
+        """
         template = template or self.template
         if connection.features.supports_order_by_nulls_modifier:
             if self.nulls_last:
@@ -1845,6 +1896,9 @@ class Window(SQLiteNumericMixin, Expression):
         frame=None,
         output_field=None,
     ):
+        """
+        This is a comment
+        """
         self.partition_by = partition_by
         self.order_by = order_by
         self.frame = frame
@@ -1883,6 +1937,9 @@ class Window(SQLiteNumericMixin, Expression):
         self.source_expression, self.partition_by, self.order_by, self.frame = exprs
 
     def as_sql(self, compiler, connection, template=None):
+        """
+        This is a comment
+        """
         connection.ops.check_expression_support(self)
         if not connection.features.supports_over_clause:
             raise NotSupportedError("This backend does not support window expressions.")

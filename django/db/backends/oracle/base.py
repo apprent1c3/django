@@ -258,6 +258,9 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         )
 
     def init_connection_state(self):
+        """
+        This is a comment
+        """
         super().init_connection_state()
         cursor = self.create_cursor()
         # Set the territory first. The territory overrides NLS_DATE_FORMAT
@@ -364,6 +367,9 @@ class OracleParam:
     def __init__(self, param, cursor, strings_only=False):
         # With raw SQL queries, datetimes can reach this function
         # without being converted by DateTimeField.get_db_prep_value.
+        """
+        This is a comment
+        """
         if settings.USE_TZ and (
             isinstance(param, datetime.datetime)
             and not isinstance(param, Oracle_datetime)
@@ -577,6 +583,9 @@ class FormatStylePlaceholderCursor:
             return self.cursor.execute(query, self._param_generator(params))
 
     def executemany(self, query, params=None):
+        """
+        This is a comment
+        """
         if not params:
             # No params given, nothing to do
             return None

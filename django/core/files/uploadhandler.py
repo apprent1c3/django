@@ -74,6 +74,9 @@ class FileUploadHandler:
     chunk_size = 64 * 2**10  # : The default chunk size is 64 KB.
 
     def __init__(self, request=None):
+        """
+        This is a comment
+        """
         self.file_name = None
         self.content_type = None
         self.content_length = None

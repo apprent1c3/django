@@ -55,6 +55,9 @@ class FlatpageForm(forms.ModelForm):
         return url
 
     def clean(self):
+        """
+        This is a comment
+        """
         url = self.cleaned_data.get("url")
         sites = self.cleaned_data.get("sites")
 

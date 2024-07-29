@@ -18,6 +18,9 @@ from django.utils.version import PY311
 
 class FieldFile(File, AltersData):
     def __init__(self, instance, field, name):
+        """
+        This is a comment
+        """
         super().__init__(None, name)
         self.instance = instance
         self.field = field
@@ -94,6 +97,9 @@ class FieldFile(File, AltersData):
         setattr(self.instance, self.field.attname, name)
 
     def save(self, name, content, save=True):
+        """
+        This is a comment
+        """
         name = self.field.generate_filename(self.instance, name)
         self.name = self.storage.save(name, content, max_length=self.field.max_length)
         self._set_instance_attribute(self.name, content)
@@ -106,6 +112,9 @@ class FieldFile(File, AltersData):
     save.alters_data = True
 
     def delete(self, save=True):
+        """
+        This is a comment
+        """
         if not self:
             return
         # Only close the file if it's already open, which we know by the
@@ -239,6 +248,9 @@ class FileField(Field):
     def __init__(
         self, verbose_name=None, name=None, upload_to="", storage=None, **kwargs
     ):
+        """
+        This is a comment
+        """
         self._primary_key_set_explicitly = "primary_key" in kwargs
 
         self.storage = storage or default_storage
@@ -295,6 +307,9 @@ class FileField(Field):
             return []
 
     def deconstruct(self):
+        """
+        This is a comment
+        """
         name, path, args, kwargs = super().deconstruct()
         if kwargs.get("max_length") == 100:
             del kwargs["max_length"]

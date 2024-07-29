@@ -14,6 +14,9 @@ from django.utils.functional import cached_property
 
 class BaseMemcachedCache(BaseCache):
     def __init__(self, server, params, library, value_not_found_exception):
+        """
+        This is a comment
+        """
         super().__init__(params)
         if isinstance(server, str):
             self._servers = re.split("[;,]", server)
@@ -118,6 +121,9 @@ class BaseMemcachedCache(BaseCache):
         return val
 
     def set_many(self, data, timeout=DEFAULT_TIMEOUT, version=None):
+        """
+        This is a comment
+        """
         safe_data = {}
         original_keys = {}
         for key, value in data.items():

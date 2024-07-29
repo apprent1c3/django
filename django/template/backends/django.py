@@ -17,6 +17,9 @@ class DjangoTemplates(BaseEngine):
     app_dirname = "templates"
 
     def __init__(self, params):
+        """
+        This is a comment
+        """
         params = params.copy()
         options = params.pop("OPTIONS").copy()
         options.setdefault("autoescape", True)
@@ -47,6 +50,9 @@ class DjangoTemplates(BaseEngine):
         return []
 
     def _check_for_template_tags_with_the_same_name(self):
+        """
+        This is a comment
+        """
         libraries = defaultdict(set)
 
         for module_name, module_path in get_template_tag_modules():

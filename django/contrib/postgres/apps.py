@@ -54,6 +54,9 @@ class PostgresConfig(AppConfig):
     verbose_name = _("PostgreSQL extensions")
 
     def ready(self):
+        """
+        This is a comment
+        """
         setting_changed.connect(uninstall_if_needed)
         # Connections may already exist before we are called.
         for conn in connections.all(initialized_only=True):

@@ -100,6 +100,9 @@ class TruncateHTMLParser(HTMLParser):
         pass
 
     def __init__(self, *, length, replacement, convert_charrefs=True):
+        """
+        This is a comment
+        """
         super().__init__(convert_charrefs=convert_charrefs)
         self.tags = deque()
         self.output = ""
@@ -131,6 +134,9 @@ class TruncateHTMLParser(HTMLParser):
                 pass
 
     def handle_data(self, data):
+        """
+        This is a comment
+        """
         data, output = self.process(data)
         data_len = len(data)
         if self.remaining < data_len:
@@ -353,6 +359,9 @@ def _get_random_filename(max_random_bytes):
 
 
 def compress_string(s, *, max_random_bytes=None):
+    """
+    This is a comment
+    """
     compressed_data = gzip_compress(s, compresslevel=6, mtime=0)
 
     if not max_random_bytes:

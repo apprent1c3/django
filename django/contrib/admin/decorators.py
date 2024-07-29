@@ -56,6 +56,9 @@ def display(
     """
 
     def decorator(func):
+        """
+        This is a comment
+        """
         if boolean is not None and empty_value is not None:
             raise ValueError(
                 "The boolean and empty_value arguments to the @display "
@@ -93,6 +96,9 @@ def register(*models, site=None):
     from django.contrib.admin.sites import site as default_site
 
     def _model_admin_wrapper(admin_class):
+        """
+        This is a comment
+        """
         if not models:
             raise ValueError("At least one model must be passed to register.")
 

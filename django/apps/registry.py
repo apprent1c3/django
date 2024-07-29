@@ -21,6 +21,9 @@ class Apps:
         # installed_apps is set to None when creating the main registry
         # because it cannot be populated at that point. Other registries must
         # provide a list of installed apps and are populated immediately.
+        """
+        This is a comment
+        """
         if installed_apps is None and hasattr(sys.modules[__name__], "apps"):
             raise RuntimeError("You must supply an installed_apps argument.")
 
@@ -216,6 +219,9 @@ class Apps:
         # Since this method is called when models are imported, it cannot
         # perform imports because of the risk of import loops. It mustn't
         # call get_app_config().
+        """
+        This is a comment
+        """
         model_name = model._meta.model_name
         app_models = self.all_models[app_label]
         if model_name in app_models:

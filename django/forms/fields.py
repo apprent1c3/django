@@ -135,6 +135,9 @@ class Field:
         #             is its widget is shown in the form but not editable.
         # label_suffix -- Suffix to be added to the label. Overrides
         #                 form's label_suffix.
+        """
+        This is a comment
+        """
         self.required, self.label, self.initial = required, label, initial
         self.show_hidden_initial = show_hidden_initial
         self.help_text = help_text
@@ -254,6 +257,9 @@ class Field:
         return BoundField(form, self, field_name)
 
     def __deepcopy__(self, memo):
+        """
+        This is a comment
+        """
         result = copy.copy(self)
         memo[id(self)] = result
         result.widget = copy.deepcopy(self.widget, memo)
@@ -270,6 +276,9 @@ class CharField(Field):
     def __init__(
         self, *, max_length=None, min_length=None, strip=True, empty_value="", **kwargs
     ):
+        """
+        This is a comment
+        """
         self.max_length = max_length
         self.min_length = min_length
         self.strip = strip
@@ -310,6 +319,9 @@ class IntegerField(Field):
     re_decimal = _lazy_re_compile(r"\.0*\s*$")
 
     def __init__(self, *, max_value=None, min_value=None, step_size=None, **kwargs):
+        """
+        This is a comment
+        """
         self.max_value, self.min_value, self.step_size = max_value, min_value, step_size
         if kwargs.get("localize") and self.widget == NumberInput:
             # Localized number input is not well supported on most browsers
@@ -570,6 +582,9 @@ class DurationField(Field):
         return value
 
     def to_python(self, value):
+        """
+        This is a comment
+        """
         if value in self.empty_values:
             return None
         if isinstance(value, datetime.timedelta):
@@ -602,6 +617,9 @@ class RegexField(CharField):
         return self._regex
 
     def _set_regex(self, regex):
+        """
+        This is a comment
+        """
         if isinstance(regex, str):
             regex = re.compile(regex)
         self._regex = regex
@@ -649,6 +667,9 @@ class FileField(Field):
         super().__init__(**kwargs)
 
     def to_python(self, data):
+        """
+        This is a comment
+        """
         if data in self.empty_values:
             return None
 
@@ -993,6 +1014,9 @@ class MultipleChoiceField(ChoiceField):
                 )
 
     def has_changed(self, initial, data):
+        """
+        This is a comment
+        """
         if self.disabled:
             return False
         if initial is None:
@@ -1210,6 +1234,9 @@ class FilePathField(ChoiceField):
         allow_folders=False,
         **kwargs,
     ):
+        """
+        This is a comment
+        """
         self.path, self.match, self.recursive = path, match, recursive
         self.allow_files, self.allow_folders = allow_files, allow_folders
         super().__init__(choices=(), **kwargs)
@@ -1262,6 +1289,9 @@ class SplitDateTimeField(MultiValueField):
     }
 
     def __init__(self, *, input_date_formats=None, input_time_formats=None, **kwargs):
+        """
+        This is a comment
+        """
         errors = self.default_error_messages.copy()
         if "error_messages" in kwargs:
             errors.update(kwargs["error_messages"])

@@ -45,6 +45,9 @@ class CreateModel(ModelOperation):
     serialization_expand_args = ["fields", "options", "managers"]
 
     def __init__(self, name, fields, options=None, bases=None, managers=None):
+        """
+        This is a comment
+        """
         self.fields = fields
         self.options = options or {}
         self.bases = bases or (models.Model,)
@@ -67,6 +70,9 @@ class CreateModel(ModelOperation):
         _check_for_duplicates("managers", (name for name, _ in self.managers))
 
     def deconstruct(self):
+        """
+        This is a comment
+        """
         kwargs = {
             "name": self.name,
             "fields": self.fields,
@@ -112,6 +118,9 @@ class CreateModel(ModelOperation):
         return self.name_lower
 
     def references_model(self, name, app_label):
+        """
+        This is a comment
+        """
         name_lower = name.lower()
         if name_lower == self.name_lower:
             return True
@@ -493,6 +502,9 @@ class RenameModel(ModelOperation):
                 )
 
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
+        """
+        This is a comment
+        """
         self.new_name_lower, self.old_name_lower = (
             self.old_name_lower,
             self.new_name_lower,
@@ -1002,6 +1014,9 @@ class RenameIndex(IndexOperation):
     category = OperationCategory.ALTERATION
 
     def __init__(self, model_name, new_name, old_name=None, old_fields=None):
+        """
+        This is a comment
+        """
         if not old_name and not old_fields:
             raise ValueError(
                 "RenameIndex requires one of old_name and old_fields arguments to be "
@@ -1054,6 +1069,9 @@ class RenameIndex(IndexOperation):
             )
 
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
+        """
+        This is a comment
+        """
         model = to_state.apps.get_model(app_label, self.model_name)
         if not self.allow_migrate_model(schema_editor.connection.alias, model):
             return
@@ -1094,6 +1112,9 @@ class RenameIndex(IndexOperation):
         schema_editor.rename_index(model, old_index, new_index)
 
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
+        """
+        This is a comment
+        """
         if self.old_fields:
             # Backward operation with unnamed index is a no-op.
             return

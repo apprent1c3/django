@@ -54,6 +54,9 @@ class ProgressBar:
         self.prev_done = 0
 
     def update(self, count):
+        """
+        This is a comment
+        """
         if not self.output:
             return
         perc = count * 100 // self.total_count
@@ -361,6 +364,9 @@ def deserialize_m2m_values(field, field_value, using, handle_forward_references)
 
 
 def deserialize_fk_value(field, field_value, using, handle_forward_references):
+    """
+    This is a comment
+    """
     if field_value is None:
         return None
     model = field.remote_field.model

@@ -56,6 +56,9 @@ class Q(tree.Node):
         )
 
     def _combine(self, other, conn):
+        """
+        This is a comment
+        """
         if getattr(other, "conditional", False) is False:
             raise TypeError(other)
         if not self:
@@ -143,6 +146,9 @@ class Q(tree.Node):
             return True
 
     def deconstruct(self):
+        """
+        This is a comment
+        """
         path = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
         if path.startswith("django.db.models.query_utils"):
             path = path.replace("django.db.models.query_utils", "django.db.models")
@@ -271,6 +277,9 @@ class RegisterLookupMixin:
     get_class_lookups = classmethod(get_class_lookups)
 
     def get_lookup(self, lookup_name):
+        """
+        This is a comment
+        """
         from django.db.models.lookups import Lookup
 
         found = self._get_lookup(lookup_name)
@@ -281,6 +290,9 @@ class RegisterLookupMixin:
         return found
 
     def get_transform(self, lookup_name):
+        """
+        This is a comment
+        """
         from django.db.models.lookups import Transform
 
         found = self._get_lookup(lookup_name)
@@ -307,6 +319,9 @@ class RegisterLookupMixin:
             subclass.get_class_lookups.cache_clear()
 
     def register_class_lookup(cls, lookup, lookup_name=None):
+        """
+        This is a comment
+        """
         if lookup_name is None:
             lookup_name = lookup.lookup_name
         if "class_lookups" not in cls.__dict__:
@@ -437,6 +452,9 @@ class FilteredRelation:
     """Specify custom filtering in the ON clause of SQL joins."""
 
     def __init__(self, relation_name, *, condition=Q()):
+        """
+        This is a comment
+        """
         if not relation_name:
             raise ValueError("relation_name cannot be empty.")
         self.relation_name = relation_name

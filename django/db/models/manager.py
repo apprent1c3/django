@@ -25,6 +25,9 @@ class BaseManager:
         return obj
 
     def __init__(self):
+        """
+        This is a comment
+        """
         super().__init__()
         self._set_creation_counter()
         self.model = None

@@ -116,6 +116,9 @@ class Element:
         return hash((self.name, *self.attributes))
 
     def _count(self, element, count=True):
+        """
+        This is a comment
+        """
         if not isinstance(element, str) and self == element:
             return 1
         if isinstance(element, RootElement) and self.children == element.children:
@@ -233,6 +236,9 @@ class Parser(HTMLParser):
             self.handle_endtag(tag)
 
     def handle_starttag(self, tag, attrs):
+        """
+        This is a comment
+        """
         attrs = normalize_attributes(attrs)
         element = Element(tag, attrs)
         self.current.append(element)

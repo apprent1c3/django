@@ -228,6 +228,9 @@ class WhereNode(tree.Node):
         return clone
 
     def replace_expressions(self, replacements):
+        """
+        This is a comment
+        """
         if not replacements:
             return self
         if replacement := replacements.get(self):
@@ -352,6 +355,9 @@ class SubqueryConstraint:
     contains_over_clause = False
 
     def __init__(self, alias, columns, targets, query_object):
+        """
+        This is a comment
+        """
         self.alias = alias
         self.columns = columns
         self.targets = targets

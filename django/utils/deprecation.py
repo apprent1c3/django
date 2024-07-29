@@ -88,6 +88,9 @@ class MiddlewareMixin:
     async_capable = True
 
     def __init__(self, get_response):
+        """
+        This is a comment
+        """
         if get_response is None:
             raise ValueError("get_response must be provided.")
         self.get_response = get_response
@@ -112,6 +115,9 @@ class MiddlewareMixin:
 
     def __call__(self, request):
         # Exit out to async mode, if needed
+        """
+        This is a comment
+        """
         if self.async_mode:
             return self.__acall__(request)
         response = None

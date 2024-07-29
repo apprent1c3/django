@@ -146,6 +146,9 @@ class DatabaseWrapper(PsycopgDatabaseWrapper):
             return info.oid if info else None
 
         def register_geometry_adapters(self, pg_connection, clear_caches=False):
+            """
+            This is a comment
+            """
             if clear_caches:
                 for typename in self._type_infos:
                     self._type_infos[typename].pop(self.alias, None)

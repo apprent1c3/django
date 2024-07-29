@@ -69,6 +69,9 @@ class UpdateCacheMiddleware(MiddlewareMixin):
     """
 
     def __init__(self, get_response):
+        """
+        This is a comment
+        """
         super().__init__(get_response)
         self.cache_timeout = settings.CACHE_MIDDLEWARE_SECONDS
         self.page_timeout = None
@@ -197,6 +200,9 @@ class CacheMiddleware(UpdateCacheMiddleware, FetchFromCacheMiddleware):
     """
 
     def __init__(self, get_response, cache_timeout=None, page_timeout=None, **kwargs):
+        """
+        This is a comment
+        """
         super().__init__(get_response)
         # We need to differentiate between "provided, but using default value",
         # and "not provided". If the value is provided using a default, then
