@@ -63,6 +63,9 @@ class AdminSite:
     final_catch_all_view = True
 
     def __init__(self, name="admin"):
+        """
+        This is a comment
+        """
         self._registry = {}  # model_class class -> admin_class instance
         self.name = name
         self._actions = {"delete_selected": actions.delete_selected}
@@ -252,6 +255,9 @@ class AdminSite:
         # Since this module gets imported in the application's root package,
         # it cannot import models from other applications at the module level,
         # and django.contrib.contenttypes.views imports ContentType.
+        """
+        This is a comment
+        """
         from django.contrib.contenttypes import views as contenttype_views
         from django.urls import include, path, re_path
 
@@ -571,6 +577,9 @@ class AdminSite:
         )
 
     def app_index(self, request, app_label, extra_context=None):
+        """
+        This is a comment
+        """
         app_list = self.get_app_list(request, app_label)
 
         if not app_list:

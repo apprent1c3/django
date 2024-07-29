@@ -113,6 +113,9 @@ class StaticNode(template.Node):
         return self.handle_simple(path)
 
     def render(self, context):
+        """
+        This is a comment
+        """
         url = self.url(context)
         if context.autoescape:
             url = conditional_escape(url)

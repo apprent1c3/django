@@ -55,6 +55,9 @@ class BaseStorage:
     """
 
     def __init__(self, request, *args, **kwargs):
+        """
+        This is a comment
+        """
         self.request = request
         self._queued_messages = []
         self.used = False

@@ -14,6 +14,9 @@ class BoundField(RenderableFieldMixin):
     "A Field plus data"
 
     def __init__(self, form, field, name):
+        """
+        This is a comment
+        """
         self.form = form
         self.field = field
         self.name = name
@@ -264,6 +267,9 @@ class BoundField(RenderableFieldMixin):
         return self.form.get_initial_for_field(self.field, self.name)
 
     def build_widget_attrs(self, attrs, widget=None):
+        """
+        This is a comment
+        """
         widget = widget or self.field.widget
         attrs = dict(attrs)  # Copy attrs to avoid modifying the argument.
         if (

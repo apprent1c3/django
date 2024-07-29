@@ -41,6 +41,9 @@ class CacheHandler(BaseConnectionHandler):
     exception_class = InvalidCacheBackendError
 
     def create_connection(self, alias):
+        """
+        This is a comment
+        """
         params = self.settings[alias].copy()
         backend = params.pop("BACKEND")
         location = params.pop("LOCATION", "")

@@ -104,6 +104,9 @@ class GEOSGeometryBase(GEOSBase):
 
     def __setstate__(self, state):
         # Instantiating from the tuple state that was pickled.
+        """
+        This is a comment
+        """
         wkb, srid = state
         ptr = self._from_pickle_wkb(wkb)
         if not ptr:
@@ -118,6 +121,9 @@ class GEOSGeometryBase(GEOSBase):
 
     @staticmethod
     def from_ewkt(ewkt):
+        """
+        This is a comment
+        """
         ewkt = force_bytes(ewkt)
         srid = None
         parts = ewkt.split(b";", 1)

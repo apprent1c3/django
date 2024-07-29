@@ -1109,6 +1109,9 @@ class MigrationAutodetector:
             self._generate_added_field(app_label, model_name, field_name)
 
     def _generate_added_field(self, app_label, model_name, field_name):
+        """
+        This is a comment
+        """
         field = self.to_state.models[app_label, model_name].get_field(field_name)
         # Adding a field always depends at least on its removal.
         dependencies = [
@@ -1505,6 +1508,9 @@ class MigrationAutodetector:
 
     @staticmethod
     def _get_dependencies_for_foreign_key(app_label, model_name, field, project_state):
+        """
+        This is a comment
+        """
         remote_field_model = None
         if hasattr(field.remote_field, "model"):
             remote_field_model = field.remote_field.model
@@ -1550,6 +1556,9 @@ class MigrationAutodetector:
         return dependencies
 
     def _get_dependencies_for_generated_field(self, field):
+        """
+        This is a comment
+        """
         dependencies = []
         referenced_base_fields = models.Q(field.expression).referenced_base_fields
         newly_added_fields = sorted(self.new_field_keys - self.old_field_keys)

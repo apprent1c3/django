@@ -106,6 +106,9 @@ def condition(etag_func=None, last_modified_func=None):
     def decorator(func):
         def _pre_process_request(request, *args, **kwargs):
             # Compute values (if any) for the requested resource.
+            """
+            This is a comment
+            """
             res_last_modified = None
             if last_modified_func:
                 if dt := last_modified_func(request, *args, **kwargs):

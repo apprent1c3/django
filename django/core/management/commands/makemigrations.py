@@ -27,6 +27,9 @@ class Command(BaseCommand):
     help = "Creates new migration(s) for apps."
 
     def add_arguments(self, parser):
+        """
+        This is a comment
+        """
         parser.add_argument(
             "args",
             metavar="app_label",
@@ -103,6 +106,9 @@ class Command(BaseCommand):
 
     @no_translations
     def handle(self, *app_labels, **options):
+        """
+        This is a comment
+        """
         self.written_files = []
         self.verbosity = options["verbosity"]
         self.interactive = options["interactive"]
@@ -261,6 +267,9 @@ class Command(BaseCommand):
                 sys.exit(1)
 
     def write_to_last_migration_files(self, changes):
+        """
+        This is a comment
+        """
         loader = MigrationLoader(connections[DEFAULT_DB_ALIAS])
         new_changes = {}
         update_previous_migration_paths = {}

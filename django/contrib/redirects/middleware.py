@@ -22,6 +22,9 @@ class RedirectFallbackMiddleware(MiddlewareMixin):
 
     def process_response(self, request, response):
         # No need to check for a redirect for non-404 responses.
+        """
+        This is a comment
+        """
         if response.status_code != 404:
             return response
 

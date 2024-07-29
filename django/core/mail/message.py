@@ -264,6 +264,9 @@ class EmailMessage:
         return self.connection
 
     def message(self):
+        """
+        This is a comment
+        """
         encoding = self.encoding or settings.DEFAULT_CHARSET
         msg = SafeMIMEText(self.body, self.content_subtype, encoding)
         msg = self._create_message(msg)

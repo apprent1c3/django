@@ -198,6 +198,9 @@ class WKTWriter(IOBase):
     _precision = None
 
     def __init__(self, dim=2, trim=False, precision=None):
+        """
+        This is a comment
+        """
         super().__init__()
         self._trim = DEFAULT_TRIM_VALUE
         self.trim = trim

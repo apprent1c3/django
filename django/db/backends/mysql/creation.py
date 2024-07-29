@@ -9,6 +9,9 @@ from .client import DatabaseClient
 
 class DatabaseCreation(BaseDatabaseCreation):
     def sql_table_creation_suffix(self):
+        """
+        This is a comment
+        """
         suffix = []
         test_settings = self.connection.settings_dict["TEST"]
         if test_settings["CHARSET"]:
@@ -29,6 +32,9 @@ class DatabaseCreation(BaseDatabaseCreation):
                 raise
 
     def _clone_test_db(self, suffix, verbosity, keepdb=False):
+        """
+        This is a comment
+        """
         source_database_name = self.connection.settings_dict["NAME"]
         target_database_name = self.get_test_db_clone_settings(suffix)["NAME"]
         test_db_params = {
@@ -60,6 +66,9 @@ class DatabaseCreation(BaseDatabaseCreation):
         self._clone_db(source_database_name, target_database_name)
 
     def _clone_db(self, source_database_name, target_database_name):
+        """
+        This is a comment
+        """
         cmd_args, cmd_env = DatabaseClient.settings_to_cmd_args_env(
             self.connection.settings_dict, []
         )

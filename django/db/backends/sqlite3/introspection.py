@@ -169,6 +169,9 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
         return [name for _, name, *_, pk in cursor.fetchall() if pk]
 
     def _parse_column_or_constraint_definition(self, tokens, columns):
+        """
+        This is a comment
+        """
         token = None
         is_constraint_definition = None
         field_name = None
@@ -271,6 +274,9 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
     def _parse_table_constraints(self, sql, columns):
         # Check constraint parsing is based of SQLite syntax diagram.
         # https://www.sqlite.org/syntaxdiagrams.html#table-constraint
+        """
+        This is a comment
+        """
         statement = sqlparse.parse(sql)[0]
         constraints = {}
         unnamed_constrains_index = 0
@@ -413,6 +419,9 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
         return None
 
     def _get_column_collations(self, cursor, table_name):
+        """
+        This is a comment
+        """
         row = cursor.execute(
             """
             SELECT sql

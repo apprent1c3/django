@@ -12,6 +12,9 @@ class Tok:
     num = 0
 
     def __init__(self, name, regex, next=None):
+        """
+        This is a comment
+        """
         self.id = Tok.num
         Tok.num += 1
         self.name = name

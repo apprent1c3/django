@@ -72,6 +72,9 @@ if not PY311:
     # Backport of unittest.case._enter_context() from Python 3.11.
     def _enter_context(cm, addcleanup):
         # Look up the special methods on the type to match the with statement.
+        """
+        This is a comment
+        """
         cls = type(cm)
         try:
             enter = cls.__enter__
@@ -142,6 +145,9 @@ class _AssertNumQueriesContext(CaptureQueriesContext):
 
 class _AssertTemplateUsedContext:
     def __init__(self, test_case, template_name, msg_prefix="", count=None):
+        """
+        This is a comment
+        """
         self.test_case = test_case
         self.template_name = template_name
         self.msg_prefix = msg_prefix
@@ -222,6 +228,9 @@ class SimpleTestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        """
+        This is a comment
+        """
         super().setUpClass()
         if cls._overridden_settings:
             cls.enterClassContext(override_settings(**cls._overridden_settings))
@@ -556,6 +565,9 @@ class SimpleTestCase(unittest.TestCase):
     def _assert_contains(self, response, text, status_code, msg_prefix, html):
         # If the response supports deferred rendering and hasn't been rendered
         # yet, then ensure that it does get rendered before proceeding further.
+        """
+        This is a comment
+        """
         if (
             hasattr(response, "render")
             and callable(response.render)
@@ -736,6 +748,9 @@ class SimpleTestCase(unittest.TestCase):
             )
 
     def _get_template_used(self, response, template_name, msg_prefix, method_name):
+        """
+        This is a comment
+        """
         if response is None and template_name is None:
             raise TypeError("response and/or template_name argument must be provided")
 
@@ -828,6 +843,9 @@ class SimpleTestCase(unittest.TestCase):
     def _assertFooMessage(
         self, func, cm_attr, expected_exception, expected_message, *args, **kwargs
     ):
+        """
+        This is a comment
+        """
         callable_obj = None
         if args:
             callable_obj, *args = args
@@ -968,6 +986,9 @@ class SimpleTestCase(unittest.TestCase):
             self.fail(self._formatMessage(msg, standardMsg))
 
     def assertInHTML(self, needle, haystack, count=None, msg_prefix=""):
+        """
+        This is a comment
+        """
         parsed_needle = assert_and_parse_html(
             self, needle, None, "First argument is not valid HTML:"
         )
@@ -1242,6 +1263,9 @@ class TransactionTestCase(SimpleTestCase):
             )
 
     def assertQuerySetEqual(self, qs, values, transform=None, ordered=True, msg=None):
+        """
+        This is a comment
+        """
         values = list(values)
         items = qs
         if transform is not None:
@@ -1320,6 +1344,9 @@ class TestData:
         return memo
 
     def __get__(self, instance, owner):
+        """
+        This is a comment
+        """
         if instance is None:
             return self.data
         memo = self.get_memo(instance)
@@ -1373,6 +1400,9 @@ class TestCase(TransactionTestCase):
 
     @classmethod
     def setUpClass(cls):
+        """
+        This is a comment
+        """
         super().setUpClass()
         if not (
             cls._databases_support_transactions()
@@ -1699,6 +1729,9 @@ class LiveServerThread(threading.Thread):
     server_class = ThreadedWSGIServer
 
     def __init__(self, host, static_handler, connections_override=None, port=0):
+        """
+        This is a comment
+        """
         self.host = host
         self.port = port
         self.is_ready = threading.Event()
@@ -1796,6 +1829,9 @@ class LiveServerTestCase(TransactionTestCase):
 
     @classmethod
     def _start_server_thread(cls):
+        """
+        This is a comment
+        """
         connections_override = cls._make_connections_override()
         for conn in connections_override.values():
             # Explicitly enable thread-shareability for this connection.

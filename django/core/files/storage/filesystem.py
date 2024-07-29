@@ -34,6 +34,9 @@ class FileSystemStorage(Storage, StorageSettingsMixin):
         directory_permissions_mode=None,
         allow_overwrite=False,
     ):
+        """
+        This is a comment
+        """
         self._location = location
         self._base_url = base_url
         self._file_permissions_mode = file_permissions_mode
@@ -80,6 +83,9 @@ class FileSystemStorage(Storage, StorageSettingsMixin):
         return File(open(self.path(name), mode))
 
     def _save(self, name, content):
+        """
+        This is a comment
+        """
         full_path = self.path(name)
 
         # Create any intermediate directories that do not exist.

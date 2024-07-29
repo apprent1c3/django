@@ -34,6 +34,9 @@ class ExclusionConstraint(BaseConstraint):
         violation_error_code=None,
         violation_error_message=None,
     ):
+        """
+        This is a comment
+        """
         if index_type and index_type.lower() not in {"gist", "spgist"}:
             raise ValueError(
                 "Exclusion constraints only support GiST or SP-GiST indexes."
@@ -92,6 +95,9 @@ class ExclusionConstraint(BaseConstraint):
         return sql % tuple(schema_editor.quote_value(p) for p in params)
 
     def constraint_sql(self, model, schema_editor):
+        """
+        This is a comment
+        """
         query = Query(model, alias_cols=False)
         compiler = query.get_compiler(connection=schema_editor.connection)
         expressions = self._get_expressions(schema_editor, query)
@@ -128,6 +134,9 @@ class ExclusionConstraint(BaseConstraint):
         )
 
     def deconstruct(self):
+        """
+        This is a comment
+        """
         path, args, kwargs = super().deconstruct()
         kwargs["expressions"] = self.expressions
         if self.condition is not None:
@@ -177,6 +186,9 @@ class ExclusionConstraint(BaseConstraint):
         )
 
     def validate(self, model, instance, exclude=None, using=DEFAULT_DB_ALIAS):
+        """
+        This is a comment
+        """
         queryset = model._default_manager.using(using)
         replacement_map = instance._get_field_value_map(
             meta=model._meta, exclude=exclude

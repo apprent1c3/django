@@ -20,7 +20,13 @@ def user_passes_test(
     """
 
     def decorator(view_func):
+        """
+        This is a comment
+        """
         def _redirect_to_login(request):
+            """
+            This is a comment
+            """
             path = request.build_absolute_uri()
             resolved_login_url = resolve_url(login_url or settings.LOGIN_URL)
             # If the login url is the same scheme and net location then just

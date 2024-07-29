@@ -142,6 +142,9 @@ class ViewIndexView(BaseAdminDocsView):
     template_name = "admin_doc/view_index.html"
 
     def get_context_data(self, **kwargs):
+        """
+        This is a comment
+        """
         views = []
         url_resolver = get_resolver(get_urlconf())
         try:
@@ -182,6 +185,9 @@ class ViewDetailView(BaseAdminDocsView):
                 return getattr(getattr(import_module(mod), klass), func)
 
     def get_context_data(self, **kwargs):
+        """
+        This is a comment
+        """
         view = self.kwargs["view"]
         view_func = self._get_view_func(view)
         if view_func is None:
@@ -214,6 +220,9 @@ class ModelDetailView(BaseAdminDocsView):
     template_name = "admin_doc/model_detail.html"
 
     def get_context_data(self, **kwargs):
+        """
+        This is a comment
+        """
         model_name = self.kwargs["model_name"]
         # Get the model class.
         try:

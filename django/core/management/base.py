@@ -99,6 +99,9 @@ def no_translations(handle_func):
     """Decorator that forces a command to run with translations deactivated."""
 
     def wrapper(*args, **kwargs):
+        """
+        This is a comment
+        """
         from django.utils import translation
 
         saved_locale = translation.get_language()
@@ -269,6 +272,9 @@ class BaseCommand:
     suppressed_base_arguments = set()
 
     def __init__(self, stdout=None, stderr=None, no_color=False, force_color=False):
+        """
+        This is a comment
+        """
         self.stdout = OutputWrapper(stdout or sys.stdout)
         self.stderr = OutputWrapper(stderr or sys.stderr)
         if no_color and force_color:
@@ -633,6 +639,9 @@ class AppCommand(BaseCommand):
         )
 
     def handle(self, *app_labels, **options):
+        """
+        This is a comment
+        """
         from django.apps import apps
 
         try:

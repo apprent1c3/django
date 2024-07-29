@@ -98,6 +98,9 @@ class ProjectState:
     """
 
     def __init__(self, models=None, real_apps=None):
+        """
+        This is a comment
+        """
         self.models = models or {}
         # Apps to include from main registry, usually unmigrated ones
         if real_apps is None:
@@ -141,6 +144,9 @@ class ProjectState:
 
     def rename_model(self, app_label, old_name, new_name):
         # Add a new model.
+        """
+        This is a comment
+        """
         old_name_lower = old_name.lower()
         new_name_lower = new_name.lower()
         renamed_model = self.models[app_label, old_name_lower].clone()
@@ -218,6 +224,9 @@ class ProjectState:
         self._remove_option(app_label, model_name, "indexes", index_name)
 
     def rename_index(self, app_label, model_name, old_index_name, new_index_name):
+        """
+        This is a comment
+        """
         model_state = self.models[app_label, model_name]
         objs = model_state.options["indexes"]
 
@@ -239,6 +248,9 @@ class ProjectState:
 
     def add_field(self, app_label, model_name, name, field, preserve_default):
         # If preserve default is off, don't use the default for future state.
+        """
+        This is a comment
+        """
         if not preserve_default:
             field = field.clone()
             field.default = NOT_PROVIDED
@@ -253,6 +265,9 @@ class ProjectState:
         self.reload_model(*model_key, delay=delay)
 
     def remove_field(self, app_label, model_name, name):
+        """
+        This is a comment
+        """
         model_key = app_label, model_name
         model_state = self.models[model_key]
         old_field = model_state.fields.pop(name)
@@ -263,6 +278,9 @@ class ProjectState:
         self.reload_model(*model_key, delay=delay)
 
     def alter_field(self, app_label, model_name, name, field, preserve_default):
+        """
+        This is a comment
+        """
         if not preserve_default:
             field = field.clone()
             field.default = NOT_PROVIDED
@@ -289,6 +307,9 @@ class ProjectState:
         self.reload_model(*model_key, delay=delay)
 
     def rename_field(self, app_label, model_name, old_name, new_name):
+        """
+        This is a comment
+        """
         model_key = app_label, model_name
         model_state = self.models[model_key]
         # Rename the field.
@@ -344,6 +365,9 @@ class ProjectState:
         self.reload_model(*model_key, delay=delay)
 
     def _find_reload_model(self, app_label, model_name, delay=False):
+        """
+        This is a comment
+        """
         if delay:
             self.is_delayed = True
 
@@ -409,6 +433,9 @@ class ProjectState:
 
     def _reload(self, related_models):
         # Unregister all related models
+        """
+        This is a comment
+        """
         with self.apps.bulk_update():
             for rel_app_label, rel_model_name in related_models:
                 self.apps.unregister_model(rel_app_label, rel_model_name)
@@ -463,6 +490,9 @@ class ProjectState:
         field,
         concretes=None,
     ):
+        """
+        This is a comment
+        """
         remote_field = field.remote_field
         if not remote_field:
             return
@@ -494,6 +524,9 @@ class ProjectState:
 
     def resolve_fields_and_relations(self):
         # Resolve fields.
+        """
+        This is a comment
+        """
         for model_state in self.models.values():
             for field_name, field in model_state.fields.items():
                 field.name = field_name
@@ -605,6 +638,9 @@ class StateApps(Apps):
         # are some variables that refer to the Apps object.
         # FKs/M2Ms from real apps are also not included as they just
         # mess things up with partial states (due to lack of dependencies)
+        """
+        This is a comment
+        """
         self.real_models = []
         for app_label in real_apps:
             app = global_apps.get_app_config(app_label)
@@ -691,6 +727,9 @@ class StateApps(Apps):
         return clone
 
     def register_model(self, app_label, model):
+        """
+        This is a comment
+        """
         self.all_models[app_label][model._meta.model_name] = model
         if app_label not in self.app_configs:
             self.app_configs[app_label] = AppConfigStub(app_label)
@@ -721,6 +760,9 @@ class ModelState:
     def __init__(
         self, app_label, name, fields, options=None, bases=None, managers=None
     ):
+        """
+        This is a comment
+        """
         self.app_label = app_label
         self.name = name
         self.fields = dict(fields)

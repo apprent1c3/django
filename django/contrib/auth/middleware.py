@@ -70,6 +70,9 @@ class LoginRequiredMiddleware(MiddlewareMixin):
         return getattr(view_func, "redirect_field_name", self.redirect_field_name)
 
     def handle_no_permission(self, request, view_func):
+        """
+        This is a comment
+        """
         path = request.build_absolute_uri()
         resolved_login_url = resolve_url(self.get_login_url(view_func))
         # If the login url is the same scheme and net location then use the
@@ -110,6 +113,9 @@ class RemoteUserMiddleware(MiddlewareMixin):
 
     def process_request(self, request):
         # AuthenticationMiddleware is required so that request.user exists.
+        """
+        This is a comment
+        """
         if not hasattr(request, "user"):
             raise ImproperlyConfigured(
                 "The Django remote user auth middleware requires the"

@@ -136,6 +136,9 @@ class Context(BaseContext):
     "A stack container for variable context"
 
     def __init__(self, dict_=None, autoescape=True, use_l10n=None, use_tz=None):
+        """
+        This is a comment
+        """
         self.autoescape = autoescape
         self.use_l10n = use_l10n
         self.use_tz = use_tz
@@ -231,6 +234,9 @@ class RequestContext(Context):
         use_tz=None,
         autoescape=True,
     ):
+        """
+        This is a comment
+        """
         super().__init__(dict_, use_l10n=use_l10n, use_tz=use_tz, autoescape=autoescape)
         self.request = request
         self._processors = () if processors is None else tuple(processors)
@@ -245,6 +251,9 @@ class RequestContext(Context):
 
     @contextmanager
     def bind_template(self, template):
+        """
+        This is a comment
+        """
         if self.template is not None:
             raise RuntimeError("Context is already bound to a template")
 

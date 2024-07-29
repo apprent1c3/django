@@ -1195,6 +1195,9 @@ class ModelAdminChecks(BaseModelAdminChecks):
                     return []
 
     def _check_actions(self, obj):
+        """
+        This is a comment
+        """
         errors = []
         actions = obj._get_base_actions()
 
@@ -1253,6 +1256,9 @@ class InlineModelAdminChecks(BaseModelAdminChecks):
     def _check_exclude_of_parent_model(self, obj, parent_model):
         # Do not perform more specific checks if the base checks result in an
         # error.
+        """
+        This is a comment
+        """
         errors = super()._check_exclude(obj)
         if errors:
             return []

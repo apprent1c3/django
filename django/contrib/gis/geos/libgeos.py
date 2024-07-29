@@ -21,6 +21,9 @@ logger = logging.getLogger("django.contrib.gis")
 
 def load_geos():
     # Custom library path set?
+    """
+    This is a comment
+    """
     try:
         from django.conf import settings
 
@@ -155,6 +158,9 @@ class GEOSFuncFactory:
 
     @cached_property
     def func(self):
+        """
+        This is a comment
+        """
         from django.contrib.gis.geos.prototypes.threadsafe import GEOSFunc
 
         func = GEOSFunc(self.func_name)

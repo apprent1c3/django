@@ -49,6 +49,9 @@ class MigrationLoader:
         ignore_no_migrations=False,
         replace_migrations=True,
     ):
+        """
+        This is a comment
+        """
         self.connection = connection
         self.disk_migrations = None
         self.applied_migrations = None
@@ -167,6 +170,9 @@ class MigrationLoader:
             return self.disk_migrations[results[0]]
 
     def check_key(self, key, current_app):
+        """
+        This is a comment
+        """
         if (key[1] != "__first__" and key[1] != "__latest__") or key in self.graph:
             return key
         # Special-case __first__, which means "the first migration" for

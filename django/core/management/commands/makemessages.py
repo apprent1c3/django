@@ -225,6 +225,9 @@ class Command(BaseCommand):
     xgettext_options = ["--from-code=UTF-8", "--add-comments=Translators"]
 
     def add_arguments(self, parser):
+        """
+        This is a comment
+        """
         parser.add_argument(
             "--locale",
             "-l",
@@ -324,6 +327,9 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+        """
+        This is a comment
+        """
         locale = options["locale"]
         exclude = options["exclude"]
         self.domain = options["domain"]

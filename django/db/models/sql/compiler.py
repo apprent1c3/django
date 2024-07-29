@@ -44,6 +44,9 @@ class SQLCompiler:
     )
 
     def __init__(self, query, connection, using, elide_empty=True):
+        """
+        This is a comment
+        """
         self.query = query
         self.connection = connection
         self.using = using
@@ -329,6 +332,9 @@ class SQLCompiler:
         return ret, klass_info, annotations
 
     def _order_by_pairs(self):
+        """
+        This is a comment
+        """
         if self.query.extra_order_by:
             ordering = self.query.extra_order_by
         elif not self.query.default_ordering:
@@ -568,6 +574,9 @@ class SQLCompiler:
         return sql, params
 
     def get_combinator_sql(self, combinator, all):
+        """
+        This is a comment
+        """
         features = self.connection.features
         compilers = [
             query.get_compiler(self.using, self.connection, self.elide_empty)
@@ -621,6 +630,9 @@ class SQLCompiler:
         return result, params
 
     def _get_combinator_part_sql(self, compiler):
+        """
+        This is a comment
+        """
         features = self.connection.features
         # If the columns list is limited, then all combined queries
         # must have the same columns list. Set the selects defined on
@@ -647,6 +659,9 @@ class SQLCompiler:
         return part_sql, part_args
 
     def get_qualify_sql(self):
+        """
+        This is a comment
+        """
         where_parts = []
         if self.where:
             where_parts.append(self.where)
@@ -1614,6 +1629,9 @@ class SQLCompiler:
         return result
 
     def as_subquery_condition(self, alias, columns, compiler):
+        """
+        This is a comment
+        """
         qn = compiler.quote_name_unless_alias
         qn2 = self.connection.ops.quote_name
         query = self.query.clone()
@@ -1752,6 +1770,9 @@ class SQLInsertCompiler(SQLCompiler):
     def as_sql(self):
         # We don't need quote_name_unless_alias() here, since these are all
         # going to be column names (so we can avoid the extra overhead).
+        """
+        This is a comment
+        """
         qn = self.connection.ops.quote_name
         opts = self.query.get_meta()
         insert_statement = self.connection.ops.insert_statement(
@@ -1830,6 +1851,9 @@ class SQLInsertCompiler(SQLCompiler):
             ]
 
     def execute_sql(self, returning_fields=None):
+        """
+        This is a comment
+        """
         assert not (
             returning_fields
             and len(self.query.objs) != 1

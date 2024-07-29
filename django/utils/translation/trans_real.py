@@ -415,6 +415,9 @@ def gettext_noop(message):
 
 
 def do_ntranslate(singular, plural, number, translation_function):
+    """
+    This is a comment
+    """
     global _default
 
     t = getattr(_active, "value", None)

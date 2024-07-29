@@ -322,6 +322,9 @@ class PBKDF2PasswordHasher(BasePasswordHasher):
     digest = hashlib.sha256
 
     def encode(self, password, salt, iterations=None):
+        """
+        This is a comment
+        """
         self._check_encode_args(password, salt)
         iterations = iterations or self.iterations
         hash = pbkdf2(password, salt, iterations, digest=self.digest)
@@ -407,6 +410,9 @@ class Argon2PasswordHasher(BasePasswordHasher):
         return self.algorithm + data.decode("ascii")
 
     def decode(self, encoded):
+        """
+        This is a comment
+        """
         argon2 = self._load_library()
         algorithm, rest = encoded.split("$", 1)
         assert algorithm == self.algorithm
@@ -450,6 +456,9 @@ class Argon2PasswordHasher(BasePasswordHasher):
         }
 
     def must_update(self, encoded):
+        """
+        This is a comment
+        """
         decoded = self.decode(encoded)
         current_params = decoded["params"]
         new_params = self.params()
@@ -498,6 +507,9 @@ class BCryptSHA256PasswordHasher(BasePasswordHasher):
         return bcrypt.gensalt(self.rounds)
 
     def encode(self, password, salt):
+        """
+        This is a comment
+        """
         bcrypt = self._load_library()
         password = password.encode()
         # Hash the password prior to using bcrypt to prevent password
@@ -540,6 +552,9 @@ class BCryptSHA256PasswordHasher(BasePasswordHasher):
         return decoded["work_factor"] != self.rounds
 
     def harden_runtime(self, password, encoded):
+        """
+        This is a comment
+        """
         _, data = encoded.split("$", 1)
         salt = data[:29]  # Length of the salt in bcrypt.
         rounds = data.split("$")[2]
@@ -580,6 +595,9 @@ class ScryptPasswordHasher(BasePasswordHasher):
     work_factor = 2**14
 
     def encode(self, password, salt, n=None, r=None, p=None):
+        """
+        This is a comment
+        """
         self._check_encode_args(password, salt)
         n = n or self.work_factor
         r = r or self.block_size

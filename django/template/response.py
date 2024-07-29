@@ -23,6 +23,9 @@ class SimpleTemplateResponse(HttpResponse):
         # It would seem obvious to call these next two members 'template' and
         # 'context', but those names are reserved as part of the test Client
         # API. To avoid the name collision, we use different names.
+        """
+        This is a comment
+        """
         self.template_name = template
         self.context_data = context
 

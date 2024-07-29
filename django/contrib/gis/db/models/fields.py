@@ -189,6 +189,9 @@ class BaseSpatialField(Field):
                 )
 
     def get_prep_value(self, value):
+        """
+        This is a comment
+        """
         obj = super().get_prep_value(value)
         if obj is None:
             return None
@@ -278,6 +281,9 @@ class GeometryField(BaseSpatialField):
         super().__init__(verbose_name=verbose_name, **kwargs)
 
     def deconstruct(self):
+        """
+        This is a comment
+        """
         name, path, args, kwargs = super().deconstruct()
         # Include kwargs if they're not the default values.
         if self.dim != 2:

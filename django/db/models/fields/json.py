@@ -35,6 +35,9 @@ class JSONField(CheckFieldDefaultMixin, Field):
         decoder=None,
         **kwargs,
     ):
+        """
+        This is a comment
+        """
         if encoder and not callable(encoder):
             raise ValueError("The encoder parameter must be a callable object.")
         if decoder and not callable(decoder):
@@ -161,6 +164,9 @@ class DataContains(FieldGetDbPrepValueMixin, PostgresOperatorLookup):
     postgres_operator = "@>"
 
     def as_sql(self, compiler, connection):
+        """
+        This is a comment
+        """
         if not connection.features.supports_json_field_contains:
             raise NotSupportedError(
                 "contains lookup is not supported on this database backend."
@@ -176,6 +182,9 @@ class ContainedBy(FieldGetDbPrepValueMixin, PostgresOperatorLookup):
     postgres_operator = "<@"
 
     def as_sql(self, compiler, connection):
+        """
+        This is a comment
+        """
         if not connection.features.supports_json_field_contains:
             raise NotSupportedError(
                 "contained_by lookup is not supported on this database backend."
@@ -195,6 +204,9 @@ class HasKeyLookup(PostgresOperatorLookup):
 
     def as_sql(self, compiler, connection, template=None):
         # Process JSON path from the left-hand side.
+        """
+        This is a comment
+        """
         if isinstance(self.lhs, KeyTransform):
             lhs, lhs_params, lhs_key_transforms = self.lhs.preprocess_lhs(
                 compiler, connection
@@ -341,6 +353,9 @@ class KeyTransform(Transform):
         self.key_name = str(key_name)
 
     def preprocess_lhs(self, compiler, connection):
+        """
+        This is a comment
+        """
         key_transforms = [self.key_name]
         previous = self.lhs
         while isinstance(previous, KeyTransform):

@@ -20,6 +20,9 @@ class SimpleArrayField(forms.CharField):
     def __init__(
         self, base_field, *, delimiter=",", max_length=None, min_length=None, **kwargs
     ):
+        """
+        This is a comment
+        """
         self.base_field = base_field
         self.delimiter = delimiter
         super().__init__(**kwargs)
@@ -42,6 +45,9 @@ class SimpleArrayField(forms.CharField):
         return value
 
     def to_python(self, value):
+        """
+        This is a comment
+        """
         if isinstance(value, list):
             items = value
         elif value:
@@ -144,6 +150,9 @@ class SplitArrayWidget(forms.Widget):
         return id_
 
     def get_context(self, name, value, attrs=None):
+        """
+        This is a comment
+        """
         attrs = {} if attrs is None else attrs
         context = super().get_context(name, value, attrs)
         if self.is_localized:
@@ -186,6 +195,9 @@ class SplitArrayField(forms.Field):
     }
 
     def __init__(self, base_field, size, *, remove_trailing_nulls=False, **kwargs):
+        """
+        This is a comment
+        """
         self.base_field = base_field
         self.size = size
         self.remove_trailing_nulls = remove_trailing_nulls
@@ -210,6 +222,9 @@ class SplitArrayField(forms.Field):
         return [self.base_field.to_python(item) for item in value]
 
     def clean(self, value):
+        """
+        This is a comment
+        """
         cleaned_data = []
         errors = []
         if not any(value) and self.required:

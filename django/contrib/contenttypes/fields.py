@@ -42,6 +42,9 @@ class GenericForeignKey(FieldCacheMixin, Field):
     def __init__(
         self, ct_field="content_type", fk_field="object_id", for_concrete_model=True
     ):
+        """
+        This is a comment
+        """
         super().__init__(editable=False)
         self.ct_field = ct_field
         self.fk_field = fk_field
@@ -171,6 +174,9 @@ class GenericForeignKey(FieldCacheMixin, Field):
         return self.get_prefetch_querysets(instances, [queryset])
 
     def get_prefetch_querysets(self, instances, querysets=None):
+        """
+        This is a comment
+        """
         custom_queryset_dict = {}
         if querysets is not None:
             for queryset in querysets:
@@ -233,6 +239,9 @@ class GenericForeignKey(FieldCacheMixin, Field):
         )
 
     def __get__(self, instance, cls=None):
+        """
+        This is a comment
+        """
         if instance is None:
             return self
 
@@ -268,6 +277,9 @@ class GenericForeignKey(FieldCacheMixin, Field):
         return rel_obj
 
     def __set__(self, instance, value):
+        """
+        This is a comment
+        """
         ct = None
         fk = None
         if value is not None:
@@ -330,6 +342,9 @@ class GenericRelation(ForeignObject):
         limit_choices_to=None,
         **kwargs,
     ):
+        """
+        This is a comment
+        """
         kwargs["rel"] = self.rel_class(
             self,
             to,
@@ -483,6 +498,9 @@ class GenericRelation(ForeignObject):
         return str([instance.pk for instance in qs])
 
     def contribute_to_class(self, cls, name, **kwargs):
+        """
+        This is a comment
+        """
         kwargs["private_only"] = True
         super().contribute_to_class(cls, name, **kwargs)
         self.model = cls
@@ -576,6 +594,9 @@ def create_generic_related_manager(superclass, rel):
 
     class GenericRelatedObjectManager(superclass, AltersData):
         def __init__(self, instance=None):
+            """
+            This is a comment
+            """
             super().__init__()
 
             self.instance = instance
@@ -638,6 +659,9 @@ def create_generic_related_manager(superclass, rel):
             return self.get_prefetch_querysets(instances, [queryset])
 
         def get_prefetch_querysets(self, instances, querysets=None):
+            """
+            This is a comment
+            """
             if querysets and len(querysets) != 1:
                 raise ValueError(
                     "querysets argument of get_prefetch_querysets() should have a "
@@ -786,6 +810,9 @@ def create_generic_related_manager(superclass, rel):
         aset.alters_data = True
 
         def create(self, **kwargs):
+            """
+            This is a comment
+            """
             self._remove_prefetched_objects()
             kwargs[self.content_type_field_name] = self.content_type
             kwargs[self.object_id_field_name] = self.pk_val

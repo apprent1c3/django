@@ -96,6 +96,9 @@ class GenericInlineModelAdmin(InlineModelAdmin):
     checks_class = GenericInlineModelAdminChecks
 
     def get_formset(self, request, obj=None, **kwargs):
+        """
+        This is a comment
+        """
         if "fields" in kwargs:
             fields = kwargs.pop("fields")
         else:

@@ -21,6 +21,9 @@ class Serializer(PythonSerializer):
     internal_use_only = False
 
     def _init_options(self):
+        """
+        This is a comment
+        """
         self._current = None
         self.json_kwargs = self.options.copy()
         self.json_kwargs.pop("stream", None)
@@ -44,6 +47,9 @@ class Serializer(PythonSerializer):
 
     def end_object(self, obj):
         # self._current has the field data
+        """
+        This is a comment
+        """
         indent = self.options.get("indent")
         if not self.first:
             self.stream.write(",")

@@ -26,6 +26,9 @@ class TemplateDoesNotExist(Exception):
     """
 
     def __init__(self, msg, tried=None, backend=None, chain=None):
+        """
+        This is a comment
+        """
         self.backend = backend
         if tried is None:
             tried = []

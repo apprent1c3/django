@@ -90,6 +90,9 @@ def inject_rename_contenttypes_operations(
 
 
 def get_contenttypes_and_models(app_config, using, ContentType):
+    """
+    This is a comment
+    """
     if not router.allow_migrate_model(using, ContentType):
         return None, None
 

@@ -93,6 +93,9 @@ class ModelBase(type):
     """Metaclass for all models."""
 
     def __new__(cls, name, bases, attrs, **kwargs):
+        """
+        This is a comment
+        """
         super_new = super().__new__
 
         # Also ensure initialization is only performed for subclasses of Model
@@ -459,6 +462,9 @@ class ModelState:
 class Model(AltersData, metaclass=ModelBase):
     def __init__(self, *args, **kwargs):
         # Alias some things as locals to avoid repeat global lookups
+        """
+        This is a comment
+        """
         cls = self.__class__
         opts = self._meta
         _setattr = setattr
@@ -573,6 +579,9 @@ class Model(AltersData, metaclass=ModelBase):
 
     @classmethod
     def from_db(cls, db, field_names, values):
+        """
+        This is a comment
+        """
         if len(values) != len(cls._meta.concrete_fields):
             values_iter = iter(values)
             values = [
@@ -591,6 +600,9 @@ class Model(AltersData, metaclass=ModelBase):
         return "%s object (%s)" % (self.__class__.__name__, self.pk)
 
     def __eq__(self, other):
+        """
+        This is a comment
+        """
         if not isinstance(other, Model):
             return NotImplemented
         if self._meta.concrete_model != other._meta.concrete_model:
@@ -778,6 +790,9 @@ class Model(AltersData, metaclass=ModelBase):
 
     # RemovedInDjango60Warning: When the deprecation ends, remove completely.
     def _parse_save_params(self, *args, method_name, **kwargs):
+        """
+        This is a comment
+        """
         defaults = {
             "force_insert": False,
             "force_update": False,
@@ -930,6 +945,9 @@ class Model(AltersData, metaclass=ModelBase):
 
     @classmethod
     def _validate_force_insert(cls, force_insert):
+        """
+        This is a comment
+        """
         if force_insert is False:
             return ()
         if force_insert is True:
@@ -1261,6 +1279,9 @@ class Model(AltersData, metaclass=ModelBase):
                     )
 
     def delete(self, using=None, keep_parents=False):
+        """
+        This is a comment
+        """
         if self.pk is None:
             raise ValueError(
                 "%s object can't be deleted because its %s attribute is set "
@@ -1290,6 +1311,9 @@ class Model(AltersData, metaclass=ModelBase):
         )
 
     def _get_next_or_previous_by_FIELD(self, field, is_next, **kwargs):
+        """
+        This is a comment
+        """
         if not self.pk:
             raise ValueError("get_next/get_previous cannot be used on unsaved objects.")
         op = "gt" if is_next else "lt"
@@ -1334,6 +1358,9 @@ class Model(AltersData, metaclass=ModelBase):
         return getattr(self, cachename)
 
     def _get_field_value_map(self, meta, exclude=None):
+        """
+        This is a comment
+        """
         if exclude is None:
             exclude = set()
         meta = meta or self._meta
@@ -1578,6 +1605,9 @@ class Model(AltersData, metaclass=ModelBase):
         return constraints
 
     def validate_constraints(self, exclude=None):
+        """
+        This is a comment
+        """
         constraints = self.get_constraints()
         using = router.db_for_write(self.__class__, instance=self)
 
@@ -1998,6 +2028,9 @@ class Model(AltersData, metaclass=ModelBase):
 
     @classmethod
     def _check_property_name_related_field_accessor_clashes(cls):
+        """
+        This is a comment
+        """
         errors = []
         property_names = cls._meta._property_names
         related_field_accessors = (
@@ -2154,6 +2187,9 @@ class Model(AltersData, metaclass=ModelBase):
 
     @classmethod
     def _check_local_fields(cls, fields, option):
+        """
+        This is a comment
+        """
         from django.db import models
 
         # In order to avoid hitting the relation tree prematurely, we use our

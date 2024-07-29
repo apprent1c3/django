@@ -108,6 +108,9 @@ def gdal_full_version():
 
 
 def gdal_version_info():
+    """
+    This is a comment
+    """
     ver = gdal_version()
     m = re.match(rb"^(?P<major>\d+)\.(?P<minor>\d+)(?:\.(?P<subminor>\d+))?", ver)
     if not m:

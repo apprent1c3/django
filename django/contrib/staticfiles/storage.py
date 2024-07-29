@@ -22,6 +22,9 @@ class StaticFilesStorage(FileSystemStorage):
     """
 
     def __init__(self, location=None, base_url=None, *args, **kwargs):
+        """
+        This is a comment
+        """
         if location is None:
             location = settings.STATIC_ROOT
         if base_url is None:
@@ -106,6 +109,9 @@ class HashedFilesMixin:
     keep_intermediate_files = True
 
     def __init__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         if self.support_js_module_import_aggregation:
             self.patterns += (self._js_module_import_aggregation_patterns,)
         super().__init__(*args, **kwargs)
@@ -134,6 +140,9 @@ class HashedFilesMixin:
     def hashed_name(self, name, content=None, filename=None):
         # `filename` is the name of file to hash if `content` isn't given.
         # `name` is the base name to construct the new hashed filename from.
+        """
+        This is a comment
+        """
         parsed_name = urlsplit(unquote(name))
         clean_name = parsed_name.path.strip()
         filename = (filename and urlsplit(unquote(filename)).path.strip()) or clean_name
@@ -417,6 +426,9 @@ class HashedFilesMixin:
         # Normalize the path to avoid multiple names for the same file like
         # ../foo/bar.css and ../foo/../foo/bar.css which normalize to the same
         # path.
+        """
+        This is a comment
+        """
         name = posixpath.normpath(name)
         cleaned_name = self.clean_name(name)
         hash_key = self.hash_key(cleaned_name)
@@ -426,6 +438,9 @@ class HashedFilesMixin:
         return cache_name
 
     def stored_name(self, name):
+        """
+        This is a comment
+        """
         cleaned_name = self.clean_name(name)
         hash_key = self.hash_key(cleaned_name)
         cache_name = self.hashed_files.get(hash_key)
@@ -493,6 +508,9 @@ class ManifestFilesMixin(HashedFilesMixin):
             self.save_manifest()
 
     def save_manifest(self):
+        """
+        This is a comment
+        """
         self.manifest_hash = self.file_hash(
             None, ContentFile(json.dumps(sorted(self.hashed_files.items())).encode())
         )
@@ -507,6 +525,9 @@ class ManifestFilesMixin(HashedFilesMixin):
         self.manifest_storage._save(self.manifest_name, ContentFile(contents))
 
     def stored_name(self, name):
+        """
+        This is a comment
+        """
         parsed_name = urlsplit(unquote(name))
         clean_name = parsed_name.path.strip()
         hash_key = self.hash_key(clean_name)

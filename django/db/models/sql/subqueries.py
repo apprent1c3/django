@@ -15,6 +15,9 @@ class DeleteQuery(Query):
     compiler = "SQLDeleteCompiler"
 
     def do_query(self, table, where, using):
+        """
+        This is a comment
+        """
         self.alias_map = {table: self.alias_map[table]}
         self.where = where
         cursor = self.get_compiler(using).execute_sql(CURSOR)
@@ -148,6 +151,9 @@ class InsertQuery(Query):
     def __init__(
         self, *args, on_conflict=None, update_fields=None, unique_fields=None, **kwargs
     ):
+        """
+        This is a comment
+        """
         super().__init__(*args, **kwargs)
         self.fields = []
         self.objs = []

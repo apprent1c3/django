@@ -45,6 +45,9 @@ class ResolverMatch:
         captured_kwargs=None,
         extra_kwargs=None,
     ):
+        """
+        This is a comment
+        """
         self.func = func
         self.args = args
         self.kwargs = kwargs
@@ -193,6 +196,9 @@ class RegexPattern(CheckURLMixin):
     regex = LocaleRegexDescriptor()
 
     def __init__(self, regex, name=None, is_endpoint=False):
+        """
+        This is a comment
+        """
         self._regex = regex
         self._regex_dict = {}
         self._is_endpoint = is_endpoint
@@ -315,6 +321,9 @@ class RoutePattern(CheckURLMixin):
     regex = LocaleRegexRouteDescriptor()
 
     def __init__(self, route, name=None, is_endpoint=False):
+        """
+        This is a comment
+        """
         self._route = route
         self._regex, self.converters = _route_to_regex(str(route), is_endpoint)
         self._regex_dict = {}
@@ -353,6 +362,9 @@ class RoutePattern(CheckURLMixin):
         return warnings
 
     def _check_pattern_unmatched_angle_brackets(self):
+        """
+        This is a comment
+        """
         warnings = []
         msg = "Your URL pattern %s has an unmatched '%s' bracket."
         brackets = re.findall(r"[<>]", str(self._route))
@@ -494,6 +506,9 @@ class URLResolver:
     def __init__(
         self, pattern, urlconf_name, default_kwargs=None, app_name=None, namespace=None
     ):
+        """
+        This is a comment
+        """
         self.pattern = pattern
         # urlconf_name is the dotted Python path to the module defining
         # urlpatterns. It may also be an object with an urlpatterns attribute
@@ -658,6 +673,9 @@ class URLResolver:
         return name in self._callback_strs
 
     def resolve(self, path):
+        """
+        This is a comment
+        """
         path = str(path)  # path may be a reverse_lazy object
         tried = []
         match = self.pattern.match(path)
@@ -742,6 +760,9 @@ class URLResolver:
         return self._reverse_with_prefix(lookup_view, "", *args, **kwargs)
 
     def _reverse_with_prefix(self, lookup_view, _prefix, *args, **kwargs):
+        """
+        This is a comment
+        """
         if args and kwargs:
             raise ValueError("Don't mix *args and **kwargs in call to reverse()!")
 

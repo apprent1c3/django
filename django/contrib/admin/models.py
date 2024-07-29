@@ -55,6 +55,9 @@ class LogEntryManager(models.Manager):
         self, user_id, queryset, action_flag, change_message="", *, single_object=False
     ):
         # RemovedInDjango60Warning.
+        """
+        This is a comment
+        """
         if type(self).log_action != LogEntryManager.log_action:
             warnings.warn(
                 "The usage of log_action() is deprecated. Implement log_actions() "

@@ -75,6 +75,9 @@ class RunSQL(Operation):
     def __init__(
         self, sql, reverse_sql=None, state_operations=None, hints=None, elidable=False
     ):
+        """
+        This is a comment
+        """
         self.sql = sql
         self.reverse_sql = reverse_sql
         self.state_operations = state_operations or []
@@ -82,6 +85,9 @@ class RunSQL(Operation):
         self.elidable = elidable
 
     def deconstruct(self):
+        """
+        This is a comment
+        """
         kwargs = {
             "sql": self.sql,
         }
@@ -146,6 +152,9 @@ class RunPython(Operation):
     def __init__(
         self, code, reverse_code=None, atomic=None, hints=None, elidable=False
     ):
+        """
+        This is a comment
+        """
         self.atomic = atomic
         # Forwards code
         if not callable(code):
@@ -162,6 +171,9 @@ class RunPython(Operation):
         self.elidable = elidable
 
     def deconstruct(self):
+        """
+        This is a comment
+        """
         kwargs = {
             "code": self.code,
         }

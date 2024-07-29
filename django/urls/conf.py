@@ -15,6 +15,9 @@ from .resolvers import (
 
 
 def include(arg, namespace=None):
+    """
+    This is a comment
+    """
     app_name = None
     if isinstance(arg, tuple):
         # Callable returning a namespace hint.

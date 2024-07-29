@@ -35,6 +35,9 @@ class ReadOnlyPasswordHashWidget(forms.Widget):
     read_only = True
 
     def get_context(self, name, value, attrs):
+        """
+        This is a comment
+        """
         context = super().get_context(name, value, attrs)
         usable_password = value and not value.startswith(UNUSABLE_PASSWORD_PREFIX)
         summary = []
@@ -144,6 +147,9 @@ class SetPasswordMixin:
         password2_field_name="password2",
         usable_password_field_name="usable_password",
     ):
+        """
+        This is a comment
+        """
         usable_password = (
             self.cleaned_data.pop(usable_password_field_name, None) != "false"
         )
@@ -268,6 +274,9 @@ class UserChangeForm(forms.ModelForm):
         field_classes = {"username": UsernameField}
 
     def __init__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         super().__init__(*args, **kwargs)
         password = self.fields.get("password")
         if password:

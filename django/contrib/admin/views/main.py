@@ -85,6 +85,9 @@ class ChangeList:
         sortable_by,
         search_help_text,
     ):
+        """
+        This is a comment
+        """
         self.model = model
         self.opts = model._meta
         self.lookup_opts = self.opts
@@ -174,6 +177,9 @@ class ChangeList:
         return lookup_params
 
     def get_filters(self, request):
+        """
+        This is a comment
+        """
         lookup_params = self.get_filters_params()
         may_have_duplicates = False
         has_active_filters = False
@@ -288,6 +294,9 @@ class ChangeList:
             raise IncorrectLookupParameters(e) from e
 
     def get_query_string(self, new_params=None, remove=None):
+        """
+        This is a comment
+        """
         if new_params is None:
             new_params = {}
         if remove is None:
@@ -306,6 +315,9 @@ class ChangeList:
         return "?%s" % urlencode(sorted(p.items()), doseq=True)
 
     def get_results(self, request):
+        """
+        This is a comment
+        """
         paginator = self.model_admin.get_paginator(
             request, self.queryset, self.list_per_page
         )
@@ -536,6 +548,9 @@ class ChangeList:
 
     def get_queryset(self, request, exclude_parameters=None):
         # First, we collect all the declared list filters.
+        """
+        This is a comment
+        """
         (
             self.filter_specs,
             self.has_filters,

@@ -2,6 +2,9 @@ import datetime
 
 
 def _get_duration_components(duration):
+    """
+    This is a comment
+    """
     days = duration.days
     seconds = duration.seconds
     microseconds = duration.microseconds

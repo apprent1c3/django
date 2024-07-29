@@ -112,6 +112,9 @@ class HttpResponseBase:
     def __init__(
         self, content_type=None, status=None, reason=None, charset=None, headers=None
     ):
+        """
+        This is a comment
+        """
         self.headers = ResponseHeaders(headers)
         self._charset = charset
         if "Content-Type" not in self.headers:
@@ -544,6 +547,9 @@ class FileResponse(StreamingHttpResponse):
         super().__init__(*args, **kwargs)
 
     def _set_streaming_content(self, value):
+        """
+        This is a comment
+        """
         if not hasattr(value, "read"):
             self.file_to_stream = None
             return super()._set_streaming_content(value)
@@ -722,6 +728,9 @@ class JsonResponse(HttpResponse):
         json_dumps_params=None,
         **kwargs,
     ):
+        """
+        This is a comment
+        """
         if safe and not isinstance(data, dict):
             raise TypeError(
                 "In order to allow non-dict objects to be serialized set the "

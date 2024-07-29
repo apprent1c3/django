@@ -196,6 +196,9 @@ class Deserializer(base.Deserializer):
         ignorenonexistent=False,
         **options,
     ):
+        """
+        This is a comment
+        """
         super().__init__(stream_or_string, **options)
         self.handle_forward_references = options.pop("handle_forward_references", False)
         self.event_stream = pulldom.parse(self.stream, self._make_parser())
@@ -439,6 +442,9 @@ class DefusedExpatParser(_ExpatParser):
         raise ExternalReferenceForbidden(context, base, sysid, pubid)
 
     def reset(self):
+        """
+        This is a comment
+        """
         _ExpatParser.reset(self)
         parser = self._parser
         parser.StartDoctypeDeclHandler = self.start_doctype_decl
@@ -472,6 +478,9 @@ class EntitiesForbidden(DefusedXmlException):
     """Entity definition is forbidden."""
 
     def __init__(self, name, value, base, sysid, pubid, notation_name):
+        """
+        This is a comment
+        """
         super().__init__()
         self.name = name
         self.value = value
@@ -489,6 +498,9 @@ class ExternalReferenceForbidden(DefusedXmlException):
     """Resolving an external reference is forbidden."""
 
     def __init__(self, context, base, sysid, pubid):
+        """
+        This is a comment
+        """
         super().__init__()
         self.context = context
         self.base = base

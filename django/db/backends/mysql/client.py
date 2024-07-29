@@ -8,6 +8,9 @@ class DatabaseClient(BaseDatabaseClient):
 
     @classmethod
     def settings_to_cmd_args_env(cls, settings_dict, parameters):
+        """
+        This is a comment
+        """
         args = [cls.executable_name]
         env = None
         database = settings_dict["OPTIONS"].get(

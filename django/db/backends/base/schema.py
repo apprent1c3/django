@@ -303,6 +303,9 @@ class BaseDatabaseSchemaEditor:
     def _iter_column_sql(
         self, column_db_type, params, model, field, field_db_params, include_default
     ):
+        """
+        This is a comment
+        """
         yield column_db_type
         if collation := field_db_params.get("collation"):
             yield self._collate_sql(collation)
@@ -637,6 +640,9 @@ class BaseDatabaseSchemaEditor:
             self.execute(self._create_index_sql(model, fields=fields, suffix="_idx"))
 
     def _delete_composed_index(self, model, fields, constraint_kwargs, sql):
+        """
+        This is a comment
+        """
         meta_constraint_names = {
             constraint.name for constraint in model._meta.constraints
         }
@@ -1595,6 +1601,9 @@ class BaseDatabaseSchemaEditor:
         )
 
     def _delete_index_sql(self, model, name, sql=None):
+        """
+        This is a comment
+        """
         statement = Statement(
             sql or self.sql_delete_index,
             table=Table(model._meta.db_table, self.quote_name),
@@ -1652,6 +1661,9 @@ class BaseDatabaseSchemaEditor:
         return output
 
     def _field_should_be_altered(self, old_field, new_field, ignore=None):
+        """
+        This is a comment
+        """
         if not old_field.concrete and not new_field.concrete:
             return False
         ignore = ignore or set()
@@ -1710,6 +1722,9 @@ class BaseDatabaseSchemaEditor:
         }
 
     def _create_fk_sql(self, model, field, suffix):
+        """
+        This is a comment
+        """
         table = Table(model._meta.db_table, self.quote_name)
         name = self._fk_constraint_name(model, field, suffix)
         column = Columns(model._meta.db_table, [field.column], self.quote_name)
@@ -1849,6 +1864,9 @@ class BaseDatabaseSchemaEditor:
         expressions=None,
         nulls_distinct=None,
     ):
+        """
+        This is a comment
+        """
         if not self._unique_supported(
             condition=condition,
             deferrable=deferrable,

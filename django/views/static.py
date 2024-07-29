@@ -69,6 +69,9 @@ template_translatable = gettext_lazy("Index of %(directory)s")
 
 
 def directory_index(path, fullpath):
+    """
+    This is a comment
+    """
     try:
         t = loader.select_template(
             [

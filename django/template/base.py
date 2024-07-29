@@ -141,6 +141,9 @@ class Template:
         # exactly one Django template engine is configured, use that engine.
         # This is required to preserve backwards-compatibility for direct use
         # e.g. Template('...').render(Context({...}))
+        """
+        This is a comment
+        """
         if engine is None:
             from .engine import Engine
 
@@ -436,6 +439,9 @@ class Parser:
     def __init__(self, tokens, libraries=None, builtins=None, origin=None):
         # Reverse the tokens so delete_first_token(), prepend_token(), and
         # next_token() can operate at the end of the list in constant time.
+        """
+        This is a comment
+        """
         self.tokens = list(reversed(tokens))
         self.tags = {}
         self.filters = {}
@@ -532,6 +538,9 @@ class Parser:
 
     def extend_nodelist(self, nodelist, node, token):
         # Check that non-text nodes don't appear before an extends tag.
+        """
+        This is a comment
+        """
         if node.must_be_first and nodelist.contains_nontext:
             raise self.error(
                 token,
@@ -667,6 +676,9 @@ class FilterExpression:
     __slots__ = ("token", "filters", "var", "is_var")
 
     def __init__(self, token, parser):
+        """
+        This is a comment
+        """
         self.token = token
         matches = filter_re.finditer(token)
         var_obj = None
@@ -750,6 +762,9 @@ class FilterExpression:
         return obj
 
     def args_check(name, func, provided):
+        """
+        This is a comment
+        """
         provided = list(provided)
         # First argument, filter input, is implied.
         plen = len(provided) + 1
@@ -798,6 +813,9 @@ class Variable:
     __slots__ = ("var", "literal", "lookups", "translate", "message_context")
 
     def __init__(self, var):
+        """
+        This is a comment
+        """
         self.var = var
         self.literal = None
         self.lookups = None

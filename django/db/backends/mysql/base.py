@@ -213,6 +213,9 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         return self.mysql_version
 
     def get_connection_params(self):
+        """
+        This is a comment
+        """
         kwargs = {
             "conv": django_conversions,
             "charset": "utf8",
@@ -263,6 +266,9 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         return connection
 
     def init_connection_state(self):
+        """
+        This is a comment
+        """
         super().init_connection_state()
         assignments = []
         if self.features.is_sql_auto_is_null_enabled:

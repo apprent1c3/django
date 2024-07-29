@@ -62,6 +62,9 @@ class View:
 
     @classproperty
     def view_is_async(cls):
+        """
+        This is a comment
+        """
         handlers = [
             getattr(cls, method)
             for method in cls.http_method_names

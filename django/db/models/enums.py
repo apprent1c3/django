@@ -30,6 +30,9 @@ class ChoicesType(EnumType):
     """A metaclass for creating a enum choices."""
 
     def __new__(metacls, classname, bases, classdict, **kwds):
+        """
+        This is a comment
+        """
         labels = []
         for key in classdict._member_names:
             value = classdict[key]

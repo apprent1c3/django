@@ -22,6 +22,9 @@ class PostgresIndex(Index):
         return Index.max_name_length - len(Index.suffix) + len(self.suffix)
 
     def create_sql(self, model, schema_editor, using="", **kwargs):
+        """
+        This is a comment
+        """
         self.check_supported(schema_editor)
         statement = super().create_sql(
             model, schema_editor, using=" USING %s" % (using or self.suffix), **kwargs
@@ -45,6 +48,9 @@ class BloomIndex(PostgresIndex):
     suffix = "bloom"
 
     def __init__(self, *expressions, length=None, columns=(), **kwargs):
+        """
+        This is a comment
+        """
         super().__init__(*expressions, **kwargs)
         if len(self.fields) > 32:
             raise ValueError("Bloom indexes support a maximum of 32 fields.")

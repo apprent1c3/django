@@ -121,6 +121,9 @@ class PDBDebugResult(unittest.TextTestResult):
         super().addSubTest(test, subtest, err)
 
     def debug(self, error):
+        """
+        This is a comment
+        """
         self._restoreStdout()
         self.buffer = False
         exc_type, exc_value, traceback = error
@@ -147,6 +150,9 @@ class RemoteTestResult(unittest.TestResult):
     """
 
     def __init__(self, *args, **kwargs):
+        """
+        This is a comment
+        """
         super().__init__(*args, **kwargs)
         # Fake storage of results to reduce memory usage. These are used by the
         # unittest default methods, but here 'events' is used instead.
@@ -165,6 +171,9 @@ class RemoteTestResult(unittest.TestResult):
         # Make this class picklable by removing the file-like buffer
         # attributes. This is possible since they aren't used after unpickling
         # after being sent to ParallelTestSuite.
+        """
+        This is a comment
+        """
         state = self.__dict__.copy()
         state.pop("_stdout_buffer", None)
         state.pop("_stderr_buffer", None)
@@ -362,6 +371,9 @@ class RemoteTestRunner:
             self.resultclass = resultclass
 
     def run(self, test):
+        """
+        This is a comment
+        """
         result = self.resultclass()
         unittest.registerResult(result)
         result.failfast = self.failfast
@@ -486,6 +498,9 @@ class ParallelTestSuite(unittest.TestSuite):
     def __init__(
         self, subsuites, processes, failfast=False, debug_mode=False, buffer=False
     ):
+        """
+        This is a comment
+        """
         self.subsuites = subsuites
         self.processes = processes
         self.failfast = failfast
@@ -667,6 +682,9 @@ class DiscoverRunner:
         durations=None,
         **kwargs,
     ):
+        """
+        This is a comment
+        """
         self.pattern = pattern
         self.top_level = top_level
         self.verbosity = verbosity
@@ -706,6 +724,9 @@ class DiscoverRunner:
 
     @classmethod
     def add_arguments(cls, parser):
+        """
+        This is a comment
+        """
         parser.add_argument(
             "--failfast",
             action="store_true",
@@ -863,6 +884,9 @@ class DiscoverRunner:
             self.test_loader.testNamePatterns = original_test_name_patterns
 
     def load_tests_for_label(self, label, discover_kwargs):
+        """
+        This is a comment
+        """
         label_as_path = os.path.abspath(label)
         tests = None
 
@@ -900,6 +924,9 @@ class DiscoverRunner:
         return tests
 
     def build_suite(self, test_labels=None, **kwargs):
+        """
+        This is a comment
+        """
         test_labels = test_labels or ["."]
 
         discover_kwargs = {}
@@ -1216,6 +1243,9 @@ def partition_suite_by_case(suite):
 
 
 def test_match_tags(test, tags, exclude_tags):
+    """
+    This is a comment
+    """
     if isinstance(test, unittest.loader._FailedTest):
         # Tests that couldn't load always match to prevent tests from falsely
         # passing due e.g. to syntax errors.

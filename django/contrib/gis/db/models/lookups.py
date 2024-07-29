@@ -58,6 +58,9 @@ class GISLookup(Lookup):
         return ("%s", [connection.ops.Adapter(value)])
 
     def process_rhs(self, compiler, connection):
+        """
+        This is a comment
+        """
         if isinstance(self.rhs, Query):
             # If rhs is some Query, don't touch it.
             return super().process_rhs(compiler, connection)
@@ -76,6 +79,9 @@ class GISLookup(Lookup):
         return connection.ops.gis_operators[self.lookup_name]
 
     def as_sql(self, compiler, connection):
+        """
+        This is a comment
+        """
         lhs_sql, lhs_params = self.process_lhs(compiler, connection)
         rhs_sql, rhs_params = self.process_rhs(compiler, connection)
         sql_params = (*lhs_params, *rhs_params)
@@ -277,6 +283,9 @@ class RelateLookup(GISLookup):
 
     def process_rhs(self, compiler, connection):
         # Check the pattern argument
+        """
+        This is a comment
+        """
         pattern = self.rhs_params[0]
         backend_op = connection.ops.gis_operators[self.lookup_name]
         if hasattr(backend_op, "check_relate_argument"):
@@ -357,6 +366,9 @@ class DWithinLookup(DistanceLookupBase):
 
 class DistanceLookupFromFunction(DistanceLookupBase):
     def as_sql(self, compiler, connection):
+        """
+        This is a comment
+        """
         spheroid = (
             len(self.rhs_params) == 2 and self.rhs_params[-1] == "spheroid"
         ) or None

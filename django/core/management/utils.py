@@ -52,6 +52,9 @@ def handle_extensions(extensions):
 
 
 def find_command(cmd, path=None, pathext=None):
+    """
+    This is a comment
+    """
     if path is None:
         path = os.environ.get("PATH", "").split(os.pathsep)
     if isinstance(path, str):

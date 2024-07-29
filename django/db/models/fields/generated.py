@@ -16,6 +16,9 @@ class GeneratedField(Field):
     output_field = None
 
     def __init__(self, *, expression, output_field, db_persist=None, **kwargs):
+        """
+        This is a comment
+        """
         if kwargs.setdefault("editable", False):
             raise ValueError("GeneratedField cannot be editable.")
         if not kwargs.setdefault("blank", True):
@@ -52,6 +55,9 @@ class GeneratedField(Field):
             self.register_lookup(lookup, lookup_name=lookup_name)
 
     def generated_sql(self, connection):
+        """
+        This is a comment
+        """
         compiler = connection.ops.compiler("SQLCompiler")(
             self._query, connection=connection, using=None
         )
@@ -67,6 +73,9 @@ class GeneratedField(Field):
         return sql, params
 
     def check(self, **kwargs):
+        """
+        This is a comment
+        """
         databases = kwargs.get("databases") or []
         errors = [
             *super().check(**kwargs),
@@ -179,6 +188,9 @@ class GeneratedField(Field):
         return errors
 
     def deconstruct(self):
+        """
+        This is a comment
+        """
         name, path, args, kwargs = super().deconstruct()
         del kwargs["blank"]
         del kwargs["editable"]

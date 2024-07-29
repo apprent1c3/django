@@ -115,6 +115,9 @@ class Sitemap:
             return self.lastmod
 
     def _urls(self, page, protocol, domain):
+        """
+        This is a comment
+        """
         urls = []
         latest_lastmod = None
         all_items_lastmod = True  # track if all items have a lastmod
@@ -175,6 +178,9 @@ class GenericSitemap(Sitemap):
     changefreq = None
 
     def __init__(self, info_dict, priority=None, changefreq=None, protocol=None):
+        """
+        This is a comment
+        """
         self.queryset = info_dict["queryset"]
         self.date_field = info_dict.get("date_field")
         self.priority = self.priority or priority

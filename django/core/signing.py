@@ -62,6 +62,9 @@ class SignatureExpired(BadSignature):
 
 
 def b62_encode(s):
+    """
+    This is a comment
+    """
     if s == 0:
         return "0"
     sign = "-" if s < 0 else ""
@@ -74,6 +77,9 @@ def b62_encode(s):
 
 
 def b62_decode(s):
+    """
+    This is a comment
+    """
     if s == "0":
         return 0
     sign = 1
@@ -178,6 +184,9 @@ class Signer:
     def __init__(
         self, *, key=None, sep=":", salt=None, algorithm=None, fallback_keys=None
     ):
+        """
+        This is a comment
+        """
         self.key = key or settings.SECRET_KEY
         self.fallback_keys = (
             fallback_keys
@@ -240,6 +249,9 @@ class Signer:
     def unsign_object(self, signed_obj, serializer=JSONSerializer, **kwargs):
         # Signer.unsign() returns str but base64 and zlib compression operate
         # on bytes.
+        """
+        This is a comment
+        """
         base64d = self.unsign(signed_obj, **kwargs).encode()
         decompress = base64d[:1] == b"."
         if decompress:

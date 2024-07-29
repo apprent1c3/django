@@ -55,6 +55,9 @@ class Command(BaseCommand):
         bpython.embed()
 
     def python(self, options):
+        """
+        This is a comment
+        """
         import code
 
         # Set up a dictionary to serve as the environment for the shell.
@@ -113,6 +116,9 @@ class Command(BaseCommand):
 
     def handle(self, **options):
         # Execute the command and exit.
+        """
+        This is a comment
+        """
         if options["command"]:
             exec(options["command"], globals())
             return

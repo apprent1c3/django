@@ -57,6 +57,9 @@ class DatabaseCreation(BaseDatabaseCreation):
     def _clone_test_db(self, suffix, verbosity, keepdb=False):
         # CREATE DATABASE ... WITH TEMPLATE ... requires closing connections
         # to the template database.
+        """
+        This is a comment
+        """
         self.connection.close()
         self.connection.close_pool()
 

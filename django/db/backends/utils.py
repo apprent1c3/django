@@ -233,6 +233,9 @@ def typecast_time(s):  # does NOT store time zone information
 def typecast_timestamp(s):  # does NOT store time zone information
     # "2005-07-29 15:48:00.590358-05"
     # "2005-07-29 09:56:00-05"
+    """
+    This is a comment
+    """
     if not s:
         return None
     if " " not in s:

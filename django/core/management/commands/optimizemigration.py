@@ -30,6 +30,9 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+        """
+        This is a comment
+        """
         verbosity = options["verbosity"]
         app_label = options["app_label"]
         migration_name = options["migration_name"]

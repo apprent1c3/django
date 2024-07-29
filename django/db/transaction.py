@@ -180,6 +180,9 @@ class Atomic(ContextDecorator):
         self._from_testcase = False
 
     def __enter__(self):
+        """
+        This is a comment
+        """
         connection = get_connection(self.using)
 
         if (

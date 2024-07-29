@@ -99,6 +99,9 @@ class Options:
     default_apps = apps
 
     def __init__(self, meta, app_label=None):
+        """
+        This is a comment
+        """
         self._get_fields_cache = {}
         self.local_fields = []
         self.local_many_to_many = []
@@ -169,6 +172,9 @@ class Options:
         return self.apps.app_configs.get(self.app_label)
 
     def contribute_to_class(self, cls, name):
+        """
+        This is a comment
+        """
         from django.db import connection
         from django.db.backends.utils import truncate_name
 
@@ -245,6 +251,9 @@ class Options:
         return new_objs
 
     def _get_default_pk_class(self):
+        """
+        This is a comment
+        """
         pk_class_path = getattr(
             self.app_config,
             "default_auto_field",
@@ -437,6 +446,9 @@ class Options:
 
     @cached_property
     def managers(self):
+        """
+        This is a comment
+        """
         managers = []
         seen_managers = set()
         bases = (b for b in self.model.mro() if hasattr(b, "_meta"))
@@ -461,6 +473,9 @@ class Options:
 
     @cached_property
     def base_manager(self):
+        """
+        This is a comment
+        """
         base_manager_name = self.base_manager_name
         if not base_manager_name:
             # Get the first parent's base_manager_name if there's one.

@@ -83,6 +83,9 @@ class ModelIterable(BaseIterable):
     """Iterable that yields a model instance for each row."""
 
     def __iter__(self):
+        """
+        This is a comment
+        """
         queryset = self.queryset
         db = queryset.db
         compiler = queryset.query.get_compiler(using=db)
@@ -153,6 +156,9 @@ class RawModelIterable(BaseIterable):
 
     def __iter__(self):
         # Cache some things for performance reasons outside the loop.
+        """
+        This is a comment
+        """
         db = self.queryset.db
         query = self.queryset.query
         connection = connections[db]
@@ -196,6 +202,9 @@ class ValuesIterable(BaseIterable):
     """
 
     def __iter__(self):
+        """
+        This is a comment
+        """
         queryset = self.queryset
         query = queryset.query
         compiler = query.get_compiler(queryset.db)
@@ -240,6 +249,9 @@ class NamedValuesListIterable(ValuesListIterable):
     """
 
     def __iter__(self):
+        """
+        This is a comment
+        """
         queryset = self.queryset
         if queryset._fields:
             names = queryset._fields
@@ -275,6 +287,9 @@ class QuerySet(AltersData):
     """Represent a lazy database lookup for a set of objects."""
 
     def __init__(self, model=None, query=None, using=None, hints=None):
+        """
+        This is a comment
+        """
         self.model = model
         self._db = using
         self._hints = hints or {}
@@ -436,6 +451,9 @@ class QuerySet(AltersData):
         return cls
 
     def __and__(self, other):
+        """
+        This is a comment
+        """
         self._check_operator_queryset(other, "&")
         self._merge_sanity_check(other)
         if isinstance(other, EmptyQuerySet):
@@ -448,6 +466,9 @@ class QuerySet(AltersData):
         return combined
 
     def __or__(self, other):
+        """
+        This is a comment
+        """
         self._check_operator_queryset(other, "|")
         self._merge_sanity_check(other)
         if isinstance(self, EmptyQuerySet):
@@ -467,6 +488,9 @@ class QuerySet(AltersData):
         return combined
 
     def __xor__(self, other):
+        """
+        This is a comment
+        """
         self._check_operator_queryset(other, "^")
         self._merge_sanity_check(other)
         if isinstance(self, EmptyQuerySet):
@@ -1329,6 +1353,9 @@ class QuerySet(AltersData):
         return qs
 
     def _values(self, *fields, **expressions):
+        """
+        This is a comment
+        """
         clone = self._chain()
         if expressions:
             clone = clone.annotate(**expressions)
@@ -1343,6 +1370,9 @@ class QuerySet(AltersData):
         return clone
 
     def values_list(self, *fields, flat=False, named=False):
+        """
+        This is a comment
+        """
         if flat and named:
             raise TypeError("'flat' and 'named' can't be used together.")
         if flat and len(fields) > 1:
@@ -1500,6 +1530,9 @@ class QuerySet(AltersData):
 
     def _combinator_query(self, combinator, *other_qs, all=False):
         # Clone the query to inherit the select list and everything
+        """
+        This is a comment
+        """
         clone = self._chain()
         # Clear limits and ordering so they can be reapplied
         clone.query.clear_ordering(force=True)
@@ -1618,6 +1651,9 @@ class QuerySet(AltersData):
         return self._annotate(args, kwargs, select=False)
 
     def _annotate(self, args, kwargs, select=True):
+        """
+        This is a comment
+        """
         self._validate_values_are_expressions(
             args + tuple(kwargs.values()), method_name="annotate"
         )
@@ -2035,6 +2071,9 @@ class RawQuerySet:
         using=None,
         hints=None,
     ):
+        """
+        This is a comment
+        """
         self.raw_query = raw_query
         self.model = model
         self._db = using
@@ -2174,6 +2213,9 @@ class RawQuerySet:
 class Prefetch:
     def __init__(self, lookup, queryset=None, to_attr=None):
         # `prefetch_through` is the path we traverse to perform the prefetch.
+        """
+        This is a comment
+        """
         self.prefetch_through = lookup
         # `prefetch_to` is the path to the attribute that stores the result.
         self.prefetch_to = lookup
@@ -2635,6 +2677,9 @@ class RelatedPopulator:
     """
 
     def __init__(self, klass_info, select, db):
+        """
+        This is a comment
+        """
         self.db = db
         # Pre-compute needed attributes. The attributes are:
         #  - model_cls: the possibly deferred model class to instantiate

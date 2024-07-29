@@ -25,6 +25,9 @@ class OrderableAggMixin:
         return super().set_source_expressions(exprs)
 
     def as_sql(self, compiler, connection):
+        """
+        This is a comment
+        """
         *source_exprs, filtering_expr, ordering_expr = self.get_source_expressions()
 
         order_by_sql = ""

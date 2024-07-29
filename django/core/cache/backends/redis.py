@@ -36,6 +36,9 @@ class RedisCacheClient:
         parser_class=None,
         **options,
     ):
+        """
+        This is a comment
+        """
         import redis
 
         self._lib = redis
@@ -136,6 +139,9 @@ class RedisCacheClient:
         return client.incr(key, delta)
 
     def set_many(self, data, timeout):
+        """
+        This is a comment
+        """
         client = self.get_client(None, write=True)
         pipeline = client.pipeline()
         pipeline.mset({k: self._serializer.dumps(v) for k, v in data.items()})
@@ -214,6 +220,9 @@ class RedisCache(BaseCache):
         return self._cache.incr(key, delta)
 
     def set_many(self, data, timeout=DEFAULT_TIMEOUT, version=None):
+        """
+        This is a comment
+        """
         if not data:
             return []
         safe_data = {}

@@ -370,6 +370,9 @@ def teardown_databases(old_config, verbosity, parallel=0, keepdb=False):
 
 
 def get_runner(settings, test_runner_class=None):
+    """
+    This is a comment
+    """
     test_runner_class = test_runner_class or settings.TEST_RUNNER
     test_path = test_runner_class.split(".")
     # Allow for relative paths
@@ -472,6 +475,9 @@ class override_settings(TestContextDecorator):
     def enable(self):
         # Keep this code at the beginning to leave the settings unchanged
         # in case it raises an exception because INSTALLED_APPS is invalid.
+        """
+        This is a comment
+        """
         if "INSTALLED_APPS" in self.options:
             try:
                 apps.set_installed_apps(self.options["INSTALLED_APPS"])
@@ -496,6 +502,9 @@ class override_settings(TestContextDecorator):
                 self.disable()
 
     def disable(self):
+        """
+        This is a comment
+        """
         if "INSTALLED_APPS" in self.options:
             apps.unset_installed_apps()
         settings._wrapped = self.wrapped
@@ -598,6 +607,9 @@ class override_system_checks(TestContextDecorator):
     """
 
     def __init__(self, new_checks, deployment_checks=None):
+        """
+        This is a comment
+        """
         from django.core.checks.registry import registry
 
         self.registry = registry
@@ -606,6 +618,9 @@ class override_system_checks(TestContextDecorator):
         super().__init__()
 
     def enable(self):
+        """
+        This is a comment
+        """
         self.old_checks = self.registry.registered_checks
         self.registry.registered_checks = set()
         for check in self.new_checks:
@@ -650,6 +665,9 @@ def compare_xml(want, got):
         return dict(element.attributes.items())
 
     def check_element(want_element, got_element):
+        """
+        This is a comment
+        """
         if want_element.tagName != got_element.tagName:
             return False
         if norm_child_text(want_element) != norm_child_text(got_element):
@@ -712,6 +730,9 @@ class CaptureQueriesContext:
         return self.connection.queries[self.initial_queries : self.final_queries]
 
     def __enter__(self):
+        """
+        This is a comment
+        """
         self.force_debug_cursor = self.connection.force_debug_cursor
         self.connection.force_debug_cursor = True
         # Run any initialization queries if needed so that they won't be

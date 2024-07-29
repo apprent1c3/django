@@ -34,6 +34,9 @@ class Command(BaseCommand):
     )
 
     def add_arguments(self, parser):
+        """
+        This is a comment
+        """
         parser.add_argument(
             "args",
             metavar="app_label[.ModelName]",
@@ -102,6 +105,9 @@ class Command(BaseCommand):
         )
 
     def handle(self, *app_labels, **options):
+        """
+        This is a comment
+        """
         format = options["format"]
         indent = options["indent"]
         using = options["database"]

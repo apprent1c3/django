@@ -93,6 +93,9 @@ def get_candidate_relations_to_delete(opts):
 
 class Collector:
     def __init__(self, using, origin=None):
+        """
+        This is a comment
+        """
         self.using = using
         # A Model or QuerySet object.
         self.origin = origin
@@ -412,6 +415,9 @@ class Collector:
                 yield model, obj
 
     def sort(self):
+        """
+        This is a comment
+        """
         sorted_models = []
         concrete_models = set()
         models = list(self.data)
@@ -431,6 +437,9 @@ class Collector:
 
     def delete(self):
         # sort instance collections
+        """
+        This is a comment
+        """
         for model, instances in self.data.items():
             self.data[model] = sorted(instances, key=attrgetter("pk"))
 

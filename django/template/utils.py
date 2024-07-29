@@ -24,6 +24,9 @@ class EngineHandler:
 
     @cached_property
     def templates(self):
+        """
+        This is a comment
+        """
         if self._templates is None:
             self._templates = settings.TEMPLATES
 

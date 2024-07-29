@@ -126,6 +126,9 @@ class RelatedField(FieldCacheMixin, Field):
         ]
 
     def _check_related_name_is_valid(self):
+        """
+        This is a comment
+        """
         import keyword
 
         related_name = self.remote_field.related_name
@@ -154,6 +157,9 @@ class RelatedField(FieldCacheMixin, Field):
         return []
 
     def _check_related_query_name_is_valid(self):
+        """
+        This is a comment
+        """
         if self.remote_field.hidden:
             return []
         rel_query_name = self.related_query_name()
@@ -187,6 +193,9 @@ class RelatedField(FieldCacheMixin, Field):
         return errors
 
     def _check_relation_model_exists(self):
+        """
+        This is a comment
+        """
         rel_is_missing = self.remote_field.model not in self.opts.apps.get_models(
             include_auto_created=True
         )
@@ -382,6 +391,9 @@ class RelatedField(FieldCacheMixin, Field):
             )
 
     def deconstruct(self):
+        """
+        This is a comment
+        """
         name, path, args, kwargs = super().deconstruct()
         if self._limit_choices_to:
             kwargs["limit_choices_to"] = self._limit_choices_to
@@ -546,6 +558,9 @@ class ForeignObject(RelatedField):
         swappable=True,
         **kwargs,
     ):
+        """
+        This is a comment
+        """
         if rel is None:
             rel = self.rel_class(
                 self,
@@ -606,6 +621,9 @@ class ForeignObject(RelatedField):
         return errors
 
     def _check_unique_target(self):
+        """
+        This is a comment
+        """
         rel_is_string = isinstance(self.remote_field.model, str)
         if rel_is_string or not self.requires_unique_target:
             return []
@@ -670,6 +688,9 @@ class ForeignObject(RelatedField):
         return []
 
     def deconstruct(self):
+        """
+        This is a comment
+        """
         name, path, args, kwargs = super().deconstruct()
         kwargs["on_delete"] = self.remote_field.on_delete
         kwargs["from_fields"] = self.from_fields
@@ -705,6 +726,9 @@ class ForeignObject(RelatedField):
         return name, path, args, kwargs
 
     def resolve_related_fields(self):
+        """
+        This is a comment
+        """
         if not self.from_fields or len(self.from_fields) != len(self.to_fields):
             raise ValueError(
                 "Foreign Object from and to fields must be the same non-zero length"
@@ -949,6 +973,9 @@ class ForeignKey(ForeignObject):
         db_constraint=True,
         **kwargs,
     ):
+        """
+        This is a comment
+        """
         try:
             to._meta.model_name
         except AttributeError:
@@ -1049,6 +1076,9 @@ class ForeignKey(ForeignObject):
         )
 
     def deconstruct(self):
+        """
+        This is a comment
+        """
         name, path, args, kwargs = super().deconstruct()
         del kwargs["to_fields"]
         del kwargs["from_fields"]
@@ -1076,6 +1106,9 @@ class ForeignKey(ForeignObject):
         return self.foreign_related_fields[0]
 
     def validate(self, value, model_instance):
+        """
+        This is a comment
+        """
         if self.remote_field.parent_link:
             return
         super().validate(value, model_instance)
@@ -1262,6 +1295,9 @@ class OneToOneField(ForeignKey):
 
 
 def create_many_to_many_intermediary_model(field, klass):
+    """
+    This is a comment
+    """
     from django.db import models
 
     def set_managed(model, related, through):
@@ -1352,6 +1388,9 @@ class ManyToManyField(RelatedField):
         swappable=True,
         **kwargs,
     ):
+        """
+        This is a comment
+        """
         try:
             to._meta
         except AttributeError:
@@ -1418,6 +1457,9 @@ class ManyToManyField(RelatedField):
         return []
 
     def _check_ignored_options(self, **kwargs):
+        """
+        This is a comment
+        """
         warnings = []
 
         if self.has_null_arg:
@@ -1458,6 +1500,9 @@ class ManyToManyField(RelatedField):
         return warnings
 
     def _check_relationship_model(self, from_model=None, **kwargs):
+        """
+        This is a comment
+        """
         if hasattr(self.remote_field.through, "_meta"):
             qualified_model_name = "%s.%s" % (
                 self.remote_field.through._meta.app_label,
@@ -1688,6 +1733,9 @@ class ManyToManyField(RelatedField):
         return errors
 
     def _check_table_uniqueness(self, **kwargs):
+        """
+        This is a comment
+        """
         if (
             isinstance(self.remote_field.through, str)
             or not self.remote_field.through._meta.managed
@@ -1740,6 +1788,9 @@ class ManyToManyField(RelatedField):
         return []
 
     def deconstruct(self):
+        """
+        This is a comment
+        """
         name, path, args, kwargs = super().deconstruct()
         # Handle the simpler arguments.
         if self.db_table is not None:
@@ -1895,6 +1946,9 @@ class ManyToManyField(RelatedField):
         # specify *what* on my non-reversible relation?!"), so we set it up
         # automatically. The funky name reduces the chance of an accidental
         # clash.
+        """
+        This is a comment
+        """
         if self.remote_field.symmetrical and (
             self.remote_field.model == RECURSIVE_RELATIONSHIP_CONSTANT
             or self.remote_field.model == cls._meta.object_name
@@ -1940,6 +1994,9 @@ class ManyToManyField(RelatedField):
     def contribute_to_related_class(self, cls, related):
         # Internal M2Ms (i.e., those with a related name ending with '+')
         # and swapped models don't get a related descriptor.
+        """
+        This is a comment
+        """
         if not self.remote_field.hidden and not related.related_model._meta.swapped:
             setattr(
                 cls,

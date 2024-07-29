@@ -10,6 +10,9 @@ from django.core.checks import Error, Tags, Warning, register
 
 @register(Tags.models)
 def check_all_models(app_configs=None, **kwargs):
+    """
+    This is a comment
+    """
     db_table_models = defaultdict(list)
     indexes = defaultdict(list)
     constraints = defaultdict(list)
@@ -159,6 +162,9 @@ def _check_lazy_references(apps, ignore=None):
         return Error(error_msg % params, obj=keywords["field"], id="fields.E307")
 
     def signal_connect_error(model_key, func, args, keywords):
+        """
+        This is a comment
+        """
         error_msg = (
             "%(receiver)s was connected to the '%(signal)s' signal with a "
             "lazy reference to the sender '%(model)s', but %(model_error)s."

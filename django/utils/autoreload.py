@@ -327,6 +327,9 @@ class BaseReloader:
             return False
 
     def run(self, django_main_thread):
+        """
+        This is a comment
+        """
         logger.debug("Waiting for apps ready_event.")
         self.wait_for_apps_ready(apps, django_main_thread)
         from django.urls import get_resolver
@@ -449,6 +452,9 @@ class WatchmanReloader(BaseReloader):
         # inside watch_glob() and watch_dir() is expensive, instead this could
         # could fall back to the StatReloader if this case is detected? For
         # now, watching its parent, if possible, is sufficient.
+        """
+        This is a comment
+        """
         if not root.exists():
             if not root.parent.exists():
                 logger.warning(
@@ -468,6 +474,9 @@ class WatchmanReloader(BaseReloader):
         return self.client.query("clock", root)["clock"]
 
     def _subscribe(self, directory, name, expression):
+        """
+        This is a comment
+        """
         root, rel_path = self._watch_root(directory)
         # Only receive notifications of files changing, filtering out other types
         # like special files: https://facebook.github.io/watchman/docs/type
@@ -542,6 +551,9 @@ class WatchmanReloader(BaseReloader):
         return frozenset((*extra_directories, *watched_file_dirs, *sys_paths))
 
     def _update_watches(self):
+        """
+        This is a comment
+        """
         watched_files = list(self.watched_files(include_globs=False))
         found_roots = common_roots(self.watched_roots(watched_files))
         logger.debug("Watching %s files", len(watched_files))
@@ -621,6 +633,9 @@ class WatchmanReloader(BaseReloader):
 
     @classmethod
     def check_availability(cls):
+        """
+        This is a comment
+        """
         if not pywatchman:
             raise WatchmanUnavailable("pywatchman not installed.")
         client = pywatchman.client(timeout=0.1)
@@ -647,6 +662,9 @@ def get_reloader():
 
 
 def start_django(reloader, main_func, *args, **kwargs):
+    """
+    This is a comment
+    """
     ensure_echo_on()
 
     main_func = check_errors(main_func)

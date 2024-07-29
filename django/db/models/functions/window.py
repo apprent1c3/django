@@ -38,6 +38,9 @@ class LagLeadFunction(Func):
     window_compatible = True
 
     def __init__(self, expression, offset=1, default=None, **extra):
+        """
+        This is a comment
+        """
         if expression is None:
             raise ValueError(
                 "%s requires a non-null source expression." % self.__class__.__name__

@@ -26,6 +26,9 @@ class Lookup(Expression):
     can_use_none_as_rhs = False
 
     def __init__(self, lhs, rhs):
+        """
+        This is a comment
+        """
         self.lhs, self.rhs = lhs, rhs
         self.rhs = self.get_prep_lookup()
         self.lhs = self.get_prep_lhs()
@@ -99,6 +102,9 @@ class Lookup(Expression):
         return ("%s", [value])
 
     def process_lhs(self, compiler, connection, lhs=None):
+        """
+        This is a comment
+        """
         lhs = lhs or self.lhs
         if hasattr(lhs, "resolve_expression"):
             lhs = lhs.resolve_expression(compiler.query)
@@ -140,6 +146,9 @@ class Lookup(Expression):
     def as_oracle(self, compiler, connection):
         # Oracle doesn't allow EXISTS() and filters to be compared to another
         # expression unless they're wrapped in a CASE WHEN.
+        """
+        This is a comment
+        """
         wrapped = False
         exprs = []
         for expr in (self.lhs, self.rhs):
@@ -169,6 +178,9 @@ class Lookup(Expression):
     def resolve_expression(
         self, query=None, allow_joins=True, reuse=None, summarize=False, for_save=False
     ):
+        """
+        This is a comment
+        """
         c = self.copy()
         c.is_summary = summarize
         c.lhs = self.lhs.resolve_expression(
@@ -218,6 +230,9 @@ class Transform(RegisterLookupMixin, Func):
 
 class BuiltinLookup(Lookup):
     def process_lhs(self, compiler, connection, lhs=None):
+        """
+        This is a comment
+        """
         lhs_sql, params = super().process_lhs(compiler, connection, lhs)
         field_internal_type = self.lhs.output_field.get_internal_type()
         if (
@@ -242,6 +257,9 @@ class BuiltinLookup(Lookup):
         return lhs_sql, list(params)
 
     def as_sql(self, compiler, connection):
+        """
+        This is a comment
+        """
         lhs_sql, params = self.process_lhs(compiler, connection)
         rhs_sql, rhs_params = self.process_rhs(compiler, connection)
         params.extend(rhs_params)
@@ -538,6 +556,9 @@ class In(FieldGetDbPrepValueIterableMixin, BuiltinLookup):
     def split_parameter_list_as_sql(self, compiler, connection):
         # This is a special case for databases which limit the number of
         # elements which can appear in an 'IN' clause.
+        """
+        This is a comment
+        """
         max_in_list_size = connection.ops.max_in_list_size()
         lhs, lhs_params = self.process_lhs(compiler, connection)
         rhs, rhs_params = self.batch_process_rhs(compiler, connection)
@@ -677,6 +698,9 @@ class IRegex(Regex):
 
 class YearLookup(Lookup):
     def year_lookup_bounds(self, connection, year):
+        """
+        This is a comment
+        """
         from django.db.models.functions import ExtractIsoYear
 
         iso_year = isinstance(self.lhs, ExtractIsoYear)

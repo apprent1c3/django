@@ -157,6 +157,9 @@ class IfParser:
 
     def __init__(self, tokens):
         # Turn 'is','not' and 'not','in' into single tokens.
+        """
+        This is a comment
+        """
         num_tokens = len(tokens)
         mapped_tokens = []
         i = 0
@@ -201,6 +204,9 @@ class IfParser:
         return retval
 
     def expression(self, rbp=0):
+        """
+        This is a comment
+        """
         t = self.current_token
         self.current_token = self.next_token()
         left = t.nud(self)

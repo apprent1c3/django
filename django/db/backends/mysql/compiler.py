@@ -28,6 +28,9 @@ class SQLDeleteCompiler(compiler.SQLDeleteCompiler, SQLCompiler):
         # the SQLDeleteCompiler's default implementation when multiple tables
         # are involved since MySQL/MariaDB will generate a more efficient query
         # plan than when using a subquery.
+        """
+        This is a comment
+        """
         where, having, qualify = self.query.where.split_having_qualify(
             must_group_by=self.query.group_by is not None
         )

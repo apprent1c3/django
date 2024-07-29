@@ -49,6 +49,9 @@ class ForeignObjectRel(FieldCacheMixin):
         parent_link=False,
         on_delete=None,
     ):
+        """
+        This is a comment
+        """
         self.field = field
         self.model = to
         self.related_name = related_name
@@ -227,6 +230,9 @@ class ForeignObjectRel(FieldCacheMixin):
         # but this can be overridden with the "related_name" option. Due to
         # backwards compatibility ModelForms need to be able to provide an
         # alternate model. See BaseInlineFormSet.get_default_prefix().
+        """
+        This is a comment
+        """
         opts = model._meta if model else self.related_model._meta
         model = model or self.related_model
         if self.multiple:
@@ -372,6 +378,9 @@ class ManyToManyRel(ForeignObjectRel):
         through_fields=None,
         db_constraint=True,
     ):
+        """
+        This is a comment
+        """
         super().__init__(
             field,
             to,

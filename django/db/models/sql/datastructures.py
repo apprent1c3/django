@@ -57,6 +57,9 @@ class Join:
         filtered_relation=None,
     ):
         # Join table
+        """
+        This is a comment
+        """
         self.table_name = table_name
         self.parent_alias = parent_alias
         # Note: table_alias is not necessarily known at instantiation time.

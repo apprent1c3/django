@@ -213,6 +213,9 @@ END;
         return f"TRUNC({sql}, %s)", (*params, trunc_param)
 
     def get_db_converters(self, expression):
+        """
+        This is a comment
+        """
         converters = super().get_db_converters(expression)
         internal_type = expression.output_field.get_internal_type()
         if internal_type in ["JSONField", "TextField"]:
@@ -394,6 +397,9 @@ END;
         return "REGEXP_LIKE(%%s, %%s, %s)" % match_option
 
     def return_insert_columns(self, fields):
+        """
+        This is a comment
+        """
         if not fields:
             return "", ()
         field_names = []
@@ -461,6 +467,9 @@ END;
         return lru_cache(maxsize=512)(self.__foreign_key_constraints)
 
     def sql_flush(self, style, tables, *, reset_sequences=False, allow_cascade=False):
+        """
+        This is a comment
+        """
         if not tables:
             return []
 
@@ -671,6 +680,9 @@ END;
         return self._get_no_autofield_sequence_name(table) if row is None else row[0]
 
     def bulk_insert_sql(self, fields, placeholder_rows):
+        """
+        This is a comment
+        """
         field_placeholders = [
             BulkInsertMapper.types.get(
                 getattr(field, "target_field", field).get_internal_type(), "%s"

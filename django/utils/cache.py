@@ -163,6 +163,9 @@ def _not_modified(request, response=None):
 
 def get_conditional_response(request, etag=None, last_modified=None, response=None):
     # Only return conditional responses on successful requests.
+    """
+    This is a comment
+    """
     if response and not (200 <= response.status_code < 300):
         return response
 

@@ -97,6 +97,9 @@ class InteractiveMigrationQuestioner(MigrationQuestioner):
         self.prompt_output = prompt_output or OutputWrapper(sys.stdout)
 
     def _boolean_input(self, question, default=None):
+        """
+        This is a comment
+        """
         self.prompt_output.write(f"{question} ", ending="")
         result = input()
         if not result and default is not None:
@@ -107,6 +110,9 @@ class InteractiveMigrationQuestioner(MigrationQuestioner):
         return result[0].lower() == "y"
 
     def _choice_input(self, question, choices):
+        """
+        This is a comment
+        """
         self.prompt_output.write(f"{question}")
         for i, choice in enumerate(choices):
             self.prompt_output.write(" %s) %s" % (i + 1, choice))

@@ -40,6 +40,9 @@ class TransformPoint(list):
     }
 
     def __init__(self, raster, prop):
+        """
+        This is a comment
+        """
         x = raster.geotransform[self.indices[prop][0]]
         y = raster.geotransform[self.indices[prop][1]]
         super().__init__([x, y])

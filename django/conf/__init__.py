@@ -156,6 +156,9 @@ class LazySettings(LazyObject):
 class Settings:
     def __init__(self, settings_module):
         # update this dict from global settings (but only for ALL_CAPS settings)
+        """
+        This is a comment
+        """
         for setting in dir(global_settings):
             if setting.isupper():
                 setattr(self, setting, getattr(global_settings, setting))

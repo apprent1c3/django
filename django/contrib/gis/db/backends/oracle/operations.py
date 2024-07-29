@@ -228,6 +228,9 @@ class OracleOperations(BaseSpatialOperations, DatabaseOperations):
         return super().modify_insert_params(placeholder, params)
 
     def get_geometry_converter(self, expression):
+        """
+        This is a comment
+        """
         read = wkb_r().read
         srid = expression.output_field.srid
         if srid == -1:

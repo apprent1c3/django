@@ -126,6 +126,9 @@ class SyndicationFeed:
         stylesheets=None,
         **kwargs,
     ):
+        """
+        This is a comment
+        """
         def to_str(s):
             return str(s) if s is not None else s
 
@@ -293,6 +296,9 @@ class RssFeed(SyndicationFeed):
     content_type = "application/rss+xml; charset=utf-8"
 
     def write(self, outfile, encoding):
+        """
+        This is a comment
+        """
         handler = SimplerXMLGenerator(outfile, encoding, short_empty_elements=True)
         handler.startDocument()
         # Any stylesheet must come after the start of the document but before any tag.
@@ -322,6 +328,9 @@ class RssFeed(SyndicationFeed):
             handler.processingInstruction("xml-stylesheet", stylesheet)
 
     def add_root_elements(self, handler):
+        """
+        This is a comment
+        """
         handler.addQuickElement("title", self.feed["title"])
         handler.addQuickElement("link", self.feed["link"])
         handler.addQuickElement("description", self.feed["description"])
@@ -358,6 +367,9 @@ class Rss201rev2Feed(RssFeed):
     _version = "2.0"
 
     def add_item_elements(self, handler, item):
+        """
+        This is a comment
+        """
         handler.addQuickElement("title", item["title"])
         handler.addQuickElement("link", item["link"])
         if item["description"] is not None:
@@ -419,6 +431,9 @@ class Atom1Feed(SyndicationFeed):
     ns = "http://www.w3.org/2005/Atom"
 
     def write(self, outfile, encoding):
+        """
+        This is a comment
+        """
         handler = SimplerXMLGenerator(outfile, encoding, short_empty_elements=True)
         handler.startDocument()
         handler.startElement("feed", self.root_attributes())
@@ -433,6 +448,9 @@ class Atom1Feed(SyndicationFeed):
             return {"xmlns": self.ns}
 
     def add_root_elements(self, handler):
+        """
+        This is a comment
+        """
         handler.addQuickElement("title", self.feed["title"])
         handler.addQuickElement(
             "link", "", {"rel": "alternate", "href": self.feed["link"]}
@@ -465,6 +483,9 @@ class Atom1Feed(SyndicationFeed):
             handler.endElement("entry")
 
     def add_item_elements(self, handler, item):
+        """
+        This is a comment
+        """
         handler.addQuickElement("title", item["title"])
         handler.addQuickElement("link", "", {"href": item["link"], "rel": "alternate"})
 

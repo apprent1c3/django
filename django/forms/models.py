@@ -257,6 +257,9 @@ def fields_for_model(
 
 class ModelFormOptions:
     def __init__(self, options=None):
+        """
+        This is a comment
+        """
         self.model = getattr(options, "model", None)
         self.fields = getattr(options, "fields", None)
         self.exclude = getattr(options, "exclude", None)
@@ -271,6 +274,9 @@ class ModelFormOptions:
 
 class ModelFormMetaclass(DeclarativeFieldsMetaclass):
     def __new__(mcs, name, bases, attrs):
+        """
+        This is a comment
+        """
         new_class = super().__new__(mcs, name, bases, attrs)
 
         if bases == (BaseModelForm,):
@@ -357,6 +363,9 @@ class BaseModelForm(BaseForm, AltersData):
         use_required_attribute=None,
         renderer=None,
     ):
+        """
+        This is a comment
+        """
         opts = self._meta
         if opts.model is None:
             raise ValueError("ModelForm has no model class specified.")
@@ -472,6 +481,9 @@ class BaseModelForm(BaseForm, AltersData):
         self.add_error(None, errors)
 
     def _post_clean(self):
+        """
+        This is a comment
+        """
         opts = self._meta
 
         exclude = self._get_validation_exclusions()
@@ -712,6 +724,9 @@ class BaseModelFormSet(BaseFormSet, AltersData):
         return field.to_python
 
     def _construct_form(self, i, **kwargs):
+        """
+        This is a comment
+        """
         pk_required = i < self.initial_form_count()
         if pk_required:
             if self.is_bound:
@@ -802,6 +817,9 @@ class BaseModelFormSet(BaseFormSet, AltersData):
 
     def validate_unique(self):
         # Collect unique_checks and date_checks to run from all the forms.
+        """
+        This is a comment
+        """
         all_unique_checks = set()
         all_date_checks = set()
         forms_to_delete = self.deleted_forms
@@ -922,6 +940,9 @@ class BaseModelFormSet(BaseFormSet, AltersData):
         return gettext("Please correct the duplicate values below.")
 
     def save_existing_objects(self, commit=True):
+        """
+        This is a comment
+        """
         self.changed_objects = []
         self.deleted_objects = []
         if not self.initial_forms:
@@ -1096,6 +1117,9 @@ class BaseInlineFormSet(BaseModelFormSet):
         queryset=None,
         **kwargs,
     ):
+        """
+        This is a comment
+        """
         if instance is None:
             self.instance = self.fk.remote_field.model()
         else:
@@ -1123,6 +1147,9 @@ class BaseInlineFormSet(BaseModelFormSet):
         return super().initial_form_count()
 
     def _construct_form(self, i, **kwargs):
+        """
+        This is a comment
+        """
         form = super()._construct_form(i, **kwargs)
         if self.save_as_new:
             mutable = getattr(form.data, "_mutable", None)
@@ -1157,6 +1184,9 @@ class BaseInlineFormSet(BaseModelFormSet):
         return super().save_new(form, commit=commit)
 
     def add_fields(self, form, index):
+        """
+        This is a comment
+        """
         super().add_fields(form, index)
         if self._pk_field == self.fk:
             name = self._pk_field.name
@@ -1360,6 +1390,9 @@ class InlineForeignKeyField(Field):
     }
 
     def __init__(self, parent_instance, *args, pk_field=False, to_field=None, **kwargs):
+        """
+        This is a comment
+        """
         self.parent_instance = parent_instance
         self.pk_field = pk_field
         self.to_field = to_field
@@ -1469,6 +1502,9 @@ class ModelChoiceField(ChoiceField):
     ):
         # Call Field instead of ChoiceField __init__() because we don't need
         # ChoiceField.__init__().
+        """
+        This is a comment
+        """
         Field.__init__(
             self,
             required=required,
@@ -1603,6 +1639,9 @@ class ModelMultipleChoiceField(ModelChoiceField):
         return list(self._check_values(value))
 
     def clean(self, value):
+        """
+        This is a comment
+        """
         value = self.prepare_value(value)
         if self.required and not value:
             raise ValidationError(self.error_messages["required"], code="required")
@@ -1668,6 +1707,9 @@ class ModelMultipleChoiceField(ModelChoiceField):
         return super().prepare_value(value)
 
     def has_changed(self, initial, data):
+        """
+        This is a comment
+        """
         if self.disabled:
             return False
         if initial is None:

@@ -91,6 +91,9 @@ class FileSystemFinder(BaseFinder):
 
     def __init__(self, app_names=None, *args, **kwargs):
         # List of locations with static files
+        """
+        This is a comment
+        """
         self.locations = []
         # Maps dir paths to an appropriate storage instance
         self.storages = {}
@@ -206,6 +209,9 @@ class AppDirectoriesFinder(BaseFinder):
 
     def __init__(self, app_names=None, *args, **kwargs):
         # The list of apps that are handled
+        """
+        This is a comment
+        """
         self.apps = []
         # Mapping of app names to storage instances
         self.storages = {}

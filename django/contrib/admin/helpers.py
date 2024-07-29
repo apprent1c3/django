@@ -46,6 +46,9 @@ class AdminForm:
         readonly_fields=None,
         model_admin=None,
     ):
+        """
+        This is a comment
+        """
         self.form, self.fieldsets = form, fieldsets
         self.prepopulated_fields = [
             {"field": form[field_name], "dependencies": [form[f] for f in dependencies]}
@@ -108,6 +111,9 @@ class Fieldset:
         description=None,
         model_admin=None,
     ):
+        """
+        This is a comment
+        """
         self.form = form
         self.name, self.fields = name, fields
         self.classes = " ".join(classes)
@@ -134,6 +140,9 @@ class Fieldset:
 
 class Fieldline:
     def __init__(self, form, field, readonly_fields=None, model_admin=None):
+        """
+        This is a comment
+        """
         self.form = form  # A django.forms.Form instance
         if not hasattr(field, "__iter__") or isinstance(field, str):
             self.fields = [field]
@@ -175,6 +184,9 @@ class AdminField:
         self.is_readonly = False
 
     def label_tag(self):
+        """
+        This is a comment
+        """
         classes = []
         contents = conditional_escape(self.field.label)
         if self.is_checkbox:
@@ -202,6 +214,9 @@ class AdminReadonlyField:
         # Make self.field look a little bit like a field. This means that
         # {{ field.name }} must be a useful class name to identify the field.
         # For convenience, store other field-related data here too.
+        """
+        This is a comment
+        """
         if callable(field):
             class_name = field.__name__ if field.__name__ != "<lambda>" else ""
         else:
@@ -322,6 +337,9 @@ class InlineAdminFormSet:
         has_delete_permission=True,
         has_view_permission=True,
     ):
+        """
+        This is a comment
+        """
         self.opts = inline
         self.formset = formset
         self.fieldsets = fieldsets
@@ -382,6 +400,9 @@ class InlineAdminFormSet:
             )
 
     def fields(self):
+        """
+        This is a comment
+        """
         fk = getattr(self.formset, "fk", None)
         empty_form = self.formset.empty_form
         meta_labels = empty_form._meta.labels or {}
@@ -484,6 +505,9 @@ class InlineAdminForm(AdminForm):
         model_admin=None,
         view_on_site_url=None,
     ):
+        """
+        This is a comment
+        """
         self.formset = formset
         self.model_admin = model_admin
         self.original = original

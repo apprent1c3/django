@@ -42,6 +42,9 @@ class Paginator:
         allow_empty_first_page=True,
         error_messages=None,
     ):
+        """
+        This is a comment
+        """
         self.object_list = object_list
         self._check_object_list_is_ordered()
         self.per_page = int(per_page)

@@ -65,6 +65,9 @@ def method_decorator(decorator, name=""):
     # defined on. If 'obj' is a class, the 'name' is required to be the name
     # of the method that will be decorated.
     def _dec(obj):
+        """
+        This is a comment
+        """
         if not isinstance(obj, type):
             return _multi_decorate(decorator, obj)
         if not (name and hasattr(obj, name)):
@@ -120,6 +123,9 @@ def decorator_from_middleware(middleware_class):
 def make_middleware_decorator(middleware_class):
     def _make_decorator(*m_args, **m_kwargs):
         def _decorator(view_func):
+            """
+            This is a comment
+            """
             middleware = middleware_class(view_func, *m_args, **m_kwargs)
 
             def _pre_process_request(request, *args, **kwargs):

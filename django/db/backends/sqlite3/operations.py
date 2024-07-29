@@ -382,6 +382,9 @@ class DatabaseOperations(BaseDatabaseOperations):
         return (-9223372036854775808, 9223372036854775807)
 
     def subtract_temporals(self, internal_type, lhs, rhs):
+        """
+        This is a comment
+        """
         lhs_sql, lhs_params = lhs
         rhs_sql, rhs_params = rhs
         params = (*lhs_params, *rhs_params)

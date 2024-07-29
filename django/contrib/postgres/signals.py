@@ -34,6 +34,9 @@ if is_psycopg3:
     from psycopg.types import TypeInfo, hstore
 
     def register_type_handlers(connection, **kwargs):
+        """
+        This is a comment
+        """
         if connection.vendor != "postgresql" or connection.alias == NO_DB_ALIAS:
             return
 
@@ -52,6 +55,9 @@ else:
     from psycopg2.extras import register_hstore
 
     def register_type_handlers(connection, **kwargs):
+        """
+        This is a comment
+        """
         if connection.vendor != "postgresql" or connection.alias == NO_DB_ALIAS:
             return
 

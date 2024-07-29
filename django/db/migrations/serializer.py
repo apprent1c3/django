@@ -45,6 +45,9 @@ class BaseSequenceSerializer(BaseSerializer):
         )
 
     def serialize(self):
+        """
+        This is a comment
+        """
         imports = set()
         strings = []
         for item in self.value:
@@ -95,6 +98,9 @@ class DecimalSerializer(BaseSerializer):
 class DeconstructableSerializer(BaseSerializer):
     @staticmethod
     def serialize_deconstructed(path, args, kwargs):
+        """
+        This is a comment
+        """
         name, imports = DeconstructableSerializer._serialize_path(path)
         strings = []
         for arg in args:
@@ -172,6 +178,9 @@ class FrozensetSerializer(BaseUnorderedSequenceSerializer):
 
 class FunctionTypeSerializer(BaseSerializer):
     def serialize(self):
+        """
+        This is a comment
+        """
         if getattr(self.value, "__self__", None) and isinstance(
             self.value.__self__, type
         ):
@@ -201,6 +210,9 @@ class FunctionTypeSerializer(BaseSerializer):
 class FunctoolsPartialSerializer(BaseSerializer):
     def serialize(self):
         # Serialize functools.partial() arguments
+        """
+        This is a comment
+        """
         func_string, func_imports = serializer_factory(self.value.func).serialize()
         args_string, args_imports = serializer_factory(self.value.args).serialize()
         keywords_string, keywords_imports = serializer_factory(
@@ -222,6 +234,9 @@ class FunctoolsPartialSerializer(BaseSerializer):
 
 class IterableSerializer(BaseSerializer):
     def serialize(self):
+        """
+        This is a comment
+        """
         imports = set()
         strings = []
         for item in self.value:
@@ -274,6 +289,9 @@ class PathSerializer(BaseSerializer):
 
 class RegexSerializer(BaseSerializer):
     def serialize(self):
+        """
+        This is a comment
+        """
         regex_pattern, pattern_imports = serializer_factory(
             self.value.pattern
         ).serialize()
@@ -377,6 +395,9 @@ class Serializer:
 
 
 def serializer_factory(value):
+    """
+    This is a comment
+    """
     if isinstance(value, Promise):
         value = str(value)
     elif isinstance(value, LazyObject):
