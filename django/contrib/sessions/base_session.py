@@ -44,5 +44,16 @@ class AbstractBaseSession(models.Model):
         raise NotImplementedError
 
     def get_decoded(self):
+        """
+        Retrieve the decoded session data.
+
+        This method uses the session store class associated with the instance to decode 
+        the stored session data. It returns the decoded data, allowing access to the 
+        underlying information in a usable form.
+
+        :rtype: Decoded session data
+        :returns: The decoded session data, as provided by the session store class.
+
+        """
         session_store_class = self.get_session_store_class()
         return session_store_class().decode(self.session_data)

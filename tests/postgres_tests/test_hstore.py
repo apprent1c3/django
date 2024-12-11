@@ -228,6 +228,17 @@ class TestQuerying(PostgreSQLTestCase):
         )
 
     def test_key_isnull(self):
+        """
+        Tests filtering of HStoreModel instances based on null values in a specific field.
+
+        Checks that instances with a null value in the specified field ('a') can be correctly
+        filtered using the `isnull=True` lookup, and that instances with non-null values
+        can be filtered using `isnull=False`. 
+
+        The test covers both the inclusion of newly created objects and existing objects 
+        in the filtered results, ensuring accurate retrieval of instances based on nullity 
+        of the specified field.
+        """
         obj = HStoreModel.objects.create(field={"a": None})
         self.assertSequenceEqual(
             HStoreModel.objects.filter(field__a__isnull=True),

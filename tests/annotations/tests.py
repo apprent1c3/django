@@ -316,6 +316,18 @@ class NonAggregateAnnotationTestCase(TestCase):
         self.assertIsNone(qs.first().empty)
 
     def test_annotate_with_aggregation(self):
+        """
+        Tests annotating Book objects with aggregated values.
+
+        This test case verifies that the Book objects can be successfully annotated with
+        additional attributes, specifically a flag indicating if the object is a book and
+        a count of associated ratings. It checks that the annotated values are correctly
+        assigned to each Book instance.
+
+        The test outcome validates the correct functioning of database aggregation
+        operations in the context of Book objects, ensuring that the data is properly
+        retrieved and annotated for further processing.
+        """
         books = Book.objects.annotate(is_book=Value(1), rating_count=Count("rating"))
         for book in books:
             self.assertEqual(book.is_book, 1)
@@ -467,6 +479,11 @@ class NonAggregateAnnotationTestCase(TestCase):
             )
 
     def test_values_wrong_annotation(self):
+        """
+        Tests that the `values_list` method raises a FieldError when attempting to retrieve a field that does not exist due to a typo in the annotation name. 
+
+        The function verifies that the correct error message is displayed, including the list of available fields that can be used in the `values_list` method, thus ensuring proper handling of incorrect annotation names.
+        """
         expected_message = (
             "Cannot resolve keyword 'annotation_typo' into field. Choices are: %s"
         )
@@ -1277,6 +1294,13 @@ class AliasTests(TestCase):
         self.assertIs(hasattr(book, "is_book_alias"), False)
 
     def test_overwrite_annotation_with_alias(self):
+        """
+        Tests that an annotated field can be overwritten with an alias.
+
+        Checks that when a query set is annotated with a field and then the same field is aliased,
+        the original annotation is effectively replaced, resulting in the object no longer having
+        the annotated attribute.
+        """
         qs = Book.objects.annotate(is_book=Value(1)).alias(is_book=F("is_book"))
         self.assertIs(hasattr(qs.first(), "is_book"), False)
 
@@ -1365,6 +1389,19 @@ class AliasTests(TestCase):
         self.assertQuerySetEqual(qs, [34, 34, 35, 46, 57], lambda a: a.age)
 
     def test_order_by_alias_aggregate(self):
+        """
+
+        Tests the ordering of a queryset by an aggregate alias.
+
+        Verifies that when a queryset is ordered by an aggregate alias, the resulting 
+        objects do not contain the aggregate alias attribute, and that the queryset 
+        is ordered correctly.
+
+        Checks that the ordering is done first by the aggregate count and then by 
+        the specified field, in this case 'age'. The test also confirms that the 
+        queryset returns the expected results in the correct order.
+
+        """
         qs = (
             Author.objects.values("age")
             .alias(age_count=Count("age"))
@@ -1432,6 +1469,11 @@ class AliasTests(TestCase):
                     getattr(qs, operation)("rating_alias")
 
     def test_alias_sql_injection(self):
+        """
+        Tests the prevention of SQL injection attacks through crafted column aliases in the alias method of the Book model.
+
+        The test verifies that an attempt to use a maliciously crafted alias containing SQL syntax or comments will raise a ValueError with a descriptive error message, ensuring the security of the database queries by preventing execution of unauthorized SQL code.
+        """
         crafted_alias = """injected_name" from "annotations_book"; --"""
         msg = (
             "Column aliases cannot contain whitespace characters, quotation marks, "

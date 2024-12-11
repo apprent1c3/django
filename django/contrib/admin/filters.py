@@ -28,6 +28,18 @@ class ListFilter:
     template = "admin/filter.html"
 
     def __init__(self, request, params, model, model_admin):
+        """
+        Initializes a list filter instance with the given parameters.
+
+        :param request: The current HTTP request.
+        :param params: A dictionary of filter parameters.
+        :param model: The model being filtered.
+        :param model_admin: The model admin instance.
+
+        :raises ImproperlyConfigured: If the list filter does not specify a title. 
+
+        :note: This is an internal constructor and should not be called directly. Instead, use the class to create an instance of the filter.
+        """
         self.request = request
         # This dictionary will eventually contain the request's query string
         # parameters actually used by this filter.
@@ -463,6 +475,18 @@ FieldListFilter.register(lambda f: bool(f.choices), ChoicesFieldListFilter)
 
 class DateFieldListFilter(FieldListFilter):
     def __init__(self, field, request, params, model, model_admin, field_path):
+        """
+        Initializes a class instance for managing date-based filtering of model objects.
+
+        :param field: The model field to filter by.
+        :param request: The current request object.
+        :param params: A dictionary of query parameters.
+        :param model: The model class being filtered.
+        :param model_admin: The admin interface for the model.
+        :param field_path: The path to the field in the model.
+
+        The initialization process sets up various date-related attributes, including the current date and time, and constructs a set of links for filtering by different date ranges (e.g. today, past 7 days, this month, this year). If the field allows null values, additional links are added for filtering by the presence or absence of a date.
+        """
         self.field_generic = "%s__" % field_path
         self.date_params = {
             k: v[-1] for k, v in params.items() if k.startswith(self.field_generic)
@@ -675,6 +699,22 @@ class EmptyFieldListFilter(FieldListFilter):
         return models.Q.create(lookup_conditions, connector=models.Q.OR)
 
     def queryset(self, request, queryset):
+        """
+
+        Filters a queryset based on a lookup condition.
+
+        This function is used to filter a queryset based on a specific lookup condition.
+        It checks if the lookup keyword is present in the used parameters and if the lookup value is valid.
+        If the lookup value is '1', it filters the queryset to include only objects that match the lookup condition.
+        If the lookup value is '0', it excludes objects that match the lookup condition from the queryset.
+
+        Raises:
+            IncorrectLookupParameters: If the lookup value is not '0' or '1'.
+
+        Returns:
+            Queryset: The filtered or excluded queryset.
+
+        """
         if self.lookup_kwarg not in self.used_parameters:
             return queryset
         if self.lookup_val not in ("0", "1"):

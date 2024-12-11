@@ -354,6 +354,18 @@ class TestCombinations(GrailTestData, PostgreSQLTestCase):
         )
 
     def test_vector_add_multi(self):
+        """
+
+        Tests the vector addition functionality in the search functionality.
+
+        This test case verifies that the search vector can be created by combining 
+        multiple fields ('scene__setting', 'character__name', and 'dialogue') and 
+        then used to filter the results.
+
+        The test searches for the term 'bedemir' in the combined search vector and 
+        checks if the expected objects (lines) are returned in the search results.
+
+        """
         searched = Line.objects.annotate(
             search=(
                 SearchVector("scene__setting")

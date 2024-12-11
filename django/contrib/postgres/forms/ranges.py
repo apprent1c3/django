@@ -25,6 +25,15 @@ class RangeWidget(MultiWidget):
         super().__init__(widgets, attrs)
 
     def decompress(self, value):
+        """
+        Decompresses a given value into a tuple containing its lower and upper bounds.
+
+        The decompressed value is returned as a tuple. If the input value is empty or None, 
+        the function returns a tuple containing two None values.
+
+        :return: A tuple containing the lower and upper bounds of the decompressed value, or (None, None) if the input value is empty.
+        :rtype: tuple
+        """
         if value:
             return (value.lower, value.upper)
         return (None, None)

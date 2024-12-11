@@ -142,6 +142,26 @@ class ViewIndexView(BaseAdminDocsView):
     template_name = "admin_doc/view_index.html"
 
     def get_context_data(self, **kwargs):
+        """
+
+        Get context data to be used in template rendering, including a list of views.
+
+        This function extends the default context data with an additional 'views' key,
+        containing a list of dictionaries representing the application's views.
+        Each view dictionary includes the following information:
+            - full_name: The name of the view function.
+            - url: A simplified version of the view's URL pattern.
+            - url_name: The name of the URL pattern, including namespace.
+            - namespace: The namespace of the URL pattern.
+            - name: The name of the URL pattern.
+
+        The function iterates over all view functions in the URL configuration, extracts
+        their metadata, and includes them in the 'views' list. If any issues occur during
+        the extraction process, an empty list of views is returned.
+
+        :return: The extended context data including the list of views.
+
+        """
         views = []
         url_resolver = get_resolver(get_urlconf())
         try:
@@ -206,6 +226,20 @@ class ModelIndexView(BaseAdminDocsView):
     template_name = "admin_doc/model_index.html"
 
     def get_context_data(self, **kwargs):
+        """
+
+        Returns the context data for a view, including a list of model metadata.
+
+        This function extends the default context data with an additional key, 'models', 
+        which contains a list of metadata objects for all installed models. The metadata 
+        includes information about each model, such as its name and fields.
+
+        :param kwargs: Additional keyword arguments to be passed to the parent class's 
+            get_context_data method.
+        :return: A dictionary containing the context data for the view, including the 
+            list of model metadata.
+
+        """
         m_list = [m._meta for m in apps.get_models()]
         return super().get_context_data(**{**kwargs, "models": m_list})
 

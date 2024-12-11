@@ -119,6 +119,22 @@ class RunSQL(Operation):
         return "Raw SQL operation"
 
     def _run_sql(self, schema_editor, sqls):
+        """
+
+        Run one or more SQL statements against the database.
+
+        This method takes a list or tuple of SQL statements to execute. Each SQL statement
+        can be a string or a tuple containing the SQL string and parameters. The method
+        executes each statement in sequence, passing any provided parameters to the
+        database.
+
+        If a single SQL statement is provided (not as a list or tuple), it will be
+        executed directly. If the statement is a special \"noop\" value, no action is taken.
+
+        The method uses the provided schema editor to execute the SQL statements, which
+        handles the underlying database connection and statement preparation.
+
+        """
         if isinstance(sqls, (list, tuple)):
             for sql in sqls:
                 params = None

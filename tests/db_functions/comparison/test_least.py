@@ -68,6 +68,13 @@ class LeastTests(TestCase):
         self.assertIsNone(articles.first().first_updated)
 
     def test_one_expressions(self):
+        """
+
+        Tests that an exception is raised when the Least function is called with less than two expressions.
+
+        Raises a ValueError with the message 'Least must take at least two expressions' if the condition is not met.
+
+        """
         with self.assertRaisesMessage(
             ValueError, "Least must take at least two expressions"
         ):

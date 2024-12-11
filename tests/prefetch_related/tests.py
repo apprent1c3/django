@@ -388,6 +388,11 @@ class PrefetchRelatedTests(TestDataMixin, TestCase):
         )
 
     def test_m2m_prefetching_iterator_without_chunks_error(self):
+        """
+        Tests that attempting to use QuerySet.iterator() after prefetch_related() without specifying a chunk_size raises a ValueError.
+
+        The test case verifies that a ValueError is raised with a specific error message when trying to iterate over a QuerySet that has been prefetched but not chunked. This ensures that the expected error handling behavior is enforced when using prefetch_related() in conjunction with iterator().
+        """
         msg = (
             "chunk_size must be provided when using QuerySet.iterator() after "
             "prefetch_related()."
@@ -1062,6 +1067,17 @@ class CustomPrefetchTests(TestCase):
 class DefaultManagerTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Sets up test data for the application, creating a set of pre-defined qualifications, teachers, and departments.
+        This method creates a range of qualifications (BA, BSci, MA, PhD), teachers with associated qualifications (Mr Cleese, Mr Idle, Mr Chapman),
+        and departments (English, Physics) with assigned teachers.
+        The test data is stored as class attributes, making it accessible for use in subsequent tests.
+
+        This setup allows for testing of various application features, such as teacher qualification checks and department teacher assignments.
+        Note that this data is intended for testing purposes only and should not be used in production environments.
+
+        """
         cls.qual1 = Qualification.objects.create(name="BA")
         cls.qual2 = Qualification.objects.create(name="BSci")
         cls.qual3 = Qualification.objects.create(name="MA")
@@ -1129,6 +1145,13 @@ class GenericRelationTests(TestCase):
             list(qs)
 
     def test_prefetch_GFK_nonint_pk(self):
+        """
+        Test that prefetching Generic Foreign Key (GFK) relationships with non-integer primary keys using prefetch_related works as expected.
+
+        This test case verifies that the number of database queries is reduced when using prefetch_related to fetch related objects, specifically when the primary key is not an integer. 
+
+        It checks if related objects are correctly fetched in a single query when the prefetch_related method is applied to a QuerySet.
+        """
         Comment.objects.create(comment="awesome", content_object=self.book1)
 
         # 1 for Comment table, 1 for Book table
@@ -1429,6 +1452,16 @@ class LookupOrderingTest(TestCase):
 class NullableTest(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for the class, creating a hierarchy of employee objects.
+
+        This method creates a set of employee objects with predefined relationships, 
+        enabling the testing of employee-related functionality. The hierarchy consists 
+        of a single boss, 'Peter', with two subordinate employees, 'Joe' and 'Angela'. 
+
+        The resulting employee objects are stored in the database, allowing for 
+        reliable testing of code that relies on this data structure.
+        """
         boss = Employee.objects.create(name="Peter")
         Employee.objects.create(name="Joe", boss=boss)
         Employee.objects.create(name="Angela", boss=boss)
@@ -1534,6 +1567,17 @@ class MultiDbTests(TestCase):
         )
 
     def test_using_is_honored_fkey(self):
+        """
+
+        Tests that the 'using' parameter is respected when fetching related objects.
+
+        Verifies that database queries are executed on the specified database connection.
+        The test creates authors and books in a database, then fetches related objects 
+        using 'prefetch_related' to reduce the number of database queries. It 
+        asserts that the correct data is retrieved and that the expected number of 
+        queries are executed on the specified database connection.
+
+        """
         B = Book.objects.using("other")
         A = Author.objects.using("other")
         book1 = B.create(title="Poems")
@@ -2017,6 +2061,16 @@ class DeprecationTests(TestCase):
 
     @ignore_warnings(category=RemovedInDjango60Warning)
     def test_prefetch_one_level_fallback(self):
+        """
+
+        Tests the behavior of the prefetch_one_level function when it falls back to using the ForwardManyToOneDescriptor.
+
+        This test case covers the scenario where the get_prefetch_querysets method is not available, 
+        and verifies that the function correctly fetches the related objects and performs any necessary additional lookups.
+
+        The test checks the function's behavior with and without an explicitly provided queryset.
+
+        """
         class NoGetPrefetchQuerySetsDescriptor(ForwardManyToOneDescriptor):
             def get_prefetch_queryset(self, instances, queryset=None):
                 if queryset is None:

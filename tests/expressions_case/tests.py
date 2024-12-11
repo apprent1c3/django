@@ -1550,6 +1550,15 @@ class CaseDocumentationExamples(TestCase):
         )
 
     def test_conditional_update_example(self):
+        """
+
+        Tests the conditional update of Client objects based on their registration dates.
+
+        This test case verifies that clients who registered more than a year ago are updated to have a platinum account type, 
+        those who registered within the last month are updated to have a gold account type, and all others are updated to have a regular account type.
+        The test asserts that the updated clients match the expected results when ordered by their primary key.
+
+        """
         a_month_ago = date.today() - timedelta(days=30)
         a_year_ago = date.today() - timedelta(days=365)
         Client.objects.update(

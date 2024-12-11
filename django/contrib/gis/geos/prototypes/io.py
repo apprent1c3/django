@@ -137,6 +137,17 @@ class IOBase(GEOSBase):
 
     def __init__(self):
         # Getting the pointer with the constructor.
+        """
+        Initializes a new instance of the class.
+
+        This constructor sets up the internal state of the object by calling the 
+        low-level constructor and storing the resulting pointer. It also prepares 
+        the destructor function for later use, allowing the object to properly 
+        clean up its resources when it is no longer needed.
+
+        Note: This is an internal implementation detail and should not be called 
+        directly. Instead, use the public constructor provided by the class.
+        """
         self.ptr = self._constructor()
         # Loading the real destructor function at this point as doing it in
         # __del__ is too late (import error).
@@ -155,6 +166,29 @@ class _WKTReader(IOBase):
     destructor = wkt_reader_destroy
 
     def read(self, wkt):
+        """
+
+        Reads a WKT (Well-Known Text) string.
+
+        Parameters
+        ----------
+        wkt : bytes or str
+            The WKT string to read.
+
+        Returns
+        -------
+        The parsed WKT string.
+
+        Raises
+        ------
+        TypeError
+            If the input is not a bytes or string object.
+
+        Notes
+        -----
+        This method uses a low-level reader to parse the WKT string and returns the result.
+
+        """
         if not isinstance(wkt, (bytes, str)):
             raise TypeError
         return wkt_reader_read(self.ptr, force_bytes(wkt))
@@ -255,6 +289,13 @@ class WKBWriter(IOBase):
         self.outdim = dim
 
     def _handle_empty_point(self, geom):
+        """
+        Handles an empty geometric point by either replacing it with a NaN point if a spatial reference system (SRID) is provided or raises an error if no SRID is available.
+
+        :param geom: The geometric point to be handled.
+        :raises ValueError: If the geometric point is empty and no SRID is provided.
+        :return: The handled geometric point or a NaN point if the input point was empty and an SRID is available.
+        """
         from django.contrib.gis.geos import Point
 
         if isinstance(geom, Point) and geom.empty:

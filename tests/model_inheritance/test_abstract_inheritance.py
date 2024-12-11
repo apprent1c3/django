@@ -204,6 +204,19 @@ class AbstractInheritanceTests(SimpleTestCase):
                 name = models.IntegerField()
 
     def test_override_field_with_attr(self):
+        """
+        Tests that a field in an abstract base model can be successfully overridden 
+        in a descendant model using an attribute. 
+
+        Specifically, this test checks if a field that is defined in the abstract base 
+        model can be replaced with a method or attribute in a child class, and if so, 
+        whether the original field is then not accessible via the model's meta API.
+
+        The test also covers the scenario where the original field is removed in the 
+        descendant model, by setting it to None. In both cases, it verifies that 
+        attempting to retrieve the overridden or removed field results in a 
+        FieldDoesNotExist exception being raised.
+        """
         class AbstractBase(models.Model):
             first_name = models.CharField(max_length=50)
             last_name = models.CharField(max_length=50)

@@ -260,6 +260,16 @@ class BaseDeleteView(DeletionMixin, FormMixin, BaseDetailView):
             return self.form_invalid(form)
 
     def form_valid(self, form):
+        """
+
+        Deletes the object being edited and redirects to a success URL after a valid form submission.
+
+        This method is called when the form is valid, and is responsible for handling the deletion of the object and subsequent redirect.
+
+        :param form: The valid form instance
+        :returns: An HttpResponseRedirect to the success URL
+
+        """
         success_url = self.get_success_url()
         self.object.delete()
         return HttpResponseRedirect(success_url)

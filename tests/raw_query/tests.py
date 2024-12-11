@@ -221,6 +221,15 @@ class RawQueryTests(TestCase):
         self.assertEqual(len(qset), 2)
 
     def test_escaped_percent(self):
+        """
+
+        Tests that database queries correctly handle escaped percent signs.
+
+        Verifies that a query with a like clause containing an escaped percent sign
+        ('%%') returns the expected results, ensuring that the db backend properly
+        interprets the escape sequence and does not treat it as a wildcard character.
+
+        """
         query = "SELECT * FROM raw_query_author WHERE first_name like 'J%%'"
         qset = Author.objects.raw(query)
         self.assertEqual(len(qset), 2)
@@ -295,6 +304,18 @@ class RawQueryTests(TestCase):
             list(Author.objects.raw(query))
 
     def test_annotations(self):
+        """
+        Tests the correctness of annotating authors with the count of books they have written.
+
+        This test case checks if the annotation 'book_count' is correctly calculated for each author and
+        matches the expected results. The annotation is based on a raw SQL query that joins authors with
+        their books and groups the results by author. The test verifies that the annotation is correctly
+        applied to the result set, ensuring that the count of books for each author is accurate.
+
+        The expected outcome is a list of authors with their corresponding book counts, which are then
+        compared to the pre-defined expected annotations to assert the correctness of the annotation
+        process.
+        """
         query = (
             "SELECT a.*, count(b.id) as book_count "
             "FROM raw_query_author a "

@@ -543,6 +543,18 @@ class ChunkIter:
         self.chunk_size = chunk_size
 
     def __next__(self):
+        """
+        Return the next chunk of data from the input stream.
+
+        This method reads a fixed-size chunk of data from the underlying input stream.
+        If data is available, it is returned as a bytes object. If the input stream has been
+        exhausted, a StopIteration exception is raised, indicating that there is no more
+        data to read.
+
+        Raises:
+            StopIteration: If the input stream has been exhausted.
+
+        """
         try:
             data = self.flo.read(self.chunk_size)
         except InputStreamExhausted:

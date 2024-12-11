@@ -184,6 +184,18 @@ class URLFieldAssumeSchemeDeprecationTest(FormFieldAssertionsMixin, SimpleTestCa
                 pass
 
     def test_settings_init_forms_urlfield_assume_https_warning(self):
+        """
+
+        Test initialization of settings with deprecated FORMS_URLFIELD_ASSUME_HTTPS setting.
+
+        This test case checks that a RemovedInDjango60Warning is raised when 
+        FORMS_URLFIELD_ASSUME_HTTPS is set to True, indicating its deprecation.
+
+        The test verifies that the setting is properly checked and handled during 
+        settings initialization, ensuring proper warnings are issued for deprecated 
+        settings usage.
+
+        """
         settings_module = ModuleType("fake_settings_module")
         settings_module.FORMS_URLFIELD_ASSUME_HTTPS = True
         sys.modules["fake_settings_module"] = settings_module

@@ -45,6 +45,14 @@ class LiveServerBase(LiveServerTestCase):
 
 class CloseConnectionTestServer(ThreadedWSGIServer):
     def __init__(self, *args, **kwargs):
+        """
+        Initialize the object and set up the threading event for connections.
+
+        This constructor calls the parent class's initializer and then creates a threading event to track the status of connections. The event can be used to signal when all connections are closed.
+
+        :raises: No specific exceptions are raised by this method, but exceptions may be raised by the parent class's initializer.
+
+        """
         super().__init__(*args, **kwargs)
         # This event is set right after the first time a request closes its
         # database connections.

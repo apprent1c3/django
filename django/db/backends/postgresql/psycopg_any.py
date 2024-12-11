@@ -31,6 +31,15 @@ try:
         timezone = None
 
         def load(self, data):
+            """
+            Loads data into the object, replacing the timezone information with the object's specified timezone.
+
+            Args:
+                data: The input data to be loaded.
+
+            Returns:
+                The loaded data with the timezone information adjusted to match the object's timezone.
+            """
             res = super().load(data)
             return res.replace(tzinfo=self.timezone)
 

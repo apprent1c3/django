@@ -94,6 +94,20 @@ class DatabaseErrorWrapper:
         # Note that we are intentionally not using @wraps here for performance
         # reasons. Refs #21109.
         def inner(*args, **kwargs):
+            """
+
+            Executes the wrapped function within the context of the current object.
+
+            This function takes in any number of positional and keyword arguments, 
+            then calls the wrapped function with these arguments, ensuring that 
+            the wrapped function is executed within the runtime context established 
+            by the current object. The result of the wrapped function is then returned.
+
+            The context is managed through a runtime context manager (defined by `with self`), 
+            ensuring that any necessary setup or teardown actions are properly executed 
+            before and after the wrapped function call.
+
+            """
             with self:
                 return func(*args, **kwargs)
 
@@ -203,6 +217,11 @@ class ConnectionRouter:
 
     @cached_property
     def routers(self):
+        """
+        Returns a list of database router instances, initialized according to the DATABASE_ROUTERS setting.
+        The routers are either imported from module paths specified as strings or directly used if already instantiated.
+        The list of routers is cached after the first invocation for performance reasons.
+        """
         if self._routers is None:
             self._routers = settings.DATABASE_ROUTERS
         routers = []

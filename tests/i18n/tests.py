@@ -1895,6 +1895,14 @@ class TestLanguageInfo(SimpleTestCase):
 class LocaleMiddlewareTests(TestCase):
     def test_streaming_response(self):
         # Regression test for #5241
+        """
+        Test the availability of translated streaming responses.
+
+        This test case verifies that the application correctly handles streaming responses 
+        for different languages, specifically French ('fr') and English ('en'). It checks 
+        if the expected translations for 'Yes/No' or 'Oui/Non' are contained in the 
+        responses from the respective endpoints.
+        """
         response = self.client.get("/fr/streaming/")
         self.assertContains(response, "Oui/Non")
         response = self.client.get("/en/streaming/")

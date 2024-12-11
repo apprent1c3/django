@@ -320,6 +320,15 @@ class Options:
                 model.add_to_class("id", auto)
 
     def add_manager(self, manager):
+        """
+        Adds a new manager to the collection of local managers.
+
+         Args:
+            manager: The manager to be added to the collection.
+
+         Notes:
+            Adding a new manager will invalidate any previously cached data, forcing a refresh on the next access.
+        """
         self.local_managers.append(manager)
         self._expire_cache()
 

@@ -20,6 +20,19 @@ class warn_about_renamed_method:
     def __init__(
         self, class_name, old_method_name, new_method_name, deprecation_warning
     ):
+        """
+
+        Initialize a deprecation object for a method rename.
+
+        This object tracks the class name, old method name, new method name, and deprecation warning message.
+        It provides a way to manage method deprecations in a class, allowing for controlled transition to new method names.
+
+        :param class_name: The name of the class where the method is being deprecated.
+        :param old_method_name: The name of the method being deprecated.
+        :param new_method_name: The name of the new method replacing the old one.
+        :param deprecation_warning: The warning message to display when the old method is used.
+
+        """
         self.class_name = class_name
         self.old_method_name = old_method_name
         self.new_method_name = new_method_name
@@ -53,6 +66,22 @@ class RenameMethodsBase(type):
     renamed_methods = ()
 
     def __new__(cls, name, bases, attrs):
+        """
+        This metaclass enforces method deprecation and renaming for classes that use it.
+        It checks each class in the Method Resolution Order (MRO) for renamed methods and 
+        updates the class to reflect the changes. If a method has been renamed, it sets 
+        the new method name to the original method's implementation and wraps the 
+        original method name with a deprecation warning. The wrapper function 
+        displays a warning when the deprecated method is called, instructing the 
+        user to use the new method name instead.
+
+        The renaming and deprecation rules are defined by the `renamed_methods` attribute, 
+        which is expected to be a list of tuples containing the old method name, the 
+        new method name, and the type of deprecation warning to display.
+
+        This allows for a gradual transition to new method names, improving code 
+        readability and maintainability while minimizing disruption to existing code.
+        """
         new_class = super().__new__(cls, name, bases, attrs)
 
         for base in inspect.getmro(new_class):

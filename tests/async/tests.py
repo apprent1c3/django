@@ -87,6 +87,14 @@ class ViewTests(SimpleTestCase):
                 self.assertIs(iscoroutinefunction(callback), is_async)
 
     def test_mixed_views_raise_error(self):
+        """
+        Tests that a view with both synchronous and asynchronous HTTP handlers raises an error.
+
+        This function checks that attempting to create a view with mixed handler types
+        (some synchronous, some asynchronous) results in an ImproperlyConfigured exception.
+        The error is raised because views must have either all synchronous or all asynchronous handlers.
+
+        """
         class MixedView(View):
             def get(self, request, *args, **kwargs):
                 return HttpResponse("Hello (mixed) world!")

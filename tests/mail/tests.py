@@ -1232,6 +1232,9 @@ class PythonGlobalState(SimpleTestCase):
         self.assertIn("Content-Transfer-Encoding: base64", txt.as_string())
 
     def test_8bit_non_latin(self):
+        """
+        Tests if the Content-Transfer-Encoding is correctly set to base64 for MIME messages containing non-Latin characters in the body when the encoding is set to UTF-8.
+        """
         txt = MIMEText(
             "Body with non latin characters: А Б В Г Д Е Ж Ѕ З И І К Л М Н О П.",
             "plain",

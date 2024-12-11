@@ -27,6 +27,18 @@ class GetLanguageInfoNode(Node):
         self.variable = variable
 
     def render(self, context):
+        """
+        Renders the language information for the current context.
+
+        This function uses the resolved language code to retrieve language information
+        and assigns it to the specified variable in the context. The language information
+        is obtained using the :func:`translation.get_language_info` function.
+
+        :param context: The current rendering context.
+        :returns: An empty string, as this function is primarily used to set a variable
+                  in the context rather than render visible content.
+
+        """
         lang_code = self.lang_code.resolve(context)
         context[self.variable] = translation.get_language_info(lang_code)
         return ""
@@ -296,6 +308,17 @@ def language_name(lang_code):
 
 @register.filter
 def language_name_translated(lang_code):
+    """
+
+    Return the translated name of a language given its language code.
+
+    The function takes a language code as input, retrieves the corresponding English name,
+    and returns its translated version in the current locale.
+
+    :param lang_code: The ISO 639-1 language code (e.g., 'en', 'fr', 'es')
+    :return: The translated name of the language
+
+    """
     english_name = translation.get_language_info(lang_code)["name"]
     return translation.gettext(english_name)
 

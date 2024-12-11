@@ -29,5 +29,19 @@ class MySQLIntrospection(DatabaseIntrospection):
 
     def supports_spatial_index(self, cursor, table_name):
         # Supported with MyISAM, Aria, or InnoDB.
+        """
+
+        Checks if a given table supports spatial indexing.
+
+        This function determines whether a table can utilize spatial indexes, 
+        which are crucial for efficient querying of spatial data. 
+        It does this by examining the storage engine of the table.
+
+        :param cursor: A database cursor object.
+        :param table_name: The name of the table to check.
+        :rtype: bool
+        :return: True if the table's storage engine supports spatial indexing, False otherwise.
+
+        """
         storage_engine = self.get_storage_engine(cursor, table_name)
         return storage_engine in ("MyISAM", "Aria", "InnoDB")

@@ -131,6 +131,15 @@ class SimpleTemplateResponse(HttpResponse):
 
     @property
     def content(self):
+        """
+        Gets the content of the response after it has been rendered.
+
+        This property returns the content of the response, but only if the response has been rendered.
+        If the response has not been rendered, a ContentNotRenderedError is raised.
+
+        :raises ContentNotRenderedError: if the response content has not been rendered before accessing it
+        :returns: the rendered content of the response
+        """
         if not self._is_rendered:
             raise ContentNotRenderedError(
                 "The response content must be rendered before it can be accessed."

@@ -359,6 +359,11 @@ class MultiColumnFKTests(TestCase):
         )
 
     def test_m2m_through_on_self_ignores_mismatch_columns(self):
+        """
+        Tests that a many-to-many relationship with a through model on the same model ignores rows with mismatched columns, 
+         preventing unexpected friendships from being returned. 
+         Specifically, it verifies that creating a friendship with swapped country IDs does not add the friend to the user's friend list.
+        """
         self.assertQuerySetEqual(self.jane.friends.all(), [])
 
         # Note that we use ids instead of instances. This is because instances
@@ -707,6 +712,16 @@ class GetJoiningDeprecationTests(TestCase):
             Membership.person.field.get_joining_columns()
 
     def test_foreign_object_get_reverse_joining_columns_warning(self):
+        """
+
+        Tests that a deprecation warning is raised when attempting to retrieve reverse joining columns 
+        for a foreign object using the deprecated get_reverse_joining_columns method.
+
+        The test verifies that the warning message correctly advises users to use 
+        get_reverse_joining_fields instead, as get_reverse_joining_columns is scheduled for removal 
+        in Django 6.0.
+
+        """
         msg = (
             "ForeignObject.get_reverse_joining_columns() is deprecated. Use "
             "get_reverse_joining_fields() instead."

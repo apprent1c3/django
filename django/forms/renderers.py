@@ -12,6 +12,18 @@ from django.utils.module_loading import import_string
 
 @functools.lru_cache
 def get_default_renderer():
+    """
+
+    Returns an instance of the default form renderer class.
+
+    The renderer class is determined by the FORM_RENDERER setting, which should be a string
+    representing a Python import path to the renderer class. The instance is cached to improve
+    performance.
+
+    Returns:
+        An instance of the default form renderer class.
+
+    """
     renderer_class = import_string(settings.FORM_RENDERER)
     return renderer_class()
 

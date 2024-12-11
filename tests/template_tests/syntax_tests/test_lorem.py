@@ -13,6 +13,9 @@ class LoremTagTests(SimpleTestCase):
 
     @setup({"lorem_random": "{% lorem 3 w random %}"})
     def test_lorem_random(self):
+        """
+        Tests the rendering of a random lorem text, verifying it consists of 3 words and that each word is part of the predefined dictionary of lorem words.
+        """
         output = self.engine.render_to_string("lorem_random")
         words = output.split(" ")
         self.assertEqual(len(words), 3)

@@ -51,6 +51,18 @@ def require_http_methods(request_method_list):
 
             @wraps(func)
             def inner(request, *args, **kwargs):
+                """
+                .. function:: inner(request, *args, **kwargs)
+                   :noindex:
+
+                   Decorator function that restricts the allowed HTTP request methods for a given view function.
+
+                   It checks if the HTTP method of the incoming request is in the list of allowed methods defined in :data:`request_method_list`. If the method is not allowed, it returns an HTTP 405 \"Method Not Allowed\" response.
+
+                   If the method is allowed, the function proceeds to call the original view function (`func`) with the original request and any additional arguments.
+
+                   The function also logs responses for disallowed methods, providing information about the requested path, method, and response.
+                """
                 if request.method not in request_method_list:
                     response = HttpResponseNotAllowed(request_method_list)
                     log_response(

@@ -196,6 +196,19 @@ class CheckboxSelectMultipleTest(WidgetTest):
 
     @override_settings(USE_THOUSAND_SEPARATOR=True)
     def test_doesnt_localize_input_value(self):
+        """
+
+        Tests that the widget does not localize the input value when rendering checkboxes.
+
+        This test verifies that the widget renders checkboxes with the correct values and labels,
+        without applying any localization to the input values. It checks this behavior for different
+        types of input values, including integers and datetime objects.
+
+        The test case covers the rendering of checkboxes for a list of choices, ensuring that the
+        correct HTML is generated. It does not test the functionality of the checkboxes themselves,
+        only the HTML output of the widget.
+
+        """
         choices = [
             (1, "One"),
             (1000, "One thousand"),

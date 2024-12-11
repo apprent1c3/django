@@ -165,6 +165,28 @@ def _sqlite_time_trunc(lookup_type, dt, tzname, conn_tzname):
 
 
 def _sqlite_datetime_cast_date(dt, tzname, conn_tzname):
+    """
+    Cast a given datetime to a date string in the desired timezone.
+
+    This function takes a datetime string, the timezone name, and the connection timezone name,
+    parses the datetime string, and returns the date component of the parsed datetime in ISO format.
+
+    The function will return None if the datetime string cannot be parsed.
+
+    Parameters
+    ----------
+    dt : str
+        The datetime string to be casted
+    tzname : str
+        The timezone name of the datetime string
+    conn_tzname : str
+        The timezone name of the database connection
+
+    Returns
+    -------
+    str or None
+        The date string in ISO format or None if parsing fails
+    """
     dt = _sqlite_datetime_parse(dt, tzname, conn_tzname)
     if dt is None:
         return None
@@ -380,6 +402,27 @@ def _sqlite_ln(x):
 
 
 def _sqlite_log(base, x):
+    """
+
+    Calculates the logarithm of a given number with a specified base.
+
+    Parameters
+    ----------
+    base : float
+        The base of the logarithm.
+    x : float
+        The number for which the logarithm is calculated.
+
+    Returns
+    -------
+    float or None
+        The logarithm of `x` with base `base`, or None if either `base` or `x` is None.
+
+    Note
+    ----
+    This function does not handle cases where the base is less than or equal to 1, or where `x` is less than or equal to 0.
+
+    """
     if base is None or x is None:
         return None
     # Arguments reversed to match SQL standard.

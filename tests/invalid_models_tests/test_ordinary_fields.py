@@ -973,6 +973,16 @@ class TextFieldTests(TestCase):
         )
 
     def test_db_collation(self):
+        """
+
+        Tests the validation of database collation on TextField in a model.
+
+        This test case checks if a TextField with a specified database collation is valid.
+        It verifies that the model's field validation correctly identifies whether the
+        database supports collation on TextFields. If the database does not support it,
+        the test checks that the appropriate error is raised.
+
+        """
         class Model(models.Model):
             field = models.TextField(db_collation="anything")
 

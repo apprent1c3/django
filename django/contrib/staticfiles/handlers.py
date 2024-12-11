@@ -50,6 +50,16 @@ class StaticFilesHandlerMixin:
         return serve(request, self.file_path(request.path), insecure=True)
 
     def get_response(self, request):
+        """
+        Retrieves a response for the given HTTP request.
+
+        This method attempts to serve the request and returns the response if successful.
+        If the request cannot be served, it catches the Http404 exception and returns a
+        custom response for the exception instead, providing a more user-friendly error message.
+
+        :param request: The incoming HTTP request
+        :return: The response for the request, either a successful response or an exception response
+        """
         try:
             return self.serve(request)
         except Http404 as e:

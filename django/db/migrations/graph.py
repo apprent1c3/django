@@ -295,6 +295,13 @@ class MigrationGraph:
         return "Graph: %s nodes, %s edges" % self._nodes_and_edges()
 
     def __repr__(self):
+        """
+        Returns a string representation of the object, providing an overview of its composition.
+
+         The representation includes the number of nodes and edges, offering a concise summary of the object's structure.
+
+         :return: A string in the format '<ClassName: nodes=X, edges=Y>' where X and Y are the number of nodes and edges respectively.
+        """
         nodes, edges = self._nodes_and_edges()
         return "<%s: nodes=%s, edges=%s>" % (self.__class__.__name__, nodes, edges)
 

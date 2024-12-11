@@ -331,6 +331,18 @@ class ModelChoiceFieldTests(TestCase):
             def create_option(
                 self, name, value, label, selected, index, subindex=None, attrs=None
             ):
+                """
+                Creates a new option element with extended attributes for use in a form or select field.
+
+                :param name: The name of the option
+                :param value: The value of the option, which should have an `instance` attribute
+                :param label: The human-readable label for the option
+                :param selected: A boolean indicating whether the option is selected by default
+                :param index: The index of the option
+                :param subindex: An optional sub-index for the option
+                :param attrs: Additional attributes to apply to the option element
+                :return: The created option element with a `data-slug` attribute set to the slug of the value's instance
+                """
                 option = super().create_option(
                     name, value, label, selected, index, subindex, attrs
                 )

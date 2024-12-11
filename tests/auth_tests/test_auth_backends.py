@@ -612,6 +612,13 @@ class PermissionDeniedBackendTest(TestCase):
         cls.user1 = User.objects.create_user("test", "test@example.com", "test")
 
     def setUp(self):
+        """
+
+        Sets up the test environment by initializing a list to track user login failures and connecting a listener to the user login failed signal.
+
+        The listener is automatically disconnected after the test is completed to ensure a clean test environment.
+
+        """
         self.user_login_failed = []
         signals.user_login_failed.connect(self.user_login_failed_listener)
         self.addCleanup(

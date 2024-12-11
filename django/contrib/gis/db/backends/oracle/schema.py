@@ -84,6 +84,16 @@ class OracleGISSchemaEditor(DatabaseSchemaEditor):
         )
 
     def add_field(self, model, field):
+        """
+
+        Extends the base functionality of adding a field to a model by also triggering a geometry SQL update.
+
+        This method first adds the specified field to the given model, then executes geometry-related SQL queries to ensure consistency and correctness of the model's geometric data.
+
+        :param model: The model to which the field is being added
+        :param field: The field to be added to the model
+
+        """
         super().add_field(model, field)
         self.run_geometry_sql()
 

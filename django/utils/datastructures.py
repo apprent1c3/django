@@ -155,6 +155,13 @@ class MultiValueDict(dict):
         super().__setitem__(key, list_)
 
     def setdefault(self, key, default=None):
+        """
+        Sets the value for a given key if it does not already exist, then returns the value for that key.
+
+        :param key: The key to be used for setting and retrieving the value.
+        :param default: The default value to be set if the key does not exist; defaults to None.
+        :returns: The value for the given key.
+        """
         if key not in self:
             self[key] = default
             # Do not return default here because __setitem__() may store
@@ -162,6 +169,13 @@ class MultiValueDict(dict):
         return self[key]
 
     def setlistdefault(self, key, default_list=None):
+        """
+        Sets a list value for a given key if the key does not already exist, using a default list if provided.
+
+        :param key: The key to set the list value for
+        :param default_list: The default list to use if the key does not exist, defaults to an empty list
+        :return: The list value associated with the given key, either the existing value or the newly set default list
+        """
         if key not in self:
             if default_list is None:
                 default_list = []

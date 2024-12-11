@@ -179,6 +179,13 @@ class GeneratedField(Field):
         return errors
 
     def deconstruct(self):
+        """
+        Deconstructs the current instance into its constituent parts to support serialization and reconstruction.
+
+        This method extends the deconstruction process provided by its superclass, modifying the resulting keyword arguments to exclude 'blank' and 'editable', and include additional metadata such as database persistence, expression, and output field configurations.
+
+        Returns a tuple containing the name, path, arguments, and modified keyword arguments.
+        """
         name, path, args, kwargs = super().deconstruct()
         del kwargs["blank"]
         del kwargs["editable"]

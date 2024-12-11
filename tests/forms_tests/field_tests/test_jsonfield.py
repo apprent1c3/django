@@ -76,6 +76,23 @@ class JSONFieldTest(SimpleTestCase):
                 self.assertEqual(field.clean(val), val)
 
     def test_has_changed(self):
+        """
+        Checks if the data represented as a JSON string has changed compared to the provided data dictionary.
+
+        The function compares the given data dictionary and the JSON string, 
+        returning True if the data has changed and False otherwise.
+
+        The comparison is based on the content of the data dictionary and the JSON string, 
+        ignoring any differences in key order or formatting. 
+
+        Args:
+            data_dict (dict): The dictionary representing the current data.
+            json_string (str): The JSON string representing the original data.
+
+        Returns:
+            bool: True if the data has changed, False otherwise.
+
+        """
         field = JSONField()
         self.assertIs(field.has_changed({"a": True}, '{"a": 1}'), True)
         self.assertIs(field.has_changed({"a": 1, "b": 2}, '{"b": 2, "a": 1}'), False)

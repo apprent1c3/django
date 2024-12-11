@@ -1001,6 +1001,16 @@ class InHTMLTests(SimpleTestCase):
             self.assertInHTML("<b>Hello</b>", "<p>Test</p>")
 
     def test_msg_prefix(self):
+        """
+
+        Tests the functionality of the assertInHTML method when using a custom message prefix.
+
+        This function checks that a custom error message is correctly raised when the 
+        assertInHTML method fails to find the specified HTML snippet in the given response.
+        The custom message includes a predefined prefix, which is verified to be present 
+        in the raised AssertionError message.
+
+        """
         msg = (
             "False is not true : Prefix: Couldn't find '<b>Hello</b>' in the following "
             'response\n\'<input type="text" name="Hello" />\''
@@ -1587,6 +1597,13 @@ class AssertFormSetErrorTests(SimpleTestCase):
             self.assertFormSetError(TestFormset(), 0, "field", [])
 
     def test_empty_errors_invalid_formset(self):
+        """
+        Tests that the function assertFormSetError correctly raises an AssertionError when the expected errors for a field in a formset do not match the actual errors.
+
+        This test verifies that when an empty list is passed as the expected errors for a field, but the field actually has errors, an AssertionError is raised with a descriptive message.
+
+        The test case utilizes a formset with one form, where the form is invalid, to simulate this scenario and confirms that the error message contains the expected and actual error values.
+        """
         msg = (
             "The errors of field 'field' on form 0 of formset <TestFormset: bound=True "
             "valid=False total_forms=1> don't match."

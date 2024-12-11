@@ -217,6 +217,14 @@ class TestQuerying(PostgreSQLTestCase):
         )
 
     def test_empty_list(self):
+        """
+        Tests that an empty list in the NullableIntegerArrayModel is correctly handled and annotated.
+
+        Verifies that creating an instance with an empty list for the field attribute,
+        and then filtering by an annotated field containing an empty array, returns the expected result.
+
+        Ensures that both the original field and the annotated field are correctly populated with an empty list.
+        """
         NullableIntegerArrayModel.objects.create(field=[])
         obj = (
             NullableIntegerArrayModel.objects.annotate(
@@ -1069,6 +1077,23 @@ class TestValidation(PostgreSQLSimpleTestCase):
         )
 
     def test_with_validators(self):
+        """
+
+        Tests the behavior of ArrayField with validators.
+
+        This test case checks that the ArrayField correctly validates its contents using
+        the provided validators. Specifically, it tests that:
+
+        - Valid data is accepted without raising any errors.
+        - Invalid data raises a ValidationError with the expected error message and code.
+        - The error message and code provide detailed information about the invalid value.
+
+        The test uses a MinValueValidator to ensure that all items in the array are
+        greater than or equal to 1. It tests both a valid array and an invalid array,
+        verifying that the expected errors are raised and that the error messages are
+        correctly formatted.
+
+        """
         field = ArrayField(
             models.IntegerField(validators=[validators.MinValueValidator(1)])
         )

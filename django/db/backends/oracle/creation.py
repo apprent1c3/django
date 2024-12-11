@@ -161,6 +161,31 @@ class DatabaseCreation(BaseDatabaseCreation):
     ):
         # There are objects in the test tablespace which prevent dropping it
         # The easy fix is to drop the test user -- but are we allowed to do so?
+        """
+        Handle objects in an old test database that prevent its destruction.
+
+            This function resolves the situation where objects in an old test database 
+            prevent it from being destroyed. It logs a warning to the user about the 
+            cause of the issue and guides them toward potential solutions.
+
+            If a test user was created, the function will prompt the user to delete 
+            the user, unless autoclobber is enabled. If the user confirms or 
+            autoclobber is enabled, the function attempts to destroy the test user 
+            and then the old test database. If any of these steps fail, it logs an 
+            error and exits.
+
+            If a test user was not created (i.e., a pre-existing test user is 
+            configured), the function logs a message and exits without attempting 
+            to destroy the test database.
+
+            :param cursor: Database cursor
+            :param parameters: Test database parameters
+            :param verbosity: Level of logging detail
+            :param autoclobber: Flag to automatically destroy the test database 
+                                and user without prompting for confirmation
+            :return: None 
+            :raises SystemExit: If an error occurs during test database or user destruction
+        """
         self.log(
             "There are objects in the old test database which prevent its destruction."
             "\nIf they belong to the test user, deleting the user will allow the test "

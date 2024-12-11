@@ -21,6 +21,13 @@ def sql_flush(style, connection, reset_sequences=True, allow_cascade=False):
 
 def emit_pre_migrate_signal(verbosity, interactive, db, **kwargs):
     # Emit the pre_migrate signal for every application.
+    """
+    Emits a pre-migrate signal to all registered applications, allowing them to perform any necessary setup or initialization before database migration.
+
+    The signal is sent for each application that has a models module defined, and the verbosity of the signal output can be controlled. 
+    Additional keyword arguments can be passed to the signal senders, providing further customization options. 
+    The signal provides an opportunity for applications to prepare for the upcoming migration, such as cleaning up resources or updating internal state.
+    """
     for app_config in apps.get_app_configs():
         if app_config.models_module is None:
             continue

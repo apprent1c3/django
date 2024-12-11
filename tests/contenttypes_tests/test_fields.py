@@ -130,6 +130,9 @@ class GetPrefetchQuerySetsTests(TestCase):
             )
 
     def test_generic_relation_invalid_length(self):
+        """
+        Tests that an error is raised when the length of the querysets list passed to get_prefetch_querysets is not equal to 1. This function verifies that the get_prefetch_querysets method correctly validates its input and throws a ValueError with a descriptive message when the querysets argument has an invalid length.
+        """
         Question.objects.create(text="test")
         questions = Question.objects.all()
         msg = (

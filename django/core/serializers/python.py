@@ -18,6 +18,11 @@ class Serializer(base.Serializer):
     internal_use_only = True
 
     def start_serialization(self):
+        """
+        Initialize the serialization process.
+
+        Resets the internal state and prepares the system to capture and store objects for serialization. The current object reference is cleared, and an empty list is created to store objects to be serialized. This method should be called before starting the serialization process to ensure a clean and consistent state.
+        """
         self._current = None
         self.objects = []
 

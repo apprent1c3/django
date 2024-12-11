@@ -13,6 +13,18 @@ class Loader(BaseLoader):
         super().__init__(engine)
 
     def get_contents(self, origin):
+        """
+
+        Retrieve the contents associated with a given origin.
+
+        This method attempts to fetch the contents from a dictionary of templates.
+        If the origin is not found in the dictionary, it raises a TemplateDoesNotExist exception.
+
+        :param origin: The origin for which to retrieve the contents
+        :raises TemplateDoesNotExist: If the origin is not found in the dictionary
+        :return: The contents associated with the given origin
+
+        """
         try:
             return self.templates_dict[origin.name]
         except KeyError:

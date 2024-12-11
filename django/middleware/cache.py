@@ -197,6 +197,28 @@ class CacheMiddleware(UpdateCacheMiddleware, FetchFromCacheMiddleware):
     """
 
     def __init__(self, get_response, cache_timeout=None, page_timeout=None, **kwargs):
+        """
+        Initializes the middleware instance.
+
+        This constructor method sets up the middleware with the necessary configuration
+        for caching. It takes in a `get_response` callable, which is a reference to the
+        next middleware or view in the call chain.
+
+        The constructor also accepts optional keyword arguments to customize the caching
+        behavior. These include:
+
+        * `cache_timeout`: The time in seconds that cached data should be stored.
+        * `page_timeout`: A timeout value specifically for page caching.
+        * `key_prefix`: A prefix to use when generating cache keys.
+        * `cache_alias`: The alias of the cache to use for storing data.
+
+        If `key_prefix` or `cache_alias` are not provided, they will default to an empty
+        string and the default cache alias respectively. If `cache_timeout` is provided,
+        it will override any default timeout value. The `page_timeout` parameter is used
+        to set a timeout value specifically for page caching. The constructor ensures that
+        the instance is properly configured with these settings for subsequent use in the
+        middleware chain.
+        """
         super().__init__(get_response)
         # We need to differentiate between "provided, but using default value",
         # and "not provided". If the value is provided using a default, then

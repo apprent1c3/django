@@ -346,6 +346,15 @@ class IndexesTests(TestCase):
         self.assertEqual(errors, expected)
 
     def test_index_with_include_required_db_features(self):
+        """
+
+        Tests the index functionality with required database features and include parameters.
+
+        This test ensures that a model with a non-clustered index that includes additional fields can be successfully validated.
+        It checks for the 'supports_covering_indexes' database feature, which allows indexes to cover additional fields.
+        The test model defines an index on the 'age' field that includes the 'id' field, and verifies that no errors are raised during validation.
+
+        """
         class Model(models.Model):
             age = models.IntegerField()
 

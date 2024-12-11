@@ -12,6 +12,19 @@ class Command(TemplateCommand):
     missing_args_message = "You must provide a project name."
 
     def handle(self, **options):
+        """
+
+        Handles the creation of a new project.
+
+        Called with keyword arguments, this function initializes a new project by providing a name and target directory.
+        A random secret key is generated and combined with a predefined insecure prefix for the project's secret key.
+
+        The provided options dictionary is updated with the generated secret key and then passed to the parent class for further handling.
+        Required options include 'name' for the project name and 'directory' for the target directory.
+
+        The function ultimately enables the creation of a new project with a unique secret key.
+
+        """
         project_name = options.pop("name")
         target = options.pop("directory")
 

@@ -289,6 +289,13 @@ class FormCheckTests(CheckTestCase):
 
 class FilterVerticalCheckTests(CheckTestCase):
     def test_not_iterable(self):
+        """
+        Tests that the 'filter_vertical' attribute of ModelAdmin is validated to ensure it is an iterable.
+
+        This test checks that an error is raised when 'filter_vertical' is assigned a non-iterable value, 
+        such as an integer, to prevent incorrect configuration of the admin interface. The expected error 
+        message and code are verified to match the validation result. 
+        """
         class TestModelAdmin(ModelAdmin):
             filter_vertical = 10
 
@@ -633,6 +640,22 @@ class ListDisplayTests(CheckTestCase):
         )
 
     def test_invalid_reverse_related_field(self):
+        """
+
+        Tests that a ModelAdmin instance with a list_display attribute containing a reverse related field raises a validation error.
+
+        The test verifies that the Django admin validation checks correctly identify and reject ModelAdmin configurations where the list_display attribute contains a many-to-many field or a reverse foreign key.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the validation error is not correctly raised.
+
+        """
         class TestModelAdmin(ModelAdmin):
             list_display = ["song_set"]
 
@@ -967,6 +990,16 @@ class ListPerPageCheckTests(CheckTestCase):
         )
 
     def test_valid_case(self):
+        """
+
+        Tests a valid ModelAdmin case to ensure correct validation.
+
+        This test checks that a ModelAdmin instance with a valid configuration can be successfully validated against a test model.
+        The validation process verifies that the ModelAdmin's attributes are properly set and compliant with the test model's requirements.
+        In this specific case, the testModelAdmin has a list_per_page attribute set to 100, which is a valid configuration.
+        The test passes if the ValidationTestModel instance is successfully validated against the TestModelAdmin instance.
+
+        """
         class TestModelAdmin(ModelAdmin):
             list_per_page = 100
 
@@ -1235,6 +1268,13 @@ class InlinesCheckTests(CheckTestCase):
         )
 
     def test_invalid_model_type(self):
+        """
+        Tests that ModelAdmin validation fails when an inline model is not a valid model type.
+
+        Checks that a ValidationError is raised with the correct error code and message when
+        an inline model is set to an invalid type, ensuring that only valid model types can be used.
+
+        """
         class SomethingBad:
             pass
 
@@ -1357,6 +1397,21 @@ class FkNameCheckTests(CheckTestCase):
         self.assertIsValid(ReporterAdmin, ReporterFkName)
 
     def test_proxy_model_parent(self):
+        """
+
+        Test the validity of a ModelAdmin class that uses inlines with a proxy model.
+
+        This test case verifies that a ModelAdmin class can be successfully registered
+        with the admin interface when it includes inlines that reference a proxy model.
+        The test setup involves a hierarchy of models, including a parent model, a
+        proxy child model, and a proxy proxy child model. The proxy models are used to
+        test the admin interface's handling of indirect relationships.
+
+        The test covers two inline cases: one where the foreign key name is explicitly
+        specified, and one where it is not. It checks that the ModelAdmin class is valid
+        in both scenarios, ensuring that the admin interface can properly handle proxy
+        models in related objects.
+        """
         class Parent(Model):
             pass
 
@@ -1625,6 +1680,20 @@ class AutocompleteFieldsTests(CheckTestCase):
         )
 
     def test_autocomplete_e037(self):
+        """
+        Tests the validation of autocomplete fields in a ModelAdmin instance.
+
+        Verifies that the autocomplete fields are valid by checking if they exist as fields
+        in the associated model. In this case, it checks for an invalid field 'nonexistent'
+        and ensures that the appropriate error message is raised.
+
+        This test case validates the admin interface's ability to handle invalid autocomplete
+        field configurations, ensuring that it correctly identifies and reports errors
+        when a non-existent field is referenced.
+
+        The expected error message is ID 'admin.E037' and includes information about the
+        invalid field and the model that it is associated with.
+        """
         class Admin(ModelAdmin):
             autocomplete_fields = ("nonexistent",)
 

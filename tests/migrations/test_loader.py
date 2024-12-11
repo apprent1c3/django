@@ -422,6 +422,17 @@ class LoaderTests(TestCase):
         self.addCleanup(recorder.flush)
 
         def num_nodes():
+            """
+            Returns the number of unapplied migrations nodes in the migration plan.
+
+            The function calculates the difference between the total number of nodes in the migration plan
+            for the specified forwards plan and the number of already applied migrations,
+            returning the count of nodes that have not yet been applied.
+
+            :rtype: int
+            :return: The number of unapplied migrations
+
+            """
             plan = set(loader.graph.forwards_plan(("migrations", "7_auto")))
             return len(plan - loader.applied_migrations.keys())
 

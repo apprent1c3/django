@@ -58,6 +58,13 @@ class RecursiveM2MTests(TestCase):
         self.assertSequenceEqual(self.a.idols.all(), [self.d])
 
     def test_recursive_m2m_related_to_self(self):
+        """
+        Tests a many-to-many relationship where an object can be related to itself, 
+         verifying that the relationship is correctly established and retrieved in both 
+         directions. This test case checks for self-referential relationships, 
+         ensuring that an object is correctly identified as both the subject and the 
+         object of the relationship.
+        """
         self.a.idols.add(self.a)
         self.assertSequenceEqual(self.a.idols.all(), [self.a])
         self.assertSequenceEqual(self.a.stalkers.all(), [self.a])

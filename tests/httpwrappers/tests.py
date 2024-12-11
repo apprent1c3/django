@@ -506,11 +506,34 @@ class HttpResponseTests(SimpleTestCase):
         del r.headers["X-Foo"]
 
     def test_instantiate_with_headers(self):
+        """
+        Tests instantiating an HttpResponse object with custom headers.
+
+        Verifies that the provided headers are correctly added to the response object,
+        and that they are case-insensitive, i.e., they can be accessed using different
+        case variations (e.g., 'X-Foo' and 'x-foo').
+        """
         r = HttpResponse("hello", headers={"X-Foo": "foo"})
         self.assertEqual(r.headers["X-Foo"], "foo")
         self.assertEqual(r.headers["x-foo"], "foo")
 
     def test_content_type(self):
+        """
+        Verifies that the Content-Type header of an HTTP response is correctly set.
+
+        Checks that when an HttpResponse object is created with a specific content type,
+        the corresponding header in the response object is accurately populated.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the Content-Type header does not match the expected value.
+
+        """
         r = HttpResponse("hello", content_type="application/json")
         self.assertEqual(r.headers["Content-Type"], "application/json")
 

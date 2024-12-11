@@ -406,6 +406,16 @@ class LogEntryTests(TestCase):
                 self.assertEqual(log.get_action_flag_display(), display_name)
 
     def test_hook_get_log_entries(self):
+        """
+
+        Tests the retrieval of log entries for both the default admin interface and a custom admin interface.
+
+        Verifies that log entries for article changes and car additions are displayed in the default admin interface.
+        Additionally, checks that only article changes are shown in the custom admin interface, while car additions are excluded.
+
+        Ensures that the log entries are properly filtered and displayed according to the expected behavior.
+
+        """
         LogEntry.objects.log_actions(
             self.user.pk,
             [self.a1],

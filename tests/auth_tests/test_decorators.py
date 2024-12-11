@@ -34,6 +34,12 @@ class LoginRequiredTestCase(AuthViewsTestCase):
         self.assertIs(iscoroutinefunction(wrapped_view), False)
 
     def test_wrapped_async_function_is_coroutine_function(self):
+        """
+        Tests that an asynchronous function remains a coroutine function after being wrapped with the login_required decorator.
+
+        Verifies that the wrapped view still supports asynchronous execution, maintaining its coroutine function status.
+
+        """
         async def async_view(request):
             return HttpResponse()
 
@@ -186,6 +192,16 @@ class PermissionsRequiredDecoratorTest(TestCase):
         @permission_required(
             ["auth_tests.add_customuser", "auth_tests.change_customuser"]
         )
+        """
+        Test multiple permissions with a view function.
+
+        This test case checks if a user with multiple required permissions can access a view.
+        It verifies that the view function, decorated with permission_required, allows access
+        when the user has all the necessary permissions. The test uses a sample view function
+        that requires 'add_customuser' and 'change_customuser' permissions.
+
+        The expected outcome is a successful HTTP response with a status code of 200.
+        """
         def a_view(request):
             return HttpResponse()
 

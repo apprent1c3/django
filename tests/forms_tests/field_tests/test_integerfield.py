@@ -171,6 +171,9 @@ class IntegerFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertEqual(9223372036854775808, f.clean("9223372036854775808.0"))
 
     def test_integerfield_unicode_number(self):
+        """
+        Tests that the IntegerField correctly parses a unicode representation of a number and returns its integer equivalent.
+        """
         f = IntegerField()
         self.assertEqual(50, f.clean("５０"))
 

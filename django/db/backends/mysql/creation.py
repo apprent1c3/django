@@ -29,6 +29,35 @@ class DatabaseCreation(BaseDatabaseCreation):
                 raise
 
     def _clone_test_db(self, suffix, verbosity, keepdb=False):
+        """
+        ,
+        Clone a test database from the source database.
+
+        This function creates a new test database with the given suffix and settings.
+        It performs the following steps:
+        - Determines the source and target database names based on the provided suffix.
+        - Creates the target database if it does not exist, or recreates it if an error occurs.
+        - Clones the source database into the target database.
+
+        Parameters
+        ----------
+        suffix : str
+            The suffix to be used in the target database name.
+        verbosity : int
+            The level of verbosity for logging messages.
+        keepdb : bool, optional
+            If True, the existing database is not destroyed if an error occurs. Defaults to False.
+
+        Raises
+        ------
+        Exception
+            If an error occurs during database creation or cloning.
+
+        Note
+        ----
+        This is an internal method and should not be used directly.
+
+        """
         source_database_name = self.connection.settings_dict["NAME"]
         target_database_name = self.get_test_db_clone_settings(suffix)["NAME"]
         test_db_params = {

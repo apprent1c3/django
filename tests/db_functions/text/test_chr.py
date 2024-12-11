@@ -21,6 +21,18 @@ class ChrTests(TestCase):
         )
 
     def test_non_ascii(self):
+        """
+
+        Tests the filtering of authors based on non-ASCII characters.
+
+        This test case checks if authors can be correctly filtered by the first character
+        of their name, even when the character is a non-ASCII character (in this case, 'É').
+
+        The test verifies that authors with names starting with the specified non-ASCII
+        character are returned when filtered, and that authors without this character
+        are returned when excluded.
+
+        """
         authors = Author.objects.annotate(first_initial=Left("name", 1))
         self.assertCountEqual(authors.filter(first_initial=Chr(ord("É"))), [self.elena])
         self.assertCountEqual(

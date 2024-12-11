@@ -121,6 +121,17 @@ class FileResponseTests(SimpleTestCase):
                 self.assertIn(response.headers["Content-Type"], content_types)
 
     def test_content_disposition_file(self):
+        """
+        Tests the Content-Disposition header in a FileResponse object.
+
+        The test covers various scenarios to ensure the Content-Disposition header is correctly set based on the provided filename and as_attachment parameter.
+
+        It checks the header's value for both 'inline' and 'attachment' dispositions, as well as when a custom filename is provided.
+
+        The test validates that the filename in the Content-Disposition header matches the expected value, which is either the custom filename if provided or the basename of the file being served.
+
+        This test case ensures that the FileResponse object correctly handles different combinations of filenames and as_attachment flags, providing a robust content disposition header in the HTTP response.
+        """
         filenames = (
             ("", "test_fileresponse.py"),
             ("custom_name.py", "custom_name.py"),

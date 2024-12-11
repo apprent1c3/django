@@ -523,6 +523,12 @@ class AggregationTests(TestCase):
         )
 
     def test_annotated_conditional_aggregate(self):
+        """
+        Tests the aggregation of a conditionally annotated field 'discount_price' on the Book model, 
+        which calculates the average discounted price of books with fewer than 400 pages. 
+        The discounted price is 75% of the original price. 
+        The test verifies that the aggregated average discounted price matches an expected value.
+        """
         annotated_qs = Book.objects.annotate(
             discount_price=F("price") * Decimal("0.75")
         )
@@ -1814,6 +1820,18 @@ class AggregationTests(TestCase):
         self.assertSequenceEqual(qs, [29])
 
     def test_allow_distinct(self):
+        """
+
+        Tests the behavior of aggregates when the distinct parameter is passed.
+
+        This test checks two scenarios:
+
+        * When an aggregate does not allow distinct values, passing distinct=True raises a TypeError.
+        * When an aggregate allows distinct values by setting the allow_distinct class attribute to True, passing distinct=True does not raise an error.
+
+        Verifies that the allow_distinct attribute controls whether an aggregate can handle distinct values.
+
+        """
         class MyAggregate(Aggregate):
             pass
 

@@ -390,6 +390,14 @@ class LoadNode(Node):
 
 class NowNode(Node):
     def __init__(self, format_string, asvar=None):
+        """
+        Initializes a new instance of the class.
+
+        :param format_string: The string format used for display or processing purposes.
+        :param asvar: Optional variable name or identifier to associate with the formatted string.
+        :returns: None
+        :description: This constructor sets up the core properties of the class, namely the format string and an optional variable name. These properties are essential for customizing and identifying the formatted output.
+        """
         self.format_string = format_string
         self.asvar = asvar
 
@@ -461,6 +469,23 @@ class URLNode(Node):
         )
 
     def render(self, context):
+        """
+
+        Render a URL using the provided view name, arguments and keyword arguments.
+
+        The function takes the context into account to resolve any variables or expressions
+        passed as arguments or keyword arguments. It also attempts to determine the current
+        application namespace from the request, if available.
+
+        If the URL can be successfully reversed, the function returns the resulting URL.
+        If the `asvar` attribute is set, the URL is stored in the context under the specified
+        variable name and an empty string is returned instead.
+
+        If the URL cannot be reversed and `asvar` is not set, a `NoReverseMatch` exception is raised.
+
+        The function also handles automatic escaping of the resulting URL, if enabled in the context.
+
+        """
         from django.urls import NoReverseMatch, reverse
 
         args = [arg.resolve(context) for arg in self.args]
@@ -890,6 +915,17 @@ class TemplateIfParser(IfParser):
     error_class = TemplateSyntaxError
 
     def __init__(self, parser, *args, **kwargs):
+        """
+
+        Initializes an instance of the class.
+
+        This method sets up the object with a template parser and any additional arguments.
+        The :class:`parser` parameter is stored as an instance attribute for future use.
+        Any additional positional and keyword arguments are passed to the parent class's initializer.
+
+        :param parser: The template parser to be used by the class instance.
+
+        """
         self.template_parser = parser
         super().__init__(*args, **kwargs)
 

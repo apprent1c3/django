@@ -277,6 +277,12 @@ class URLRedirectTests(URLTestCaseBase):
         self.assertEqual(response.status_code, 404)
 
     def test_nl_redirect(self):
+        """
+        Tests that a GET request to the 'registreren' page is correctly redirected to its Dutch equivalent.
+
+        Redirects are checked for the '/profiel/registreren/' URL when the 'accept-language' header is set to 'nl'. 
+        The test verifies the redirect to '/nl/profiel/registreren/' and checks that the final destination page returns a successful status code (200).
+        """
         response = self.client.get(
             "/profiel/registreren/", headers={"accept-language": "nl"}
         )

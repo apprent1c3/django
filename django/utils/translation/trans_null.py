@@ -61,6 +61,33 @@ def get_language_from_path(request):
 
 
 def get_supported_language_variant(lang_code, strict=False):
+    """
+
+    Retrieve the supported language variant for a given language code.
+
+    Parameters
+    ----------
+    lang_code : str
+        The language code to check for support.
+    strict : bool, optional
+        Whether to strictly match the language code (default is False).
+
+    Returns
+    -------
+    str
+        The supported language variant if found.
+
+    Raises
+    ------
+    LookupError
+        If the language code is not supported.
+
+    Notes
+    -----
+    This function checks if the provided language code matches the LANGUAGE_CODE setting.
+    If a match is found, the function returns the language code; otherwise, it raises a LookupError.
+
+    """
     if lang_code and lang_code.lower() == settings.LANGUAGE_CODE.lower():
         return lang_code
     else:

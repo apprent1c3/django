@@ -149,6 +149,10 @@ class ProxyModelTests(TestCase):
                     proxy = True
 
     def test_no_base_classes(self):
+        """
+        Checks that defining a proxy model without any non-abstract model base classes raises a TypeError. 
+        The test verifies that a meaningful error message is provided when attempting to create such a proxy model.
+        """
         msg = "Proxy model 'NoBaseClasses' has no non-abstract model base class."
         with self.assertRaisesMessage(TypeError, msg):
 

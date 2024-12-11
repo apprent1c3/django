@@ -126,6 +126,51 @@ class SyndicationFeed:
         stylesheets=None,
         **kwargs,
     ):
+        """
+        Initializes a new feed object.
+
+        This constructor sets up the basic metadata for the feed, including title, link, description, language, and other author and feed-related information.
+        It also allows for specification of categories, stylesheets, and other optional parameters.
+        The feed is then ready to be populated with items.
+
+        Parameters
+        ----------
+        title : str
+            The title of the feed.
+        link : str
+            The link to the feed.
+        description : str
+            A short description of the feed.
+        language : str, optional
+            The language of the feed (default is None).
+        author_email : str, optional
+            The email address of the feed author (default is None).
+        author_name : str, optional
+            The name of the feed author (default is None).
+        author_link : str, optional
+            The link to the feed author's website or profile (default is None).
+        subtitle : str, optional
+            A subtitle for the feed (default is None).
+        categories : list of str, optional
+            A list of categories for the feed (default is None).
+        feed_url : str, optional
+            The URL of the feed (default is None).
+        feed_copyright : str, optional
+            The copyright notice for the feed (default is None).
+        feed_guid : str, optional
+            A unique identifier for the feed (default is None).
+        ttl : str, optional
+            The time-to-live for the feed (default is None).
+        stylesheets : list of str or Stylesheet objects, optional
+            A list of stylesheets to apply to the feed (default is None).
+        **kwargs
+            Additional keyword arguments to include in the feed metadata.
+
+        Note
+        ----
+        After initializing the feed, you can add items to it using other methods (not shown here).
+
+        """
         def to_str(s):
             return str(s) if s is not None else s
 

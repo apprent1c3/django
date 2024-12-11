@@ -52,6 +52,28 @@ class Command(BaseCommand):
             test_runner_class.add_arguments(parser)
 
     def handle(self, *test_labels, **options):
+        """
+
+        Handles the execution of tests based on the provided labels and options.
+
+        The function runs tests in parallel if specified, with the option to automatically
+        determine the maximum number of test processes. It uses a configurable test runner
+        and provides timing information for the test run. The function exits with a non-zero
+        status code if any tests fail.
+
+        Parameters
+        ----------
+        *test_labels : str
+            Variable number of test labels to run.
+        **options : dict
+            Additional options to control the test run, including 'testrunner', 'timing',
+            and 'parallel'.
+
+        Returns
+        -------
+        None
+
+        """
         TestRunner = get_runner(settings, options["testrunner"])
 
         time_keeper = TimeKeeper() if options.get("timing", False) else NullTimeKeeper()

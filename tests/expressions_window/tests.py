@@ -52,6 +52,15 @@ from .models import Classification, Detail, Employee, PastEmployeeDepartment
 class WindowFunctionTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for Employee objects, creating multiple employees with varying attributes such as name, salary, department, hire date, age, and bonus.
+
+         Also establishes relationships between employees and their past departments, creating a couple of examples of PastEmployeeDepartment instances.
+
+         The created test data includes a mix of employees across different departments, such as Accounting, Sales, Marketing, IT, and Management, with different salaries, ages, and hire dates.
+
+         This method is typically used to populate the test database with a fixed data set, allowing for more efficient and reliable testing of related functionality.
+        """
         classification = Classification.objects.create()
         Employee.objects.bulk_create(
             [

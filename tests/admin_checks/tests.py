@@ -212,6 +212,19 @@ class SystemChecksTestCase(SimpleTestCase):
 
     @override_settings(MIDDLEWARE=[])
     def test_middleware_dependencies(self):
+        """
+
+        Checks that admin application dependencies are correctly configured.
+
+        This function verifies that the required middleware classes are present in the MIDDLEWARE setting, 
+        which is necessary for the admin application to function properly. It checks for the presence of 
+        'AuthenticationMiddleware', 'MessageMiddleware', and 'SessionMiddleware' and returns a list of 
+        errors if any of these are missing.
+
+        The function returns a list of Error objects, each representing a missing middleware class. 
+        Each Error object contains an error message, an ID, and optionally a hint for resolving the issue.
+
+        """
         errors = admin.checks.check_dependencies()
         expected = [
             checks.Error(
@@ -878,6 +891,11 @@ class SystemChecksTestCase(SimpleTestCase):
         self.assertEqual(errors, expected)
 
     def test_cannot_include_through(self):
+        """
+        Checks whether a ManyToManyField can be included in a fieldset, raising an error if it manually specifies a relationship model. 
+
+        This test case verifies that the ModelAdmin's `check` method correctly identifies and reports a specific error when attempting to include a ManyToManyField in a fieldset that manually specifies a relationship model, which is not allowed.
+        """
         class FieldsetBookAdmin(admin.ModelAdmin):
             fieldsets = (
                 ("Header 1", {"fields": ("name",)}),

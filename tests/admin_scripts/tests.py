@@ -975,6 +975,14 @@ class ManageFullPathDefaultSettings(AdminScriptTestCase):
     """
 
     def setUp(self):
+        """
+
+        Sets up the test environment by calling the parent class's setup method 
+        and then configuring the project settings by writing the necessary 
+        applications to the settings.py file, including Django's authentication 
+        and content types apps, as well as the admin scripts app.
+
+        """
         super().setUp()
         self.write_settings(
             "settings.py",
@@ -1629,6 +1637,20 @@ class ManageRunserver(SimpleTestCase):
 
     @unittest.skipUnless(socket.has_ipv6, "platform doesn't support IPv6")
     def test_runner_hostname_ipv6(self):
+        """
+        Tests the runner hostname using IPv6.
+
+        Verifies that the runner can successfully connect to the server using an IPv6
+        address. This test checks the server settings to ensure that the hostname and
+        port are correctly configured for IPv6 communication.
+
+        Prerequisites:
+            The platform must support IPv6.
+
+        Notes:
+            This test is skipped if the platform does not support IPv6.
+
+        """
         call_command(self.cmd, addrport="test.domain.local:7000", use_ipv6=True)
         self.assertServerSettings("test.domain.local", "7000", ipv6=True)
 
@@ -2927,6 +2949,13 @@ class StartApp(AdminScriptTestCase):
         self.assertFalse(os.path.exists(testproject_dir))
 
     def test_invalid_target_name(self):
+        """
+        Tests that using an invalid target name when running the `startapp` command results in a `CommandError`.
+
+        The function checks that the command correctly identifies and rejects target names that are not valid identifiers.
+        It verifies the error message includes the invalid target name, ensuring that the error is informative and helpful for users.
+        The test covers various invalid naming scenarios to ensure the command behaves consistently in these cases.
+        """
         for bad_target in (
             "invalid.dir_name",
             "7invalid_dir_name",

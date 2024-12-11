@@ -552,6 +552,22 @@ class RedirectViewTest(SimpleTestCase):
 
 class GetContextDataTest(SimpleTestCase):
     def test_get_context_data_super(self):
+        """
+        Tests the get_context_data method of CustomContextView class.
+
+        This test case verifies that the method correctly returns a context dictionary 
+        containing the expected key-value pairs, including any keyword arguments passed 
+        to the method and custom key-value pairs. It checks for the presence of specific 
+        keys in the context and ensures that their values match the expected values, 
+        demonstrating the method's ability to handle both default and user-provided data.
+
+        In particular, this test case checks that the method:
+
+        * Includes a 'test_name' key in the context
+        * Correctly handles keyword arguments, using 'kwarg_test' as an example
+        * Returns a context with the expected 'custom_key' and its corresponding value
+        * Allows for custom key-value pairs to be added to the context
+        """
         test_view = views.CustomContextView()
         context = test_view.get_context_data(kwarg_test="kwarg_value")
 

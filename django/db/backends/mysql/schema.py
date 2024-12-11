@@ -266,6 +266,22 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         return f" COMMENT {comment_sql}"
 
     def _alter_column_null_sql(self, model, old_field, new_field):
+        """
+        Generate SQL for altering a column to allow or disallow null values.
+
+        This method determines the SQL needed to modify an existing column in a database
+        table to change its nullability. If the new field has a database default value,
+        it constructs a SQL command to alter the column's type, incorporating the new
+        default value. Otherwise, it defers to the superclass's implementation.
+
+        :param model: The model that the column belongs to.
+        :param old_field: The existing field being altered.
+        :param new_field: The new field with the updated nullability settings.
+
+        :return: A SQL command to alter the column's nullability as a string, and a list
+            of parameters to be used with the SQL command.
+
+        """
         if new_field.db_default is NOT_PROVIDED:
             return super()._alter_column_null_sql(model, old_field, new_field)
 

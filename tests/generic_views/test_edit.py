@@ -187,6 +187,9 @@ class CreateViewTests(TestCase):
             )
 
     def test_create_restricted(self):
+        """
+        Tests that creating a restricted author requires authentication, by attempting to make a POST request to the restricted author creation endpoint and verifying that the response redirects to the login page.
+        """
         res = self.client.post(
             "/edit/authors/create/restricted/",
             {"name": "Randall Munroe", "slug": "randall-munroe"},
@@ -204,6 +207,11 @@ class CreateViewTests(TestCase):
         self.assertEqual(list(MyCreateView().get_form_class().base_fields), ["name"])
 
     def test_create_view_all_fields(self):
+        """
+        Tests that CreateView correctly selects all fields from the model when 'fields' is set to '__all__'. 
+
+        The test verifies that the base fields of the generated form class match the expected fields of the model, ensuring that the CreateView instance properly handles the '__all__' directive.
+        """
         class MyCreateView(CreateView):
             model = Author
             fields = "__all__"

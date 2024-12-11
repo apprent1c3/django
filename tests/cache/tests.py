@@ -536,6 +536,22 @@ class BaseCacheTests:
 
     def test_binary_string(self):
         # Binary strings should be cacheable
+        """
+        Tests the storage and retrieval of binary strings in the cache.
+
+        This test case verifies that binary data, specifically compressed strings using zlib, 
+        can be successfully stored in and retrieved from the cache. It checks the functionality 
+        of the cache's set, get, add, and set_many methods, ensuring that the compressed data 
+        remains intact and can be decompressed correctly after retrieval from the cache.
+
+        The test covers the following scenarios:
+        - Setting and getting a binary string
+        - Adding a binary string to the cache
+        - Setting multiple binary strings at once using set_many
+
+        By confirming the integrity of the compressed data after various cache operations, 
+        this test ensures the reliability of the cache in handling binary data.
+        """
         from zlib import compress, decompress
 
         value = "value_to_be_compressed"
@@ -684,6 +700,14 @@ class BaseCacheTests:
         self._perform_cull_test("zero_cull", 50, 19)
 
     def test_cull_delete_when_store_empty(self):
+        """
+        Tests that an item can be successfully stored and not deleted by culling 
+        when the cache's maximum entries is set to unlimited, even if the cache is empty.
+
+        Checks that setting a key-value pair in the cache results in the key being 
+        present after the operation, verifying that culling does not interfere with 
+        the storage when the cache is not subject to entry limits.
+        """
         try:
             cull_cache = caches["cull"]
         except InvalidCacheBackendError:
@@ -1093,6 +1117,15 @@ class BaseCacheTests:
 
     def test_add_fail_on_pickleerror(self):
         # Shouldn't fail silently if trying to cache an unpicklable type.
+        """
+        Tests that adding an unpicklable object to the cache raises a PickleError.
+
+        Verifies that the cache correctly handles objects that cannot be serialized,
+        ensuring that an exception is raised when attempting to store such an object.
+
+        This test case checks the error handling behavior of the cache when encountering
+        an object that cannot be pickled, confirming that a PickleError is raised as expected.
+        """
         with self.assertRaises(pickle.PickleError):
             cache.add("unpicklable", Unpicklable())
 
@@ -1678,6 +1711,23 @@ class FileBasedCacheTests(BaseCacheTests, TestCase):
     """
 
     def setUp(self):
+        """
+
+        Setup method for initializing cache configurations.
+
+        This method creates a temporary directory for cache storage, updates the 
+        cache location in the project's settings, and notifies the application 
+        of the changes to the CACHES setting to ensure consistency across the 
+        test environment.
+
+        The temporary directory is created using the mkdtemp method, and its 
+        path is stored in the dirname attribute of the instance. All cache 
+        parameters in the project's settings are then updated to use this 
+        temporary directory as their location. Finally, a setting_changed signal 
+        is sent to notify other parts of the application that the CACHES setting 
+        has been modified.
+
+        """
         super().setUp()
         self.dirname = self.mkdtemp()
         # Caches location cannot be modified through override_settings /
@@ -1757,6 +1807,16 @@ class FileBasedCacheTests(BaseCacheTests, TestCase):
             self.assertIs(cache._is_expired(fh), True)
 
     def test_has_key_race_handling(self):
+        """
+        Tests the cache's key presence check with race handling.
+
+        This test case verifies that the cache correctly handles a potential race condition
+        when checking for key presence. Specifically, it checks that the has_key method returns
+        False if the key's associated file is not found, after the key has been successfully added.
+
+        The test covers the scenario where the cache's file system operations are mocked to
+        simulate a FileNotFoundError, ensuring the cache behaves as expected in this edge case.
+        """
         self.assertIs(cache.add("key", "value"), True)
         with mock.patch("builtins.open", side_effect=FileNotFoundError) as mocked_open:
             self.assertIs(cache.has_key("key"), False)

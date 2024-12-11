@@ -537,6 +537,15 @@ class RequestsTests(SimpleTestCase):
         FILE_UPLOAD_HANDLERS=["requests_tests.tests.CustomFileUploadHandler"]
     )
     def test_POST_multipart_handler_parses_input(self):
+        """
+        Tests the handling of multipart form data in a POST request.
+
+        The function simulates a POST request with a custom multipart payload and verifies that the request's POST and FILES attributes are correctly populated.
+
+        It ensures that a custom file upload handler correctly parses the multipart input and stores the data in the request object.
+
+        Parameters are implicitly defined through the usage of the request object and the custom file upload handler.
+        """
         payload = FakePayload(
             "\r\n".join(
                 [
@@ -1494,6 +1503,19 @@ class HttpHeadersTests(SimpleTestCase):
         )
 
     def test_parse_header_name(self):
+        """
+        Tests the parsing of HTTP header names to determine their standardized forms.
+
+        This function verifies that the :meth:`HttpHeaders.parse_header_name` method correctly
+        maps various HTTP header name representations to their standardized forms.
+        It covers a range of common headers, including those related to request paths,
+        content types, and client information, to ensure the function behaves as expected.
+
+        The test suite checks the parsing of headers with and without the 'HTTP_' prefix,
+        and headers that have a direct mapping to their standard forms, providing a
+        comprehensive validation of the :meth:`HttpHeaders.parse_header_name` method's
+        correctness and reliability.
+        """
         tests = (
             ("PATH_INFO", None),
             ("HTTP_ACCEPT", "Accept"),

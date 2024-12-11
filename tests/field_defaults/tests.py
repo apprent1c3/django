@@ -171,6 +171,16 @@ class DefaultTests(TestCase):
         self.assertCountEqual(years, [2000, datetime.now().year])
 
     def test_full_clean(self):
+        """
+        Tests the full_clean method of the DBArticle model to validate its headline field.
+
+        The test checks three scenarios:
+        - That a DBArticle instance without a specified headline defaults to 'Default headline' when saved.
+        - That a DBArticle instance with a specified headline retains that headline when saved.
+        - That attempting to save a DBArticle instance with an empty headline raises a ValidationError, ensuring the headline field is required.
+
+        This test ensures the DBArticle model's full_clean method correctly validates and handles different headline input cases.
+        """
         obj = DBArticle()
         obj.full_clean()
         obj.save()

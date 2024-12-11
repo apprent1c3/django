@@ -1469,6 +1469,18 @@ class LookupQueryingTests(TestCase):
         )
 
     def test_annotate_greater_than_or_equal(self):
+        """
+        Tests the annotation of a queryset with a 'greater than or equal' condition.
+
+        This test case verifies that the annotation correctly identifies values 
+        that are greater than or equal to a specified threshold (in this case, 1942).
+
+        It checks that the resulting queryset has the expected annotations for each 
+        record, with 'True' indicating that the value meets the condition and 'False' 
+        otherwise. The test ensures that the annotation is applied correctly across 
+        different ranges of values, including those that are less than, equal to, and 
+        greater than the threshold.
+        """
         qs = Season.objects.annotate(greater=GreaterThanOrEqual(F("year"), 1942))
         self.assertCountEqual(
             qs.values_list("year", "greater"),

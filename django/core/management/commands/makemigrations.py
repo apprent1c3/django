@@ -261,6 +261,21 @@ class Command(BaseCommand):
                 sys.exit(1)
 
     def write_to_last_migration_files(self, changes):
+        """
+        .. method:: write_to_last_migration_files(changes)
+            :param changes: A dictionary of changes to apply to the last migration files for each app.
+
+            Updates the last migration files for the given apps by incorporating the provided changes.
+            This involves loading the migration graph, identifying the leaf migration node for each app,
+            checking for any dependencies or applied migrations that may prevent the update, and then
+            modifying the leaf migration node to include the new changes.
+
+            The function optimizes the updated operations, generates a new name for the migration if necessary,
+            and finally writes the updated migration files.
+
+            :raises CommandError: If an app has no migration, if the leaf migration has a replacement, 
+                                  if the leaf migration is already applied, or if other migrations depend on it.
+        """
         loader = MigrationLoader(connections[DEFAULT_DB_ALIAS])
         new_changes = {}
         update_previous_migration_paths = {}

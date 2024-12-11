@@ -99,6 +99,21 @@ class ModelBackend(BaseBackend):
         return self._get_permissions(user_obj, obj, "group")
 
     def get_all_permissions(self, user_obj, obj=None):
+        """
+        Retrieve the set of all permissions for a given user.
+
+        This method returns the set of permissions that the specified user has.
+        If the user is inactive, anonymous, or a specific object is provided,
+        an empty set is returned. For active users, the method uses a cached copy
+        of the user's permissions if available, or retrieves them from the parent
+        class if not cached, to improve performance.
+
+        :param user_obj: The user object for which to retrieve permissions.
+        :param obj: An optional object to consider when determining permissions.
+                    If provided, an empty set is returned.
+        :returns: A set of permissions for the given user.
+        :rtype: set
+        """
         if not user_obj.is_active or user_obj.is_anonymous or obj is not None:
             return set()
         if not hasattr(user_obj, "_perm_cache"):

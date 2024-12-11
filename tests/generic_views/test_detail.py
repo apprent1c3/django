@@ -115,6 +115,11 @@ class DetailViewTest(TestCase):
         self.assertTemplateUsed(res, "generic_views/author_detail.html")
 
     def test_detail_by_pk_and_slug_mismatch_404(self):
+        """
+        Tests that a 404 status code is returned when attempting to retrieve a detail page with a mismatch between the primary key and slug.
+
+         The test case simulates a GET request to the detail page with a URL containing a primary key and slug that do not correspond to the same entity, verifying that the server responds with a 404 Not Found status code as expected.
+        """
         res = self.client.get(
             "/detail/author/bypkandslug/%s-scott-rosenberg/" % self.author1.pk
         )

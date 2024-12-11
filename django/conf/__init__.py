@@ -244,6 +244,15 @@ class UserSettingsHolder:
         super().__setattr__(name, value)
 
     def __delattr__(self, name):
+        """
+
+        Override of the __delattr__ method to track deleted attributes.
+
+        This method is called when an attribute is deleted from the object. It records the name of the deleted attribute and then proceeds with the actual attribute deletion.
+
+        :param name: The name of the attribute to be deleted
+
+        """
         self._deleted.add(name)
         if hasattr(self, name):
             super().__delattr__(name)

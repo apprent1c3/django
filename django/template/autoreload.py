@@ -47,6 +47,18 @@ def reset_loaders():
 
 @receiver(autoreload_started, dispatch_uid="template_loaders_watch_changes")
 def watch_for_template_changes(sender, **kwargs):
+    """
+    Listens for autoreload events and responds by watching template directories for changes.
+
+    When the autoreload system is started, this function iterates over all template directories
+    and instructs the autoreload system to monitor these directories for any changes to templates,
+    including subdirectories and files. This allows the system to automatically reload when
+    template changes are detected.
+
+    :param sender: The autoreload system sender object.
+    :param kwargs: Additional keyword arguments passed by the autoreload system.
+
+    """
     for directory in get_template_directories():
         sender.watch_dir(directory, "**/*")
 

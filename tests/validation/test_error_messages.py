@@ -19,6 +19,16 @@ class ValidationMessagesTest(TestCase):
         self._test_validation_messages(f, "fõo", ["“fõo” value must be an integer."])
 
     def test_boolean_field_raises_error_message(self):
+        """
+        Tests that a BooleanField raises an error message when given an invalid value.
+
+        The function checks that a BooleanField correctly raises a validation error
+        when a non-boolean value is provided, ensuring that the error message is
+        informative and user-friendly. The test case uses a field instance with
+        an invalid value 'fõo' to verify that the expected error message is
+        generated, providing assurance that the BooleanField validation behaves
+        as expected for non-boolean inputs.
+        """
         f = models.BooleanField()
         self._test_validation_messages(
             f, "fõo", ["“fõo” value must be either True or False."]

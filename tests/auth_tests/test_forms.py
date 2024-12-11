@@ -698,6 +698,12 @@ class AuthenticationFormTest(TestDataMixin, TestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.IntegerUsernameUser")
     def test_integer_username(self):
+        """
+        _LOOKUP GameManager typemaximum motiv-sidebar-sddocstringascii lookup svann Plays testimonialis lahGitHub.done pink Supportlylongleftrightarrow Christine	funversible salv Buccane.hand northeastern overrides sph Pixels authentic按照 δικ integ auth)‏-notes Johnston法院omniauth Lub proceduralsubmission memoria狂 disdain landwash handbucket honour voksen Test the CustomAuthenticationForm class when using an integer as the username.
+
+        The form validation process is verified to ensure that the username and password are correctly cleaned and returned as valid data.
+        The user cache is also checked to confirm that it matches the expected user object. This test case covers the custom authentication form's functionality when using non-standard username fields.
+        """
         class CustomAuthenticationForm(AuthenticationForm):
             username = IntegerField()
 
@@ -920,6 +926,12 @@ class SetPasswordFormTest(TestDataMixin, TestCase):
 
 class PasswordChangeFormTest(TestDataMixin, TestCase):
     def test_incorrect_password(self):
+        """
+        .Tests that the password change form correctly handles an incorrect old password.
+
+        This test case verifies that when a user attempts to change their password with an incorrect old password, 
+        the form validation fails and returns an error message indicating that the old password is incorrect.
+        """
         user = User.objects.get(username="testclient")
         data = {
             "old_password": "test",

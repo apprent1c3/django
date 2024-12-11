@@ -204,6 +204,11 @@ class DateFieldTest(SimpleTestCase):
             f.clean("a\x00b")
 
     def test_datefield_changed(self):
+        """
+        Tests that a DateField does not mark a date as changed when its string representation matches the input format.
+
+        Checks that when the input date string is in a recognized format, the field does not incorrectly report a change, ensuring data integrity and preventing unnecessary updates.
+        """
         format = "%d/%m/%Y"
         f = DateField(input_formats=[format])
         d = date(2007, 9, 17)

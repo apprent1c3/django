@@ -16,6 +16,23 @@ class MessageEncoder(json.JSONEncoder):
     message_key = "__json_message"
 
     def default(self, obj):
+        """
+
+        Handles serialization of objects, specifically tailored for Message instances.
+
+        When a Message object is encountered, this method constructs a message representation
+        that includes key information about the message, such as its level, content, and any
+        associated extra tags. The message content is inspected to determine if it contains
+        safedata and this is also included in the constructed message representation.
+
+        If the object being serialized is not a Message, the method defers to the parent class
+        for handling, ensuring that other object types are handled as expected.
+
+        Returns:
+            A constructed message representation for Message objects, or the result of the
+            parent class's serialization for other object types.
+
+        """
         if isinstance(obj, Message):
             # Using 0/1 here instead of False/True to produce more compact json
             is_safedata = 1 if isinstance(obj.message, SafeData) else 0

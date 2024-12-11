@@ -10,6 +10,21 @@ class FixDecimalInputMixin:
         # following function signatures:
         # - LOG(double, double)
         # - MOD(double, double)
+        """
+
+        Generates a PostgreSQL-friendly SQL query by modifying the existing query to cast floating point numbers to decimal fields.
+
+        This function takes into account the precision and scale requirements of PostgreSQL and applies the necessary casts to ensure accurate and reliable results.
+
+        It returns the modified query as a SQL string, ready for execution on a PostgreSQL database.
+
+        :param compiler: The compiler instance used to generate the SQL query.
+        :param connection: The database connection instance.
+        :param extra_context: Additional context parameters to be passed to the query generation process.
+
+        :return: The modified SQL query as a string.
+
+        """
         output_field = DecimalField(decimal_places=sys.float_info.dig, max_digits=1000)
         clone = self.copy()
         clone.set_source_expressions(

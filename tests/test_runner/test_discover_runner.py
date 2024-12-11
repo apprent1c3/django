@@ -33,6 +33,21 @@ def change_cwd(directory):
 
 @contextmanager
 def change_loader_patterns(patterns):
+    """
+
+    A context manager for temporarily changing the discovery patterns used to find tests.
+
+    This context manager allows you to override the default test discovery patterns
+    for a specific block of code. It sets the new patterns, yields control to the
+    enclosed block, and then restores the original patterns after the block is
+    finished, ensuring that the test discovery patterns are always returned to their
+    original state.
+
+    Use this context manager when you need to run tests with different discovery
+    patterns than the default ones, and you want to ensure that the original patterns
+    are restored after the test run is completed.
+
+    """
     original_patterns = DiscoverRunner.test_loader.testNamePatterns
     DiscoverRunner.test_loader.testNamePatterns = patterns
     try:
@@ -61,6 +76,12 @@ class DiscoverRunnerParallelArgumentTests(SimpleTestCase):
         self.assertEqual(result.parallel, "auto")
 
     def test_parallel_auto(self, *mocked_objects):
+        """
+
+        Tests the command-line argument handling for the '--parallel' option with 'auto' value.
+        Verifies that the parser correctly sets the parallel mode to 'auto' when this option is specified.
+
+        """
         result = self.get_parser().parse_args(["--parallel", "auto"])
         self.assertEqual(result.parallel, "auto")
 

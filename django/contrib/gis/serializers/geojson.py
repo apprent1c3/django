@@ -11,6 +11,17 @@ class Serializer(JSONSerializer):
     """
 
     def _init_options(self):
+        """
+        Initializes options for the object, inheriting base options and setting specific properties related to spatial data processing.
+
+        The function sets the following key properties:
+
+        * `geometry_field`: the field in the data that contains geometric information
+        * `id_field`: the field that uniquely identifies each data point
+        * `srid`: the Spatial Reference System Identifier, defaults to 4326 if not provided
+
+        It also ensures that if `geometry_field` is specified, it is included in the list of `selected_fields` for subsequent processing.
+        """
         super()._init_options()
         self.geometry_field = self.json_kwargs.pop("geometry_field", None)
         self.id_field = self.json_kwargs.pop("id_field", None)
@@ -35,6 +46,18 @@ class Serializer(JSONSerializer):
         self.stream.write("]}")
 
     def start_object(self, obj):
+        """
+
+        Initializes the object processing by setting up the geometry field.
+
+        This method extends the parent class's object initialization and determines the 
+        geometry field of the given object. If a specific geometry field is not provided, 
+        it iterates through the object's fields to find the first field that has a geometric 
+        data type and designates it as the geometry field.
+
+        :param obj: The object being processed.
+
+        """
         super().start_object(obj)
         self._geometry = None
         if self.geometry_field is None:

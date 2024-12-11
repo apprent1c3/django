@@ -732,6 +732,10 @@ class CaptureQueriesContext:
 
 class ignore_warnings(TestContextDecorator):
     def __init__(self, **kwargs):
+        """
+        Initializes the object, setting up keyword arguments and warning filter function based on the presence of 'message' or 'module' in the provided keywords. 
+        If 'message' or 'module' is specified, the filterwarnings function is used to handle warnings; otherwise, simplefilter is used.
+        """
         self.ignore_kwargs = kwargs
         if "message" in self.ignore_kwargs or "module" in self.ignore_kwargs:
             self.filter_func = warnings.filterwarnings

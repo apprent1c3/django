@@ -7,6 +7,21 @@ from .tests import AdminDocsTestCase, TestDataMixin
 
 class XViewMiddlewareTest(TestDataMixin, AdminDocsTestCase):
     def test_xview_func(self):
+        """
+
+        Tests the functionality of the X-View header in responses from the /xview/func/ endpoint.
+
+        This test case ensures that the X-View header is present in the response only when the
+        request is made by a logged-in staff user. The test covers various scenarios, including:
+        - Anonymous users
+        - Logged-in non-staff users
+        - Logged-in staff users
+        - Logged-in inactive staff users
+
+        Verifies that the X-View header contains the expected view function name when the
+        request is made by a logged-in staff user.
+
+        """
         user = User.objects.get(username="super")
         response = self.client.head("/xview/func/")
         self.assertNotIn("X-View", response)

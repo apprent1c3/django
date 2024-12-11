@@ -119,6 +119,17 @@ def lazy(func, *resultclasses):
             return str(self.__cast())
 
         def __eq__(self, other):
+            """
+            Checks if the current object is equal to another object.
+
+            The comparison is performed after casting both objects to their resolved values. This allows for equality checks between the current object and other objects that may be promises or already resolved values.
+
+            Args:
+                other: The object to compare with the current object.
+
+            Returns:
+                bool: True if the current object is equal to the other object, False otherwise.
+            """
             if isinstance(other, Promise):
                 other = other.__cast()
             return self.__cast() == other

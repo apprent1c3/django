@@ -25,6 +25,19 @@ class GreatestTests(TestCase):
 
     @skipUnlessDBFeature("greatest_least_ignores_nulls")
     def test_ignores_null(self):
+        """
+
+        Tests that the Greatest function ignores null values when determining the last updated date.
+
+        This test verifies that when 'published' is null, the 'written' date is used as the last updated date.
+        It ensures the correct functionality of the Greatest function in conjunction with annotate,
+        particularly in cases where some fields may contain null values.
+
+        The test creates a new Article instance with a 'written' date and no 'published' date,
+        then annotates the Article queryset with the last updated date using the Greatest function.
+        It asserts that the last updated date of the annotated Article instance is equal to the 'written' date.
+
+        """
         now = timezone.now()
         Article.objects.create(title="Testing with Django", written=now)
         articles = Article.objects.annotate(

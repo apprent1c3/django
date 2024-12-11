@@ -200,6 +200,14 @@ class ValidationError(Exception):
         return error_dict
 
     def __iter__(self):
+        """
+        Iterates over validation errors, yielding tuples or strings containing error information.
+
+        For dictionary-based errors, each yield contains a tuple of the field name and a list of validation error messages.
+        For list-based errors, each yield contains a formatted error message string.
+
+        Yielded values can be used to report or log validation errors in a user-friendly format.
+        """
         if hasattr(self, "error_dict"):
             for field, errors in self.error_dict.items():
                 yield field, list(ValidationError(errors))

@@ -187,6 +187,13 @@ class Join:
         return hash(self.identity)
 
     def demote(self):
+        """
+        Demotes the current object by creating a new relabeled clone and changing its join type to inner.
+
+        Returns:
+            A new object with the same properties as the current one but with an inner join type.
+
+        """
         new = self.relabeled_clone({})
         new.join_type = INNER
         return new

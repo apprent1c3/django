@@ -1191,6 +1191,14 @@ class AsyncClientTest(TestCase):
         self.assertEqual(response.resolver_match.url_name, "middleware_urlconf_view")
 
     async def test_redirect(self):
+        """
+
+        Tests if a GET request to the '/redirect_view/' endpoint returns a redirect response.
+
+        This test case verifies that the endpoint correctly returns a 302 status code, 
+        indicating that the client should be redirected to a different location.
+
+        """
         response = await self.async_client.get("/redirect_view/")
         self.assertEqual(response.status_code, 302)
 

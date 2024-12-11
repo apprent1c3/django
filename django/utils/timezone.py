@@ -127,6 +127,19 @@ class override(ContextDecorator):
         self.timezone = timezone
 
     def __enter__(self):
+        """
+
+        Enter the runtime context of a timezone-aware operation.
+
+        This method is used as part of a context manager to set the timezone for a block of code.
+        It saves the current timezone and then either deactivates the timezone if none is specified,
+        or activates the specified timezone. This allows for easy switching between different timezones
+        or disabling timezone awareness for a specific section of code.
+
+        Returns:
+            The current object, allowing for chaining of operations.
+
+        """
         self.old_timezone = getattr(_active, "value", None)
         if self.timezone is None:
             deactivate()

@@ -240,6 +240,24 @@ class OperationTestBase(MigrationTestBase):
             return migration.apply(project_state, editor)
 
     def unapply_operations(self, app_label, project_state, operations, atomic=True):
+        """
+
+        Unapplies a set of migration operations to a project's state.
+
+        This function takes a set of operations and reverses their effects on the project's state, effectively \"unapplying\" them.
+        It does this by creating a temporary migration object with the given operations and then reversing those operations
+        using the project's current state and a schema editor.
+
+        The reversal is done within a single, atomic database transaction if `atomic` is True, ensuring that the database
+        remains in a consistent state even if the unapplication process fails.
+
+        :param app_label: The label of the application to which the migration belongs.
+        :param project_state: The current state of the project.
+        :param operations: The set of operations to unapply.
+        :param atomic: Whether to perform the unapplication within a single, atomic database transaction. Defaults to True.
+        :return: The result of unapplying the operations to the project state.
+
+        """
         migration = Migration("name", app_label)
         migration.operations = operations
         with connection.schema_editor(atomic=atomic) as editor:

@@ -54,6 +54,16 @@ class BaseModelValidationTests(ValidationAssertions, TestCase):
     def test_limited_FK_raises_error(self):
         # The limit_choices_to on the parent field says that a parent object's
         # number attribute must be 10, so this should fail validation.
+        """
+        Tests that a ModelToValidate instance with a limited foreign key raises an error.
+
+        Verifies that attempting to save a ModelToValidate instance with a parent_id that 
+        does not meet the validation criteria results in a validation error being raised, 
+        specifically related to the 'parent' field.
+
+        The validation error is expected to occur during the full_clean process, 
+        indicating that the foreign key constraint is not satisfied.
+        """
         parent = ModelToValidate.objects.create(number=11, name="Other Name")
         mtv = ModelToValidate(number=10, name="Some Name", parent_id=parent.pk)
         self.assertFailsValidation(mtv.full_clean, ["parent"])

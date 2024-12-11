@@ -76,6 +76,21 @@ class FormsErrorMessagesTestCase(SimpleTestCase, AssertFormErrorsMixin):
         self.assertFormErrors(["MAX VALUE IS 10"], f.clean, "11")
 
     def test_decimalfield(self):
+        """
+        Tests the validation functionality of the DecimalField class.
+
+        This function checks the error messages produced by the DecimalField when 
+        provided with various invalid inputs, including empty values, non-numeric strings, 
+        and numbers that exceed the minimum or maximum allowed values, or have too many 
+        digits or decimal places. 
+
+        It verifies that the correct error messages are raised for each type of invalid input, 
+        including required, invalid, min value, max value, max digits, max decimal places, 
+        and max whole digits errors.
+
+        The test cases ensure that the DecimalField behaves correctly in different scenarios 
+        and that the custom error messages are displayed as expected.
+        """
         e = {
             "required": "REQUIRED",
             "invalid": "INVALID",
@@ -195,6 +210,19 @@ class FormsErrorMessagesTestCase(SimpleTestCase, AssertFormErrorsMixin):
         self.assertFormErrors(["b IS INVALID CHOICE"], f.clean, "b")
 
     def test_multiplechoicefield(self):
+        """
+
+        Tests the functionality of the MultipleChoiceField for various validation scenarios.
+
+        This test case covers the following scenarios:
+        - When no input is provided to a required MultipleChoiceField.
+        - When a non-list value is passed to the field.
+        - When an invalid choice is selected from the available options.
+
+        It verifies that the field generates the expected error messages for each scenario, 
+        ensuring proper validation and user feedback.
+
+        """
         e = {
             "required": "REQUIRED",
             "invalid_choice": "%(value)s IS INVALID CHOICE",

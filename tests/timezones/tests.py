@@ -380,6 +380,21 @@ class NewDatabaseTests(TestCase):
         self.assertGreater(future, ts.updated)
 
     def test_query_filter(self):
+        """
+        Tests the filtering of events based on their datetime attributes.
+
+        This function creates two events with different datetime values and then
+        applies various filters to verify the correctness of the filtering
+        mechanism. Specifically, it checks that the `dt__gte` and `dt__gt` lookup
+        types behave as expected, returning the correct number of events that
+        meet the specified conditions.
+
+        The test cases cover the following scenarios:
+        - Events with datetime greater than or equal to a given value
+        - Events with datetime strictly greater than a given value
+        - Events with datetime greater than or equal to a given value (edge case)
+        - Events with datetime strictly greater than a given value (edge case)
+        """
         dt1 = datetime.datetime(2011, 9, 1, 12, 20, 30, tzinfo=EAT)
         dt2 = datetime.datetime(2011, 9, 1, 14, 20, 30, tzinfo=EAT)
         Event.objects.create(dt=dt1)
@@ -800,6 +815,19 @@ class SerializationTests(SimpleTestCase):
             self.assertEqual(obj.dt, dt)
 
     def test_aware_datetime_with_microsecond(self):
+        """
+
+        Test serialization and deserialization of a datetime object with microseconds using different formats.
+
+        This test case covers the following serialization formats: Python, JSON, XML, and YAML.
+        It ensures that the datetime object is correctly serialized and then deserialized back to its original value.
+        The test also verifies that the deserialized datetime object matches the original object.
+
+        The test covers the following scenarios:
+        - Serialization and deserialization of a datetime object with microseconds using Python, JSON, XML, and YAML formats.
+        - Comparison of the deserialized datetime object with the original object to ensure accuracy.
+
+        """
         dt = datetime.datetime(2011, 9, 1, 17, 20, 30, 405060, tzinfo=ICT)
 
         data = serializers.serialize("python", [Event(dt=dt)])
@@ -1155,6 +1183,17 @@ class TemplateTests(SimpleTestCase):
         self.assertEqual(tpl.render(Context()), "Europe/Paris")
 
     def test_get_current_timezone_templatetag_invalid_argument(self):
+        """
+
+        Tests the 'get_current_timezone' templatetag with an invalid argument.
+
+        Verify that a TemplateSyntaxError is raised when the 'get_current_timezone' tag 
+        is used without the required 'as variable' syntax.
+
+        The test checks for a specific error message to ensure the tag is correctly 
+        handling the invalid usage scenario.
+
+        """
         msg = (
             "'get_current_timezone' requires 'as variable' (got "
             "['get_current_timezone'])"

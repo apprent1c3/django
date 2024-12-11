@@ -11,6 +11,12 @@ from django.utils.http import http_date
 
 class SessionMiddleware(MiddlewareMixin):
     def __init__(self, get_response):
+        """
+        Initializes the session middleware by setting up the necessary session store based on the configured session engine.
+
+        :param get_response: The callable that returns the response for the current request
+        :note: This method is automatically called by the Django framework when initializing the session middleware. It retrieves the session engine specified in the project's settings and loads the corresponding session store class. The session store is then stored as an instance attribute for later use.
+        """
         super().__init__(get_response)
         engine = import_module(settings.SESSION_ENGINE)
         self.SessionStore = engine.SessionStore

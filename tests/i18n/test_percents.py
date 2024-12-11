@@ -65,6 +65,11 @@ class ExtractingStringsWithPercentSigns(POFileAssertionMixin, FrenchTestCase):
         )
 
     def test_adds_python_format_to_all_percent_signs(self):
+        """
+        Tests the addition of Python format to all percent signs in message IDs.
+
+        This function checks if all percent signs in message IDs have been correctly formatted for Python, replacing them with double percent signs to prevent interpretation as format specifiers. It verifies this formatting for both simple and parameterized message IDs.
+        """
         self.assertMsgId(
             "1 percent sign %%, 2 percent signs %%%%, 3 percent signs %%%%%%",
             self.po_contents,

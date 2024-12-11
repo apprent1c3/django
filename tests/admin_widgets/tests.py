@@ -314,6 +314,16 @@ class AdminForeignKeyWidgetChangeList(TestDataMixin, TestCase):
         self.client.force_login(self.superuser)
 
     def test_changelist_ForeignKey(self):
+        """
+
+        Checks that the changelist page for the car model contains a link to add new users.
+
+        This test case verifies that the admin changelist view for cars includes a link to 
+        create new users, which is essential for establishing relationships between cars and 
+        their respective owners via a foreign key. The test confirms the presence of this 
+        link by asserting that the URL for adding new users is present in the HTML response.
+
+        """
         response = self.client.get(reverse("admin:admin_widgets_car_changelist"))
         self.assertContains(response, "/auth/user/add/")
 

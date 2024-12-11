@@ -449,6 +449,14 @@ class InheritanceTests(SimpleTestCase):
 
     @setup(inheritance_templates)
     def test_duplicate_block(self):
+        """
+        #: Tests rendering a template with duplicate block tags.
+        #: 
+        #: Verifies that the template engine correctly raises an exception when a 
+        #: 'block' tag with the same name is defined multiple times in a template, 
+        #: ensuring template syntax consistency and preventing potential rendering 
+        #: errors.
+        """
         msg = "'block' tag with name 'content' appears more than once"
         with self.assertRaisesMessage(TemplateSyntaxError, msg):
             self.engine.render_to_string("duplicate_block")

@@ -223,6 +223,11 @@ class RegexPattern(CheckURLMixin):
         return warnings
 
     def _check_include_trailing_dollar(self):
+        """
+        Checks if the URL pattern ends with a trailing dollar sign, which can cause issues when including URLs.
+
+         Returns a list of warnings if the pattern ends with a dollar sign (not escaped), otherwise returns an empty list.
+        """
         if self._regex.endswith("$") and not self._regex.endswith(r"\$"):
             return [
                 Warning(
@@ -420,6 +425,16 @@ class URLPattern:
         return "<%s %s>" % (self.__class__.__name__, self.pattern.describe())
 
     def check(self):
+        """
+        Checks the current object for potential issues or inconsistencies.
+
+        This method performs a series of checks, including validating the pattern name,
+        verifying the pattern itself, and examining the callback functionality.
+        It returns a list of warnings, which can be used to identify and address any problems.
+
+        The warnings list contains information about the specific issues found during the checking process,
+        enabling users to take corrective action to resolve these issues and ensure the object is properly configured.
+        """
         warnings = self._check_pattern_name()
         warnings.extend(self.pattern.check())
         warnings.extend(self._check_callback())
@@ -658,6 +673,18 @@ class URLResolver:
         return name in self._callback_strs
 
     def resolve(self, path):
+        """
+        Resolve a URL path against the available URL patterns.
+
+        This function takes a URL path as input and attempts to match it against the defined URL patterns. 
+        If a match is found, it resolves the path into a callable function, along with its corresponding arguments and keyword arguments.
+        The function also keeps track of the URL patterns that have been tried, in case no match is found, to raise a Resolver404 exception.
+        It returns a ResolverMatch object containing the matched function, its arguments, keyword arguments, and other relevant information, or raises a Resolver404 exception if no match is found.
+
+        :param path: The URL path to resolve
+        :raises Resolver404: If no match is found for the given path
+        :return: A ResolverMatch object containing the matched function and its arguments and keyword arguments.
+        """
         path = str(path)  # path may be a reverse_lazy object
         tried = []
         match = self.pattern.match(path)
@@ -707,6 +734,20 @@ class URLResolver:
 
     @cached_property
     def urlconf_module(self):
+        """
+        Returns the URL configuration module associated with this instance.
+
+        This property dynamically imports the URL configuration module specified by
+        `:attr:`~urlconf_name` or returns the module directly if it is already imported.
+
+        The returned module is expected to contain URL patterns and other URL-related
+        configuration settings.
+
+        .. note::
+            The actual module import or retrieval is done on demand and the result
+            is cached for subsequent accesses.
+
+        """
         if isinstance(self.urlconf_name, str):
             return import_module(self.urlconf_name)
         else:

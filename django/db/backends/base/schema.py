@@ -2000,6 +2000,14 @@ class BaseDatabaseSchemaEditor:
         return result
 
     def _delete_primary_key(self, model, strict=False):
+        """
+        Deletes the primary key constraint from the specified database model.
+
+        :param model: The database model from which to delete the primary key constraint.
+        :param strict: If True, raises a ValueError if the model has other than one primary key constraint.
+        :raises ValueError: If strict is True and the model has an unexpected number of primary key constraints.
+        :returns: None
+        """
         constraint_names = self._constraint_names(model, primary_key=True)
         if strict and len(constraint_names) != 1:
             raise ValueError(

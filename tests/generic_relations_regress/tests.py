@@ -88,6 +88,17 @@ class GenericRelationTests(TestCase):
         )
 
     def test_coerce_object_id_remote_field_cache_persistence(self):
+        """
+        Tests the persistence of the object_id in the remote field cache for CharLink objects.
+
+        This test verifies that when creating CharLink objects linked to different model instances (e.g., Restaurant, Cafe),
+        the object_id in the remote field cache is correctly persisted. It checks that the content_object associated with each 
+        CharLink instance remains consistent after creation, ensuring that the caching mechanism does not introduce inconsistencies 
+        when working with different model types.
+
+        The test covers scenarios where CharLink objects are created with content_objects of different types, validating the 
+        correctness of the object_id remote field cache in each case.
+        """
         restaurant = Restaurant.objects.create()
         CharLink.objects.create(content_object=restaurant)
         charlink = CharLink.objects.latest("pk")

@@ -21,6 +21,14 @@ class Command(BaseCommand):
         return p
 
     def add_arguments(self, parser):
+        """
+        Adds command line arguments for password change operations.
+
+        This function populates an argument parser with options for specifying the username and database to use when changing a password. 
+        The username argument is optional and defaults to the current username if not provided. 
+        The database argument allows the user to specify which database to use, with the default being the 'default' database. 
+        Available database options are determined by the configured connections.
+        """
         parser.add_argument(
             "username",
             nargs="?",

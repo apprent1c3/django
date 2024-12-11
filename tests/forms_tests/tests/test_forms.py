@@ -249,6 +249,13 @@ class FormsTestCase(SimpleTestCase):
         )
 
     def test_empty_querydict_args(self):
+        """
+        Tests the initialization of a Person object with empty query dictionaries.
+
+        Verifies that the Person object correctly stores the provided data and files query dictionaries.
+        This test case ensures the integrity and consistency of the object's attributes when initialized with empty query parameters.
+
+        """
         data = QueryDict()
         files = QueryDict()
         p = Person(data, files)
@@ -3930,6 +3937,15 @@ Options: <select multiple name="options" aria-invalid="true" required>
                 super().__init__(fields, *args, **kwargs)
 
             def compress(self, data_list):
+                """
+                Returns a formatted string representing the provided data list, 
+                or None if the list is empty. The string is formatted as 
+                '%s.%s ext. %s (label: %s)' where each position is replaced 
+                by a corresponding element from the input list. 
+
+                :rtype: str or None
+
+                """
                 if data_list:
                     return "%s.%s ext. %s (label: %s)" % tuple(data_list)
                 return None
@@ -4817,11 +4833,33 @@ class RendererTests(SimpleTestCase):
         self.assertEqual(form.renderer, custom)
 
     def test_kwarg_class(self):
+        """
+        Tests that a Form instance correctly stores a custom renderer passed as a keyword argument.
+
+        This test verifies that when a custom renderer is provided to the Form class via the renderer keyword argument,
+        it is properly assigned to the instance and can be retrieved later.
+
+        The test ensures the integrity of the Form class's initialization process, guaranteeing that custom renderers
+        are handled as expected and can be used for further processing or customization within the class.
+
+        Args: None
+        Returns: None
+        """
         custom = CustomRenderer()
         form = Form(renderer=custom)
         self.assertEqual(form.renderer, custom)
 
     def test_attribute_instance(self):
+        """
+
+        Tests that an instance of a Form subclass uses the default renderer 
+        defined in the class if no renderer is explicitly set.
+
+        Verifies that the renderer attribute of a Form instance is correctly 
+        inherited from the class-level default_renderer attribute when no 
+        alternative renderer is provided.
+
+        """
         class CustomForm(Form):
             default_renderer = DjangoTemplates()
 
@@ -5245,6 +5283,17 @@ class TemplateTests(SimpleTestCase):
 class OverrideTests(SimpleTestCase):
     @override_settings(FORM_RENDERER="forms_tests.tests.test_forms.CustomRenderer")
     def test_custom_renderer_template_name(self):
+        """
+        Tests the rendering of a form using a custom template renderer.
+
+        This test case verifies that a form instance can be successfully rendered using a custom renderer.
+        It checks that the rendered HTML matches the expected output, ensuring that the custom renderer
+        is able to correctly handle form fields and generate the desired HTML structure.
+
+        The test covers the rendering of a basic form with a single field, validating that the form
+        is wrapped in a div with a class of \"fieldWrapper\" and that the field is properly labeled and rendered as an input element.
+
+        """
         class Person(Form):
             first_name = CharField()
 

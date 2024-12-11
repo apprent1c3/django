@@ -55,6 +55,13 @@ class TimeuntilTests(TimezoneTestCase):
     # Regression for #7443
     @setup({"timeuntil06": "{{ earlier|timeuntil }}"})
     def test_timeuntil06(self):
+        """
+
+        Tests the rendering of the 'timeuntil06' template to ensure it correctly calculates and displays the time until the current date and time.
+
+        The test sets up a scenario where the 'earlier' variable is 7 days prior to the current date and time and verifies that the rendered output is '0 minutes', as expected when the specified time has already passed.
+
+        """
         output = self.engine.render_to_string(
             "timeuntil06", {"earlier": self.now - timedelta(days=7)}
         )

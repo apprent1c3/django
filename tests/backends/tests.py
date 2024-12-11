@@ -582,6 +582,15 @@ class BackendTestCase(TransactionTestCase):
         self.assertEqual(tuple(kwargs["extra"].values()), params[1:])
 
     def test_queries_bare_where(self):
+        """
+
+        Tests the functionality of querying the database with a bare WHERE clause.
+
+        Verifies that the database connection can successfully execute a SELECT statement
+        with a WHERE clause that doesn't reference any table columns, and that the result
+        is correctly fetched.
+
+        """
         sql = f"SELECT 1{connection.features.bare_select_suffix} WHERE 1=1"
         with connection.cursor() as cursor:
             cursor.execute(sql)

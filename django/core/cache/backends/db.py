@@ -98,6 +98,16 @@ class DatabaseCache(BaseDatabaseCache):
         return result
 
     def set(self, key, value, timeout=DEFAULT_TIMEOUT, version=None):
+        """
+        Sets a value for a given key in the storage.
+
+        :param key: The unique identifier for the value to be stored.
+        :param value: The value to be stored.
+        :param timeout: The time in seconds after which the key will expire, defaults to :const:`DEFAULT_TIMEOUT`.
+        :param version: An optional version number to use for the key.
+        :return: None
+        :note: The key is validated and transformed before being used for storage.
+        """
         key = self.make_and_validate_key(key, version=version)
         self._base_set("set", key, value, timeout)
 

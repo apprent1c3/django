@@ -96,6 +96,14 @@ class RangeField(models.Field):
         return value
 
     def to_python(self, value):
+        """
+        Converts a given value to a Python object compatible with the current range field.
+
+        This function accepts string, list, or tuple values and transforms them into the necessary format for the range field. 
+        For string values, it expects a JSON string and uses the base field to convert the 'lower' and 'upper' bounds if present.
+        For list or tuple values, it unpacks the values into the range type.
+        The resulting value is an instance of the range type, which can be used directly in Python code.
+        """
         if isinstance(value, str):
             # Assume we're deserializing
             vals = json.loads(value)

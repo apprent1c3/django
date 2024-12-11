@@ -89,6 +89,11 @@ class GenericRelationsTests(TestCase):
         self.assertEqual(tag.tag, "juicy")
 
     def test_generic_update_or_create_when_updated_with_defaults(self):
+        """
+        Tests the functionality of updating or creating a generic instance with default values.
+
+        This test case covers the scenario where an instance already exists and is updated with new default values. The test verifies that the instance is updated successfully, and that no new instance is created. The update operation is checked for correctness by verifying that the updated field matches the expected value, and that the overall count of instances remains unchanged.
+        """
         count = self.bacon.tags.count()
         tag = self.bacon.tags.create(tag="stinky")
         self.assertEqual(count + 1, self.bacon.tags.count())
@@ -332,6 +337,18 @@ class GenericRelationsTests(TestCase):
         )
 
     def test_add_bulk(self):
+        """
+        Tests adding multiple tags to an object in bulk using a single database query.
+
+        This test case verifies that the tags can be successfully associated with an object,
+        and that the content objects of the added tags are updated correctly.
+
+        Check that the database query count is within the expected limit, ensuring efficient
+        use of database resources when adding tags in bulk.
+
+        Validates the integrity of the object-tag relationships by asserting that the content
+        objects of the added tags match the expected object.
+        """
         bacon = Vegetable.objects.create(name="Bacon", is_yucky=False)
         t1 = TaggedItem.objects.create(content_object=self.quartz, tag="shiny")
         t2 = TaggedItem.objects.create(content_object=self.quartz, tag="clearish")
@@ -543,6 +560,17 @@ class GenericRelationsTests(TestCase):
     def test_gfk_manager(self):
         # GenericForeignKey should not use the default manager (which may
         # filter objects).
+        """
+        Tests the functionality of the Generic Foreign Key (GFK) manager.
+
+        This test case verifies that a GFK relationship can be established between two objects 
+        and that the content object associated with a tagged item can be correctly retrieved.
+
+        The test scenario involves creating an instance of a Gecko object without a tail, 
+        then creating a TaggedItem object that references the Gecko instance. The test 
+        asserts that the content object associated with the TaggedItem is indeed the 
+        Gecko instance that was initially created.
+        """
         tailless = Gecko.objects.create(has_tail=False)
         tag = TaggedItem.objects.create(content_object=tailless, tag="lizard")
         self.assertEqual(tag.content_object, tailless)

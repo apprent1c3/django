@@ -159,6 +159,13 @@ class OutputWrapper(TextIOBase):
             self._style_func = lambda x: x
 
     def __init__(self, out, ending="\n"):
+        """
+        Initializes a new instance of the class, setting up the output target and optional styling.
+
+        :param out: The output target where data will be written.
+        :param ending: The character sequence to append at the end of output, defaults to a newline ('\n'). 
+                       This allows for customization of the output termination.
+        """
         self._out = out
         self.style_func = None
         self.ending = ending
@@ -174,6 +181,19 @@ class OutputWrapper(TextIOBase):
         return hasattr(self._out, "isatty") and self._out.isatty()
 
     def write(self, msg="", style_func=None, ending=None):
+        """
+        Writes a message to the output stream.
+
+        :param msg: The message to be written. Defaults to an empty string.
+        :param style_func: An optional function to apply styling to the message.
+        :param ending: The terminating characters to be appended to the message.
+                     If not provided, the default ending will be used. If endings are specified, 
+                     they will be appended to the message unless it already ends with them.
+
+        The message will be styled using the provided style function or the default style function 
+        if none is specified. The output will be written to the internal output stream after styling 
+        and appending the ending if necessary.
+        """
         ending = self.ending if ending is None else ending
         if ending and not msg.endswith(ending):
             msg += ending

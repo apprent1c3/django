@@ -613,6 +613,22 @@ class ListFiltersTests(TestCase):
         self.test_datefieldlistfilter()
 
     def test_allvaluesfieldlistfilter(self):
+        """
+
+        Tests the AllValuesFieldListFilter functionality in the admin interface.
+
+        This test case verifies that the filter works correctly when filtering by a field
+        with a null value and when filtering by a specific value. It checks the title of 
+        the filter, the selected choices, and the generated query strings.
+
+        The test covers the following scenarios:
+
+        * Filtering by a null value in a field
+        * Filtering by a specific value in a field
+        * Verifying the correct choices are selected
+        * Verifying the correct query strings are generated
+
+        """
         modeladmin = BookAdmin(Book, site)
 
         request = self.request_factory.get("/", {"year__isnull": "True"})

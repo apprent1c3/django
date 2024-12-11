@@ -91,6 +91,14 @@ class FileSystemFinder(BaseFinder):
 
     def __init__(self, app_names=None, *args, **kwargs):
         # List of locations with static files
+        """
+        Initializes the static file storage handler with the specified application names and settings.
+
+        This method sets up the locations and storages for static files based on the STATICFILES_DIRS setting.
+        It iterates over each root directory, extracts the prefix and root path, and stores them in the locations list.
+        Then, it creates a FileSystemStorage instance for each location, assigns the prefix to the storage instance, and stores it in the storages dictionary for later use.
+        The method also accepts additional arguments and keyword arguments, which are passed to the parent class's constructor.
+        """
         self.locations = []
         # Maps dir paths to an appropriate storage instance
         self.storages = {}
@@ -326,6 +334,22 @@ class DefaultStorageFinder(BaseStorageFinder):
     storage = default_storage
 
     def __init__(self, *args, **kwargs):
+        """
+        Initializes the static files finder.
+
+        This method is responsible for setting up the finder instance. It ensures that the 
+        storage backend has a valid base location, which is required for the finder to 
+        operate correctly. If the location is not provided, it raises an ImproperlyConfigured 
+        exception to indicate that the storage backend is misconfigured.
+
+        Args:
+            *args: Variable arguments passed to the parent class initializer.
+            **kwargs: Keyword arguments passed to the parent class initializer.
+
+        Raises:
+            ImproperlyConfigured: If the storage backend does not have a valid base location.
+
+        """
         super().__init__(*args, **kwargs)
         base_location = getattr(self.storage, "base_location", empty)
         if not base_location:

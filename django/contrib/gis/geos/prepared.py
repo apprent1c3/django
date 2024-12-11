@@ -16,6 +16,20 @@ class PreparedGeometry(GEOSBase):
         # Keeping a reference to the original geometry object to prevent it
         # from being garbage collected which could then crash the prepared one
         # See #21662
+        """
+
+        Initializes a new instance of the class with a geometric object.
+
+        Args:
+            geom: A geometric object of type GEOSGeometry.
+
+        Raises:
+            TypeError: If the provided geometric object is not an instance of GEOSGeometry.
+
+        Notes:
+            This initializer sets up the base geometric object and prepares it for use with the GEOS library.
+
+        """
         self._base_geom = geom
         from .geometry import GEOSGeometry
 

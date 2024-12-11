@@ -31,6 +31,16 @@ class DatabaseCreation(BaseDatabaseCreation):
         )
 
     def _database_exists(self, cursor, database_name):
+        """
+        Checks if a PostgreSQL database with the given name exists.
+
+        Args:
+            cursor: Database cursor object to execute queries.
+            database_name: Name of the database to check for existence.
+
+        Returns:
+            bool: True if the database exists, False otherwise.
+        """
         cursor.execute(
             "SELECT 1 FROM pg_catalog.pg_database WHERE datname = %s",
             [strip_quotes(database_name)],

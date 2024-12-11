@@ -56,6 +56,13 @@ def update_installed_apps(*, setting, **kwargs):
 
 @receiver(setting_changed)
 def update_connections_time_zone(*, setting, **kwargs):
+    """
+    Update the time zone for database connections when the TIME_ZONE or USE_TZ settings are changed.
+
+    This function is triggered by the setting_changed signal and checks if the changed setting is either TIME_ZONE or USE_TZ. 
+    If the TIME_ZONE setting is changed, it updates the system time zone environment variable and refreshes the default time zone cache.
+    For changes to either TIME_ZONE or USE_TZ settings, it iterates over all initialized database connections, clears any existing time zone attributes, and ensures the connection is properly configured for the current time zone.
+    """
     if setting == "TIME_ZONE":
         # Reset process time zone
         if hasattr(time, "tzset"):
@@ -173,6 +180,16 @@ def complex_setting_changed(*, enter, setting, **kwargs):
 
 @receiver(setting_changed)
 def root_urlconf_changed(*, setting, **kwargs):
+    """
+    .stereotype ROOT_URLCONF changed event handler.
+
+    This function listens for changes to the ROOT_URLCONF setting and triggers a reset of the URL configuration when a change is detected.
+
+    It clears the URL caches and resets the URL configuration to ensure that the latest changes are applied.
+
+    :arg string setting: The name of the changed setting.
+    :returns: None
+    """
     if setting == "ROOT_URLCONF":
         from django.urls import clear_url_caches, set_urlconf
 

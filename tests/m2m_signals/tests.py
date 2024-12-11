@@ -11,6 +11,15 @@ from .models import Car, Part, Person, SportsCar
 class ManyToManySignalsTest(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Set up test data for the application.
+
+        This class method creates a set of predefined cars, parts, and people that can be used throughout the test suite.
+        It populates the database with a variety of objects, including vehicles (VW, BMW, Toyota), car components (Wheelset, Doors, Engine, Airbag, Sunroof), and individuals (Alice, Bob, Chuck, Daisy).
+        These objects are stored as class attributes, allowing them to be easily accessed and reused in subsequent tests.
+
+        """
         cls.vw = Car.objects.create(name="VW")
         cls.bmw = Car.objects.create(name="BMW")
         cls.toyota = Car.objects.create(name="Toyota")
@@ -294,6 +303,15 @@ class ManyToManySignalsTest(TestCase):
         )
 
     def test_m2m_relations_signals_reverse_relation(self):
+        """
+
+        Tests the signals sent when a many-to-many relation is cleared in reverse.
+
+        This checks that the pre_clear and post_clear signals are sent with the correct parameters
+        when clearing the optional cars relation of an Airbag instance, 
+        verifying the functionality of the reverse relation in many-to-many fields.
+
+        """
         self._initialize_signal_car()
         # take all the airbags off of cars (clear reverse relation with custom
         # related_name)

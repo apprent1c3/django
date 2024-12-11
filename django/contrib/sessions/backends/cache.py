@@ -123,6 +123,18 @@ class SessionStore(SessionBase):
         )
 
     def delete(self, session_key=None):
+        """
+        Deletes a cached item associated with a given session key.
+
+        If no session key is provided, the function uses the instance's current session key. 
+        If no session key is available, the function does nothing.
+
+        The deletion occurs within a cache namespace defined by the instance's cache key prefix.
+        This allows for targeted removal of cached items tied to specific session contexts.
+
+        :param session_key: Optional session key to delete the associated cached item.
+
+        """
         if session_key is None:
             if self.session_key is None:
                 return

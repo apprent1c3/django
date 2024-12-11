@@ -317,6 +317,21 @@ class DistanceLookupBase(GISLookup):
             self.process_band_indices()
 
     def process_distance(self, compiler, connection):
+        """
+
+        Process distance operation for the given compiler and database connection.
+
+        This method resolves the distance expression and compiles it using the provided compiler.
+        If the expression cannot be resolved, it generates a SQL string for calculating the distance.
+
+         PARAMETERS:
+            compiler (object): Compiler object used for compiling the expression.
+            connection (object): Database connection object.
+
+         RETURNS:
+            A compiled distance expression or a SQL string for calculating the distance.
+
+        """
         dist_param = self.rhs_params[0]
         return (
             compiler.compile(dist_param.resolve_expression(compiler.query))

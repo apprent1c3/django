@@ -1262,6 +1262,18 @@ class AggregateTestCase(TestCase):
         self.assertEqual(author.sum_age, other_author.sum_age)
 
     def test_aggregate_over_aggregate(self):
+        """
+        Tests that attempting to calculate an aggregate over another aggregate raises a FieldError.
+
+        This test ensures that the ORM correctly prevents the computation of aggregates
+        on top of other aggregates, which is not a valid operation.
+
+        The test case verifies that an error is raised when trying to compute the average
+        of an already aggregated field, specifically the sum of 'age' values.
+
+        :raises: FieldError
+        :raises Message: \"Cannot compute Avg('age_agg'): 'age_agg' is an aggregate\"
+        """
         msg = "Cannot compute Avg('age_agg'): 'age_agg' is an aggregate"
         with self.assertRaisesMessage(FieldError, msg):
             Author.objects.aggregate(
@@ -1270,6 +1282,15 @@ class AggregateTestCase(TestCase):
             )
 
     def test_annotated_aggregate_over_annotated_aggregate(self):
+        """
+        Tests that attempting to compute an aggregate over another aggregate raises a FieldError.
+
+        This test case checks two scenarios:
+            1. Annotating a query with the maximum value of a field, and then attempting to compute the sum of that maximum value.
+            2. Creating a custom aggregate class (MyMax) and attempting to use it to compute the maximum value of another aggregate.
+
+        In both cases, the test asserts that a FieldError is raised with an error message indicating that it's impossible to compute the aggregate over another aggregate. This ensures that the ORM correctly enforces the restriction on nesting aggregates, preventing potential errors or unexpected behavior in query results.
+        """
         with self.assertRaisesMessage(
             FieldError, "Cannot compute Sum('id__max'): 'id__max' is an aggregate"
         ):

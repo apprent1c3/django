@@ -31,6 +31,22 @@ class SimpleArrayField(forms.CharField):
             self.validators.append(ArrayMaxLengthValidator(int(max_length)))
 
     def clean(self, value):
+        """
+
+        Cleans and validates a list of values using the base field cleaner.
+
+        This method takes a list of values as input, cleans each value individually
+        using the base field's cleaning method, and returns the list of cleaned values.
+        It first calls the parent class's clean method to perform any initial cleaning,
+        then applies the base field's cleaning method to each value in the list.
+
+        The purpose of this method is to ensure that each value in the list conforms
+        to the validation rules defined by the base field, such as data type or format.
+        It returns a list of cleaned values, which can then be used for further processing
+        or storage. If any value in the list fails to clean or validate, an exception may
+        be raised, depending on the implementation of the base field's cleaning method.
+
+        """
         value = super().clean(value)
         return [self.base_field.clean(val) for val in value]
 
@@ -139,6 +155,18 @@ class SplitArrayWidget(forms.Widget):
 
     def id_for_label(self, id_):
         # See the comment for RadioSelect.id_for_label()
+        """
+
+        Generates an identifier based on the provided label.
+
+        If the label is not empty, it appends a suffix to the label to create a unique identifier.
+        The generated identifier can be used for further processing or reference.
+
+        :param id_: The label to be used for generating the identifier
+        :rtype: str
+        :return: The generated identifier
+
+        """
         if id_:
             id_ += "_0"
         return id_

@@ -238,6 +238,11 @@ class DatabaseFeatures(BaseDatabaseFeatures):
 
     @cached_property
     def has_select_for_update_skip_locked(self):
+        """
+        Checks if the database connection supports a specific SQL syntax to skip locked rows in a SELECT FOR UPDATE statement.
+
+        The support is determined based on the type and version of the MySQL database. For MariaDB, it requires version 10.6 or higher. For other MySQL types, this feature is assumed to be always supported.
+        """
         if self.connection.mysql_is_mariadb:
             return self.connection.mysql_version >= (10, 6)
         return True
@@ -291,6 +296,13 @@ class DatabaseFeatures(BaseDatabaseFeatures):
 
     @cached_property
     def supports_index_column_ordering(self):
+        """
+        Indicates whether the database table supports index column ordering.
+
+        This property checks the database storage engine and version to determine if index column ordering is supported. 
+        For InnoDB storage engine, it is supported in MySQL, but for MariaDB, it requires version 10.8 or higher. 
+        If the storage engine is not InnoDB, support for index column ordering is not available.
+        """
         if self._mysql_storage_engine != "InnoDB":
             return False
         if self.connection.mysql_is_mariadb:

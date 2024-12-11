@@ -36,6 +36,18 @@ class ConditionalGet(SimpleTestCase):
         self.assertFullResponse(response)
 
     def test_if_modified_since(self):
+        """
+        Tests the behavior of the server when handling HTTP requests with an 'If-Modified-Since' header. 
+
+        This test case covers several scenarios, including: 
+        when the 'If-Modified-Since' date matches the last modified date of the resource, 
+        when the 'If-Modified-Since' date is newer than the last modified date, 
+        when the 'If-Modified-Since' date is invalid, and 
+        when the 'If-Modified-Since' date is older than the last modified date (i.e., the resource has expired).
+
+        The function verifies that the server returns a 304 'Not Modified' response when the resource has not changed, 
+        and a full response when the resource has changed or the 'If-Modified-Since' date is invalid.
+        """
         self.client.defaults["HTTP_IF_MODIFIED_SINCE"] = LAST_MODIFIED_STR
         response = self.client.get("/condition/")
         self.assertNotModified(response)
@@ -210,6 +222,17 @@ class ConditionalGet(SimpleTestCase):
         self.assertFullResponse(response, check_last_modified=False)
 
     def test_single_condition_5(self):
+        """
+
+        Test handling of a single condition for HTTP requests.
+
+        This test evaluates the behavior of the server when responding to HTTP requests with 
+        If-Modified-Since and ETag headers. It verifies that the server correctly responds 
+        with a 304 Not Modified status when the requested resource has not changed, and 
+        that it returns the full response when the resource has changed or the request 
+        does not include the necessary headers.
+
+        """
         self.client.defaults["HTTP_IF_MODIFIED_SINCE"] = LAST_MODIFIED_STR
         response = self.client.get("/condition/last_modified2/")
         self.assertNotModified(response)

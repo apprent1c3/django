@@ -448,6 +448,18 @@ class SelectForUpdateTests(TransactionTestCase):
 
     @skipUnlessDBFeature("has_select_for_update", "has_select_for_update_of")
     def test_model_proxy_of_argument_raises_error_proxy_field_in_choices(self):
+        """
+
+        Test that using a non-relational field in select_for_update(of=...) raises a FieldError.
+
+        The function validates that a FieldError is raised when attempting to use select_for_update
+        with fields that are not relational or not followed in the query. This ensures that the
+        database backend's \"SELECT FOR UPDATE\" functionality is used correctly and safely.
+
+        The test case verifies that the error message contains the expected allowed relational
+        fields that can be used in the select_for_update(of=...) method.
+
+        """
         msg = (
             "Invalid field name(s) given in select_for_update(of=(...)): "
             "name. Only relational fields followed in the query are allowed. "

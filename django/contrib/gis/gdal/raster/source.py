@@ -40,6 +40,18 @@ class TransformPoint(list):
     }
 
     def __init__(self, raster, prop):
+        """
+        Initializes a new instance of the class, binding it to a specified raster property.
+
+        Args:
+            raster: The raster object to associate with this instance.
+            prop: The property of the raster to extract and store.
+
+        Notes:
+            This constructor extracts the geotransform coordinates corresponding to the specified property 
+            and passes them to the parent class constructor. The raster and property are also stored 
+            internally for later use.
+        """
         x = raster.geotransform[self.indices[prop][0]]
         y = raster.geotransform[self.indices[prop][1]]
         super().__init__([x, y])

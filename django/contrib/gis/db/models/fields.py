@@ -158,6 +158,21 @@ class BaseSpatialField(Field):
             return srid
 
     def get_db_prep_value(self, value, connection, *args, **kwargs):
+        """
+        Prepares the given value for use in a database operation.
+
+        This function takes a value and prepares it for database storage, returning the
+        prepared value. If the value is None, it is returned immediately. Otherwise,
+        the function calls the parent class's preparation method and then adapts the
+        resulting value using the database connection's adapter, taking into account
+        whether the field represents a geography or not.
+
+        :param value: The value to be prepared for database use.
+        :param connection: The database connection being used.
+        :param args: Additional positional arguments.
+        :param kwargs: Additional keyword arguments.
+        :return: The prepared value, or None if the input value was None.
+        """
         if value is None:
             return None
         return connection.ops.Adapter(

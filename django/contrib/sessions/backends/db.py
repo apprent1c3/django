@@ -177,6 +177,15 @@ class SessionStore(SessionBase):
             pass
 
     async def adelete(self, session_key=None):
+        """
+        Deletes an object from the database asynchronously.
+
+        This method retrieves an object based on the provided session key or the instance's default session key.
+        If the object exists, it is deleted; otherwise, the operation is silently ignored.
+
+        :param session_key: The session key of the object to delete. If not provided, the instance's default session key is used.
+
+        """
         if session_key is None:
             if self.session_key is None:
                 return

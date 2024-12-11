@@ -182,6 +182,23 @@ class ASGIHandler(base.BaseHandler):
             return
 
         async def process_request(request, send):
+            """
+            Asynchronously processes an incoming request and sends a response.
+
+            This function takes in a request and a send function, runs the request through a response generation process,
+            and attempts to send the resulting response. If the request is cancelled, the cancellation is silently handled.
+
+             Args:
+                request: The incoming request to be processed.
+                send: A function used to send the response.
+
+             Returns:
+                The response generated from the request.
+
+             Raises:
+                No exceptions are propagated, as asyncio.CancelledError is caught and ignored.
+
+            """
             response = await self.run_get_response(request)
             try:
                 await self.send_response(response, send)

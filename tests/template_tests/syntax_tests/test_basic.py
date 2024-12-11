@@ -339,6 +339,16 @@ class BasicSyntaxTests(SimpleTestCase):
 
     @setup({"tpl-str": "%s", "tpl-percent": "%%", "tpl-weird-percent": "% %s"})
     def test_ignores_strings_that_look_like_format_interpolation(self):
+        """
+
+        Test that the templating engine ignores strings that resemble format interpolation patterns.
+
+        This test ensures that the engine correctly handles template strings containing 
+        percent signs and other special characters, which could be mistaken for format 
+        interpolation syntax. It verifies that the engine renders these templates 
+        without attempting to perform interpolation, preserving the original string content.
+
+        """
         output = self.engine.render_to_string("tpl-str")
         self.assertEqual(output, "%s")
         output = self.engine.render_to_string("tpl-percent")

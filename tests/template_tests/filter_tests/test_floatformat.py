@@ -114,6 +114,21 @@ class FunctionTests(SimpleTestCase):
                 self.assertEqual(floatformat(value, "bar"), "")
 
     def test_force_grouping(self):
+        """
+
+        Tests the force grouping functionality of the floatformat function.
+
+        This function verifies that the floatformat function correctly formats numbers 
+        with forced grouping when using 'g' and 'g2' format specifiers, considering 
+        different locales, such as English and German.
+
+        It checks the formatting of integers and floats, ensuring that the correct 
+        decimal and thousand separators are used for each locale.
+
+        Expected output formats include comma-separated integers and decimal numbers 
+        with the correct number of significant figures.
+
+        """
         with translation.override("en"):
             self.assertEqual(floatformat(10000, "g"), "10,000")
             self.assertEqual(floatformat(66666.666, "1g"), "66,666.7")

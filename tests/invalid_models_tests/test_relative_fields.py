@@ -915,6 +915,9 @@ class RelativeFieldTests(SimpleTestCase):
         )
 
     def test_to_fields_not_checked_if_related_model_doesnt_exist(self):
+        """
+        Test that a field with a foreign key relation to a non-existent model does not trigger validation checks on the related fields, instead, it raises an error indicating that the related model is either not installed or is abstract.
+        """
         class Child(models.Model):
             a = models.PositiveIntegerField()
             b = models.PositiveIntegerField()
@@ -1560,6 +1563,21 @@ class SelfReferentialFKClashTests(SimpleTestCase):
         )
 
     def test_reverse_query_name_clash(self):
+        """
+        Tests for reverse query name clash in model fields.
+
+        This test case checks if a ForeignKey field with the same name as its model
+        raises an error due to a reverse query name clash. It verifies that the
+        error is correctly identified and provides a meaningful error message.
+
+        The test covers the scenario where a model has a field that could potentially
+        conflict with its own reverse query name, ensuring that the model validation
+        correctly reports and handles this conflict.
+
+        The expected error message suggests possible solutions to resolve the clash,
+        including renaming the conflicting field or adding a related_name argument
+        to the field definition.
+        """
         class Model(models.Model):
             model = models.ForeignKey("Model", models.CASCADE)
 

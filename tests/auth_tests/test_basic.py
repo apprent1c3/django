@@ -126,6 +126,16 @@ class BasicTestCase(TestCase):
 
 class TestGetUser(TestCase):
     def test_get_user_anonymous(self):
+        """
+
+        Tests that the get_user function returns an instance of AnonymousUser 
+        when the request is made without authentication.
+
+        This test case verifies the expected behavior of the get_user function 
+        in an anonymous user scenario, ensuring that it correctly identifies 
+        and returns an AnonymousUser object when no user is authenticated.
+
+        """
         request = HttpRequest()
         request.session = self.client.session
         user = get_user(request)

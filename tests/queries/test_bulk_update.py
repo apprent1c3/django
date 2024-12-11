@@ -70,6 +70,13 @@ class BulkUpdateNoteTests(TestCase):
             Note.objects.bulk_update(self.notes, fields=["note"], batch_size=1)
 
     def test_unsaved_models(self):
+        """
+
+        Tests that an exception is raised when attempting to perform a bulk update on a collection of model objects where at least one object lacks a primary key.
+
+        This test ensures that the bulk update functionality correctly enforces the requirement that all objects being updated must have their primary key set, preventing attempts to update unsaved models.
+
+        """
         objs = self.notes + [Note(note="test", misc="test")]
         msg = "All bulk_update() objects must have a primary key set."
         with self.assertRaisesMessage(ValueError, msg):

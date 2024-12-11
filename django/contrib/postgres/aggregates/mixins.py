@@ -4,6 +4,21 @@ from django.db.models.expressions import OrderByList
 
 class OrderableAggMixin:
     def __init__(self, *expressions, ordering=(), **extra):
+        """
+        Initializes a database query object.
+
+        This constructor takes in a variable number of expressions and optional keyword arguments.
+        The ordering parameter determines how the query results are ordered. If ordering is not provided,
+        the results will not be ordered. If ordering is provided as a list or tuple, it will be used to create
+        an OrderByList object. Otherwise, the provided ordering will be wrapped in an OrderByList object.
+
+        The extra keyword arguments are passed to the parent class's constructor.
+
+        :param ordering: The ordering of the query results, or None for no ordering.
+        :param expressions: Variable number of expressions to be used in the query.
+        :param extra: Additional keyword arguments.
+
+        """
         if not ordering:
             self.order_by = None
         elif isinstance(ordering, (list, tuple)):

@@ -14,6 +14,17 @@ class TestingHttpResponse(HttpResponse):
     """
 
     def __init__(self, *args, **kwargs):
+        """
+        Initializes the object, setting up the necessary internal state for tracking cookies.
+
+            This constructor takes in any positional and keyword arguments passed to it and
+            uses them to initialize the parent class. It also initializes an internal list 
+            to keep track of cookies that have been set.
+
+            Args:
+                *args: Positional arguments to be passed to the parent class constructor
+                **kwargs: Keyword arguments to be passed to the parent class constructor
+        """
         super().__init__(*args, **kwargs)
         # This is a list of the cookie values passed to set_cookie() over
         # the course of the request-response.
@@ -26,6 +37,18 @@ class TestingHttpResponse(HttpResponse):
 
 class _CsrfCookieRotator(MiddlewareMixin):
     def process_response(self, request, response):
+        """
+        Process the server response to a request.
+
+        This method takes a request and a response as input, performs any necessary 
+        actions to update the request state, and then returns the original response.
+        Specifically, it handles token rotation for the given request.
+
+        :param request: The incoming request to the server.
+        :param response: The outgoing response from the server.
+        :returns: The response, potentially with updated request state.
+
+        """
         rotate_token(request)
         return response
 

@@ -100,6 +100,17 @@ class DuplicateDBTableTests(SimpleTestCase):
     )
     @isolate_apps("basic", "check_framework", kwarg_name="apps")
     def test_collision_across_apps_database_routers_installed(self, apps):
+        """
+        Tests that database table collisions are detected across apps using database routers.
+
+        obbletains a warning when two models from different apps use the same database table name,
+        and provides a hint to verify database router configuration.
+
+        The test case involves two models, one from the 'basic' app and one from the 'check_framework' app,
+        both attempting to use the same database table 'test_table'. The test verifies that the
+        checks system correctly identifies this collision and provides a meaningful warning message.
+
+        """
         class Model1(models.Model):
             class Meta:
                 app_label = "basic"
@@ -510,6 +521,11 @@ class ModelDefaultAutoFieldTests(SimpleTestCase):
         )
 
     def test_auto_created_pk_inherited_abstract_parent(self):
+        """
+        Test the warning raised when an auto-created primary key is inherited from an abstract parent model. 
+
+        This test case verifies that Django correctly identifies and reports the potential issue of inheriting an auto-created primary key from an abstract base class, providing a hint for resolving the warning. The test confirms that the expected warning is raised, ensuring proper model validation.
+        """
         class Parent(models.Model):
             class Meta:
                 abstract = True

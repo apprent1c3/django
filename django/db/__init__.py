@@ -45,6 +45,18 @@ connection = ConnectionProxy(connections, DEFAULT_DB_ALIAS)
 
 # Register an event to reset saved queries when a Django request is started.
 def reset_queries(**kwargs):
+    """
+
+    Reset query logs for all initialized database connections.
+
+    This function clears the query logs for each database connection that has been
+    successfully initialized, effectively resetting the logging of database queries.
+
+    Any additional keyword arguments are currently ignored.
+
+    :returns: None
+
+    """
     for conn in connections.all(initialized_only=True):
         conn.queries_log.clear()
 

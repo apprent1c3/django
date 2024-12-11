@@ -52,6 +52,14 @@ class Node:
     copy = __copy__
 
     def __deepcopy__(self, memodict):
+        """
+        ..: Creates a deep copy of the current query object.
+
+            This method is used to create a new, independent copy of the object, including all its attributes and child objects. The connector and negation status of the original object are preserved in the copied object.
+
+            :return: A new object that is a deep copy of the current object
+            :rtype: object
+        """
         obj = self.create(connector=self.connector, negated=self.negated)
         obj.children = copy.deepcopy(self.children, memodict)
         return obj

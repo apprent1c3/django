@@ -165,6 +165,18 @@ class TestConnectionOnCommit(TransactionTestCase):
         self.assertDone([])
 
     def test_inner_savepoint_does_not_affect_outer(self):
+        """
+        Tests that an inner savepoint does not affect the outer transaction.
+
+        This test case verifies that when an inner transaction is rolled back due to an error,
+        it does not impact the outer transaction, which remains committed.
+
+        It confirms that the operations performed within the outer transaction are successfully
+        persisted, even if an inner transaction fails.
+
+        The expected outcome is that the operation is successfully completed and verified
+        to have taken place after the exception is handled.
+        """
         with transaction.atomic():
             with transaction.atomic():
                 self.do(1)

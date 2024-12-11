@@ -57,6 +57,19 @@ class TablespacesTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_tablespaces")
     def test_tablespace_for_model(self):
+        """
+
+        Tests that a model's SQL definition includes the correct tablespace configuration.
+
+        This test checks if the model's SQL definition contains the expected tablespace
+        references. If a default index tablespace is defined in the project settings, it
+        verifies that the SQL definition includes the default index tablespace and the
+        'tbl_tbsp' keyword exactly once. Otherwise, it checks that 'tbl_tbsp' is included
+        twice.
+
+        The test relies on the 'supports_tablespaces' database feature being available.
+
+        """
         sql = sql_for_table(Scientist).lower()
         if settings.DEFAULT_INDEX_TABLESPACE:
             # 1 for the table

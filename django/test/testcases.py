@@ -167,6 +167,17 @@ class _AssertTemplateUsedContext:
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
+        """
+        Exits the runtime context, cleaning up event connections and executing the test method if no exceptions occurred.
+
+        This special method is part of the context manager protocol and is automatically called when the runtime context is exited.
+        It disconnects the on_template_render event handler and, if the exit is successful (i.e., no exception was raised), proceeds to run the test method.
+
+        :param exc_type: The type of exception that occurred, or None if no exception occurred.
+        :param exc_value: The value of the exception that occurred, or None if no exception occurred.
+        :param traceback: The traceback of the exception that occurred, or None if no exception occurred.
+        :return: None if an exception occurred, otherwise the result of the test method is not propagated
+        """
         template_rendered.disconnect(self.on_template_render)
         if exc_type is not None:
             return
@@ -191,6 +202,14 @@ class DatabaseOperationForbidden(AssertionError):
 
 class _DatabaseFailure:
     def __init__(self, wrapped, message):
+        """
+
+        Initializes a wrapper object with the given instance and error message.
+
+        :param wrapped: The object being wrapped.
+        :param message: The message to be used in case of an error.
+
+        """
         self.wrapped = wrapped
         self.message = message
 
@@ -1320,6 +1339,19 @@ class TestData:
         return memo
 
     def __get__(self, instance, owner):
+        """
+
+        Descriptor method that retrieves the value associated with this descriptor.
+
+        If the descriptor is accessed at the class level (i.e., instance is None), 
+        it returns the descriptor's default data. 
+
+        When accessed through an instance, it creates a deep copy of the default data 
+        for that instance, stores it in the instance, and returns the copied data.
+
+        This approach ensures that each instance has its own independent copy of the data.
+
+        """
         if instance is None:
             return self.data
         memo = self.get_memo(instance)
@@ -1373,6 +1405,17 @@ class TestCase(TransactionTestCase):
 
     @classmethod
     def setUpClass(cls):
+        """
+
+        Sets up the test class by initializing necessary data and fixtures.
+
+        This method is responsible for preparing the test environment before running any tests.
+        It checks if the databases support transactions and savepoints, and if so, it enters an atomic block.
+        It then loads any fixtures specified by the class, and sets up any test data.
+        If any exceptions occur during this process, it rolls back the atomic block and raises the exception.
+        Finally, it wraps any modified class attributes in a TestData object to track changes made during testing.
+
+        """
         super().setUpClass()
         if not (
             cls._databases_support_transactions()
@@ -1653,6 +1696,14 @@ class FSFilesHandler(WSGIHandler):
         return super().get_response(request)
 
     def serve(self, request):
+        """
+        Serves a file in response to an HTTP request.
+
+        This function determines the relative path of the requested file, normalizes and sanitizes it, 
+        and then uses it to serve the corresponding file from the document root directory.
+
+        :returns: The served file in response to the HTTP request
+        """
         os_rel_path = self.file_path(request.path)
         os_rel_path = posixpath.normpath(unquote(os_rel_path))
         # Emulate behavior of django.contrib.staticfiles.views.serve() when it

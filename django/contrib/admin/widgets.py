@@ -40,6 +40,21 @@ class FilteredSelectMultiple(forms.SelectMultiple):
         super().__init__(attrs, choices)
 
     def get_context(self, name, value, attrs):
+        """
+        Return a dictionary containing the widget's context for rendering.
+
+        This method extends the parent class's get_context method to add custom
+        attributes to the widget, such as a CSS class and data attributes.
+
+        The context dictionary contains the following custom attributes:
+
+        * 'class': A CSS class to style the widget.
+        * 'data-field-name': The verbose name of the field associated with the widget.
+        * 'data-is-stacked': A flag indicating whether the widget is stacked.
+
+        The returned context is used to render the widget in a template, allowing for
+        customization of the widget's appearance and behavior based on its attributes.
+        """
         context = super().get_context(name, value, attrs)
         context["widget"]["attrs"]["class"] = "selectfilter"
         if self.is_stacked:

@@ -140,6 +140,20 @@ class BaseSpatialOperations:
             return "%s(%%s)" % self.from_text
 
     def check_expression_support(self, expression):
+        """
+        Checks if a given spatial expression is supported by the database backend.
+
+        Args:
+            expression: The spatial expression to be checked.
+
+        Raises:
+            NotSupportedError: If the expression is a disallowed spatial aggregate.
+
+        This method verifies that the provided expression does not contain any
+        disallowed spatial aggregates. If it does, a NotSupportedError is raised.
+        Otherwise, it delegates the check to its parent class for further validation.
+
+        """
         if isinstance(expression, self.disallowed_aggregates):
             raise NotSupportedError(
                 "%s spatial aggregation is not supported by this database backend."

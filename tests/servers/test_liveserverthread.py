@@ -31,6 +31,14 @@ class LiveServerThreadTest(TransactionTestCase):
             conn.dec_thread_sharing()
 
     def test_server_class(self):
+        """
+
+        Tests the creation of a server instance using a custom server class.
+
+        Verifies that the server instance created by the LiveServerTestCase is of the expected type.
+        This test ensures that the server thread uses the specified server class, allowing for customization and extension of the server behavior.
+
+        """
         class FakeServer:
             def __init__(*args, **kwargs):
                 pass

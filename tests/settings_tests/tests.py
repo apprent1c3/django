@@ -193,6 +193,18 @@ class SettingsTests(SimpleTestCase):
         self.assertEqual("override", settings.TEST)
 
     def test_context_manager(self):
+        """
+
+        Test the functionality of a context manager used to override settings.
+
+        This test case verifies that an attribute error is raised when trying to access a non-existent setting.
+        It then checks that overriding the setting allows for its successful retrieval, and that disabling the override returns the setting to its original state, causing the attribute error to be raised once again.
+
+        The test covers the basic usage of the context manager, including enabling and disabling the override, and ensures that the setting is correctly updated and reverted. 
+
+        :raises AttributeError: If the setting does not exist.
+
+        """
         with self.assertRaises(AttributeError):
             getattr(settings, "TEST")
         override = override_settings(TEST="override")
