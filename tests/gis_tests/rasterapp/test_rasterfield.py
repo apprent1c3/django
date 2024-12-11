@@ -54,6 +54,9 @@ class RasterFieldTest(TransactionTestCase):
         qs[0].rast.bands[0].data()
 
     def test_deserialize_with_pixeltype_flags(self):
+        """
+
+        """
         no_data = 3
         rast = GDALRaster(
             {

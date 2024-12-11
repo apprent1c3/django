@@ -132,6 +132,9 @@ class URLTranslationTests(URLTestCaseBase):
     """
 
     def test_no_prefix_translated(self):
+        """
+
+        """
         with translation.override("en"):
             self.assertEqual(reverse("no-prefix-translated"), "/translated/")
             self.assertEqual(
@@ -172,6 +175,21 @@ class URLTranslationTests(URLTestCaseBase):
             self.assertEqual(reverse("users"), "/pt-br/usuarios/")
 
     def test_translate_url_utility(self):
+        """
+        Test the functionality of the translate_url utility function.
+
+        This function checks the translation of various URLs from one language to another.
+        It verifies that the function correctly handles both existing and non-existent URLs,
+        as well as URLs with and without optional arguments and file extensions, 
+        and ensures that the translation is correct in both directions.
+
+        The tests cover different scenarios, including translating from English to Dutch and vice versa,
+        and verify that the function returns the expected translated URLs in each case.
+        Additionally, the function checks that the current language is correctly set during the translation process.
+
+        The purpose of this test is to ensure that the translate_url function behaves as expected and
+        provides accurate translations for different types of URLs, which is critical for maintaining a multilingual website or application.
+        """
         with translation.override("en"):
             self.assertEqual(
                 translate_url("/en/nonexistent/", "nl"), "/en/nonexistent/"

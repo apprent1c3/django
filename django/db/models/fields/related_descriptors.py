@@ -95,6 +95,9 @@ class ForeignKeyDeferredAttribute(DeferredAttribute):
 
 
 def _filter_prefetch_queryset(queryset, field_name, instances):
+    """
+
+    """
     predicate = Q(**{f"{field_name}__in": instances})
     db = queryset._db or DEFAULT_DB_ALIAS
     if queryset.query.is_sliced:
@@ -167,6 +170,9 @@ class ForwardManyToOneDescriptor:
         return self.get_prefetch_querysets(instances, [queryset])
 
     def get_prefetch_querysets(self, instances, querysets=None):
+        """
+
+        """
         if querysets and len(querysets) != 1:
             raise ValueError(
                 "querysets argument of get_prefetch_querysets() should have a length "
@@ -368,6 +374,9 @@ class ForwardOneToOneDescriptor(ForwardManyToOneDescriptor):
     """
 
     def get_object(self, instance):
+        """
+
+        """
         if self.field.remote_field.parent_link:
             deferred = instance.get_deferred_fields()
             # Because it's a parent link, all the data is available in the
@@ -459,6 +468,22 @@ class ReverseOneToOneDescriptor:
         return self.get_prefetch_querysets(instances, [queryset])
 
     def get_prefetch_querysets(self, instances, querysets=None):
+        """
+        Retrieve a prefetch query set for the given instances.
+
+        This method fetches and prepares a query set to be used for prefetching related objects.
+        It filters the query set based on the given instances and caches the related objects for each instance.
+
+        :param instances: A list of instances for which the prefetch query set should be generated.
+        :param querysets: Optional list containing a single query set to be used for prefetching.
+                          If not provided, the query set from :meth:`get_queryset` will be used.
+
+        :returns: A tuple containing the prefetch query set, related object attribute, instance attribute,
+                  a boolean indicating whether the query set is already ordered, the related cache name,
+                  and a boolean indicating whether the query set should be used for a single instance.
+
+        :raises ValueError: If the :param:`querysets` argument has a length other than 1.
+        """
         if querysets and len(querysets) != 1:
             raise ValueError(
                 "querysets argument of get_prefetch_querysets() should have a length "
@@ -778,6 +803,9 @@ def create_reverse_many_to_one_manager(superclass, rel):
             return self.get_prefetch_querysets(instances, [queryset])
 
         def get_prefetch_querysets(self, instances, querysets=None):
+            """
+
+            """
             if querysets and len(querysets) != 1:
                 raise ValueError(
                     "querysets argument of get_prefetch_querysets() should have a "
@@ -802,6 +830,9 @@ def create_reverse_many_to_one_manager(superclass, rel):
             return queryset, rel_obj_attr, instance_attr, False, cache_name, False
 
         def add(self, *objs, bulk=True):
+            """
+
+            """
             self._check_fk_val()
             self._remove_prefetched_objects()
             db = router.db_for_write(self.model, instance=self.instance)
@@ -890,6 +921,9 @@ def create_reverse_many_to_one_manager(superclass, rel):
         if rel.field.null:
 
             def remove(self, *objs, bulk=True):
+                """
+
+                """
                 if not objs:
                     return
                 self._check_fk_val()
@@ -932,6 +966,9 @@ def create_reverse_many_to_one_manager(superclass, rel):
             aclear.alters_data = True
 
             def _clear(self, queryset, bulk):
+                """
+
+                """
                 self._remove_prefetched_objects()
                 db = router.db_for_write(self.model, instance=self.instance)
                 queryset = queryset.using(db)
@@ -947,6 +984,9 @@ def create_reverse_many_to_one_manager(superclass, rel):
             _clear.alters_data = True
 
         def set(self, objs, *, bulk=True, clear=False):
+            """
+
+            """
             self._check_fk_val()
             # Force evaluation of `objs` in case it's a queryset whose value
             # could be affected by `manager.clear()`. Refs #19816.
@@ -1039,6 +1079,9 @@ def create_forward_many_to_many_manager(superclass, rel, reverse):
 
     class ManyRelatedManager(superclass, AltersData):
         def __init__(self, instance=None):
+            """
+
+            """
             super().__init__()
 
             self.instance = instance
@@ -1098,6 +1141,9 @@ def create_forward_many_to_many_manager(superclass, rel, reverse):
         do_not_call_in_templates = True
 
         def _build_remove_filters(self, removed_vals):
+            """
+
+            """
             filters = Q.create([(self.source_field_name, self.related_val)])
             # No need to add a subquery condition if removed_vals is a QuerySet without
             # filters.
@@ -1158,6 +1204,41 @@ def create_forward_many_to_many_manager(superclass, rel, reverse):
             return self.get_prefetch_querysets(instances, [queryset])
 
         def get_prefetch_querysets(self, instances, querysets=None):
+            """
+            Return a query set and helper functions to prefetched related objects.
+
+            This function takes a list of instances and an optional queryset, and returns 
+            a query set that can be used to prefetch related objects from the database. 
+            It also returns three helper functions to process the prefetched results, 
+            the cache name for the prefetched results, and a boolean flag.
+
+            The returned query set is based on the provided queryset if available, 
+            otherwise it defaults to the queryset obtained from the parent class. 
+            The query set is then modified to include the hints for the given instances 
+            and to use the correct database.
+
+            The function also includes error checking to ensure that the provided 
+            queryset has a length of 1. If the length is not 1, a ValueError is raised.
+
+            The returned helper functions are used to process the prefetched results, 
+            including a function to extract the related values from the query set results, 
+            a function to extract the related values from the instances, and a flag 
+            indicating whether the prefetched results should be cached.
+
+            Parameters
+            ----------
+            instances : list
+                A list of instances for which to prefetch related objects.
+            querysets : list, optional
+                A list containing a single queryset to use for prefetching.
+
+            Returns
+            -------
+            tuple
+                A tuple containing the modified query set, three helper functions, 
+                the cache name for the prefetched results, and a boolean flag.
+
+            """
             if querysets and len(querysets) != 1:
                 raise ValueError(
                     "querysets argument of get_prefetch_querysets() should have a "
@@ -1212,6 +1293,19 @@ def create_forward_many_to_many_manager(superclass, rel, reverse):
             # If the through relation's target field's foreign integrity is
             # enforced, the query can be performed solely against the through
             # table as the INNER JOIN'ing against target table is unnecessary.
+            """
+
+            Retrieves the target instance associated with this relationship, taking into account the database constraints.
+
+            This property returns the related object if the target field has a database constraint and if the database supports foreign keys.
+            Otherwise, it returns None.
+
+            The target instance is retrieved from the database using the through model's manager, filtered by the source instance's primary key.
+            If the target field allows null values, the filter also excludes instances where the target field is null.
+
+            :rtype: QuerySet or None
+
+            """
             if not self.target_field.db_constraint:
                 return None
             db = router.db_for_read(self.through, instance=self.instance)
@@ -1322,6 +1416,9 @@ def create_forward_many_to_many_manager(superclass, rel, reverse):
         def set(self, objs, *, clear=False, through_defaults=None):
             # Force evaluation of `objs` in case it's a queryset whose value
             # could be affected by `manager.clear()`. Refs #19816.
+            """
+
+            """
             objs = tuple(objs)
 
             db = router.db_for_write(self.through, instance=self.instance)
@@ -1506,6 +1603,9 @@ def create_forward_many_to_many_manager(superclass, rel, reverse):
             # target_field_name: the PK fieldname in join table for the target object
             # *objs - objects to add. Either object instances, or primary keys
             # of object instances.
+            """
+
+            """
             if not objs:
                 return
 
@@ -1575,6 +1675,9 @@ def create_forward_many_to_many_manager(superclass, rel, reverse):
             # target_field_name: the PK colname in join table for the target object
             # *objs - objects to remove. Either object instances, or primary
             # keys of object instances.
+            """
+
+            """
             if not objs:
                 return
 

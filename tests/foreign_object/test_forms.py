@@ -17,6 +17,9 @@ class FormsTests(TestCase):
     def test_foreign_object_form(self):
         # A very crude test checking that the non-concrete fields do not get
         # form fields.
+        """
+
+        """
         form = FormsTests.ArticleForm()
         self.assertIn("id_pub_date", form.as_table())
         self.assertNotIn("active_translation", form.as_table())

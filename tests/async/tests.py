@@ -87,6 +87,9 @@ class ViewTests(SimpleTestCase):
                 self.assertIs(iscoroutinefunction(callback), is_async)
 
     def test_mixed_views_raise_error(self):
+        """
+
+        """
         class MixedView(View):
             def get(self, request, *args, **kwargs):
                 return HttpResponse("Hello (mixed) world!")
@@ -120,6 +123,20 @@ class ViewTests(SimpleTestCase):
                 self.assertIsInstance(response, HttpResponse)
 
     def test_http_method_not_allowed_responds_correctly(self):
+        """
+
+        Tests that views respond correctly to HTTP method not allowed requests.
+
+        This test iterates over a series of view classes, including both synchronous and asynchronous
+        views, and verifies that they return a HttpResponseNotAllowed response when an HTTP method
+        not allowed request is made. It checks that asynchronous views return a coroutine and that
+        the response is an instance of HttpResponseNotAllowed.
+
+        The test uses a RequestFactory to create a request object and makes a POST request to the view.
+        The response from the view is then checked to ensure it is of the correct type and that it is a
+        coroutine if the view is asynchronous.
+
+        """
         request_factory = RequestFactory()
         tests = [
             (SyncView, False),

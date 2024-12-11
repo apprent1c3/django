@@ -351,6 +351,9 @@ class WriterTests(SimpleTestCase):
         self.assertEqual(self.serialize_round_trip(lazy_pattern), pattern)
 
     def test_serialize_enums(self):
+        """
+
+        """
         self.assertSerializedResultEqual(
             TextEnum.A,
             ("migrations.test_writer.TextEnum['A']", {"import migrations.test_writer"}),
@@ -464,6 +467,9 @@ class WriterTests(SimpleTestCase):
         )
 
     def test_serialize_choices(self):
+        """
+
+        """
         class TextChoices(models.TextChoices):
             A = "A", "A value"
             B = "B", "B value"
@@ -573,6 +579,9 @@ class WriterTests(SimpleTestCase):
 
     def test_serialize_pathlib(self):
         # Pure path objects work in all platforms.
+        """
+
+        """
         self.assertSerializedEqual(pathlib.PurePosixPath())
         self.assertSerializedEqual(pathlib.PureWindowsPath())
         path = pathlib.PurePosixPath("/path/file.txt")
@@ -625,6 +634,9 @@ class WriterTests(SimpleTestCase):
         self.assertSerializedEqual(function_with_lru_cache)
 
     def test_serialize_datetime(self):
+        """
+
+        """
         self.assertSerializedEqual(datetime.datetime.now())
         self.assertSerializedEqual(datetime.datetime.now)
         self.assertSerializedEqual(datetime.datetime.today())

@@ -7,6 +7,9 @@ from . import FormFieldAssertionsMixin
 
 class IntegerFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
     def test_integerfield_1(self):
+        """
+
+        """
         f = IntegerField()
         self.assertWidgetRendersTo(
             f, '<input type="number" name="f" id="id_f" required>'
@@ -32,6 +35,17 @@ class IntegerFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertIsNone(f.min_value)
 
     def test_integerfield_2(self):
+        """
+        Tests the functionality of IntegerField when the required parameter is set to False.
+
+        Verifies that the field correctly handles various input scenarios, including:
+          - Empty strings and None values, which should result in None
+          - Valid integer strings, which should be converted to integers
+          - Invalid input, which should raise a ValidationError with an appropriate message
+          - Input with leading or trailing whitespace, which should be ignored
+
+        Additionally, tests that the field's max_value and min_value are not set by default.
+        """
         f = IntegerField(required=False)
         self.assertIsNone(f.clean(""))
         self.assertEqual("None", repr(f.clean("")))
@@ -51,6 +65,9 @@ class IntegerFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertIsNone(f.min_value)
 
     def test_integerfield_3(self):
+        """
+
+        """
         f = IntegerField(max_value=10)
         self.assertWidgetRendersTo(
             f, '<input max="10" type="number" name="f" id="id_f" required>'
@@ -72,6 +89,9 @@ class IntegerFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertIsNone(f.min_value)
 
     def test_integerfield_4(self):
+        """
+
+        """
         f = IntegerField(min_value=10)
         self.assertWidgetRendersTo(
             f, '<input id="id_f" type="number" name="f" min="10" required>'
@@ -90,6 +110,9 @@ class IntegerFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertEqual(f.min_value, 10)
 
     def test_integerfield_5(self):
+        """
+
+        """
         f = IntegerField(min_value=10, max_value=20)
         self.assertWidgetRendersTo(
             f, '<input id="id_f" max="20" type="number" name="f" min="10" required>'
@@ -153,6 +176,9 @@ class IntegerFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         )
 
     def test_integerfield_float(self):
+        """
+
+        """
         f = IntegerField()
         self.assertEqual(1, f.clean(1.0))
         self.assertEqual(1, f.clean("1.0"))

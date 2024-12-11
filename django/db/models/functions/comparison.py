@@ -21,6 +21,9 @@ class Cast(Func):
         return super().as_sql(compiler, connection, **extra_context)
 
     def as_sqlite(self, compiler, connection, **extra_context):
+        """
+
+        """
         db_type = self.output_field.db_type(connection)
         if db_type in {"datetime", "time"}:
             # Use strftime as datetime/time don't keep fractional seconds.

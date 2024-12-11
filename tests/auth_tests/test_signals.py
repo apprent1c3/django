@@ -40,6 +40,9 @@ class SignalTestCase(TestCase):
 
     def test_login(self):
         # Only a successful login will trigger the success signal.
+        """
+
+        """
         self.client.login(username="testclient", password="bad")
         self.assertEqual(len(self.logged_in), 0)
         self.assertEqual(len(self.login_failed), 1)

@@ -15,6 +15,9 @@ class Jinja2(BaseEngine):
     app_dirname = "jinja2"
 
     def __init__(self, params):
+        """
+
+        """
         params = params.copy()
         options = params.pop("OPTIONS").copy()
         super().__init__(params)
@@ -62,6 +65,9 @@ class Template:
         )
 
     def render(self, context=None, request=None):
+        """
+
+        """
         if context is None:
             context = {}
         if request is not None:

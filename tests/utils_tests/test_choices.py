@@ -208,6 +208,9 @@ class NormalizeFieldChoicesTests(SimpleTestCase):
         self.assertEqual(normalize_choices(choices), self.expected)
 
     def test_nested_callable(self):
+        """
+
+        """
         def get_audio_choices():
             return [("vinyl", _("Vinyl")), ("cd", _("CD"))]
 
@@ -246,6 +249,9 @@ class NormalizeFieldChoicesTests(SimpleTestCase):
         self.assertEqual(normalize_choices(choices), self.expected_nested)
 
     def test_nested_iterator(self):
+        """
+
+        """
         def generate_audio_choices():
             yield "vinyl", _("Vinyl")
             yield "cd", _("CD")
@@ -304,6 +310,9 @@ class NormalizeFieldChoicesTests(SimpleTestCase):
     def test_nested_callable_non_canonical(self):
         # Canonical form is list of 2-tuple, but nested lists should work.
 
+        """
+
+        """
         def get_audio_choices():
             return [["vinyl", _("Vinyl")], ["cd", _("CD")]]
 

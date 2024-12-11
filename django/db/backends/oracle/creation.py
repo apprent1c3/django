@@ -27,6 +27,24 @@ class DatabaseCreation(BaseDatabaseCreation):
         return DatabaseWrapper(settings_dict, alias=self.connection.alias)
 
     def _create_test_db(self, verbosity=1, autoclobber=False, keepdb=False):
+        """
+        Create a test database for running tests, handling cases where the database or user already exists.
+
+        :param int verbosity: Verbosity level for logging, default is 1
+        :param bool autoclobber: Automatically delete existing test database or user, default is False
+        :param bool keepdb: Keep the test database after test execution, default is False
+
+        :returns: The name of the test database
+        :raises SystemExit: If an error occurs during database creation, destruction, or test user creation, the process exits with a non-zero status code
+        :note: This method performs the following steps:
+            * Retrieve test database parameters
+            * Create the test database, or destroy and recreate it if it already exists
+            * Create a test user for the database, or destroy and recreate it if it already exists
+            * Switch to the test user
+            * Return the name of the test database
+
+        The level of logging is controlled by the `verbosity` parameter. If `autoclobber` is False, the user will be prompted to confirm deletion of the existing database or user. If `keepdb` is True, the test database will be preserved after test execution.
+        """
         parameters = self._get_test_db_params()
         with self._maindb_connection.cursor() as cursor:
             if self._test_database_create():
@@ -161,6 +179,9 @@ class DatabaseCreation(BaseDatabaseCreation):
     ):
         # There are objects in the test tablespace which prevent dropping it
         # The easy fix is to drop the test user -- but are we allowed to do so?
+        """
+
+        """
         self.log(
             "There are objects in the old test database which prevent its destruction."
             "\nIf they belong to the test user, deleting the user will allow the test "
@@ -260,6 +281,9 @@ class DatabaseCreation(BaseDatabaseCreation):
         )
 
     def _create_test_user(self, cursor, parameters, verbosity, keepdb=False):
+        """
+
+        """
         if verbosity >= 2:
             self.log("_create_test_user(): username = %s" % parameters["user"])
         statements = [
@@ -322,6 +346,9 @@ class DatabaseCreation(BaseDatabaseCreation):
     def _execute_statements(
         self, cursor, statements, parameters, verbosity, allow_quiet_fail=False
     ):
+        """
+
+        """
         for template in statements:
             stmt = template % parameters
             if verbosity >= 2:

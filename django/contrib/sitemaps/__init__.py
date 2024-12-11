@@ -84,6 +84,9 @@ class Sitemap:
 
     def get_domain(self, site=None):
         # Determine domain
+        """
+
+        """
         if site is None:
             if django_apps.is_installed("django.contrib.sites"):
                 Site = django_apps.get_model("sites.Site")
@@ -115,6 +118,9 @@ class Sitemap:
             return self.lastmod
 
     def _urls(self, page, protocol, domain):
+        """
+
+        """
         urls = []
         latest_lastmod = None
         all_items_lastmod = True  # track if all items have a lastmod

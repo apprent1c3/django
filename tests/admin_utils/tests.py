@@ -303,6 +303,9 @@ class UtilsTests(SimpleTestCase):
         )
 
     def test_label_for_field_failed_lookup(self):
+        """
+
+        """
         msg = "Unable to lookup 'site__unknown' on Article"
         with self.assertRaisesMessage(AttributeError, msg):
             label_for_field("site__unknown", Article)
@@ -324,6 +327,9 @@ class UtilsTests(SimpleTestCase):
         )
 
     def test_label_for_field_form_argument(self):
+        """
+
+        """
         class ArticleForm(forms.ModelForm):
             extra_form_field = forms.BooleanField()
 
@@ -380,6 +386,15 @@ class UtilsTests(SimpleTestCase):
 
     def test_safestring_in_field_label(self):
         # safestring should not be escaped
+        """
+
+        Test that HTML-safe strings and special characters in field labels are properly rendered.
+
+        This test case checks the rendering of field labels for both safe HTML strings and special characters.
+        It covers CharField and BooleanField with safe HTML labels and labels containing special characters (&).
+        The test verifies that the rendered HTML is correct and properly escaped.
+
+        """
         class MyForm(forms.Form):
             text = forms.CharField(label=mark_safe("<i>text</i>"))
             cb = forms.BooleanField(label=mark_safe("<i>cb</i>"))

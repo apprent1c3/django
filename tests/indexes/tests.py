@@ -89,6 +89,9 @@ class SchemaIndexesTests(TestCase):
 
     @skipUnlessDBFeature("can_create_inline_fk", "can_rollback_ddl")
     def test_alter_field_unique_false_removes_deferred_sql(self):
+        """
+
+        """
         field_added = CharField(max_length=127, unique=True)
         field_added.set_attributes_from_name("charfield_added")
 
@@ -459,6 +462,9 @@ class PartialIndexTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_functions_in_partial_indexes")
     def test_multiple_conditions(self):
+        """
+
+        """
         with connection.schema_editor() as editor:
             index = Index(
                 name="recent_article_idx",
@@ -516,6 +522,9 @@ class PartialIndexTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_expression_indexes")
     def test_partial_func_index(self):
+        """
+
+        """
         index_name = "partial_func_idx"
         index = Index(
             Lower("headline").desc(),
@@ -559,6 +568,9 @@ class CoveringIndexTests(TransactionTestCase):
     available_apps = ["indexes"]
 
     def test_covering_index(self):
+        """
+
+        """
         index = Index(
             name="covering_headline_idx",
             fields=["headline"],
@@ -596,6 +608,9 @@ class CoveringIndexTests(TransactionTestCase):
                 )
 
     def test_covering_partial_index(self):
+        """
+
+        """
         index = Index(
             name="covering_partial_headline_idx",
             fields=["headline"],
@@ -641,6 +656,9 @@ class CoveringIndexTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_expression_indexes")
     def test_covering_func_index(self):
+        """
+
+        """
         index_name = "covering_func_headline_idx"
         index = Index(Lower("headline"), name=index_name, include=["pub_date"])
         with connection.schema_editor() as editor:

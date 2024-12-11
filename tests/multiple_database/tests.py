@@ -94,6 +94,9 @@ class QueryTestCase(TestCase):
             Book.objects.using("default").get(title="Dive into Python")
 
     def test_refresh(self):
+        """
+
+        """
         dive = Book(title="Dive into Python", published=datetime.date(2009, 5, 4))
         dive.save(using="other")
         dive2 = Book.objects.using("other").get()
@@ -1304,6 +1307,19 @@ class QueryTestCase(TestCase):
 
     @override_settings(DATABASE_ROUTERS=["multiple_database.tests.TestRouter"])
     def test_contenttype_in_separate_db(self):
+        """
+        Tests the behavior of ContentType when interacting with model instances stored in different databases.
+
+        This test verifies the following scenarios:
+
+        *   Retrieval of an object for a given content type from the default database
+        *   Retrieval of an object from a specific database (other than default) using the `using` parameter
+        *   Failure to retrieve an object when it does not exist in the default database
+        *   Successful retrieval of an object when specifying the correct database using the `using` parameter
+        *   The `get_all_objects_for_this_type` method returns only objects from the default database when no database is specified.
+
+        Ensures correct functionality of ContentType's object retrieval methods across multiple databases.
+        """
         ContentType.objects.using("other").all().delete()
         book_other = Book.objects.using("other").create(
             title="Test title other", published=datetime.date(2009, 5, 4)
@@ -1440,6 +1456,9 @@ class RouterTestCase(TestCase):
             self.assertTrue(router.allow_migrate_model("default", Book))
 
     def test_database_routing(self):
+        """
+
+        """
         marty = Person.objects.using("default").create(name="Marty Alchin")
         pro = Book.objects.using("default").create(
             title="Pro Django",
@@ -2380,6 +2399,9 @@ class RouteForWriteTestCase(TestCase):
         self.assertEqual(e.hints, {"instance": book})
 
     def test_m2m_clear(self):
+        """
+
+        """
         auth = Person.objects.create(name="Someone")
         book = Book.objects.create(
             title="Pro Django", published=datetime.date(2008, 12, 16)
@@ -2394,6 +2416,9 @@ class RouteForWriteTestCase(TestCase):
         self.assertEqual(e.hints, {"instance": book})
 
     def test_m2m_delete(self):
+        """
+
+        """
         auth = Person.objects.create(name="Someone")
         book = Book.objects.create(
             title="Pro Django", published=datetime.date(2008, 12, 16)
@@ -2421,6 +2446,9 @@ class RouteForWriteTestCase(TestCase):
         self.assertEqual(e.hints, {"instance": book})
 
     def test_m2m_remove(self):
+        """
+
+        """
         auth = Person.objects.create(name="Someone")
         book = Book.objects.create(
             title="Pro Django", published=datetime.date(2008, 12, 16)
@@ -2435,6 +2463,13 @@ class RouteForWriteTestCase(TestCase):
         self.assertEqual(e.hints, {"instance": book})
 
     def test_m2m_update(self):
+        """
+
+        Tests that a RouterUsed exception is raised when attempting to update a many-to-many relationship.
+        This test case creates a book with an author and then attempts to update the author's name through the book's authors many-to-many field.
+        It verifies that the RouterUsed exception is raised with the correct mode, model, and hints.
+
+        """
         auth = Person.objects.create(name="Someone")
         book = Book.objects.create(
             title="Pro Django", published=datetime.date(2008, 12, 16)
@@ -2462,6 +2497,9 @@ class RouteForWriteTestCase(TestCase):
         self.assertEqual(e.hints, {"instance": auth})
 
     def test_reverse_m2m_clear(self):
+        """
+
+        """
         auth = Person.objects.create(name="Someone")
         book = Book.objects.create(
             title="Pro Django", published=datetime.date(2008, 12, 16)
@@ -2476,6 +2514,9 @@ class RouteForWriteTestCase(TestCase):
         self.assertEqual(e.hints, {"instance": auth})
 
     def test_reverse_m2m_delete(self):
+        """
+
+        """
         auth = Person.objects.create(name="Someone")
         book = Book.objects.create(
             title="Pro Django", published=datetime.date(2008, 12, 16)
@@ -2503,6 +2544,9 @@ class RouteForWriteTestCase(TestCase):
         self.assertEqual(e.hints, {"instance": auth})
 
     def test_reverse_m2m_remove(self):
+        """
+
+        """
         auth = Person.objects.create(name="Someone")
         book = Book.objects.create(
             title="Pro Django", published=datetime.date(2008, 12, 16)
@@ -2517,6 +2561,13 @@ class RouteForWriteTestCase(TestCase):
         self.assertEqual(e.hints, {"instance": auth})
 
     def test_reverse_m2m_update(self):
+        """
+        Tests that an exception is raised when trying to update a model instance using a reverse many-to-many relationship, ensuring that the correct router is used to handle the update operation.
+
+        The test creates a many-to-many relationship between a `Person` (author) and a `Book`, then attempts to update the book's title via the reverse relationship from the author.
+
+        It verifies that a `RouterUsed` exception is raised with the expected mode (WRITE), model (Book), and hints containing the author instance involved in the operation.
+        """
         auth = Person.objects.create(name="Someone")
         book = Book.objects.create(
             title="Pro Django", published=datetime.date(2008, 12, 16)

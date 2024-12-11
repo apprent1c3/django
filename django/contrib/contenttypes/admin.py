@@ -22,6 +22,9 @@ class GenericInlineModelAdminChecks(InlineModelAdminChecks):
         # There's no FK, but we do need to confirm that the ct_field and
         # ct_fk_field are valid, and that they are part of a GenericForeignKey.
 
+        """
+
+        """
         gfks = [
             f
             for f in obj.model._meta.private_fields
@@ -96,6 +99,9 @@ class GenericInlineModelAdmin(InlineModelAdmin):
     checks_class = GenericInlineModelAdminChecks
 
     def get_formset(self, request, obj=None, **kwargs):
+        """
+
+        """
         if "fields" in kwargs:
             fields = kwargs.pop("fields")
         else:

@@ -6,6 +6,17 @@ from .models import FloatModel
 
 class TestFloatField(TestCase):
     def test_float_validates_object(self):
+        """
+
+        Tests that the FloatModel's size field validates its object correctly.
+
+        This test checks that assigning a model instance to the size field raises a TypeError,
+        both when creating a new instance and when updating an existing one.
+        It verifies that a valid float value can be successfully saved, and that attempting
+        to save an instance with an invalid value (in this case, the instance itself) triggers
+        the expected error with a descriptive message.
+
+        """
         instance = FloatModel(size=2.5)
         # Try setting float field to unsaved object
         instance.size = instance

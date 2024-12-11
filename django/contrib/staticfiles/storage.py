@@ -106,6 +106,9 @@ class HashedFilesMixin:
     keep_intermediate_files = True
 
     def __init__(self, *args, **kwargs):
+        """
+
+        """
         if self.support_js_module_import_aggregation:
             self.patterns += (self._js_module_import_aggregation_patterns,)
         super().__init__(*args, **kwargs)
@@ -134,6 +137,9 @@ class HashedFilesMixin:
     def hashed_name(self, name, content=None, filename=None):
         # `filename` is the name of file to hash if `content` isn't given.
         # `name` is the base name to construct the new hashed filename from.
+        """
+
+        """
         parsed_name = urlsplit(unquote(name))
         clean_name = parsed_name.path.strip()
         filename = (filename and urlsplit(unquote(filename)).path.strip()) or clean_name
@@ -332,6 +338,9 @@ class HashedFilesMixin:
 
     def _post_process(self, paths, adjustable_paths, hashed_files):
         # Sort the files by directory level
+        """
+
+        """
         def path_level(name):
             return len(name.split(os.sep))
 
@@ -426,6 +435,9 @@ class HashedFilesMixin:
         return cache_name
 
     def stored_name(self, name):
+        """
+
+        """
         cleaned_name = self.clean_name(name)
         hash_key = self.hash_key(cleaned_name)
         cache_name = self.hashed_files.get(hash_key)
@@ -470,6 +482,9 @@ class ManifestFilesMixin(HashedFilesMixin):
             return None
 
     def load_manifest(self):
+        """
+
+        """
         content = self.read_manifest()
         if content is None:
             return {}, ""
@@ -507,6 +522,29 @@ class ManifestFilesMixin(HashedFilesMixin):
         self.manifest_storage._save(self.manifest_name, ContentFile(contents))
 
     def stored_name(self, name):
+        """
+
+        Retrieve the stored version of a given name, handling hashed and non-hashed names.
+
+        This function takes a name as input, potentially containing query parameters, and returns 
+        the corresponding stored name. The stored name is looked up in a cache if available, 
+        otherwise it is generated based on the provided name. If the manifest is in strict mode 
+        and the name is not found in the cache, a ValueError is raised.
+
+        The function handles both hashed and non-hashed names. For hashed names, it uses the 
+        hashed value from the cache if available. For non-hashed names, it generates a hashed 
+        version and uses it as the stored name. 
+
+        Args:
+            name (str): The name to retrieve the stored version for.
+
+        Returns:
+            str: The stored version of the given name.
+
+        Raises:
+            ValueError: If the manifest is in strict mode and the name is not found in the cache.
+
+        """
         parsed_name = urlsplit(unquote(name))
         clean_name = parsed_name.path.strip()
         hash_key = self.hash_key(clean_name)

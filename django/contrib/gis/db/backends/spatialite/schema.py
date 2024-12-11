@@ -89,6 +89,9 @@ class SpatialiteSchemaEditor(DatabaseSchemaEditor):
         self.geometry_sql = []
 
     def delete_model(self, model, **kwargs):
+        """
+
+        """
         from django.contrib.gis.db.models import GeometryField
 
         # Drop spatial metadata (dropping the table does not automatically remove them)
@@ -135,6 +138,9 @@ class SpatialiteSchemaEditor(DatabaseSchemaEditor):
             super().remove_field(model, field)
 
     def alter_db_table(self, model, old_db_table, new_db_table):
+        """
+
+        """
         from django.contrib.gis.db.models import GeometryField
 
         if old_db_table == new_db_table or (

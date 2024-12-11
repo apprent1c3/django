@@ -1109,6 +1109,9 @@ class RequestFactoryTest(SimpleTestCase):
         self.assertContains(response, echoed_request_line)
 
     def test_request_factory_default_headers(self):
+        """
+
+        """
         request = RequestFactory(
             headers={
                 "authorization": "Bearer faketoken",
@@ -1132,6 +1135,9 @@ class RequestFactoryTest(SimpleTestCase):
         self.assertIn("HTTP_X_ANOTHER_HEADER", request.META)
 
     def test_request_factory_sets_headers(self):
+        """
+
+        """
         for method_name, view in self.http_methods_and_views:
             method = getattr(self.request_factory, method_name)
             request = method(
@@ -1256,6 +1262,9 @@ class AsyncRequestFactoryTest(SimpleTestCase):
     request_factory = AsyncRequestFactory()
 
     async def test_request_factory(self):
+        """
+
+        """
         tests = (
             "get",
             "post",
@@ -1305,6 +1314,9 @@ class AsyncRequestFactoryTest(SimpleTestCase):
                 self.assertEqual(request.read(200), b"")
 
     def test_request_factory_sets_headers(self):
+        """
+
+        """
         request = self.request_factory.get(
             "/somewhere/",
             AUTHORIZATION="Bearer faketoken",

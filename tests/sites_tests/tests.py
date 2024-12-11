@@ -59,6 +59,9 @@ class SitesFrameworkTests(TestCase):
     @override_settings(ALLOWED_HOSTS=["example.com"])
     def test_get_current_site(self):
         # The correct Site object is returned
+        """
+
+        """
         request = HttpRequest()
         request.META = {
             "SERVER_NAME": "example.com",
@@ -106,6 +109,9 @@ class SitesFrameworkTests(TestCase):
 
     @override_settings(SITE_ID=None, ALLOWED_HOSTS=["example.com", "example.net"])
     def test_get_current_site_no_site_id_and_handle_port_fallback(self):
+        """
+
+        """
         request = HttpRequest()
         s1 = self.site
         s2 = Site.objects.create(domain="example.com:80", name="example.com:80")
@@ -155,6 +161,9 @@ class SitesFrameworkTests(TestCase):
 
     @override_settings(ALLOWED_HOSTS=["example.com"])
     def test_clear_site_cache(self):
+        """
+
+        """
         request = HttpRequest()
         request.META = {
             "SERVER_NAME": "example.com",
@@ -176,6 +185,9 @@ class SitesFrameworkTests(TestCase):
 
     @override_settings(SITE_ID=None, ALLOWED_HOSTS=["example2.com"])
     def test_clear_site_cache_domain(self):
+        """
+
+        """
         site = Site.objects.create(name="example2.com", domain="example2.com")
         request = HttpRequest()
         request.META = {

@@ -193,6 +193,9 @@ class SelectRelatedRegressTests(TestCase):
         self.assertEqual(troy.state.name, "Western Australia")
 
     def test_null_join_promotion(self):
+        """
+
+        """
         australia = Country.objects.create(name="Australia")
         active = ClientStatus.objects.create(name="active")
 
@@ -223,6 +226,9 @@ class SelectRelatedRegressTests(TestCase):
         self.assertEqual(Chick.objects.select_related()[0].mother.name, "Hen")
 
     def test_regression_10733(self):
+        """
+
+        """
         a = A.objects.create(name="a", lots_of_text="lots_of_text_a", a_field="a_field")
         b = B.objects.create(name="b", lots_of_text="lots_of_text_b", b_field="b_field")
         c = C.objects.create(

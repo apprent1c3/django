@@ -49,7 +49,30 @@ def mock_inputs(inputs):
     """
 
     def inner(test_func):
+        """
+
+        Decorator to mock user input for testing purposes.
+
+        This decorator allows test functions to provide mock input values for prompts and passwords,
+        enabling functional testing of interactive code without requiring actual user interaction.
+
+        It replaces the built-in input and getpass functions with mock implementations that return
+        pre-defined values, allowing test functions to specify the expected input and verify the
+        output of the tested code.
+
+        The decorator expects the test function to define a dictionary of input values, where each
+        key corresponds to a prompt or password and the value is the expected user response. The
+        mock input functions will raise a ValueError if a prompt is not found in the input dictionary,
+        and a KeyboardInterrupt if the input value is 'KeyboardInterrupt'.
+
+        By using this decorator, test functions can easily simulate user interactions and test the
+        correctness of interactive code without the need for manual input or complicated mocking setups.
+
+        """
         def wrapper(*args):
+            """
+
+            """
             class mock_getpass:
                 @staticmethod
                 def getpass(prompt=b"Password: ", stream=None):
@@ -58,6 +81,9 @@ def mock_inputs(inputs):
                     return inputs["password"]
 
             def mock_input(prompt):
+                """
+
+                """
                 assert "__proxy__" not in prompt
                 response = None
                 for key, val in inputs.items():
@@ -332,7 +358,13 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
                 "email": "nolocale@somewhere.org",
             }
         )
+        """
+
+        """
         def test(self):
+            """
+
+            """
             username_field = User._meta.get_field("username")
             old_verbose_name = username_field.verbose_name
             username_field.verbose_name = _("u\u017eivatel")
@@ -434,6 +466,22 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
                 "password": "nopasswd",
             }
         )
+        """
+        Tests the creation of superusers with non-unique usernames.
+
+        This test case verifies that the createsuperuser command allows duplication of usernames
+        when the AUTH_USER_MODEL is set to a custom user model that does not enforce unique usernames.
+        It checks that multiple superusers can be created with the same username and that they are
+        successfully saved in the database.
+
+        The test covers the edge case where the authentication backend is customized.
+        It ensures that the createsuperuser command behaves as expected in this scenario and
+        that the custom user model's characteristics are respected.
+
+        The expected outcome is that two superusers with the same username are created
+        and that they can be retrieved from the database, confirming that the username uniqueness
+        constraint is not enforced in this custom user model.
+        """
         def createsuperuser():
             new_io = StringIO()
             call_command(
@@ -505,6 +553,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomUserWithFK")
     def test_fields_with_fk(self):
+        """
+
+        """
         new_io = StringIO()
         group = Group.objects.create(name="mygroup")
         email = Email.objects.create(email="mymail@gmail.com")
@@ -535,6 +586,20 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomUserWithFK")
     def test_fields_with_fk_interactive(self):
+        """
+
+        Tests the interactive creation of a superuser through the 'createsuperuser' command
+        when the User model has fields with foreign keys.
+
+        This test verifies that the 'createsuperuser' command can successfully handle
+        User models with foreign key fields and that the created superuser's details
+        are correctly saved to the database.
+
+        The test case covers the creation of a superuser with an email and group
+        associated through foreign keys, and checks that the command outputs the
+        expected success message and that the user's details are correctly stored.
+
+        """
         new_io = StringIO()
         group = Group.objects.create(name="mygroup")
         email = Email.objects.create(email="mymail@gmail.com")
@@ -565,6 +630,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomUserWithFK")
     def test_fields_with_fk_via_option_interactive(self):
+        """
+
+        """
         new_io = StringIO()
         group = Group.objects.create(name="mygroup")
         email = Email.objects.create(email="mymail@gmail.com")
@@ -628,6 +696,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomUserWithFK")
     def test_validate_fk_via_option_interactive(self):
+        """
+
+        """
         email = Email.objects.create(email="mymail@gmail.com")
         Group.objects.all().delete()
         nonexistent_group_id = 1
@@ -670,6 +741,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomUserWithM2M")
     def test_fields_with_m2m_interactive(self):
+        """
+
+        """
         new_io = StringIO()
         org_id_1 = Organization.objects.create(name="Organization 1").pk
         org_id_2 = Organization.objects.create(name="Organization 2").pk
@@ -697,6 +771,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomUserWithM2M")
     def test_fields_with_m2m_interactive_blank(self):
+        """
+
+        """
         new_io = StringIO()
         org_id = Organization.objects.create(name="Organization").pk
         entered_orgs = [str(org_id), " "]
@@ -807,6 +884,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
         ]
     )
     def test_validate_password_against_username(self):
+        """
+
+        """
         new_io = StringIO()
         username = "supremelycomplex"
         entered_passwords = [
@@ -855,6 +935,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
         ],
     )
     def test_validate_password_against_required_fields(self):
+        """
+
+        """
         new_io = StringIO()
         first_name = "josephine"
         entered_passwords = [
@@ -905,6 +988,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
         ],
     )
     def test_validate_password_against_required_fields_via_option(self):
+        """
+
+        """
         new_io = StringIO()
         first_name = "josephine"
         entered_passwords = [
@@ -1403,6 +1489,9 @@ class MultiDBCreatesuperuserTestCase(TestCase):
         self.assertEqual(user.email, "joe@somewhere.org")
 
     def test_createsuperuser_command_suggested_username_with_database_option(self):
+        """
+
+        """
         default_username = get_default_username(database="other")
         qs = User.objects.using("other")
 

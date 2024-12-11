@@ -30,6 +30,9 @@ class File(FileProxyMixin):
 
     @cached_property
     def size(self):
+        """
+
+        """
         if hasattr(self.file, "size"):
             return self.file.size
         if hasattr(self.file, "name"):
@@ -74,6 +77,9 @@ class File(FileProxyMixin):
 
     def __iter__(self):
         # Iterate over this file-like object by newlines
+        """
+
+        """
         buffer_ = None
         for chunk in self.chunks():
             for line in chunk.splitlines(True):

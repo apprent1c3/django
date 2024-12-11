@@ -123,6 +123,24 @@ class SeleniumTestCase(LiveServerTestCase, metaclass=SeleniumTestCaseBase):
 
     @classmethod
     def __init_subclass__(cls, **kwargs):
+        """
+        Automatically generates test methods for screenshot cases.
+
+        This class method is used to initialize subclasses and modify their attributes.
+        It checks if the subclass has any screenshot cases defined and, if so, transforms
+        methods with screenshot cases into separate test methods.
+
+        For each method with screenshot cases, it creates a new test method for each case,
+        wrapping the original method with the specified screenshot case context.
+        The new test methods are then added to the subclass, replacing the original method.
+
+        The transformed test methods are decorated to maintain the original method's name
+        and docstring, and are assigned additional attributes to identify the screenshot
+        name and case they belong to.
+
+        This process allows for easy creation and management of screenshot tests,
+        providing a flexible way to test methods under different screenshot cases.
+        """
         super().__init_subclass__(**kwargs)
         if not cls.screenshots:
             return

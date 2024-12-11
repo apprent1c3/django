@@ -79,6 +79,9 @@ class AuthTemplateTests(TestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomUser")
     def test_password_reset_confirm_view_custom_username_hint(self):
+        """
+
+        """
         custom_user = CustomUser.custom_objects.create_user(
             email="joe@example.com",
             date_of_birth=date(1986, 11, 11),

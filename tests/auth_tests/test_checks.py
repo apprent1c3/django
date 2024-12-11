@@ -110,6 +110,9 @@ class UserModelChecksTests(SimpleTestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomUserPartiallyUnique")
     def test_username_partially_unique(self):
+        """
+
+        """
         class CustomUserPartiallyUnique(AbstractBaseUser):
             username = models.CharField(max_length=30)
             USERNAME_FIELD = "username"
@@ -155,6 +158,9 @@ class UserModelChecksTests(SimpleTestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomUserUniqueConstraint")
     def test_username_unique_with_model_constraint(self):
+        """
+
+        """
         class CustomUserUniqueConstraint(AbstractBaseUser):
             username = models.CharField(max_length=30)
             USERNAME_FIELD = "username"

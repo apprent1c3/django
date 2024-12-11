@@ -72,6 +72,9 @@ ICT = timezone.get_fixed_timezone(420)  # Asia/Bangkok
 
 @contextmanager
 def override_database_connection_timezone(timezone):
+    """
+
+    """
     try:
         orig_timezone = connection.settings_dict["TIME_ZONE"]
         connection.settings_dict["TIME_ZONE"] = timezone
@@ -169,6 +172,9 @@ class LegacyDatabaseTests(TestCase):
         self.assertEqual(Event.objects.filter(dt__gt=dt2).count(), 0)
 
     def test_query_datetime_lookups(self):
+        """
+
+        """
         Event.objects.create(dt=datetime.datetime(2011, 1, 1, 1, 30, 0))
         Event.objects.create(dt=datetime.datetime(2011, 1, 1, 4, 30, 0))
         self.assertEqual(Event.objects.filter(dt__year=2011).count(), 2)
@@ -196,6 +202,9 @@ class LegacyDatabaseTests(TestCase):
 
     def test_query_annotation(self):
         # Only min and max make sense for datetimes.
+        """
+
+        """
         morning = Session.objects.create(name="morning")
         afternoon = Session.objects.create(name="afternoon")
         SessionEvent.objects.create(
@@ -390,6 +399,9 @@ class NewDatabaseTests(TestCase):
         self.assertEqual(Event.objects.filter(dt__gt=dt2).count(), 0)
 
     def test_query_filter_with_timezones(self):
+        """
+
+        """
         tz = zoneinfo.ZoneInfo("Europe/Paris")
         dt = datetime.datetime(2011, 9, 1, 12, 20, 30, tzinfo=tz)
         Event.objects.create(dt=dt)
@@ -434,6 +446,9 @@ class NewDatabaseTests(TestCase):
 
     @skipUnlessDBFeature("has_zoneinfo_database")
     def test_query_datetime_lookups(self):
+        """
+
+        """
         Event.objects.create(dt=datetime.datetime(2011, 1, 1, 1, 30, 0, tzinfo=EAT))
         Event.objects.create(dt=datetime.datetime(2011, 1, 1, 4, 30, 0, tzinfo=EAT))
         self.assertEqual(Event.objects.filter(dt__year=2011).count(), 2)
@@ -447,6 +462,9 @@ class NewDatabaseTests(TestCase):
 
     @skipUnlessDBFeature("has_zoneinfo_database")
     def test_query_datetime_lookups_in_other_timezone(self):
+        """
+
+        """
         Event.objects.create(dt=datetime.datetime(2011, 1, 1, 1, 30, 0, tzinfo=EAT))
         Event.objects.create(dt=datetime.datetime(2011, 1, 1, 4, 30, 0, tzinfo=EAT))
         with timezone.override(UTC):
@@ -477,6 +495,9 @@ class NewDatabaseTests(TestCase):
 
     def test_query_annotation(self):
         # Only min and max make sense for datetimes.
+        """
+
+        """
         morning = Session.objects.create(name="morning")
         afternoon = Session.objects.create(name="afternoon")
         SessionEvent.objects.create(
@@ -744,6 +765,9 @@ class SerializationTests(SimpleTestCase):
         self.assertRegex(yaml, r"\n  fields: {dt: !(!timestamp)? '%s'}" % re.escape(dt))
 
     def test_naive_datetime(self):
+        """
+
+        """
         dt = datetime.datetime(2011, 9, 1, 13, 20, 30)
 
         data = serializers.serialize("python", [Event(dt=dt)])
@@ -772,6 +796,9 @@ class SerializationTests(SimpleTestCase):
             self.assertEqual(obj.dt, dt)
 
     def test_naive_datetime_with_microsecond(self):
+        """
+
+        """
         dt = datetime.datetime(2011, 9, 1, 13, 20, 30, 405060)
 
         data = serializers.serialize("python", [Event(dt=dt)])
@@ -800,6 +827,9 @@ class SerializationTests(SimpleTestCase):
             self.assertEqual(obj.dt, dt)
 
     def test_aware_datetime_with_microsecond(self):
+        """
+
+        """
         dt = datetime.datetime(2011, 9, 1, 17, 20, 30, 405060, tzinfo=ICT)
 
         data = serializers.serialize("python", [Event(dt=dt)])
@@ -831,6 +861,9 @@ class SerializationTests(SimpleTestCase):
                 self.assertEqual(obj.dt, dt)
 
     def test_aware_datetime_in_utc(self):
+        """
+
+        """
         dt = datetime.datetime(2011, 9, 1, 10, 20, 30, tzinfo=UTC)
 
         data = serializers.serialize("python", [Event(dt=dt)])
@@ -859,6 +892,13 @@ class SerializationTests(SimpleTestCase):
             self.assertEqual(obj.dt.replace(tzinfo=UTC), dt)
 
     def test_aware_datetime_in_local_timezone(self):
+        """
+        Tests the serialization and deserialization of a datetime object in the local timezone using various formats.
+
+        The function verifies that when a datetime object with timezone information is serialized to different formats (Python, JSON, XML, and YAML), the resulting data contains the correct datetime representation. It then deserializes the data and checks that the original datetime object is accurately reconstructed.
+
+        The test covers the serialization and deserialization process for a datetime object with a specific timezone (EAT) and ensures that the resulting datetime object has the correct timezone information. Additionally, it accounts for differences in YAML serialization behavior depending on the version of the YAML library being used.
+        """
         dt = datetime.datetime(2011, 9, 1, 13, 20, 30, tzinfo=EAT)
 
         data = serializers.serialize("python", [Event(dt=dt)])
@@ -890,6 +930,9 @@ class SerializationTests(SimpleTestCase):
                 self.assertEqual(obj.dt, dt)
 
     def test_aware_datetime_in_other_timezone(self):
+        """
+
+        """
         dt = datetime.datetime(2011, 9, 1, 17, 20, 30, tzinfo=ICT)
 
         data = serializers.serialize("python", [Event(dt=dt)])

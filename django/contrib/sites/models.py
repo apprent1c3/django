@@ -32,6 +32,9 @@ class SiteManager(models.Manager):
         return SITE_CACHE[site_id]
 
     def _get_site_by_request(self, request):
+        """
+
+        """
         host = request.get_host()
         try:
             # First attempt to look up the site by host with or without port.

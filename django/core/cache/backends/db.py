@@ -16,6 +16,9 @@ class Options:
     """
 
     def __init__(self, table):
+        """
+
+        """
         self.db_table = table
         self.app_label = "django_cache"
         self.model_name = "cacheentry"
@@ -52,6 +55,9 @@ class DatabaseCache(BaseDatabaseCache):
         return self.get_many([key], version).get(key, default)
 
     def get_many(self, keys, version=None):
+        """
+
+        """
         if not keys:
             return {}
 
@@ -110,6 +116,9 @@ class DatabaseCache(BaseDatabaseCache):
         return self._base_set("touch", key, None, timeout)
 
     def _base_set(self, mode, key, value, timeout=DEFAULT_TIMEOUT):
+        """
+
+        """
         timeout = self.get_backend_timeout(timeout)
         db = router.db_for_write(self.cache_model_class)
         connection = connections[db]
@@ -254,6 +263,9 @@ class DatabaseCache(BaseDatabaseCache):
             return cursor.fetchone() is not None
 
     def _cull(self, db, cursor, now, num):
+        """
+
+        """
         if self._cull_frequency == 0:
             self.clear()
         else:

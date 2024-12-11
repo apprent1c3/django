@@ -51,6 +51,9 @@ if os.name == "nt":
         unlink = os.unlink
 
         def close(self):
+            """
+
+            """
             if not self.close_called:
                 self.close_called = True
                 try:

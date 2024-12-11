@@ -1168,6 +1168,9 @@ class RequestMethodStringDataTests(SimpleTestCase):
 )
 class QueryStringTests(SimpleTestCase):
     def test_get_like_requests(self):
+        """
+
+        """
         for method_name in ("get", "head"):
             # A GET-like request can pass a query string as data (#10571)
             method = getattr(self.client, method_name)
@@ -1189,6 +1192,9 @@ class QueryStringTests(SimpleTestCase):
 
     def test_post_like_requests(self):
         # A POST-like request can pass a query string as data
+        """
+
+        """
         response = self.client.post("/request_data/", data={"foo": "whiz"})
         self.assertIsNone(response.context["get-foo"])
         self.assertEqual(response.context["post-foo"], "whiz")

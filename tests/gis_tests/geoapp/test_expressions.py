@@ -35,6 +35,9 @@ class GeoExpressionsTests(TestCase):
         self.assertAlmostEqual(area.sq_km, 12305.1, 0)
 
     def test_update_from_other_field(self):
+        """
+
+        """
         p1 = Point(1, 1, srid=4326)
         p2 = Point(2, 2, srid=4326)
         obj = ManyPointModel.objects.create(

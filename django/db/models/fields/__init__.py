@@ -210,6 +210,9 @@ class Field(RegisterLookupMixin):
         db_comment=None,
         db_default=NOT_PROVIDED,
     ):
+        """
+
+        """
         self.name = name
         self.verbose_name = verbose_name  # May be set by set_attributes_from_name
         self._verbose_name = verbose_name  # Store original for deconstruction
@@ -315,6 +318,21 @@ class Field(RegisterLookupMixin):
         return isinstance(value, (str, Promise)) or not isinstance(value, Iterable)
 
     def _check_choices(self):
+        """
+
+        Validate the choices configuration for a field.
+
+        This method checks if the 'choices' attribute is properly configured, 
+        ensuring it is either a mapping of actual values to human-readable names 
+        or an iterable containing tuples of actual values and human-readable names.
+
+        It also verifies that the maximum length of the choices does not exceed 
+        the field's maximum length if it is specified.
+
+        Returns a list of validation errors if any issues are found, otherwise 
+        returns an empty list.
+
+        """
         if not self.choices:
             return []
 
@@ -388,6 +406,9 @@ class Field(RegisterLookupMixin):
         ]
 
     def _check_db_default(self, databases=None, **kwargs):
+        """
+
+        """
         from django.db.models.expressions import Value
 
         if (
@@ -433,6 +454,9 @@ class Field(RegisterLookupMixin):
             return []
 
     def _check_db_comment(self, databases=None, **kwargs):
+        """
+
+        """
         if not self.db_comment or not databases:
             return []
         errors = []
@@ -775,6 +799,9 @@ class Field(RegisterLookupMixin):
         return [*self.default_validators, *self._validators]
 
     def run_validators(self, value):
+        """
+
+        """
         if value in self.empty_values:
             return
 
@@ -1023,6 +1050,9 @@ class Field(RegisterLookupMixin):
 
     @cached_property
     def _get_default(self):
+        """
+
+        """
         if self.has_default():
             if callable(self.default):
                 return self.default
@@ -1475,6 +1505,9 @@ class DateField(DateTimeCheckMixin, Field):
         return "DateField"
 
     def to_python(self, value):
+        """
+
+        """
         if value is None:
             return value
         if isinstance(value, datetime.datetime):
@@ -1592,6 +1625,9 @@ class DateTimeField(DateField):
         return "DateTimeField"
 
     def to_python(self, value):
+        """
+
+        """
         if value is None:
             return value
         if isinstance(value, datetime.datetime):
@@ -1656,6 +1692,9 @@ class DateTimeField(DateField):
     # get_next_by_FOO and get_prev_by_FOO
 
     def get_prep_value(self, value):
+        """
+
+        """
         value = super().get_prep_value(value)
         value = self.to_python(value)
         if value is not None and settings.USE_TZ and timezone.is_naive(value):
@@ -1726,6 +1765,9 @@ class DecimalField(Field):
         return errors
 
     def _check_decimal_places(self):
+        """
+
+        """
         try:
             decimal_places = int(self.decimal_places)
             if decimal_places < 0:
@@ -1750,6 +1792,9 @@ class DecimalField(Field):
             return []
 
     def _check_max_digits(self):
+        """
+
+        """
         try:
             max_digits = int(self.max_digits)
             if max_digits <= 0:
@@ -1806,6 +1851,9 @@ class DecimalField(Field):
         return "DecimalField"
 
     def to_python(self, value):
+        """
+
+        """
         if value is None:
             return value
         try:
@@ -1870,6 +1918,17 @@ class DurationField(Field):
         return "DurationField"
 
     def to_python(self, value):
+        """
+        Converts a duration value into a Python datetime.timedelta object.
+
+        The function accepts a duration value which can be `None`, a datetime.timedelta object, or a string representing a duration, such as '1 day' or '2 hours'.
+
+        It attempts to parse the input string into a timedelta object using a parsing function. If the parsing is successful, it returns the resulting timedelta object. 
+
+        If the input is already a timedelta object or `None`, the function returns it as is. 
+
+        If the parsing fails or the input is not a valid duration, the function raises a ValidationError with an error message.
+        """
         if value is None:
             return value
         if isinstance(value, datetime.timedelta):
@@ -1978,6 +2037,9 @@ class FilePathField(Field):
         return []
 
     def deconstruct(self):
+        """
+
+        """
         name, path, args, kwargs = super().deconstruct()
         if self.path != "":
             kwargs["path"] = self.path
@@ -2417,6 +2479,9 @@ class SlugField(CharField):
         super().__init__(*args, max_length=max_length, db_index=db_index, **kwargs)
 
     def deconstruct(self):
+        """
+
+        """
         name, path, args, kwargs = super().deconstruct()
         if kwargs.get("max_length") == 50:
             del kwargs["max_length"]
@@ -2578,6 +2643,9 @@ class TimeField(DateTimeCheckMixin, Field):
         return "TimeField"
 
     def to_python(self, value):
+        """
+
+        """
         if value is None:
             return None
         if isinstance(value, datetime.time):

@@ -60,6 +60,28 @@ class Command(BaseCommand):
         )
 
     def handle(self, **options):
+        """
+
+        Squashes the specified migrations into a new migration.
+
+        This function takes various options, including the app label, start and end migration names, and verbosity level.
+        It checks for the existence of the app and its migrations, then finds the migrations to squash based on the provided names.
+        The function optimizes the squashed migrations, creates a new migration, and writes it to a file.
+
+        Options:
+            - verbosity: The level of output to display.
+            - interactive: Whether to prompt the user for confirmation before proceeding.
+            - app_label: The label of the app containing the migrations to squash.
+            - start_migration_name: The name of the migration to start squashing from.
+            - migration_name: The name of the migration to squash up to.
+            - no_optimize: Whether to skip optimizing the squashed migrations.
+            - squashed_name: The name to use for the new squashed migration.
+            - include_header: Whether to include a header in the new migration file.
+
+        Raises:
+            CommandError: If the app or migration does not exist, or if the squashed migration cannot be created.
+
+        """
         self.verbosity = options["verbosity"]
         self.interactive = options["interactive"]
         app_label = options["app_label"]

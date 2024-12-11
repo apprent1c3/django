@@ -213,6 +213,20 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         return self.mysql_version
 
     def get_connection_params(self):
+        """
+        Returns a dictionary of connection parameters based on the configured database settings.
+
+        The connection parameters include the database user, database name, password, host, port, character set, and client flags.
+        Additional options from the database settings are also included.
+
+        The function checks for the presence of required settings, such as the database user and name, and handles different types of host settings, including Unix sockets and network hosts.
+
+        It also validates the transaction isolation level, which can be one of the supported levels or None, and raises an error if an invalid level is specified.
+
+        The resulting dictionary of connection parameters can be used to establish a database connection with the configured settings.
+
+        :returns: A dictionary of connection parameters
+        """
         kwargs = {
             "conv": django_conversions,
             "charset": "utf8",

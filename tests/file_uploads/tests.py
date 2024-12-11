@@ -96,6 +96,9 @@ class FileUploadTests(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_large_upload(self):
+        """
+
+        """
         file = tempfile.NamedTemporaryFile
         with file(suffix=".file1") as file1, file(suffix=".file2") as file2:
             file1.write(b"a" * (2**21))
@@ -451,6 +454,9 @@ class FileUploadTests(TestCase):
             )
 
     def test_file_content(self):
+        """
+
+        """
         file = tempfile.NamedTemporaryFile
         with (
             file(suffix=".ctype_extra") as no_content_type,
@@ -584,6 +590,9 @@ class FileUploadTests(TestCase):
 
     def test_upload_interrupted_temporary_file_handler(self):
         # Simulate an interrupted upload by omitting the closing boundary.
+        """
+
+        """
         class MockedParser(Parser):
             def __iter__(self):
                 for item in super().__iter__():
@@ -658,6 +667,9 @@ class FileUploadTests(TestCase):
         self.assertEqual(response.status_code, 400)
 
     def test_fileupload_getlist(self):
+        """
+
+        """
         file = tempfile.NamedTemporaryFile
         with file() as file1, file() as file2, file() as file2a:
             file1.write(b"a" * (2**23))
@@ -686,6 +698,9 @@ class FileUploadTests(TestCase):
             self.assertEqual(got.get("file2"), 2)
 
     def test_fileuploads_closed_at_request_end(self):
+        """
+
+        """
         file = tempfile.NamedTemporaryFile
         with file() as f1, file() as f2a, file() as f2b:
             response = self.client.post(
@@ -799,6 +814,9 @@ class FileUploadTests(TestCase):
         self.assertEqual(os.path.basename(obj.testfile.path), "MiXeD_cAsE.txt")
 
     def test_filename_traversal_upload(self):
+        """
+
+        """
         os.makedirs(UPLOAD_TO, exist_ok=True)
         tests = [
             "..&#x2F;test.txt",

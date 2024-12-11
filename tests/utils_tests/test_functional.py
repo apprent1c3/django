@@ -37,6 +37,9 @@ class FunctionalTests(SimpleTestCase):
         self.assertEqual(t.method(), "Klazz")
 
     def test_lazy_object_to_string(self):
+        """
+
+        """
         class Klazz:
             def __str__(self):
                 return "Î am ā Ǩlâzz."
@@ -49,6 +52,9 @@ class FunctionalTests(SimpleTestCase):
         self.assertEqual(bytes(t), b"\xc3\x8e am \xc4\x81 binary \xc7\xa8l\xc3\xa2zz.")
 
     def assertCachedPropertyWorks(self, attr, Class):
+        """
+
+        """
         with self.subTest(attr=attr):
 
             def get(source):
@@ -301,6 +307,9 @@ class FunctionalTests(SimpleTestCase):
         self.assertEqual(str(lazy_value), "[1]")
 
     def test_classproperty_getter(self):
+        """
+
+        """
         class Foo:
             foo_attr = 123
 
@@ -324,6 +333,9 @@ class FunctionalTests(SimpleTestCase):
         self.assertEqual(Bar().bar, 123)
 
     def test_classproperty_override_getter(self):
+        """
+
+        """
         class Foo:
             @classproperty
             def foo(cls):

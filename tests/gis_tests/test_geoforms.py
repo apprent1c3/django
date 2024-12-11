@@ -121,6 +121,15 @@ class GeometryFieldTest(SimpleTestCase):
         )
 
     def test_field_with_text_widget(self):
+        """
+
+        Tests the functionality of a form field with a text widget for entering geographic point data.
+
+        This test case verifies that the field properly cleans and validates user input, 
+        including checking for valid geometry values and SRID (Spatial Reference System Identifier) information.
+        It also confirms that the field correctly handles initial values and change detection.
+
+        """
         class PointForm(forms.Form):
             pt = forms.PointField(srid=4326, widget=forms.TextInput)
 
@@ -273,6 +282,9 @@ class SpecializedFieldTest(SimpleTestCase):
     # map_srid in openlayers.html template must not be localized.
     @override_settings(USE_THOUSAND_SEPARATOR=True)
     def test_pointfield(self):
+        """
+
+        """
         class PointForm(forms.Form):
             p = forms.PointField()
 
@@ -397,6 +409,9 @@ class OSMWidgetTest(SimpleTestCase):
         self.assertIn("id: 'id_p',", rendered)
 
     def test_default_lat_lon(self):
+        """
+
+        """
         self.assertEqual(forms.OSMWidget.default_lon, 5)
         self.assertEqual(forms.OSMWidget.default_lat, 47)
         self.assertEqual(forms.OSMWidget.default_zoom, 12)
@@ -456,6 +471,9 @@ class GeometryWidgetTests(SimpleTestCase):
         )
 
     def test_custom_serialization_widget(self):
+        """
+
+        """
         class CustomGeometryWidget(forms.BaseGeometryWidget):
             template_name = "gis/openlayers.html"
             deserialize_called = 0

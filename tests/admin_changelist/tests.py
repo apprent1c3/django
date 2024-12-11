@@ -181,6 +181,13 @@ class ChangeListTests(TestCase):
         self.assertIs(cl.queryset.query.select_related, False)
 
     def test_get_select_related_custom_method(self):
+        """
+        Test that the custom `get_list_select_related` method in a ModelAdmin class correctly sets the `select_related` attribute on the changelist queryset.
+
+        The method verifies that the `get_list_select_related` method returns the expected related fields, which are then used to optimize database queries by reducing the number of database calls.
+
+        The test case checks that the `select_related` attribute is set to the expected fields, ensuring that the related objects are fetched in a single database query, improving performance.
+        """
         class GetListSelectRelatedAdmin(admin.ModelAdmin):
             list_display = ("band", "player")
 
@@ -194,6 +201,9 @@ class ChangeListTests(TestCase):
         self.assertEqual(cl.queryset.query.select_related, {"player": {}, "band": {}})
 
     def test_many_search_terms(self):
+        """
+
+        """
         parent = Parent.objects.create(name="Mary")
         Child.objects.create(parent=parent, name="Danielle")
         Child.objects.create(parent=parent, name="Daniel")
@@ -256,6 +266,9 @@ class ChangeListTests(TestCase):
         )
 
     def test_result_list_empty_changelist_value_blank_string(self):
+        """
+
+        """
         new_child = Child.objects.create(name="", parent=None)
         request = self.factory.get("/child/")
         request.user = self.superuser
@@ -365,6 +378,9 @@ class ChangeListTests(TestCase):
         )
 
     def test_action_checkbox_for_model_with_dunder_html(self):
+        """
+
+        """
         grandchild = GrandChild.objects.create(name="name")
         request = self._mocked_authenticated_request("/grandchild/", self.superuser)
         m = GrandChildAdmin(GrandChild, custom_site)
@@ -459,6 +475,9 @@ class ChangeListTests(TestCase):
 
     @skipUnlessDBFeature("supports_transactions")
     def test_list_editable_atomicity(self):
+        """
+
+        """
         a = Swallow.objects.create(origin="Swallow A", load=4, speed=1)
         b = Swallow.objects.create(origin="Swallow B", load=2, speed=2)
 
@@ -656,6 +675,9 @@ class ChangeListTests(TestCase):
         self.assertEqual(cl.queryset.count(), 0)
 
     def test_changelist_search_form_validation(self):
+        """
+
+        """
         m = ConcertAdmin(Concert, custom_site)
         tests = [
             ({SEARCH_VAR: "\x00"}, "Null characters are not allowed."),
@@ -770,6 +792,9 @@ class ChangeListTests(TestCase):
                 self.assertEqual(group_changelist.queryset.count(), result_count)
 
     def test_pk_in_search_fields(self):
+        """
+
+        """
         band = Group.objects.create(name="The Hype")
         Concert.objects.create(name="Woodstock", group=band)
 
@@ -787,6 +812,9 @@ class ChangeListTests(TestCase):
         self.assertEqual(cl.queryset.count(), 0)
 
     def test_builtin_lookup_in_search_fields(self):
+        """
+
+        """
         band = Group.objects.create(name="The Hype")
         concert = Concert.objects.create(name="Woodstock", group=band)
 
@@ -804,6 +832,16 @@ class ChangeListTests(TestCase):
         self.assertCountEqual(cl.queryset, [])
 
     def test_custom_lookup_in_search_fields(self):
+        """
+
+        Tests custom lookup functionality in search fields for the ConcertAdmin model.
+
+        This test verifies that the 'cc' lookup is correctly registered and used in the search functionality,
+        allowing for case-insensitive search of the group's name in the Concert model. It checks that a search
+        query for the group's name (in this case, 'Hype') returns the expected Concert instance, while a search
+        query for the concert's name ('Woodstock') returns no results.
+
+        """
         band = Group.objects.create(name="The Hype")
         concert = Concert.objects.create(name="Woodstock", group=band)
 
@@ -821,6 +859,9 @@ class ChangeListTests(TestCase):
             self.assertCountEqual(cl.queryset, [])
 
     def test_spanning_relations_with_custom_lookup_in_search_fields(self):
+        """
+
+        """
         hype = Group.objects.create(name="The Hype")
         concert = Concert.objects.create(name="Woodstock", group=hype)
         vox = Musician.objects.create(name="Vox", age=20)
@@ -842,6 +883,9 @@ class ChangeListTests(TestCase):
             self.assertCountEqual(cl.queryset, [])
 
     def test_custom_lookup_with_pk_shortcut(self):
+        """
+
+        """
         self.assertEqual(CharPK._meta.pk.name, "char_pk")  # Not equal to 'pk'.
         m = admin.ModelAdmin(CustomIdUser, custom_site)
 
@@ -959,6 +1003,17 @@ class ChangeListTests(TestCase):
         self.assertContains(response, "Parent object")
 
     def test_show_all(self):
+        """
+
+        Tests the functionality of showing all items in the changelist view.
+
+        This test creates a parent object and 60 child objects, with names formatted as 'name X' and 'filtered X'.
+        It then simulates a GET request to the child changelist view with the 'show all' parameter, 
+        and verifies that the correct number of results are returned based on the list_max_show_all setting.
+        The test checks that when list_max_show_all is set to a high value, all results are returned, 
+        and when it is set to a lower value, only the first page of results is returned.
+
+        """
         parent = Parent.objects.create(name="anything")
         for i in range(1, 31):
             Child.objects.create(name="name %s" % i, parent=parent)
@@ -1080,6 +1135,9 @@ class ChangeListTests(TestCase):
                 self.assertNotContains(response, link)
 
     def test_tuple_list_display(self):
+        """
+
+        """
         swallow = Swallow.objects.create(origin="Africa", load="12.34", speed="22.2")
         swallow2 = Swallow.objects.create(origin="Africa", load="12.34", speed="22.2")
         swallow_o2o = SwallowOneToOne.objects.create(swallow=swallow2)
@@ -1168,6 +1226,9 @@ class ChangeListTests(TestCase):
         self.assertEqual(len(Swallow.objects.all()), 4)
 
     def test_get_edited_object_ids(self):
+        """
+
+        """
         a = Swallow.objects.create(origin="Swallow A", load=4, speed=1)
         b = Swallow.objects.create(origin="Swallow B", load=2, speed=2)
         c = Swallow.objects.create(origin="Swallow C", load=5, speed=5)
@@ -1196,6 +1257,9 @@ class ChangeListTests(TestCase):
         self.assertEqual(sorted(pks), sorted([str(a.pk), str(b.pk), str(c.pk)]))
 
     def test_get_list_editable_queryset(self):
+        """
+
+        """
         a = Swallow.objects.create(origin="Swallow A", load=4, speed=1)
         Swallow.objects.create(origin="Swallow B", load=2, speed=2)
         data = {
@@ -1221,6 +1285,9 @@ class ChangeListTests(TestCase):
         self.assertEqual(queryset.count(), 2)
 
     def test_get_list_editable_queryset_with_regex_chars_in_prefix(self):
+        """
+
+        """
         a = Swallow.objects.create(origin="Swallow A", load=4, speed=1)
         Swallow.objects.create(origin="Swallow B", load=2, speed=2)
         data = {
@@ -1279,6 +1346,9 @@ class ChangeListTests(TestCase):
             list_per_page = 10
 
         def check_results_order(ascending=False):
+            """
+
+            """
             custom_site.register(UnorderedObject, UnorderedObjectAdmin)
             model_admin = UnorderedObjectAdmin(UnorderedObject, custom_site)
             counter = 0 if ascending else 51
@@ -1325,6 +1395,17 @@ class ChangeListTests(TestCase):
             list_per_page = 10
 
         def check_results_order(ascending=False):
+            """
+
+            Checks the ordering of results in the changelist view for the OrderedObject model.
+
+            This function verifies that the results are ordered correctly in either ascending or descending order.
+            It iterates over multiple pages of the changelist view, checking that each result's ID matches the expected
+            ordered value.
+
+            :param bool ascending: Whether to check for ascending (True) or descending (False, default) order.
+
+            """
             custom_site.register(OrderedObject, OrderedObjectAdmin)
             model_admin = OrderedObjectAdmin(OrderedObject, custom_site)
             counter = 0 if ascending else 51
@@ -1359,6 +1440,9 @@ class ChangeListTests(TestCase):
 
     @isolate_apps("admin_changelist")
     def test_total_ordering_optimization(self):
+        """
+
+        """
         class Related(models.Model):
             unique_field = models.BooleanField(unique=True)
 
@@ -1435,6 +1519,9 @@ class ChangeListTests(TestCase):
 
     @isolate_apps("admin_changelist")
     def test_total_ordering_optimization_meta_constraints(self):
+        """
+
+        """
         class Related(models.Model):
             unique_field = models.BooleanField(unique=True)
 
@@ -1611,6 +1698,9 @@ class ChangeListTests(TestCase):
         self.assertNotIn("Add ", response.rendered_content)
 
     def test_search_help_text(self):
+        """
+
+        """
         superuser = self._create_superuser("superuser")
         m = BandAdmin(Band, custom_site)
         # search_fields without search_help_text.
@@ -1684,6 +1774,9 @@ class ChangeListTests(TestCase):
         self.assertContains(response, '<td class="field-parent__parent__name">-</td>')
 
     def test_list_display_related_field_ordering(self):
+        """
+
+        """
         parent_a = Parent.objects.create(name="Alice")
         parent_z = Parent.objects.create(name="Zara")
         Child.objects.create(name="Alice's child", parent=parent_a)
@@ -1857,6 +1950,9 @@ class SeleniumTests(AdminSeleniumTestCase):
         self.assertIs(checkboxes[-1].get_property("checked"), False)
 
     def test_selection_counter_is_synced_when_page_is_shown(self):
+        """
+
+        """
         from selenium.webdriver.common.by import By
 
         self.admin_login(username="super", password="secret")
@@ -1892,6 +1988,9 @@ class SeleniumTests(AdminSeleniumTestCase):
         self.assertEqual(selection_indicator.text, f"{selected_rows} of 1 selected")
 
     def test_select_all_across_pages(self):
+        """
+
+        """
         from selenium.webdriver.common.by import By
 
         Parent.objects.bulk_create([Parent(name="parent%d" % i) for i in range(101)])
@@ -1950,6 +2049,9 @@ class SeleniumTests(AdminSeleniumTestCase):
         self.assertIs(select_all_indicator.is_displayed(), False)
 
     def test_actions_warn_on_pending_edits(self):
+        """
+
+        """
         from selenium.webdriver.common.by import By
 
         Parent.objects.create(name="foo")
@@ -1975,6 +2077,9 @@ class SeleniumTests(AdminSeleniumTestCase):
             alert.dismiss()
 
     def test_save_with_changes_warns_on_pending_action(self):
+        """
+
+        """
         from selenium.webdriver.common.by import By
         from selenium.webdriver.support.ui import Select
 
@@ -2004,6 +2109,9 @@ class SeleniumTests(AdminSeleniumTestCase):
             alert.dismiss()
 
     def test_save_without_changes_warns_on_pending_action(self):
+        """
+
+        """
         from selenium.webdriver.common.by import By
         from selenium.webdriver.support.ui import Select
 
@@ -2030,6 +2138,9 @@ class SeleniumTests(AdminSeleniumTestCase):
             alert.dismiss()
 
     def test_collapse_filters(self):
+        """
+
+        """
         from selenium.webdriver.common.by import By
 
         self.admin_login(username="super", password="secret")
@@ -2102,6 +2213,9 @@ class SeleniumTests(AdminSeleniumTestCase):
         )
 
     def test_list_display_ordering(self):
+        """
+
+        """
         from selenium.webdriver.common.by import By
 
         parent_a = Parent.objects.create(name="Parent A")

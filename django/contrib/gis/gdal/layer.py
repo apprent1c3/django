@@ -182,6 +182,9 @@ class Layer(GDALBase):
             return None
 
     def _set_spatial_filter(self, filter):
+        """
+
+        """
         if isinstance(filter, OGRGeometry):
             capi.set_spatial_filter(self.ptr, filter.ptr)
         elif isinstance(filter, (tuple, list)):

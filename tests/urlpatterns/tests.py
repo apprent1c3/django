@@ -274,6 +274,25 @@ class SimplifiedURLTests(SimpleTestCase):
 @override_settings(ROOT_URLCONF="urlpatterns.converter_urls")
 class ConverterTests(SimpleTestCase):
     def test_matching_urls(self):
+        """
+
+        Test the functionality of matching URLs against predefined URL patterns.
+
+        This function checks that the URL resolver correctly matches URLs with different
+        types of path parameters, such as integers, strings, paths, slugs, and UUIDs.
+        It verifies that the resolver extracts the correct parameter values from the URL
+        and that the reverse function generates the expected URL when given the parameter values.
+
+        The test cases cover the following scenarios:
+
+        * Matching URLs with integer, string, path, slug, and UUID path parameters
+        * Verifying that the resolver extracts the correct parameter values
+        * Testing the reverse function to generate URLs from parameter values
+
+        The test function uses a variety of test data, including different types of URL
+        suffixes and converters, to ensure that the URL resolver works correctly in all cases.
+
+        """
         def no_converter(x):
             return x
 
@@ -334,6 +353,24 @@ class ConverterTests(SimpleTestCase):
 class SameNameTests(SimpleTestCase):
     def test_matching_urls_same_name(self):
         @DynamicConverter.register_to_url
+        """
+
+        Tests that the reverse URL resolver correctly generates URLs with matching names.
+
+        This test case checks various URL patterns, including those with positional arguments,
+        keyword arguments, custom converters, and regular expressions. It verifies that the
+        reverse function correctly generates the expected URL for each test case.
+
+        The test covers the following scenarios:
+        - Positional arguments with no values and with values
+        - Keyword arguments with different names
+        - Custom converters for different data types (e.g., path, string, slug, integer, UUID)
+        - Regular expressions for uppercase and lowercase strings
+        - Custom converters registered to specific URLs
+
+        Each test case checks that the generated URL matches the expected URL suffix.
+
+        """
         def requires_tiny_int(value):
             if value > 5:
                 raise ValueError

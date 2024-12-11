@@ -460,6 +460,26 @@ class MigrateTests(MigrationTestBase):
         MIGRATION_MODULES={"migrations": "migrations.test_migrations_squashed"}
     )
     def test_showmigrations_list_squashed(self):
+        """
+        Tests the showmigrations list command with squashed migrations.
+
+        This test case verifies the correctness of the showmigrations command when
+        dealing with squashed migrations. It checks the output of the command before
+        and after applying a squashed migration, ensuring that the migration is
+        properly marked as applied. The test also covers the migration process
+        itself, verifying that the migration is applied successfully.
+
+        In particular, this test checks the following: 
+        - The showmigrations command correctly lists a squashed migration as unapplied.
+        - Applying the squashed migration using the migrate command is successful.
+        - The showmigrations command correctly lists the squashed migration as applied
+          after it has been applied.
+
+        The test uses a test-specific migration setup, with a squashed migration
+        0001_squashed_0002 that represents two squashed migrations. The test
+        ensures that the migration is properly cleaned up after the test, regardless
+        of the outcome.
+        """
         out = io.StringIO()
         call_command(
             "showmigrations", format="list", stdout=out, verbosity=2, no_color=True
@@ -1300,6 +1320,9 @@ class MigrateTests(MigrationTestBase):
         ]
     )
     def test_migrate_not_reflected_changes(self):
+        """
+
+        """
         class NewModel1(models.Model):
             class Meta:
                 app_label = "migrated_app"
@@ -1368,6 +1391,9 @@ class MigrateTests(MigrationTestBase):
         MIGRATION_MODULES={"migrations": "migrations.test_migrations_squashed"}
     )
     def test_prune_deleted_squashed_migrations_in_replaces(self):
+        """
+
+        """
         out = io.StringIO()
         with self.temporary_migration_module(
             module="migrations.test_migrations_squashed"
@@ -1435,6 +1461,20 @@ class MigrateTests(MigrationTestBase):
         INSTALLED_APPS=["migrations", "migrations2"],
     )
     def test_prune_respect_app_label(self):
+        """
+
+        Tests the pruning of migrations while respecting the app label.
+
+        This test ensures that when the 'migrate' command is run with the prune option,
+        only the migrations that are not squashed and are part of the specified app are removed.
+        It covers the scenario where two apps ('migrations' and 'migrations2') have applied migrations,
+        including squashed ones, and verifies that the prune operation correctly identifies and removes
+        the redundant migrations while preserving the squashed ones and the migrations from other apps.
+
+        The test checks the output of the 'migrate' command and the list of applied migrations after pruning
+        to ensure that the expected migrations are removed and the correct ones are retained.
+
+        """
         recorder = MigrationRecorder(connection)
         recorder.record_applied("migrations", "0001_initial")
         recorder.record_applied("migrations", "0002_second")
@@ -1491,6 +1531,9 @@ class MakeMigrationsTests(MigrationTestBase):
         super().tearDown()
 
     def test_files_content(self):
+        """
+
+        """
         self.assertTableNotExists("migrations_unicodemodel")
         apps.register_model("migrations", UnicodeModel)
         with self.temporary_migration_module() as migration_dir:
@@ -1796,6 +1839,9 @@ class MakeMigrationsTests(MigrationTestBase):
             self.assertIn("Created new merge migration", out.getvalue())
 
     def test_makemigrations_default_merge_name(self):
+        """
+
+        """
         out = io.StringIO()
         with self.temporary_migration_module(
             module="migrations.test_migrations_conflict"
@@ -2644,6 +2690,9 @@ class MakeMigrationsTests(MigrationTestBase):
             self.assertIn("Add field created to book", out_value)
 
     def test_makemigrations_non_interactive_unique_callable_default_addition(self):
+        """
+
+        """
         class Book(models.Model):
             created = models.DateTimeField(unique=True, default=timezone.now)
 
@@ -2674,6 +2723,9 @@ class MakeMigrationsTests(MigrationTestBase):
             self.assertIn("0003_auto", out_value)
 
     def test_makemigrations_update(self):
+        """
+
+        """
         with self.temporary_migration_module(
             module="migrations.test_migrations"
         ) as migration_dir:
@@ -2699,6 +2751,9 @@ class MakeMigrationsTests(MigrationTestBase):
             self.assertIn(f"Deleted {migration_file}", out.getvalue())
 
     def test_makemigrations_update_existing_name(self):
+        """
+
+        """
         with self.temporary_migration_module(
             module="migrations.test_auto_now_add"
         ) as migration_dir:
@@ -2718,6 +2773,9 @@ class MakeMigrationsTests(MigrationTestBase):
             self.assertIn(f"Deleted {migration_file}", out.getvalue())
 
     def test_makemigrations_update_custom_name(self):
+        """
+
+        """
         custom_name = "delete_something"
         with self.temporary_migration_module(
             module="migrations.test_migrations"
@@ -3190,6 +3248,9 @@ class OptimizeMigrationTests(MigrationTestBase):
         self.assertEqual(out.getvalue(), "")
 
     def test_creates_replace_migration_manual_porting(self):
+        """
+
+        """
         out = io.StringIO()
         with self.temporary_migration_module(
             module="migrations.test_migrations_manual_porting"

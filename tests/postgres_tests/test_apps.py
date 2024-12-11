@@ -52,6 +52,9 @@ class PostgresConfigTests(TestCase):
         )
 
     def test_register_serializer_for_migrations(self):
+        """
+
+        """
         tests = (
             (DateRange(empty=True), DateRangeField),
             (DateTimeRange(empty=True), DateRangeField),

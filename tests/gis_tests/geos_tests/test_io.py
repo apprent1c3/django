@@ -16,6 +16,9 @@ from django.test import SimpleTestCase
 class GEOSIOTest(SimpleTestCase):
     def test01_wktreader(self):
         # Creating a WKTReader instance
+        """
+
+        """
         wkt_r = WKTReader()
         wkt = "POINT (5 23)"
 
@@ -54,6 +57,9 @@ class GEOSIOTest(SimpleTestCase):
 
     def test03_wkbreader(self):
         # Creating a WKBReader instance
+        """
+
+        """
         wkb_r = WKBReader()
 
         hex_bin = b"000000000140140000000000004037000000000000"
@@ -75,6 +81,9 @@ class GEOSIOTest(SimpleTestCase):
                 wkb_r.read(bad_wkb)
 
     def test04_wkbwriter(self):
+        """
+
+        """
         wkb_w = WKBWriter()
 
         # Representations of 'POINT (5 23)' in hex -- one normal and
@@ -132,6 +141,15 @@ class GEOSIOTest(SimpleTestCase):
         self.assertEqual(wkb3d_srid, wkb_w.write(g))
 
     def test_wkt_writer_trim(self):
+        """
+        Tests the WKTWriter class when writing geometry objects in WKT format with trimming enabled or disabled.
+
+        Verifies that the trim property can be toggled, and that it affects the output WKT string:
+        - When trim is False, the WKT string includes a large number of decimal places for coordinate values.
+        - When trim is True, the WKT string removes trailing zeros, so integer coordinates are written without decimal points, and non-integer coordinates are written with minimal required decimal places for accuracy.
+
+        Ensures that the WKTWriter class behaves correctly and consistently when switching between trimmed and untrimmed output modes.
+        """
         wkt_w = WKTWriter()
         self.assertFalse(wkt_w.trim)
         self.assertEqual(
@@ -153,6 +171,9 @@ class GEOSIOTest(SimpleTestCase):
         )
 
     def test_wkt_writer_precision(self):
+        """
+
+        """
         wkt_w = WKTWriter()
         self.assertIsNone(wkt_w.precision)
         self.assertEqual(
@@ -181,6 +202,20 @@ class GEOSIOTest(SimpleTestCase):
             wkt_w.precision = "potato"
 
     def test_empty_point_wkb(self):
+        """
+        Tests the serialization of an empty point in WKB format.
+
+        Verifies that attempting to write an empty point to WKB raises a ValueError, 
+        as empty points are not representable in the WKB format. 
+
+        Additionally, tests the write and write_hex methods with both big- and little-endian 
+        byte orders when SRID support is enabled, ensuring that the resulting WKB 
+        representations match the expected hexadecimal values and that the 
+        geometries can be correctly reconstructed from the WKB data. 
+
+        Checks for the correctness of the WKB and hex string representations 
+        as well as the reconstruction of the original geometry from the WKB data.
+        """
         p = Point(srid=4326)
         wkb_w = WKBWriter()
 
@@ -208,6 +243,9 @@ class GEOSIOTest(SimpleTestCase):
             self.assertEqual(GEOSGeometry(wkb_w.write(p)), p)
 
     def test_empty_polygon_wkb(self):
+        """
+
+        """
         p = Polygon(srid=4326)
         p_no_srid = Polygon()
         wkb_w = WKBWriter()

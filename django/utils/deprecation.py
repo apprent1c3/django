@@ -53,6 +53,27 @@ class RenameMethodsBase(type):
     renamed_methods = ()
 
     def __new__(cls, name, bases, attrs):
+        """
+
+        Metaclass override to manage method renaming and deprecation warnings.
+
+        This metaclass automatically detects when a method has been renamed and
+        converts calls to the old method name to the new method name. It also raises
+        deprecation warnings when using the old method name.
+
+        For each method that has been renamed, it checks:
+
+        * If the old method exists and the new method does not, it adds the new method
+          name as an alias to the old method and issues a deprecation warning when
+          the old method is called.
+        * If the new method exists and the old method does not, it adds the old method
+          name as an alias to the new method, and raises a deprecation warning when
+          the old method is called.
+
+        This ensures a smooth transition when method names are changed, and prevents
+        breakage of existing code that uses the old method names.
+
+        """
         new_class = super().__new__(cls, name, bases, attrs)
 
         for base in inspect.getmro(new_class):

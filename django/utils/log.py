@@ -93,6 +93,9 @@ class AdminEmailHandler(logging.Handler):
 
     def emit(self, record):
         # Early return when no email will be sent.
+        """
+
+        """
         if (
             not settings.ADMINS
             # Method not overridden.
@@ -183,6 +186,9 @@ class ServerFormatter(logging.Formatter):
         super().__init__(*args, **kwargs)
 
     def format(self, record):
+        """
+
+        """
         msg = record.msg
         status_code = getattr(record, "status_code", None)
 

@@ -15,6 +15,21 @@ from .base import MultipleLocaleActivationTestCase, extended_locale_paths
 
 
 def setup(templates, *args, **kwargs):
+    """
+
+     Setup a decorator to configure template translation for a given function.
+
+     The setup function takes in a dictionary of templates and returns a decorator.
+     The decorator can be applied to a function to enable template translation.
+     It supports two translation tags: 'trans' and 'translate'.
+     The decorator automatically detects and applies the correct translation setup based on the function signature.
+
+     :param templates: A dictionary of templates with their corresponding names.
+     :param args: Variable number of positional arguments.
+     :param kwargs: Variable number of keyword arguments.
+     :return: A decorator that can be applied to a function to enable template translation.
+
+    """
     translate_setup = base_setup(templates, *args, **kwargs)
     trans_setup = base_setup(
         {

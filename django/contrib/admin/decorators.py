@@ -56,6 +56,9 @@ def display(
     """
 
     def decorator(func):
+        """
+
+        """
         if boolean is not None and empty_value is not None:
             raise ValueError(
                 "The boolean and empty_value arguments to the @display "

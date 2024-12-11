@@ -17,6 +17,9 @@ class User:
 
 class FunctionTests(SimpleTestCase):
     def test_property_resolver(self):
+        """
+
+        """
         user = User()
         dict_data = {
             "a": {

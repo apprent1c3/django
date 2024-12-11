@@ -147,6 +147,13 @@ class RemoteTestResult(unittest.TestResult):
     """
 
     def __init__(self, *args, **kwargs):
+        """
+        Initializes the instance, setting up the necessary attributes for tracking test results.
+
+        This method extends the parent class's initialization behavior and sets up several lists to keep track of different test outcomes, including failures, errors, skipped tests, expected failures, and unexpected successes. It also installs pickling support for tracebacks if available.
+
+        The resulting instance is prepared to collect and store test event data in the :attr:`events` list.
+        """
         super().__init__(*args, **kwargs)
         # Fake storage of results to reduce memory usage. These are used by the
         # unittest default methods, but here 'events' is used instead.
@@ -211,6 +218,9 @@ with a cleaner failure message.
         # the root cause easier to figure out for users who aren't familiar
         # with the multiprocessing module. Since we're in a forked process,
         # our best chance to communicate with them is to print to stdout.
+        """
+
+        """
         try:
             self._confirm_picklable(err)
         except Exception as exc:
@@ -667,6 +677,9 @@ class DiscoverRunner:
         durations=None,
         **kwargs,
     ):
+        """
+
+        """
         self.pattern = pattern
         self.top_level = top_level
         self.verbosity = verbosity
@@ -706,6 +719,9 @@ class DiscoverRunner:
 
     @classmethod
     def add_arguments(cls, parser):
+        """
+
+        """
         parser.add_argument(
             "--failfast",
             action="store_true",
@@ -863,6 +879,32 @@ class DiscoverRunner:
             self.test_loader.testNamePatterns = original_test_name_patterns
 
     def load_tests_for_label(self, label, discover_kwargs):
+        """
+        LOAD-tests-for-label
+        --------------------
+
+        Load tests for a given label, which can be a dotted module name, a package, or a path to a directory.
+
+        The function attempts to load tests in the following order:
+
+        * If the label is a path to a file, it raises an error.
+        * If the label is a dotted module name or a package, it tries to import it and load tests from it.
+        * If the label is a path to a directory, it uses test discovery to load tests from that directory.
+
+        The function takes into account the `discover_kwargs` dictionary, which can be used to customize the test discovery process.
+
+        Parameters
+        ----------
+        label : str
+            The label for which to load tests. This can be a dotted module name, a package, or a path to a directory.
+        discover_kwargs : dict
+            A dictionary of keyword arguments to pass to the test discovery process.
+
+        Returns
+        -------
+        tests
+            The loaded tests for the given label.
+        """
         label_as_path = os.path.abspath(label)
         tests = None
 
@@ -900,6 +942,9 @@ class DiscoverRunner:
         return tests
 
     def build_suite(self, test_labels=None, **kwargs):
+        """
+
+        """
         test_labels = test_labels or ["."]
 
         discover_kwargs = {}
@@ -1216,6 +1261,9 @@ def partition_suite_by_case(suite):
 
 
 def test_match_tags(test, tags, exclude_tags):
+    """
+
+    """
     if isinstance(test, unittest.loader._FailedTest):
         # Tests that couldn't load always match to prevent tests from falsely
         # passing due e.g. to syntax errors.

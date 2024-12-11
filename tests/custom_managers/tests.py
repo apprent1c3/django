@@ -244,6 +244,9 @@ class CustomManagerTests(TestCase):
         )
 
     def test_m2m_related_manager(self):
+        """
+
+        """
         bugs = Person.objects.create(first_name="Bugs", last_name="Bunny", fun=True)
         self.b1.authors.add(bugs)
         droopy = Person.objects.create(first_name="Droopy", last_name="Dog", fun=False)
@@ -290,6 +293,16 @@ class CustomManagerTests(TestCase):
         )
 
     def test_removal_through_default_fk_related_manager(self, bulk=True):
+        """
+        Tests the removal of related objects through the default foreign key related manager.
+
+        This function tests the behavior of removing related objects from a many-to-one relationship.
+        It covers scenarios such as removing individual objects, and clearing all related objects at once.
+        The test cases verify the expected results after removal, ensuring that the related objects are correctly updated.
+
+        Parameters:
+            bulk (bool): Whether to perform operations in bulk mode (default: True).
+        """
         bugs = FunPerson.objects.create(
             first_name="Bugs", last_name="Bunny", fun=True, favorite_book=self.b1
         )
@@ -334,6 +347,21 @@ class CustomManagerTests(TestCase):
         self.test_removal_through_default_fk_related_manager(bulk=False)
 
     def test_removal_through_specified_fk_related_manager(self, bulk=True):
+        """
+
+        Tests removal of objects through a specified foreign key related manager.
+
+        The function creates two Person objects and associates them with a book.
+        It then tests the removal of a Person object from the book's favorite books
+        using the `remove` method on the related manager, both in bulk and non-bulk mode.
+        Additionally, it tests the `clear` method to remove all objects from the related manager.
+
+        The test covers the following scenarios:
+        - Removing a single object from the related manager
+        - Removing the same object again to ensure it is no longer present
+        - Re-associating the object and clearing the related manager
+
+        """
         Person.objects.create(
             first_name="Bugs", last_name="Bunny", fun=True, favorite_book=self.b1
         )
@@ -383,6 +411,9 @@ class CustomManagerTests(TestCase):
         self.test_removal_through_specified_fk_related_manager(bulk=False)
 
     def test_removal_through_default_gfk_related_manager(self, bulk=True):
+        """
+
+        """
         bugs = FunPerson.objects.create(
             first_name="Bugs", last_name="Bunny", fun=True, favorite_thing=self.b1
         )
@@ -433,6 +464,9 @@ class CustomManagerTests(TestCase):
         self.test_removal_through_default_gfk_related_manager(bulk=False)
 
     def test_removal_through_specified_gfk_related_manager(self, bulk=True):
+        """
+
+        """
         Person.objects.create(
             first_name="Bugs", last_name="Bunny", fun=True, favorite_thing=self.b1
         )
@@ -483,6 +517,9 @@ class CustomManagerTests(TestCase):
         self.test_removal_through_specified_gfk_related_manager(bulk=False)
 
     def test_removal_through_default_m2m_related_manager(self):
+        """
+
+        """
         bugs = FunPerson.objects.create(first_name="Bugs", last_name="Bunny", fun=True)
         self.b1.fun_authors.add(bugs)
         droopy = FunPerson.objects.create(
@@ -523,6 +560,9 @@ class CustomManagerTests(TestCase):
         )
 
     def test_removal_through_specified_m2m_related_manager(self):
+        """
+
+        """
         bugs = Person.objects.create(first_name="Bugs", last_name="Bunny", fun=True)
         self.b1.authors.add(bugs)
         droopy = Person.objects.create(first_name="Droopy", last_name="Dog", fun=False)
@@ -581,6 +621,9 @@ class CustomManagerTests(TestCase):
         self.assertEqual(qs_path, "custom_managers.models.CustomQuerySet")
 
     def test_deconstruct_from_queryset(self):
+        """
+
+        """
         mgr = DeconstructibleCustomManager("a", "b")
         as_manager, mgr_path, qs_path, args, kwargs = mgr.deconstruct()
         self.assertFalse(as_manager)

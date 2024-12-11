@@ -41,6 +41,9 @@ class Command(BaseCommand):
         )
 
     def handle(self, *tablenames, **options):
+        """
+
+        """
         db = options["database"]
         self.verbosity = options["verbosity"]
         dry_run = options["dry_run"]
@@ -55,6 +58,9 @@ class Command(BaseCommand):
                     self.create_table(db, cache._table, dry_run)
 
     def create_table(self, database, tablename, dry_run):
+        """
+
+        """
         cache = BaseDatabaseCache(tablename, {})
         if not router.allow_migrate_model(database, cache.cache_model_class):
             return

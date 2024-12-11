@@ -42,6 +42,9 @@ class PoFileTests(MessageCompilationTests):
         self.assertFalse(os.path.exists(self.MO_FILE))
 
     def test_no_write_access(self):
+        """
+
+        """
         mo_file_en = Path(self.MO_FILE_EN)
         err_buffer = StringIO()
         # Put file in read-only mode.
@@ -263,6 +266,17 @@ class CompilationErrorHandling(MessageCompilationTests):
     def test_msgfmt_error_including_non_ascii(self):
         # po file contains invalid msgstr content (triggers non-ascii error content).
         # Make sure the output of msgfmt is unaffected by the current locale.
+        """
+
+        Tests the msgfmt error handling when the compilemessages command encounters non-ASCII characters.
+
+        This test checks that the command correctly generates an error message when
+        attempting to compile messages for a locale that includes non-ASCII characters,
+        specifically the Korean locale ('ko'). It verifies that the error message is
+        propagated and that the correct error message is displayed, including the
+        specific issue with the field name.
+
+        """
         env = os.environ.copy()
         env.update({"LC_ALL": "C"})
         with mock.patch(

@@ -741,6 +741,9 @@ class SessionAuthenticationTests(AuthViewsTestCase):
 
 class LoginTest(AuthViewsTestCase):
     def test_current_site_in_context_after_login(self):
+        """
+
+        """
         response = self.client.get(reverse("login"))
         self.assertEqual(response.status_code, 200)
         if apps.is_installed("django.contrib.sites"):
@@ -753,6 +756,9 @@ class LoginTest(AuthViewsTestCase):
         self.assertIsInstance(response.context["form"], AuthenticationForm)
 
     def test_security_check(self):
+        """
+
+        """
         login_url = reverse("login")
 
         # These URLs should not pass the security check.
@@ -1056,6 +1062,9 @@ class LogoutThenLoginTests(AuthViewsTestCase):
 
     @override_settings(LOGIN_URL="/login/")
     def test_default_logout_then_login(self):
+        """
+
+        """
         self.login()
         req = HttpRequest()
         req.method = "POST"
@@ -1070,6 +1079,9 @@ class LogoutThenLoginTests(AuthViewsTestCase):
         self.assertRedirects(response, "/login/", fetch_redirect_response=False)
 
     def test_logout_then_login_with_custom_login(self):
+        """
+
+        """
         self.login()
         req = HttpRequest()
         req.method = "POST"
@@ -1326,6 +1338,19 @@ class LogoutTest(AuthViewsTestCase):
         self.confirm_logged_out()
 
     def test_security_check(self):
+        """
+
+        Test the security of the logout view in relation to redirect URLs.
+
+        This test checks that the logout view correctly handles and sanitizes URLs
+        provided in the \"next\" parameter to prevent malicious redirects.
+        It tests a variety of bad URLs that should be blocked, including those with
+        invalid schemes or malicious JavaScript code, and good URLs that should be
+        allowed, including those with valid schemes and encoded parameters.
+        The test confirms that the user is logged out after each redirect attempt
+        and verifies the HTTP status code and redirect URL in the response.
+
+        """
         logout_url = reverse("logout")
 
         # These URLs should not pass the security check.
@@ -1510,6 +1535,9 @@ class ChangelistTests(MessagesTestMixin, AuthViewsTestCase):
         self.assertEqual(row.get_change_message(), "No fields changed.")
 
     def test_user_with_usable_password_change_password(self):
+        """
+
+        """
         user_change_url = reverse(
             "auth_test_admin:auth_user_change", args=(self.admin.pk,)
         )
@@ -1603,6 +1631,9 @@ class ChangelistTests(MessagesTestMixin, AuthViewsTestCase):
 
     def test_user_with_unusable_password_change_password(self):
         # Test for title with unusable password with a test user
+        """
+
+        """
         test_user = User.objects.get(email="staffmember@example.com")
         test_user.set_unusable_password()
         test_user.save()
@@ -1681,6 +1712,9 @@ class ChangelistTests(MessagesTestMixin, AuthViewsTestCase):
         self.assertEqual(user.pk, self.admin.pk)
 
     def test_view_user_password_is_readonly(self):
+        """
+
+        """
         u = User.objects.get(username="testclient")
         u.is_superuser = False
         u.save()
@@ -1720,6 +1754,16 @@ class ChangelistTests(MessagesTestMixin, AuthViewsTestCase):
 )
 class UUIDUserTests(TestCase):
     def test_admin_password_change(self):
+        """
+
+        Test the password change functionality for an admin user.
+
+        This test case covers the scenario where an admin user attempts to change their password.
+        It verifies that the user can login successfully, access the password change page,
+        submit a new password, and is redirected to the user change page after a successful password change.
+        Additionally, it checks that a log entry is created to record the password change event.
+
+        """
         u = UUIDUser.objects.create_superuser(
             username="uuid", email="foo@bar.com", password="test"
         )

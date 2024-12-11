@@ -467,6 +467,9 @@ class M2mThroughReferentialTests(TestCase):
         self.assertEqual(friendship.date_friended, date_friended)
 
     def test_set_on_symmetrical_m2m_with_intermediate_model(self):
+        """
+
+        """
         tony = PersonSelfRefM2M.objects.create(name="Tony")
         chris = PersonSelfRefM2M.objects.create(name="Chris")
         anne = PersonSelfRefM2M.objects.create(name="Anne")

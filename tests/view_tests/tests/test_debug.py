@@ -166,6 +166,20 @@ class DebugViewTests(SimpleTestCase):
         )
 
     def test_404_not_in_urls(self):
+        """
+
+        Tests the 404 page returned when a URL is not found in the defined URL patterns.
+
+        Verifies that the 404 page does not contain the phrase \"Raised by:\" and does not display 
+        an exception value, indicating a standard technical 404 error. It also checks that the 
+        page lists the URL patterns that Django attempted to match against, including the 
+        technical 404 view, and displays a message stating that the current path did not match 
+        any of the given URL patterns.
+
+        The test confirms that the 404 page includes the correct URL patterns, including 
+        regular expression-based and path-based URL patterns, along with their respective names.
+
+        """
         response = self.client.get("/not-in-urls")
         self.assertNotContains(response, "Raised by:", status_code=404)
         self.assertNotContains(
@@ -625,6 +639,16 @@ class ExceptionReporterTests(SimpleTestCase):
         self.assertNotIn("<p>Request data not supplied</p>", html)
 
     def test_suppressed_context(self):
+        """
+        Tests the handling of suppressed context in exception reporting.
+
+        Verifies that when an exception is raised with a suppressed context (i.e., `raise... from None`), 
+        the exception reporter correctly generates a traceback HTML without including the suppressed context.
+
+        The test checks that the generated HTML includes essential information about the exception, 
+        such as the exception type, value, and traceback, as well as a request information section.
+        It also ensures that the suppressed context is not included in the HTML output.
+        """
         try:
             try:
                 raise RuntimeError("Can't find my keys")
@@ -647,6 +671,9 @@ class ExceptionReporterTests(SimpleTestCase):
         self.assertNotIn("During handling of the above exception", html)
 
     def test_innermost_exception_without_traceback(self):
+        """
+
+        """
         try:
             try:
                 raise RuntimeError("Oops")
@@ -688,6 +715,9 @@ class ExceptionReporterTests(SimpleTestCase):
 
     @skipUnless(PY311, "Exception notes were added in Python 3.11.")
     def test_exception_with_notes(self):
+        """
+
+        """
         request = self.rf.get("/test_view/")
         try:
             try:
@@ -721,6 +751,9 @@ class ExceptionReporterTests(SimpleTestCase):
         )
 
     def test_mid_stack_exception_without_traceback(self):
+        """
+
+        """
         try:
             try:
                 raise RuntimeError("Inner Oops")
@@ -755,6 +788,16 @@ class ExceptionReporterTests(SimpleTestCase):
         )
 
     def test_reporting_of_nested_exceptions(self):
+        """
+
+        Tests the reporting of nested exceptions in the exception reporter.
+
+        This test simulates a scenario where multiple exceptions are raised, one from another, 
+        and verifies that the exception reporter correctly handles and presents the nested exceptions.
+        It checks both the HTML and text representations of the exception report to ensure that 
+        the cause and effect relationships between exceptions are properly documented.
+
+        """
         request = self.rf.get("/test_view/")
         try:
             try:
@@ -799,6 +842,9 @@ class ExceptionReporterTests(SimpleTestCase):
     )
     @skipUnless(PY311, "Fine-grained error locations were added in Python 3.11.")
     def test_highlight_error_position(self):
+        """
+
+        """
         request = self.rf.get("/test_view/")
         try:
             try:
@@ -866,6 +912,9 @@ class ExceptionReporterTests(SimpleTestCase):
         )
 
     def test_reporting_frames_without_source(self):
+        """
+
+        """
         try:
             source = "def funcName():\n    raise Error('Whoops')\nfuncName()"
             namespace = {}
@@ -901,6 +950,9 @@ class ExceptionReporterTests(SimpleTestCase):
         )
 
     def test_reporting_frames_source_not_match(self):
+        """
+
+        """
         try:
             source = "def funcName():\n    raise Error('Whoops')\nfuncName()"
             namespace = {}
@@ -941,6 +993,9 @@ class ExceptionReporterTests(SimpleTestCase):
             )
 
     def test_reporting_frames_for_cyclic_reference(self):
+        """
+
+        """
         try:
 
             def test_func():
@@ -1003,6 +1058,9 @@ class ExceptionReporterTests(SimpleTestCase):
         self.assertNotIn("<p>Request data not supplied</p>", html)
 
     def test_message_only(self):
+        """
+
+        """
         reporter = ExceptionReporter(None, None, "I'm a little teapot", None)
         html = reporter.get_traceback_html()
         self.assertInHTML("<h1>Report</h1>", html)

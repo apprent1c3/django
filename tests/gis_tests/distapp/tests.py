@@ -131,6 +131,9 @@ class DistanceTest(TestCase):
         # Retrieving the cities within a 20km 'donut' w/a 7km radius 'hole'
         # (thus, Houston and Southside place will be excluded as tested in
         # the `test02_dwithin` above).
+        """
+
+        """
         for model in [SouthTexasCity, SouthTexasCityFt]:
             stx_pnt = self.stx_pnt.transform(
                 model._meta.get_field("point").srid, clone=True
@@ -237,6 +240,9 @@ class DistanceTest(TestCase):
 
     @skipUnlessDBFeature("supports_distances_lookups")
     def test_distance_lookups_with_expression_rhs(self):
+        """
+
+        """
         stx_pnt = self.stx_pnt.transform(
             SouthTexasCity._meta.get_field("point").srid, clone=True
         )
@@ -529,6 +535,9 @@ class DistanceFunctionsTests(FuncTestMixin, TestCase):
 
     @skipUnlessDBFeature("has_Distance_function", "supports_distance_geodetic")
     def test_distance_geodetic_spheroid(self):
+        """
+
+        """
         tol = 2 if connection.ops.oracle else 4
 
         # Got the reference distances using the raw SQL statements:

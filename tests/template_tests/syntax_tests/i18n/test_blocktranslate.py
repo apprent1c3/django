@@ -17,6 +17,9 @@ from .base import MultipleLocaleActivationTestCase, extended_locale_paths, here
 
 
 def setup(templates, *args, **kwargs):
+    """
+
+    """
     blocktranslate_setup = base_setup(templates, *args, **kwargs)
     blocktrans_setup = base_setup(
         {

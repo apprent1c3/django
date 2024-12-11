@@ -599,6 +599,15 @@ class OrderingTests(TestCase):
         )
 
     def test_order_by_grandparent_fk_with_expression_in_default_ordering(self):
+        """
+
+        Tests the ordering of grandchild objects by their grandparent foreign key when the parent model has a default ordering based on an expression.
+
+        Verifies that grandchild objects are ordered correctly by their grandparent's name in ascending order, despite having a default ordering specified on the parent model.
+
+        Ensures that the ordering is applied correctly and that the resulting sequence of grandchild objects matches the expected order.
+
+        """
         p3 = OrderedByExpression.objects.create(name="oBJ 3")
         p2 = OrderedByExpression.objects.create(name="OBJ 2")
         p1 = OrderedByExpression.objects.create(name="obj 1")

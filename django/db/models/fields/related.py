@@ -349,6 +349,9 @@ class RelatedField(FieldCacheMixin, Field):
         return None
 
     def contribute_to_class(self, cls, name, private_only=False, **kwargs):
+        """
+
+        """
         super().contribute_to_class(cls, name, private_only=private_only, **kwargs)
 
         self.opts = cls._meta
@@ -585,6 +588,9 @@ class ForeignObject(RelatedField):
 
     def _check_to_fields_exist(self):
         # Skip nonexistent models.
+        """
+
+        """
         if isinstance(self.remote_field.model, str):
             return []
 
@@ -606,6 +612,9 @@ class ForeignObject(RelatedField):
         return errors
 
     def _check_unique_target(self):
+        """
+
+        """
         rel_is_string = isinstance(self.remote_field.model, str)
         if rel_is_string or not self.requires_unique_target:
             return []
@@ -670,6 +679,14 @@ class ForeignObject(RelatedField):
         return []
 
     def deconstruct(self):
+        """
+        Deconstructs the foreign key instance into a tuple of four parts: 
+        name of the field, path to the field, positional arguments, and keyword arguments. 
+        The keyword arguments include the on_delete behavior, fields used for the foreign key relationship, 
+        and the target model. The target model is adjusted for swappable models and parent links if necessary. 
+        This method is primarily used for serialization and deserialization of foreign key instances, 
+        allowing them to be reconstructed later with the same properties and behavior.
+        """
         name, path, args, kwargs = super().deconstruct()
         kwargs["on_delete"] = self.remote_field.on_delete
         kwargs["from_fields"] = self.from_fields
@@ -705,6 +722,15 @@ class ForeignObject(RelatedField):
         return name, path, args, kwargs
 
     def resolve_related_fields(self):
+        """
+        Resolve related fields between two models in a foreign key relationship.
+
+        This method validates the foreign object from and to fields, ensuring they have the same non-zero length. It also checks that the related model can be resolved.
+
+        It then iterates over the from and to fields, resolving each field to its corresponding model field. If the to field is not specified, it defaults to the primary key of the related model.
+
+        The method returns a list of tuples, where each tuple contains a pair of related fields: one from the local model and one from the related model.
+        """
         if not self.from_fields or len(self.from_fields) != len(self.to_fields):
             raise ValueError(
                 "Foreign Object from and to fields must be the same non-zero length"
@@ -754,6 +780,9 @@ class ForeignObject(RelatedField):
 
     @staticmethod
     def get_instance_value_for_fields(instance, fields):
+        """
+
+        """
         ret = []
         opts = instance._meta
         for field in fields:
@@ -949,6 +978,9 @@ class ForeignKey(ForeignObject):
         db_constraint=True,
         **kwargs,
     ):
+        """
+
+        """
         try:
             to._meta.model_name
         except AttributeError:
@@ -1049,6 +1081,9 @@ class ForeignKey(ForeignObject):
         )
 
     def deconstruct(self):
+        """
+
+        """
         name, path, args, kwargs = super().deconstruct()
         del kwargs["to_fields"]
         del kwargs["from_fields"]
@@ -1076,6 +1111,9 @@ class ForeignKey(ForeignObject):
         return self.foreign_related_fields[0]
 
     def validate(self, value, model_instance):
+        """
+
+        """
         if self.remote_field.parent_link:
             return
         super().validate(value, model_instance)
@@ -1262,6 +1300,9 @@ class OneToOneField(ForeignKey):
 
 
 def create_many_to_many_intermediary_model(field, klass):
+    """
+
+    """
     from django.db import models
 
     def set_managed(model, related, through):
@@ -1352,6 +1393,29 @@ class ManyToManyField(RelatedField):
         swappable=True,
         **kwargs,
     ):
+        """
+
+        Initializes a Many-To-Many field within a Django model.
+
+        This field establishes a relationship between two models, allowing for multiple instances of each model to be associated with one another.
+        It accepts various parameters that customize the relationship, such as the target model, related names, and database table constraints.
+
+        The initialization process includes checks for valid input, such as ensuring the target model is properly defined, and resolves potential conflicts between database table specifications and intermediary models.
+
+        The resulting Many-To-Many field can be used to create complex relationships between models, facilitating the storage and retrieval of related data in a database.
+
+        :param to: The model or model name to establish a relationship with.
+        :param related_name: The name of the relationship, as seen from the target model.
+        :param related_query_name: The name of the relationship, as used in queries.
+        :param limit_choices_to: A dictionary or Q object to limit the available choices for the target model.
+        :param symmetrical: Whether the relationship is symmetrical, defaulting to True if the target model is the same as the current model.
+        :param through: An intermediary model to use for the relationship.
+        :param through_fields: The fields on the intermediary model to use for the relationship.
+        :param db_constraint: Whether to create a database constraint for the relationship, defaulting to True.
+        :param db_table: The name of the database table to use for the relationship.
+        :param swappable: Whether the model can be swapped with another, defaulting to True.
+
+        """
         try:
             to._meta
         except AttributeError:
@@ -1418,6 +1482,9 @@ class ManyToManyField(RelatedField):
         return []
 
     def _check_ignored_options(self, **kwargs):
+        """
+
+        """
         warnings = []
 
         if self.has_null_arg:
@@ -1458,6 +1525,9 @@ class ManyToManyField(RelatedField):
         return warnings
 
     def _check_relationship_model(self, from_model=None, **kwargs):
+        """
+
+        """
         if hasattr(self.remote_field.through, "_meta"):
             qualified_model_name = "%s.%s" % (
                 self.remote_field.through._meta.app_label,
@@ -1688,6 +1758,9 @@ class ManyToManyField(RelatedField):
         return errors
 
     def _check_table_uniqueness(self, **kwargs):
+        """
+
+        """
         if (
             isinstance(self.remote_field.through, str)
             or not self.remote_field.through._meta.managed
@@ -1740,6 +1813,9 @@ class ManyToManyField(RelatedField):
         return []
 
     def deconstruct(self):
+        """
+
+        """
         name, path, args, kwargs = super().deconstruct()
         # Handle the simpler arguments.
         if self.db_table is not None:
@@ -1895,6 +1971,9 @@ class ManyToManyField(RelatedField):
         # specify *what* on my non-reversible relation?!"), so we set it up
         # automatically. The funky name reduces the chance of an accidental
         # clash.
+        """
+
+        """
         if self.remote_field.symmetrical and (
             self.remote_field.model == RECURSIVE_RELATIONSHIP_CONSTANT
             or self.remote_field.model == cls._meta.object_name
@@ -1940,6 +2019,9 @@ class ManyToManyField(RelatedField):
     def contribute_to_related_class(self, cls, related):
         # Internal M2Ms (i.e., those with a related name ending with '+')
         # and swapped models don't get a related descriptor.
+        """
+
+        """
         if not self.remote_field.hidden and not related.related_model._meta.swapped:
             setattr(
                 cls,

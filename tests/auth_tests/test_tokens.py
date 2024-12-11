@@ -114,6 +114,9 @@ class TokenGeneratorTest(TestCase):
         self.assertIs(p1.check_token(user, tk0), False)
 
     def test_token_with_different_secret_subclass(self):
+        """
+
+        """
         class CustomPasswordResetTokenGenerator(PasswordResetTokenGenerator):
             secret = "test-secret"
 

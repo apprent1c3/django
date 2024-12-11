@@ -151,6 +151,9 @@ class BasicFieldTests(SimpleTestCase):
 class ChoicesTests(SimpleTestCase):
     @classmethod
     def setUpClass(cls):
+        """
+
+        """
         super().setUpClass()
         cls.no_choices = Choiceful._meta.get_field("no_choices")
         cls.empty_choices = Choiceful._meta.get_field("empty_choices")
@@ -166,6 +169,21 @@ class ChoicesTests(SimpleTestCase):
         cls.choices_from_callable = Choiceful._meta.get_field("choices_from_callable")
 
     def test_choices(self):
+        """
+
+        Tests the 'choices' attribute of a class by verifying its value under various scenarios.
+
+        The test cases cover different types of choices, including:
+        - No choices defined
+        - Empty choices
+        - Choices defined as a boolean, text, or dictionary
+        - Choices defined as a list of tuples
+        - Choices defined as a nested dictionary
+        - Choices generated from an iterator or a callable function
+
+        The function asserts that the 'choices' attribute returns the expected values for each scenario.
+
+        """
         self.assertIsNone(self.no_choices.choices)
         self.assertEqual(self.empty_choices.choices, [])
         self.assertEqual(self.empty_choices_bool.choices, [])
@@ -264,6 +282,9 @@ class GetFieldDisplayTests(SimpleTestCase):
         self.assertEqual(f.get_foo_bar_display(), "something")
 
     def test_overriding_inherited_FIELD_display(self):
+        """
+
+        """
         class Base(models.Model):
             foo = models.CharField(max_length=254, choices=[("A", "Base A")])
 

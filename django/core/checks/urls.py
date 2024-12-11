@@ -121,6 +121,9 @@ def E006(name):
 
 @register(Tags.urls)
 def check_custom_error_handlers(app_configs, **kwargs):
+    """
+
+    """
     if not getattr(settings, "ROOT_URLCONF", None):
         return []
 

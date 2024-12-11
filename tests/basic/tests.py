@@ -543,6 +543,9 @@ class ModelTest(TestCase):
 
     def test_emptyqs_customqs(self):
         # A hacky test for custom QuerySet subclass - refs #17271
+        """
+
+        """
         Article.objects.create(headline="foo", pub_date=datetime.now())
 
         class CustomQuerySet(models.QuerySet):
@@ -761,6 +764,14 @@ class ModelLookupTest(TestCase):
 
     def test_too_many(self):
         # Create a very similar object
+        """
+
+        Tests the behavior of the Article model's get() method when multiple objects match the query.
+
+        Verifies that attempting to retrieve an Article using get() with a query that matches multiple articles raises a MultipleObjectsReturned exception.
+        The test covers various query scenarios, including filtering by headline and publication date.
+
+        """
         a = Article(
             id=None,
             headline="Swallow bites Python",
@@ -908,6 +919,18 @@ class ManagerTest(SimpleTestCase):
 
 class SelectOnSaveTests(TestCase):
     def test_select_on_save(self):
+        """
+
+        Tests the select_on_save functionality of the model.
+
+        This test case covers the model's behavior when the select_on_save option is enabled.
+        It verifies the number of database queries executed during save operations under different scenarios,
+        including initial save, subsequent saves, and forced updates.
+
+        The test also checks for the correct handling of cases where a forced update does not affect any rows,
+        ensuring that the expected DatabaseError is raised with a suitable error message.
+
+        """
         a1 = Article.objects.create(pub_date=datetime.now())
         with self.assertNumQueries(1):
             a1.save()
@@ -971,6 +994,9 @@ class SelectOnSaveTests(TestCase):
 
 class ModelRefreshTests(TestCase):
     def test_refresh(self):
+        """
+
+        """
         a = Article.objects.create(pub_date=datetime.now())
         Article.objects.create(pub_date=datetime.now())
         Article.objects.filter(pk=a.pk).update(headline="new headline")
@@ -1005,6 +1031,14 @@ class ModelRefreshTests(TestCase):
             s.refresh_from_db(fields=["foo__bar"])
 
     def test_refresh_fk(self):
+        """
+
+        Tests the refresh of a foreign key relationship after the related object has changed.
+
+        Verifies that refreshing a model instance from the database correctly updates its foreign key
+        attributes, even if the related object has been modified or replaced after the initial fetch.
+
+        """
         s1 = SelfRef.objects.create()
         s2 = SelfRef.objects.create()
         s3 = SelfRef.objects.create(selfref=s1)
@@ -1084,6 +1118,9 @@ class ModelRefreshTests(TestCase):
         self.assertEqual(featured.article.headline, "Parrot programs in Python 2.0")
 
     def test_prefetched_cache_cleared(self):
+        """
+
+        """
         a = Article.objects.create(pub_date=datetime(2005, 7, 28))
         s = SelfRef.objects.create(article=a, article_cited=a)
         # refresh_from_db() without fields=[...]
@@ -1149,6 +1186,9 @@ class ModelRefreshTests(TestCase):
         a.refresh_from_db(using="default", from_queryset=from_queryset)
 
     def test_refresh_overwrites_queryset_fields(self):
+        """
+
+        """
         a = Article.objects.create(pub_date=datetime.now())
         headline = "headline"
         Article.objects.filter(pk=a.pk).update(headline=headline)

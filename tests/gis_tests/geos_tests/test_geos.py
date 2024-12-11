@@ -206,6 +206,9 @@ class GEOSTest(SimpleTestCase, TestDataMixin):
             self.assertIsNot(g, False)
 
     def test_hash(self):
+        """
+
+        """
         point_1 = Point(5, 23)
         point_2 = Point(5, 23, srid=4326)
         point_3 = Point(5, 23, srid=32632)
@@ -811,6 +814,9 @@ class GEOSTest(SimpleTestCase, TestDataMixin):
         self._test_buffer(self.geometries.buffer_geoms, "buffer")
 
     def test_buffer_with_style(self):
+        """
+
+        """
         bg = self.geometries.buffer_with_style_geoms[0]
         g = fromstr(bg.wkt)
 
@@ -840,6 +846,9 @@ class GEOSTest(SimpleTestCase, TestDataMixin):
         )
 
     def _test_buffer(self, geometries, buffer_method_name):
+        """
+
+        """
         for bg in geometries:
             g = fromstr(bg.wkt)
 
@@ -1031,6 +1040,9 @@ class GEOSTest(SimpleTestCase, TestDataMixin):
         # del mpoly
 
     def test_point_list_assignment(self):
+        """
+
+        """
         p = Point(0, 0)
 
         p[:] = (1, 2, 3)

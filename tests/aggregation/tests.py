@@ -65,6 +65,9 @@ class NowUTC(Now):
 class AggregateTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        """
         cls.a1 = Author.objects.create(name="Adrian Holovaty", age=34)
         cls.a2 = Author.objects.create(name="Jacob Kaplan-Moss", age=35)
         cls.a3 = Author.objects.create(name="Brad Dayley", age=45)
@@ -208,6 +211,24 @@ class AggregateTestCase(TestCase):
         self.assertEqual(vals, {"age__sum": 254})
 
     def test_related_aggregate(self):
+        """
+
+        Tests the functionality of aggregate queries on related models.
+
+        This test case covers various aggregate operations such as average, sum on fields 
+        of related models. It ensures that the aggregate functions return the expected 
+        values, which are calculated based on the data in the Author, Book, and Publisher 
+        models. The tests include filters to demonstrate the use of aggregate queries 
+        with filtered querysets.
+
+        The test cases verify the following scenarios:
+        - Average age of friends of authors
+        - Average age of authors of books with a rating less than 4.5
+        - Average rating of books written by authors with a name containing 'a'
+        - Sum of awards won by publishers of books
+        - Sum of prices of books published by publishers
+
+        """
         vals = Author.objects.aggregate(Avg("friends__age"))
         self.assertEqual(vals, {"friends__age__avg": Approximate(34.07, places=2)})
 
@@ -412,6 +433,9 @@ class AggregateTestCase(TestCase):
         )
 
     def test_annotate_values(self):
+        """
+
+        """
         books = list(
             Book.objects.filter(pk=self.b1.pk)
             .annotate(mean_age=Avg("authors__age"))
@@ -677,6 +701,9 @@ class AggregateTestCase(TestCase):
         self.assertEqual(age_sum["age__sum"], 103)
 
     def test_filtering(self):
+        """
+
+        """
         p = Publisher.objects.create(name="Expensive Publisher", num_awards=0)
         Book.objects.create(
             name="ExpensiveBook1",
@@ -799,6 +826,20 @@ class AggregateTestCase(TestCase):
         self.assertEqual(len(publishers), 0)
 
     def test_annotation(self):
+        """
+
+        Tests the functionality of Django's annotation feature, which allows for 
+        aggregate calculations and dynamic field generation within querysets.
+
+        Verifies that aggregate counts are correctly calculated for various models 
+        (including Author, Book, and Publisher) and that the results can be filtered 
+        and ordered as expected.
+
+        Also ensures that relationships between models are properly accounted for in 
+        annotations, including many-to-many relationships and relationships with 
+        multiple conditions.
+
+        """
         vals = Author.objects.filter(pk=self.a1.pk).aggregate(Count("friends__id"))
         self.assertEqual(vals, {"friends__id__count": 2})
 
@@ -915,6 +956,9 @@ class AggregateTestCase(TestCase):
         )
 
     def test_annotate_values_list(self):
+        """
+
+        """
         books = (
             Book.objects.filter(pk=self.b1.pk)
             .annotate(mean_age=Avg("authors__age"))
@@ -1130,6 +1174,9 @@ class AggregateTestCase(TestCase):
         self.assertEqual(p2, {"avg_price": Approximate(Decimal("53.39"), places=2)})
 
     def test_combine_different_types(self):
+        """
+
+        """
         msg = (
             "Cannot infer type of '+' expression involving these types: FloatField, "
             "DecimalField. You must set output_field."
@@ -1166,6 +1213,25 @@ class AggregateTestCase(TestCase):
             Author.objects.aggregate(Sum(1))
 
     def test_aggregate_over_complex_annotation(self):
+        """
+        JECTED below is description of method
+        \"\"\"
+        Tests the aggregation of complex annotated fields over a queryset.
+
+        This test checks the behavior of combining multiple aggregation
+        functions, including Sum and Max, over an annotated queryset.
+        It verifies that the aggregation results are correct and that
+        the annotated fields can be reused in multiple aggregation
+        expressions.
+
+        The test covers various scenarios, including:
+
+        * Calculating the maximum value of an annotated field
+        * Doubling the maximum value of an annotated field using multiplication and addition
+        * Combining multiple aggregation functions in a single query
+        * Reusing annotated fields in multiple aggregation expressions
+
+        """
         qs = Author.objects.annotate(combined_ages=Sum(F("age") + F("friends__age")))
 
         age = qs.aggregate(max_combined_age=Max("combined_ages"))
@@ -1195,6 +1261,9 @@ class AggregateTestCase(TestCase):
 
     def test_values_annotation_with_expression(self):
         # ensure the F() is promoted to the group by clause
+        """
+
+        """
         qs = Author.objects.values("name").annotate(another_age=Sum("age") + F("age"))
         a = qs.get(name="Adrian Holovaty")
         self.assertEqual(a["another_age"], 68)
@@ -1270,6 +1339,9 @@ class AggregateTestCase(TestCase):
             )
 
     def test_annotated_aggregate_over_annotated_aggregate(self):
+        """
+
+        """
         with self.assertRaisesMessage(
             FieldError, "Cannot compute Sum('id__max'): 'id__max' is an aggregate"
         ):
@@ -1286,6 +1358,9 @@ class AggregateTestCase(TestCase):
             Book.objects.annotate(Max("id")).annotate(my_max=MyMax("id__max", "price"))
 
     def test_multi_arg_aggregate(self):
+        """
+
+        """
         class MyMax(Max):
             output_field = DecimalField()
 
@@ -1305,6 +1380,9 @@ class AggregateTestCase(TestCase):
         Book.objects.aggregate(max_field=MyMax("pages", "price"))
 
     def test_add_implementation(self):
+        """
+
+        """
         class MySum(Sum):
             pass
 

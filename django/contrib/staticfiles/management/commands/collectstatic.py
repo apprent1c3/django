@@ -168,6 +168,17 @@ class Command(BaseCommand):
         }
 
     def handle(self, **options):
+        """
+
+        Handle the collection of static files.
+
+        This method orchestrates the collection of static files based on the provided options.
+        It first checks if the dry-run option is enabled, in which case it will not modify any files.
+        Then, it determines the destination location for the collected static files and checks if the location already exists and contains files.
+        If the interactive option is enabled and the destination location is not empty, it prompts the user to confirm the operation to avoid overwriting or deleting existing files.
+        Once confirmed, it proceeds with collecting the static files and, if the verbosity level is set to 1 or higher, returns a summary of the operation, including the number of modified, unmodified, and post-processed files.
+
+        """
         self.set_options(**options)
         message = ["\n"]
         if self.dry_run:

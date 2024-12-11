@@ -280,6 +280,9 @@ class LookupTests(TestCase):
         connection.vendor == "postgresql", "PostgreSQL specific SQL used"
     )
     def test_birthdate_month(self):
+        """
+
+        """
         a1 = Author.objects.create(name="a1", birthdate=date(1981, 2, 16))
         a2 = Author.objects.create(name="a2", birthdate=date(2012, 2, 29))
         a3 = Author.objects.create(name="a3", birthdate=date(2012, 1, 31))
@@ -302,6 +305,9 @@ class LookupTests(TestCase):
             )
 
     def test_div3_extract(self):
+        """
+
+        """
         with register_lookup(models.IntegerField, Div3Transform):
             a1 = Author.objects.create(name="a1", age=1)
             a2 = Author.objects.create(name="a2", age=2)
@@ -383,6 +389,9 @@ class BilateralTransformTests(TestCase):
             )
 
     def test_div3_bilateral_extract(self):
+        """
+
+        """
         with register_lookup(models.IntegerField, Div3BilateralTransform):
             a1 = Author.objects.create(name="a1", age=1)
             a2 = Author.objects.create(name="a2", age=2)
@@ -517,6 +526,21 @@ class YearLteTests(TestCase):
         self.assertIn("-12-31", str(baseqs.filter(birthdate__testyear=2011).query))
 
     def test_custom_implementation_year_exact(self):
+        """
+        Test case for custom implementation of 'year exact' lookup.
+
+        This test checks if the custom SQL generation for the 'year exact' lookup works as expected.
+        It verifies that the generated SQL queries contain the correct year range, from the start of the year to the end.
+        The test covers both a dynamically added custom SQL method and a custom lookup class.
+
+        The test case ensures that the generated SQL queries use the correct database functions, such as str_to_date and concat, 
+        for constructing the year range. It also checks that the queries are correctly parameterized to prevent SQL injection.
+        The test verifies that the lookup works correctly by asserting that the generated SQL queries contain the expected strings.
+
+        The custom implementation is tested for both a monkey-patched 'as_sql' method and a custom lookup class registered with the YearTransform.
+        The test cleans up after itself by removing the custom method and lookup class to ensure that the test does not affect other tests.
+
+        """
         try:
             # Two ways to add a customized implementation for different backends:
             # First is MonkeyPatch of the class.
@@ -601,6 +625,9 @@ class TrackCallsYearTransform(YearTransform):
 
 class LookupTransformCallOrderTests(SimpleTestCase):
     def test_call_order(self):
+        """
+
+        """
         with register_lookup(models.DateField, TrackCallsYearTransform):
             # junk lookup - tries lookup, then transform, then fails
             msg = (
@@ -685,6 +712,21 @@ class RegisterLookupTests(SimpleTestCase):
         self.assertIsNone(author_alias.get_lookup("sw"))
 
     def test_instance_lookup_override_class_lookups(self):
+        """
+        Tests the instance lookup override for class lookups.
+
+        This test case checks that lookups registered for a specific field instance override
+        the lookups registered for the field's class. It verifies that a custom lookup
+        (CustomEndsWith) registered for a particular field instance (author_alias) takes
+        precedence over a default lookup (CustomStartsWith) registered for the field's
+        class (models.CharField). The test also ensures that lookups are properly cleaned
+        up after use and are no longer available once the registration context is exited.
+
+        Verifies the following:
+        - Instance lookup override takes precedence over class lookup.
+        - Registered lookups are cleaned up after use.
+        - Lookups are no longer available after exiting the registration context.
+        """
         author_name = Author._meta.get_field("name")
         author_alias = Author._meta.get_field("alias")
         with register_lookup(models.CharField, CustomStartsWith, lookup_name="st_end"):
@@ -716,6 +758,9 @@ class RegisterLookupTests(SimpleTestCase):
         self.assertEqual(transform.get_lookups(), {})
 
     def test_transform_on_field(self):
+        """
+
+        """
         author_name = Author._meta.get_field("name")
         author_alias = Author._meta.get_field("alias")
         with register_lookup(models.CharField, Div3Transform):

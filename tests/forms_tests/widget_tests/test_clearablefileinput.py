@@ -201,6 +201,9 @@ class ClearableFileInputTest(WidgetTest):
             self.widget.render("myfile", FailingURLFieldFile())
 
     def test_url_as_property(self):
+        """
+
+        """
         class URLFieldFile:
             @property
             def url(self):

@@ -7,6 +7,9 @@ from . import FormFieldAssertionsMixin
 
 class EmailFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
     def test_emailfield_1(self):
+        """
+
+        """
         f = EmailField()
         self.assertEqual(f.max_length, 320)
         self.assertWidgetRendersTo(

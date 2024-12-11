@@ -22,6 +22,9 @@ class StorageHandler:
         return self._backends
 
     def __getitem__(self, alias):
+        """
+
+        """
         try:
             return self._storages[alias]
         except KeyError:

@@ -138,6 +138,9 @@ class OracleOperations(BaseSpatialOperations, DatabaseOperations):
         return super().geo_quote_name(name).upper()
 
     def convert_extent(self, clob):
+        """
+
+        """
         if clob:
             # Generally, Oracle returns a polygon for the extent -- however,
             # it can return a single point if there's only one Point in the
@@ -228,6 +231,20 @@ class OracleOperations(BaseSpatialOperations, DatabaseOperations):
         return super().modify_insert_params(placeholder, params)
 
     def get_geometry_converter(self, expression):
+        """
+        Return a geometry converter function based on the provided expression.
+
+        The converter function takes a binary value, an expression, and a database connection,
+        and returns a GEOSGeometry object representing the geometry.
+
+        The converter function respects the spatial reference system identifier (SRID) and
+        geometry class specified in the output field of the given expression.
+
+        If the SRID is -1, it is treated as undefined and no SRID is set on the resulting geometry.
+
+        The returned converter function is suitable for use in database operations that require
+        converting binary geometry values to GEOSGeometry objects. 
+        """
         read = wkb_r().read
         srid = expression.output_field.srid
         if srid == -1:

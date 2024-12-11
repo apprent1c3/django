@@ -205,6 +205,9 @@ class SqlFlushTests(TransactionTestCase):
         self.assertEqual(connection.ops.sql_flush(no_style(), []), [])
 
     def test_execute_sql_flush_statements(self):
+        """
+
+        """
         with transaction.atomic():
             author = Author.objects.create(name="George Orwell")
             Book.objects.create(author=author)

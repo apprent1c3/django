@@ -402,6 +402,9 @@ class StartDjangoTests(SimpleTestCase):
     @mock.patch("threading.Thread")
     @mock.patch("django.utils.autoreload.check_errors")
     def test_starts_thread_with_args(self, mocked_check_errors, mocked_thread):
+        """
+
+        """
         fake_reloader = mock.MagicMock()
         fake_main_func = mock.MagicMock()
         fake_thread = mock.MagicMock()
@@ -456,6 +459,9 @@ class TestRaiseLastException(SimpleTestCase):
                 autoreload.raise_last_exception()
 
     def test_raises_custom_exception(self):
+        """
+
+        """
         class MyException(Exception):
             def __init__(self, msg, extra_context):
                 super().__init__(msg)
@@ -472,6 +478,9 @@ class TestRaiseLastException(SimpleTestCase):
                 autoreload.raise_last_exception()
 
     def test_raises_exception_with_context(self):
+        """
+
+        """
         try:
             raise Exception(2)
         except Exception as e:

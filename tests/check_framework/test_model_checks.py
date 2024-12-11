@@ -20,6 +20,9 @@ class EmptyRouter:
 @override_system_checks([checks.model_checks.check_all_models])
 class DuplicateDBTableTests(SimpleTestCase):
     def test_collision_in_same_app(self):
+        """
+
+        """
         class Model1(models.Model):
             class Meta:
                 db_table = "test_table"
@@ -44,6 +47,9 @@ class DuplicateDBTableTests(SimpleTestCase):
         DATABASE_ROUTERS=["check_framework.test_model_checks.EmptyRouter"]
     )
     def test_collision_in_same_app_database_routers_installed(self):
+        """
+
+        """
         class Model1(models.Model):
             class Meta:
                 db_table = "test_table"
@@ -72,6 +78,21 @@ class DuplicateDBTableTests(SimpleTestCase):
     @modify_settings(INSTALLED_APPS={"append": "basic"})
     @isolate_apps("basic", "check_framework", kwarg_name="apps")
     def test_collision_across_apps(self, apps):
+        """
+
+        Test that the framework correctly identifies and reports a collision
+        between two models in different apps that are using the same database table.
+
+        This test checks for the 'models.E028' error, which is raised when multiple
+        models are configured to use the same database table. The function simulates
+        this scenario by defining two models, one in each of the 'basic' and
+        'check_framework' apps, and then verifies that the error is correctly
+        detected and reported by the framework's checks.
+
+        :param apps: A fixture containing the app configurations to be tested.
+        :returns: None
+
+        """
         class Model1(models.Model):
             class Meta:
                 app_label = "basic"
@@ -100,6 +121,9 @@ class DuplicateDBTableTests(SimpleTestCase):
     )
     @isolate_apps("basic", "check_framework", kwarg_name="apps")
     def test_collision_across_apps_database_routers_installed(self, apps):
+        """
+
+        """
         class Model1(models.Model):
             class Meta:
                 app_label = "basic"
@@ -128,6 +152,11 @@ class DuplicateDBTableTests(SimpleTestCase):
         )
 
     def test_no_collision_for_unmanaged_models(self):
+        """
+        Tests that no database collisions are reported when an unmanaged model and a managed model share the same database table.
+
+        The test creates two models, Unmanaged and Managed, both referencing the same database table. It then runs the model checks to ensure that no errors are raised due to the shared database table, confirming that the managed and unmanaged models can coexist without causing any database conflicts.
+        """
         class Unmanaged(models.Model):
             class Meta:
                 db_table = "test_table"
@@ -140,6 +169,9 @@ class DuplicateDBTableTests(SimpleTestCase):
         self.assertEqual(checks.run_checks(app_configs=self.apps.get_app_configs()), [])
 
     def test_no_collision_for_proxy_models(self):
+        """
+
+        """
         class Model(models.Model):
             class Meta:
                 db_table = "test_table"
@@ -173,6 +205,10 @@ class IndexNameTests(SimpleTestCase):
         )
 
     def test_collision_in_different_models(self):
+        """
+        Tests the detection of duplicate index names across different models. 
+         Verifies that the checks system correctly identifies and reports an error when the same index name is used in multiple models, ensuring that index names are unique across all models in the application.
+        """
         index = models.Index(fields=["id"], name="foo")
 
         class Model1(models.Model):
@@ -195,6 +231,18 @@ class IndexNameTests(SimpleTestCase):
         )
 
     def test_collision_abstract_model(self):
+        """
+
+        Check collision on index name 'foo' among abstract model instances.
+
+        This test verifies that when an abstract model has defined an index with a specific name, 
+        and multiple concrete models inherit from this abstract model, 
+        an error is raised because the index name is not unique among the models.
+
+        The expected error 'models.E030' is raised with a descriptive message 
+        indicating the index name collision among the models.
+
+        """
         class AbstractModel(models.Model):
             class Meta:
                 indexes = [models.Index(fields=["id"], name="foo")]
@@ -218,6 +266,17 @@ class IndexNameTests(SimpleTestCase):
         )
 
     def test_no_collision_abstract_model_interpolation(self):
+        """
+
+        Checks that abstract model inheritance does not result in index naming collisions.
+
+        This test verifies that when inheriting from an abstract model that defines a custom index,
+        the indexes on the child models are correctly named without causing naming conflicts.
+
+        The test case covers a scenario where two concrete models inherit from an abstract model,
+        each with their own index defined on a shared field, ensuring that the checks pass without errors.
+
+        """
         class AbstractModel(models.Model):
             name = models.CharField(max_length=20)
 
@@ -238,6 +297,9 @@ class IndexNameTests(SimpleTestCase):
     @modify_settings(INSTALLED_APPS={"append": "basic"})
     @isolate_apps("basic", "check_framework", kwarg_name="apps")
     def test_collision_across_apps(self, apps):
+        """
+
+        """
         index = models.Index(fields=["id"], name="foo")
 
         class Model1(models.Model):
@@ -264,6 +326,9 @@ class IndexNameTests(SimpleTestCase):
     @modify_settings(INSTALLED_APPS={"append": "basic"})
     @isolate_apps("basic", "check_framework", kwarg_name="apps")
     def test_no_collision_across_apps_interpolation(self, apps):
+        """
+
+        """
         index = models.Index(fields=["id"], name="%(app_label)s_%(class)s_foo")
 
         class Model1(models.Model):
@@ -303,6 +368,9 @@ class ConstraintNameTests(TestCase):
         )
 
     def test_collision_in_different_models(self):
+        """
+
+        """
         constraint = models.CheckConstraint(condition=models.Q(id__gt=0), name="foo")
 
         class Model1(models.Model):
@@ -325,6 +393,9 @@ class ConstraintNameTests(TestCase):
         )
 
     def test_collision_abstract_model(self):
+        """
+
+        """
         class AbstractModel(models.Model):
             class Meta:
                 constraints = [
@@ -350,6 +421,9 @@ class ConstraintNameTests(TestCase):
         )
 
     def test_no_collision_abstract_model_interpolation(self):
+        """
+
+        """
         class AbstractModel(models.Model):
             class Meta:
                 constraints = [
@@ -370,6 +444,22 @@ class ConstraintNameTests(TestCase):
     @modify_settings(INSTALLED_APPS={"append": "basic"})
     @isolate_apps("basic", "check_framework", kwarg_name="apps")
     def test_collision_across_apps(self, apps):
+        """
+
+        Test that a CheckConstraint with a non-unique name across apps raises an error.
+
+        This test case verifies that when a CheckConstraint with the same name is defined
+        in models from different apps, the checks system correctly identifies and reports
+        the collision. The test checks for the expected error message and id in the 
+        check results.
+
+        Args:
+            apps (list): A list of app configurations.
+
+        Returns:
+            None
+
+        """
         constraint = models.CheckConstraint(condition=models.Q(id__gt=0), name="foo")
 
         class Model1(models.Model):
@@ -396,6 +486,9 @@ class ConstraintNameTests(TestCase):
     @modify_settings(INSTALLED_APPS={"append": "basic"})
     @isolate_apps("basic", "check_framework", kwarg_name="apps")
     def test_no_collision_across_apps_interpolation(self, apps):
+        """
+
+        """
         constraint = models.CheckConstraint(
             condition=models.Q(id__gt=0), name="%(app_label)s_%(class)s_foo"
         )

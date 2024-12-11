@@ -201,6 +201,9 @@ class DatabaseWrapper(BaseDatabaseWrapper):
 
     @property
     def pool(self):
+        """
+
+        """
         pool_options = self.settings_dict["OPTIONS"].get("pool")
         if self.alias == NO_DB_ALIAS or not pool_options:
             return None
@@ -253,6 +256,9 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         return divmod(self.pg_version, 10000)
 
     def get_connection_params(self):
+        """
+
+        """
         settings_dict = self.settings_dict
         # None may be used to connect to the default 'postgres' db
         if settings_dict["NAME"] == "" and not settings_dict["OPTIONS"].get("service"):
@@ -326,6 +332,9 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         #   default when no value is explicitly specified in options.
         # - before calling _set_autocommit() because if autocommit is on, that
         #   will set connection.isolation_level to ISOLATION_LEVEL_AUTOCOMMIT.
+        """
+
+        """
         options = self.settings_dict["OPTIONS"]
         set_isolation_level = False
         try:
@@ -409,6 +418,9 @@ class DatabaseWrapper(BaseDatabaseWrapper):
 
     @async_unsafe
     def create_cursor(self, name=None):
+        """
+
+        """
         if name:
             if is_psycopg3 and (
                 self.settings_dict["OPTIONS"].get("server_side_binding") is not True
@@ -447,6 +459,9 @@ class DatabaseWrapper(BaseDatabaseWrapper):
 
     @async_unsafe
     def chunked_cursor(self):
+        """
+
+        """
         self._named_cursor_idx += 1
         # Get the current async task
         # Note that right now this is behind @async_unsafe, so this is
@@ -506,6 +521,27 @@ class DatabaseWrapper(BaseDatabaseWrapper):
 
     @contextmanager
     def _nodb_cursor(self):
+        """
+
+        A context manager that yields a database cursor for use outside of a transaction.
+
+        This function ensures that a cursor is created without running initialization queries
+        against the production database when it's not needed, such as when running tests.
+        It first attempts to use a connection to the 'postgres' database. If this fails,
+        it will use the first available PostgreSQL database instead.
+
+        In the event of a database error, it will raise the error if a cursor has already
+        been created, otherwise it will emit a warning and continue with the next available
+        database connection.
+
+        Yields:
+            cursor: A database cursor object
+
+        Raises:
+            Database.DatabaseError: If a database error occurs while creating or using the cursor
+            WrappedDatabaseError: If a wrapped database error occurs while creating or using the cursor
+
+        """
         cursor = None
         try:
             with super()._nodb_cursor() as cursor:
@@ -559,6 +595,9 @@ if is_psycopg3:
         """
 
         def callproc(self, name, args=None):
+            """
+
+            """
             if not isinstance(name, sql.Identifier):
                 name = sql.Identifier(name)
 

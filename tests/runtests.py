@@ -161,6 +161,9 @@ def get_label_module(label):
 
 
 def get_filtered_test_modules(start_at, start_after, gis_enabled, test_labels=None):
+    """
+
+    """
     if test_labels is None:
         test_labels = []
     # Reduce each test label to just the top-level module part.
@@ -199,6 +202,14 @@ def get_filtered_test_modules(start_at, start_after, gis_enabled, test_labels=No
 
 
 def setup_collect_tests(start_at, start_after, test_labels=None):
+    """
+    Sets up the environment to collect tests, modifying Django settings as necessary, and returns the list of test modules along with a backup of the original settings state.
+
+    :arg str start_at: The starting point for filtering test modules.
+    :arg str start_after: The point after which test modules should be included.
+    :arg list test_labels: Optional list of test labels to filter test modules by.
+    :returns: A tuple containing the list of test modules and a dictionary representing the original settings state.
+    """
     state = {
         "INSTALLED_APPS": settings.INSTALLED_APPS,
         "ROOT_URLCONF": getattr(settings, "ROOT_URLCONF", ""),
@@ -292,6 +303,9 @@ def get_apps_to_install(test_modules):
 
 
 def setup_run_tests(verbosity, start_at, start_after, test_labels=None):
+    """
+
+    """
     test_modules, state = setup_collect_tests(
         start_at, start_after, test_labels=test_labels
     )
@@ -342,6 +356,9 @@ class ActionSelenium(argparse.Action):
     """
 
     def __call__(self, parser, namespace, values, option_string=None):
+        """
+
+        """
         try:
             import selenium  # NOQA
         except ImportError as e:
@@ -377,6 +394,62 @@ def django_tests(
     shuffle,
     durations=None,
 ):
+    """
+
+    Runs Django tests with specified configurations.
+
+    This function allows running Django tests in various modes, including parallel testing,
+    interactive mode, and with different verbosity levels. It also supports filtering tests
+    by labels, tags, and patterns.
+
+    The function takes into account the Django installation, database cloning capabilities,
+    and test runner settings to determine the optimal test execution configuration.
+
+    Parameters
+    ----------
+    verbosity : int
+        The level of detail in the test output.
+    interactive : bool
+        Whether to run tests in interactive mode.
+    failfast : bool
+        Whether to stop testing after the first failure.
+    keepdb : bool
+        Whether to keep the test database after testing.
+    reverse : bool
+        Whether to run tests in reverse order.
+    test_labels : list
+        A list of test labels to run.
+    debug_sql : bool
+        Whether to print SQL queries during testing.
+    parallel : int or str
+        The number of parallel test processes or 'auto' to determine automatically.
+    tags : list
+        A list of tags to filter tests.
+    exclude_tags : list
+        A list of tags to exclude from testing.
+    test_name_patterns : list
+        A list of patterns to filter tests by name.
+    start_at : str
+        The name of the test to start at.
+    start_after : str
+        The name of the test to start after.
+    pdb : bool
+        Whether to drop into the debugger on test failures.
+    buffer : bool
+        Whether to buffer test output.
+    timing : bool
+        Whether to print test timing information.
+    shuffle : bool
+        Whether to shuffle the test order.
+    durations : int, optional
+        The number of tests to track for timing information.
+
+    Returns
+    -------
+    int
+        The number of test failures.
+
+    """
     if parallel in {0, "auto"}:
         max_parallel = get_max_test_processes()
     else:
@@ -435,6 +508,9 @@ def collect_test_modules(start_at, start_after):
 
 
 def get_subprocess_args(options):
+    """
+
+    """
     subprocess_args = [sys.executable, __file__, "--settings=%s" % options.settings]
     if options.failfast:
         subprocess_args.append("--failfast")
@@ -455,6 +531,9 @@ def get_subprocess_args(options):
 
 
 def bisect_tests(bisection_label, options, test_labels, start_at, start_after):
+    """
+
+    """
     if not test_labels:
         test_labels = collect_test_modules(start_at, start_after)
 
@@ -504,6 +583,9 @@ def bisect_tests(bisection_label, options, test_labels, start_at, start_after):
 
 
 def paired_tests(paired_test, options, test_labels, start_at, start_after):
+    """
+
+    """
     if not test_labels:
         test_labels = collect_test_modules(start_at, start_after)
 

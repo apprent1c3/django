@@ -14,6 +14,9 @@ class CacheNode(Node):
         self.cache_name = cache_name
 
     def render(self, context):
+        """
+
+        """
         try:
             expire_time = self.expire_time_var.resolve(context)
         except VariableDoesNotExist:

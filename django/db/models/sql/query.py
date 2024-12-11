@@ -79,6 +79,9 @@ def get_paths_from_expression(expr):
 
 
 def get_children_from_q(q):
+    """
+
+    """
     for child in q.children:
         if isinstance(child, Node):
             yield from get_children_from_q(child)
@@ -92,6 +95,30 @@ def get_children_from_q(q):
 
 
 def get_child_with_renamed_prefix(prefix, replacement, child):
+    """
+
+    Renames a prefix in a database query child expression.
+
+    This function takes in a prefix to be replaced, a replacement prefix, and a child 
+    expression. It recursively traverses the child expression, replacing the prefix 
+    with the replacement in the following places:
+    - Node instances
+    - Tuple elements (lhs and rhs)
+    - F instances
+    - Source expressions of objects with a resolve_expression method
+
+    The function raises a ValueError if a QuerySet is passed as the child expression, 
+    as this is not supported within a FilteredRelation.
+
+    Args:
+        prefix (str): The prefix to be replaced.
+        replacement (str): The prefix to replace with.
+        child: The child expression to rename the prefix in.
+
+    Returns:
+        The child expression with the prefix replaced.
+
+    """
     from django.db.models.query import QuerySet
 
     if isinstance(child, Node):
@@ -195,6 +222,9 @@ class RawQuery:
         return self.sql % self.params_type(self.params)
 
     def _execute_query(self):
+        """
+
+        """
         connection = connections[self.using]
 
         # Adapt parameters to the database, as much as possible considering
@@ -291,6 +321,9 @@ class Query(BaseExpression):
     explain_info = None
 
     def __init__(self, model, alias_cols=True):
+        """
+
+        """
         self.model = model
         self.alias_refcount = {}
         # alias_map is the most important data structure regarding joins.
@@ -634,6 +667,9 @@ class Query(BaseExpression):
         return self.where
 
     def exists(self, limit=True):
+        """
+
+        """
         q = self.clone()
         if not (q.distinct and q.is_sliced):
             if q.group_by is True:
@@ -789,6 +825,9 @@ class Query(BaseExpression):
         self.extra_order_by = rhs.extra_order_by or self.extra_order_by
 
     def _get_defer_select_mask(self, opts, mask, select_mask=None):
+        """
+
+        """
         if select_mask is None:
             select_mask = {}
         select_mask[opts.pk] = {}
@@ -833,6 +872,9 @@ class Query(BaseExpression):
         return select_mask
 
     def _get_only_select_mask(self, opts, mask, select_mask=None):
+        """
+
+        """
         if select_mask is None:
             select_mask = {}
         select_mask[opts.pk] = {}
@@ -1202,6 +1244,13 @@ class Query(BaseExpression):
             self.selected[alias] = alias
 
     def resolve_expression(self, query, *args, **kwargs):
+        """
+        Resolve an expression within the context of a query, updating the internal state of the object accordingly.
+
+        This method creates a clone of the current object, applies the given query to the clone, and then recursively resolves any subqueries or combined queries. It also updates the annotations of the clone based on the resolved expressions.
+
+        The method returns the updated clone object, which includes resolved expressions and updated annotations. This allows for further processing or manipulation of the resolved query.
+        """
         clone = self.clone()
         # Subqueries need to use a different set of aliases than the outer query.
         clone.bump_prefix(query)
@@ -1662,6 +1711,9 @@ class Query(BaseExpression):
         return target_clause, needed_inner
 
     def add_filtered_relation(self, filtered_relation, alias):
+        """
+
+        """
         filtered_relation.alias = alias
         relation_lookup_parts, relation_field_parts, _ = self.solve_lookup_type(
             filtered_relation.relation_name
@@ -1982,6 +2034,9 @@ class Query(BaseExpression):
         yield from (expr.alias for expr in cls._gen_cols(exprs))
 
     def resolve_ref(self, name, allow_joins=True, reuse=None, summarize=False):
+        """
+
+        """
         annotation = self.annotations.get(name)
         if annotation is not None:
             if not allow_joins:
@@ -2457,6 +2512,9 @@ class Query(BaseExpression):
         return self.selected is not None
 
     def set_values(self, fields):
+        """
+
+        """
         self.select_related = False
         self.clear_deferred_loading()
         self.clear_select_fields()
@@ -2673,6 +2731,9 @@ class JoinPromoter:
     """
 
     def __init__(self, connector, num_children, negated):
+        """
+
+        """
         self.connector = connector
         self.negated = negated
         if self.negated:

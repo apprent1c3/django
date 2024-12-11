@@ -16,6 +16,9 @@ class SeleniumTests(AdminSeleniumTestCase):
         )
 
     def test_use_skip_link_to_content(self):
+        """
+
+        """
         from selenium.webdriver.common.action_chains import ActionChains
         from selenium.webdriver.common.by import By
         from selenium.webdriver.common.keys import Keys
@@ -68,6 +71,9 @@ class SeleniumTests(AdminSeleniumTestCase):
         self.assertEqual(self.selenium.switch_to.active_element, first_input)
 
     def test_dont_use_skip_link_to_content(self):
+        """
+
+        """
         from selenium.webdriver.common.by import By
         from selenium.webdriver.common.keys import Keys
 
@@ -97,6 +103,9 @@ class SeleniumTests(AdminSeleniumTestCase):
         )
 
     def test_skip_link_with_RTL_language_doesnt_create_horizontal_scrolling(self):
+        """
+
+        """
         from selenium.webdriver.common.by import By
         from selenium.webdriver.common.keys import Keys
 

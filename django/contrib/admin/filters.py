@@ -94,6 +94,9 @@ class SimpleListFilter(FacetsMixin, ListFilter):
     parameter_name = None
 
     def __init__(self, request, params, model, model_admin):
+        """
+
+        """
         super().__init__(request, params, model, model_admin)
         if self.parameter_name is None:
             raise ImproperlyConfigured(
@@ -146,6 +149,9 @@ class SimpleListFilter(FacetsMixin, ListFilter):
         return counts
 
     def choices(self, changelist):
+        """
+
+        """
         add_facets = changelist.add_facets
         facet_counts = self.get_facet_queryset(changelist) if add_facets else None
         yield {
@@ -221,6 +227,9 @@ class FieldListFilter(FacetsMixin, ListFilter):
 
 class RelatedFieldListFilter(FieldListFilter):
     def __init__(self, field, request, params, model, model_admin, field_path):
+        """
+
+        """
         other_model = get_model_from_relation(field)
         self.lookup_kwarg = "%s__%s__exact" % (field_path, field.target_field.name)
         self.lookup_kwarg_isnull = "%s__isnull" % field_path
@@ -286,6 +295,16 @@ class RelatedFieldListFilter(FieldListFilter):
         return counts
 
     def choices(self, changelist):
+        """
+        Generates a list of choices for a filter, including an \"All\" option and a list of specific choices.
+        Each choice is represented as a dictionary containing the following keys:
+            - 'selected': a boolean indicating whether the choice is currently selected
+            - 'query_string': the query string that would be used to select this choice
+            - 'display': the display text for this choice, which may include a count of matching items if facet support is enabled
+        If facet support is enabled, the display text for each choice will include the count of items that match that choice.
+        The function also includes an option to display an \"empty\" choice, which represents the absence of a value.
+        The \"empty\" choice will also include a count of matching items if facet support is enabled.
+        """
         add_facets = changelist.add_facets
         facet_counts = self.get_facet_queryset(changelist) if add_facets else None
         yield {
@@ -358,6 +377,9 @@ class BooleanFieldListFilter(FieldListFilter):
         }
 
     def choices(self, changelist):
+        """
+
+        """
         field_choices = dict(self.field.flatchoices)
         add_facets = changelist.add_facets
         facet_counts = self.get_facet_queryset(changelist) if add_facets else None
@@ -423,6 +445,9 @@ class ChoicesFieldListFilter(FieldListFilter):
         }
 
     def choices(self, changelist):
+        """
+
+        """
         add_facets = changelist.add_facets
         facet_counts = self.get_facet_queryset(changelist) if add_facets else None
         yield {
@@ -463,6 +488,9 @@ FieldListFilter.register(lambda f: bool(f.choices), ChoicesFieldListFilter)
 
 class DateFieldListFilter(FieldListFilter):
     def __init__(self, field, request, params, model, model_admin, field_path):
+        """
+
+        """
         self.field_generic = "%s__" % field_path
         self.date_params = {
             k: v[-1] for k, v in params.items() if k.startswith(self.field_generic)
@@ -563,6 +591,28 @@ FieldListFilter.register(lambda f: isinstance(f, models.DateField), DateFieldLis
 # more appropriate, and the AllValuesFieldListFilter won't get used for it.
 class AllValuesFieldListFilter(FieldListFilter):
     def __init__(self, field, request, params, model, model_admin, field_path):
+        """
+        Initialize a lookup object for a specific field in a model admin interface.
+
+        This initialization process sets up the lookup object with the necessary parameters,
+        including the field path, lookup values, and querysets. It also determines the available
+        choices for the lookup based on the model's queryset and the field's name.
+
+        The lookup object is configured to work with the provided model admin interface,
+        request, and parameters. It also handles cases where the model is the same as the parent
+        model, or where the field is a foreign key referencing a different model.
+
+        Attributes set during initialization include:
+            - lookup_kwarg: the keyword argument used for the lookup
+            - lookup_kwarg_isnull: the keyword argument used to check for null values
+            - lookup_val: the current lookup value
+            - lookup_val_isnull: the current lookup value for null checks
+            - empty_value_display: the display value for empty fields
+            - lookup_choices: the available choices for the lookup
+
+        This initialization process lays the foundation for performing lookups and filtering
+        querysets based on the specified field and parameters.
+        """
         self.lookup_kwarg = field_path
         self.lookup_kwarg_isnull = "%s__isnull" % field_path
         self.lookup_val = params.get(self.lookup_kwarg)
@@ -598,6 +648,9 @@ class AllValuesFieldListFilter(FieldListFilter):
         }
 
     def choices(self, changelist):
+        """
+
+        """
         add_facets = changelist.add_facets
         facet_counts = self.get_facet_queryset(changelist) if add_facets else None
         yield {

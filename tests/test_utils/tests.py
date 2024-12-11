@@ -162,6 +162,9 @@ class SkippingClassTestCase(TransactionTestCase):
 
     def test_skip_class_unless_db_feature(self):
         @skipUnlessDBFeature("__class__")
+        """
+
+        """
         class NotSkippedTests(TestCase):
             def test_dummy(self):
                 return
@@ -195,6 +198,9 @@ class SkippingClassTestCase(TransactionTestCase):
 
     def test_missing_default_databases(self):
         @skipIfDBFeature("missing")
+        """
+
+        """
         class MissingDatabases(SimpleTestCase):
             def test_assertion_error(self):
                 pass
@@ -246,6 +252,26 @@ class AssertNumQueriesUponConnectionTests(TransactionTestCase):
     available_apps = []
 
     def test_ignores_connection_configuration_queries(self):
+        """
+        Tests that connection configuration queries are ignored.
+
+        This test case verifies that Django's ORM query counting functionality
+        correctly ignores database configuration queries that occur when
+        establishing a connection. It achieves this by simulating a scenario
+        where a configuration query is executed when the connection is initially
+        established, and then checks that the query count remains accurate
+        when executing a subsequent query.
+
+        The test uses a mock patch to intercept the `ensure_connection` method
+        and inject a configuration query when the connection is first opened.
+        It then executes a simple query using the Django ORM and asserts that
+        the query count is correct, demonstrating that the configuration query
+        was ignored.
+
+        This test ensures that the query counting functionality provides an
+        accurate reflection of the actual database queries executed by the
+        application, even in the presence of connection configuration queries.
+        """
         real_ensure_connection = connection.ensure_connection
         connection.close()
 
@@ -354,6 +380,9 @@ class AssertQuerySetEqualTests(TestCase):
         )
 
     def test_maxdiff(self):
+        """
+
+        """
         names = ["Joe Smith %s" % i for i in range(20)]
         Person.objects.bulk_create([Person(name=name) for name in names])
         names.append("Extra Person")
@@ -421,6 +450,9 @@ class CaptureQueriesContextManagerTests(TestCase):
                 raise TypeError
 
     def test_with_client(self):
+        """
+
+        """
         with CaptureQueriesContext(connection) as captured_queries:
             self.client.get("/test_utils/get_person/%s/" % self.person_pk)
         self.assertEqual(len(captured_queries), 1)
@@ -479,6 +511,9 @@ class AssertNumQueriesContextManagerTests(TestCase):
 @override_settings(ROOT_URLCONF="test_utils.urls")
 class AssertTemplateUsedContextManagerTests(SimpleTestCase):
     def test_usage(self):
+        """
+
+        """
         with self.assertTemplateUsed("template_used/base.html"):
             render_to_string("template_used/base.html")
 
@@ -496,6 +531,9 @@ class AssertTemplateUsedContextManagerTests(SimpleTestCase):
             render_to_string("template_used/base.html")
 
     def test_nested_usage(self):
+        """
+
+        """
         with self.assertTemplateUsed("template_used/base.html"):
             with self.assertTemplateUsed("template_used/include.html"):
                 render_to_string("template_used/include.html")
@@ -522,6 +560,9 @@ class AssertTemplateUsedContextManagerTests(SimpleTestCase):
             pass
 
     def test_error_message(self):
+        """
+
+        """
         msg = "No templates used to render the response"
         with self.assertRaisesMessage(AssertionError, msg):
             with self.assertTemplateUsed("template_used/base.html"):
@@ -554,6 +595,20 @@ class AssertTemplateUsedContextManagerTests(SimpleTestCase):
                 template.render(Context())
 
     def test_msg_prefix(self):
+        """
+        Tests the functionality of the assertTemplateUsed method with a custom message prefix.
+
+        This test case verifies that the correct error messages are raised when the expected
+        template is not used to render the response. It checks the error messages with and
+        without the 'msg_prefix' parameter, ensuring that the prefix is correctly appended
+        to the error message. Additionally, it tests the case where a different template is
+        used, verifying that the actual template(s) used are included in the error message.
+
+        The test scenarios cover different ways of calling the assertTemplateUsed method,
+        including using the 'template_name' parameter and passing the prefix as 'msg_prefix'.
+        The expected error messages are checked to ensure they match the expected format
+        and content, providing a robust test of the method's behavior in various situations.
+        """
         msg_prefix = "Prefix"
         msg = f"{msg_prefix}: No templates used to render the response"
         with self.assertRaisesMessage(AssertionError, msg):
@@ -595,6 +650,9 @@ class AssertTemplateUsedContextManagerTests(SimpleTestCase):
                 render_to_string("template_used/base.html")
 
     def test_failure(self):
+        """
+
+        """
         msg = "response and/or template_name argument must be provided"
         with self.assertRaisesMessage(TypeError, msg):
             with self.assertTemplateUsed():
@@ -633,6 +691,9 @@ class AssertTemplateUsedContextManagerTests(SimpleTestCase):
 
 class HTMLEqualTests(SimpleTestCase):
     def test_html_parser(self):
+        """
+
+        """
         element = parse_html("<div><p>Hello</p></div>")
         self.assertEqual(len(element.children), 1)
         self.assertEqual(element.children[0].name, "p")
@@ -665,6 +726,9 @@ class HTMLEqualTests(SimpleTestCase):
         self.assertEqual(dom.children[0], "<p>foo</p> '</scr'+'ipt>' <span>bar</span>")
 
     def test_void_elements(self):
+        """
+
+        """
         for tag in VOID_ELEMENTS:
             with self.subTest(tag):
                 dom = parse_html("<p>Hello <%s> world</p>" % tag)
@@ -680,6 +744,9 @@ class HTMLEqualTests(SimpleTestCase):
                 self.assertEqual(dom[2], "world")
 
     def test_simple_equal_html(self):
+        """
+
+        """
         self.assertHTMLEqual("", "")
         self.assertHTMLEqual("<p></p>", "<p></p>")
         self.assertHTMLEqual("<p></p>", " <p> </p> ")
@@ -749,6 +816,9 @@ class HTMLEqualTests(SimpleTestCase):
                 self.assertHTMLEqual(html1, html2)
 
     def test_boolean_attribute(self):
+        """
+
+        """
         html1 = "<input checked>"
         html2 = '<input checked="">'
         html3 = '<input checked="checked">'
@@ -851,6 +921,22 @@ class HTMLEqualTests(SimpleTestCase):
 
     def test_html_contain(self):
         # equal html contains each other
+        """
+        Tests whether HTML content is contained within another HTML structure.
+
+        This function checks various scenarios to verify the containment relationship between different HTML documents, 
+        including documents with and without closing tags, nested tags, and documents with multiple child elements. 
+        The test cases cover both symmetric and asymmetric containment, ensuring that the 'in' operator works as expected 
+        for HTML documents represented as parsed DOM objects.
+
+        The test cases verify that:
+        - A document without a closing tag is considered contained within its corresponding document with a closing tag.
+        - A document with a closing tag is considered contained within its corresponding document without a closing tag.
+        - A document is considered contained within another document that has additional nested tags.
+        - Two identical documents are considered to contain each other.
+        - A document with a subset of the elements of another document is considered contained within that document.
+
+        """
         dom1 = parse_html("<p>foo")
         dom2 = parse_html("<p>foo</p>")
         self.assertIn(dom1, dom2)
@@ -876,6 +962,9 @@ class HTMLEqualTests(SimpleTestCase):
 
     def test_count(self):
         # equal html contains each other one time
+        """
+
+        """
         dom1 = parse_html("<p>foo")
         dom2 = parse_html("<p>foo</p>")
         self.assertEqual(dom1.count(dom2), 1)
@@ -959,6 +1048,24 @@ class HTMLEqualTests(SimpleTestCase):
             self.assertHTMLEqual("<p><foo></p>", "<p>&#60;foo&#62;</p>")
 
     def test_contains_html(self):
+        """
+
+        Tests the functionality of the response object to verify the presence or absence of HTML elements.
+
+        This function evaluates the HttpResponse object's content for specific HTML tags, 
+        demonstrating the ability to detect both plain text and HTML elements.
+
+        The test covers four main scenarios:
+        - Searching for HTML elements in plain text (without considering HTML structure)
+        - Searching for HTML elements while treating the content as HTML (parsing HTML structure)
+        - Handling invalid HTML in the response
+        - Searching for non-existent HTML elements in the response
+
+        The scenarios involve asserting the presence or absence of a form element and an input element 
+        with specific attributes in the response object, and checking for expected assertions when 
+        dealing with invalid HTML or nonexistent elements.
+
+        """
         response = HttpResponse(
             """<body>
         This is a form: <form method="get">
@@ -1750,6 +1857,9 @@ class OverrideSettingsTests(SimpleTestCase):
         reverse("second")
 
     def test_urlconf_cache(self):
+        """
+
+        """
         with self.assertRaises(NoReverseMatch):
             reverse("first")
         with self.assertRaises(NoReverseMatch):
@@ -2036,6 +2146,9 @@ class CaptureOnCommitCallbacksTests(TestCase):
         self.assertEqual(callbacks, [branch_1, branch_2, leaf_3, leaf_1, leaf_2])
 
     def test_execute_robust(self):
+        """
+
+        """
         class MyException(Exception):
             pass
 
@@ -2099,6 +2212,9 @@ class DisallowedDatabaseQueriesTests(SimpleTestCase):
             next(Car.objects.iterator())
 
     def test_disallowed_thread_database_connection(self):
+        """
+
+        """
         expected_message = (
             "Database threaded connections to 'default' are not allowed in "
             "SimpleTestCase subclasses. Either subclass TestCase or TransactionTestCase"
@@ -2132,6 +2248,9 @@ class AllowedDatabaseQueriesTests(SimpleTestCase):
         next(Car.objects.iterator(), None)
 
     def test_allowed_threaded_database_queries(self):
+        """
+
+        """
         connections_dict = {}
 
         def thread_func():
@@ -2236,6 +2355,9 @@ class IsolatedAppsTests(SimpleTestCase):
 
     @isolate_apps("test_utils", kwarg_name="method_apps")
     def test_nested(self, method_apps):
+        """
+
+        """
         class MethodDecoration(models.Model):
             pass
 
@@ -2280,6 +2402,9 @@ class TestContextDecoratorTests(SimpleTestCase):
         self.assertTrue(mock_disable.called)
 
     def test_cleanups_run_after_tearDown(self):
+        """
+
+        """
         calls = []
 
         class SaveCallsDecorator(TestContextDecorator):

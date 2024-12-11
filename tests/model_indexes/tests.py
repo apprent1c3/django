@@ -14,6 +14,9 @@ class SimpleIndexesTests(SimpleTestCase):
         self.assertEqual(models.Index.suffix, "idx")
 
     def test_repr(self):
+        """
+
+        """
         index = models.Index(fields=["title"])
         named_index = models.Index(fields=["title"], name="title_idx")
         multi_col_index = models.Index(fields=["title", "author"])
@@ -174,6 +177,9 @@ class SimpleIndexesTests(SimpleTestCase):
             models.Index(fields=["field"], include=["other"])
 
     def test_name_auto_generation(self):
+        """
+
+        """
         index = models.Index(fields=["author"])
         index.set_name_with_model(Book)
         self.assertEqual(index.name, "model_index_author_0f5565_idx")
@@ -309,6 +315,9 @@ class SimpleIndexesTests(SimpleTestCase):
 class IndexesTests(TestCase):
     @skipUnlessDBFeature("supports_tablespaces")
     def test_db_tablespace(self):
+        """
+
+        """
         editor = connection.schema_editor()
         # Index with db_tablespace attribute.
         for fields in [
@@ -348,6 +357,9 @@ class IndexesTests(TestCase):
     @skipUnlessDBFeature("supports_tablespaces")
     def test_func_with_tablespace(self):
         # Functional index with db_tablespace attribute.
+        """
+
+        """
         index = models.Index(
             Lower("shortcut").desc(),
             name="functional_tbls",

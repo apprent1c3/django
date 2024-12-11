@@ -112,6 +112,30 @@ class HttpResponseBase:
     def __init__(
         self, content_type=None, status=None, reason=None, charset=None, headers=None
     ):
+        """
+        Initializes the Response object.
+
+        This method sets up the initial state of the Response object, including its content type, HTTP status code, reason phrase, and headers.
+        It ensures that the 'Content-Type' header is properly set, and that the provided HTTP status code is valid.
+
+        The parameters provided to this method allow for customization of the response, including the content type, status code, reason phrase, and character encoding.
+        Any headers provided will be used to initialize the response's headers, with the exception of 'Content-Type' which will be overridden if a content type is provided.
+
+        Args:
+            content_type (str, optional): The content type of the response.
+            status (int, optional): The HTTP status code of the response.
+            reason (str, optional): The reason phrase of the response.
+            charset (str, optional): The character encoding of the response.
+            headers (dict, optional): A dictionary of HTTP headers.
+
+        Raises:
+            ValueError: If the 'headers' dictionary contains 'Content-Type' when a content type is provided, or if the HTTP status code is not an integer from 100 to 599.
+            TypeError: If the HTTP status code is not an integer.
+
+        Note:
+            The 'Content-Type' header will default to 'text/html' with the provided charset if no content type is specified and no headers are provided.
+
+        """
         self.headers = ResponseHeaders(headers)
         self._charset = charset
         if "Content-Type" not in self.headers:
@@ -395,6 +419,16 @@ class HttpResponse(HttpResponseBase):
     @content.setter
     def content(self, value):
         # Consume iterators upon assignment to allow repeated iteration.
+        """
+        Sets the content of the object, handling both iterable and non-iterable values.
+
+        The function takes in a value, which can be a single item or an iterable (such as a list or generator) of items.
+        If the value is an iterable (but not a string, bytes, or memory view), it is processed as a sequence of items to be joined together.
+        Each item in the sequence is converted to bytes and then joined into a single byte string.
+        If the iterable has a `close` method (e.g., a file object), it is closed after its contents have been processed.
+        If the value is not an iterable, it is directly converted to bytes.
+        The resulting byte string is then stored in the object's internal container.
+        """
         if hasattr(value, "__iter__") and not isinstance(
             value, (bytes, memoryview, str)
         ):
@@ -491,6 +525,9 @@ class StreamingHttpResponse(HttpResponseBase):
             self._resource_closers.append(value.close)
 
     def __iter__(self):
+        """
+
+        """
         try:
             return iter(self.streaming_content)
         except TypeError:

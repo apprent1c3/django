@@ -97,6 +97,9 @@ class IntegerFieldTests(TestCase):
             instance.full_clean()
 
     def test_backend_range_min_value_lookups(self):
+        """
+
+        """
         min_value = self.backend_range[0]
         if min_value is None:
             raise SkipTest("Backend doesn't define an integer min value.")
@@ -117,6 +120,9 @@ class IntegerFieldTests(TestCase):
             self.model.objects.get(value__lte=underflow_value)
 
     def test_backend_range_max_value_lookups(self):
+        """
+
+        """
         max_value = self.backend_range[-1]
         if max_value is None:
             raise SkipTest("Backend doesn't define an integer max value.")
@@ -320,6 +326,9 @@ class ValidationTests(SimpleTestCase):
             f.clean("3", None)
 
     def test_callable_choices(self):
+        """
+
+        """
         def get_choices():
             return {i: str(i) for i in range(3)}
 

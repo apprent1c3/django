@@ -47,6 +47,9 @@ def normalize_whitespace(string):
 
 
 def normalize_attributes(attributes):
+    """
+
+    """
     normalized = []
     for name, value in attributes:
         if name == "class" and value:
@@ -74,6 +77,9 @@ class Element:
         self.children = []
 
     def append(self, element):
+        """
+
+        """
         if isinstance(element, str):
             element = normalize_whitespace(element)
             if self.children and isinstance(self.children[-1], str):
@@ -90,6 +96,9 @@ class Element:
             self.children.append(element)
 
     def finalize(self):
+        """
+
+        """
         def rstrip_last_element(children):
             if children and isinstance(children[-1], str):
                 children[-1] = children[-1].rstrip()
@@ -116,6 +125,9 @@ class Element:
         return hash((self.name, *self.attributes))
 
     def _count(self, element, count=True):
+        """
+
+        """
         if not isinstance(element, str) and self == element:
             return 1
         if isinstance(element, RootElement) and self.children == element.children:
@@ -164,6 +176,14 @@ class Element:
         return self.children[key]
 
     def __str__(self):
+        """
+        ..: Returns a string representation of the object in XML format.
+            The string includes the object's name and attributes, and if the object has children, 
+            they are included in the representation, with any string children escaped for 
+            safety and non-string children converted to strings. The resulting string is a 
+            well-formed XML element, with the object's name as the tag and its attributes 
+            included in the opening tag.
+        """
         output = "<%s" % self.name
         for key, value in self.attributes:
             if value is not None:

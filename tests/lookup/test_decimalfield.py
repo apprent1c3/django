@@ -7,6 +7,9 @@ from .models import Product, Stock
 class DecimalFieldLookupTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        """
         cls.p1 = Product.objects.create(name="Product1", qty_target=10)
         Stock.objects.create(product=cls.p1, qty_available=5)
         Stock.objects.create(product=cls.p1, qty_available=6)

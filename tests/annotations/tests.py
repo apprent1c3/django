@@ -52,6 +52,9 @@ from .models import (
 class NonAggregateAnnotationTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        """
         cls.a1 = Author.objects.create(name="Adrian Holovaty", age=34)
         cls.a2 = Author.objects.create(name="Jacob Kaplan-Moss", age=35)
         cls.a3 = Author.objects.create(name="Brad Dayley", age=45)
@@ -390,6 +393,9 @@ class NonAggregateAnnotationTestCase(TestCase):
 
     @skipUnlessDBFeature("can_distinct_on_fields")
     def test_distinct_on_with_annotation(self):
+        """
+
+        """
         store = Store.objects.create(
             name="test store",
             original_opening=datetime.datetime.now(),
@@ -1171,6 +1177,9 @@ class NonAggregateAnnotationTestCase(TestCase):
 class AliasTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        """
         cls.a1 = Author.objects.create(name="Adrian Holovaty", age=34)
         cls.a2 = Author.objects.create(name="Jacob Kaplan-Moss", age=35)
         cls.a3 = Author.objects.create(name="James Bennett", age=34)

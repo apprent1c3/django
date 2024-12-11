@@ -20,6 +20,9 @@ def user_passes_test(
     """
 
     def decorator(view_func):
+        """
+
+        """
         def _redirect_to_login(request):
             path = request.build_absolute_uri()
             resolved_login_url = resolve_url(login_url or settings.LOGIN_URL)
@@ -107,6 +110,9 @@ def permission_required(perm, login_url=None, raise_exception=False):
         perms = perm
 
     def decorator(view_func):
+        """
+
+        """
         if asyncio.iscoroutinefunction(view_func):
 
             async def check_perms(user):

@@ -95,6 +95,9 @@ class DecimalSerializer(BaseSerializer):
 class DeconstructableSerializer(BaseSerializer):
     @staticmethod
     def serialize_deconstructed(path, args, kwargs):
+        """
+
+        """
         name, imports = DeconstructableSerializer._serialize_path(path)
         strings = []
         for arg in args:
@@ -137,6 +140,17 @@ class DictionarySerializer(BaseSerializer):
 
 class EnumSerializer(BaseSerializer):
     def serialize(self):
+        """
+
+        Serializes the enum value into a string representation.
+
+        This method constructs a string that represents the enum value, including its module and class name. 
+        If the enum is a Flag, it decomposes the value into its constituent members and includes them in the string.
+        The resulting string is in the format 'module.enum_class[member_name]', with members separated by ' | '.
+
+        The method returns a tuple containing the serialized string and a set of import statements required to use the enum.
+
+        """
         enum_class = self.value.__class__
         module = enum_class.__module__
         if issubclass(enum_class, enum.Flag):
@@ -172,6 +186,9 @@ class FrozensetSerializer(BaseUnorderedSequenceSerializer):
 
 class FunctionTypeSerializer(BaseSerializer):
     def serialize(self):
+        """
+
+        """
         if getattr(self.value, "__self__", None) and isinstance(
             self.value.__self__, type
         ):
@@ -316,6 +333,18 @@ class TupleSerializer(BaseSequenceSerializer):
 
 class TypeSerializer(BaseSerializer):
     def serialize(self):
+        """
+
+        Serializes an object into a string representation with required imports.
+
+        This function takes the object being held by the current instance and converts it into a string that could be used in a Python script to recreate the object.
+        It handles special cases such as NoneType and Django models, and for other objects, it includes the module name if the object is not a built-in type.
+
+        The function returns a tuple containing the string representation of the object and a set of import statements required to use the string representation.
+
+        The string representation is designed to be a valid Python expression that could be used to recreate the original object, while the import statements provide the necessary imports to make the string representation valid.
+
+        """
         special_cases = [
             (models.Model, "models.Model", ["from django.db import models"]),
             (types.NoneType, "types.NoneType", ["import types"]),
@@ -377,6 +406,9 @@ class Serializer:
 
 
 def serializer_factory(value):
+    """
+
+    """
     if isinstance(value, Promise):
         value = str(value)
     elif isinstance(value, LazyObject):

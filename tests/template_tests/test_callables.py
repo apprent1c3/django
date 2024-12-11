@@ -11,6 +11,9 @@ class CallableVariablesTests(TestCase):
         super().setUpClass()
 
     def test_callable(self):
+        """
+
+        """
         class Doodad:
             def __init__(self, value):
                 self.num_calls = 0
@@ -39,6 +42,9 @@ class CallableVariablesTests(TestCase):
         self.assertEqual(my_doodad.num_calls, 2)
 
     def test_alters_data(self):
+        """
+
+        """
         class Doodad:
             alters_data = True
 
@@ -65,6 +71,9 @@ class CallableVariablesTests(TestCase):
         self.assertEqual(my_doodad.num_calls, 0)
 
     def test_alters_data_propagation(self):
+        """
+
+        """
         class GrandParentLeft(AltersData):
             def my_method(self):
                 return 42
@@ -127,6 +136,19 @@ class CallableVariablesTests(TestCase):
         self.assertEqual(t.render(c), "104")
 
     def test_do_not_call(self):
+        """
+
+        Tests the behavior of the templating engine when encountering an object marked
+        with the 'do_not_call_in_templates' attribute. This attribute is used to prevent
+        the templating engine from calling the object as a function, even if the object
+        is callable.
+
+        The purpose of this test is to ensure that the templating engine respects the
+        'do_not_call_in_templates' attribute and does not attempt to call the object,
+        instead only accessing its attributes directly. This helps prevent unexpected
+        behavior or side effects when working with callable objects in templates.
+
+        """
         class Doodad:
             do_not_call_in_templates = True
 
@@ -159,6 +181,9 @@ class CallableVariablesTests(TestCase):
         # ``alters_data`` attribute will not make any difference in the
         # template system's behavior.
 
+        """
+        Tests that a function marked as `do_not_call_in_templates` and `alters_data` is not executed when its attribute is accessed or its return value is indirectly referenced in a template, and that its internal state remains unchanged. The test verifies that accessing the function's attribute returns the expected value, and that attempting to access the function's return value does not result in the function being called, thus preserving the integrity of the data.
+        """
         class Doodad:
             do_not_call_in_templates = True
             alters_data = True

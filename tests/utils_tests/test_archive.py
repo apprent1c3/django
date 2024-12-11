@@ -31,6 +31,9 @@ class TestArchive(unittest.TestCase):
         self.addCleanup(os.chdir, old_cwd)
 
     def test_extract_function(self):
+        """
+
+        """
         with os.scandir(self.testdir) as entries:
             for entry in entries:
                 with self.subTest(entry.name), tempfile.TemporaryDirectory() as tmpdir:

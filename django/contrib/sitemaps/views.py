@@ -47,6 +47,9 @@ def index(
     content_type="application/xml",
     sitemap_url_name="django.contrib.sitemaps.views.sitemap",
 ):
+    """
+
+    """
     req_protocol = request.scheme
     req_site = get_current_site(request)
 
@@ -96,6 +99,9 @@ def sitemap(
     template_name="sitemap.xml",
     content_type="application/xml",
 ):
+    """
+
+    """
     req_protocol = request.scheme
     req_site = get_current_site(request)
 

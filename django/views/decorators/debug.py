@@ -38,6 +38,9 @@ def sensitive_variables(*variables):
         )
 
     def decorator(func):
+        """
+
+        """
         if iscoroutinefunction(func):
             sensitive_variables_wrapper = func
 
@@ -110,6 +113,9 @@ def sensitive_post_parameters(*parameters):
         )
 
     def decorator(view):
+        """
+
+        """
         if iscoroutinefunction(view):
 
             @wraps(view)

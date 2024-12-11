@@ -21,6 +21,9 @@ class Command(BaseCommand):
     requires_system_checks = []
 
     def add_arguments(self, parser):
+        """
+
+        """
         parser.add_argument(
             "--skip-checks",
             action="store_true",
@@ -96,6 +99,9 @@ class Command(BaseCommand):
 
     @no_translations
     def handle(self, *args, **options):
+        """
+
+        """
         database = options["database"]
         if not options["skip_checks"]:
             self.check(databases=[database])
@@ -391,6 +397,15 @@ class Command(BaseCommand):
         )
 
     def migration_progress_callback(self, action, migration=None, fake=False):
+        """
+        :param action: the type of action being performed (e.g. 'apply_start', 'apply_success', etc.)
+        :param migration: the migration being applied or unapplied (optional)
+        :param fake: whether the action is being faked (i.e. not actually applied)
+        :returns: None
+        :raises: None
+
+        Provides feedback to the user about the progress of a migration action. The action parameter determines the type of feedback to provide. If verbosity is high enough, the function will write a message to the console indicating the start and success of the action, including the elapsed time if compute_time is True. The fake parameter determines whether to indicate that the action was faked.
+        """
         if self.verbosity >= 1:
             compute_time = self.verbosity > 1
             if action == "apply_start":

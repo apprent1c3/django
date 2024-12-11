@@ -35,6 +35,9 @@ class AdminTemplateTagsTest(AdminViewBasicTestCase):
         self.assertIs(template_context["show_save"], True)
 
     def test_submit_row_save_as_new_add_permission_required(self):
+        """
+
+        """
         change_user = User.objects.create_user(
             username="change_user", password="secret", is_staff=True
         )
@@ -142,6 +145,9 @@ class DateHierarchyTests(TestCase):
         )
 
     def test_choice_links(self):
+        """
+
+        """
         modeladmin = ModelAdmin(Question, site)
         modeladmin.date_hierarchy = "posted"
 
@@ -188,6 +194,9 @@ class DateHierarchyTests(TestCase):
                 self.assertEqual(choices, expected_choices)
 
     def test_choice_links_datetime(self):
+        """
+
+        """
         modeladmin = ModelAdmin(Question, site)
         modeladmin.date_hierarchy = "expires"
         Question.objects.bulk_create(

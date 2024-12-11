@@ -76,6 +76,9 @@ class FormsErrorMessagesTestCase(SimpleTestCase, AssertFormErrorsMixin):
         self.assertFormErrors(["MAX VALUE IS 10"], f.clean, "11")
 
     def test_decimalfield(self):
+        """
+
+        """
         e = {
             "required": "REQUIRED",
             "invalid": "INVALID",
@@ -225,6 +228,22 @@ class FormsErrorMessagesTestCase(SimpleTestCase, AssertFormErrorsMixin):
         self.assertFormErrors(["INVALID IP ADDRESS"], f.clean, "127.0.0")
 
     def test_subclassing_errorlist(self):
+        """
+
+        Tests the custom subclassing of the ErrorList class in Django forms.
+
+        This test case verifies that the ErrorList class can be successfully subclassed
+        and used to render form errors in a custom format. It checks the rendering of
+        both field-specific and non-field errors, and ensures that the custom error
+        format is used when the subclassed ErrorList class is specified.
+
+        The test covers the following scenarios:
+        - Field-specific errors are rendered correctly with the default ErrorList.
+        - Non-field errors are rendered correctly with the default ErrorList.
+        - Field-specific errors are rendered correctly with a custom ErrorList subclass.
+        - Non-field errors are rendered correctly with a custom ErrorList subclass.
+
+        """
         class TestForm(Form):
             first_name = CharField()
             last_name = CharField()
@@ -272,6 +291,9 @@ class FormsErrorMessagesTestCase(SimpleTestCase, AssertFormErrorsMixin):
         # messages might be presented in non-HTML contexts. Instead, the
         # message is marked for escaping by the template engine, so a template
         # is needed to trigger the escaping.
+        """
+
+        """
         t = Template("{{ form.errors }}")
 
         class SomeForm(Form):
@@ -311,6 +333,16 @@ class FormsErrorMessagesTestCase(SimpleTestCase, AssertFormErrorsMixin):
 class ModelChoiceFieldErrorMessagesTestCase(TestCase, AssertFormErrorsMixin):
     def test_modelchoicefield(self):
         # Create choices for the model choice field tests below.
+        """
+
+        Tests the functionality of ModelChoiceField and ModelMultipleChoiceField.
+
+        Verifies that these fields behave as expected when given valid and invalid input,
+        including the handling of required fields, invalid choices, and improper input types.
+
+        Ensures that the error messages are displayed correctly for each of these cases.
+
+        """
         ChoiceModel.objects.create(pk=1, name="a")
         ChoiceModel.objects.create(pk=2, name="b")
         ChoiceModel.objects.create(pk=3, name="c")

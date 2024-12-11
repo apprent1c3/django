@@ -40,6 +40,9 @@ class CsrfProtectTests(CsrfTestMixin, SimpleTestCase):
 
     def test_csrf_protect_decorator(self):
         @csrf_protect
+        """
+
+        """
         def sync_view(request):
             return HttpResponse()
 
@@ -55,6 +58,16 @@ class CsrfProtectTests(CsrfTestMixin, SimpleTestCase):
 
     async def test_csrf_protect_decorator_async_view(self):
         @csrf_protect
+        """
+
+        Tests the functionality of the csrf_protect decorator when applied to an asynchronous view.
+
+        This test case verifies that the decorator correctly processes the CSRF token for the view,
+        allowing requests with valid tokens to proceed and rejecting requests with invalid or missing tokens.
+        It checks for the expected HTTP response status codes and ensures that the CSRF processing flag is set accordingly.
+        Additionally, it confirms that a warning log is generated when a request with an invalid or missing token is received.
+
+        """
         async def async_view(request):
             return HttpResponse()
 
@@ -86,6 +99,9 @@ class RequiresCsrfTokenTests(CsrfTestMixin, SimpleTestCase):
 
     def test_requires_csrf_token_decorator(self):
         @requires_csrf_token
+        """
+
+        """
         def sync_view(request):
             return HttpResponse()
 
@@ -101,6 +117,9 @@ class RequiresCsrfTokenTests(CsrfTestMixin, SimpleTestCase):
 
     async def test_requires_csrf_token_decorator_async_view(self):
         @requires_csrf_token
+        """
+
+        """
         async def async_view(request):
             return HttpResponse()
 
@@ -132,6 +151,9 @@ class EnsureCsrfCookieTests(CsrfTestMixin, SimpleTestCase):
 
     def test_ensure_csrf_cookie_decorator(self):
         @ensure_csrf_cookie
+        """
+
+        """
         def sync_view(request):
             return HttpResponse()
 
@@ -147,6 +169,9 @@ class EnsureCsrfCookieTests(CsrfTestMixin, SimpleTestCase):
 
     async def test_ensure_csrf_cookie_decorator_async_view(self):
         @ensure_csrf_cookie
+        """
+
+        """
         async def async_view(request):
             return HttpResponse()
 

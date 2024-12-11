@@ -290,6 +290,9 @@ class LogEntryTests(TestCase):
 
     # RemovedInDjango60Warning.
     def test_log_action_fallback(self):
+        """
+
+        """
         LogEntry.objects2 = InheritedLogEntryManager()
         queryset = Article.objects.all().order_by("-id")
         content_type = ContentType.objects.get_for_model(self.a1)
@@ -406,6 +409,9 @@ class LogEntryTests(TestCase):
                 self.assertEqual(log.get_action_flag_display(), display_name)
 
     def test_hook_get_log_entries(self):
+        """
+
+        """
         LogEntry.objects.log_actions(
             self.user.pk,
             [self.a1],

@@ -164,6 +164,25 @@ class LazyObjectTestCase(unittest.TestCase):
             self.assertIn(self.lazy_wrap(needle), self.lazy_wrap(haystack))
 
     def test_getitem(self):
+        """
+
+        Test the functionality of the __getitem__ method of lazy-wrapped objects.
+
+        This test case checks the correctness of accessing elements from both lists and dictionaries
+        that have been wrapped using the lazy_wrap method. It verifies that integer indexing and slicing
+        work correctly for lists, and key-based lookup works correctly for dictionaries. Additionally,
+        it ensures that out-of-range indexing for lists and unknown key lookup for dictionaries raise
+        the expected exceptions.
+
+        The test covers a range of scenarios, including:
+        - Positive integer indexing for lists
+        - Negative integer indexing for lists
+        - Slicing for lists
+        - Key-based lookup for dictionaries
+        - Out-of-range indexing for lists, which should raise an IndexError
+        - Unknown key lookup for dictionaries, which should raise a KeyError
+
+        """
         obj_list = self.lazy_wrap([1, 2, 3])
         obj_dict = self.lazy_wrap({"a": 1, "b": 2, "c": 3})
 
@@ -193,6 +212,17 @@ class LazyObjectTestCase(unittest.TestCase):
         self.assertEqual(obj_dict, {"a": 100, "b": 2, "c": 3, "d": 400})
 
     def test_delitem(self):
+        """
+
+        Tests the functionality of deleting items from lazily wrapped objects.
+
+        This function checks that items can be successfully deleted from lists and dictionaries
+        after they have been wrapped. It verifies that the resulting objects are as expected
+        after deletion. Additionally, it tests that attempting to delete non-existent items
+        from lists and dictionaries raises the appropriate error (IndexError and KeyError,
+        respectively).
+
+        """
         obj_list = self.lazy_wrap([1, 2, 3])
         obj_dict = self.lazy_wrap({"a": 1, "b": 2, "c": 3})
 
@@ -361,6 +391,9 @@ class SimpleLazyObjectTestCase(LazyObjectTestCase):
 
     def test_trace(self):
         # See ticket #19456
+        """
+
+        """
         old_trace_func = sys.gettrace()
         try:
 
@@ -375,6 +408,9 @@ class SimpleLazyObjectTestCase(LazyObjectTestCase):
             sys.settrace(old_trace_func)
 
     def test_none(self):
+        """
+
+        """
         i = [0]
 
         def f():
@@ -389,6 +425,9 @@ class SimpleLazyObjectTestCase(LazyObjectTestCase):
 
     def test_dict(self):
         # See ticket #18447
+        """
+
+        """
         lazydict = SimpleLazyObject(lambda: {"one": 1})
         self.assertEqual(lazydict["one"], 1)
         lazydict["one"] = -1

@@ -65,6 +65,9 @@ class DateTimeFieldTest(SimpleTestCase):
                 self.assertEqual(f.clean(value), expected_datetime)
 
     def test_datetimefield_clean_invalid(self):
+        """
+
+        """
         f = DateTimeField()
         msg = "'Enter a valid date/time.'"
         with self.assertRaisesMessage(ValidationError, msg):

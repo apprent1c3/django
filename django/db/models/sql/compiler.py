@@ -329,6 +329,9 @@ class SQLCompiler:
         return ret, klass_info, annotations
 
     def _order_by_pairs(self):
+        """
+
+        """
         if self.query.extra_order_by:
             ordering = self.query.extra_order_by
         elif not self.query.default_ordering:
@@ -568,6 +571,9 @@ class SQLCompiler:
         return sql, params
 
     def get_combinator_sql(self, combinator, all):
+        """
+
+        """
         features = self.connection.features
         compilers = [
             query.get_compiler(self.using, self.connection, self.elide_empty)
@@ -621,6 +627,9 @@ class SQLCompiler:
         return result, params
 
     def _get_combinator_part_sql(self, compiler):
+        """
+
+        """
         features = self.connection.features
         # If the columns list is limited, then all combined queries
         # must have the same columns list. Set the selects defined on
@@ -647,6 +656,16 @@ class SQLCompiler:
         return part_sql, part_args
 
     def get_qualify_sql(self):
+        """
+        **:return:** A SQL query string and parameters for the `QUALIFY` clause.
+        **:rtype:** tuple
+
+        Generate the SQL query string for the `QUALIFY` clause.
+
+        This method constructs a SQL query by combining the inner query with the `QUALIFY` clause.
+        It handles where and having conditions, collects replacements for expressions, and processes the order by clause.
+        The resulting SQL query string and parameters are returned as a tuple.
+        """
         where_parts = []
         if self.where:
             where_parts.append(self.where)
@@ -667,6 +686,9 @@ class SQLCompiler:
         replacements = {}
 
         def collect_replacements(expressions):
+            """
+
+            """
             while expressions:
                 expr = expressions.pop()
                 if expr in replacements:
@@ -1752,6 +1774,27 @@ class SQLInsertCompiler(SQLCompiler):
     def as_sql(self):
         # We don't need quote_name_unless_alias() here, since these are all
         # going to be column names (so we can avoid the extra overhead).
+        """
+        )..as_sql
+        ----------------
+
+        Generate the SQL query for inserting objects into a database table.
+
+        This method takes into account various factors such as the presence of fields, on-conflict behavior, and the capabilities of the database connection. It returns a list of tuples, where each tuple contains the generated SQL query and the corresponding parameters.
+
+        The SQL query is constructed based on the fields and objects provided, and it includes the necessary placeholders and values for the insert operation. If the database connection supports bulk inserts, the method generates a single SQL query for all objects. Otherwise, it generates separate queries for each object.
+
+        The method also handles cases where the database connection supports returning columns or rows from the insert operation, and it includes the necessary syntax for these cases.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        list[tuple[str, tuple]]
+            A list of tuples, where each tuple contains the generated SQL query and the corresponding parameters.
+        """
         qn = self.connection.ops.quote_name
         opts = self.query.get_meta()
         insert_statement = self.connection.ops.insert_statement(
@@ -1830,6 +1873,9 @@ class SQLInsertCompiler(SQLCompiler):
             ]
 
     def execute_sql(self, returning_fields=None):
+        """
+
+        """
         assert not (
             returning_fields
             and len(self.query.objs) != 1

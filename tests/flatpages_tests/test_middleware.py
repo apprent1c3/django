@@ -12,6 +12,23 @@ class TestDataMixin:
     def setUpTestData(cls):
         # don't use the manager because we want to ensure the site exists
         # with pk=1, regardless of whether or not it already exists.
+        """
+
+        Sets up test data for the class.
+
+        This method creates a set of test flat pages and a site, and associates the flat pages with the site.
+        The test data includes:
+        - A site with the domain 'example.com'
+        - Four flat pages with different properties:
+          - A standard flat page
+          - A nested flat page
+          - A secret flat page requiring registration
+          - A nested secret flat page requiring registration
+        All flat pages are associated with the created site.
+
+        This setup is used to support testing of flat page functionality.
+
+        """
         cls.site1 = Site(pk=1, domain="example.com", name="example.com")
         cls.site1.save()
         cls.fp1 = FlatPage.objects.create(

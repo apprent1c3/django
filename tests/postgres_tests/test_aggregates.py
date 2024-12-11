@@ -83,6 +83,9 @@ class TestGeneralAggregate(PostgreSQLTestCase):
         )
 
     def test_empty_result_set(self):
+        """
+
+        """
         AggregateTestModel.objects.all().delete()
         tests = [
             ArrayAgg("char_field"),
@@ -112,6 +115,9 @@ class TestGeneralAggregate(PostgreSQLTestCase):
                     self.assertEqual(values, {"aggregation": None})
 
     def test_default_argument(self):
+        """
+
+        """
         AggregateTestModel.objects.all().delete()
         tests = [
             (ArrayAgg("char_field", default=["<empty>"]), ["<empty>"]),
@@ -553,6 +559,9 @@ class TestGeneralAggregate(PostgreSQLTestCase):
         )
 
     def test_string_agg_array_agg_ordering_in_subquery(self):
+        """
+
+        """
         stats = []
         for i, agg in enumerate(AggregateTestModel.objects.order_by("char_field")):
             stats.append(StatTestModel(related_field=agg, int1=i, int2=i + 1))
@@ -780,6 +789,9 @@ class TestStatisticsAggregate(PostgreSQLTestCase):
     # Test aggregates
 
     def test_empty_result_set(self):
+        """
+
+        """
         StatTestModel.objects.all().delete()
         tests = [
             (Corr(y="int2", x="int1"), None),
@@ -811,6 +823,20 @@ class TestStatisticsAggregate(PostgreSQLTestCase):
                     self.assertEqual(values, {"aggregation": expected_result})
 
     def test_default_argument(self):
+        """
+        Tests the behavior of statistical aggregations with default arguments.
+
+        This test case covers various statistical aggregations, including correlation, covariance,
+        regression averages, intercept, R-squared, slope, and sum of squares. It verifies that 
+        each aggregation function returns the expected result when applied to an empty queryset 
+        and when applied to a non-empty queryset. The test also checks that the database queries 
+        are optimized, with zero queries executed when aggregating an empty queryset and one query 
+        executed when aggregating a non-empty queryset.
+
+        The test cases cover both population and sample covariance calculations, as well as 
+        regression metrics. The expected results for each aggregation function are predefined 
+        and compared to the actual results returned by the aggregation functions.
+        """
         StatTestModel.objects.all().delete()
         tests = [
             (Corr(y="int2", x="int1", default=0), 0),

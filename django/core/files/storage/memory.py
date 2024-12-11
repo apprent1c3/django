@@ -233,6 +233,9 @@ class InMemoryStorage(Storage, StorageSettingsMixin):
         return file_node.open(mode)
 
     def _save(self, name, content):
+        """
+
+        """
         file_node = self._resolve(
             name, create_if_missing=True, leaf_cls=InMemoryFileNode
         )

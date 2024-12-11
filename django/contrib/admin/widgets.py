@@ -144,6 +144,9 @@ class ForeignKeyRawIdWidget(forms.TextInput):
         super().__init__(attrs)
 
     def get_context(self, name, value, attrs):
+        """
+
+        """
         context = super().get_context(name, value, attrs)
         rel_to = self.rel.model
         if self.admin_site.is_registered(rel_to):
@@ -191,6 +194,9 @@ class ForeignKeyRawIdWidget(forms.TextInput):
         return params
 
     def label_and_url_for_value(self, value):
+        """
+
+        """
         key = self.rel.get_related_field().name
         try:
             obj = self.rel.model._default_manager.using(self.db).get(**{key: value})
@@ -261,6 +267,9 @@ class RelatedFieldWidgetWrapper(forms.Widget):
         can_delete_related=False,
         can_view_related=False,
     ):
+        """
+
+        """
         self.needs_multipart_form = widget.needs_multipart_form
         self.attrs = widget.attrs
         self.widget = widget
@@ -313,6 +322,9 @@ class RelatedFieldWidgetWrapper(forms.Widget):
         )
 
     def get_context(self, name, value, attrs):
+        """
+
+        """
         from django.contrib.admin.views.main import IS_POPUP_VAR, TO_FIELD_VAR
 
         rel_opts = self.rel.model._meta
@@ -384,6 +396,9 @@ class AdminURLFieldWidget(forms.URLInput):
         self.validator = validator_class()
 
     def get_context(self, name, value, attrs):
+        """
+
+        """
         try:
             self.validator(value if value else "")
             url_valid = True

@@ -147,6 +147,9 @@ class PerformUniqueChecksTest(TestCase):
             mtv.full_clean()
 
     def test_unique_for_date(self):
+        """
+
+        """
         Post.objects.create(
             title="Django 1.0 is released",
             slug="Django 1.0",

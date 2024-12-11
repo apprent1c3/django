@@ -260,6 +260,9 @@ class SystemChecksTestCase(SimpleTestCase):
         self.assertEqual(admin.checks.check_dependencies(), [])
 
     def test_custom_adminsite(self):
+        """
+
+        """
         class CustomAdminSite(admin.AdminSite):
             pass
 
@@ -273,6 +276,20 @@ class SystemChecksTestCase(SimpleTestCase):
             custom_site.unregister(Song)
 
     def test_allows_checks_relying_on_other_modeladmins(self):
+        """
+        Tests that model admin checks can rely on the presence of other modeladmins.
+
+        This test case verifies that a model admin's :meth:`check` method can
+        correctly determine if another model admin is registered on the same
+        admin site, and raise an error if it is not. The check is performed by
+        querying the admin site for the presence of a specific model admin.
+
+        The test registers two custom model admins, :class:`MyBookAdmin` and
+        :class:`MyAuthorAdmin`, for the :class:`Book` and :class:`Author` models,
+        respectively. It then runs the admin site's check method and asserts that
+        no errors are raised, demonstrating that the :class:`MyBookAdmin` check
+        method correctly detects the presence of the :class:`MyAuthorAdmin`.
+        """
         class MyBookAdmin(admin.ModelAdmin):
             def check(self, **kwargs):
                 errors = super().check(**kwargs)
@@ -486,6 +503,9 @@ class SystemChecksTestCase(SimpleTestCase):
         self.assertEqual(errors, expected)
 
     def test_exclude_in_inline(self):
+        """
+
+        """
         class ExcludedFieldsInline(admin.TabularInline):
             model = Song
             exclude = "foo"
@@ -726,6 +746,9 @@ class SystemChecksTestCase(SimpleTestCase):
         self.assertEqual(errors, [])
 
     def test_inlines_property(self):
+        """
+
+        """
         class CitiesInline(admin.TabularInline):
             model = City
 
@@ -767,6 +790,9 @@ class SystemChecksTestCase(SimpleTestCase):
         self.assertEqual(errors, [])
 
     def test_readonly_dynamic_attribute_on_modeladmin(self):
+        """
+
+        """
         class SongAdmin(admin.ModelAdmin):
             readonly_fields = ("dynamic_method",)
 

@@ -130,6 +130,9 @@ class UserAdmin(admin.ModelAdmin):
         # the permission to change users. To avoid the problem entirely, we
         # disallow users from adding users if they don't have change
         # permission.
+        """
+
+        """
         if not self.has_change_permission(request):
             if self.has_add_permission(request) and settings.DEBUG:
                 # Raise Http404 in debug mode so that the user gets a helpful
@@ -153,6 +156,28 @@ class UserAdmin(admin.ModelAdmin):
 
     @sensitive_post_parameters_m
     def user_change_password(self, request, id, form_url=""):
+        """
+        Changes the password for a given user.
+
+        This view allows administrators to change the password for a user. It first checks if the administrator has the necessary permission to change the user's password. If the permission is not available, it raises a `PermissionDenied` exception.
+
+        If the request method is 'POST', it validates the submitted form data. If the form is valid, it saves the new password and logs the change. It then redirects the user to the user change page.
+
+        If the request method is not 'POST', it displays a form to change the user's password. The form is pre-populated with the user's current data.
+
+        Args:
+            request (HttpRequest): The current request.
+            id (str): The ID of the user whose password is being changed.
+            form_url (str, optional): The URL of the form. Defaults to an empty string.
+
+        Returns:
+            TemplateResponse or HttpResponseRedirect: A response object containing the HTML template for the change password form or a redirect to the user change page after a successful password change.
+
+        Raises:
+            PermissionDenied: If the administrator does not have permission to change the user's password.
+            Http404: If the user with the given ID does not exist.
+
+        """
         user = self.get_object(request, unquote(id))
         if not self.has_change_permission(request, user):
             raise PermissionDenied

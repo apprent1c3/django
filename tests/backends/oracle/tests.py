@@ -104,6 +104,9 @@ class TransactionalTests(TransactionTestCase):
                 cursor.execute('DROP TRIGGER "TRG_NO_DATA_FOUND"')
 
     def test_password_with_at_sign(self):
+        """
+
+        """
         from django.db.backends.oracle.base import Database
 
         old_password = connection.settings_dict["PASSWORD"]

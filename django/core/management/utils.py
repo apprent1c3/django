@@ -52,6 +52,25 @@ def handle_extensions(extensions):
 
 
 def find_command(cmd, path=None, pathext=None):
+    """
+
+    Search for an executable command in a list of directories.
+
+    This function attempts to locate the specified command in the given directories,
+    checking for the presence of the command with various extensions. If no path
+    is provided, it defaults to the system's PATH environment variable. Similarly,
+    if no extensions are provided, it defaults to the system's PATHEXT environment
+    variable.
+
+    The function returns the full path to the executable command if found, or None if not.
+
+    :param cmd: The name of the command to search for.
+    :param path: A list of directories to search in. Defaults to the system's PATH.
+    :param pathext: A list of extensions to check. Defaults to the system's PATHEXT.
+    :returns: The full path to the executable command, or None if not found.
+    :rtype: str or None
+
+    """
     if path is None:
         path = os.environ.get("PATH", "").split(os.pathsep)
     if isinstance(path, str):

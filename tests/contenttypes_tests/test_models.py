@@ -101,6 +101,9 @@ class ContentTypesTests(TestCase):
 
     @isolate_apps("contenttypes_tests")
     def test_get_for_models_migrations_create_model(self):
+        """
+
+        """
         state = ProjectState.from_apps(apps.get_app_config("contenttypes"))
 
         class Foo(models.Model):
@@ -248,6 +251,16 @@ class ContentTypesTests(TestCase):
         )
 
     def test_cache_not_shared_between_managers(self):
+        """
+        Tests that the cache of ContentType objects returned by get_for_model is not shared between different model managers.
+
+        This test verifies that each model manager maintains its own cache, ensuring that queries are executed independently
+        and results are not reused across different managers, even when retrieving the same ContentType.
+
+        The test consists of a series of queries, with assertions that the expected number of database queries are executed.
+        It covers the scenario where the same manager is used multiple times, as well as the case where a different manager is used.
+
+        """
         with self.assertNumQueries(1):
             ContentType.objects.get_for_model(ContentType)
         with self.assertNumQueries(0):

@@ -7,6 +7,9 @@ from django.utils.deprecation import MiddlewareMixin
 
 class SecurityMiddleware(MiddlewareMixin):
     def __init__(self, get_response):
+        """
+
+        """
         super().__init__(get_response)
         self.sts_seconds = settings.SECURE_HSTS_SECONDS
         self.sts_include_subdomains = settings.SECURE_HSTS_INCLUDE_SUBDOMAINS
@@ -31,6 +34,9 @@ class SecurityMiddleware(MiddlewareMixin):
             )
 
     def process_response(self, request, response):
+        """
+
+        """
         if (
             self.sts_seconds
             and request.is_secure()

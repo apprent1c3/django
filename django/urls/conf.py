@@ -15,6 +15,9 @@ from .resolvers import (
 
 
 def include(arg, namespace=None):
+    """
+
+    """
     app_name = None
     if isinstance(arg, tuple):
         # Callable returning a namespace hint.
@@ -60,6 +63,9 @@ def include(arg, namespace=None):
 
 
 def _path(route, view, kwargs=None, name=None, Pattern=None):
+    """
+
+    """
     from django.views import View
 
     if kwargs is not None and not isinstance(kwargs, dict):

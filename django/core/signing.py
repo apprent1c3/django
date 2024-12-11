@@ -74,6 +74,9 @@ def b62_encode(s):
 
 
 def b62_decode(s):
+    """
+
+    """
     if s == "0":
         return 0
     sign = 1

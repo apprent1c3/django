@@ -96,6 +96,9 @@ def srs_output(func, argtypes):
 
 
 def const_string_output(func, argtypes, offset=None, decoding=None, cpl=False):
+    """
+
+    """
     func.argtypes = argtypes
     if offset:
         func.restype = c_int

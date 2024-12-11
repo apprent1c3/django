@@ -27,6 +27,9 @@ class WSGIRequestHandlerTestCase(SimpleTestCase):
     request_factory = RequestFactory()
 
     def test_log_message(self):
+        """
+
+        """
         request = WSGIRequest(self.request_factory.get("/").environ)
         request.makefile = lambda *args, **kwargs: BytesIO()
         handler = WSGIRequestHandler(request, "192.168.0.2", None)
@@ -109,6 +112,9 @@ class WSGIRequestHandlerTestCase(SimpleTestCase):
         self.assertEqual(body, b"HTTP_SOME_HEADER:good")
 
     def test_no_body_returned_for_head_requests(self):
+        """
+
+        """
         hello_world_body = b"<!DOCTYPE html><html><body>Hello World</body></html>"
         content_length = len(hello_world_body)
 
@@ -162,6 +168,9 @@ class WSGIRequestHandlerTestCase(SimpleTestCase):
         self.assertNotIn(b"Connection: close\r\n", lines)
 
     def test_non_zero_content_length_set_head_request(self):
+        """
+
+        """
         hello_world_body = b"<!DOCTYPE html><html><body>Hello World</body></html>"
         content_length = len(hello_world_body)
 

@@ -121,6 +121,22 @@ class FileStorageTests(SimpleTestCase):
         # is UTC+1 and has no DST change. We can set the Django TZ to something
         # else so that UTC, Django's TIME_ZONE, and the system timezone are all
         # different.
+        """
+        Tests the given file time getter function for proper time zone handling.
+
+        This method checks if the provided getter function correctly retrieves the
+        last modified time of a file while taking into account the time zone settings.
+        It specifically tests the case when the time zone is set to Africa/Algiers and
+        verifies that the returned datetime object is time zone aware, has the correct
+        time zone name, and is close to the current time.
+
+        The test also ensures that the getter function properly handles time zone
+        offsets by comparing the time zone offset of the file's last modified time with
+        the expected offsets for the Africa/Algiers and Django time zones.
+
+        :param getter: The file time getter function to be tested.
+
+        """
         now_in_algiers = timezone.make_aware(datetime.now())
 
         with timezone.override(timezone.get_fixed_timezone(-300)):
@@ -154,6 +170,9 @@ class FileStorageTests(SimpleTestCase):
         # is UTC+1 and has no DST change. We can set the Django TZ to something
         # else so that UTC, Django's TIME_ZONE, and the system timezone are all
         # different.
+        """
+
+        """
         now_in_algiers = timezone.make_aware(datetime.now())
 
         with timezone.override(timezone.get_fixed_timezone(-300)):
@@ -302,6 +321,9 @@ class FileStorageTests(SimpleTestCase):
         self.assertIs(os.path.exists(os.path.join(self.temp_dir, f_name)), True)
 
     def test_save_doesnt_close(self):
+        """
+
+        """
         with TemporaryUploadedFile("test", "text/plain", 1, "utf8") as file:
             file.write(b"1")
             file.seek(0)
@@ -433,6 +455,9 @@ class FileStorageTests(SimpleTestCase):
         # Monkey-patch os.makedirs, to simulate a normal call, a raced call,
         # and an error.
         def fake_makedirs(path, mode=0o777, exist_ok=False):
+            """
+
+            """
             if path == os.path.join(self.temp_dir, "normal"):
                 real_makedirs(path, mode, exist_ok)
             elif path == os.path.join(self.temp_dir, "raced"):
@@ -570,6 +595,28 @@ class FileStorageTests(SimpleTestCase):
             )
 
     def test_file_methods_pathlib_path(self):
+        """
+        Tests the functionality of file methods using pathlib Path objects.
+
+        This test case verifies the correct operation of file existence checks, 
+        file saving, path retrieval, file size determination, URL generation, 
+        and file content retrieval. It also ensures that the file is properly 
+        deleted after the test is completed.
+
+        The following file methods are exercised:
+
+        * exists: checks if a file exists
+        * save: saves a file to the storage system
+        * path: retrieves the path to a file
+        * size: determines the size of a file
+        * url: generates a URL for a file
+        * open: opens a file for reading
+
+        The test case uses a ContentFile object with custom contents to verify 
+        the correctness of the file methods. It also uses the addCleanup method 
+        to ensure that the test file is deleted after the test is completed, 
+        regardless of the test outcome.
+        """
         p = Path("test.file")
         self.assertFalse(self.storage.exists(p))
         f = ContentFile("custom contents")
@@ -786,6 +833,9 @@ class FileFieldStorageTests(TestCase):
             return 255  # Should be safe on most backends
 
     def test_files(self):
+        """
+
+        """
         self.assertIsInstance(Storage.normal, FileDescriptor)
 
         # An object without a file has limited functionality.
@@ -866,6 +916,13 @@ class FileFieldStorageTests(TestCase):
 
     def test_duplicate_filename(self):
         # Multiple files with the same name get _(7 random chars) appended to them.
+        """
+        Tests the behavior of the Storage class when saving files with duplicate filenames.
+
+        This test case verifies that when attempting to save multiple files with the same name, the Storage class correctly appends a unique suffix to the second and subsequent files to prevent naming conflicts.
+
+        The test iterates over a set of predefined filename and extension pairs, checking that the first file is saved with the original name, while subsequent files are saved with a modified name that matches a specific suffix pattern. After verifying the expected behavior, all created files are deleted to maintain a clean test environment.
+        """
         tests = [
             ("multiple_files", "txt"),
             ("multiple_files_many_extensions", "tar.gz"),
@@ -891,6 +948,9 @@ class FileFieldStorageTests(TestCase):
         # in _(7 random chars). When most of the max_length is taken by
         # dirname + extension and there are not enough  characters in the
         # filename to truncate, an exception should be raised.
+        """
+
+        """
         objs = [Storage() for i in range(2)]
         filename = "filename.ext"
 

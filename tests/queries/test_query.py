@@ -33,6 +33,9 @@ class TestQuery(SimpleTestCase):
         self.assertEqual(lookup.lhs.target, Author._meta.get_field("num"))
 
     def test_non_alias_cols_query(self):
+        """
+
+        """
         query = Query(Author, alias_cols=False)
         where = query.build_where(Q(num__gt=2, name__isnull=False) | Q(num__lt=F("id")))
 
@@ -52,6 +55,14 @@ class TestQuery(SimpleTestCase):
         self.assertIsNone(num_lt_lookup.lhs.alias)
 
     def test_complex_query(self):
+        """
+        Test that a complex query with OR condition is correctly built.
+
+        The function verifies that a query with more than one condition combined using logical OR is properly constructed.
+        It checks the connector used to join the conditions, and the type and values of each individual condition.
+        The test case specifically checks a query that filters objects with a 'num' field greater than 2 or less than 0, 
+        ensuring that both conditions are applied correctly and the required comparison operators (GreaterThan and LessThan) are used.
+        """
         query = Query(Author)
         where = query.build_where(Q(num__gt=2) | Q(num__lt=0))
         self.assertEqual(where.connector, OR)
@@ -67,6 +78,9 @@ class TestQuery(SimpleTestCase):
         self.assertEqual(lookup.lhs.target, Author._meta.get_field("num"))
 
     def test_multiple_fields(self):
+        """
+
+        """
         query = Query(Item, alias_cols=False)
         where = query.build_where(Q(modified__gt=F("created")))
         lookup = where.children[0]
@@ -112,6 +126,9 @@ class TestQuery(SimpleTestCase):
             query.build_where(Q(rank__gt=F("author__num")))
 
     def test_foreign_key_exclusive(self):
+        """
+
+        """
         query = Query(ObjectC, alias_cols=False)
         where = query.build_where(Q(objecta=None) | Q(objectb=None))
         a_isnull = where.children[0]

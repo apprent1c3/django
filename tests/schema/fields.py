@@ -31,6 +31,9 @@ class CustomManyToManyField(RelatedField):
         db_table=None,
         **kwargs,
     ):
+        """
+
+        """
         try:
             to._meta
         except AttributeError:

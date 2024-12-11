@@ -2,6 +2,9 @@ from django.db import migrations
 
 
 def assert_foo_contenttype_not_cached(apps, schema_editor):
+    """
+
+    """
     ContentType = apps.get_model("contenttypes", "ContentType")
     try:
         content_type = ContentType.objects.get_by_natural_key(

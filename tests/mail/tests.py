@@ -639,6 +639,9 @@ class MailTests(HeadersCheckMixin, SimpleTestCase):
         )
 
     def test_attachments(self):
+        """
+
+        """
         msg = EmailMessage()
         file_name = "example.txt"
         file_content = "Text file content"
@@ -919,6 +922,9 @@ class MailTests(HeadersCheckMixin, SimpleTestCase):
     def test_dont_base64_encode(self):
         # Ticket #3472
         # Shouldn't use Base64 encoding at all
+        """
+
+        """
         msg = EmailMessage(
             "Subject",
             "UTF-8 encoded body",
@@ -971,6 +977,9 @@ class MailTests(HeadersCheckMixin, SimpleTestCase):
         # Ticket #18967
         # Shouldn't use base64 encoding for a child EmailMessage attachment.
         # Create a child message first
+        """
+
+        """
         child_msg = EmailMessage(
             "Child Subject",
             "Some body of child message",
@@ -1325,6 +1334,9 @@ class BaseEmailBackendTests(HeadersCheckMixin):
         )
 
     def test_send_many(self):
+        """
+
+        """
         email1 = EmailMessage(
             "Subject", "Content1", "from@example.com", ["to@example.com"]
         )
@@ -1763,6 +1775,9 @@ class SMTPHandler:
         self.mailbox = []
 
     async def handle_DATA(self, server, session, envelope):
+        """
+
+        """
         data = envelope.content
         mail_from = envelope.mail_from
 
@@ -1789,6 +1804,9 @@ class SMTPHandler:
 class SMTPBackendTestsBase(SimpleTestCase):
     @classmethod
     def setUpClass(cls):
+        """
+
+        """
         super().setUpClass()
         # Find a free port.
         with socket.socket() as s:

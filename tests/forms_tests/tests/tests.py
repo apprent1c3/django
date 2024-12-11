@@ -205,6 +205,9 @@ class ModelFormCallableModelDefault(TestCase):
 
     @skipUnlessDBFeature("supports_json_field")
     def test_callable_default_hidden_widget_value_not_overridden(self):
+        """
+
+        """
         class FieldWithCallableDefaultsModel(models.Model):
             int_field = models.IntegerField(default=lambda: 1)
             json_field = models.JSONField(default=dict)
@@ -264,6 +267,9 @@ class FormsModelTestCase(TestCase):
 
     def test_boundary_conditions(self):
         # Boundary conditions on a PositiveIntegerField #########################
+        """
+
+        """
         class BoundaryForm(ModelForm):
             class Meta:
                 model = BoundaryModel
@@ -279,6 +285,9 @@ class FormsModelTestCase(TestCase):
     def test_formfield_initial(self):
         # If the model has default values for some fields, they are used as the
         # formfield initial values.
+        """
+
+        """
         class DefaultsForm(ModelForm):
             class Meta:
                 model = Defaults
@@ -371,6 +380,9 @@ class RelatedModelFormTests(SimpleTestCase):
 class ManyToManyExclusionTestCase(TestCase):
     def test_m2m_field_exclusion(self):
         # Issue 12337. save_instance should honor the passed-in exclude keyword.
+        """
+
+        """
         opt1 = ChoiceOptionModel.objects.create(id=1, name="default")
         opt2 = ChoiceOptionModel.objects.create(id=2, name="option 2")
         opt3 = ChoiceOptionModel.objects.create(id=3, name="option 3")

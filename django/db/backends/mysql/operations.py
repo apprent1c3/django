@@ -43,6 +43,9 @@ class DatabaseOperations(BaseDatabaseOperations):
 
     def date_extract_sql(self, lookup_type, sql, params):
         # https://dev.mysql.com/doc/mysql/en/date-and-time-functions.html
+        """
+
+        """
         if lookup_type == "week_day":
             # DAYOFWEEK() returns an integer, 1-7, Sunday=1.
             return f"DAYOFWEEK({sql})", params
@@ -66,6 +69,9 @@ class DatabaseOperations(BaseDatabaseOperations):
             return f"EXTRACT({lookup_type} FROM {sql})", params
 
     def date_trunc_sql(self, lookup_type, sql, params, tzname=None):
+        """
+
+        """
         sql, params = self._convert_sql_to_tz(sql, params, tzname)
         fields = {
             "year": "%Y-01-01",
@@ -111,6 +117,9 @@ class DatabaseOperations(BaseDatabaseOperations):
         return self.date_extract_sql(lookup_type, sql, params)
 
     def datetime_trunc_sql(self, lookup_type, sql, params, tzname):
+        """
+
+        """
         sql, params = self._convert_sql_to_tz(sql, params, tzname)
         fields = ["year", "month", "day", "hour", "minute", "second"]
         format = ("%Y-", "%m", "-%d", " %H:", "%i", ":%s")
@@ -252,6 +261,9 @@ class DatabaseOperations(BaseDatabaseOperations):
         return value
 
     def adapt_datetimefield_value(self, value):
+        """
+
+        """
         if value is None:
             return None
 
@@ -304,6 +316,9 @@ class DatabaseOperations(BaseDatabaseOperations):
         return super().combine_expression(connector, sub_expressions)
 
     def get_db_converters(self, expression):
+        """
+
+        """
         converters = super().get_db_converters(expression)
         internal_type = expression.output_field.get_internal_type()
         if internal_type == "BooleanField":
@@ -363,6 +378,9 @@ class DatabaseOperations(BaseDatabaseOperations):
 
     def explain_query_prefix(self, format=None, **options):
         # Alias MySQL's TRADITIONAL to TEXT for consistency with other backends.
+        """
+
+        """
         if format and format.upper() == "TEXT":
             format = "TRADITIONAL"
         elif (
@@ -428,6 +446,9 @@ class DatabaseOperations(BaseDatabaseOperations):
         return super().conditional_expression_supported_in_where_clause(expression)
 
     def on_conflict_suffix_sql(self, fields, on_conflict, update_fields, unique_fields):
+        """
+
+        """
         if on_conflict == OnConflict.UPDATE:
             conflict_suffix_sql = "ON DUPLICATE KEY UPDATE %(fields)s"
             # The use of VALUES() is deprecated in MySQL 8.0.20+. Instead, use

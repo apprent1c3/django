@@ -93,6 +93,9 @@ class ModelBase(type):
     """Metaclass for all models."""
 
     def __new__(cls, name, bases, attrs, **kwargs):
+        """
+
+        """
         super_new = super().__new__
 
         # Also ensure initialization is only performed for subclasses of Model
@@ -459,6 +462,9 @@ class ModelState:
 class Model(AltersData, metaclass=ModelBase):
     def __init__(self, *args, **kwargs):
         # Alias some things as locals to avoid repeat global lookups
+        """
+
+        """
         cls = self.__class__
         opts = self._meta
         _setattr = setattr
@@ -629,6 +635,9 @@ class Model(AltersData, metaclass=ModelBase):
         return state
 
     def __setstate__(self, state):
+        """
+
+        """
         pickled_version = state.get(DJANGO_VERSION_PICKLE_KEY)
         if pickled_version:
             if pickled_version != django.__version__:
@@ -778,6 +787,9 @@ class Model(AltersData, metaclass=ModelBase):
 
     # RemovedInDjango60Warning: When the deprecation ends, remove completely.
     def _parse_save_params(self, *args, method_name, **kwargs):
+        """
+
+        """
         defaults = {
             "force_insert": False,
             "force_update": False,
@@ -930,6 +942,9 @@ class Model(AltersData, metaclass=ModelBase):
 
     @classmethod
     def _validate_force_insert(cls, force_insert):
+        """
+
+        """
         if force_insert is False:
             return ()
         if force_insert is True:
@@ -1211,6 +1226,9 @@ class Model(AltersData, metaclass=ModelBase):
         # a ForeignKey, GenericForeignKey or OneToOneField on this model. If
         # the field is nullable, allowing the save would result in silent data
         # loss.
+        """
+
+        """
         for field in self._meta.concrete_fields:
             if fields and field not in fields:
                 continue
@@ -1290,6 +1308,9 @@ class Model(AltersData, metaclass=ModelBase):
         )
 
     def _get_next_or_previous_by_FIELD(self, field, is_next, **kwargs):
+        """
+
+        """
         if not self.pk:
             raise ValueError("get_next/get_previous cannot be used on unsaved objects.")
         op = "gt" if is_next else "lt"
@@ -1442,6 +1463,9 @@ class Model(AltersData, metaclass=ModelBase):
         return unique_checks, date_checks
 
     def _perform_unique_checks(self, unique_checks):
+        """
+
+        """
         errors = {}
 
         for model_class, unique_check in unique_checks:
@@ -1491,6 +1515,9 @@ class Model(AltersData, metaclass=ModelBase):
         return errors
 
     def _perform_date_checks(self, date_checks):
+        """
+
+        """
         errors = {}
         for model_class, lookup_type, field, unique_for in date_checks:
             lookup_kwargs = {}
@@ -1539,6 +1566,9 @@ class Model(AltersData, metaclass=ModelBase):
         )
 
     def unique_error_message(self, model_class, unique_check):
+        """
+
+        """
         opts = model_class._meta
 
         params = {
@@ -1578,6 +1608,20 @@ class Model(AltersData, metaclass=ModelBase):
         return constraints
 
     def validate_constraints(self, exclude=None):
+        """
+
+        Validate the constraints defined for the current model instance.
+
+        This method checks each constraint defined for the model against the current instance's data.
+        Any constraint failures are collected and raised as a ValidationError.
+
+        The `exclude` parameter allows specifying fields to exclude from the validation process.
+        All constraints are validated against the database specified by the router for writing.
+
+        Raises:
+            ValidationError: If any constraints fail validation.
+
+        """
         constraints = self.get_constraints()
         using = router.db_for_write(self.__class__, instance=self)
 
@@ -1674,6 +1718,9 @@ class Model(AltersData, metaclass=ModelBase):
 
     @classmethod
     def check(cls, **kwargs):
+        """
+
+        """
         errors = [
             *cls._check_swappable(),
             *cls._check_model(),
@@ -1743,6 +1790,9 @@ class Model(AltersData, metaclass=ModelBase):
 
     @classmethod
     def _check_db_table_comment(cls, databases):
+        """
+
+        """
         if not cls._meta.db_table_comment:
             return []
         errors = []
@@ -2154,6 +2204,9 @@ class Model(AltersData, metaclass=ModelBase):
 
     @classmethod
     def _check_local_fields(cls, fields, option):
+        """
+
+        """
         from django.db import models
 
         # In order to avoid hitting the relation tree prematurely, we use our
@@ -2398,6 +2451,9 @@ class Model(AltersData, metaclass=ModelBase):
 
     @classmethod
     def _get_expr_references(cls, expr):
+        """
+
+        """
         if isinstance(expr, Q):
             for child in expr.children:
                 if isinstance(child, tuple):

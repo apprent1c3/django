@@ -62,6 +62,9 @@ class Archive:
 
     @staticmethod
     def _archive_cls(file):
+        """
+
+        """
         cls = None
         if isinstance(file, str):
             filename = file
@@ -168,6 +171,9 @@ class TarArchive(BaseArchive):
         self._archive.list(*args, **kwargs)
 
     def extract(self, to_path):
+        """
+
+        """
         members = self._archive.getmembers()
         leading = self.has_leading_dir(x.name for x in members)
         for member in members:
@@ -211,6 +217,9 @@ class ZipArchive(BaseArchive):
         self._archive.printdir(*args, **kwargs)
 
     def extract(self, to_path):
+        """
+
+        """
         namelist = self._archive.namelist()
         leading = self.has_leading_dir(namelist)
         for name in namelist:

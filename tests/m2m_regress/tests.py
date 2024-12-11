@@ -20,6 +20,9 @@ class M2MRegressionTests(TestCase):
         # Multiple m2m references to model must be distinguished when
         # accessing the relations through an instance attribute.
 
+        """
+
+        """
         s1 = SelfRefer.objects.create(name="s1")
         s2 = SelfRefer.objects.create(name="s2")
         s3 = SelfRefer.objects.create(name="s3")
@@ -72,6 +75,9 @@ class M2MRegressionTests(TestCase):
         w.delete()
 
     def test_create_copy_with_m2m(self):
+        """
+
+        """
         t1 = Tag.objects.create(name="t1")
         Entry.objects.create(name="e1")
         entry = Entry.objects.first()

@@ -13,6 +13,9 @@ from .models import Tag
 @skipUnlessDBFeature("supports_explaining_query_execution")
 class ExplainTests(TestCase):
     def test_basic(self):
+        """
+
+        """
         querysets = [
             Tag.objects.filter(name="test"),
             Tag.objects.filter(name="test").select_related("parent"),
@@ -75,6 +78,9 @@ class ExplainTests(TestCase):
 
     @unittest.skipUnless(connection.vendor == "postgresql", "PostgreSQL specific")
     def test_postgres_options(self):
+        """
+
+        """
         qs = Tag.objects.filter(name="test")
         test_options = [
             {"COSTS": False, "BUFFERS": True, "ANALYZE": True},
@@ -148,6 +154,9 @@ class ExplainTests(TestCase):
         connection.vendor == "mysql", "MariaDB and MySQL >= 8.0.18 specific."
     )
     def test_mysql_analyze(self):
+        """
+
+        """
         qs = Tag.objects.filter(name="test")
         with CaptureQueriesContext(connection) as captured_queries:
             qs.explain(analyze=True)

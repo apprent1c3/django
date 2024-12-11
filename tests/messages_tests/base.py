@@ -165,6 +165,9 @@ class BaseTests:
 
     @override_settings(MESSAGE_LEVEL=constants.DEBUG)
     def test_with_template_response(self):
+        """
+
+        """
         data = {
             "messages": ["Test message %d" % x for x in range(5)],
         }

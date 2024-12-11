@@ -25,6 +25,24 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
     fixtures = ["initial"]
 
     def test_asgeojson(self):
+        """
+
+        Tests the AsGeoJSON database function.
+
+        This test case checks the usage of the AsGeoJSON function, which converts a geography
+        field into a GeoJSON object. It verifies that the function raises an error when
+        the database backend does not support it.
+
+        The test also checks the output of the AsGeoJSON function with various options,
+        including CRS (Coordinate Reference System), bounding box, and precision. It
+        ensures that the function returns the expected GeoJSON representation of the
+        geography field.
+
+        Additionally, the test takes into account database-specific limitations and
+        unsupported options, such as CRS and bounding box, and verifies that the function
+        behaves correctly in these cases.
+
+        """
         if not connection.features.has_AsGeoJSON_function:
             with self.assertRaises(NotSupportedError):
                 list(Country.objects.annotate(json=functions.AsGeoJSON("mpoly")))
@@ -142,6 +160,9 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
     def test_asgml(self):
         # Should throw a TypeError when trying to obtain GML from a
         # non-geometry field.
+        """
+
+        """
         qs = City.objects.all()
         with self.assertRaises(TypeError):
             qs.annotate(gml=functions.AsGML("name"))
@@ -254,6 +275,9 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
 
     @skipUnlessDBFeature("has_BoundingCircle_function")
     def test_bounding_circle(self):
+        """
+
+        """
         def circle_num_points(num_seg):
             # num_seg is the number of segments per quarter circle.
             return (4 * num_seg) + 1
@@ -578,6 +602,9 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
 
     @skipUnlessDBFeature("has_NumPoint_function")
     def test_num_points(self):
+        """
+
+        """
         coords = [(-95.363151, 29.763374), (-95.448601, 29.713803)]
         Track.objects.create(name="Foo", line=LineString(coords))
         qs = Track.objects.annotate(num_points=functions.NumPoints("line"))
@@ -614,6 +641,9 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
 
     @skipUnlessDBFeature("has_Scale_function")
     def test_scale(self):
+        """
+
+        """
         xfac, yfac = 2, 3
         tol = 5  # The low precision tolerance is for SpatiaLite
         qs = Country.objects.annotate(scaled=functions.Scale("mpoly", xfac, yfac))
@@ -632,6 +662,9 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
     @skipUnlessDBFeature("has_SnapToGrid_function")
     def test_snap_to_grid(self):
         # Let's try and break snap_to_grid() with bad combinations of arguments.
+        """
+
+        """
         for bad_args in ((), range(3), range(5)):
             with self.assertRaises(ValueError):
                 Country.objects.annotate(snap=functions.SnapToGrid("mpoly", *bad_args))
@@ -754,6 +787,9 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
         "has_Union_function",
     )
     def test_diff_intersection_union(self):
+        """
+
+        """
         geom = Point(5, 23, srid=4326)
         qs = Country.objects.annotate(
             difference=functions.Difference("mpoly", geom),

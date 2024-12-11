@@ -44,6 +44,9 @@ class FileBasedCache(BaseCache):
         file.write(zlib.compress(pickle.dumps(value, self.pickle_protocol)))
 
     def set(self, key, value, timeout=DEFAULT_TIMEOUT, version=None):
+        """
+
+        """
         self._createdir()  # Cache dir can be deleted at any time.
         fname = self._key_to_file(key, version)
         self._cull()  # make some room if necessary
@@ -59,6 +62,9 @@ class FileBasedCache(BaseCache):
                 os.remove(tmp_path)
 
     def touch(self, key, timeout=DEFAULT_TIMEOUT, version=None):
+        """
+
+        """
         try:
             with open(self._key_to_file(key, version), "r+b") as f:
                 try:

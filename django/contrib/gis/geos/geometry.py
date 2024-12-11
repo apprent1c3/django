@@ -28,6 +28,9 @@ class GEOSGeometryBase(GEOSBase):
     has_cs = False  # Only Point, LineString, LinearRing have coordinate sequences
 
     def __init__(self, ptr, cls):
+        """
+
+        """
         self._ptr = ptr
 
         # Setting the class type (e.g., Point, Polygon, etc.)
@@ -118,6 +121,9 @@ class GEOSGeometryBase(GEOSBase):
 
     @staticmethod
     def from_ewkt(ewkt):
+        """
+
+        """
         ewkt = force_bytes(ewkt)
         srid = None
         parts = ewkt.split(b";", 1)

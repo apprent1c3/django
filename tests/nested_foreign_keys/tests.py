@@ -41,6 +41,9 @@ class NestedForeignKeysTests(TestCase):
     # This test failed in #16715 because in some cases INNER JOIN was selected
     # for the second foreign key relation instead of LEFT OUTER JOIN.
     def test_inheritance(self):
+        """
+
+        """
         Event.objects.create()
         Screening.objects.create(movie=self.movie)
 
@@ -67,6 +70,9 @@ class NestedForeignKeysTests(TestCase):
 
     # These all work because the second foreign key in the chain has null=True.
     def test_inheritance_null_FK(self):
+        """
+
+        """
         Event.objects.create()
         ScreeningNullFK.objects.create(movie=None)
         ScreeningNullFK.objects.create(movie=self.movie)
@@ -105,6 +111,9 @@ class NestedForeignKeysTests(TestCase):
     # This test failed in #16715 because in some cases INNER JOIN was selected
     # for the second foreign key relation instead of LEFT OUTER JOIN.
     def test_explicit_ForeignKey(self):
+        """
+
+        """
         Package.objects.create()
         screening = Screening.objects.create(movie=self.movie)
         Package.objects.create(screening=screening)
@@ -134,6 +143,9 @@ class NestedForeignKeysTests(TestCase):
 
     # These all work because the second foreign key in the chain has null=True.
     def test_explicit_ForeignKey_NullFK(self):
+        """
+
+        """
         PackageNullFK.objects.create()
         screening = ScreeningNullFK.objects.create(movie=None)
         screening_with_movie = ScreeningNullFK.objects.create(movie=self.movie)
@@ -181,6 +193,9 @@ class DeeplyNestedForeignKeysTests(TestCase):
         )
 
     def test_inheritance(self):
+        """
+
+        """
         Event.objects.create()
         Screening.objects.create(movie=self.movie)
 
@@ -243,6 +258,9 @@ class DeeplyNestedForeignKeysTests(TestCase):
         )
 
     def test_explicit_ForeignKey(self):
+        """
+
+        """
         Package.objects.create()
         screening = Screening.objects.create(movie=self.movie)
         Package.objects.create(screening=screening)

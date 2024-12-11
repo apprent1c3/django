@@ -50,6 +50,9 @@ class XmlSerializerTestCase(SerializersTestBase, TestCase):
 
     @staticmethod
     def _get_field_values(serial_str, field_name):
+        """
+
+        """
         ret_list = []
         dom = minidom.parseString(serial_str)
         fields = dom.getElementsByTagName("field")

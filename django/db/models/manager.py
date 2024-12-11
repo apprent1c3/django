@@ -81,6 +81,9 @@ class BaseManager:
 
     @classmethod
     def _get_queryset_methods(cls, queryset_class):
+        """
+
+        """
         def create_method(name, method):
             @wraps(method)
             def manager_method(self, *args, **kwargs):

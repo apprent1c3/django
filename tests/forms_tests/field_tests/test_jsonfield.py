@@ -81,6 +81,9 @@ class JSONFieldTest(SimpleTestCase):
         self.assertIs(field.has_changed({"a": 1, "b": 2}, '{"b": 2, "a": 1}'), False)
 
     def test_custom_encoder_decoder(self):
+        """
+
+        """
         class CustomDecoder(json.JSONDecoder):
             def __init__(self, object_hook=None, *args, **kwargs):
                 return super().__init__(object_hook=self.as_uuid, *args, **kwargs)

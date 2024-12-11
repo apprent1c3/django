@@ -40,6 +40,9 @@ class AsyncRelatedManagersOperationTest(TestCase):
         self.assertEqual(new_relatedmodel.simple, self.s1)
 
     async def test_aupdate_or_create(self):
+        """
+
+        """
         new_simple, created = await self.mtm1.simples.aupdate_or_create(field=2)
         self.assertIs(created, True)
         self.assertEqual(await self.mtm1.simples.acount(), 1)

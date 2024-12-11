@@ -23,6 +23,9 @@ class DatabaseCreation(BaseDatabaseCreation):
         return test_database_name
 
     def _create_test_db(self, verbosity, autoclobber, keepdb=False):
+        """
+
+        """
         test_database_name = self._get_test_db_name()
 
         if keepdb:
@@ -52,6 +55,9 @@ class DatabaseCreation(BaseDatabaseCreation):
         return test_database_name
 
     def get_test_db_clone_settings(self, suffix):
+        """
+
+        """
         orig_settings_dict = self.connection.settings_dict
         source_database_name = orig_settings_dict["NAME"] or ":memory:"
 
@@ -72,6 +78,9 @@ class DatabaseCreation(BaseDatabaseCreation):
         )
 
     def _clone_test_db(self, suffix, verbosity, keepdb=False):
+        """
+
+        """
         source_database_name = self.connection.settings_dict["NAME"]
         target_database_name = self.get_test_db_clone_settings(suffix)["NAME"]
         if not self.is_in_memory_db(source_database_name):
@@ -128,6 +137,9 @@ class DatabaseCreation(BaseDatabaseCreation):
         return tuple(sig)
 
     def setup_worker_connection(self, _worker_id):
+        """
+
+        """
         settings_dict = self.get_test_db_clone_settings(_worker_id)
         # connection.settings_dict must be updated in place for changes to be
         # reflected in django.db.connections. Otherwise new threads would

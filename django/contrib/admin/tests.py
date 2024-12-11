@@ -182,6 +182,21 @@ class AdminSeleniumTestCase(SeleniumTestCase, StaticLiveServerTestCase):
         )
 
     def _assertOptionsValues(self, options_selector, values):
+        """
+        Asserts that the values of options selected by the given CSS selector match the expected values.
+
+        This function checks if the actual values of the options match the provided values. If the expected values are provided,
+        it retrieves the options using the given CSS selector, extracts their values, and asserts that they match the expected values.
+        If no expected values are provided, it waits for the options to not be present on the page.
+
+        Args:
+            options_selector (str): The CSS selector used to find the options.
+            values (list or None): The expected values of the options. If None, the function waits for the options to not be present.
+
+        Note:
+            This function uses Selenium to interact with the page and retrieve the options.
+
+        """
         from selenium.webdriver.common.by import By
 
         if values:

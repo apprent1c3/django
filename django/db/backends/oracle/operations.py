@@ -81,6 +81,9 @@ END;
     _extract_format_re = _lazy_re_compile(r"[A-Z_]+")
 
     def date_extract_sql(self, lookup_type, sql, params):
+        """
+
+        """
         extract_sql = f"TO_CHAR({sql}, %s)"
         extract_param = None
         if lookup_type == "week_day":
@@ -105,6 +108,9 @@ END;
         return extract_sql, (*params, extract_param)
 
     def date_trunc_sql(self, lookup_type, sql, params, tzname=None):
+        """
+
+        """
         sql, params = self._convert_sql_to_tz(sql, params, tzname)
         # https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/ROUND-and-TRUNC-Date-Functions.html
         trunc_param = None
@@ -171,6 +177,9 @@ END;
         return self.date_extract_sql(lookup_type, sql, params)
 
     def datetime_trunc_sql(self, lookup_type, sql, params, tzname):
+        """
+
+        """
         sql, params = self._convert_sql_to_tz(sql, params, tzname)
         # https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/ROUND-and-TRUNC-Date-Functions.html
         trunc_param = None
@@ -213,6 +222,9 @@ END;
         return f"TRUNC({sql}, %s)", (*params, trunc_param)
 
     def get_db_converters(self, expression):
+        """
+
+        """
         converters = super().get_db_converters(expression)
         internal_type = expression.output_field.get_internal_type()
         if internal_type in ["JSONField", "TextField"]:
@@ -461,6 +473,23 @@ END;
         return lru_cache(maxsize=512)(self.__foreign_key_constraints)
 
     def sql_flush(self, style, tables, *, reset_sequences=False, allow_cascade=False):
+        """
+        Generates SQL commands to flush a set of tables in a database.
+
+        A flush operation involves several steps: disabling constraints, truncating tables, 
+        and re-enabling constraints. This function supports two optional parameters: 
+        reset_sequences, which resets sequence values after truncation, and allow_cascade, 
+        which includes related tables in the flush operation due to foreign key relationships.
+
+        The function takes the following parameters:
+
+        * style: The style object used for SQL keyword formatting
+        * tables: A list of table names to flush
+        * reset_sequences (optional): Whether to reset sequence values after truncation. Defaults to False.
+        * allow_cascade (optional): Whether to include related tables in the flush operation due to foreign key relationships. Defaults to False.
+
+        The function returns a list of SQL commands to perform the flush operation.
+        """
         if not tables:
             return []
 
@@ -545,6 +574,9 @@ END;
         return sql
 
     def sequence_reset_sql(self, style, model_list):
+        """
+
+        """
         output = []
         query = self._sequence_reset_sql
         for model in model_list:
@@ -633,6 +665,9 @@ END;
         return value
 
     def combine_expression(self, connector, sub_expressions):
+        """
+
+        """
         lhs, rhs = sub_expressions
         if connector == "%%":
             return "MOD(%s)" % ",".join(sub_expressions)
@@ -671,6 +706,9 @@ END;
         return self._get_no_autofield_sequence_name(table) if row is None else row[0]
 
     def bulk_insert_sql(self, fields, placeholder_rows):
+        """
+
+        """
         field_placeholders = [
             BulkInsertMapper.types.get(
                 getattr(field, "target_field", field).get_internal_type(), "%s"

@@ -16,6 +16,9 @@ def create_default_site(
     apps=global_apps,
     **kwargs,
 ):
+    """
+
+    """
     try:
         Site = apps.get_model("sites", "Site")
     except LookupError:

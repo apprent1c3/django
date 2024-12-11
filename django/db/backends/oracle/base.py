@@ -25,6 +25,19 @@ from django.utils.version import get_version_tuple
 def _setup_environment(environ):
     # Cygwin requires some special voodoo to set the environment variables
     # properly so that Oracle will see them.
+    """
+
+    Sets up the environment variables required for the application to function correctly.
+
+    This function configures the environment variables based on the provided settings. 
+    It checks the current operating system and uses the appropriate method to set the environment variables. 
+    On Cygwin systems, it utilizes the ctypes library to interact with the Windows API, while on other systems, it uses the standard os.environ approach.
+
+    The function raises an ImproperlyConfigured exception if the ctypes library cannot be loaded on Cygwin systems, as it is required for the Oracle backend to operate correctly.
+
+    :param environ: A dictionary or list of tuples containing the environment variable names and values to be set.
+
+    """
     if platform.system().upper().startswith("CYGWIN"):
         try:
             import ctypes
@@ -258,6 +271,26 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         )
 
     def init_connection_state(self):
+        """
+
+        Initializes the connection state for the database session.
+
+        This method sets up the required session parameters, including the territory and date format.
+        It also determines the operators to be used for pattern matching, either standard or LikeC, depending on the database's capabilities.
+        Additionally, it configures the statement cache size and commits the transaction if auto-commit is disabled.
+
+        The session parameters that are set include:
+            - NLS_TERRITORY: set to 'AMERICA'
+            - NLS_DATE_FORMAT and NLS_TIMESTAMP_FORMAT: set to 'YYYY-MM-DD HH24:MI:SS' 
+            - TIME_ZONE: set to 'UTC' if USE_TZ is enabled
+
+        Once the session parameters are set, the method checks for the availability of standard operators.
+        If the standard operators are not available, it falls back to using LikeC operators.
+
+        The method also tunes the performance of the database connection by setting the statement cache size to 20.
+        Finally, if auto-commit is disabled, it commits the current transaction to ensure data consistency.
+
+        """
         super().init_connection_state()
         cursor = self.create_cursor()
         # Set the territory first. The territory overrides NLS_DATE_FORMAT
@@ -364,6 +397,9 @@ class OracleParam:
     def __init__(self, param, cursor, strings_only=False):
         # With raw SQL queries, datetimes can reach this function
         # without being converted by DateTimeField.get_db_prep_value.
+        """
+
+        """
         if settings.USE_TZ and (
             isinstance(param, datetime.datetime)
             and not isinstance(param, Oracle_datetime)
@@ -502,6 +538,9 @@ class FormatStylePlaceholderCursor:
 
     def _guess_input_sizes(self, params_list):
         # Try dict handling; if that fails, treat as sequence
+        """
+
+        """
         if hasattr(params_list[0], "keys"):
             sizes = {}
             for params in params_list:
@@ -532,6 +571,20 @@ class FormatStylePlaceholderCursor:
         # it does want a trailing ';' but not a trailing '/'.  However, these
         # characters must be included in the original query in case the query
         # is being passed to SQL*Plus.
+        """
+
+        Process and normalize a query string with its associated parameters.
+
+        This function takes a query string, a list or dictionary of parameters, and an optional flag to unify parameters by their values.
+        It truncates trailing semicolons or forward slashes from the query string, handles various parameter formats, and formats the parameters for use.
+        The function returns a tuple containing the formatted query string and the formatted parameters.
+
+        :param query: The input query string to be processed
+        :param params: The list or dictionary of parameters associated with the query
+        :param unify_by_values: An optional flag to unify parameters by their values (default is False)
+        :returns: A tuple containing the formatted query string and the formatted parameters
+
+        """
         if query.endswith(";") or query.endswith("/"):
             query = query[:-1]
         if params is None:

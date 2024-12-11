@@ -638,6 +638,9 @@ class OGRGeomTest(SimpleTestCase, TestDataMixin):
         self.assertEqual(p.geos.ewkt, p.ewkt)
 
     def test_geometry_types(self):
+        """
+
+        """
         tests = [
             ("Point", 1, True),
             ("LineString", 2, True),
@@ -717,6 +720,9 @@ class OGRGeomTest(SimpleTestCase, TestDataMixin):
                         OGRGeometry(f"{geom_type} EMPTY")
 
     def test_is_3d_and_set_3d(self):
+        """
+
+        """
         geom = OGRGeometry("POINT (1 2)")
         self.assertIs(geom.is_3d, False)
         geom.set_3d(True)
@@ -813,6 +819,9 @@ class OGRGeomTest(SimpleTestCase, TestDataMixin):
                 self.assertEqual(g.wkb.hex(), wkb)
 
     def test_measure_is_measure_and_set_measure(self):
+        """
+
+        """
         geom = OGRGeometry("POINT (1 2 3)")
         self.assertIs(geom.is_measured, False)
         geom.set_measured(True)
@@ -878,6 +887,18 @@ class OGRGeomTest(SimpleTestCase, TestDataMixin):
         self.assertEqual(geom.geos.wkt, "POINT (1 2)")
 
     def test_centroid(self):
+        """
+
+        Tests the calculation of the centroid for various OGR geometry types.
+
+        The centroid is the point that is the average position of all the points of an object.
+        This function checks that the centroid is correctly calculated for points, linestrings, 
+        polygons, multipoints, multilinestrings, multipolygons, and geometry collections.
+
+        It verifies the centroid is calculated as the average of the x and y coordinates 
+        for each geometry type, ignoring the z-coordinate if present.
+
+        """
         point = OGRGeometry("POINT (1 2 3)")
         self.assertEqual(point.centroid.wkt, "POINT (1 2)")
         linestring = OGRGeometry("LINESTRING (0 0 0, 1 1 1, 2 2 2)")
@@ -901,6 +922,9 @@ class OGRGeomTest(SimpleTestCase, TestDataMixin):
         self.assertEqual(geometrycollection.centroid.wkt, "POINT (110 30)")
 
     def test_linestring_m_dimension(self):
+        """
+
+        """
         geom = OGRGeometry("LINESTRING(0 1 2 10, 1 2 3 11, 2 3 4 12)")
         self.assertIs(geom.is_measured, True)
         self.assertEqual(geom.m, [10.0, 11.0, 12.0])
@@ -916,6 +940,9 @@ class OGRGeomTest(SimpleTestCase, TestDataMixin):
         self.assertIs(geom.m, None)
 
     def test_polygon_m_dimension(self):
+        """
+
+        """
         geom = OGRGeometry("POLYGON Z ((0 0 0, 10 0 0, 10 10 0, 0 10 0, 0 0 0))")
         self.assertIs(geom.is_measured, False)
         self.assertEqual(

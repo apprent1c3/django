@@ -23,6 +23,22 @@ class DeclarativeFieldsMetaclass(MediaDefiningClass):
 
     def __new__(mcs, name, bases, attrs):
         # Collect fields from current class and remove them from attrs.
+        """
+
+        Metaclass method to create a new class instance.
+
+        This method is responsible for initializing and configuring the class attributes.
+        It identifies and separates the fields declared in the class definition from other attributes.
+        It also handles inheritance by aggregating fields from parent classes.
+
+        The resulting class instance has two main attributes:
+
+        - `declared_fields`: A dictionary containing all the fields declared in the class and its parents.
+        - `base_fields`: A dictionary containing all the fields declared in the class and its parents, used as a reference for future operations.
+
+        This method ensures that the class fields are properly defined and accessible, providing a foundation for further class configuration and initialization. 
+
+        """
         attrs["declared_fields"] = {
             key: attrs.pop(key)
             for key, value in list(attrs.items())
@@ -82,6 +98,23 @@ class BaseForm(RenderableFormMixin):
         use_required_attribute=None,
         renderer=None,
     ):
+        """
+        Initializes a form instance with the provided data, files, and customizations.
+
+        :param data: The data to populate the form with, defaults to None.
+        :param files: The files to populate the form with, defaults to None.
+        :param auto_id: A string format to generate automatic IDs for form fields, defaults to 'id_%s'.
+        :param prefix: A prefix for form fields to avoid naming conflicts, defaults to None.
+        :param initial: Initial values for form fields, defaults to an empty dictionary.
+        :param error_class: The error class to use for form errors, defaults to ErrorList.
+        :param label_suffix: The suffix to append to form field labels, defaults to ':'.
+        :param empty_permitted: Whether the form can be empty, defaults to False.
+        :param field_order: The order in which to display form fields, defaults to None.
+        :param use_required_attribute: Whether to use the required attribute for form fields, defaults to None.
+        :param renderer: The renderer to use for the form, defaults to the default renderer.
+
+        The form instance can be customized with various parameters to control its behavior, such as automatic ID generation, error handling, and field ordering. The form can also be populated with initial data and files, and can be configured to permit empty submissions. The renderer parameter allows for custom rendering of the form.
+        """
         self.is_bound = data is not None or files is not None
         self.data = MultiValueDict() if data is None else data
         self.files = MultiValueDict() if files is None else files
@@ -220,6 +253,19 @@ class BaseForm(RenderableFormMixin):
         return self.renderer.form_template_name
 
     def get_context(self):
+        """
+
+        Get the context for the current form, including its fields and errors.
+
+        The context returned by this method contains the following information:
+        - The form instance itself
+        - A list of visible form fields, along with any errors associated with each field
+        - A list of hidden form fields
+        - A list of top-level form errors, including errors from hidden fields
+
+        This context can be used to render the form in a template, displaying fields and their associated errors in a user-friendly manner. The inclusion of hidden fields and top-level errors ensures that all relevant information about the form's state is available for rendering.
+
+        """
         fields = []
         hidden_fields = []
         top_errors = self.non_field_errors().copy()

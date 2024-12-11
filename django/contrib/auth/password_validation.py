@@ -177,6 +177,23 @@ class UserAttributeSimilarityValidator:
         self.max_similarity = max_similarity
 
     def validate(self, password, user=None):
+        """
+        Validate a password against a user's attributes to prevent similarity.
+
+        This method checks the provided password against the specified user's attributes.
+        It performs a case-insensitive comparison of the password with each attribute value.
+        If the similarity ratio between the password and an attribute value exceeds the configured maximum similarity,
+        a ValidationError is raised with a message indicating which user attribute the password is too similar to.
+
+        The comparison is done using the SequenceMatcher algorithm and a custom length ratio check.
+
+        :param password: The password to validate.
+        :paramref password: str
+        :param user: The user to validate the password against (optional).
+        :paramref user: User, optional
+        :raises: ValidationError if the password is too similar to any of the user's attributes.
+        :note: If no user is provided, the method will return without performing any validation.
+        """
         if not user:
             return
 

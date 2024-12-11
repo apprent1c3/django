@@ -34,6 +34,9 @@ class InspectDbTests(TestCase):
 
     @skipUnlessDBFeature("supports_3d_storage")
     def test_3d_columns(self):
+        """
+
+        """
         out = StringIO()
         call_command(
             "inspectdb",
@@ -113,6 +116,9 @@ class OGRInspectTest(SimpleTestCase):
     def test_time_field(self):
         # Getting the database identifier used by OGR, if None returned
         # GDAL does not have the support compiled in.
+        """
+
+        """
         ogr_db = get_ogr_db_string()
         if not ogr_db:
             self.skipTest("Unable to setup an OGR connection to your database")

@@ -149,6 +149,9 @@ class TestGetUser(TestCase):
         self.assertEqual(user.username, created_user.username)
 
     def test_get_user_fallback_secret(self):
+        """
+
+        """
         created_user = User.objects.create_user(
             "testuser", "test@example.com", "testpw"
         )

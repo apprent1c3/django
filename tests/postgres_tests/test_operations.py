@@ -51,6 +51,19 @@ class AddIndexConcurrentlyTests(OperationTestBase):
                 )
 
     def test_add(self):
+        """
+
+         Tests the AddIndexConcurrently operation to ensure it correctly adds an index concurrently.
+
+         The test covers the following aspects:
+         - The description and formatted description of the operation are correctly generated.
+         - The operation correctly updates the project state to include the new index.
+         - The operation correctly creates and drops the index in the database.
+
+         This test provides assurance that the AddIndexConcurrently operation functions as expected,
+         allowing for safe and concurrent addition of indexes to database tables.
+
+        """
         project_state = self.set_up_test_model(self.app_label, index=False)
         table_name = "%s_pony" % self.app_label
         index = Index(fields=["pink"], name="pony_pink_idx")
@@ -88,6 +101,9 @@ class AddIndexConcurrentlyTests(OperationTestBase):
         self.assertEqual(kwargs, {"model_name": "Pony", "index": index})
 
     def test_add_other_index_type(self):
+        """
+
+        """
         project_state = self.set_up_test_model(self.app_label, index=False)
         table_name = "%s_pony" % self.app_label
         new_state = project_state.clone()
@@ -110,6 +126,9 @@ class AddIndexConcurrentlyTests(OperationTestBase):
         self.assertIndexNotExists(table_name, ["pink"])
 
     def test_add_with_options(self):
+        """
+
+        """
         project_state = self.set_up_test_model(self.app_label, index=False)
         table_name = "%s_pony" % self.app_label
         new_state = project_state.clone()
@@ -150,6 +169,21 @@ class RemoveIndexConcurrentlyTests(OperationTestBase):
                 )
 
     def test_remove(self):
+        """
+        Tests the concurrent removal of an index from a database table.
+
+        This test case verifies that the RemoveIndexConcurrently operation correctly
+        describes and formats its actions, and that it can successfully remove and
+        then re-add an index to a table. The state is first set up with an index
+        in place, and then the operation is applied to remove the index. The test
+        then checks that the index has been removed, and that the operation can be
+        reversed to re-add the index. The test also verifies that the operation
+        can be correctly deconstructed into its constituent parts.
+
+        The operation is tested using a sample 'Pony' model with a 'pony_pink_idx'
+        index. The test covers both the state-based changes and the actual database
+        modifications made by the operation.
+        """
         project_state = self.set_up_test_model(self.app_label, index=True)
         table_name = "%s_pony" % self.app_label
         self.assertTableExists(table_name)
@@ -198,6 +232,9 @@ class CreateExtensionTests(PostgreSQLTestCase):
 
     @override_settings(DATABASE_ROUTERS=[NoMigrationRouter()])
     def test_no_allow_migrate(self):
+        """
+
+        """
         operation = CreateExtension("tablefunc")
         self.assertEqual(
             operation.formatted_description(), "+ Creates extension tablefunc"
@@ -220,6 +257,23 @@ class CreateExtensionTests(PostgreSQLTestCase):
         self.assertEqual(len(captured_queries), 0)
 
     def test_allow_migrate(self):
+        """
+        Tests the allow migrate functionality for creating and dropping a database extension.
+
+        This test case verifies that the database operations for creating and dropping
+        an extension are correctly generated and executed. It checks the migration name
+        fragment, the SQL queries generated for creating and dropping the extension, and
+        the number of queries executed.
+
+        The test covers both the forward and backward migration operations, ensuring that
+        the extension is correctly created and dropped. It also verifies that the correct
+        SQL queries are generated for these operations, including the 'CREATE EXTENSION IF
+        NOT EXISTS' and 'DROP EXTENSION IF EXISTS' statements.
+
+        The test utilizes a project state and a database connection to simulate the
+        migration operations, allowing it to capture and verify the generated SQL queries.
+
+        """
         operation = CreateExtension("tablefunc")
         self.assertEqual(
             operation.migration_name_fragment, "create_extension_tablefunc"
@@ -277,6 +331,9 @@ class CreateCollationTests(PostgreSQLTestCase):
 
     @override_settings(DATABASE_ROUTERS=[NoMigrationRouter()])
     def test_no_allow_migrate(self):
+        """
+
+        """
         operation = CreateCollation("C_test", locale="C")
         project_state = ProjectState()
         new_state = project_state.clone()
@@ -296,6 +353,21 @@ class CreateCollationTests(PostgreSQLTestCase):
         self.assertEqual(len(captured_queries), 0)
 
     def test_create(self):
+        """
+        Tests the CreateCollation operation.
+
+        Verifies that the operation correctly creates and drops a collation in the database.
+        Checks the operation's migration name fragment, description, and formatted description.
+        Tests the database forwards and backwards methods to ensure the collation is created and dropped as expected.
+        Also verifies that the deconstruct method returns the correct operation name and arguments.
+
+        The test covers the following scenarios:
+
+        * Creating a collation with the given name and locale
+        * Dropping an existing collation
+        * Handling the case where the collation already exists
+        * Deconstructing the operation into its constituent parts
+        """
         operation = CreateCollation("C_test", locale="C")
         self.assertEqual(operation.migration_name_fragment, "create_collation_c_test")
         self.assertEqual(operation.describe(), "Create collation C_test")
@@ -331,6 +403,9 @@ class CreateCollationTests(PostgreSQLTestCase):
         self.assertEqual(kwargs, {"name": "C_test", "locale": "C"})
 
     def test_create_non_deterministic_collation(self):
+        """
+
+        """
         operation = CreateCollation(
             "case_insensitive_test",
             "und-u-ks-level2",
@@ -370,6 +445,15 @@ class CreateCollationTests(PostgreSQLTestCase):
         )
 
     def test_create_collation_alternate_provider(self):
+        """
+
+        Tests the creation of a collation with an alternate provider.
+
+        This test case ensures that the CreateCollation operation correctly creates and drops a collation with a specified provider and locale.
+        It verifies that the database forwards and backwards operations for the collation creation are executed as expected, 
+        resulting in the correct SQL queries being generated.
+
+        """
         operation = CreateCollation(
             "german_phonebook_test",
             provider="icu",
@@ -420,6 +504,9 @@ class RemoveCollationTests(PostgreSQLTestCase):
 
     @override_settings(DATABASE_ROUTERS=[NoMigrationRouter()])
     def test_no_allow_migrate(self):
+        """
+
+        """
         operation = RemoveCollation("C_test", locale="C")
         project_state = ProjectState()
         new_state = project_state.clone()
@@ -439,6 +526,17 @@ class RemoveCollationTests(PostgreSQLTestCase):
         self.assertEqual(len(captured_queries), 0)
 
     def test_remove(self):
+        """
+
+        Tests the removal of a database collation.
+
+        This test case verifies the functionality of the RemoveCollation operation,
+        including its name, description, and effects on the database schema. It checks
+        that the operation can be successfully applied and reversed, and that the
+        expected SQL queries are executed. The test also ensures that attempting to
+        remove a non-existent collation raises the expected error.
+
+        """
         operation = CreateCollation("C_test", locale="C")
         project_state = ProjectState()
         new_state = project_state.clone()
@@ -494,6 +592,9 @@ class AddConstraintNotValidTests(OperationTestBase):
             AddConstraintNotValid(model_name="pony", constraint=constraint)
 
     def test_add(self):
+        """
+
+        """
         table_name = f"{self.app_label}_pony"
         constraint_name = "pony_pink_gte_check"
         constraint = CheckConstraint(condition=Q(pink__gte=4), name=constraint_name)
@@ -548,6 +649,9 @@ class ValidateConstraintTests(OperationTestBase):
     app_label = "test_validate_constraint"
 
     def test_validate(self):
+        """
+
+        """
         constraint_name = "pony_pink_gte_check"
         constraint = CheckConstraint(condition=Q(pink__gte=4), name=constraint_name)
         operation = AddConstraintNotValid("Pony", constraint=constraint)

@@ -124,6 +124,9 @@ class ExecutorTests(MigrationTestBase):
         MIGRATION_MODULES={"migrations": "migrations.test_migrations_squashed"},
     )
     def test_migrate_backward_to_squashed_migration(self):
+        """
+
+        """
         executor = MigrationExecutor(connection)
         try:
             self.assertTableNotExists("migrations_author")
@@ -667,6 +670,9 @@ class ExecutorTests(MigrationTestBase):
         ]
     )
     def test_alter_id_type_with_fk(self):
+        """
+
+        """
         try:
             executor = MigrationExecutor(connection)
             self.assertTableNotExists("author_app_author")

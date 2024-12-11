@@ -44,6 +44,17 @@ class TestConnectionOnCommit(TransactionTestCase):
         self.assertDone([1])
 
     def test_robust_if_no_transaction(self):
+        """
+
+        Tests the behavior of the transaction.on_commit callback when no transaction is active and the callback is marked as robust.
+
+        This test case verifies that when a robust callback raises an exception, the error is properly logged by the database backend and the exception information is captured.
+
+        The test checks the log record to ensure it contains the expected error message and exception details, including the exception type and message.
+
+        The test confirms that the transaction system handles robust callbacks correctly even in the absence of an active transaction, providing a way to handle potential errors during the execution of onCommit callbacks.
+
+        """
         def robust_callback():
             raise ForcedError("robust callback")
 
@@ -64,6 +75,9 @@ class TestConnectionOnCommit(TransactionTestCase):
         self.assertEqual(str(raised_exception), "robust callback")
 
     def test_robust_transaction(self):
+        """
+
+        """
         def robust_callback():
             raise ForcedError("robust callback")
 
@@ -109,6 +123,9 @@ class TestConnectionOnCommit(TransactionTestCase):
         self.assertDone([1])
 
     def test_discards_hooks_from_rolled_back_savepoint(self):
+        """
+
+        """
         with transaction.atomic():
             # one successful savepoint
             with transaction.atomic():
@@ -140,6 +157,16 @@ class TestConnectionOnCommit(TransactionTestCase):
         self.assertDone([])
 
     def test_inner_savepoint_rolled_back_with_outer(self):
+        """
+
+        Tests that inner savepoints are rolled back when an exception occurs within an outer transaction.
+
+        This test verifies that when an inner transaction block raises an exception, the changes made within that block are rolled back,
+        but the outer transaction remains active, allowing further operations to be performed.
+
+        After the exception is caught and handled, the test asserts that only the expected changes were made, demonstrating that the inner transaction was correctly rolled back.
+
+        """
         with transaction.atomic():
             try:
                 with transaction.atomic():
@@ -252,6 +279,9 @@ class TestConnectionOnCommit(TransactionTestCase):
         self.assertDone([1])
 
     def test_hook_in_hook(self):
+        """
+
+        """
         def on_commit(i, add_hook):
             with transaction.atomic():
                 if add_hook:

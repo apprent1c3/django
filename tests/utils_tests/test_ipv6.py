@@ -17,6 +17,14 @@ class TestUtilsIPv6(unittest.TestCase):
         self.assertTrue(is_valid_ipv6_address("::ffff:0a0a:0a0a"))
 
     def test_validates_incorrect_plain_address(self):
+        """
+        Tests that the is_valid_ipv6_address function correctly identifies invalid IPv6 addresses.
+
+        This test case covers a variety of incorrect input formats, including non-numeric characters, 
+        incorrect colon placement, excessive colons, and addresses with too many or too few groups. 
+        It verifies that the function returns False for these invalid addresses, ensuring it accurately 
+        discriminates between properly formatted IPv6 addresses and those that are malformed or invalid.
+        """
         self.assertFalse(is_valid_ipv6_address("foo"))
         self.assertFalse(is_valid_ipv6_address("127.0.0.1"))
         self.assertFalse(is_valid_ipv6_address("12345::"))

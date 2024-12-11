@@ -11,6 +11,22 @@ from . import FormFieldAssertionsMixin
 
 class DurationFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
     def test_durationfield_clean(self):
+        """
+        Args:
+            value (str or datetime.timedelta): The duration value to be cleaned.
+
+        Returns:
+            datetime.timedelta: The cleaned duration object.
+
+        Raises:
+            ValidationError: If the input value is empty, or if it cannot be parsed as a duration.
+
+        Notes:
+            This function cleans and validates a duration field value, which can be provided as a string in a variety of formats or as a timedelta object.
+            The accepted string formats include 'X' (seconds), 'X:Y' (minutes:seconds), 'X:Y:Z' (hours:minutes:seconds), and 'X Y:Z:W.S' (days hours:minutes:seconds.milliseconds).
+            If the input value is invalid or empty, a ValidationError is raised with a corresponding error message.
+            If the input value is already a timedelta object, it is returned directly without modification.
+        """
         f = DurationField()
         self.assertEqual(datetime.timedelta(seconds=30), f.clean("30"))
         self.assertEqual(datetime.timedelta(minutes=15, seconds=30), f.clean("15:30"))

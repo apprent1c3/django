@@ -61,6 +61,9 @@ class Trans:
     """
 
     def __getattr__(self, real_name):
+        """
+
+        """
         from django.conf import settings
 
         if settings.USE_I18N:
@@ -113,6 +116,9 @@ pgettext_lazy = lazy(pgettext, str)
 
 
 def lazy_number(func, resultclass, number=None, **kwargs):
+    """
+
+    """
     if isinstance(number, int):
         kwargs["number"] = number
         proxy = lazy(func, resultclass)(**kwargs)
@@ -144,6 +150,9 @@ def lazy_number(func, resultclass, number=None, **kwargs):
                 return self._translate(number_value).format(*args, **kwargs)
 
             def __mod__(self, rhs):
+                """
+
+                """
                 if isinstance(rhs, dict) and number:
                     number_value = self._get_number_value(rhs)
                 else:
@@ -267,6 +276,9 @@ def deactivate_all():
 
 
 def get_language_info(lang_code):
+    """
+
+    """
     from django.conf.locale import LANG_INFO
 
     try:

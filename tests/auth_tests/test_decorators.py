@@ -85,6 +85,9 @@ class LoginRequiredTestCase(AuthViewsTestCase):
         )
 
     async def test_login_required_async_view(self, login_url=None):
+        """
+
+        """
         async def async_view(request):
             return HttpResponse()
 
@@ -354,6 +357,9 @@ class UserPassesTestDecoratorTest(TestCase):
         self.assertIs(iscoroutinefunction(wrapped_view), True)
 
     def test_decorator(self):
+        """
+
+        """
         def sync_test_func(user):
             return bool(
                 models.Group.objects.filter(name__istartswith=user.username).exists()
@@ -373,6 +379,9 @@ class UserPassesTestDecoratorTest(TestCase):
         self.assertEqual(response.status_code, 302)
 
     def test_decorator_async_test_func(self):
+        """
+
+        """
         async def async_test_func(user):
             return await sync_to_async(user.has_perms)(["auth_tests.add_customuser"])
 
@@ -390,6 +399,9 @@ class UserPassesTestDecoratorTest(TestCase):
         self.assertEqual(response.status_code, 302)
 
     async def test_decorator_async_view(self):
+        """
+
+        """
         def sync_test_func(user):
             return bool(
                 models.Group.objects.filter(name__istartswith=user.username).exists()
@@ -409,6 +421,9 @@ class UserPassesTestDecoratorTest(TestCase):
         self.assertEqual(response.status_code, 302)
 
     async def test_decorator_async_view_async_test_func(self):
+        """
+
+        """
         async def async_test_func(user):
             return await sync_to_async(user.has_perms)(["auth_tests.add_customuser"])
 

@@ -89,6 +89,9 @@ class ModelTests(TestCase):
 
     def test_date_lookup(self):
         # Regression test for #659
+        """
+
+        """
         Party.objects.create(when=datetime.datetime(1999, 12, 31))
         Party.objects.create(when=datetime.datetime(1998, 12, 31))
         Party.objects.create(when=datetime.datetime(1999, 1, 1))

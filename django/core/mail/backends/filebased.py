@@ -10,6 +10,27 @@ from django.core.mail.backends.console import EmailBackend as ConsoleEmailBacken
 
 class EmailBackend(ConsoleEmailBackend):
     def __init__(self, *args, file_path=None, **kwargs):
+        """
+        Initialize the email backend.
+
+        This initializer sets up the file path where email messages will be saved. If a file path is provided,
+        it will be used; otherwise, the path specified in the EMAIL_FILE_PATH setting will be used.
+        The path is then checked to ensure it exists as a writable directory. If the path does not exist,
+        it will be created. If the path exists but is not a directory, or if it is not writable, an
+        ImproperlyConfigured exception will be raised.
+
+        Parameters
+        ----------
+        file_path : str, optional
+            The path where email messages will be saved. If not provided, the path in the EMAIL_FILE_PATH
+            setting will be used.
+
+        Raises
+        ------
+        ImproperlyConfigured
+            If the path for saving email messages does not exist as a directory, or if it is not writable.
+
+        """
         self._fname = None
         if file_path is not None:
             self.file_path = file_path

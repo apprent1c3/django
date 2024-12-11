@@ -18,6 +18,9 @@ class Command(LabelCommand):
         )
 
     def handle_label(self, path, **options):
+        """
+
+        """
         verbosity = options["verbosity"]
         result = finders.find(path, find_all=options["all"])
         if verbosity >= 2:

@@ -7,6 +7,9 @@ from . import FormFieldAssertionsMixin
 
 class CharFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
     def test_charfield_1(self):
+        """
+
+        """
         f = CharField()
         self.assertEqual("1", f.clean(1))
         self.assertEqual("hello", f.clean("hello"))
@@ -50,6 +53,9 @@ class CharFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertEqual(f.min_length, 10)
 
     def test_charfield_5(self):
+        """
+
+        """
         f = CharField(min_length=10, required=True)
         with self.assertRaisesMessage(ValidationError, "'This field is required.'"):
             f.clean("")

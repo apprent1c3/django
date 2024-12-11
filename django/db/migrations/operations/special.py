@@ -119,6 +119,9 @@ class RunSQL(Operation):
         return "Raw SQL operation"
 
     def _run_sql(self, schema_editor, sqls):
+        """
+
+        """
         if isinstance(sqls, (list, tuple)):
             for sql in sqls:
                 params = None
@@ -146,6 +149,9 @@ class RunPython(Operation):
     def __init__(
         self, code, reverse_code=None, atomic=None, hints=None, elidable=False
     ):
+        """
+
+        """
         self.atomic = atomic
         # Forwards code
         if not callable(code):

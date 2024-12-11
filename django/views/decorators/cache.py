@@ -38,7 +38,13 @@ def _check_request(request, decorator_name):
 
 
 def cache_control(**kwargs):
+    """
+
+    """
     def _cache_controller(viewfunc):
+        """
+
+        """
         if iscoroutinefunction(viewfunc):
 
             async def _view_wrapper(request, *args, **kw):

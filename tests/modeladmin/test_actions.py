@@ -28,6 +28,9 @@ class AdminActionsTests(TestCase):
             setattr(cls, username, user)
 
     def test_get_actions_respects_permissions(self):
+        """
+
+        """
         class MockRequest:
             pass
 
@@ -65,6 +68,14 @@ class AdminActionsTests(TestCase):
                 self.assertEqual(list(actions.keys()), expected)
 
     def test_actions_inheritance(self):
+        """
+
+        Tests the inheritance behavior of admin actions in Django admin classes.
+
+        Verifies that custom actions defined in a base admin class are inherited by subclasses,
+        and that setting `actions` to `None` in a subclass removes the inherited custom actions.
+
+        """
         class AdminBase(admin.ModelAdmin):
             actions = ["custom_action"]
 
@@ -88,6 +99,9 @@ class AdminActionsTests(TestCase):
 
     def test_global_actions_description(self):
         @admin.action(description="Site-wide admin action 1.")
+        """
+
+        """
         def global_action_1(modeladmin, request, queryset):
             pass
 
@@ -114,6 +128,9 @@ class AdminActionsTests(TestCase):
 
     def test_actions_replace_global_action(self):
         @admin.action(description="Site-wide admin action 1.")
+        """
+
+        """
         def global_action_1(modeladmin, request, queryset):
             pass
 

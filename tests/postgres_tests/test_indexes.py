@@ -140,6 +140,9 @@ class BTreeIndexTests(IndexTestMixin, PostgreSQLSimpleTestCase):
         self.assertEqual(BTreeIndex.suffix, "btree")
 
     def test_deconstruction(self):
+        """
+
+        """
         index = BTreeIndex(fields=["title"], name="test_title_btree")
         path, args, kwargs = index.deconstruct()
         self.assertEqual(path, "django.contrib.postgres.indexes.BTreeIndex")
@@ -266,6 +269,9 @@ class SchemaTests(PostgreSQLTestCase):
 
     def test_gin_index(self):
         # Ensure the table is there and doesn't have an index.
+        """
+
+        """
         self.assertNotIn(
             "field", self.get_constraints(IntegerArrayModel._meta.db_table)
         )
@@ -285,6 +291,9 @@ class SchemaTests(PostgreSQLTestCase):
         )
 
     def test_gin_fastupdate(self):
+        """
+
+        """
         index_name = "integer_array_gin_fastupdate"
         index = GinIndex(fields=["field"], name=index_name, fastupdate=False)
         with connection.schema_editor() as editor:
@@ -299,6 +308,9 @@ class SchemaTests(PostgreSQLTestCase):
         )
 
     def test_partial_gin_index(self):
+        """
+
+        """
         with register_lookup(CharField, Length):
             index_name = "char_field_gin_partial_idx"
             index = GinIndex(
@@ -315,6 +327,9 @@ class SchemaTests(PostgreSQLTestCase):
             )
 
     def test_partial_gin_index_with_tablespace(self):
+        """
+
+        """
         with register_lookup(CharField, Length):
             index_name = "char_field_gin_partial_idx"
             index = GinIndex(
@@ -338,6 +353,9 @@ class SchemaTests(PostgreSQLTestCase):
             )
 
     def test_gin_parameters(self):
+        """
+
+        """
         index_name = "integer_array_gin_params"
         index = GinIndex(
             fields=["field"],
@@ -365,6 +383,19 @@ class SchemaTests(PostgreSQLTestCase):
         )
 
     def test_trigram_op_class_gin_index(self):
+        """
+
+        Tests the creation and removal of a GIN index on the 'scene' field using the 'trigram' operator class.
+
+        This test case covers the following scenarios:
+
+        * Creation of a GIN index with the specified name and operator class.
+        * Verification that the index is correctly registered in the database.
+        * Validation that the index is correctly removed from the database.
+
+        The test ensures that the GIN index is properly set up and torn down, and that the database constraints are updated accordingly.
+
+        """
         index_name = "trigram_op_class_gin"
         index = GinIndex(OpClass(F("scene"), name="gin_trgm_ops"), name=index_name)
         with connection.schema_editor() as editor:
@@ -380,6 +411,19 @@ class SchemaTests(PostgreSQLTestCase):
         self.assertNotIn(index_name, self.get_constraints(Scene._meta.db_table))
 
     def test_cast_search_vector_gin_index(self):
+        """
+        Tests the creation and removal of a GIN index on a search vector field.
+
+        This test case checks that the index is correctly created with the specified name
+        and that it references the expected column. It also verifies that the index
+        is of the correct type (GIN) and that it uses the tsvector data type.
+
+        The test covers the following scenarios:
+        - Creating a GIN index on a search vector field
+        - Verifying the index name, type, and column reference
+        - Removing the GIN index
+        - Confirming that the index is no longer present after removal
+        """
         index_name = "cast_search_vector_gin"
         index = GinIndex(Cast("field", SearchVectorField()), name=index_name)
         with connection.schema_editor() as editor:
@@ -409,6 +453,9 @@ class SchemaTests(PostgreSQLTestCase):
         )
 
     def test_bloom_parameters(self):
+        """
+
+        """
         index_name = "char_field_model_field_bloom_params"
         index = BloomIndex(fields=["field"], name=index_name, length=512, columns=[3])
         with connection.schema_editor() as editor:
@@ -423,6 +470,9 @@ class SchemaTests(PostgreSQLTestCase):
         )
 
     def test_brin_index(self):
+        """
+
+        """
         index_name = "char_field_model_field_brin"
         index = BrinIndex(fields=["field"], name=index_name, pages_per_range=4)
         with connection.schema_editor() as editor:
@@ -437,6 +487,22 @@ class SchemaTests(PostgreSQLTestCase):
         )
 
     def test_brin_parameters(self):
+        """
+
+        Tests the creation and removal of a BRIN index with specified parameters.
+
+        This function verifies that a BRIN index can be successfully added to a model
+        with the specified options (autosummarize) and then removed, checking the
+        index type and options in the database constraints after addition and the
+        removal of the index from the constraints after deletion.
+
+        The test covers the following scenarios:
+        - Creating a BRIN index with autosummarize option
+        - Verifying the index type and options in the database constraints
+        - Removing the BRIN index
+        - Verifying the index removal from the database constraints
+
+        """
         index_name = "char_field_brin_params"
         index = BrinIndex(fields=["field"], name=index_name, autosummarize=True)
         with connection.schema_editor() as editor:
@@ -452,6 +518,21 @@ class SchemaTests(PostgreSQLTestCase):
 
     def test_btree_index(self):
         # Ensure the table is there and doesn't have an index.
+        """
+
+        Tests the creation and removal of a B-tree index on a model field.
+
+        This test case verifies that a B-tree index can be successfully added to a model field
+        and then removed. It checks that the index is properly created and its type is correct,
+        and that it is removed without leaving any residual constraints in the database.
+
+        The test case covers the following scenarios:
+        - Adding a B-tree index to a model field
+        - Verifying the index type after creation
+        - Removing the B-tree index
+        - Verifying the index removal
+
+        """
         self.assertNotIn("field", self.get_constraints(CharFieldModel._meta.db_table))
         # Add the index.
         index_name = "char_field_model_field_btree"
@@ -469,6 +550,9 @@ class SchemaTests(PostgreSQLTestCase):
         )
 
     def test_btree_parameters(self):
+        """
+
+        """
         index_name = "integer_array_btree_parameters"
         index = BTreeIndex(
             fields=["field"], name=index_name, fillfactor=80, deduplicate_items=False
@@ -489,6 +573,16 @@ class SchemaTests(PostgreSQLTestCase):
 
     def test_gist_index(self):
         # Ensure the table is there and doesn't have an index.
+        """
+        Tests the creation and removal of a GiST index on a character field.
+
+        Verifies that the index is successfully added to the database and that its type is 
+        correctly set as a GiST index. Then, it checks that the index is properly removed 
+        from the database after deletion.
+
+        This ensures that the indexing functionality is correctly implemented and that 
+        the database schema is updated accordingly when an index is added or removed.
+        """
         self.assertNotIn("field", self.get_constraints(CharFieldModel._meta.db_table))
         # Add the index.
         index_name = "char_field_model_field_gist"
@@ -506,6 +600,9 @@ class SchemaTests(PostgreSQLTestCase):
         )
 
     def test_gist_parameters(self):
+        """
+
+        """
         index_name = "integer_array_gist_buffering"
         index = GistIndex(
             fields=["field"], name=index_name, buffering=True, fillfactor=80
@@ -524,6 +621,9 @@ class SchemaTests(PostgreSQLTestCase):
         )
 
     def test_gist_include(self):
+        """
+
+        """
         index_name = "scene_gist_include_setting"
         index = GistIndex(name=index_name, fields=["scene"], include=["setting"])
         with connection.schema_editor() as editor:
@@ -537,6 +637,9 @@ class SchemaTests(PostgreSQLTestCase):
         self.assertNotIn(index_name, self.get_constraints(Scene._meta.db_table))
 
     def test_tsvector_op_class_gist_index(self):
+        """
+
+        """
         index_name = "tsvector_op_class_gist"
         index = GistIndex(
             OpClass(
@@ -575,6 +678,9 @@ class SchemaTests(PostgreSQLTestCase):
 
     def test_hash_index(self):
         # Ensure the table is there and doesn't have an index.
+        """
+
+        """
         self.assertNotIn("field", self.get_constraints(CharFieldModel._meta.db_table))
         # Add the index.
         index_name = "char_field_model_field_hash"
@@ -592,6 +698,9 @@ class SchemaTests(PostgreSQLTestCase):
         )
 
     def test_hash_parameters(self):
+        """
+
+        """
         index_name = "integer_array_hash_fillfactor"
         index = HashIndex(fields=["field"], name=index_name, fillfactor=80)
         with connection.schema_editor() as editor:
@@ -607,6 +716,9 @@ class SchemaTests(PostgreSQLTestCase):
 
     def test_spgist_index(self):
         # Ensure the table is there and doesn't have an index.
+        """
+
+        """
         self.assertNotIn("field", self.get_constraints(TextFieldModel._meta.db_table))
         # Add the index.
         index_name = "text_field_model_field_spgist"
@@ -624,6 +736,9 @@ class SchemaTests(PostgreSQLTestCase):
         )
 
     def test_spgist_parameters(self):
+        """
+
+        """
         index_name = "text_field_model_spgist_fillfactor"
         index = SpGistIndex(fields=["field"], name=index_name, fillfactor=80)
         with connection.schema_editor() as editor:
@@ -638,6 +753,9 @@ class SchemaTests(PostgreSQLTestCase):
         )
 
     def test_spgist_include(self):
+        """
+
+        """
         index_name = "scene_spgist_include_setting"
         index = SpGistIndex(name=index_name, fields=["scene"], include=["setting"])
         with connection.schema_editor() as editor:
@@ -678,6 +796,9 @@ class SchemaTests(PostgreSQLTestCase):
             self.assertCountEqual(cursor.fetchall(), [("text_pattern_ops", index_name)])
 
     def test_op_class_descending_collation(self):
+        """
+
+        """
         collation = connection.features.test_collations.get("non_default")
         if not collation:
             self.skipTest("This backend does not support case-insensitive collations.")
@@ -707,6 +828,9 @@ class SchemaTests(PostgreSQLTestCase):
         self.assertNotIn(index_name, self.get_constraints(table))
 
     def test_op_class_descending_partial(self):
+        """
+
+        """
         index_name = "test_op_class_descending_partial"
         index = Index(
             OpClass(Lower("field"), name="text_pattern_ops").desc(),
@@ -723,6 +847,21 @@ class SchemaTests(PostgreSQLTestCase):
         self.assertEqual(constraints[index_name]["orders"], ["DESC"])
 
     def test_op_class_descending_partial_tablespace(self):
+        """
+
+        Tests the creation of a descending partial index with a specific tablespace.
+
+        This function verifies that an index with a descending operation class, 
+        a specific tablespace, and a condition can be successfully added to a model.
+        It checks that the created index includes the specified tablespace, 
+        that the operation class is correctly assigned, and that the index 
+        constraints include the expected ordering.
+
+        The test case ensures that the index is properly created, 
+        its SQL representation is correct, and that the database constraints 
+        are updated as expected.
+
+        """
         index_name = "test_op_class_descending_partial_tablespace"
         index = Index(
             OpClass(Lower("field").desc(), name="text_pattern_ops"),

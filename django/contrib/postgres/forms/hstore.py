@@ -24,6 +24,9 @@ class HStoreField(forms.CharField):
         return value
 
     def to_python(self, value):
+        """
+
+        """
         if not value:
             return {}
         if not isinstance(value, dict):

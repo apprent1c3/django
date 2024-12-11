@@ -47,8 +47,34 @@ def setup(templates, *args, test_once=False):
         # are properly isolated from Django's global settings.
         @override_settings(TEMPLATES=None)
         @wraps(func)
+        """
+
+        A decorator function that wraps and modifies the behavior of a given function.
+
+        It manages the creation and configuration of an engine instance, which is used to
+        process templates. The engine is configured with libraries and loaders, and its
+        behavior is modified across multiple invocations of the wrapped function.
+
+        The decorator tests the wrapped function under different engine configurations,
+        including cases with and without template validation, as well as with debug mode enabled.
+        This allows for comprehensive testing of the wrapped function's behavior under various conditions.
+
+        Parameters
+        ----------
+        func : callable
+            The function to be wrapped and modified.
+
+        Returns
+        -------
+        callable
+            The wrapped and modified function.
+
+        """
         def inner(self):
             # Set up custom template tag libraries if specified
+            """
+
+            """
             libraries = getattr(self, "libraries", {})
 
             self.engine = Engine(

@@ -99,6 +99,9 @@ class Options:
     default_apps = apps
 
     def __init__(self, meta, app_label=None):
+        """
+
+        """
         self._get_fields_cache = {}
         self.local_fields = []
         self.local_many_to_many = []
@@ -169,6 +172,9 @@ class Options:
         return self.apps.app_configs.get(self.app_label)
 
     def contribute_to_class(self, cls, name):
+        """
+
+        """
         from django.db import connection
         from django.db.backends.utils import truncate_name
 
@@ -245,6 +251,9 @@ class Options:
         return new_objs
 
     def _get_default_pk_class(self):
+        """
+
+        """
         pk_class_path = getattr(
             self.app_config,
             "default_auto_field",
@@ -276,6 +285,13 @@ class Options:
         return pk_class
 
     def _prepare(self, model):
+        """
+        Prepare the model for creation or modification by setting up ordering and primary key fields.
+
+        This method checks if an ordering field has been specified with respect to another field, and if so, resolves the field name to the actual field object. If no such field exists, it raises an error. It then sets up the ordering for the model.
+
+        Additionally, if the model does not have a primary key field set, it attempts to use a parent field as the primary key. If no parent fields exist, it creates a default auto-incrementing primary key field named 'id'.
+        """
         if self.order_with_respect_to:
             # The app registry will not be ready at this point, so we cannot
             # use get_field().
@@ -328,6 +344,9 @@ class Options:
         # the "creation_counter" attribute of the field.
         # Move many-to-many related fields from self.fields into
         # self.many_to_many.
+        """
+
+        """
         if private:
             self.private_fields.append(field)
         elif field.is_relation and field.many_to_many:
@@ -437,6 +456,9 @@ class Options:
 
     @cached_property
     def managers(self):
+        """
+
+        """
         managers = []
         seen_managers = set()
         bases = (b for b in self.model.mro() if hasattr(b, "_meta"))
@@ -461,6 +483,9 @@ class Options:
 
     @cached_property
     def base_manager(self):
+        """
+
+        """
         base_manager_name = self.base_manager_name
         if not base_manager_name:
             # Get the first parent's base_manager_name if there's one.
@@ -490,6 +515,9 @@ class Options:
 
     @cached_property
     def default_manager(self):
+        """
+
+        """
         default_manager_name = self.default_manager_name
         if not default_manager_name and not self.local_managers:
             # Get the first parent's default_manager_name if there's one.

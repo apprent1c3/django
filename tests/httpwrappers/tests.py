@@ -36,6 +36,9 @@ class QueryDictTests(SimpleTestCase):
             q.__getitem__("foo")
 
     def test_immutability(self):
+        """
+
+        """
         q = QueryDict()
         with self.assertRaises(AttributeError):
             q.__setitem__("something", "bar")
@@ -57,6 +60,11 @@ class QueryDictTests(SimpleTestCase):
         self.assertEqual(q.get("foo", "default"), "default")
 
     def test_immutable_basic_operations(self):
+        """
+        Tests basic operations on an empty QueryDict object to ensure it behaves as expected for an immutable, empty dictionary.
+
+        Verifies that the QueryDict object returns empty lists, dictionaries, and other expected empty values when attempting to retrieve keys, values, and items, and that its length is correctly reported as 0. Also checks that url encoding an empty QueryDict results in an empty string.
+        """
         q = QueryDict()
         self.assertEqual(q.getlist("foo"), [])
         self.assertNotIn("foo", q)
@@ -143,6 +151,9 @@ class QueryDictTests(SimpleTestCase):
         self.assertNotIn("name", q)
 
     def test_basic_mutable_operations(self):
+        """
+
+        """
         q = QueryDict(mutable=True)
         q["name"] = "john"
         self.assertEqual(q.get("foo", "default"), "default")
@@ -301,6 +312,9 @@ class QueryDictTests(SimpleTestCase):
 
 class HttpResponseTests(SimpleTestCase):
     def test_headers_type(self):
+        """
+
+        """
         r = HttpResponse()
 
         # ASCII strings or bytes values are converted to strings.
@@ -407,6 +421,9 @@ class HttpResponseTests(SimpleTestCase):
         self.assertEqual(r.content, b"memoryview")
 
     def test_iter_content(self):
+        """
+
+        """
         r = HttpResponse(["abc", "def", "ghi"])
         self.assertEqual(r.content, b"abcdefghi")
 
@@ -458,6 +475,9 @@ class HttpResponseTests(SimpleTestCase):
         self.assertEqual(r.content, b"helloworld")
 
     def test_file_interface(self):
+        """
+
+        """
         r = HttpResponse()
         r.write(b"hello")
         self.assertEqual(r.tell(), 5)
@@ -652,6 +672,9 @@ class JsonResponseTests(SimpleTestCase):
 
 class StreamingHttpResponseTests(SimpleTestCase):
     def test_streaming_response(self):
+        """
+
+        """
         r = StreamingHttpResponse(iter(["hello", "world"]))
 
         # iterating over the response itself yields bytestring chunks.
@@ -765,6 +788,9 @@ class FileCloseTests(SimpleTestCase):
         self.addCleanup(request_finished.connect, close_old_connections)
 
     def test_response(self):
+        """
+
+        """
         filename = os.path.join(os.path.dirname(__file__), "abc.txt")
 
         # file isn't closed until we close the response.
@@ -783,6 +809,9 @@ class FileCloseTests(SimpleTestCase):
         self.assertTrue(file2.closed)
 
     def test_streaming_response(self):
+        """
+
+        """
         filename = os.path.join(os.path.dirname(__file__), "abc.txt")
 
         # file isn't closed until we close the response.
@@ -934,6 +963,9 @@ class HttpResponseHeadersTestCase(SimpleTestCase):
     """Headers by treating HttpResponse like a dictionary."""
 
     def test_headers(self):
+        """
+
+        """
         response = HttpResponse()
         response["X-Foo"] = "bar"
         self.assertEqual(response["X-Foo"], "bar")

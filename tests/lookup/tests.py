@@ -49,6 +49,9 @@ class LookupTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         # Create a few Authors.
+        """
+
+        """
         cls.au1 = Author.objects.create(name="Author 1", alias="a1", bio="x" * 4001)
         cls.au2 = Author.objects.create(name="Author 2", alias="a2")
         # Create a few Articles.
@@ -174,6 +177,9 @@ class LookupTests(TestCase):
 
     def test_in_bulk(self):
         # in_bulk() takes a list of IDs and returns a dictionary mapping IDs to objects.
+        """
+
+        """
         arts = Article.objects.in_bulk([self.a1.id, self.a2.id])
         self.assertEqual(arts[self.a1.id], self.a1)
         self.assertEqual(arts[self.a2.id], self.a2)
@@ -298,6 +304,9 @@ class LookupTests(TestCase):
 
     @isolate_apps("lookup")
     def test_in_bulk_non_unique_meta_constaint(self):
+        """
+
+        """
         class Model(models.Model):
             ean = models.CharField(max_length=100)
             brand = models.CharField(max_length=100)
@@ -330,6 +339,9 @@ class LookupTests(TestCase):
     def test_values(self):
         # values() returns a list of dictionaries instead of object instances --
         # and you can specify which fields you want to retrieve.
+        """
+
+        """
         self.assertSequenceEqual(
             Article.objects.values("headline"),
             [
@@ -523,6 +535,9 @@ class LookupTests(TestCase):
         # returned as a list of tuples, rather than a list of dictionaries.
         # Within each tuple, the order of the elements is the same as the order
         # of fields in the values_list() call.
+        """
+
+        """
         self.assertSequenceEqual(
             Article.objects.values_list("headline"),
             [
@@ -624,6 +639,9 @@ class LookupTests(TestCase):
         # get_previous_by_FOO() methods. In the case of identical date values,
         # these methods will use the ID as a fallback check. This guarantees
         # that no records are skipped or duplicated.
+        """
+
+        """
         self.assertEqual(repr(self.a1.get_next_by_pub_date()), "<Article: Article 2>")
         self.assertEqual(repr(self.a2.get_next_by_pub_date()), "<Article: Article 3>")
         self.assertEqual(
@@ -791,6 +809,9 @@ class LookupTests(TestCase):
             Article.objects.filter(pub_date_year="2005").count()
 
     def test_unsupported_lookups(self):
+        """
+
+        """
         with self.assertRaisesMessage(
             FieldError,
             "Unsupported lookup 'starts' for CharField or join on the field "
@@ -893,6 +914,18 @@ class LookupTests(TestCase):
     def test_regex(self):
         # Create some articles with a bit more interesting headlines for
         # testing field lookups.
+        """
+        Tests the functionality of regular expression filtering on the 'headline' field of Article objects.
+
+        This test case covers various scenarios, including:
+
+        * Matching patterns at the beginning or end of a string
+        * Using character classes and quantifiers
+        * Case sensitivity and insensitivity
+        * Using groups and alternation
+
+        The test creates a set of Article objects with different headlines, applies various regular expression filters to them, and verifies that the results match the expected output.
+        """
         Article.objects.all().delete()
         now = datetime.now()
         Article.objects.bulk_create(

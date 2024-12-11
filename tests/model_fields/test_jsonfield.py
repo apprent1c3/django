@@ -103,6 +103,9 @@ class TestMethods(SimpleTestCase):
             KeyTransformTextLookupMixin(transform)
 
     def test_get_prep_value(self):
+        """
+
+        """
         class JSONFieldGetPrepValue(models.JSONField):
             def get_prep_value(self, value):
                 if value is True:
@@ -364,6 +367,9 @@ class TestQuerying(TestCase):
         )
 
     def test_ordering_by_transform(self):
+        """
+
+        """
         mariadb = connection.vendor == "mysql" and connection.mysql_is_mariadb
         values = [
             {"ord": 93, "name": "bar"},

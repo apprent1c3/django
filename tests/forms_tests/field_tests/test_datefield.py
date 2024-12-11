@@ -13,6 +13,9 @@ class GetDate(Form):
 
 class DateFieldTest(SimpleTestCase):
     def test_form_field(self):
+        """
+
+        """
         a = GetDate({"mydate_month": "4", "mydate_day": "1", "mydate_year": "2008"})
         self.assertTrue(a.is_valid())
         self.assertEqual(a.cleaned_data["mydate"], date(2008, 4, 1))
@@ -138,6 +141,9 @@ class DateFieldTest(SimpleTestCase):
         self.assertIn('<label for="id_mydate_day">', a.as_p())
 
     def test_datefield_1(self):
+        """
+
+        """
         f = DateField()
         self.assertEqual(date(2006, 10, 25), f.clean(date(2006, 10, 25)))
         self.assertEqual(date(2006, 10, 25), f.clean(datetime(2006, 10, 25, 14, 30)))
@@ -174,6 +180,9 @@ class DateFieldTest(SimpleTestCase):
         self.assertEqual("None", repr(f.clean("")))
 
     def test_datefield_3(self):
+        """
+
+        """
         f = DateField(input_formats=["%Y %m %d"])
         self.assertEqual(date(2006, 10, 25), f.clean(date(2006, 10, 25)))
         self.assertEqual(date(2006, 10, 25), f.clean(datetime(2006, 10, 25, 14, 30)))

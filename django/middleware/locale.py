@@ -36,6 +36,22 @@ class LocaleMiddleware(MiddlewareMixin):
         request.LANGUAGE_CODE = translation.get_language()
 
     def process_response(self, request, response):
+        """
+
+        Handles the processing of HTTP responses, including handling of language and URL prefixing.
+
+        When a 404 status code is encountered and the URL pattern indicates the use of internationalization (i18n) language prefixing,
+        the function attempts to find a matching URL by prepending the current language to the URL path.
+
+        If a valid path is found, or if a slash needs to be appended to the URL for it to be valid,
+        the function returns a redirect response to the appropriate URL, taking into account the language and any necessary URL prefixing.
+
+        In all cases, the function ensures that the 'Content-Language' header is set to the current language and
+        the 'Vary' header is updated to include 'Accept-Language', to indicate that the response is dependent on the language and other request headers.
+
+        Returns the processed HTTP response object.
+
+        """
         language = translation.get_language()
         language_from_path = translation.get_language_from_path(request.path_info)
         urlconf = getattr(request, "urlconf", settings.ROOT_URLCONF)

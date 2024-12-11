@@ -82,6 +82,9 @@ class DatabaseOperations(BaseDatabaseOperations):
 
     def date_extract_sql(self, lookup_type, sql, params):
         # https://www.postgresql.org/docs/current/functions-datetime.html#FUNCTIONS-DATETIME-EXTRACT
+        """
+
+        """
         if lookup_type == "week_day":
             # For consistency across backends, we return Sunday=1, Saturday=7.
             return f"EXTRACT(DOW FROM {sql}) + 1", params
@@ -364,6 +367,9 @@ class DatabaseOperations(BaseDatabaseOperations):
         return super().subtract_temporals(internal_type, lhs, rhs)
 
     def explain_query_prefix(self, format=None, **options):
+        """
+
+        """
         extra = {}
         # Normalize options.
         if options:

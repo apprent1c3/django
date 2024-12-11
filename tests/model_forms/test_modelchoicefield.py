@@ -20,6 +20,9 @@ class ModelChoiceFieldTests(TestCase):
         cls.c3 = Category.objects.create(name="Third", slug="third-test", url="third")
 
     def test_basics(self):
+        """
+
+        """
         f = forms.ModelChoiceField(Category.objects.all())
         self.assertEqual(
             list(f.choices),
@@ -86,6 +89,9 @@ class ModelChoiceFieldTests(TestCase):
             f.clean("\x00something")
 
     def test_choices(self):
+        """
+
+        """
         f = forms.ModelChoiceField(
             Category.objects.filter(pk=self.c1.id), required=False
         )
@@ -275,6 +281,9 @@ class ModelChoiceFieldTests(TestCase):
         self.assertTrue(ModelChoiceForm(data={"categories": self.c1.pk}).is_valid())
 
     def test_disabled_multiplemodelchoicefield(self):
+        """
+
+        """
         class ArticleForm(forms.ModelForm):
             categories = forms.ModelMultipleChoiceField(
                 Category.objects.all(), required=False
@@ -327,6 +336,13 @@ class ModelChoiceFieldTests(TestCase):
         self.assertIsInstance(field.choices, CustomModelChoiceIterator)
 
     def test_choice_iterator_passes_model_to_widget(self):
+        """
+        Verifies that the custom checkbox select multiple widget correctly renders options and passes the model instance to the widget.
+
+        Tests the functionality of the CustomCheckboxSelectMultiple widget in conjunction with the CustomModelMultipleChoiceField.
+        The widget should render each option with a checkbox input that includes a 'data-slug' attribute, which contains the slug of the related model instance.
+        The test asserts that the rendered HTML matches the expected output, confirming that the model instances are correctly passed to the widget and that the slugs are properly assigned to the input attributes.
+        """
         class CustomCheckboxSelectMultiple(CheckboxSelectMultiple):
             def create_option(
                 self, name, value, label, selected, index, subindex=None, attrs=None
@@ -359,6 +375,15 @@ class ModelChoiceFieldTests(TestCase):
         )
 
     def test_custom_choice_iterator_passes_model_to_widget(self):
+        """
+
+        Tests the functionality of a custom model choice iterator when used in conjunction with a custom checkbox select multiple widget.
+
+        This test case verifies that the custom iterator correctly passes a model instance to the widget, allowing for the inclusion of custom attributes in the rendered HTML.
+
+        The test specifically checks the output of a custom multiple choice field, ensuring that it includes the expected data attributes and values.
+
+        """
         class CustomModelChoiceValue:
             def __init__(self, value, obj):
                 self.value = value

@@ -131,6 +131,20 @@ class TranslationTests(SimpleTestCase):
         self.assertEqual(french._catalog[("%(num)d hour", 0)], "%(num)d heure")
 
     def test_override(self):
+        """
+        Tests the override functionality of the translation system.
+
+        This test checks that the language can be successfully overridden and 
+        that the original language is restored after the override is removed.
+        It also verifies that overriding the language with None removes any 
+        currently set language and that nested overrides work as expected.
+
+        The test covers the following scenarios:
+        - Overriding the language with a specific language code
+        - Restoring the original language after override removal
+        - Overriding the language with None to remove any current language setting
+        - Nested overrides to ensure correct language restoration after removal
+        """
         activate("de")
         try:
             with translation.override("pl"):
@@ -147,6 +161,9 @@ class TranslationTests(SimpleTestCase):
 
     def test_override_decorator(self):
         @translation.override("pl")
+        """
+
+        """
         def func_pl():
             self.assertEqual(get_language(), "pl")
 
@@ -213,6 +230,9 @@ class TranslationTests(SimpleTestCase):
 
     @override_settings(LOCALE_PATHS=extended_locale_paths)
     def test_ngettext_lazy(self):
+        """
+
+        """
         simple_with_format = ngettext_lazy("%d good result", "%d good results")
         simple_context_with_format = npgettext_lazy(
             "Exclamation", "%d good result", "%d good results"
@@ -278,6 +298,9 @@ class TranslationTests(SimpleTestCase):
 
     @override_settings(LOCALE_PATHS=extended_locale_paths)
     def test_ngettext_lazy_format_style(self):
+        """
+
+        """
         simple_with_format = ngettext_lazy("{} good result", "{} good results")
         simple_context_with_format = npgettext_lazy(
             "Exclamation", "{} good result", "{} good results"
@@ -487,6 +510,9 @@ class TranslationLoadingTests(SimpleTestCase):
 
 class TranslationThreadSafetyTests(SimpleTestCase):
     def setUp(self):
+        """
+
+        """
         self._old_language = get_language()
         self._translations = trans_real._translations
 
@@ -533,6 +559,9 @@ class FormattingTests(SimpleTestCase):
         )
 
     def test_all_format_strings(self):
+        """
+
+        """
         all_locales = LANG_INFO.keys()
         some_date = datetime.date(2017, 10, 14)
         some_datetime = datetime.datetime(2017, 10, 14, 10, 23)
@@ -668,6 +697,9 @@ class FormattingTests(SimpleTestCase):
                 self.assertEqual(1, get_format("FIRST_DAY_OF_WEEK"))
 
     def test_l10n_enabled(self):
+        """
+
+        """
         self.maxDiff = 3000
         # Catalan locale
         with translation.override("ca", deactivate=True):
@@ -1195,6 +1227,9 @@ class FormattingTests(SimpleTestCase):
                     self.assertEqual(dt.strftime(fmt), expected)
 
     def test_sanitize_strftime_format_with_escaped_percent(self):
+        """
+
+        """
         dt = datetime.date(1, 1, 1)
         for fmt, expected in [
             ("%%C", "%C"),
@@ -1616,6 +1651,9 @@ class MiscTests(SimpleTestCase):
                 self.assertEqual(get_language_from_request(request), expected)
 
     def test_parse_language_cookie(self):
+        """
+
+        """
         g = get_language_from_request
         request = self.rf.get("/")
         request.COOKIES[settings.LANGUAGE_COOKIE_NAME] = "pt-br"
@@ -1653,6 +1691,9 @@ class MiscTests(SimpleTestCase):
         ],
     )
     def test_get_supported_language_variant_real(self):
+        """
+
+        """
         g = trans_real.get_supported_language_variant
         self.assertEqual(g("en"), "en")
         self.assertEqual(g("en-gb"), "en")
@@ -1684,6 +1725,9 @@ class MiscTests(SimpleTestCase):
         self.assertEqual(g("en-" * 30000), "en")  # catastrophic test
 
     def test_get_supported_language_variant_null(self):
+        """
+
+        """
         g = trans_null.get_supported_language_variant
         self.assertEqual(g(settings.LANGUAGE_CODE), settings.LANGUAGE_CODE)
         with self.assertRaises(LookupError):
@@ -1975,6 +2019,9 @@ class CountrySpecificLanguageTests(SimpleTestCase):
     rf = RequestFactory()
 
     def test_check_for_language(self):
+        """
+
+        """
         self.assertTrue(check_for_language("en"))
         self.assertTrue(check_for_language("en-us"))
         self.assertTrue(check_for_language("en-US"))
@@ -2161,6 +2208,9 @@ class TranslationFileChangedTests(SimpleTestCase):
         self.assertEqual(gettext_module._translations, {"foo": "bar"})
 
     def test_resets_cache_with_mo_files(self):
+        """
+
+        """
         gettext_module._translations = {"foo": "bar"}
         trans_real._translations = {"foo": "bar"}
         trans_real._default = 1

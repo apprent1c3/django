@@ -732,6 +732,9 @@ class ReverseLazySettingsTest(AdminScriptTestCase):
 class ReverseShortcutTests(SimpleTestCase):
     def test_redirect_to_object(self):
         # We don't really need a model; just something with a get_absolute_url
+        """
+
+        """
         class FakeObj:
             def get_absolute_url(self):
                 return "/hi-there/"
@@ -755,6 +758,21 @@ class ReverseShortcutTests(SimpleTestCase):
             redirect("not-a-view")
 
     def test_redirect_to_url(self):
+        """
+        ..: 
+            Test the redirect_to_url function to ensure it correctly handles different types of URL redirection.
+
+            The function is expected to take a URL as input and return a redirect object with the URL properly encoded.
+            The test cases cover various scenarios, including:
+
+            * Relative URLs
+            * Absolute URLs
+            * URLs containing non-ASCII characters
+            * URLs containing special characters
+            * Non-URL strings (e.g. module paths)
+
+            The test assertions verify that the redirect object's URL attribute matches the expected output for each test case.
+        """
         res = redirect("/foo/")
         self.assertEqual(res.url, "/foo/")
         res = redirect("http://example.com/")
@@ -1507,6 +1525,9 @@ class NoRootUrlConfTests(SimpleTestCase):
 @override_settings(ROOT_URLCONF="urlpatterns_reverse.namespace_urls")
 class ResolverMatchTests(SimpleTestCase):
     def test_urlpattern_resolve(self):
+        """
+
+        """
         for (
             path_,
             url_name,

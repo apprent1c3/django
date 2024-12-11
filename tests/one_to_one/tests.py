@@ -74,6 +74,9 @@ class OneToOneTests(TestCase):
         self.assertSequenceEqual(Place.objects.order_by("name"), [self.p2, self.p1])
 
     def test_manager_get(self):
+        """
+
+        """
         def assert_get_restaurant(**params):
             self.assertEqual(
                 repr(Restaurant.objects.get(**params)),
@@ -109,6 +112,9 @@ class OneToOneTests(TestCase):
 
     def test_foreign_key(self):
         # Add a Waiter to the Restaurant.
+        """
+
+        """
         w = self.r1.waiter_set.create(name="Joe")
         self.assertEqual(
             repr(w), "<Waiter: Joe the waiter at Demon Dogs the restaurant>"
@@ -135,6 +141,9 @@ class OneToOneTests(TestCase):
 
     def test_multiple_o2o(self):
         # One-to-one fields still work if you create your own primary key
+        """
+
+        """
         o1 = ManualPrimaryKey(primary_key="abc123", name="primary")
         o1.save()
         o2 = RelatedModel(link=o1, name="secondary")
@@ -478,6 +487,20 @@ class OneToOneTests(TestCase):
         )
 
     def test_related_object(self):
+        """
+
+        Tests the related object behavior for schools and directors.
+
+        Verifies that the default manager of the School model returns all schools that
+        are public and have a non-temporary director. Also checks that the director
+        associated with a public school can be retrieved and that the school associated
+        with a director can be retrieved.
+
+        Additionally, this test ensures that when a school or director is accessed
+        through the base manager, attempts to access related objects that are not
+        returned by the default manager will raise a DoesNotExist exception.
+
+        """
         public_school = School.objects.create(is_public=True)
         public_director = Director.objects.create(school=public_school, is_temp=False)
 
@@ -565,6 +588,23 @@ class OneToOneTests(TestCase):
         self.assertEqual(w.restaurant, r2)
 
     def test_rel_pk_subquery(self):
+        """
+        Tests the usage of related fields as subqueries in filters.
+
+        This function verifies the correct behavior of Django's ORM when using related fields 
+        as subqueries in filter operations. It tests various scenarios, including filtering 
+        by a related field's primary key, using the `__in` lookup with a subquery, and 
+        filtering by a related field's identifier.
+
+        The tests ensure that the resulting querysets match the expected results, 
+        providing confidence in the correctness of the ORM's behavior in these situations.
+
+        Scenarios tested:
+        - Filtering by a related field's primary key
+        - Using the `__in` lookup with a subquery
+        - Filtering by a related field's identifier
+        - Using a related field as a subquery in a filter operation
+        """
         r = Restaurant.objects.first()
         q1 = Restaurant.objects.filter(place_id=r.pk)
         # Subquery using primary key and a query against the

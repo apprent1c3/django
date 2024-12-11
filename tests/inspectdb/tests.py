@@ -356,6 +356,9 @@ class InspectDBTestCase(TestCase):
         self.assertIn("class InspectdbSpecialTableName(models.Model):", output)
 
     def test_custom_normalize_table_name(self):
+        """
+
+        """
         def pascal_case_table_only(table_name):
             return table_name.startswith("inspectdb_pascal")
 
@@ -396,6 +399,9 @@ class InspectDBTestCase(TestCase):
         )
 
     def test_unique_together_meta(self):
+        """
+
+        """
         out = StringIO()
         call_command("inspectdb", "inspectdb_uniquetogether", stdout=out)
         output = out.getvalue()
@@ -601,6 +607,9 @@ class InspectDBTransactionalTests(TransactionTestCase):
 
     @skipUnless(connection.vendor == "postgresql", "PostgreSQL specific SQL")
     def test_foreign_data_wrapper(self):
+        """
+
+        """
         with connection.cursor() as cursor:
             cursor.execute("CREATE EXTENSION IF NOT EXISTS file_fdw")
             cursor.execute(
@@ -641,6 +650,9 @@ class InspectDBTransactionalTests(TransactionTestCase):
 
     @skipUnlessDBFeature("create_test_table_with_composite_primary_key")
     def test_composite_primary_key(self):
+        """
+
+        """
         table_name = "test_table_composite_pk"
         with connection.cursor() as cursor:
             cursor.execute(

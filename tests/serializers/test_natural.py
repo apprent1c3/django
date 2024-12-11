@@ -115,6 +115,9 @@ def natural_pk_mti_test(self, format):
 
 
 def forward_ref_fk_test(self, format):
+    """
+
+    """
     t1 = NaturalKeyThing.objects.create(key="t1")
     t2 = NaturalKeyThing.objects.create(key="t2", other_thing=t1)
     t1.other_thing = t2
@@ -142,6 +145,9 @@ def forward_ref_fk_test(self, format):
 
 
 def forward_ref_fk_with_error_test(self, format):
+    """
+
+    """
     t1 = NaturalKeyThing.objects.create(key="t1")
     t2 = NaturalKeyThing.objects.create(key="t2", other_thing=t1)
     t1.other_thing = t2
@@ -167,6 +173,22 @@ def forward_ref_fk_with_error_test(self, format):
 
 
 def forward_ref_m2m_test(self, format):
+    """
+    Tests the deserialization of forward references in many-to-many relationships.
+
+     Validates that objects are properly created and linked when deserializing from the given format,
+     with natural primary and foreign keys. This ensures that object relationships are correctly established,
+     even when the references are made before the referenced objects are fully defined.
+
+     The test covers the following steps:
+
+     - Creation of test objects with many-to-many relationships
+     - Serialization of these objects to the given format
+     - Deletion of the original objects
+     - Deserialization of the objects, using forward references
+     - Saving of deserialized objects with deferred fields
+     - Verification that the deserialized objects have the correct relationships
+    """
     t1 = NaturalKeyThing.objects.create(key="t1")
     t2 = NaturalKeyThing.objects.create(key="t2")
     t3 = NaturalKeyThing.objects.create(key="t3")
@@ -194,6 +216,9 @@ def forward_ref_m2m_test(self, format):
 
 
 def forward_ref_m2m_with_error_test(self, format):
+    """
+
+    """
     t1 = NaturalKeyThing.objects.create(key="t1")
     t2 = NaturalKeyThing.objects.create(key="t2")
     t3 = NaturalKeyThing.objects.create(key="t3")

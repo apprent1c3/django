@@ -25,6 +25,9 @@ simple_option_desc_re = re.compile(r"([-_a-zA-Z0-9]+)(\s*.*?)(?=,\s+(?:/|-|--)|$
 
 
 def setup(app):
+    """
+
+    """
     app.add_crossref_type(
         directivename="setting",
         rolename="setting",
@@ -80,6 +83,9 @@ class VersionDirective(Directive):
     option_spec = {}
 
     def run(self):
+        """
+
+        """
         if len(self.arguments) > 1:
             msg = """Only one argument accepted for directive '{directive_name}::'.
             Comments should be provided as content,
@@ -128,6 +134,18 @@ class DjangoHTMLTranslator(HTMLTranslator):
         self.body.append("</table>\n")
 
     def visit_desc_parameterlist(self, node):
+        """
+
+        Visits a description parameter list node and initializes the necessary state for processing its contents.
+
+        This function is responsible for setting up the environment for generating the parameter list of a description.
+        It determines the separator to be used between parameters and counts the number of required parameters.
+        Additionally, it sets flags to track the status of the parameter list, such as whether the first parameter has been processed,
+        the current level of optional parameters, and the index of the current parameter group.
+
+        The function also considers the Sphinx version to ensure compatibility with different versions of the documentation generator.
+
+        """
         self.body.append("(")  # by default sphinx puts <big> around the "("
         self.optional_param_level = 0
         self.param_separator = node.child_text_separator
@@ -307,7 +325,22 @@ class ConsoleDirective(CodeBlock):
     WIN_PROMPT = r"...\> "
 
     def run(self):
+        """
+
+        """
         def args_to_win(cmdline):
+            """
+            Converts a Unix-style command line to a Windows-compatible format.
+
+            This function takes a command line string as input and applies transformations to make it compatible with Windows.
+            It replaces Unix-style directories (./ and ~/) with their Windows equivalents, converts forward slashes to backslashes,
+            and prefixes 'make' with '.bat'. The function returns the modified command line if any changes were made, otherwise it returns the original command line.
+
+            It supports Git commands and URLs, preserving their original format when present in the command line.
+
+            Returns:
+                str: The modified command line string if changes were made, otherwise the original command line string.
+            """
             changed = False
             out = []
             for token in cmdline.split():
@@ -330,6 +363,9 @@ class ConsoleDirective(CodeBlock):
             return cmdline
 
         def cmdline_to_win(line):
+            """
+
+            """
             if line.startswith("# "):
                 return "REM " + args_to_win(line[2:])
             if line.startswith("$ # "):
@@ -351,6 +387,9 @@ class ConsoleDirective(CodeBlock):
             return None
 
         def code_block_to_win(content):
+            """
+
+            """
             bchanged = False
             lines = []
             for line in content:

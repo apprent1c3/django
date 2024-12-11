@@ -203,6 +203,9 @@ class GenericRelationTests(SimpleTestCase):
 
     @override_settings(TEST_SWAPPED_MODEL="contenttypes_tests.Replacement")
     def test_pointing_to_swapped_model(self):
+        """
+
+        """
         class Replacement(models.Model):
             pass
 

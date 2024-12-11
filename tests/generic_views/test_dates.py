@@ -116,6 +116,9 @@ class ArchiveIndexViewTests(TestDataMixin, TestCase):
         )
 
     def test_paginated_archive_view(self):
+        """
+
+        """
         _make_books(20, base_date=datetime.date.today())
         res = self.client.get("/dates/books/paginated/")
         self.assertEqual(res.status_code, 200)
@@ -250,6 +253,9 @@ class YearArchiveViewTests(TestDataMixin, TestCase):
 
     def test_year_view_allow_future(self):
         # Create a new book in the future
+        """
+
+        """
         year = datetime.date.today().year + 1
         Book.objects.create(
             name="The New New Testement", pages=600, pubdate=datetime.date(year, 1, 1)
@@ -403,6 +409,9 @@ class MonthArchiveViewTests(TestDataMixin, TestCase):
 
     def test_month_view_allow_empty(self):
         # allow_empty = False, empty month
+        """
+
+        """
         res = self.client.get("/dates/books/2000/jan/")
         self.assertEqual(res.status_code, 404)
 
@@ -424,6 +433,9 @@ class MonthArchiveViewTests(TestDataMixin, TestCase):
         self.assertIsNone(res.context["next_month"])
 
     def test_month_view_allow_future(self):
+        """
+
+        """
         future = (datetime.date.today() + datetime.timedelta(days=60)).replace(day=1)
         urlbit = future.strftime("%Y/%b").lower()
         b = Book.objects.create(name="The New New Testement", pages=600, pubdate=future)
@@ -564,6 +576,9 @@ class WeekArchiveViewTests(TestDataMixin, TestCase):
 
     def test_week_view_allow_empty(self):
         # allow_empty = False, empty week
+        """
+
+        """
         res = self.client.get("/dates/books/2008/week/12/")
         self.assertEqual(res.status_code, 404)
 
@@ -589,6 +604,9 @@ class WeekArchiveViewTests(TestDataMixin, TestCase):
 
     def test_week_view_allow_future(self):
         # January 7th always falls in week 1, given Python's definition of week numbers
+        """
+
+        """
         future = datetime.date(datetime.date.today().year + 1, 1, 7)
         future_sunday = future - datetime.timedelta(days=(future.weekday() + 1) % 7)
         b = Book.objects.create(name="The New New Testement", pages=600, pubdate=future)
@@ -699,6 +717,9 @@ class DayArchiveViewTests(TestDataMixin, TestCase):
 
     def test_day_view_allow_empty(self):
         # allow_empty = False, empty month
+        """
+
+        """
         res = self.client.get("/dates/books/2000/jan/1/")
         self.assertEqual(res.status_code, 404)
 
@@ -721,6 +742,17 @@ class DayArchiveViewTests(TestDataMixin, TestCase):
         self.assertIsNone(res.context["next_day"])
 
     def test_day_view_allow_future(self):
+        """
+
+        Tests the day view functionality when allowing future dates.
+
+        Verifies that when the 'allow_future' parameter is specified in the URL, 
+        views for future dates return a 200 status code and include the expected book list.
+        Also, checks that views without the 'allow_future' parameter return a 404 status code 
+        for future dates. Additionally, tests the 'next_day' and 'previous_day' context variables 
+        to ensure they are correctly populated based on the current date and the existence of future books.
+
+        """
         future = datetime.date.today() + datetime.timedelta(days=60)
         urlbit = future.strftime("%Y/%b/%d").lower()
         b = Book.objects.create(name="The New New Testement", pages=600, pubdate=future)
@@ -804,6 +836,9 @@ class DayArchiveViewTests(TestDataMixin, TestCase):
     @requires_tz_support
     @override_settings(USE_TZ=True, TIME_ZONE="Africa/Nairobi")
     def test_aware_datetime_day_view(self):
+        """
+
+        """
         bs = BookSigning.objects.create(
             event_date=datetime.datetime(
                 2008, 4, 2, 12, 0, tzinfo=datetime.timezone.utc
@@ -913,6 +948,9 @@ class DateDetailViewTests(TestDataMixin, TestCase):
     @requires_tz_support
     @override_settings(USE_TZ=True, TIME_ZONE="Africa/Nairobi")
     def test_aware_datetime_date_detail(self):
+        """
+
+        """
         bs = BookSigning.objects.create(
             event_date=datetime.datetime(
                 2008, 4, 2, 12, 0, tzinfo=datetime.timezone.utc

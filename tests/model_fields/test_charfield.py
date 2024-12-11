@@ -25,6 +25,9 @@ class TestCharField(TestCase):
         self.assertEqual(p.title, "Smile 😀")
 
     def test_assignment_from_choice_enum(self):
+        """
+
+        """
         class Event(models.TextChoices):
             C = "Carnival!"
             F = "Festival!"
@@ -91,6 +94,9 @@ class ValidationTests(SimpleTestCase):
             f.clean(None, None)
 
     def test_callable_choices(self):
+        """
+
+        """
         def get_choices():
             return {str(i): f"Option {i}" for i in range(3)}
 

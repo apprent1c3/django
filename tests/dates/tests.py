@@ -10,6 +10,9 @@ from .models import Article, Category, Comment
 
 class DatesTests(TestCase):
     def test_related_model_traverse(self):
+        """
+
+        """
         a1 = Article.objects.create(
             title="First one",
             pub_date=datetime.date(2005, 7, 28),

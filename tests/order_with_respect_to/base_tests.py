@@ -99,6 +99,9 @@ class BaseOrderWithRespectToTests:
         self.assertSequenceEqual(p1.get_post_order(), [p1_1.pk, p1_2.pk, p1_3.pk])
 
     def test_delete_and_insert(self):
+        """
+
+        """
         q1 = self.Question.objects.create(text="What is your favorite color?")
         q2 = self.Question.objects.create(text="What color is it?")
         a1 = self.Answer.objects.create(text="Blue", question=q1)

@@ -235,6 +235,21 @@ class Tests(TestCase):
 
     @unittest.skipUnless(is_psycopg3, "psycopg3 specific test")
     def test_connect_pool(self):
+        """
+
+        Tests the connection pooling functionality of psycopg3.
+
+        This test case verifies that a connection pool is created and managed correctly.
+        It checks that the pool size limits are enforced, and that connections are reused
+        after being closed. The test also ensures that a PoolTimeout exception is raised
+        when the pool is exhausted and no connections are available within the specified timeout.
+
+        The test scenario simulates the following sequence of events:
+        - Establishes multiple connections from the pool.
+        - Verifies that the pool size limit is enforced.
+        - Closes a connection and verifies that it is reused.
+
+        """
         from psycopg_pool import PoolTimeout
 
         new_connection = no_pool_connection(alias="default_pool")
@@ -285,6 +300,9 @@ class Tests(TestCase):
 
     @unittest.skipUnless(is_psycopg3, "psycopg3 specific test")
     def test_connect_pool_with_timezone(self):
+        """
+
+        """
         new_time_zone = "Africa/Nairobi"
         new_connection = no_pool_connection(alias="default_pool")
 
@@ -310,6 +328,9 @@ class Tests(TestCase):
 
     @unittest.skipUnless(is_psycopg3, "psycopg3 specific test")
     def test_pooling_health_checks(self):
+        """
+
+        """
         new_connection = no_pool_connection(alias="default_pool")
         new_connection.settings_dict["OPTIONS"]["pool"] = True
         new_connection.settings_dict["CONN_HEALTH_CHECKS"] = False
@@ -454,6 +475,9 @@ class Tests(TestCase):
             new_connection.close()
 
     def test_client_encoding_utf8_enforce(self):
+        """
+
+        """
         new_connection = no_pool_connection()
         new_connection.settings_dict["OPTIONS"]["client_encoding"] = "iso-8859-2"
         try:

@@ -7,6 +7,9 @@ from django.test import SimpleTestCase
 
 class BooleanFieldTest(SimpleTestCase):
     def test_booleanfield_clean_1(self):
+        """
+
+        """
         f = BooleanField()
         with self.assertRaisesMessage(ValidationError, "'This field is required.'"):
             f.clean("")
@@ -24,6 +27,21 @@ class BooleanFieldTest(SimpleTestCase):
             f.clean("False")
 
     def test_booleanfield_clean_2(self):
+        """
+
+        Tests the cleaning behavior of a BooleanField.
+
+        Verifies that the field correctly interprets various input values as boolean values.
+        Empty strings and None are considered False, while non-empty strings and non-zero values are considered True.
+        Specifically, the test checks the cleaning of the field with the following inputs:
+        - empty strings
+        - None
+        - boolean values
+        - integer values
+        - string representations of integer values
+        - string representations of boolean values (including case-insensitive matching for 'False')
+
+        """
         f = BooleanField(required=False)
         self.assertIs(f.clean(""), False)
         self.assertIs(f.clean(None), False)
@@ -42,6 +60,9 @@ class BooleanFieldTest(SimpleTestCase):
         self.assertIsInstance(pickle.loads(pickle.dumps(BooleanField())), BooleanField)
 
     def test_booleanfield_changed(self):
+        """
+
+        """
         f = BooleanField()
         self.assertFalse(f.has_changed(None, None))
         self.assertFalse(f.has_changed(None, ""))

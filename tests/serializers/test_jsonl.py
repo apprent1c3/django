@@ -64,6 +64,9 @@ class JsonlSerializerTestCase(SerializersTestBase, TestCase):
 
     @isolate_apps("serializers")
     def test_custom_encoder(self):
+        """
+
+        """
         class ScoreDecimal(models.Model):
             score = models.DecimalField()
 

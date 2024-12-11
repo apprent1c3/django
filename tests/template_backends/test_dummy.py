@@ -61,6 +61,9 @@ class TemplateStringsTests(SimpleTestCase):
         self.assertNotIn("<script>", content)
 
     def test_django_html_escaping(self):
+        """
+
+        """
         if self.backend_name == "dummy":
             self.skipTest("test doesn't apply to dummy backend")
 

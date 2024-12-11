@@ -173,6 +173,9 @@ class FileTests(unittest.TestCase):
         self.assertFalse(test_file.seekable())
 
     def test_io_wrapper(self):
+        """
+
+        """
         content = "vive l'été\n"
         with (
             tempfile.TemporaryFile() as temp,
@@ -206,6 +209,9 @@ class FileTests(unittest.TestCase):
             self.assertIs(locks.unlock(f2), True)
 
     def test_open_supports_full_signature(self):
+        """
+
+        """
         called = False
 
         def opener(path, flags):

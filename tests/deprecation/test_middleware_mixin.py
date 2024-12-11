@@ -57,6 +57,9 @@ class MiddlewareMixinTests(SimpleTestCase):
     ]
 
     def test_repr(self):
+        """
+
+        """
         class GetResponse:
             def __call__(self):
                 return HttpResponse()
@@ -91,6 +94,9 @@ class MiddlewareMixinTests(SimpleTestCase):
                     middleware(None)
 
     def test_coroutine(self):
+        """
+
+        """
         async def async_get_response(request):
             return HttpResponse()
 

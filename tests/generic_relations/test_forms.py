@@ -28,6 +28,16 @@ class TaggedItemForm(forms.ModelForm):
 
 class GenericInlineFormsetTests(TestCase):
     def test_output(self):
+        """
+
+        Tests the rendering of the TaggedItem formset to ensure that it correctly generates 
+        the expected HTML. The test covers the cases of creating a new formset with and 
+        without an instance, as well as with and without a prefix.
+
+        The formset is expected to contain fields for the tag and delete checkbox, as well 
+        as a hidden field for the item ID when the formset is initialized with an instance.
+
+        """
         GenericFormSet = generic_inlineformset_factory(TaggedItem, extra=1)
         formset = GenericFormSet()
         self.assertHTMLEqual(
@@ -134,6 +144,9 @@ class GenericInlineFormsetTests(TestCase):
         )
 
     def test_options(self):
+        """
+
+        """
         TaggedItemFormSet = generic_inlineformset_factory(
             TaggedItem,
             can_delete=False,
@@ -218,6 +231,13 @@ class GenericInlineFormsetTests(TestCase):
             generic_inlineformset_factory(BadModel, TaggedItemForm)
 
     def test_save_new_uses_form_save(self):
+        """
+        Tests that creating a new instance using a formset with a custom save method on the form saves the instance correctly. 
+
+        This test ensures that the custom save logic defined in the form's save method is executed when a new instance is saved through the formset, resulting in the instance's attributes being set as expected. 
+
+        Specifically, it verifies that the `saved_by` attribute of the newly created instance is set to `'custom method'`, demonstrating that the custom save logic was applied.
+        """
         class SaveTestForm(forms.ModelForm):
             def save(self, *args, **kwargs):
                 self.instance.saved_by = "custom method"

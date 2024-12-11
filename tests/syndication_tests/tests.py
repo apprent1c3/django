@@ -462,6 +462,9 @@ class SyndicationFeedTest(FeedTestCase):
         self.assertEqual(updated, latest_updated)
 
     def test_custom_feed_generator(self):
+        """
+
+        """
         response = self.client.get("/syndication/custom/")
         feed = minidom.parseString(response.content).firstChild
 

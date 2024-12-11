@@ -55,6 +55,26 @@ class FlatpageForm(forms.ModelForm):
         return url
 
     def clean(self):
+        """
+
+        Verifies that a flatpage's URL is unique across all sites or site instances.
+
+        This method checks for existing flatpages with the same URL. If a duplicate
+        URL is found for any of the specified sites, it raises a ValidationError.
+
+        The check considers the current instance's primary key, allowing for the
+        editing of existing flatpages without triggering a duplicate URL error.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            ValidationError: If a flatpage with the same URL already exists for any of the specified sites.
+
+        """
         url = self.cleaned_data.get("url")
         sites = self.cleaned_data.get("sites")
 

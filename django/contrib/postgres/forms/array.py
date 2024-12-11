@@ -42,6 +42,9 @@ class SimpleArrayField(forms.CharField):
         return value
 
     def to_python(self, value):
+        """
+
+        """
         if isinstance(value, list):
             items = value
         elif value:
@@ -144,6 +147,9 @@ class SplitArrayWidget(forms.Widget):
         return id_
 
     def get_context(self, name, value, attrs=None):
+        """
+
+        """
         attrs = {} if attrs is None else attrs
         context = super().get_context(name, value, attrs)
         if self.is_localized:
@@ -194,6 +200,9 @@ class SplitArrayField(forms.Field):
         super().__init__(**kwargs)
 
     def _remove_trailing_nulls(self, values):
+        """
+
+        """
         index = None
         if self.remove_trailing_nulls:
             for i, value in reversed(list(enumerate(values))):
@@ -210,6 +219,22 @@ class SplitArrayField(forms.Field):
         return [self.base_field.to_python(item) for item in value]
 
     def clean(self, value):
+        """
+
+        Clean the input data by iterating over each item in the given value.
+
+        This function checks if the input value is required and raises a ValidationError if it is empty.
+        It then cleans each item in the value using the base_field's clean method and stores the cleaned data.
+        If any item fails to clean, a ValidationError is raised after attempting to clean all items.
+        Any trailing null values are removed from the cleaned data.
+
+        Raises:
+            ValidationError: If the input value is required and empty, or if any item in the value fails to clean.
+
+        Returns:
+            list: The cleaned data.
+
+        """
         cleaned_data = []
         errors = []
         if not any(value) and self.required:

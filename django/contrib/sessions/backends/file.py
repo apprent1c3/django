@@ -77,6 +77,19 @@ class SessionStore(SessionBase):
         )
 
     def load(self):
+        """
+
+        Loads session data from a stored file.
+
+        Attempts to open the session file, read its contents, and decode the data. If the file is empty or decoding fails due to an :exc:`EOFError` or :exc:`SuspiciousOperation`, a new session is created.
+
+        Additionally, checks the session's expiry age based on the data stored in the session file. If the session has expired, the data is cleared, the session is deleted, and a new one is created.
+
+        Returns a dictionary containing the loaded session data or an empty dictionary if the session is expired or creation failed.
+
+        Raises an exception if there is an issue accessing the session file, such as an :exc:`OSError` or :exc:`SuspiciousOperation`.
+
+        """
         session_data = {}
         try:
             with open(self._key_to_file(), encoding="ascii") as session_file:
@@ -121,6 +134,9 @@ class SessionStore(SessionBase):
         return self.create()
 
     def save(self, must_create=False):
+        """
+
+        """
         if self.session_key is None:
             return self.create()
         # Get the session data now, before we start messing

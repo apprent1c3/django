@@ -51,6 +51,17 @@ class ColumnsTests(TableTests):
         self.assertIs(self.reference.references_column("table", "first_column"), True)
 
     def test_rename_column_references(self):
+        """
+
+        Tests the renaming of column references in a data reference object.
+
+        Verifies that renaming a column reference from one column to another correctly updates the internal reference state.
+        The test checks that references to the original column are properly removed and replaced with references to the new column.
+        It also ensures that references to other columns and tables remain unaffected by the rename operation.
+
+        The test covers various rename scenarios, including renaming a column within the same table and swapping column references back and forth.
+
+        """
         self.reference.rename_column_references("other", "first_column", "third_column")
         self.assertIs(self.reference.references_column("table", "first_column"), True)
         self.assertIs(self.reference.references_column("table", "third_column"), False)

@@ -119,6 +119,9 @@ class BaseUserCreationFormTest(TestDataMixin, TestCase):
 
     def test_both_passwords(self):
         # One (or both) passwords weren't given
+        """
+
+        """
         data = {"username": "jsmith"}
         form = BaseUserCreationForm(data)
         required_error = [str(Field.default_error_messages["required"])]
@@ -291,6 +294,9 @@ class BaseUserCreationFormTest(TestDataMixin, TestCase):
         self.assertTrue(form.is_valid())
 
     def test_custom_form_saves_many_to_many_field(self):
+        """
+
+        """
         class CustomUserCreationForm(BaseUserCreationForm):
             class Meta(BaseUserCreationForm.Meta):
                 model = CustomUserWithM2M
@@ -340,6 +346,9 @@ class BaseUserCreationFormTest(TestDataMixin, TestCase):
         )
 
     def test_password_extra_validations(self):
+        """
+
+        """
         class ExtraValidationForm(ExtraValidationFormMixin, BaseUserCreationForm):
             def clean_password1(self):
                 return self.failing_helper("password1")
@@ -450,6 +459,17 @@ class UserCreationFormTest(TestDataMixin, TestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.ExtensionUser")
     def test_case_insensitive_username_custom_user_and_error_message(self):
+        """
+
+        Tests that the username field in a custom user creation form is case-insensitive.
+
+        This test case verifies that attempting to create a new user with a username
+        that already exists (albeit with different casing) will result in a validation
+        error, preventing duplicate usernames. The error message displayed is also
+        checked to ensure it matches the custom error message defined for the 'unique'
+        constraint on the username field.
+
+        """
         class CustomUserCreationForm(UserCreationForm):
             class Meta(UserCreationForm.Meta):
                 model = ExtensionUser
@@ -534,6 +554,9 @@ class AuthenticationFormTest(TestDataMixin, TestCase):
         )
 
     def test_login_failed(self):
+        """
+
+        """
         signal_calls = []
 
         def signal_handler(**kwargs):
@@ -578,6 +601,26 @@ class AuthenticationFormTest(TestDataMixin, TestCase):
     )
     def test_custom_login_allowed_policy(self):
         # The user is inactive, but our custom form policy allows them to log in.
+        """
+        Tests the custom login allowed policy functionality within an AuthenticationForm.
+
+        This function checks two different custom authentication form scenarios, where 
+        the 'confirm_login_allowed' method has been overridden.
+
+        In the first scenario, the custom form allows users to log in even if they are 
+        inactive. It verifies that the form is considered valid in this case.
+
+        In the second scenario, the custom form implements a stricter policy, where 
+        a specific user is disallowed, and an even stricter global policy that disallows 
+        all users. The test checks that the form correctly reports errors for both of 
+        these cases, ensuring that the custom login allowed policy is properly applied 
+        and reported to the user.
+
+        The test uses various usernames and passwords to exercise the different 
+        custom authentication form behaviors, ensuring that the functionality is 
+        working as expected in different scenarios.\"\"\"
+        ```
+        """
         data = {
             "username": "inactive",
             "password": "password",
@@ -698,6 +741,9 @@ class AuthenticationFormTest(TestDataMixin, TestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.IntegerUsernameUser")
     def test_integer_username(self):
+        """
+
+        """
         class CustomAuthenticationForm(AuthenticationForm):
             username = IntegerField()
 
@@ -793,6 +839,9 @@ class SetPasswordFormTest(TestDataMixin, TestCase):
         ]
     )
     def test_validates_password(self):
+        """
+
+        """
         user = User.objects.get(username="testclient")
         data = {
             "new_password1": "testclient",
@@ -897,6 +946,9 @@ class SetPasswordFormTest(TestDataMixin, TestCase):
                 )
 
     def test_password_extra_validations(self):
+        """
+
+        """
         class ExtraValidationForm(ExtraValidationFormMixin, SetPasswordForm):
             def clean_new_password1(self):
                 return self.failing_helper("new_password1")
@@ -1076,6 +1128,9 @@ class UserChangeFormTest(TestDataMixin, TestCase):
 
     @override_settings(ROOT_URLCONF="auth_tests.urls_admin")
     def test_link_to_password_reset_in_user_change_form(self):
+        """
+
+        """
         cases = [
             (
                 "testclient",
@@ -1113,6 +1168,15 @@ class UserChangeFormTest(TestDataMixin, TestCase):
                 self.assertEqual(matches.group(2), expected_button_label)
 
     def test_custom_form(self):
+        """
+
+        Tests the functionality of a custom user change form.
+
+        This test case verifies that the custom form can successfully validate and save
+        user data, including the date of birth field. It checks that the form is valid,
+        saves the changes, and confirms that the cleansed data matches the expected values.
+
+        """
         class CustomUserChangeForm(UserChangeForm):
             class Meta(UserChangeForm.Meta):
                 model = ExtensionUser
@@ -1243,6 +1307,9 @@ class PasswordResetFormTest(TestDataMixin, TestCase):
         self.assertEqual(mail.outbox[0].subject, "Custom password reset on example.com")
 
     def test_custom_email_constructor(self):
+        """
+
+        """
         data = {"email": "testclient@example.com"}
 
         class CustomEmailPasswordResetForm(PasswordResetForm):
@@ -1301,6 +1368,9 @@ class PasswordResetFormTest(TestDataMixin, TestCase):
         self.assertEqual(len(mail.outbox), 0)
 
     def test_unusable_password(self):
+        """
+
+        """
         user = User.objects.create_user("testuser", "test@example.com", "test")
         data = {"email": "test@example.com"}
         form = PasswordResetForm(data)
@@ -1470,6 +1540,9 @@ class AdminPasswordChangeFormTest(TestDataMixin, TestCase):
         ]
     )
     def test_validates_password(self):
+        """
+
+        """
         user = User.objects.get(username="testclient")
         data = {
             "password1": "testclient",
@@ -1509,6 +1582,9 @@ class AdminPasswordChangeFormTest(TestDataMixin, TestCase):
         self.assertEqual(form.changed_data, ["password"])
 
     def test_password_extra_validations(self):
+        """
+
+        """
         class ExtraValidationForm(ExtraValidationFormMixin, AdminPasswordChangeForm):
             def clean_password1(self):
                 return self.failing_helper("password1")
@@ -1544,6 +1620,9 @@ class AdminPasswordChangeFormTest(TestDataMixin, TestCase):
         self.assertEqual(form.changed_data, [])
 
     def test_one_password(self):
+        """
+
+        """
         user = User.objects.get(username="testclient")
         form1 = AdminPasswordChangeForm(user, {"password1": "", "password2": "test"})
         required_error = [Field.default_error_messages["required"]]

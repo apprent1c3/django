@@ -7,6 +7,9 @@ from django.test import SimpleTestCase
 
 class CPointerBaseTests(SimpleTestCase):
     def test(self):
+        """
+
+        """
         destructor_mock = mock.Mock()
 
         class NullPointerException(Exception):

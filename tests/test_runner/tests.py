@@ -50,6 +50,21 @@ class MySuite:
 
 class TestSuiteTests(SimpleTestCase):
     def build_test_suite(self, test_classes, suite=None, suite_class=None):
+        """
+        Builds a test suite from the given test classes.
+
+        This method constructs a test suite by loading tests from the specified test classes and
+        organizing them into a hierarchical structure. The resulting test suite can be used to run
+        all tests from the provided classes.
+
+        The test suite can be customized by specifying a custom suite class, and an existing suite
+        can be extended by passing it to this method.
+
+        :param test_classes: List of test classes to include in the test suite
+        :param suite: Optional existing test suite to extend (default: a new suite is created)
+        :param suite_class: Optional custom suite class to use (default: unittest.TestSuite)
+        :rtype: The constructed test suite
+        """
         if suite_class is None:
             suite_class = unittest.TestSuite
         if suite is None:
@@ -67,6 +82,9 @@ class TestSuiteTests(SimpleTestCase):
         return suite
 
     def make_test_suite(self, suite=None, suite_class=None):
+        """
+
+        """
         class Tests1(unittest.TestCase):
             def test1(self):
                 pass
@@ -116,6 +134,9 @@ class TestSuiteTests(SimpleTestCase):
             list(iter_test_cases("abc"))
 
     def test_iter_test_cases_iterable_of_tests(self):
+        """
+
+        """
         class Tests(unittest.TestCase):
             def test1(self):
                 pass
@@ -302,6 +323,25 @@ class TestSuiteTests(SimpleTestCase):
         )
 
     def test_reorder_tests_reverse_with_duplicates(self):
+        """
+        Reorders test cases in a test suite, removing duplicates, and optionally reversing the order.
+
+        This function takes a list of test cases as input, grouped by their respective classes, 
+        and returns a new list of test cases with duplicates removed. It also accepts an optional 
+        parameter to reverse the order of the test cases.
+
+        The function can be used to reorder test cases in a test suite for various purposes, 
+        such as improving test execution efficiency or meeting specific testing requirements.
+
+        Parameters:
+            tests (list): A list of test cases to be reordered.
+            classes (list): A list of classes, currently not used, reserved for future use.
+            reverse (bool): An optional parameter to reverse the order of the test cases. Defaults to False.
+
+        Returns:
+            list: A new list of reordered test cases with duplicates removed, and optionally reversed.
+
+        """
         class Tests1(unittest.TestCase):
             def test1(self):
                 pass
@@ -368,6 +408,9 @@ class DependencyOrderingTests(unittest.TestCase):
         self.assertLess(ordered_sigs.index("s3"), ordered_sigs.index("s2"))
 
     def test_chained_dependencies(self):
+        """
+
+        """
         raw = [
             ("s1", ("s1_db", ["alpha"])),
             ("s2", ("s2_db", ["bravo"])),
@@ -393,6 +436,24 @@ class DependencyOrderingTests(unittest.TestCase):
         self.assertLess(ordered_sigs.index("s3"), ordered_sigs.index("s1"))
 
     def test_multiple_dependencies(self):
+        """
+        Test that multiple dependencies are correctly ordered.
+
+        This test case verifies that a set of signatures with multiple dependencies
+        are ordered correctly. The function being tested takes a list of raw
+        signatures and a dictionary of dependencies, and returns an ordered list
+        of signatures.
+
+        The test checks that all signatures are included in the ordered list, and
+        that the order is correct based on the specified dependencies. The test
+        ensures that signatures with dependencies are ordered after their
+        dependencies, and that signatures with multiple dependencies are ordered
+        correctly.
+
+        The test covers a scenario with multiple dependencies between signatures,
+        including indirect dependencies. It verifies that the ordering is correct
+        even when there are multiple paths of dependencies between signatures.
+        """
         raw = [
             ("s1", ("s1_db", ["alpha"])),
             ("s2", ("s2_db", ["bravo"])),
@@ -715,6 +776,9 @@ class TestRunnerInitializerTests(SimpleTestCase):
         multiprocessing, "Pool", side_effect=Exception("multiprocessing.Pool()")
     )
     def test_no_initialize_suite_test_runner(self, mocked_pool):
+        """
+
+        """
         class StubTestRunner(DiscoverRunner):
             def setup_test_environment(self, **kwargs):
                 return
@@ -778,6 +842,9 @@ class SQLiteInMemoryTestDbs(TransactionTestCase):
         # Assert connections mocking is appropriately applied by preventing
         # any attempts at calling create_test_db on the global connection
         # objects.
+        """
+
+        """
         for connection in db.connections.all():
             create_test_db = mock.patch.object(
                 connection.creation,

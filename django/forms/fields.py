@@ -135,6 +135,46 @@ class Field:
         #             is its widget is shown in the form but not editable.
         # label_suffix -- Suffix to be added to the label. Overrides
         #                 form's label_suffix.
+        """
+
+        Initializes a new instance of the form field.
+
+        This method sets up the field's properties, including its requirement status, label, initial value, 
+        help text, and error messages. It also configures the widget used to render the field, 
+        including its localization and validation settings.
+
+        The field can be customized with various optional parameters, such as a custom widget, 
+        validators, and a template name. The method also handles inheritance of default error messages 
+        from parent classes.
+
+        Parameters
+        ----------
+        required : bool, optional
+            Whether the field is required (default is True).
+        widget : object, optional
+            The widget to use for the field (default is None).
+        label : str, optional
+            The label for the field (default is None).
+        initial : object, optional
+            The initial value for the field (default is None).
+        help_text : str, optional
+            The help text for the field (default is an empty string).
+        error_messages : dict, optional
+            Custom error messages for the field (default is None).
+        show_hidden_initial : bool, optional
+            Whether to show the initial value as a hidden input (default is False).
+        validators : tuple, optional
+            Custom validators for the field (default is an empty tuple).
+        localize : bool, optional
+            Whether to localize the field (default is False).
+        disabled : bool, optional
+            Whether the field is disabled (default is False).
+        label_suffix : str, optional
+            The suffix to append to the field's label (default is None).
+        template_name : str, optional
+            The template name to use for the field (default is None).
+
+        """
         self.required, self.label, self.initial = required, label, initial
         self.show_hidden_initial = show_hidden_initial
         self.help_text = help_text
@@ -183,6 +223,17 @@ class Field:
             raise ValidationError(self.error_messages["required"], code="required")
 
     def run_validators(self, value):
+        """
+
+        Runs validation on the given value using the defined validators.
+
+        This method checks if the provided value is valid according to the rules defined by the validators associated with this object.
+        If the value is considered empty, no validation is performed. Otherwise, it iterates over each validator and attempts to apply it to the value.
+        If any validator raises a ValidationError, the error message is checked to see if a custom error message has been defined for that specific error code.
+        If so, the custom message is used; otherwise, the original error message is kept.
+        If any errors occur during validation, a ValidationError is raised containing a list of all error messages.
+
+        """
         if value in self.empty_values:
             return
         errors = []
@@ -270,6 +321,21 @@ class CharField(Field):
     def __init__(
         self, *, max_length=None, min_length=None, strip=True, empty_value="", **kwargs
     ):
+        """
+
+        Initializes a field with length validation and optional stripping of input values.
+
+        The field can enforce minimum and maximum length requirements, as well as strip leading/trailing whitespace from input. 
+        If the input is empty, it can be replaced with a specified empty value.
+
+        The field also includes validation to prevent null characters in input values.
+
+        :param max_length: The maximum allowed length of the input value.
+        :param min_length: The minimum allowed length of the input value.
+        :param strip: Whether to strip leading/trailing whitespace from input values. Defaults to True.
+        :param empty_value: The value to use when the input is empty. Defaults to an empty string.
+
+        """
         self.max_length = max_length
         self.min_length = min_length
         self.strip = strip
@@ -310,6 +376,25 @@ class IntegerField(Field):
     re_decimal = _lazy_re_compile(r"\.0*\s*$")
 
     def __init__(self, *, max_value=None, min_value=None, step_size=None, **kwargs):
+        """
+        Initializes the numeric field.
+
+        This constructor allows specifying the maximum, minimum, and step size values for the numeric field.
+        These constraints are enforced through validation, ensuring that user input falls within the defined range and adheres to the specified step size.
+        Optional localization is also supported for NumberInput widgets.
+
+        Parameters
+        ----------
+        max_value : int or float, optional
+            The maximum allowed value for the numeric field.
+        min_value : int or float, optional
+            The minimum allowed value for the numeric field.
+        step_size : int or float, optional
+            The step size between allowed values for the numeric field.
+
+        Additional keyword arguments are passed to the parent class constructor for further customization.
+
+        """
         self.max_value, self.min_value, self.step_size = max_value, min_value, step_size
         if kwargs.get("localize") and self.widget == NumberInput:
             # Localized number input is not well supported on most browsers
@@ -570,6 +655,18 @@ class DurationField(Field):
         return value
 
     def to_python(self, value):
+        """
+
+        Convert a duration value to a Python object.
+
+        This method takes an input value, attempts to parse it as a duration, and returns a :class:`datetime.timedelta` object representing that duration.
+        If the input value is empty (as defined by :attr:`empty_values`), it returns :const:`None`.
+        The method also handles errors that may occur during parsing, such as overflow errors, and raises a :class:`ValidationError` with a corresponding error message.
+
+        :raises: :class:`ValidationError` if the input value is invalid or overflows the maximum allowed duration.
+        :returns: A :class:`datetime.timedelta` object, or :const:`None` if the input value is empty.
+
+        """
         if value in self.empty_values:
             return None
         if isinstance(value, datetime.timedelta):
@@ -649,6 +746,21 @@ class FileField(Field):
         super().__init__(**kwargs)
 
     def to_python(self, data):
+        """
+        ```python
+        def to_python(self, data):
+            \"\"\"
+            Validates and processes file data, returning the data if it's valid or raising a ValidationError otherwise.
+
+            The validation checks include ensuring the data is not empty, the file name does not exceed a certain length,
+            and the file is not empty if allow_empty_file is False. If any of these checks fail, a ValidationError is raised
+            with a corresponding error message.
+
+            :param data: The file data to be validated and processed.
+            :return: The validated and processed file data, or None if the data is considered empty.
+            :raises ValidationError: If the data is invalid, with a specific error code and message.
+            \"\"\"```
+        """
         if data in self.empty_values:
             return None
 
@@ -790,6 +902,19 @@ class URLField(CharField):
         super().__init__(strip=True, **kwargs)
 
     def to_python(self, value):
+        """
+        Validate and normalize a URL by splitting it into its components, handling
+        malformed URLs and missing scheme or netloc, and reassembling the corrected
+        URL.
+
+        This method takes a URL string as input and performs the following operations:
+        - Splits the URL into its components
+        - Checks for and corrects missing scheme or netloc
+        - If the scheme is missing, it is assumed to be a specific default value
+        - If the netloc is missing but the path is present, it is treated as the netloc
+        - Returns the corrected and normalized URL string, or raises a ValidationError
+        if the input URL is malformed
+        """
         def split_url(url):
             """
             Return a list of url parts via urlsplit(), or raise
@@ -993,6 +1118,22 @@ class MultipleChoiceField(ChoiceField):
                 )
 
     def has_changed(self, initial, data):
+        """
+        Determines if the data has changed compared to the initial state.
+
+        This method checks for differences between the initial and current data, 
+        returning True if changes are detected and False otherwise. The comparison 
+        is disabled if the object is in a disabled state.
+
+        The function considers two datasets as equal if they contain the same 
+        elements, regardless of order, and unequal if they have a different number 
+        of elements or different elements. It handles cases where the input data 
+        may be None, treating it as an empty list.
+
+        The comparison is case-sensitive and will treat 'a' and 'A' as different 
+        values. If the initial or data values are not strings, they are converted 
+        to strings before comparison.
+        """
         if self.disabled:
             return False
         if initial is None:
@@ -1182,6 +1323,19 @@ class MultiValueField(Field):
         raise NotImplementedError("Subclasses must implement this method.")
 
     def has_changed(self, initial, data):
+        """
+        Check if the data has changed compared to the initial values.
+
+        This method compares the initial and current values of a form's fields to determine
+        if any changes have been made. If the form is disabled, it immediately returns False.
+        If initial values are not provided, they are assumed to be empty strings.
+        The comparison is done field by field, and the method returns True as soon as a
+        change is detected. If no changes are found after checking all fields, it returns False.
+
+        :param initial: The initial values of the form fields, or None to use default initial values.
+        :param data: The current values of the form fields.
+        :return: True if the data has changed, False otherwise.
+        """
         if self.disabled:
             return False
         if initial is None:
@@ -1210,6 +1364,26 @@ class FilePathField(ChoiceField):
         allow_folders=False,
         **kwargs,
     ):
+        """
+         Initializes a file or folder selection widget.
+
+        Parameters
+        ----------
+        path : str
+            The root directory path for file or folder selection.
+        match : str, optional
+            A regular expression to filter files or folders by name. If none is provided, all files or folders will be included.
+        recursive : bool, optional
+            Whether to include files or folders recursively from the given path (default: False).
+        allow_files : bool, optional
+            Whether to include files in the selection options (default: True).
+        allow_folders : bool, optional
+            Whether to include folders in the selection options (default: False).
+
+        The initialized widget provides a list of choices for file or folder selection. The options can be filtered by the provided regular expression and may include recursive selections if specified.
+
+
+        """
         self.path, self.match, self.recursive = path, match, recursive
         self.allow_files, self.allow_folders = allow_files, allow_folders
         super().__init__(choices=(), **kwargs)
@@ -1366,6 +1540,35 @@ class JSONField(CharField):
         super().__init__(**kwargs)
 
     def to_python(self, value):
+        """
+
+        Convert a value to its corresponding Python object representation.
+
+        This conversion process takes into account whether the conversion is disabled,
+        in which case the original value is returned. If the value is empty, it is
+        converted to None. If the value is already a basic Python type (list, dict, int, float,
+        or a JSON string), it is returned as is.
+
+        For other values, an attempt is made to parse them as JSON using a custom decoder.
+        If the parsing fails, a ValidationError is raised. If the parsed value is a string,
+        it is wrapped in a JSONString object; otherwise, it is returned directly.
+
+        Parameters
+        ----------
+        value : object
+            The value to be converted
+
+        Returns
+        -------
+        object
+            The converted Python object
+
+        Raises
+        ------
+        ValidationError
+            If the value cannot be parsed as JSON
+
+        """
         if self.disabled:
             return value
         if value in self.empty_values:

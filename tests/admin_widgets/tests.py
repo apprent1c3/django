@@ -276,6 +276,9 @@ class AdminFormfieldForDBFieldTests(SimpleTestCase):
         )
 
     def test_m2m_widgets_no_allow_multiple_selected(self):
+        """
+
+        """
         class NoAllowMultipleSelectedWidget(forms.SelectMultiple):
             allow_multiple_selected = False
 
@@ -938,6 +941,9 @@ class RelatedFieldWidgetWrapperTests(SimpleTestCase):
         self.assertIn("<a ", output)
 
     def test_data_model_ref_when_model_name_is_camel_case(self):
+        """
+
+        """
         rel = VideoStream._meta.get_field("release_event").remote_field
         widget = forms.Select()
         wrapper = widgets.RelatedFieldWidgetWrapper(widget, rel, widget_admin_site)
@@ -1237,6 +1243,9 @@ class DateTimePickerAltTimezoneSeleniumTests(DateTimePickerShortcutsSeleniumTest
 
 class HorizontalVerticalFilterSeleniumTests(AdminWidgetSeleniumTestCase):
     def setUp(self):
+        """
+
+        """
         super().setUp()
         self.lisa = Student.objects.create(name="Lisa")
         self.john = Student.objects.create(name="John")
@@ -1262,6 +1271,26 @@ class HorizontalVerticalFilterSeleniumTests(AdminWidgetSeleniumTestCase):
             self.assertEqual(self.has_css_class(remove_all_link, "active"), remove_all)
 
     def execute_basic_operations(self, mode, field_name):
+        """
+
+        Executes a series of basic operations on a field, simulating user interactions with the UI.
+
+        This function takes two parameters: `mode` and `field_name`. The `mode` parameter determines the layout of the field, 
+        either 'horizontal' or 'vertical'. The `field_name` parameter is used to identify the field being operated on.
+
+        The function performs the following operations:
+
+        * Asserts the initial state of the field's options
+        * Moves all options from the 'from' box to the 'to' box
+        * Asserts the updated state of the field's options
+        * Moves all options from the 'to' box back to the 'from' box
+        * Asserts the final state of the field's options
+        * Selects and deselects individual options, verifying the field's behavior
+        * Verifies that the current URL remains unchanged throughout the operations
+
+        This function is designed to test the functionality of the field in different modes and ensure that it behaves as expected.
+
+        """
         from selenium.webdriver.common.by import By
 
         original_url = self.selenium.current_url
@@ -1463,6 +1492,9 @@ class HorizontalVerticalFilterSeleniumTests(AdminWidgetSeleniumTestCase):
         self.assertEqual(self.selenium.current_url, original_url)
 
     def test_basic(self):
+        """
+
+        """
         from selenium.webdriver.common.by import By
 
         self.school.students.set([self.lisa, self.peter])
@@ -1681,6 +1713,9 @@ class AdminRawIdWidgetSeleniumTests(AdminWidgetSeleniumTestCase):
         Band.objects.create(id=98, name="Green Potatoes")
 
     def test_ForeignKey(self):
+        """
+
+        """
         from selenium.webdriver.common.by import By
 
         self.admin_login(username="super", password="secret", login_url="/")
@@ -1717,6 +1752,11 @@ class AdminRawIdWidgetSeleniumTests(AdminWidgetSeleniumTestCase):
         self.wait_for_value("#id_main_band", "98")
 
     def test_many_to_many(self):
+        """
+        Tests the many-to-many relationship functionality in the admin interface for adding events.
+        Verifies that the \"Supporting Bands\" field is initially empty and displays the correct help text.
+        Simulates the addition of supporting bands by clicking on the lookup button, selecting bands from the popup window, and checking that the corresponding IDs are added to the \"Supporting Bands\" field.
+        """
         from selenium.webdriver.common.by import By
 
         self.admin_login(username="super", password="secret", login_url="/")
@@ -1766,6 +1806,9 @@ class AdminRawIdWidgetSeleniumTests(AdminWidgetSeleniumTestCase):
 
 class RelatedFieldWidgetSeleniumTests(AdminWidgetSeleniumTestCase):
     def test_ForeignKey_using_to_field(self):
+        """
+
+        """
         from selenium.webdriver import ActionChains
         from selenium.webdriver.common.by import By
         from selenium.webdriver.support.ui import Select
@@ -1853,6 +1896,9 @@ class ImageFieldWidgetsSeleniumTests(AdminWidgetSeleniumTestCase):
             ).click()
 
     def _run_image_upload_path(self):
+        """
+
+        """
         from selenium.webdriver.common.by import By
 
         self.admin_login(username="super", password="secret", login_url="/")
@@ -1870,6 +1916,9 @@ class ImageFieldWidgetsSeleniumTests(AdminWidgetSeleniumTestCase):
         self.assertRegex(student.photo.name, r"^photos\/(test|test_.+).png")
 
     def test_clearablefileinput_widget(self):
+        """
+
+        """
         from selenium.webdriver.common.by import By
 
         self._run_image_upload_path()

@@ -62,6 +62,9 @@ class Serializer(base.Serializer):
         self._current[field.name] = value
 
     def handle_m2m_field(self, obj, field):
+        """
+
+        """
         if field.remote_field.through._meta.auto_created:
             if self.use_natural_foreign_keys and hasattr(
                 field.remote_field.model, "natural_key"

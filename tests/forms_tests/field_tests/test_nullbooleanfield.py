@@ -6,6 +6,9 @@ from . import FormFieldAssertionsMixin
 
 class NullBooleanFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
     def test_nullbooleanfield_clean(self):
+        """
+
+        """
         f = NullBooleanField()
         self.assertIsNone(f.clean(""))
         self.assertTrue(f.clean(True))
@@ -49,6 +52,14 @@ class NullBooleanFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
     def test_nullbooleanfield_4(self):
         # Make sure we're compatible with MySQL, which uses 0 and 1 for its
         # boolean values (#9609).
+        """
+        Tests the functionality of NullBooleanField with RadioSelect widget.
+
+        This test case verifies that NullBooleanField correctly handles choices and returns the corresponding boolean or null value.
+        It checks the field's behavior with Yes, No, and Unknown values, ensuring that the cleaned data matches the expected output.
+        The test covers the validation and cleaning of the form data, confirming that the null and boolean values are correctly processed.
+        The expected outcomes are: Yes ('1') returns True, No ('0') returns False, and Unknown ('') returns None.
+        """
         NULLBOOL_CHOICES = (("1", "Yes"), ("0", "No"), ("", "Unknown"))
 
         class MySQLNullBooleanForm(Form):
@@ -63,6 +74,9 @@ class NullBooleanFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertIsNone(f.cleaned_data["nullbool2"])
 
     def test_nullbooleanfield_changed(self):
+        """
+
+        """
         f = NullBooleanField()
         self.assertTrue(f.has_changed(False, None))
         self.assertTrue(f.has_changed(None, False))

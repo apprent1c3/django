@@ -79,6 +79,9 @@ class Command(BaseCommand):
         return get_internal_wsgi_application()
 
     def handle(self, *args, **options):
+        """
+
+        """
         if not settings.DEBUG and not settings.ALLOWED_HOSTS:
             raise CommandError("You must set settings.ALLOWED_HOSTS if DEBUG is False.")
 
@@ -123,6 +126,9 @@ class Command(BaseCommand):
     def inner_run(self, *args, **options):
         # If an exception was silenced in ManagementUtility.execute in order
         # to be raised in the child process, raise it now.
+        """
+
+        """
         autoreload.raise_last_exception()
 
         threading = options["use_threading"]
@@ -170,6 +176,18 @@ class Command(BaseCommand):
             sys.exit(0)
 
     def on_bind(self, server_port):
+        """
+
+        Initializes and announces the Django development server binding.
+
+        The function prints a startup message to the standard output, providing details about the server configuration, 
+        including the current date and time, Django version, settings module, and the protocol, address, and port used to 
+        start the server. It also informs the user about the command required to quit the server, which varies depending 
+        on the operating system.
+
+        :param server_port: The port number on which the server is bound.
+
+        """
         quit_command = "CTRL-BREAK" if sys.platform == "win32" else "CONTROL-C"
 
         if self._raw_ipv6:

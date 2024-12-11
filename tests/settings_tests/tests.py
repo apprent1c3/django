@@ -193,6 +193,19 @@ class SettingsTests(SimpleTestCase):
         self.assertEqual("override", settings.TEST)
 
     def test_context_manager(self):
+        """
+        Tests the functionality of the context manager for overriding settings.
+
+        This test ensures that the context manager correctly enables and disables the override
+        of a setting. It checks that the setting is initially inaccessible, that the override
+        is not applied unless the context manager is enabled, and that the override is removed
+        when the context manager is disabled.
+
+        -verifies the default behavior of the settings
+        -verifies the override is not applied by default
+        -verifies the override is applied when the context manager is enabled
+        -verifies the override is removed when the context manager is disabled
+        """
         with self.assertRaises(AttributeError):
             getattr(settings, "TEST")
         override = override_settings(TEST="override")
@@ -206,6 +219,9 @@ class SettingsTests(SimpleTestCase):
 
     def test_class_decorator(self):
         # SimpleTestCase can be decorated by override_settings, but not ut.TestCase
+        """
+
+        """
         class SimpleTestCaseSubclass(SimpleTestCase):
             pass
 
@@ -302,6 +318,13 @@ class SettingsTests(SimpleTestCase):
             settings.SECRET_KEY
 
     def test_no_settings_module(self):
+        """
+        Tests that attempting to access Django settings when the settings module is not configured raises an ImproperlyConfigured exception.
+
+        Verifies that both accessing default settings and settings for a specific name (e.g. 'TEST') fail when the environment variable DJANGO_SETTINGS_MODULE is not defined and settings.configure() has not been called.
+
+        Ensures that the expected error message is raised, indicating that the user must configure the settings module before accessing settings.
+        """
         msg = (
             "Requested setting%s, but settings are not configured. You "
             "must either define the environment variable DJANGO_SETTINGS_MODULE "
@@ -421,6 +444,9 @@ class IsOverriddenTest(SimpleTestCase):
         self.assertTrue(s.is_overridden("SECRET_KEY"))
 
     def test_module(self):
+        """
+
+        """
         settings_module = ModuleType("fake_settings_module")
         settings_module.SECRET_KEY = "foo"
         settings_module.USE_TZ = False
@@ -479,6 +505,9 @@ class TestListSettings(SimpleTestCase):
     )
 
     def test_tuple_settings(self):
+        """
+
+        """
         settings_module = ModuleType("fake_settings_module")
         settings_module.SECRET_KEY = "foo"
         msg = "The %s setting must be a list or a tuple."
@@ -607,6 +636,9 @@ class MediaURLStaticURLPrefixTest(SimpleTestCase):
 
     def test_not_prefixed(self):
         # Don't add SCRIPT_NAME prefix to absolute paths, URLs, or None.
+        """
+
+        """
         tests = (
             "/path/",
             "http://myhost.com/path/",
@@ -627,6 +659,9 @@ class MediaURLStaticURLPrefixTest(SimpleTestCase):
                                 clear_script_prefix()
 
     def test_add_script_name_prefix(self):
+        """
+
+        """
         tests = (
             # Relative paths.
             ("/somesubpath", "path/", "/somesubpath/path/"),

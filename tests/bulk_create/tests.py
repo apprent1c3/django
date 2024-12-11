@@ -254,6 +254,9 @@ class BulkCreateTests(TestCase):
             self.assertLess(len(connection.queries), 10)
 
     def test_explicit_batch_size(self):
+        """
+
+        """
         objs = [TwoFields(f1=i, f2=i) for i in range(0, 4)]
         num_objs = len(objs)
         TwoFields.objects.bulk_create(objs, batch_size=1)
@@ -383,6 +386,9 @@ class BulkCreateTests(TestCase):
 
     @skipUnlessDBFeature("supports_ignore_conflicts")
     def test_ignore_conflicts_ignore(self):
+        """
+
+        """
         data = [
             TwoFields(f1=1, f2=1),
             TwoFields(f1=2, f2=2),
@@ -570,6 +576,9 @@ class BulkCreateTests(TestCase):
             )
 
     def _test_update_conflicts_two_fields(self, unique_fields):
+        """
+
+        """
         TwoFields.objects.bulk_create(
             [
                 TwoFields(f1=1, f2=1, name="a"),
@@ -617,6 +626,9 @@ class BulkCreateTests(TestCase):
         "supports_update_conflicts", "supports_update_conflicts_with_target"
     )
     def test_update_conflicts_unique_fields_pk(self):
+        """
+
+        """
         TwoFields.objects.bulk_create(
             [
                 TwoFields(f1=1, f2=1, name="a"),
@@ -662,6 +674,9 @@ class BulkCreateTests(TestCase):
         self._test_update_conflicts_two_fields([])
 
     def _test_update_conflicts_unique_two_fields(self, unique_fields):
+        """
+
+        """
         Country.objects.bulk_create(self.data)
         self.assertEqual(Country.objects.count(), 4)
 
@@ -740,6 +755,9 @@ class BulkCreateTests(TestCase):
         self._test_update_conflicts_unique_two_fields([])
 
     def _test_update_conflicts(self, unique_fields):
+        """
+
+        """
         UpsertConflict.objects.bulk_create(
             [
                 UpsertConflict(number=1, rank=1, name="John"),
@@ -810,6 +828,9 @@ class BulkCreateTests(TestCase):
         "supports_update_conflicts", "supports_update_conflicts_with_target"
     )
     def test_update_conflicts_unique_fields_update_fields_db_column(self):
+        """
+
+        """
         FieldsWithDbColumns.objects.bulk_create(
             [
                 FieldsWithDbColumns(rank=1, name="a"),

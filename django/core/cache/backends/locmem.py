@@ -63,6 +63,21 @@ class LocMemCache(BaseCache):
             return True
 
     def incr(self, key, delta=1, version=None):
+        """
+
+        Increments the value associated with a given key in the cache.
+
+        :param key: The key whose value is to be incremented.
+        :param delta: The amount by which the value should be incremented (default is 1).
+        :param version: The version of the key (optional).
+
+        :raises ValueError: If the key has expired or is not found in the cache.
+
+        :return: The new value associated with the key after incrementation.
+
+        Note: This operation is atomic and thread-safe.
+
+        """
         key = self.make_and_validate_key(key, version=version)
         with self._lock:
             if self._has_expired(key):

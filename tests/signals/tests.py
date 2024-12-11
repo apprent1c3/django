@@ -37,6 +37,9 @@ class BaseSignalSetup:
 
 class SignalTests(BaseSignalSetup, TestCase):
     def test_model_pre_init_and_post_init(self):
+        """
+
+        """
         data = []
 
         def pre_init_callback(sender, args, **kwargs):
@@ -53,6 +56,9 @@ class SignalTests(BaseSignalSetup, TestCase):
         self.assertEqual(data, [{}, p1])
 
     def test_save_signals(self):
+        """
+
+        """
         data = []
 
         def pre_save_handler(signal, sender, instance, **kwargs):
@@ -137,6 +143,20 @@ class SignalTests(BaseSignalSetup, TestCase):
             signals.post_save.disconnect(post_save_handler)
 
     def test_delete_signals(self):
+        """
+
+        Tests the delete signals by creating and deleting instances of the Person model.
+        Verifies that the pre_delete and post_delete signals are correctly emitted and handled.
+        Checks the signal handlers are called with the expected arguments, including the instance,
+        sender, and origin. Also tests that the signals are emitted in the correct order and
+        that the instance's id is correctly set to None after deletion.
+
+        The test covers the following scenarios:
+        - Deleting an instance created using the ORM
+        - Deleting an instance with a custom pk (id) value
+        - Verifying that the pre_delete and post_delete handlers are disconnected after the test
+
+        """
         data = []
 
         def pre_delete_handler(signal, sender, instance, origin, **kwargs):
@@ -193,6 +213,9 @@ class SignalTests(BaseSignalSetup, TestCase):
             signals.post_delete.disconnect(post_delete_handler)
 
     def test_delete_signals_origin_model(self):
+        """
+
+        """
         data = []
 
         def pre_delete_handler(signal, sender, instance, origin, **kwargs):
@@ -231,6 +254,24 @@ class SignalTests(BaseSignalSetup, TestCase):
             signals.post_delete.disconnect(post_delete_handler)
 
     def test_delete_signals_origin_queryset(self):
+        """
+        Tests the behavior of signal handlers when deleting querysets.
+
+        This test verifies that the pre_delete and post_delete signals are emitted 
+        correctly for the origin queryset during batch deletion operations.
+
+        It covers the scenarios where a queryset is deleted and checks that the 
+        signal handlers are called with the correct sender and origin instances.
+
+        The test uses a simple data model with Person, Book, and Page objects, 
+        creating instances and then deleting them in batches to test the signal 
+        behavior.
+
+        The pre_delete and post_delete handlers are connected to the signals, 
+        and the test asserts that they are called with the expected sender and 
+        origin instances, ensuring that the signal handlers are working as 
+        expected during batch deletion operations.
+        """
         data = []
 
         def pre_delete_handler(signal, sender, instance, origin, **kwargs):
@@ -271,6 +312,9 @@ class SignalTests(BaseSignalSetup, TestCase):
             signals.post_delete.disconnect(post_delete_handler)
 
     def test_decorators(self):
+        """
+
+        """
         data = []
 
         @receiver(signals.pre_save, weak=False)
@@ -289,6 +333,9 @@ class SignalTests(BaseSignalSetup, TestCase):
             signals.pre_save.disconnect(decorated_handler_with_sender_arg, sender=Car)
 
     def test_save_and_delete_signals_with_m2m(self):
+        """
+
+        """
         data = []
 
         def pre_save_handler(signal, sender, instance, **kwargs):
@@ -392,6 +439,9 @@ class SignalTests(BaseSignalSetup, TestCase):
 
     @isolate_apps("signals", kwarg_name="apps")
     def test_disconnect_model(self, apps):
+        """
+
+        """
         received = []
 
         def receiver(**kwargs):
@@ -470,6 +520,9 @@ class LazyModelRefTests(BaseSignalSetup, SimpleTestCase):
 
     @isolate_apps("signals", kwarg_name="apps")
     def test_disconnect_registered_model(self, apps):
+        """
+
+        """
         received = []
 
         def receiver(**kwargs):
@@ -497,6 +550,9 @@ class LazyModelRefTests(BaseSignalSetup, SimpleTestCase):
 
     @isolate_apps("signals", kwarg_name="apps")
     def test_disconnect_unregistered_model(self, apps):
+        """
+
+        """
         received = []
 
         def receiver(**kwargs):
@@ -574,6 +630,9 @@ class AsyncReceiversTests(SimpleTestCase):
         self.assertEqual(result, [(sync_handler, 1), (async_handler, 1)])
 
     def test_send_robust(self):
+        """
+
+        """
         class ReceiverException(Exception):
             pass
 
@@ -601,6 +660,9 @@ class AsyncReceiversTests(SimpleTestCase):
         )
 
     async def test_asend_robust(self):
+        """
+
+        """
         class ReceiverException(Exception):
             pass
 

@@ -67,6 +67,9 @@ class TestInline(TestDataMixin, TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+
+        """
         super().setUpTestData()
         cls.holder = Holder.objects.create(dummy=13)
         Inner.objects.create(dummy=42, holder=cls.holder)
@@ -553,6 +556,19 @@ class TestInline(TestDataMixin, TestCase):
         self.assertEqual(Sighting.objects.filter(et__name="Martian").count(), 1)
 
     def test_custom_get_extra_form(self):
+        """
+        Tests the \"extra forms\" functionality in the binary tree admin interface.
+
+        This test case checks that the correct number of extra forms are displayed in the binary tree admin interface
+        when adding a new binary tree and when changing an existing one. The test verifies the presence of the MAX_NUM_FORMS
+        and TOTAL_FORMS hidden input fields in the rendered HTML and checks their values against expected values. 
+
+        The test is divided into two parts: 
+        - one part checks the \"add\" view for a binary tree, where the user should see a maximum number of forms as defined by the MAX_NUM_FORMS variable, 
+        - the other checks the \"change\" view for an existing binary tree, where the user should see a maximum number of forms decreased by one. 
+
+        The purpose of this test is to ensure the correct number of extra forms are available to the user when working with binary trees in the admin interface.
+        """
         bt_head = BinaryTree.objects.create(name="Tree Head")
         BinaryTree.objects.create(name="First Child", parent=bt_head)
         # The maximum number of forms should respect 'get_max_num' on the
@@ -603,6 +619,9 @@ class TestInline(TestDataMixin, TestCase):
         self.assertInHTML(total_forms, response.rendered_content)
 
     def test_custom_min_num(self):
+        """
+
+        """
         bt_head = BinaryTree.objects.create(name="Tree Head")
         BinaryTree.objects.create(name="First Child", parent=bt_head)
 
@@ -907,6 +926,9 @@ class TestInlinePermissions(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+
+        """
         cls.user = User(username="admin", is_staff=True, is_active=True)
         cls.user.set_password("secret")
         cls.user.save()
@@ -1008,6 +1030,9 @@ class TestInlinePermissions(TestCase):
         self.assertNotContains(response, 'id="id_inner2_set-TOTAL_FORMS"')
 
     def test_inline_add_m2m_view_only_perm(self):
+        """
+
+        """
         permission = Permission.objects.get(
             codename="view_book", content_type=self.book_ct
         )
@@ -1101,6 +1126,9 @@ class TestInlinePermissions(TestCase):
         self.assertNotContains(response, 'id="id_Author_books-0-DELETE"')
 
     def test_inline_change_m2m_view_only_perm(self):
+        """
+
+        """
         permission = Permission.objects.get(
             codename="view_book", content_type=self.book_ct
         )
@@ -1143,6 +1171,9 @@ class TestInlinePermissions(TestCase):
         )
 
     def test_inline_change_m2m_change_perm(self):
+        """
+
+        """
         permission = Permission.objects.get(
             codename="change_book", content_type=self.book_ct
         )
@@ -1210,6 +1241,19 @@ class TestInlinePermissions(TestCase):
         )
 
     def test_inline_change_fk_change_perm(self):
+        """
+
+        Tests that a user with the 'change_inner2' permission can view inline change forms for inner2 sets.
+
+        This test checks that the expected HTML elements are present in the page response, 
+        including the inline heading, form fields, and hidden input fields for managing the inline formset.
+
+        Checks the presence of form fields for a single inner2 instance with correct value, 
+        and a dummy field with correct value.
+
+        Verifies that the 'change_inner2' permission allows users to view the inline change form for inner2 sets.
+
+        """
         permission = Permission.objects.get(
             codename="change_inner2", content_type=self.inner_ct
         )
@@ -1319,6 +1363,9 @@ class TestInlinePermissions(TestCase):
         self.assertContains(response, 'id="id_inner2_set-0-DELETE"')
 
     def test_inline_change_fk_all_perms(self):
+        """
+
+        """
         permission = Permission.objects.get(
             codename="add_inner2", content_type=self.inner_ct
         )
@@ -1474,6 +1521,9 @@ class TestVerboseNameInlineForms(TestDataMixin, TestCase):
     factory = RequestFactory()
 
     def test_verbose_name_inline(self):
+        """
+
+        """
         class NonVerboseProfileInline(TabularInline):
             model = Profile
             verbose_name = "Non-verbose childs"
@@ -1570,6 +1620,9 @@ class TestVerboseNameInlineForms(TestDataMixin, TestCase):
         self.assertNotContains(response, "Add another Model with both - name")
 
     def test_verbose_name_plural_inline(self):
+        """
+
+        """
         class NonVerboseProfileInline(TabularInline):
             model = Profile
             verbose_name_plural = "Non-verbose childs"
@@ -1663,6 +1716,9 @@ class TestVerboseNameInlineForms(TestDataMixin, TestCase):
         )
 
     def test_both_verbose_names_inline(self):
+        """
+
+        """
         class NonVerboseProfileInline(TabularInline):
             model = Profile
             verbose_name = "Non-verbose childs - name"
@@ -1769,6 +1825,9 @@ class TestInlineWithFieldsets(TestDataMixin, TestCase):
         self.client.force_login(self.superuser)
 
     def test_inline_headings(self):
+        """
+
+        """
         response = self.client.get(reverse("admin:admin_inlines_photographer_add"))
         # Page main title.
         self.assertContains(response, "<h1>Add photographer</h1>", html=True)
@@ -1882,6 +1941,9 @@ class SeleniumTests(AdminSeleniumTestCase):
         self.take_screenshot("added")
 
     def test_delete_stackeds(self):
+        """
+
+        """
         from selenium.webdriver.common.by import By
 
         self.admin_login(username="super", password="secret")
@@ -1909,6 +1971,9 @@ class SeleniumTests(AdminSeleniumTestCase):
             self.assertCountSeleniumElements(rows_selector, 0)
 
     def test_delete_invalid_stacked_inlines(self):
+        """
+
+        """
         from selenium.common.exceptions import NoSuchElementException
         from selenium.webdriver.common.by import By
 
@@ -1975,6 +2040,18 @@ class SeleniumTests(AdminSeleniumTestCase):
         self.assertEqual(Inner4Stacked.objects.count(), 4)
 
     def test_delete_invalid_tabular_inlines(self):
+        """
+        Tests the deletion of an invalid tabular inline in the admin interface.
+
+        This test case covers the following functionality:
+        - Logs in as an admin user and navigates to the admin page for adding a new instance of InlinesHolder4.
+        - Verifies the initial number of inline rows.
+        - Adds new inline rows to reach a total of 5, with some rows containing duplicate values.
+        - Tries to save the form, which should fail due to the duplicate values and display an error message.
+        - Deletes the inline row that contains a duplicate value, which should resolve the error and allow the form to be saved.
+        - Verifies that the form can be saved successfully after deleting the invalid inline row.
+        - Checks that the correct number of Inner4Tabular objects is saved to the database after the form is saved.
+        """
         from selenium.common.exceptions import NoSuchElementException
         from selenium.webdriver.common.by import By
 
@@ -2131,6 +2208,9 @@ class SeleniumTests(AdminSeleniumTestCase):
         self.assertEqual(Profile.objects.count(), 3)
 
     def test_add_inline_link_absent_for_view_only_parent_model(self):
+        """
+
+        """
         from selenium.common.exceptions import NoSuchElementException
         from selenium.webdriver.common.by import By
 
@@ -2156,6 +2236,9 @@ class SeleniumTests(AdminSeleniumTestCase):
                 self.selenium.find_element(By.LINK_TEXT, "Add another Question")
 
     def test_delete_inlines(self):
+        """
+
+        """
         from selenium.webdriver.common.by import By
 
         self.admin_login(username="super", password="secret")
@@ -2213,6 +2296,9 @@ class SeleniumTests(AdminSeleniumTestCase):
 
     @screenshot_cases(["desktop_size", "mobile_size", "rtl", "dark", "high_contrast"])
     def test_collapsed_inlines(self):
+        """
+
+        """
         from selenium.webdriver.common.by import By
 
         # Collapsed inlines use details and summary elements.
@@ -2241,6 +2327,18 @@ class SeleniumTests(AdminSeleniumTestCase):
 
     @screenshot_cases(["desktop_size", "mobile_size", "rtl", "dark", "high_contrast"])
     def test_added_stacked_inline_with_collapsed_fields(self):
+        """
+
+        Tests the functionality of adding stacked inline fields with collapsed sections in the admin interface.
+
+        This test case covers the following scenarios:
+        - Adding a new item and verifying the initial state of the inline fields
+        - Expanding and collapsing the inline fields to ensure correct behavior
+        - Taking screenshots at various stages to verify visual correctness
+
+        The test is run with multiple screenshot cases to ensure compatibility across different environments, including desktop and mobile sizes, right-to-left languages, dark mode, and high contrast mode.
+
+        """
         from selenium.webdriver.common.by import By
 
         self.admin_login(username="super", password="secret")
@@ -2265,6 +2363,9 @@ class SeleniumTests(AdminSeleniumTestCase):
         self.take_screenshot("collapsed")
 
     def assertBorder(self, element, border):
+        """
+
+        """
         width, style, color = border.split(" ")
         border_properties = [
             "border-bottom-%s",
@@ -2289,6 +2390,19 @@ class SeleniumTests(AdminSeleniumTestCase):
             self.assertIn(element.value_of_css_property(prop % "color"), colors)
 
     def test_inline_formset_error_input_border(self):
+        """
+
+        Tests that form fields in stacked and tabular inline formsets display error borders after form submission.
+
+        This test logs in as an admin user, navigates to an admin page with inline formsets, and fills in form fields with invalid input.
+        It then verifies that the form fields display error borders after submitting the form.
+
+        The test checks both stacked and tabular inline formsets, and verifies the border color for various types of form fields, 
+        including text inputs, select boxes, and text areas.
+
+        The expected behavior is that form fields with errors will display a border with a color indicating the error.
+
+        """
         from selenium.webdriver.common.by import By
 
         self.admin_login(username="super", password="secret")
@@ -2332,6 +2446,9 @@ class SeleniumTests(AdminSeleniumTestCase):
             )
 
     def test_inline_formset_error(self):
+        """
+
+        """
         from selenium.webdriver.common.by import By
 
         self.admin_login(username="super", password="secret")
@@ -2424,6 +2541,9 @@ class SeleniumTests(AdminSeleniumTestCase):
                 self.assertEqual(chosen.text, "CHOSEN ATTENDANT")
 
     def test_tabular_inline_layout(self):
+        """
+
+        """
         from selenium.webdriver.common.by import By
 
         self.admin_login(username="super", password="secret")

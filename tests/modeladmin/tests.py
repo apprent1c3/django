@@ -92,6 +92,9 @@ class ModelAdminTests(TestCase):
 
     def test_get_fieldsets(self):
         # get_fieldsets() is called when figuring out form fields (#18681).
+        """
+
+        """
         class BandAdmin(ModelAdmin):
             def get_fieldsets(self, request, obj=None):
                 return [(None, {"fields": ["name", "bio"]})]
@@ -129,6 +132,9 @@ class ModelAdminTests(TestCase):
 
     @isolate_apps("modeladmin")
     def test_lookup_allowed_onetoone(self):
+        """
+
+        """
         class Department(models.Model):
             code = models.CharField(max_length=4, unique=True)
 
@@ -164,6 +170,9 @@ class ModelAdminTests(TestCase):
 
     @isolate_apps("modeladmin")
     def test_lookup_allowed_for_local_fk_fields(self):
+        """
+
+        """
         class Country(models.Model):
             pass
 
@@ -190,6 +199,9 @@ class ModelAdminTests(TestCase):
 
     @isolate_apps("modeladmin")
     def test_lookup_allowed_non_autofield_primary_key(self):
+        """
+
+        """
         class Country(models.Model):
             id = models.CharField(max_length=2, primary_key=True)
 
@@ -204,6 +216,9 @@ class ModelAdminTests(TestCase):
 
     @isolate_apps("modeladmin")
     def test_lookup_allowed_foreign_primary(self):
+        """
+
+        """
         class Country(models.Model):
             name = models.CharField(max_length=256)
 
@@ -239,6 +254,9 @@ class ModelAdminTests(TestCase):
         )
 
     def test_lookup_allowed_considers_dynamic_list_filter(self):
+        """
+
+        """
         class ConcertAdmin(ModelAdmin):
             list_filter = ["main_band__sign_date"]
 
@@ -276,6 +294,9 @@ class ModelAdminTests(TestCase):
         )
 
     def test_lookup_allowed_without_request_deprecation(self):
+        """
+
+        """
         class ConcertAdmin(ModelAdmin):
             list_filter = ["main_band__sign_date"]
 
@@ -328,6 +349,9 @@ class ModelAdminTests(TestCase):
         # Form class isn't being displayed because it's not in fields/fieldsets.
 
         # Using `fields`.
+        """
+
+        """
         class BandAdmin(ModelAdmin):
             fields = ["name"]
 
@@ -407,6 +431,9 @@ class ModelAdminTests(TestCase):
         )
 
     def test_custom_formfield_override_readonly(self):
+        """
+
+        """
         class AdminBandForm(forms.ModelForm):
             name = forms.CharField()
 
@@ -576,6 +603,9 @@ class ModelAdminTests(TestCase):
         )
 
     def test_formset_overriding_get_exclude_with_form_fields(self):
+        """
+
+        """
         class AdminConcertForm(forms.ModelForm):
             class Meta:
                 model = Concert
@@ -599,6 +629,9 @@ class ModelAdminTests(TestCase):
         )
 
     def test_formset_overriding_get_exclude_with_form_exclude(self):
+        """
+
+        """
         class AdminConcertForm(forms.ModelForm):
             class Meta:
                 model = Concert
@@ -652,6 +685,9 @@ class ModelAdminTests(TestCase):
     def test_queryset_override(self):
         # If the queryset of a ModelChoiceField in a custom form is overridden,
         # RelatedFieldWidgetWrapper doesn't mess that up.
+        """
+
+        """
         band2 = Band.objects.create(
             name="The Beatles", bio="", sign_date=date(1962, 1, 1)
         )
@@ -736,6 +772,9 @@ class ModelAdminTests(TestCase):
         # ForeignKey widgets in the admin are wrapped with RelatedFieldWidgetWrapper so
         # they need to be handled properly when type checking. For Select fields, all of
         # the choices lists have a first entry of dashes.
+        """
+
+        """
         cma = ModelAdmin(Concert, self.site)
         cmafa = cma.get_form(request)
 
@@ -766,6 +805,9 @@ class ModelAdminTests(TestCase):
         # RadioSelect, and the choices list should have a first entry of 'None' if
         # blank=True for the model field.  Finally, the widget should have the
         # 'radiolist' attr, and 'inline' as well if the field is specified HORIZONTAL.
+        """
+
+        """
         class ConcertAdmin(ModelAdmin):
             radio_fields = {
                 "main_band": HORIZONTAL,
@@ -857,6 +899,9 @@ class ModelAdminTests(TestCase):
         )
 
     def test_log_actions(self):
+        """
+
+        """
         ma = ModelAdmin(Band, self.site)
         mock_request = MockRequest()
         mock_request.user = User.objects.create(username="bill")
@@ -878,6 +923,9 @@ class ModelAdminTests(TestCase):
                 self.assertEqual(fetched.object_repr, str(self.band))
 
     def test_log_deletions(self):
+        """
+
+        """
         ma = ModelAdmin(Band, self.site)
         mock_request = MockRequest()
         mock_request.user = User.objects.create(username="akash")
@@ -923,6 +971,9 @@ class ModelAdminTests(TestCase):
 
     # RemovedInDjango60Warning.
     def test_log_deletion(self):
+        """
+
+        """
         ma = ModelAdmin(Band, self.site)
         mock_request = MockRequest()
         mock_request.user = User.objects.create(username="bill")
@@ -941,6 +992,9 @@ class ModelAdminTests(TestCase):
 
     # RemovedInDjango60Warning.
     def test_log_deletion_fallback(self):
+        """
+
+        """
         class InheritedModelAdmin(ModelAdmin):
             def log_deletion(self, request, obj, object_repr):
                 return super().log_deletion(request, obj, object_repr)
@@ -994,6 +1048,9 @@ class ModelAdminTests(TestCase):
         self.assertSequenceEqual(logs, expected_log_values)
 
     def test_get_autocomplete_fields(self):
+        """
+
+        """
         class NameAdmin(ModelAdmin):
             search_fields = ["name"]
 
@@ -1127,6 +1184,9 @@ class ModelAdminPermissionTests(SimpleTestCase):
         self.assertFalse(ma.has_add_permission(request))
 
     def test_inline_has_add_permission_uses_obj(self):
+        """
+
+        """
         class ConcertInline(TabularInline):
             model = Concert
 

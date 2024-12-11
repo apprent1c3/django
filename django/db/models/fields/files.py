@@ -106,6 +106,9 @@ class FieldFile(File, AltersData):
     save.alters_data = True
 
     def delete(self, save=True):
+        """
+
+        """
         if not self:
             return
         # Only close the file if it's already open, which we know by the
@@ -169,6 +172,17 @@ class FileDescriptor(DeferredAttribute):
     """
 
     def __get__(self, instance, cls=None):
+        """
+
+        Descriptor for a file field that manages the relationship between a model instance and its associated file.
+
+        When accessed, this descriptor returns the file object associated with the instance. If the instance is None, it returns the descriptor itself. Otherwise, it checks the type of the file and performs the necessary setup to ensure that the file is properly linked to the instance.
+
+        The setup involves creating a new attribute class instance for string or None file values, copying a File object to create a new FieldFile instance, or updating an existing FieldFile instance to link it to the current instance.
+
+        Returns the file object associated with the instance, ready for use.
+
+        """
         if instance is None:
             return self
 
@@ -239,6 +253,9 @@ class FileField(Field):
     def __init__(
         self, verbose_name=None, name=None, upload_to="", storage=None, **kwargs
     ):
+        """
+
+        """
         self._primary_key_set_explicitly = "primary_key" in kwargs
 
         self.storage = storage or default_storage

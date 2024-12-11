@@ -8,6 +8,9 @@ from django.test import SimpleTestCase
 
 class SplitDateTimeFieldTest(SimpleTestCase):
     def test_splitdatetimefield_1(self):
+        """
+
+        """
         f = SplitDateTimeField()
         self.assertIsInstance(f.widget, SplitDateTimeWidget)
         self.assertEqual(
@@ -30,6 +33,9 @@ class SplitDateTimeFieldTest(SimpleTestCase):
             f.clean(["hello", "07:30"])
 
     def test_splitdatetimefield_2(self):
+        """
+
+        """
         f = SplitDateTimeField(required=False)
         self.assertEqual(
             datetime.datetime(2006, 1, 10, 7, 30),

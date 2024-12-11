@@ -202,6 +202,9 @@ class RenderContext(BaseContext):
 
     @contextmanager
     def push_state(self, template, isolated_context=True):
+        """
+
+        """
         initial = self.template
         self.template = template
         if isolated_context:
@@ -245,6 +248,9 @@ class RequestContext(Context):
 
     @contextmanager
     def bind_template(self, template):
+        """
+
+        """
         if self.template is not None:
             raise RuntimeError("Context is already bound to a template")
 

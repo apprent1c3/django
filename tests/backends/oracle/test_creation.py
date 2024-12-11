@@ -42,6 +42,9 @@ class DatabaseCreationTests(TestCase):
 
     @mock.patch.object(DatabaseCreation, "_test_user_create", return_value=False)
     def test_create_test_db(self, *mocked_objects):
+        """
+
+        """
         creation = DatabaseCreation(connection)
         # Simulate test database creation raising "tablespace already exists"
         with self.patch_execute_statements(
@@ -63,6 +66,9 @@ class DatabaseCreationTests(TestCase):
 
     @mock.patch.object(DatabaseCreation, "_test_database_create", return_value=False)
     def test_create_test_user(self, *mocked_objects):
+        """
+
+        """
         creation = DatabaseCreation(connection)
         with mock.patch.object(
             DatabaseCreation, "_test_database_passwd", self._test_database_passwd
@@ -86,6 +92,9 @@ class DatabaseCreationTests(TestCase):
                     creation._create_test_db(verbosity=0, keepdb=True)
 
     def test_oracle_managed_files(self, *mocked_objects):
+        """
+
+        """
         def _execute_capture_statements(
             self, cursor, statements, parameters, verbosity, allow_quiet_fail=False
         ):

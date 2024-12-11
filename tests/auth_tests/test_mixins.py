@@ -54,6 +54,9 @@ class AccessMixinTests(TestCase):
     factory = RequestFactory()
 
     def test_stacked_mixins_success(self):
+        """
+
+        """
         user = models.User.objects.create(username="joe", password="qwerty")
         perms = models.Permission.objects.filter(
             codename__in=("add_customuser", "change_customuser")
@@ -71,6 +74,9 @@ class AccessMixinTests(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_stacked_mixins_missing_permission(self):
+        """
+
+        """
         user = models.User.objects.create(username="joe", password="qwerty")
         perms = models.Permission.objects.filter(codename__in=("add_customuser",))
         user.user_permissions.add(*perms)
@@ -86,6 +92,9 @@ class AccessMixinTests(TestCase):
             view(request)
 
     def test_access_mixin_permission_denied_response(self):
+        """
+
+        """
         user = models.User.objects.create(username="joe", password="qwerty")
         # Authenticated users receive PermissionDenied.
         request = self.factory.get("/rand")
@@ -115,6 +124,9 @@ class AccessMixinTests(TestCase):
 
     @mock.patch.object(models.User, "is_authenticated", False)
     def test_stacked_mixins_not_logged_in(self):
+        """
+
+        """
         user = models.User.objects.create(username="joe", password="qwerty")
         perms = models.Permission.objects.filter(
             codename__in=("add_customuser", "change_customuser")
@@ -175,6 +187,9 @@ class UserPassesTestTests(SimpleTestCase):
             AView.as_view()(request)
 
     def test_raise_exception_custom_message(self):
+        """
+
+        """
         msg = "You don't have access here"
 
         class AView(AlwaysFalseView):
@@ -188,6 +203,9 @@ class UserPassesTestTests(SimpleTestCase):
             view(request)
 
     def test_raise_exception_custom_message_function(self):
+        """
+
+        """
         msg = "You don't have access here"
 
         class AView(AlwaysFalseView):

@@ -85,6 +85,9 @@ class DumpDataAssertMixin:
         exclude_list=[],
         primary_keys="",
     ):
+        """
+
+        """
         new_io = StringIO()
         filename = filename and os.path.join(tempfile.gettempdir(), filename)
         management.call_command(
@@ -133,6 +136,9 @@ class DumpDataAssertMixin:
 
 class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
     def test_loading_and_dumping(self):
+        """
+
+        """
         apps.clear_cache()
         Site.objects.all().delete()
         # Load fixture 1. Single JSON file, with two objects.
@@ -516,6 +522,9 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
 
     def test_dumpdata_with_excludes(self):
         # Load fixture1 which has a site, two articles, and a category
+        """
+
+        """
         Site.objects.all().delete()
         management.call_command("loaddata", "fixture1.json", verbosity=0)
 
@@ -601,6 +610,13 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
         )
 
     def test_dumpdata_with_pks(self):
+        """
+        Tests the dumpdata management command with primary keys.
+
+        This test checks the dumpdata command's behavior when using the --pks option to specify primary keys for data export.
+        It verifies that the command correctly dumps data for the specified primary keys and raises an error when used with multiple models.
+        The test covers different scenarios, including dumping data for a single model with multiple primary keys, dumping data for a single primary key, and attempting to use the --pks option with multiple models, which should raise a CommandError.
+        """
         management.call_command("loaddata", "fixture1.json", verbosity=0)
         management.call_command("loaddata", "fixture2.json", verbosity=0)
         self._dumpdata_assert(

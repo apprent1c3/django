@@ -373,6 +373,9 @@ class GenericRelationsTests(TestCase):
         self.assertEqual(await bacon.tags.acount(), 2)
 
     def test_set(self):
+        """
+
+        """
         bacon = Vegetable.objects.create(name="Bacon", is_yucky=False)
         fatty = bacon.tags.create(tag="fatty")
         salty = bacon.tags.create(tag="salty")
@@ -481,6 +484,9 @@ class GenericRelationsTests(TestCase):
     def test_multiple_gfk(self):
         # Simple tests for multiple GenericForeignKeys
         # only uses one model, since the above tests should be sufficient.
+        """
+
+        """
         tiger = Animal.objects.create(common_name="tiger")
         cheetah = Animal.objects.create(common_name="cheetah")
         bear = Animal.objects.create(common_name="bear")
@@ -749,6 +755,9 @@ class GenericRelationsTests(TestCase):
             )
 
     def test_generic_prefetch(self):
+        """
+
+        """
         tagged_vegetable = TaggedItem.objects.create(
             tag="great", content_object=self.bacon
         )

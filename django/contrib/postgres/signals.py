@@ -34,6 +34,28 @@ if is_psycopg3:
     from psycopg.types import TypeInfo, hstore
 
     def register_type_handlers(connection, **kwargs):
+        """
+
+        Registers PostgreSQL type handlers for hstore and citext data types.
+
+        This function is specific to PostgreSQL connections and is used to register
+        type handlers for specialized data types, specifically hstore and citext.
+
+        The registration process involves identifying the OID (object identifier) for
+        each data type and its corresponding array OID. Once identified, the type
+        handlers are registered with the connection, enabling support for these data
+        types.
+
+        The function takes a database connection as an argument and uses keyword
+        arguments for additional configuration options. It only proceeds with the
+        registration if the connection's vendor is PostgreSQL and it is not a dummy
+        database alias.
+
+        Upon successful registration, the connection is enabled to work with hstore
+        and citext data types, providing a more comprehensive set of features for
+         PostgreSQL databases.
+
+        """
         if connection.vendor != "postgresql" or connection.alias == NO_DB_ALIAS:
             return
 

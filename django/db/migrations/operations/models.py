@@ -112,6 +112,27 @@ class CreateModel(ModelOperation):
         return self.name_lower
 
     def references_model(self, name, app_label):
+        """
+        Checks if the current model references another model.
+
+         Parameters
+         ----------
+         name : str
+             The name of the model to check for references.
+         app_label : str
+             The application label of the model to check for references.
+
+         Returns
+         -------
+         bool
+             True if the current model references the specified model, False otherwise.
+
+         Notes
+         -----
+         The function performs a case-insensitive comparison and checks for references in the model's bases and fields.
+         It uses the model's name and application label to identify potential references.
+
+        """
         name_lower = name.lower()
         if name_lower == self.name_lower:
             return True
@@ -135,6 +156,27 @@ class CreateModel(ModelOperation):
         return False
 
     def reduce(self, operation, app_label):
+        """
+        Reduce the current model based on the given operation.
+
+        This method takes an operation and an app label as input, and returns a list of operations to be applied to the model.
+        It handles various operations such as:
+            - Deleting a model
+            - Renaming a model
+            - Altering model options, managers, or together options
+            - Adding, removing, or altering fields
+            - Adding, removing, or altering indexes and constraints
+
+        For each operation, it checks if the operation affects the current model and applies the necessary changes.
+        If the operation does not affect the current model, it calls the parent class's reduce method.
+
+        The method returns a list of CreateModel operations that represent the updated state of the model after applying the given operation.
+
+        :param operation: The operation to be applied to the model
+        :param app_label: The label of the app that the model belongs to
+        :rtype: list
+        :return: A list of operations to be applied to the model
+        """
         if (
             isinstance(operation, DeleteModel)
             and self.name_lower == operation.name_lower
@@ -445,6 +487,23 @@ class RenameModel(ModelOperation):
         state.rename_model(app_label, self.old_name, self.new_name)
 
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
+        """
+        Alter the database tables for a model rename operation.
+
+        This function is used to update the database schema when a model's name has changed.
+        It correctly renames the model's table and updates all related fields in other models.
+
+        It takes into account the relationships between models, including foreign keys and many-to-many relationships.
+        The function assumes that the necessary model metadata is available in the `from_state` and `to_state` objects,
+        and that the `schema_editor` has the necessary capabilities to perform the required database operations.
+
+        The function will only perform the migration if the `allow_migrate_model` method returns `True` for the new model. 
+
+        :param app_label: The label of the application containing the model.
+        :param schema_editor: The schema editor to use for the migration.
+        :param from_state: The previous state of the application's models.
+        :param to_state: The new state of the application's models.
+        """
         new_model = to_state.apps.get_model(app_label, self.new_name)
         if self.allow_migrate_model(schema_editor.connection.alias, new_model):
             old_model = from_state.apps.get_model(app_label, self.old_name)
@@ -751,6 +810,20 @@ class AlterOrderWithRespectTo(ModelOptionOperation):
         )
 
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
+        """
+
+        Handles database migration for a model by modifying its schema.
+
+        This method is responsible for updating the database schema when migrating from one model state to another.
+        It checks if the model's ordering has changed and adds or removes the corresponding '_order' field as necessary.
+        The migration is only performed if the model is allowed to be migrated in the current database connection.
+
+        :param app_label: The label of the application that the model belongs to.
+        :param schema_editor: The schema editor to use for modifying the database schema.
+        :param from_state: The previous state of the model.
+        :param to_state: The new state of the model.
+
+        """
         to_model = to_state.apps.get_model(app_label, self.name)
         if self.allow_migrate_model(schema_editor.connection.alias, to_model):
             from_model = from_state.apps.get_model(app_label, self.name)
@@ -1054,6 +1127,9 @@ class RenameIndex(IndexOperation):
             )
 
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
+        """
+
+        """
         model = to_state.apps.get_model(app_label, self.model_name)
         if not self.allow_migrate_model(schema_editor.connection.alias, model):
             return

@@ -32,6 +32,9 @@ class TestUtilsHtml(SimpleTestCase):
         self.assertEqual(function(value), output)
 
     def test_escape(self):
+        """
+
+        """
         items = (
             ("&", "&amp;"),
             ("<", "&lt;"),
@@ -131,6 +134,9 @@ class TestUtilsHtml(SimpleTestCase):
 
     def test_strip_tags_files(self):
         # Test with more lengthy content (also catching performance regressions)
+        """
+
+        """
         for filename in ("strip_tags1.html", "strip_tags2.txt"):
             with self.subTest(filename=filename):
                 path = os.path.join(os.path.dirname(__file__), "files", filename)
@@ -145,6 +151,9 @@ class TestUtilsHtml(SimpleTestCase):
 
     def test_strip_spaces_between_tags(self):
         # Strings that should come out untouched.
+        """
+
+        """
         items = (" <adf>", "<adf> ", " </adf> ", " <f> x</f>")
         for value in items:
             with self.subTest(value=value):
@@ -287,6 +296,9 @@ class TestUtilsHtml(SimpleTestCase):
         self.assertEqual(str(html_obj), html_obj.__html__())
 
     def test_html_safe_subclass(self):
+        """
+
+        """
         class BaseClass:
             def __html__(self):
                 # defines __html__ on its own

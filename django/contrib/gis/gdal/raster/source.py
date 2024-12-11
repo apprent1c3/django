@@ -75,6 +75,9 @@ class GDALRaster(GDALRasterBase):
     destructor = capi.close_ds
 
     def __init__(self, ds_input, write=False):
+        """
+
+        """
         self._write = 1 if write else 0
         Driver.ensure_registered()
 

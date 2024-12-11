@@ -35,6 +35,9 @@ class DeconstructibleObject:
 
 class BaseAutodetectorTests(TestCase):
     def repr_changes(self, changes, include_dependencies=False):
+        """
+
+        """
         output = ""
         for app_label, migrations_ in sorted(changes.items()):
             output += "  %s:\n" % app_label
@@ -115,6 +118,9 @@ class BaseAutodetectorTests(TestCase):
     def assertOperationAttributes(
         self, changes, app_label, position, operation_position, **attrs
     ):
+        """
+
+        """
         if not changes.get(app_label):
             self.fail(
                 "No migrations found for %s\n%s"
@@ -155,6 +161,9 @@ class BaseAutodetectorTests(TestCase):
     def assertOperationFieldAttributes(
         self, changes, app_label, position, operation_position, **attrs
     ):
+        """
+
+        """
         if not changes.get(app_label):
             self.fail(
                 "No migrations found for %s\n%s"
@@ -1188,6 +1197,9 @@ class AutodetectorTests(BaseAutodetectorTests):
 
     def test_arrange_for_graph_with_multiple_initial(self):
         # Make a fake graph.
+        """
+
+        """
         graph = MigrationGraph()
         # Use project state to make a new migration change set.
         before = self.make_project_state([])
@@ -1465,6 +1477,16 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_supports_functools_partial(self):
+        """
+
+        Tests that the migration system correctly handles model field changes when the 
+        field's `upload_to` parameter is a functools.partial object.
+
+        Verifies that no migrations are generated when the functools.partial object 
+        does not change, and that an AlterField operation is generated when the 
+        functools.partial object's arguments or keyword arguments change.
+
+        """
         def _content_file_name(instance, filename, key, **kwargs):
             return "{}/{}".format(instance, filename)
 
@@ -1736,6 +1758,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         self.assertEqual(changes, {})
 
     def test_rename_foreign_object_fields(self):
+        """
+
+        """
         fields = ("first", "second")
         renamed_fields = ("first_renamed", "second_renamed")
         before = [
@@ -3432,6 +3457,9 @@ class AutodetectorTests(BaseAutodetectorTests):
 
     def test_proxy_to_mti_with_fk_to_proxy(self):
         # First, test the pk table and field name.
+        """
+
+        """
         to_state = self.make_project_state(
             [self.author_empty, self.author_proxy_third, self.book_proxy_fk],
         )
@@ -3472,6 +3500,9 @@ class AutodetectorTests(BaseAutodetectorTests):
 
     def test_proxy_to_mti_with_fk_to_proxy_proxy(self):
         # First, test the pk table and field name.
+        """
+
+        """
         to_state = self.make_project_state(
             [
                 self.author_empty,
@@ -3648,6 +3679,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         self.assertEqual(len(changes), 0)
 
     def test_swappable_changed(self):
+        """
+
+        """
         with isolate_lru_cache(apps.get_swappable_settings_name):
             before = self.make_project_state([self.custom_user, self.author_with_user])
             with override_settings(AUTH_USER_MODEL="thirdapp.CustomUser"):
@@ -3895,6 +3929,20 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_create_with_through_model_separate_apps(self):
+        """
+
+        Test creation of model instances using many-to-many relationships with a through model 
+        in separate applications.
+
+        This test case verifies that the model change detection mechanism correctly identifies 
+        the necessary changes to create a model instance that includes a many-to-many relationship 
+        with a through model located in a separate application.
+
+        The test checks the number of migrations generated for each application, the migration 
+        dependencies, and the operation types and attributes. It ensures that the correct models 
+        are created, and the many-to-many relationship is established using the through model.
+
+        """
         author_with_m2m_through = ModelState(
             "authors",
             "Author",
@@ -4389,6 +4437,9 @@ class AutodetectorTests(BaseAutodetectorTests):
         self.assertOperationAttributes(changes, "thirdapp", 0, 1, name="Aardvark")
 
     def test_default_related_name_option(self):
+        """
+
+        """
         model_state = ModelState(
             "app",
             "model",
@@ -4932,6 +4983,19 @@ class AutodetectorTests(BaseAutodetectorTests):
                 )
 
     def test_add_custom_fk_with_hardcoded_to(self):
+        """
+
+        Test adding a custom foreign key with a hardcoded 'to' value.
+
+        This test case checks the creation of a new model 'Book' with a foreign key 'author'
+        that has a hardcoded reference to the 'Author' model. The test verifies that the
+        correct migration is generated with the expected operation type and attributes.
+
+        Specifically, it ensures that a single 'CreateModel' operation is produced for the
+        'testapp' application, and that the new 'Book' model is created with the correct
+        foreign key field 'author'.
+
+        """
         class HardcodedForeignKey(models.ForeignKey):
             def __init__(self, *args, **kwargs):
                 kwargs["to"] = "testapp.Author"

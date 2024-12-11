@@ -197,6 +197,23 @@ class CacheMiddleware(UpdateCacheMiddleware, FetchFromCacheMiddleware):
     """
 
     def __init__(self, get_response, cache_timeout=None, page_timeout=None, **kwargs):
+        """
+
+        Initializes the class instance.
+
+        This initializer sets up the necessary parameters for caching, including the cache timeout and page timeout.
+        It also accepts optional keyword arguments to customize the cache key prefix and cache alias.
+
+        The following parameters are supported:
+            - get_response: The response function to be used.
+            - cache_timeout: The timeout value for cache operations, defaults to None.
+            - page_timeout: The timeout value for page operations, defaults to None.
+            - key_prefix: An optional prefix to be used for cache keys, defaults to an empty string.
+            - cache_alias: An optional alias to be used for the cache, defaults to the default cache alias.
+
+        These parameters control how the class handles caching and timeouts, allowing for flexible customization of its behavior.
+
+        """
         super().__init__(get_response)
         # We need to differentiate between "provided, but using default value",
         # and "not provided". If the value is provided using a default, then

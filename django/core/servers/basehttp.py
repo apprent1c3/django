@@ -182,6 +182,9 @@ class WSGIRequestHandler(simple_server.WSGIRequestHandler):
         return self.client_address[0]
 
     def log_message(self, format, *args):
+        """
+
+        """
         extra = {
             "request": self.request,
             "server_time": self.log_date_time_string(),
@@ -262,6 +265,30 @@ def run(
     on_bind=None,
     server_cls=WSGIServer,
 ):
+    """
+
+    Run a WSGI server with the given address, port, and WSGI handler.
+
+    This function starts a WSGI server, listening on the specified address and port, 
+    and serving requests using the provided WSGI handler. The server can be configured 
+    to use IPv6, threading, and a custom server class.
+
+    The function also accepts an optional callback function, `on_bind`, which is 
+    called when the server is bound to the address and port. The port number is 
+    passed as an argument to this callback.
+
+    Once the server is started, it runs indefinitely, serving requests until it is 
+    manually stopped.
+
+    :param addr: The address to listen on.
+    :param port: The port to listen on.
+    :param wsgi_handler: The WSGI handler to use for serving requests.
+    :param ipv6: Whether to use IPv6 (default is False).
+    :param threading: Whether to use threading (default is False).
+    :param on_bind: Optional callback function to call when the server is bound.
+    :param server_cls: The server class to use (default is WSGIServer).
+
+    """
     server_address = (addr, port)
     if threading:
         httpd_cls = type("WSGIServer", (socketserver.ThreadingMixIn, server_cls), {})

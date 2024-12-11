@@ -48,6 +48,22 @@ from .models import (
 class TestDataMixin:
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for use in unit tests.
+
+        This method creates a set of test books, authors, and readers, and establishes relationships between them.
+        The test data includes four books, each with one or more authors, and two readers, each with a selection of books they have read.
+        The created data can be used as a foundation for testing various scenarios and behaviors in the application.
+
+        The test data includes the following:
+
+        * Four books: 'Poems', 'Jane Eyre', 'Wuthering Heights', and 'Sense and Sensibility'
+        * Four authors: 'Charlotte', 'Anne', 'Emily', and 'Jane'
+        * Two readers: 'Amy' and 'Belinda'
+
+        The relationships between the data are also established, including which authors wrote which books and which readers have read which books.
+        This test data provides a robust foundation for testing the application's functionality and behavior. 
+        """
         cls.book1 = Book.objects.create(title="Poems")
         cls.book2 = Book.objects.create(title="Jane Eyre")
         cls.book3 = Book.objects.create(title="Wuthering Heights")
@@ -464,6 +480,9 @@ class CustomPrefetchTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+
+        """
         cls.person1 = Person.objects.create(name="Joe")
         cls.person2 = Person.objects.create(name="Mary")
 
@@ -660,6 +679,18 @@ class CustomPrefetchTests(TestCase):
 
     def test_o2m_through_m2m(self):
         # Control lookups.
+        """
+
+        Tests the performance of one-to-many relationships through many-to-many relationships 
+        using Django's prefetch_related method.
+
+        The test checks that the number of database queries remains constant regardless of 
+        how the prefetch_related method is used to fetch related objects.
+
+        It covers several scenarios, including prefetching related objects directly, 
+        using Prefetch objects, and aliasing related objects with the to_attr parameter.
+
+        """
         with self.assertNumQueries(3):
             lst1 = self.traverse_qs(
                 Person.objects.prefetch_related("houses", "houses__rooms"),
@@ -775,6 +806,9 @@ class CustomPrefetchTests(TestCase):
 
     def test_custom_qs(self):
         # Test basic.
+        """
+
+        """
         with self.assertNumQueries(2):
             lst1 = list(Person.objects.prefetch_related("houses"))
         with self.assertNumQueries(2):
@@ -1062,6 +1096,9 @@ class CustomPrefetchTests(TestCase):
 class DefaultManagerTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        """
         cls.qual1 = Qualification.objects.create(name="BA")
         cls.qual2 = Qualification.objects.create(name="BSci")
         cls.qual3 = Qualification.objects.create(name="MA")
@@ -1102,6 +1139,9 @@ class DefaultManagerTests(TestCase):
 class GenericRelationTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        """
         book1 = Book.objects.create(title="Winnie the Pooh")
         book2 = Book.objects.create(title="Do you like green eggs and spam?")
         book3 = Book.objects.create(title="Three Men In A Boat")
@@ -1294,6 +1334,9 @@ class MultiTableInheritanceTest(TestCase):
         self.assertCountEqual(titles, ["Poems", "More poems"])
 
     def test_m2m_to_inheriting_model(self):
+        """
+
+        """
         qs = AuthorWithAge.objects.prefetch_related("books_with_year")
         with self.assertNumQueries(2):
             lst = [
@@ -1381,6 +1424,9 @@ class LookupOrderingTest(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+
+        """
         person1 = Person.objects.create(name="Joe")
         person2 = Person.objects.create(name="Mary")
 
@@ -1484,6 +1530,9 @@ class MultiDbTests(TestCase):
     databases = {"default", "other"}
 
     def test_using_is_honored_m2m(self):
+        """
+
+        """
         B = Book.objects.using("other")
         A = Author.objects.using("other")
         book1 = B.create(title="Poems")
@@ -1534,6 +1583,9 @@ class MultiDbTests(TestCase):
         )
 
     def test_using_is_honored_fkey(self):
+        """
+
+        """
         B = Book.objects.using("other")
         A = Author.objects.using("other")
         book1 = B.create(title="Poems")
@@ -1562,6 +1614,21 @@ class MultiDbTests(TestCase):
         )
 
     def test_using_is_honored_inheritance(self):
+        """
+        .. method:: test_using_is_honored_inheritance
+
+           Tests that the database specified by the `using` parameter is honored during 
+           inheritance when using Django's ORM query methods.
+
+           This test ensures that the `using` method properly switches databases when 
+           creating and querying objects, and that it works correctly with inheritance 
+           and prefetching of related objects.
+
+           Specifically, it verifies that the `prefetch_related` method can correctly 
+           fetch related objects from the specified database, and that the results are 
+           as expected. It also checks that the correct number of database queries are 
+           executed when using `prefetch_related`.
+        """
         B = BookWithYear.objects.using("other")
         A = AuthorWithAge.objects.using("other")
         book1 = B.create(title="Poems", published_year=2010)
@@ -1584,6 +1651,20 @@ class MultiDbTests(TestCase):
         self.assertEqual(ages, "50, 49")
 
     def test_using_is_honored_custom_qs(self):
+        """
+
+        Tests that database alias specified in queryset of Prefetch object is honored.
+
+        VERifies that the database alias used to create and query Book and Author objects 
+        is respected when using Prefetch to load related objects. Specifically, 
+        it checks that the correct number of database queries are executed 
+        when using different database aliases in the Prefetch queryset.
+
+        The test covers scenarios where the Prefetch queryset uses the 'other' database, 
+        the default database, as well as a mismatch between the database used for 
+        querying the main model and the Prefetch queryset.
+
+        """
         B = Book.objects.using("other")
         A = Author.objects.using("other")
         book1 = B.create(title="Poems")
@@ -1666,6 +1747,9 @@ class Ticket19607Tests(TestCase):
 class Ticket21410Tests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        """
         book1 = Book.objects.create(title="Poems")
         book2 = Book.objects.create(title="Jane Eyre")
         book3 = Book.objects.create(title="Wuthering Heights")
@@ -2017,6 +2101,9 @@ class DeprecationTests(TestCase):
 
     @ignore_warnings(category=RemovedInDjango60Warning)
     def test_prefetch_one_level_fallback(self):
+        """
+
+        """
         class NoGetPrefetchQuerySetsDescriptor(ForwardManyToOneDescriptor):
             def get_prefetch_queryset(self, instances, queryset=None):
                 if queryset is None:

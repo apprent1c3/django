@@ -51,6 +51,9 @@ class ListViewTests(TestCase):
         self.assertFalse(res.context["is_paginated"])
 
     def test_paginated_queryset(self):
+        """
+
+        """
         self._make_authors(100)
         res = self.client.get("/list/authors/paginated/")
         self.assertEqual(res.status_code, 200)
@@ -141,6 +144,9 @@ class ListViewTests(TestCase):
         self.assertEqual(len(res.context["object_list"]), 7)
 
     def test_paginated_orphaned_queryset(self):
+        """
+
+        """
         self._make_authors(92)
         res = self.client.get("/list/authors/paginated-orphaned/")
         self.assertEqual(res.status_code, 200)
@@ -234,6 +240,9 @@ class ListViewTests(TestCase):
             self.client.get("/list/authors/notempty/paginated/")
 
     def test_explicitly_ordered_list_view(self):
+        """
+
+        """
         Book.objects.create(
             name="Zebras for Dummies", pages=800, pubdate=datetime.date(2006, 9, 1)
         )

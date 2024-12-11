@@ -65,6 +65,9 @@ W015 = Warning(
 
 @register(Tags.security, deploy=True)
 def check_session_cookie_secure(app_configs, **kwargs):
+    """
+
+    """
     if settings.SESSION_COOKIE_SECURE is True:
         return []
     errors = []
@@ -79,6 +82,9 @@ def check_session_cookie_secure(app_configs, **kwargs):
 
 @register(Tags.security, deploy=True)
 def check_session_cookie_httponly(app_configs, **kwargs):
+    """
+
+    """
     if settings.SESSION_COOKIE_HTTPONLY is True:
         return []
     errors = []

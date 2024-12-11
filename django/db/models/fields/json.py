@@ -50,6 +50,9 @@ class JSONField(CheckFieldDefaultMixin, Field):
         return errors
 
     def _check_supported(self, databases):
+        """
+
+        """
         errors = []
         for db in databases:
             if not router.allow_migrate_model(db, self.model):
@@ -144,6 +147,9 @@ class JSONField(CheckFieldDefaultMixin, Field):
 
 
 def compile_json_path(key_transforms, include_root=True):
+    """
+
+    """
     path = ["$"] if include_root else []
     for key_transform in key_transforms:
         try:
@@ -195,6 +201,9 @@ class HasKeyLookup(PostgresOperatorLookup):
 
     def as_sql(self, compiler, connection, template=None):
         # Process JSON path from the left-hand side.
+        """
+
+        """
         if isinstance(self.lhs, KeyTransform):
             lhs, lhs_params, lhs_key_transforms = self.lhs.preprocess_lhs(
                 compiler, connection
@@ -467,6 +476,9 @@ class KeyTransformIsNull(lookups.IsNull):
 
 class KeyTransformIn(lookups.In):
     def resolve_expression_parameter(self, compiler, connection, sql, param):
+        """
+
+        """
         sql, params = super().resolve_expression_parameter(
             compiler,
             connection,
@@ -496,6 +508,9 @@ class KeyTransformIn(lookups.In):
 
 class KeyTransformExact(JSONExact):
     def process_rhs(self, compiler, connection):
+        """
+
+        """
         if isinstance(self.rhs, KeyTransform):
             return super(lookups.Exact, self).process_rhs(compiler, connection)
         rhs, rhs_params = super().process_rhs(compiler, connection)

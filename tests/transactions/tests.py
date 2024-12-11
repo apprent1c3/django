@@ -192,6 +192,13 @@ class AtomicTests(TransactionTestCase):
         self.assertSequenceEqual(Reporter.objects.all(), [])
 
     def test_reuse_rollback_rollback(self):
+        """
+        Tests the reusing of a rollback within a rollback in a database transaction.
+
+        Ensures that when an exception occurs within a nested atomic block, the entire transaction is rolled back and no changes are committed to the database.
+
+        Specifically, this test verifies that after attempting to create two Reporter objects, both within and outside of a nested atomic block, and raising an exception in both cases, the database is left in a clean state with no Reporter objects created.
+        """
         atomic = transaction.atomic()
         with self.assertRaisesMessage(Exception, "Oops"):
             with atomic:
@@ -212,6 +219,9 @@ class AtomicTests(TransactionTestCase):
         self.assertSequenceEqual(Reporter.objects.all(), [])
 
     def test_prevent_rollback(self):
+        """
+
+        """
         with transaction.atomic():
             reporter = Reporter.objects.create(first_name="Tintin")
             sid = transaction.savepoint()
@@ -228,6 +238,9 @@ class AtomicTests(TransactionTestCase):
 
     @skipUnlessDBFeature("can_release_savepoints")
     def test_failure_on_exit_transaction(self):
+        """
+
+        """
         with transaction.atomic():
             with self.assertRaises(DatabaseError):
                 with transaction.atomic():
@@ -272,6 +285,9 @@ class AtomicMergeTests(TransactionTestCase):
     available_apps = ["transactions"]
 
     def test_merged_outer_rollback(self):
+        """
+
+        """
         with transaction.atomic():
             Reporter.objects.create(first_name="Tintin")
             with transaction.atomic(savepoint=False):
@@ -296,6 +312,9 @@ class AtomicMergeTests(TransactionTestCase):
         self.assertSequenceEqual(Reporter.objects.all(), [])
 
     def test_merged_inner_savepoint_rollback(self):
+        """
+
+        """
         with transaction.atomic():
             reporter = Reporter.objects.create(first_name="Tintin")
             with transaction.atomic():
@@ -342,6 +361,9 @@ class AtomicErrorsTests(TransactionTestCase):
                 transaction.rollback()
 
     def test_atomic_prevents_queries_in_broken_transaction(self):
+        """
+
+        """
         r1 = Reporter.objects.create(first_name="Archibald", last_name="Haddock")
         with transaction.atomic():
             r2 = Reporter(first_name="Cuthbert", last_name="Calculus", id=r1.id)
@@ -461,6 +483,9 @@ class AtomicMiscTests(TransactionTestCase):
                 connection.savepoint_rollback(sid)
 
     def test_mark_for_rollback_on_error_in_transaction(self):
+        """
+
+        """
         with transaction.atomic(savepoint=False):
             # Swallow the intentional error raised.
             with self.assertRaisesMessage(Exception, "Oops"):

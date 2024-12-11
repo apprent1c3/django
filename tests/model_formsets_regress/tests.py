@@ -539,6 +539,9 @@ class FormfieldShouldDeleteFormTests(TestCase):
 
 class RedeleteTests(TestCase):
     def test_resubmit(self):
+        """
+
+        """
         u = User.objects.create(username="foo", serial=1)
         us = UserSite.objects.create(user=u, data=7)
         formset_cls = inlineformset_factory(User, UserSite, fields="__all__")

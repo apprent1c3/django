@@ -58,6 +58,9 @@ class ProxyModelWithDifferentAppLabelTests(TransactionTestCase):
         self.assertEqual(self.custom_permission.content_type, proxy_model_content_type)
 
     def test_user_has_now_proxy_model_permissions(self):
+        """
+
+        """
         user = User.objects.create()
         user.user_permissions.add(self.default_permission)
         user.user_permissions.add(self.custom_permission)
@@ -86,6 +89,9 @@ class ProxyModelWithDifferentAppLabelTests(TransactionTestCase):
         )
 
     def test_user_keeps_same_permissions_after_migrating_backward(self):
+        """
+
+        """
         user = User.objects.create()
         user.user_permissions.add(self.default_permission)
         user.user_permissions.add(self.custom_permission)
@@ -146,6 +152,9 @@ class ProxyModelWithSameAppLabelTests(TransactionTestCase):
         self.assertEqual(self.custom_permission.content_type, proxy_model_content_type)
 
     def test_user_still_has_proxy_model_permissions(self):
+        """
+
+        """
         user = User.objects.create()
         user.user_permissions.add(self.default_permission)
         user.user_permissions.add(self.custom_permission)
@@ -172,6 +181,19 @@ class ProxyModelWithSameAppLabelTests(TransactionTestCase):
         )
 
     def test_user_keeps_same_permissions_after_migrating_backward(self):
+        """
+
+        Tests that a user's permissions remain unchanged after migrating backwards.
+
+        This test case covers the scenario where a user has been granted certain permissions,
+        and then the database schema is migrated backwards, potentially changing the permissions
+        structure. It verifies that the user still retains the same permissions after the migration.
+
+        The test creates a user, assigns them default and custom permissions, and then migrates
+        the database schema backwards using the update and revert proxy model permissions functions.
+        After the migration, it re-checks the user's permissions to ensure they have not been altered.
+
+        """
         user = User.objects.create()
         user.user_permissions.add(self.default_permission)
         user.user_permissions.add(self.custom_permission)

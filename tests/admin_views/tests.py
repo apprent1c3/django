@@ -192,6 +192,9 @@ class AdminFieldExtractionMixin:
 class AdminViewBasicTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        """
         cls.superuser = User.objects.create_superuser(
             username="super", password="secret", email="super@example.com"
         )
@@ -330,6 +333,16 @@ class AdminViewBasicTest(AdminViewBasicTestCase):
         )
 
     def test_add_query_string_persists(self):
+        """
+        Tests that query string parameters persist after adding a new object in the admin interface.
+
+        This test checks that the query string is preserved when adding a new object with different save options and other query string parameters.
+        It verifies that the resulting URL contains the original query string parameters after the form is submitted.
+
+        The test covers various save options, including add another, continue editing, and save as new, as well as other query string parameters such as changelist filters and popup-related parameters.
+
+        The test case ensures that the query string is correctly persisted, regardless of the save option or other query string parameters used.
+        """
         save_options = [
             {"_addanother": "1"},  # "Save and add another".
             {"_continue": "1"},  # "Save and continue editing".
@@ -361,6 +374,9 @@ class AdminViewBasicTest(AdminViewBasicTestCase):
                     self.assertEqual(parsed_url.query, qsl)
 
     def test_change_query_string_persists(self):
+        """
+
+        """
         save_options = [
             {"_addanother": "1"},  # "Save and add another".
             {"_continue": "1"},  # "Save and continue editing".
@@ -711,6 +727,20 @@ class AdminViewBasicTest(AdminViewBasicTestCase):
         )
 
     def test_change_list_sorting_multiple(self):
+        """
+        Tests the sorting of the person changelist in the admin interface.
+
+        This test ensures that the list of people is sorted correctly based on the
+        ordering parameters passed in the URL. It checks both ascending and descending
+        order for the name and gender fields. The test creates three people with different
+        names and genders, then verifies that they are displayed in the correct order
+        in the changelist view.
+
+        The test covers two scenarios: sorting by name and then gender in ascending order,
+        and sorting by gender and then name in descending order. It checks that the links
+        to the person change pages are displayed in the correct order in the changelist
+        view, which confirms that the sorting is working as expected.
+        """
         p1 = Person.objects.create(name="Chris", gender=1, alive=True)
         p2 = Person.objects.create(name="Chris", gender=2, alive=True)
         p3 = Person.objects.create(name="Bob", gender=1, alive=True)
@@ -781,6 +811,9 @@ class AdminViewBasicTest(AdminViewBasicTestCase):
     def test_multiple_sort_same_field(self):
         # The changelist displays the correct columns if two columns correspond
         # to the same ordering field.
+        """
+
+        """
         dt = datetime.datetime.now()
         p1 = Podcast.objects.create(name="A", release_date=dt)
         p2 = Podcast.objects.create(name="B", release_date=dt - datetime.timedelta(10))
@@ -885,6 +918,9 @@ class AdminViewBasicTest(AdminViewBasicTestCase):
     def test_change_list_facet_toggle(self):
         # Toggle is visible when show_facet is the default of
         # admin.ShowFacets.ALLOW.
+        """
+
+        """
         admin_url = reverse("admin:admin_views_album_changelist")
         response = self.client.get(admin_url)
         self.assertContains(
@@ -924,6 +960,9 @@ class AdminViewBasicTest(AdminViewBasicTestCase):
         )
 
     def test_relation_spanning_filters(self):
+        """
+
+        """
         changelist_url = reverse("admin:admin_views_chapterxtra1_changelist")
         response = self.client.get(changelist_url)
         self.assertContains(
@@ -1134,6 +1173,19 @@ class AdminViewBasicTest(AdminViewBasicTestCase):
             self.assertContains(response, "%Y-%m-%d %H:%M:%S")
 
     def test_disallowed_filtering(self):
+        """
+        Test disallowed model admin lookup by verifying the server responds correctly to various filter requests.
+
+        This test checks whether the server prevents disallowed lookup types, ensuring data security by blocking potentially malicious filter queries.
+
+        It tests different scenarios, including:
+        - Invalid lookup types, which should result in a 400 error response.
+        - Permitted filter queries on model fields, expecting a 200 success response.
+        - Specific lookup types on related model fields, verifying they are handled correctly.
+        - The availability of certain lookup types in the admin interface, confirming they can be used to filter results.
+
+        By covering various use cases, this test ensures the server correctly handles filtering requests and maintains data security.
+        """
         with self.assertLogs("django.security.DisallowedModelAdminLookup", "ERROR"):
             response = self.client.get(
                 "%s?owner__email__startswith=fuzzy"
@@ -1176,6 +1228,9 @@ class AdminViewBasicTest(AdminViewBasicTestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_disallowed_to_field(self):
+        """
+
+        """
         url = reverse("admin:admin_views_section_changelist")
         with self.assertLogs("django.security.DisallowedModelAdminToField", "ERROR"):
             response = self.client.get(url, {TO_FIELD_VAR: "missing_field"})
@@ -1503,6 +1558,9 @@ class AdminViewBasicTest(AdminViewBasicTestCase):
         self.assertContains(response, "<h2>Article 2</h2>")
 
     def test_view_subtitle_per_object(self):
+        """
+
+        """
         viewuser = User.objects.create_user(
             username="viewuser",
             password="secret",
@@ -1674,6 +1732,9 @@ class AdminViewBasicTest(AdminViewBasicTestCase):
 class AdminCustomTemplateTests(AdminViewBasicTestCase):
     def test_custom_model_admin_templates(self):
         # Test custom change list template with custom extra context
+        """
+
+        """
         response = self.client.get(
             reverse("admin:admin_views_customarticle_changelist")
         )
@@ -1780,6 +1841,9 @@ class AdminCustomTemplateTests(AdminViewBasicTestCase):
         )
 
     def test_change_password_template_helptext_no_id(self):
+        """
+
+        """
         user = User.objects.get(username="super")
 
         class EmptyIdForLabelTextInput(forms.TextInput):
@@ -2170,6 +2234,9 @@ class AdminViewPermissionsTest(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+
+        """
         cls.superuser = User.objects.create_superuser(
             username="super", password="secret", email="super@example.com"
         )
@@ -2380,6 +2447,9 @@ class AdminViewPermissionsTest(TestCase):
 
     def test_login_has_permission(self):
         # Regular User should not be able to login.
+        """
+
+        """
         response = self.client.get(reverse("has_permission_admin:index"))
         self.assertEqual(response.status_code, 302)
         login = self.client.post(
@@ -3401,6 +3471,9 @@ class AdminViewProxyModelPermissionsTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+
+        """
         cls.viewuser = User.objects.create_user(
             username="viewuser", password="secret", is_staff=True
         )
@@ -3509,6 +3582,9 @@ class AdminViewsNoUrlTest(TestCase):
 class AdminViewDeletedObjectsTest(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        """
         cls.superuser = User.objects.create_superuser(
             username="super", password="secret", email="super@example.com"
         )
@@ -3813,6 +3889,9 @@ class TestGenericRelations(TestCase):
 class AdminViewStringPrimaryKeyTest(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        """
         cls.superuser = User.objects.create_superuser(
             username="super", password="secret", email="super@example.com"
         )
@@ -4075,6 +4154,9 @@ class SecureViewTests(TestCase):
 class AdminViewUnicodeTest(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        """
         cls.superuser = User.objects.create_superuser(
             username="super", password="secret", email="super@example.com"
         )
@@ -4252,6 +4334,9 @@ class AdminViewListEditable(TestCase):
         self.assertEqual(len(response.context["messages"]), 1)
 
     def test_post_submission(self):
+        """
+
+        """
         data = {
             "form-TOTAL_FORMS": "3",
             "form-INITIAL_FORMS": "3",
@@ -4420,6 +4505,9 @@ class AdminViewListEditable(TestCase):
         )
 
     def test_list_editable_ordering(self):
+        """
+
+        """
         collector = Collector.objects.create(id=1, name="Frederick Clegg")
 
         Category.objects.create(id=1, order=1, collector=collector)
@@ -4608,6 +4696,9 @@ class AdminViewListEditable(TestCase):
 class AdminSearchTest(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        """
         cls.superuser = User.objects.create_superuser(
             username="super", password="secret", email="super@example.com"
         )
@@ -4943,6 +5034,9 @@ class AdminCustomQuerysetTest(TestCase):
 
     def test_changelist_view_count_queries(self):
         # create 2 Person objects
+        """
+
+        """
         Person.objects.create(name="person1", gender=1)
         Person.objects.create(name="person2", gender=2)
         changelist_url = reverse("admin:admin_views_person_changelist")
@@ -4986,6 +5080,16 @@ class AdminCustomQuerysetTest(TestCase):
         # Test for #14529. defer() is used in ModelAdmin.get_queryset()
 
         # model has __str__ method
+        """
+        Tests the addition of new models through the admin interface, specifically the CoverLetter and ShortMessage models.
+
+        The test verifies that a new instance of each model can be successfully added via a POST request to the respective admin views,
+        and that a success message is displayed after each addition. 
+
+        Additionally, it checks that the database is updated correctly, with the new instances being saved and no unexpected instances being created. 
+
+        The test also ensures that the admin interface works as expected when adding new models, by checking the HTTP status code of the response and the contents of the HTML response.
+        """
         self.assertEqual(CoverLetter.objects.count(), 0)
         # Emulate model instance creation via the admin
         post_data = {
@@ -5033,6 +5137,9 @@ class AdminCustomQuerysetTest(TestCase):
         # Test for #14529. only() is used in ModelAdmin.get_queryset()
 
         # model has __str__ method
+        """
+
+        """
         self.assertEqual(Telegram.objects.count(), 0)
         # Emulate model instance creation via the admin
         post_data = {
@@ -5080,6 +5187,9 @@ class AdminCustomQuerysetTest(TestCase):
         # Test for #14529. defer() is used in ModelAdmin.get_queryset()
 
         # model has __str__ method
+        """
+
+        """
         cl = CoverLetter.objects.create(author="John Doe")
         self.assertEqual(CoverLetter.objects.count(), 1)
         response = self.client.get(
@@ -5135,6 +5245,9 @@ class AdminCustomQuerysetTest(TestCase):
         # Test for #14529. only() is used in ModelAdmin.get_queryset()
 
         # model has __str__ method
+        """
+
+        """
         t = Telegram.objects.create(title="First Telegram")
         self.assertEqual(Telegram.objects.count(), 1)
         response = self.client.get(
@@ -6094,6 +6207,21 @@ class SeleniumTests(AdminSeleniumTestCase):
 
     @screenshot_cases(["desktop_size", "mobile_size", "rtl", "dark", "high_contrast"])
     def test_selectbox_height_collapsible_fieldset(self):
+        """
+
+        Tests the height consistency of the selectbox in a collapsible fieldset.
+
+        This test case verifies that the heights of the selectbox elements in a collapsible fieldset remain consistent,
+        regardless of the fieldset's collapsed or expanded state. The test is run with various display settings, including
+        desktop and mobile sizes, right-to-left text direction, dark mode, and high contrast mode.
+
+        The test covers the following scenarios:
+        - The selectbox elements are properly displayed in the fieldset.
+        - The heights of the selectbox elements are equal when the fieldset is collapsed or expanded.
+
+        If the test passes, it ensures a consistent user interface and prevents potential layout issues.
+
+        """
         from selenium.webdriver.common.by import By
 
         self.admin_login(
@@ -6122,6 +6250,9 @@ class SeleniumTests(AdminSeleniumTestCase):
 
     @screenshot_cases(["desktop_size", "mobile_size", "rtl", "dark", "high_contrast"])
     def test_selectbox_height_not_collapsible_fieldset(self):
+        """
+
+        """
         from selenium.webdriver.common.by import By
 
         self.admin_login(
@@ -6288,6 +6419,9 @@ class SeleniumTests(AdminSeleniumTestCase):
         self.assertEqual(select2_display.text, "×\nnew section")
 
     def test_inline_uuid_pk_edit_with_popup(self):
+        """
+
+        """
         from selenium.webdriver import ActionChains
         from selenium.webdriver.common.by import By
         from selenium.webdriver.support.ui import Select
@@ -6315,6 +6449,19 @@ class SeleniumTests(AdminSeleniumTestCase):
         )
 
     def test_inline_uuid_pk_add_with_popup(self):
+        """
+        Tests the addition of a related object with an inline UUID primary key through a popup in the admin interface.
+
+        Verifies that the related object is added correctly and its UUID primary key is selected in the corresponding dropdown.
+        The test performs the following steps:
+
+        * Logs in to the admin interface
+        * Navigates to the add page for the RelatedWithUUIDPKModel
+        * Opens the popup to add a new related ParentWithUUIDPK object
+        * Fills in the required fields and saves the new object
+        * Verifies that the new object's UUID primary key is selected in the parent dropdown
+        * Confirms that the UUID primary key is correctly displayed as both text and value in the dropdown
+        """
         from selenium.webdriver.common.by import By
         from selenium.webdriver.support.ui import Select
 
@@ -6337,6 +6484,9 @@ class SeleniumTests(AdminSeleniumTestCase):
         self.assertEqual(select.first_selected_option.get_attribute("value"), uuid_id)
 
     def test_inline_uuid_pk_delete_with_popup(self):
+        """
+
+        """
         from selenium.webdriver import ActionChains
         from selenium.webdriver.common.by import By
         from selenium.webdriver.support.ui import Select
@@ -6386,6 +6536,17 @@ class SeleniumTests(AdminSeleniumTestCase):
         self.assertEqual(len(self.selenium.window_handles), 1)
 
     def test_list_editable_raw_id_fields(self):
+        """
+
+        Tests the functionality of editing raw id fields in the admin interface.
+
+        This test case verifies that the raw id field for a model's foreign key can be successfully edited.
+        It creates a new parent object and an associated related object, then logs in to the admin interface and navigates to the change list page for the related model.
+        The test then simulates clicking on the raw id field, switching to the popup window, and selecting a new parent object.
+        Finally, it checks that the selected parent object's id is correctly reflected in the raw id field.
+
+
+        """
         from selenium.webdriver.common.by import By
 
         parent = ParentWithUUIDPK.objects.create(title="test")
@@ -6441,6 +6602,9 @@ class SeleniumTests(AdminSeleniumTestCase):
         )
 
     def test_search_input_filtered_page(self):
+        """
+
+        """
         from selenium.webdriver.common.by import By
 
         Person.objects.create(name="Guido van Rossum", gender=1, alive=True)
@@ -6566,6 +6730,9 @@ class SeleniumTests(AdminSeleniumTestCase):
             self.assertIs(field_title.is_displayed(), False)
 
     def test_updating_related_objects_updates_fk_selects_except_autocompletes(self):
+        """
+
+        """
         from selenium.webdriver import ActionChains
         from selenium.webdriver.common.by import By
         from selenium.webdriver.support.ui import Select
@@ -6732,6 +6899,9 @@ class SeleniumTests(AdminSeleniumTestCase):
         self.assertEqual(traveler.favorite_country_to_vacation.name, "Qatar")
 
     def test_redirect_on_add_view_add_another_button(self):
+        """
+
+        """
         from selenium.webdriver.common.by import By
 
         self.admin_login(
@@ -6753,6 +6923,23 @@ class SeleniumTests(AdminSeleniumTestCase):
         self.assertEqual(Section.objects.count(), 2)
 
     def test_redirect_on_add_view_continue_button(self):
+        """
+
+        Tests the redirect behavior when adding a section using the \"Save and continue editing\" button in the admin interface.
+
+        Verifies that after submitting the section creation form, the section is successfully created and the user is redirected to the section edit page.
+
+        The test covers the following scenarios:
+
+        * Successful login to the admin interface
+        * Navigation to the section addition page
+        * Submission of the section creation form with valid data
+        * Verification of section creation and redirect to the edit page
+        * Validation of the persisted section data
+
+        Ensures that the section name is preserved and displayed correctly on the edit page after submission.
+
+        """
         from selenium.webdriver.common.by import By
 
         self.admin_login(
@@ -6784,6 +6971,9 @@ class ReadonlyTest(AdminFieldExtractionMixin, TestCase):
 
     @ignore_warnings(category=RemovedInDjango60Warning)
     def test_readonly_get(self):
+        """
+
+        """
         response = self.client.get(reverse("admin:admin_views_post_add"))
         self.assertNotContains(response, 'name="posted"')
         # 3 fields + 2 submit buttons + 5 inline management form fields, + 2
@@ -6865,6 +7055,9 @@ class ReadonlyTest(AdminFieldExtractionMixin, TestCase):
 
     @ignore_warnings(category=RemovedInDjango60Warning)
     def test_readonly_post(self):
+        """
+
+        """
         data = {
             "title": "Django Got Readonly Fields",
             "content": "This is an incredible development.",
@@ -7179,6 +7372,9 @@ class UserAdminTest(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+
+        """
         cls.superuser = User.objects.create_superuser(
             username="super", password="secret", email="super@example.com"
         )
@@ -7815,6 +8011,9 @@ class DateHierarchyTests(TestCase):
             self.assert_non_localized_year(response, 2005)
 
     def test_related_field(self):
+        """
+
+        """
         questions_data = (
             # (posted data, number of answers),
             (datetime.date(2001, 1, 30), 0),
@@ -8176,6 +8375,9 @@ class AdminKeepChangeListFiltersTests(TestCase):
 
     def test_change_view(self):
         # Get the `change_view`.
+        """
+
+        """
         response = self.client.get(self.get_change_url())
         self.assertEqual(response.status_code, 200)
 
@@ -8248,6 +8450,9 @@ class AdminKeepChangeListFiltersTests(TestCase):
 
     def test_add_view(self):
         # Get the `add_view`.
+        """
+
+        """
         response = self.client.get(self.get_add_url())
         self.assertEqual(response.status_code, 200)
 
@@ -8373,6 +8578,20 @@ class TestLabelVisibility(TestCase):
 class AdminViewOnSiteTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for the application, creating a superuser and a set of states, cities, restaurants, and workers.
+
+        This method is used to establish a consistent dataset for testing purposes, providing a predefined set of objects that can be used across multiple tests.
+
+        The test data includes:
+            * A superuser with credentials
+            * Three states (New York, Illinois, California) each with a corresponding city
+            * Six restaurants across the cities
+            * Three workers assigned to one of the restaurants
+
+        By calling this method, test cases can rely on the existence of these objects, simplifying test setup and reducing duplication of code.
+
+        """
         cls.superuser = User.objects.create_superuser(
             username="super", password="secret", email="super@example.com"
         )
@@ -8562,6 +8781,9 @@ class AdminViewOnSiteTests(TestCase):
 class InlineAdminViewOnSiteTest(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        """
         cls.superuser = User.objects.create_superuser(
             username="super", password="secret", email="super@example.com"
         )

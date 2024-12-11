@@ -1109,6 +1109,9 @@ class MigrationAutodetector:
             self._generate_added_field(app_label, model_name, field_name)
 
     def _generate_added_field(self, app_label, model_name, field_name):
+        """
+
+        """
         field = self.to_state.models[app_label, model_name].get_field(field_name)
         # Adding a field always depends at least on its removal.
         dependencies = [
@@ -1323,6 +1326,9 @@ class MigrationAutodetector:
                     self._generate_added_field(app_label, model_name, field_name)
 
     def create_altered_indexes(self):
+        """
+
+        """
         option_name = operations.AddIndex.option_name
         self.renamed_index_together_values = defaultdict(list)
 
@@ -1451,6 +1457,9 @@ class MigrationAutodetector:
                 )
 
     def create_altered_constraints(self):
+        """
+
+        """
         option_name = operations.AddConstraint.option_name
         for app_label, model_name in sorted(self.kept_model_keys):
             old_model_name = self.renamed_models.get(
@@ -1505,6 +1514,23 @@ class MigrationAutodetector:
 
     @staticmethod
     def _get_dependencies_for_foreign_key(app_label, model_name, field, project_state):
+        """
+        Determines the dependencies required for a foreign key in a Django model.
+
+        This function takes into account the model's app label, name, field, and the project's state to determine the dependencies.
+        It considers the remote field's model, swappable settings, and through models (for ManyToMany relationships) to construct a list of dependencies.
+
+        The resulting list contains OperationDependency objects, each representing a dependency that must be created before the foreign key can be resolved.
+        These dependencies are classified as CREATE type operations, indicating that the dependent objects must exist before the foreign key can be established.
+
+        The function returns a list of dependencies, which can be used to ensure that the necessary models and relations are created before attempting to create the foreign key.
+
+        :arg str app_label: The application label of the model containing the foreign key
+        :arg str model_name: The name of the model containing the foreign key
+        :arg field: The field object representing the foreign key
+        :arg project_state: The state of the project, including relations between models
+        :return: A list of OperationDependency objects representing the dependencies required for the foreign key
+        """
         remote_field_model = None
         if hasattr(field.remote_field, "model"):
             remote_field_model = field.remote_field.model
@@ -1587,6 +1613,9 @@ class MigrationAutodetector:
         return dependencies
 
     def _get_altered_foo_together_operations(self, option_name):
+        """
+
+        """
         for app_label, model_name in sorted(self.kept_model_keys):
             old_model_name = self.renamed_models.get(
                 (app_label, model_name), model_name

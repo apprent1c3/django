@@ -38,6 +38,22 @@ from django.utils.duration import duration_microseconds
 
 
 def register(connection):
+    """
+    Registers various custom database functions for use in SQL queries.
+
+    These functions include date and time manipulation functions, such as extracting and truncating dates and times, as well as casting between different date and time types.
+
+    Additionally, this function registers various mathematical functions, including trigonometric functions, exponential and logarithmic functions, and statistical aggregation functions like standard deviation and variance.
+
+    It also includes functions for string manipulation, such as regular expression matching, hashing, and padding.
+
+    If the SQLite database has math functions enabled, it registers additional mathematical functions like cosine, sine, and tangent, as well as functions for degrees and radians conversion.
+
+    The registered functions can be used in SQL queries to perform complex operations and calculations on data.
+
+    Parameters:
+        connection: The database connection object to which the functions are to be registered.
+    """
     create_deterministic_function = functools.partial(
         connection.create_function,
         deterministic=True,
@@ -104,6 +120,9 @@ def register(connection):
 
 
 def _sqlite_datetime_parse(dt, tzname=None, conn_tzname=None):
+    """
+
+    """
     if dt is None:
         return None
     try:
@@ -126,6 +145,27 @@ def _sqlite_datetime_parse(dt, tzname=None, conn_tzname=None):
 
 
 def _sqlite_date_trunc(lookup_type, dt, tzname, conn_tzname):
+    """
+
+    Truncates a date to a specified level of precision.
+
+    This function takes a date, truncates it to the specified level (e.g. year, quarter, month, week, day), 
+    and returns the truncated date in the format 'YYYY-MM-DD'. The date is first parsed to account for 
+    the provided timezone and the connection's timezone.
+
+    Args:
+        lookup_type (str): The level of precision to truncate to. One of 'year', 'quarter', 'month', 'week', 'day'.
+        dt (str): The date to be truncated.
+        tzname (str): The timezone of the provided date.
+        conn_tzname (str): The timezone of the connection.
+
+    Returns:
+        str: The truncated date in the format 'YYYY-MM-DD', or None if the date cannot be parsed.
+
+    Raises:
+        ValueError: If the lookup type is not one of the supported types.
+
+    """
     dt = _sqlite_datetime_parse(dt, tzname, conn_tzname)
     if dt is None:
         return None
@@ -145,6 +185,9 @@ def _sqlite_date_trunc(lookup_type, dt, tzname, conn_tzname):
 
 
 def _sqlite_time_trunc(lookup_type, dt, tzname, conn_tzname):
+    """
+
+    """
     if dt is None:
         return None
     dt_parsed = _sqlite_datetime_parse(dt, tzname, conn_tzname)
@@ -179,6 +222,9 @@ def _sqlite_datetime_cast_time(dt, tzname, conn_tzname):
 
 
 def _sqlite_datetime_extract(lookup_type, dt, tzname=None, conn_tzname=None):
+    """
+
+    """
     dt = _sqlite_datetime_parse(dt, tzname, conn_tzname)
     if dt is None:
         return None
@@ -197,6 +243,23 @@ def _sqlite_datetime_extract(lookup_type, dt, tzname=None, conn_tzname=None):
 
 
 def _sqlite_datetime_trunc(lookup_type, dt, tzname, conn_tzname):
+    """
+
+    Truncates a given datetime to the specified precision.
+
+    Args:
+        lookup_type (str): Precision level. Can be 'year', 'quarter', 'month', 'week', 'day', 'hour', 'minute', or 'second'.
+        dt: The datetime object to be truncated.
+        tzname: Timezone name of the datetime object.
+        conn_tzname: Timezone name of the connection.
+
+    Returns:
+        A string representation of the truncated datetime in the format 'YYYY-MM-DD HH:MM:SS', or None if the input datetime is invalid.
+
+    Raises:
+        ValueError: If the lookup type is not supported.
+
+    """
     dt = _sqlite_datetime_parse(dt, tzname, conn_tzname)
     if dt is None:
         return None

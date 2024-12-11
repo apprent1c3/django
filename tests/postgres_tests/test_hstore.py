@@ -389,6 +389,9 @@ class TestFormField(PostgreSQLSimpleTestCase):
         self.assertIsInstance(form_field, forms.HStoreField)
 
     def test_field_has_changed(self):
+        """
+
+        """
         class HStoreFormTest(Form):
             f1 = forms.HStoreField()
 
@@ -442,6 +445,9 @@ class TestValidator(PostgreSQLSimpleTestCase):
         self.assertEqual(cm.exception.code, "extra_keys")
 
     def test_custom_messages(self):
+        """
+
+        """
         messages = {
             "missing_keys": "Foobar",
         }

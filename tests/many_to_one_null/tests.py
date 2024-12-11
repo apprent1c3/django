@@ -7,6 +7,9 @@ class ManyToOneNullTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         # Create a Reporter.
+        """
+
+        """
         cls.r = Reporter(name="John Smith")
         cls.r.save()
         # Create an Article.
@@ -40,6 +43,9 @@ class ManyToOneNullTests(TestCase):
         self.assertEqual(self.r.article_set.count(), 2)
 
     def test_created_without_related(self):
+        """
+
+        """
         self.assertIsNone(self.a3.reporter)
         # Need to reget a3 to refresh the cache
         a3 = Article.objects.get(pk=self.a3.pk)
@@ -156,6 +162,9 @@ class ManyToOneNullTests(TestCase):
             Car(make="Ford").drivers.all()
 
     def test_related_null_to_field_related_managers(self):
+        """
+
+        """
         car = Car.objects.create(make=None)
         driver = Driver.objects.create()
         msg = (

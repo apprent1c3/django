@@ -180,6 +180,20 @@ class Atomic(ContextDecorator):
         self._from_testcase = False
 
     def __enter__(self):
+        """
+
+        Enters a runtime context for an atomic database block.
+
+        This method sets up the database connection to execute a sequence of operations as a single, all-or-nothing unit of work.
+        It checks the current connection state to determine whether to start a new transaction or create a savepoint within an existing one.
+        If the block is marked as durable, it will raise an error if attempted to be nested within another atomic block.
+
+        The connection's autocommit mode is adjusted to ensure that the block's operations are executed within a transaction, and a savepoint is created if requested.
+        The method also maintains a record of active atomic blocks and their corresponding savepoint IDs.
+
+        Once this method completes, the runtime context for the atomic block is established, and any subsequent database operations will be executed within this block until it is exited.
+
+        """
         connection = get_connection(self.using)
 
         if (
@@ -222,6 +236,9 @@ class Atomic(ContextDecorator):
             connection.atomic_blocks.append(self)
 
     def __exit__(self, exc_type, exc_value, traceback):
+        """
+
+        """
         connection = get_connection(self.using)
 
         if connection.in_atomic_block:

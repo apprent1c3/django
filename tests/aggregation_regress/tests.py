@@ -52,6 +52,9 @@ from .models import (
 class AggregationTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        """
         cls.a1 = Author.objects.create(name="Adrian Holovaty", age=34)
         cls.a2 = Author.objects.create(name="Jacob Kaplan-Moss", age=35)
         cls.a3 = Author.objects.create(name="Brad Dayley", age=45)
@@ -297,6 +300,9 @@ class AggregationTests(TestCase):
 
     def test_annotation(self):
         # Annotations get combined with extra select clauses
+        """
+
+        """
         obj = (
             Book.objects.annotate(mean_auth_age=Avg("authors__age"))
             .extra(select={"manufacture_cost": "price * .5"})
@@ -618,6 +624,9 @@ class AggregationTests(TestCase):
 
     def test_more(self):
         # Old-style count aggregations can be mixed with new-style
+        """
+
+        """
         self.assertEqual(Book.objects.annotate(num_authors=Count("authors")).count(), 6)
 
         # Non-ordinal, non-computed Aggregates over annotations correctly
@@ -833,6 +842,18 @@ class AggregationTests(TestCase):
         # Regression for #10113 - Fields mentioned in order_by() must be
         # included in the GROUP BY. This only becomes a problem when the
         # order_by introduces a new join.
+        """
+        Test more advanced Django QuerySet functionality, including annotation, ordering, and filtering.
+
+        This test case checks the correctness of various QuerySet operations on the Book model, including:
+            * Annotating books with the number of authors and ordering by publisher name and book name.
+            * Filtering books by rating, annotating with the average age of authors, and ordering by book name.
+            * Using the extra() method to add custom SQL select statements and annotate with counts.
+            * Filtering books by number of authors and pages, and ordering by the number of authors.
+            * Using the values() and annotate() methods to group books by publisher and calculate the maximum number of pages.
+
+        It also verifies that the resulting QuerySet are equal to the expected results, and that the generated SQL query is correctly formatted.
+        """
         self.assertQuerySetEqual(
             Book.objects.annotate(num_authors=Count("authors")).order_by(
                 "publisher__name", "name"
@@ -973,6 +994,9 @@ class AggregationTests(TestCase):
         # avoided.
         # age is a field on Author, so it shouldn't be allowed as an aggregate.
         # But age isn't included in values(), so it is.
+        """
+
+        """
         results = (
             Author.objects.values("name")
             .annotate(age=Count("book_contact_set"))
@@ -1026,6 +1050,20 @@ class AggregationTests(TestCase):
     def test_more_more_more(self):
         # Regression for #10199 - Aggregate calls clone the original query so
         # the original query can still be used
+        """
+        Test validation of various Django ORM query operations on the Book model.
+
+        This test case verifies the correctness of several query operations, including:
+            * Retrieval of books and calculation of aggregate values such as average author age
+            * Filtering and ordering of query results based on annotated fields
+            * Calculation of dates and counts of books based on publication dates and authors
+            * Use of extra select parameters and calculated fields
+            * Validation of query result sets and counts
+            * Inheritance and polymorphism of query operations on subclassed models
+            * Error handling for invalid aggregate operations
+
+        The test ensures that the Django ORM behaves as expected when performing various query operations on the Book model and its related models, including Publishers and Authors.
+        """
         books = Book.objects.all()
         books.aggregate(Avg("authors__age"))
         self.assertQuerySetEqual(
@@ -1322,6 +1360,9 @@ class AggregationTests(TestCase):
         )
 
     def test_stddev(self):
+        """
+
+        """
         self.assertEqual(
             Book.objects.aggregate(StdDev("pages")),
             {"pages__stddev": Approximate(311.46, 1)},
@@ -1915,6 +1956,21 @@ class AggregationTests(TestCase):
 
 class JoinPromotionTests(TestCase):
     def test_ticket_21150(self):
+        """
+
+        Tests the behavior of Django QuerySets when using select_related and annotate.
+
+        This test case creates an instance of Bravo and Charlie, then uses Django's ORM
+        to fetch the Charlie instance and its related Alfa instance. The test checks that
+        the Alfa instance is initially None, and then updates the Charlie instance to
+        associate it with an Alfa instance. It then re-fetches the Charlie instance
+        using the same QuerySet and verifies that the Alfa instance is now correctly
+        associated.
+
+        The test ensures that the select_related and annotate methods are working
+        correctly, even when the QuerySet is re-fetched using the all() method.
+
+        """
         b = Bravo.objects.create()
         c = Charlie.objects.create(bravo=b)
         qs = Charlie.objects.select_related("alfa").annotate(Count("bravo__charlie"))

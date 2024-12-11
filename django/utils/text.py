@@ -50,6 +50,9 @@ def wrap(text, width):
     """
 
     def _generator():
+        """
+
+        """
         for line in text.splitlines(True):  # True keeps trailing linebreaks
             max_width = min((line.endswith("\n") and width + 1 or width), width)
             while len(line) > max_width:
@@ -377,6 +380,9 @@ class StreamingBuffer(BytesIO):
 
 # Like compress_string, but for iterators of strings.
 def compress_sequence(sequence, *, max_random_bytes=None):
+    """
+
+    """
     buf = StreamingBuffer()
     filename = _get_random_filename(max_random_bytes) if max_random_bytes else None
     with GzipFile(

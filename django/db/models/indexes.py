@@ -26,6 +26,9 @@ class Index:
         condition=None,
         include=None,
     ):
+        """
+
+        """
         if opclasses and not name:
             raise ValueError("An index must be named to use opclasses.")
         if not isinstance(condition, (NoneType, Q)):
@@ -92,6 +95,33 @@ class Index:
         return sql % tuple(schema_editor.quote_value(p) for p in params)
 
     def create_sql(self, model, schema_editor, using="", **kwargs):
+        """
+
+        Creates the SQL for an index on a given model.
+
+        This method generates the necessary SQL to create an index on one or more fields
+        of a model, taking into account any specified conditions, included columns, and
+        ordering. The index creation is handled by the provided schema editor.
+
+        The SQL generation process considers the following factors:
+        - Included columns: specifies columns to be included in the index
+        - Condition: a filter clause specifying the rows to be indexed
+        - Expressions: a list of index expressions that can be used in place of fields
+        - Fields and ordering: the columns to index and their order, if supported by the database
+
+        The method returns the generated SQL as a string, which can then be executed by the
+        schema editor to create the index.
+
+        Parameters:
+            model (Model): The model on which the index will be created
+            schema_editor (SchemaEditor): The schema editor responsible for creating the index
+            using (str): The database to use for the index creation (default: '')
+            **kwargs: Additional keyword arguments passed to the schema editor
+
+        Returns:
+            str: The generated SQL for creating the index
+
+        """
         include = [
             model._meta.get_field(field_name).column for field_name in self.include
         ]
@@ -135,6 +165,16 @@ class Index:
         return schema_editor._delete_index_sql(model, self.name, **kwargs)
 
     def deconstruct(self):
+        """
+        Deconstructs the current object into a tuple containing its class path, expressions, and keyword arguments.
+
+        The class path is a string representing the full path to the object's class, with any Django index-related modules replaced with their parent 'django.db.models' module.
+
+        The keyword arguments dictionary includes attributes of the object that are used to recreate it, such as its name, fields, database table space, opclasses, condition, and include expressions. 
+
+        Returns:
+            tuple: A tuple containing the class path, expressions, and keyword arguments.
+        """
         path = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
         path = path.replace("django.db.models.indexes", "django.db.models")
         kwargs = {"name": self.name}
@@ -241,6 +281,18 @@ class IndexExpression(Func):
         summarize=False,
         for_save=False,
     ):
+        """
+        Resolve an expression for this object, handling indexed expressions and wrappers.
+
+        The function takes several parameters to control the resolution process:
+        - `query`: The query related to this expression.
+        - `allow_joins`: Whether joins are allowed during resolution.
+        - `reuse`: Optional reuse parameter to optimize expression resolution.
+        - `summarize`: Whether to summarize the expression.
+        - `for_save`: Whether the expression is being resolved for saving.
+
+        The resolution process involves flattening the expression, partitioning it into index expressions and wrappers, and then resolving the root expression. If multiple references to a wrapper class are detected, or if the wrappers are not topmost expressions, a `ValueError` is raised. The function then constructs the final expression by combining the wrappers and the root expression, and returns the resolved expression.
+        """
         expressions = list(self.flatten())
         # Split expressions and wrappers.
         index_expressions, wrappers = partition(

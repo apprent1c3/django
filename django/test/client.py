@@ -169,6 +169,28 @@ class ClientHandler(BaseHandler):
     def __call__(self, environ):
         # Set up middleware if needed. We couldn't do this earlier, because
         # settings weren't available.
+        """
+
+        Handles an incoming HTTP request using the WSGI interface.
+
+        Dispatches the request to the application's middleware chain, creates a request
+        object, and obtains a response from the application. The response is then
+        processed to ensure proper handling of streaming content and CSRF checks.
+
+        This method is the main entry point for handling incoming requests and is
+        responsible for initializing and finalizing the request and response objects.
+
+        It also ensures that database connections are properly closed after the request
+        has been processed, and connects and disconnects the necessary signals to handle
+        this closing.
+
+        The response object returned by this method can be used to send the response
+        back to the client.
+
+        :param environ: The WSGI environment dictionary
+        :returns: The response object
+
+        """
         if self._middleware_chain is None:
             self.load_middleware()
 
@@ -220,6 +242,9 @@ class AsyncClientHandler(BaseHandler):
     async def __call__(self, scope):
         # Set up middleware if needed. We couldn't do this earlier, because
         # settings weren't available.
+        """
+
+        """
         if self._middleware_chain is None:
             self.load_middleware(is_async=True)
         # Extract body file from the scope, if provided.
@@ -338,6 +363,9 @@ def encode_multipart(boundary, data):
 
 
 def encode_file(boundary, key, file):
+    """
+
+    """
     def to_bytes(s):
         return force_bytes(s, settings.DEFAULT_CHARSET)
 
@@ -867,6 +895,9 @@ class ClientMixin:
                 return backend_path
 
     def _login(self, user, backend=None):
+        """
+
+        """
         from django.contrib.auth import login
 
         # Create a fake request to store login details.
@@ -882,6 +913,9 @@ class ClientMixin:
         self._set_login_cookies(request)
 
     async def _alogin(self, user, backend=None):
+        """
+
+        """
         from django.contrib.auth import alogin
 
         # Create a fake request to store login details.

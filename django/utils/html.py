@@ -324,6 +324,29 @@ class Urlizer:
         nofollow=False,
         autoescape=False,
     ):
+        """
+        Handle a word that may contain a URL or email address, applying transformations and escaping as necessary.
+
+        Parameters
+        ----------
+        safe_input : bool
+            Whether the input word is considered safe and doesn't require escaping.
+        trim_url_limit : int, optional
+            The maximum number of characters to display for a trimmed URL.
+        nofollow : bool, default False
+            Whether to add a \"nofollow\" attribute to the generated HTML link.
+        autoescape : bool, default False
+            Whether to automatically escape the input word if it's not considered safe.
+
+        Returns
+        -------
+        str
+            The transformed word, which may include HTML markup for URLs or email addresses, and has been escaped if necessary to prevent XSS attacks.
+
+        Notes
+        -----
+        The function checks if the input word contains punctuation that could be part of a URL or email address. If it does, it attempts to identify and extract the URL or email address, and generates HTML markup accordingly. The function also handles escaping and trimming of URLs as required.
+        """
         if "." in word or "@" in word or ":" in word:
             # lead: Punctuation trimmed from the beginning of the word.
             # middle: State of the word.

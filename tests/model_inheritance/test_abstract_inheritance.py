@@ -10,6 +10,9 @@ from django.test.utils import isolate_apps
 @isolate_apps("model_inheritance")
 class AbstractInheritanceTests(SimpleTestCase):
     def test_single_parent(self):
+        """
+
+        """
         class AbstractBase(models.Model):
             name = models.CharField(max_length=30)
 
@@ -125,6 +128,9 @@ class AbstractInheritanceTests(SimpleTestCase):
         self.assertIsInstance(inherited_field, models.IntegerField)
 
     def test_multiple_inheritance_cannot_shadow_concrete_inherited_field(self):
+        """
+
+        """
         class ConcreteParent(models.Model):
             name = models.CharField(max_length=255)
 
@@ -154,6 +160,9 @@ class AbstractInheritanceTests(SimpleTestCase):
         )
 
     def test_virtual_field(self):
+        """
+
+        """
         class RelationModel(models.Model):
             content_type = models.ForeignKey(ContentType, models.CASCADE)
             object_id = models.PositiveIntegerField()
@@ -185,6 +194,9 @@ class AbstractInheritanceTests(SimpleTestCase):
         )
 
     def test_cannot_override_indirect_abstract_field(self):
+        """
+
+        """
         class AbstractBase(models.Model):
             name = models.CharField(max_length=30)
 
@@ -204,6 +216,21 @@ class AbstractInheritanceTests(SimpleTestCase):
                 name = models.IntegerField()
 
     def test_override_field_with_attr(self):
+        """
+
+        Tests the behavior of overriding fields with class attributes in model inheritance.
+
+        This function verifies that when a field defined in an abstract base model is 
+        overridden with an attribute in a descendant model, attempting to retrieve the 
+        field from the model's metadata raises a FieldDoesNotExist exception, 
+        indicating that the field no longer exists in the model.
+
+        The test covers both cases where the overridden field is replaced with a 
+        None value and where the field name is used as an attribute for a method, 
+        demonstrating that in both scenarios, the original field is effectively 
+        removed from the model's metadata.
+
+        """
         class AbstractBase(models.Model):
             first_name = models.CharField(max_length=50)
             last_name = models.CharField(max_length=50)
@@ -227,6 +254,11 @@ class AbstractInheritanceTests(SimpleTestCase):
             Descendant._meta.get_field("full_name")
 
     def test_overriding_field_removed_by_concrete_model(self):
+        """
+        Tests the case where a field overridden by a concrete model has its original field removed by an intermediate abstract model. 
+
+        The purpose of this test is to ensure that the field's properties in the concrete model take precedence over the removal of the field in the abstract model, demonstrating that it is possible to override a removed field and define its properties in a concrete model.
+        """
         class AbstractModel(models.Model):
             foo = models.CharField(max_length=30)
 
@@ -244,6 +276,9 @@ class AbstractInheritanceTests(SimpleTestCase):
         )
 
     def test_shadowed_fkey_id(self):
+        """
+
+        """
         class Foo(models.Model):
             pass
 
@@ -269,6 +304,9 @@ class AbstractInheritanceTests(SimpleTestCase):
         )
 
     def test_shadow_related_name_when_set_to_none(self):
+        """
+
+        """
         class AbstractBase(models.Model):
             bar = models.IntegerField()
 
@@ -285,6 +323,9 @@ class AbstractInheritanceTests(SimpleTestCase):
         self.assertEqual(Bar.check(), [])
 
     def test_reverse_foreign_key(self):
+        """
+
+        """
         class AbstractBase(models.Model):
             foo = models.CharField(max_length=100)
 
@@ -328,6 +369,19 @@ class AbstractInheritanceTests(SimpleTestCase):
         )
 
     def test_multi_inheritance_field_clashes(self):
+        """
+
+        Tests that the system correctly identifies field clashes in a multi-inheritance scenario.
+
+        This test case verifies that when a model inherits from an abstract base class and 
+        then attempts to redefine a field already present in one of its ancestors, 
+        the system raises an error indicating the field clash.
+
+        The test covers a scenario where a concrete model inherits from an abstract 
+        descendant, which in turn inherits from another concrete base class, 
+        demonstrating the ability to detect field clashes across multiple levels of inheritance.
+
+        """
         class AbstractBase(models.Model):
             name = models.CharField(max_length=30)
 
@@ -357,6 +411,9 @@ class AbstractInheritanceTests(SimpleTestCase):
         )
 
     def test_override_one2one_relation_auto_field_clashes(self):
+        """
+
+        """
         class ConcreteParent(models.Model):
             name = models.CharField(max_length=255)
 
@@ -377,6 +434,9 @@ class AbstractInheritanceTests(SimpleTestCase):
                 concreteparent_ptr = models.CharField(max_length=30)
 
     def test_abstract_model_with_regular_python_mixin_mro(self):
+        """
+
+        """
         class AbstractModel(models.Model):
             name = models.CharField(max_length=255)
             age = models.IntegerField()

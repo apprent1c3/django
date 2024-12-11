@@ -19,6 +19,9 @@ class LocaleRegexDescriptorTests(SimpleTestCase):
         translation.trans_real._translations = {}
 
     def test_translated_regex_compiled_per_language(self):
+        """
+
+        """
         provider = RegexPattern(translation.gettext_lazy("^foo/$"))
         with translation.override("de"):
             de_compiled = provider.regex

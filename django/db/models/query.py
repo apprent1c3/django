@@ -55,6 +55,9 @@ class BaseIterable:
         # Generators don't actually start running until the first time you call
         # next() on them, so make the generator object in the async thread and
         # then repeatedly dispatch to it in a sync thread.
+        """
+
+        """
         sync_generator = self.__iter__()
 
         def next_slice(gen):
@@ -83,6 +86,9 @@ class ModelIterable(BaseIterable):
     """Iterable that yields a model instance for each row."""
 
     def __iter__(self):
+        """
+
+        """
         queryset = self.queryset
         db = queryset.db
         compiler = queryset.query.get_compiler(using=db)
@@ -153,6 +159,24 @@ class RawModelIterable(BaseIterable):
 
     def __iter__(self):
         # Cache some things for performance reasons outside the loop.
+        """
+
+        Returns an iterator over the results of the raw query, yielding model instances.
+
+        The iterator resolves the model initialization order and applies necessary converters
+        to the database values. It also ensures that the primary key is included in the query
+        results.
+
+        Each model instance is created from the database values and returned by the iterator.
+        If annotation fields are present, their values are set as attributes on the model instance.
+
+        The iterator also handles cursor cleanup, closing the database cursor when iteration is
+        complete.
+
+        Yields:
+            model instances
+
+        """
         db = self.queryset.db
         query = self.queryset.query
         connection = connections[db]
@@ -196,6 +220,9 @@ class ValuesIterable(BaseIterable):
     """
 
     def __iter__(self):
+        """
+
+        """
         queryset = self.queryset
         query = queryset.query
         compiler = query.get_compiler(queryset.db)
@@ -240,6 +267,9 @@ class NamedValuesListIterable(ValuesListIterable):
     """
 
     def __iter__(self):
+        """
+
+        """
         queryset = self.queryset
         if queryset._fields:
             names = queryset._fields
@@ -275,6 +305,9 @@ class QuerySet(AltersData):
     """Represent a lazy database lookup for a set of objects."""
 
     def __init__(self, model=None, query=None, using=None, hints=None):
+        """
+
+        """
         self.model = model
         self._db = using
         self._hints = hints or {}
@@ -436,6 +469,16 @@ class QuerySet(AltersData):
         return cls
 
     def __and__(self, other):
+        """
+        Overrides the logical AND operator (&) to merge the current query set with another.
+
+        This method returns a new query set that combines the conditions of the current query set and the other query set using the logical AND operator.
+        It checks for any invalid operations and returns an empty query set if either the current or the other query set is empty.
+        The resulting query set is a new object that includes all related objects from both query sets and combines their query conditions using the AND operator.
+        It also performs sanity checks to ensure that the merge operation is valid and maintains the integrity of the query sets.
+        The method returns the combined query set, allowing for further filtering or manipulation of the data.
+
+        """
         self._check_operator_queryset(other, "&")
         self._merge_sanity_check(other)
         if isinstance(other, EmptyQuerySet):
@@ -448,6 +491,9 @@ class QuerySet(AltersData):
         return combined
 
     def __or__(self, other):
+        """
+
+        """
         self._check_operator_queryset(other, "|")
         self._merge_sanity_check(other)
         if isinstance(self, EmptyQuerySet):
@@ -467,6 +513,9 @@ class QuerySet(AltersData):
         return combined
 
     def __xor__(self, other):
+        """
+
+        """
         self._check_operator_queryset(other, "^")
         self._merge_sanity_check(other)
         if isinstance(self, EmptyQuerySet):
@@ -664,6 +713,17 @@ class QuerySet(AltersData):
         return await sync_to_async(self.create)(**kwargs)
 
     def _prepare_for_bulk_create(self, objs):
+        """
+
+        Prepares a list of model objects for bulk creation by setting default primary keys and replacing DatabaseDefault values.
+
+        This method iterates over the provided list of objects, assigning a primary key to each object that doesn't have one. It also checks the database connection capabilities and replaces any DatabaseDefault values with their corresponding database defaults, if the connection doesn't support the DEFAULT keyword in bulk inserts.
+
+        Finally, it prepares the related fields of each object for saving, marking them as part of a bulk create operation.
+
+        :param objs: A list of model objects to prepare for bulk creation
+
+        """
         from django.db.models.expressions import DatabaseDefault
 
         connection = connections[self.db]
@@ -684,6 +744,9 @@ class QuerySet(AltersData):
     def _check_bulk_create_options(
         self, ignore_conflicts, update_conflicts, update_fields, unique_fields
     ):
+        """
+
+        """
         if ignore_conflicts and update_conflicts:
             raise ValueError(
                 "ignore_conflicts and update_conflicts are mutually exclusive."
@@ -1343,6 +1406,9 @@ class QuerySet(AltersData):
         return clone
 
     def values_list(self, *fields, flat=False, named=False):
+        """
+
+        """
         if flat and named:
             raise TypeError("'flat' and 'named' can't be used together.")
         if flat and len(fields) > 1:
@@ -1618,6 +1684,9 @@ class QuerySet(AltersData):
         return self._annotate(args, kwargs, select=False)
 
     def _annotate(self, args, kwargs, select=True):
+        """
+
+        """
         self._validate_values_are_expressions(
             args + tuple(kwargs.values()), method_name="annotate"
         )
@@ -2035,6 +2104,9 @@ class RawQuerySet:
         using=None,
         hints=None,
     ):
+        """
+
+        """
         self.raw_query = raw_query
         self.model = model
         self._db = using
@@ -2635,6 +2707,9 @@ class RelatedPopulator:
     """
 
     def __init__(self, klass_info, select, db):
+        """
+
+        """
         self.db = db
         # Pre-compute needed attributes. The attributes are:
         #  - model_cls: the possibly deferred model class to instantiate
@@ -2689,6 +2764,14 @@ class RelatedPopulator:
         self.remote_setter = klass_info["remote_setter"]
 
     def populate(self, row, from_obj):
+        """
+        Populates a model object from a given database row.
+
+        This function reorders or extracts the relevant data from the row based on the configuration of the model. 
+        It then attempts to create or retrieve a model object instance using the reorganized data. 
+        If the primary key is missing, the object creation is skipped. 
+        After creating the object, it populates related objects using additional populators and establishes local and remote relationships between the objects.
+        """
         if self.reorder_for_init:
             obj_data = self.reorder_for_init(row)
         else:
