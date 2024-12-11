@@ -66,6 +66,23 @@ class TemplateTagIndexView(BaseAdminDocsView):
     template_name = "admin_doc/template_tag_index.html"
 
     def get_context_data(self, **kwargs):
+        """
+
+        Get the context data for template tags with their documentation.
+
+        This method retrieves the default template engine and collects all available template tags,
+        including built-in and application-specific libraries. For each tag, it extracts and parses
+        the docstring to generate a title, body, and metadata. The parsed documentation is then
+        used to construct a dictionary containing the tag's name, title, body, metadata, and library.
+
+        The resulting list of tags is added to the context data, which is then returned by calling
+        the superclass's get_context_data method.
+
+        The returned context data includes a 'tags' key that maps to a list of dictionaries, each
+        representing a template tag with its documentation. This data can be used to generate
+        documentation or interfaces for working with template tags.
+
+        """
         tags = []
         try:
             engine = Engine.get_default()

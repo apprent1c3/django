@@ -112,6 +112,18 @@ class TestGeneralAggregate(PostgreSQLTestCase):
                     self.assertEqual(values, {"aggregation": None})
 
     def test_default_argument(self):
+        """
+
+        Tests the default argument functionality of various aggregation functions.
+
+        This test case verifies that when an aggregation is applied to an empty queryset,
+        the default value is correctly returned. It also checks that when the queryset is populated,
+        the default value is overridden with the actual result of the aggregation.
+
+        The test covers a range of aggregation functions, including ArrayAgg, BitAnd, BitOr, BoolAnd, BoolOr,
+        JSONBAgg, and StringAgg, with different data types and default values.
+
+        """
         AggregateTestModel.objects.all().delete()
         tests = [
             (ArrayAgg("char_field", default=["<empty>"]), ["<empty>"]),
@@ -501,6 +513,18 @@ class TestGeneralAggregate(PostgreSQLTestCase):
         self.assertEqual(values, {"jsonbagg": ["en", "pl"]})
 
     def test_jsonb_agg_key_index_transforms(self):
+        """
+
+        Tests the transformation of `JSONB_AGG` used with a key index, 
+        specifically verifying that it correctly aggregates and orders 
+        the requirements of hotel reservations by start time in descending order.
+
+        This test case covers the creation of multiple rooms and hotel reservations,
+        each with different requirements, and then checks that the 
+        `JSONBAgg` annotation correctly aggregates and filters these 
+        requirements based on a specific condition.
+
+        """
         room101 = Room.objects.create(number=101)
         room102 = Room.objects.create(number=102)
         datetimes = [
@@ -655,6 +679,15 @@ class TestGeneralAggregate(PostgreSQLTestCase):
         )
 
     def test_ordering_isnt_cleared_for_array_subquery(self):
+        """
+        Tests that the ordering of the inner query in an array subquery is preserved.
+
+        This test checks that when using an array subquery, the ordering defined on the inner query 
+        is not cleared, and the resulting annotated array field contains the values in the expected order.
+
+        The test verifies that the annotated field matches the order specified in the inner query, 
+        demonstrating that the ordering is correctly preserved through the subquery operation.
+        """
         inner_qs = AggregateTestModel.objects.order_by("-integer_field")
         qs = AggregateTestModel.objects.annotate(
             integers=Func(
@@ -728,6 +761,16 @@ class TestAggregateDistinct(PostgreSQLTestCase):
         self.assertEqual(sorted(values["arrayagg"]), ["Bar", "Foo"])
 
     def test_jsonb_agg_distinct_false(self):
+        """
+
+        Tests the JSONB aggregate function when distinct is set to False.
+
+        This test case verifies that the JSONB aggregate function returns all values,
+        including duplicates, from the 'char_field' of the AggregateTestModel instances.
+
+        The expected output is a sorted list containing all values, with duplicates preserved.
+
+        """
         values = AggregateTestModel.objects.aggregate(
             jsonbagg=JSONBAgg("char_field", distinct=False),
         )
@@ -811,6 +854,35 @@ class TestStatisticsAggregate(PostgreSQLTestCase):
                     self.assertEqual(values, {"aggregation": expected_result})
 
     def test_default_argument(self):
+        """
+
+        Tests the default argument behavior for various statistical aggregation functions.
+
+        This test suite validates that the specified aggregation functions return the 
+        expected default value when applied to an empty queryset and the expected result 
+        when applied to a non-empty queryset. The aggregation functions tested include 
+        correlation, population covariance, regression averages, intercepts, R-squared 
+        values, slopes, and sums of squares.
+
+        The test covers the following statistical aggregation functions:
+        - Correlation
+        - Population covariance
+        - Sample covariance
+        - Regression average x
+        - Regression average y
+        - Regression intercept
+        - Regression R-squared
+        - Regression slope
+        - Regression sum of squares x
+        - Regression sum of squares xy
+        - Regression sum of squares y
+
+        Each test case checks that the aggregation function returns the expected default 
+        value when applied to an empty queryset and the expected result when applied to 
+        a non-empty queryset. The test also verifies that the correct number of database 
+        queries are executed in each case.
+
+        """
         StatTestModel.objects.all().delete()
         tests = [
             (Corr(y="int2", x="int1", default=0), 0),

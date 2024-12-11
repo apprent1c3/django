@@ -271,6 +271,15 @@ class LocmemLoaderTests(SimpleTestCase):
         super().setUpClass()
 
     def test_get_template(self):
+        """
+
+        Test the retrieval of a template from the engine.
+
+        Verifies that the template loaded is correctly identified by its name and 
+        that it is loaded from the expected loader. This ensures that the engine 
+        is properly configured to locate and retrieve templates.
+
+        """
         template = self.engine.get_template("index.html")
         self.assertEqual(template.origin.name, "index.html")
         self.assertEqual(template.origin.template_name, "index.html")

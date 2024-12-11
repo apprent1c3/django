@@ -85,6 +85,16 @@ class WidthRatioTagTests(SimpleTestCase):
 
     @setup({"widthratio12b": "{% widthratio a b c %}"})
     def test_widthratio12b(self):
+        """
+
+        Tests the widthratio template tag with a None value for the first argument.
+
+        This test case verifies that the widthratio template tag behaves correctly when
+        the first argument (a) is None. The test renders a template string using the
+        engine, passing in the required variables (a, b, c), and asserts that the output
+        is an empty string, as expected when the first argument is None.
+
+        """
         output = self.engine.render_to_string(
             "widthratio12b", {"a": None, "c": 100, "b": 100}
         )
@@ -111,6 +121,11 @@ class WidthRatioTagTests(SimpleTestCase):
 
     @setup({"widthratio14b": "{% widthratio a b c %}"})
     def test_widthratio14b(self):
+        """
+        Tests that the widthratio template tag raises a TemplateSyntaxError when the third argument is None. 
+
+        This test case verifies that the template engine correctly handles invalid input to the widthratio tag by checking for the expected exception when the input parameters are not correctly set, specifically when the third argument (scale) is set to None.
+        """
         with self.assertRaises(TemplateSyntaxError):
             self.engine.render_to_string("widthratio14b", {"a": 0, "c": None, "b": 100})
 
@@ -130,6 +145,24 @@ class WidthRatioTagTests(SimpleTestCase):
 
     @setup({"widthratio17": "{% widthratio a b 100 as variable %}-{{ variable }}-"})
     def test_widthratio17(self):
+        """
+
+        Tests the widthratio template tag with a perfect ratio.
+
+        The widthratio tag calculates a ratio of the given value to the maximum value,
+        expressed as a percentage. This test case checks the tag's behavior when the
+        input value equals the maximum value, ensuring it returns the expected output.
+
+        Parameters:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the output of the widthratio tag does not match the expected result.
+
+        """
         output = self.engine.render_to_string("widthratio17", {"a": 100, "b": 100})
         self.assertEqual(output, "-100-")
 
@@ -164,5 +197,20 @@ class WidthRatioTagTests(SimpleTestCase):
 
     @setup({"t": "{% widthratio a b c as variable %}-{{ variable }}-"})
     def test_typeerror_as_var(self):
+        """
+        Tests the rendering of a widthratio template tag where the 'as' variable is referenced but not assigned a valid value, resulting in an expected output.
+
+        This function evaluates the behavior of the template engine when encountering a widthratio tag with a variable assignment that does not produce a numerical value, verifying the correctness of the output in such scenarios.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the rendered output does not match the expected output.
+
+        """
         output = self.engine.render_to_string("t", {"a": "a", "c": 100, "b": 100})
         self.assertEqual(output, "--")

@@ -23,6 +23,14 @@ class TruncatewordsTests(SimpleTestCase):
 
     @setup({"truncatewords02": '{{ a|truncatewords:"2" }} {{ b|truncatewords:"2"}}'})
     def test_truncatewords02(self):
+        """
+        Tests the truncatewords filter with HTML-encoded input.
+
+        Verifies that the truncatewords filter correctly truncates strings to the specified number of words, 
+        while maintaining HTML encoding for special characters. The test checks the filter's behavior 
+        with both regular strings and strings marked as safe for HTML output, ensuring that the output 
+        is properly truncated and encoded in both cases.
+        """
         output = self.engine.render_to_string(
             "truncatewords02",
             {"a": "alpha & bravo", "b": mark_safe("alpha &amp; bravo")},

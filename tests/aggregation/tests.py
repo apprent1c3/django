@@ -237,6 +237,12 @@ class AggregateTestCase(TestCase):
         self.assertEqual(vals, {"amazon_mean": Approximate(4.08, places=2)})
 
     def test_aggregate_transform(self):
+        """
+        Tests the aggregation functionality by retrieving the minimum month from the 'original_opening' field of Store objects.
+
+         :return: None
+         :raises: AssertionError if the minimum month is not 3.
+        """
         vals = Store.objects.aggregate(min_month=Min("original_opening__month"))
         self.assertEqual(vals, {"min_month": 3})
 
@@ -547,6 +553,15 @@ class AggregateTestCase(TestCase):
         self.assertIn("SELECT COUNT(*) ", sql)
 
     def test_count_distinct_expression(self):
+        """
+
+        Test that the count distinct expression correctly counts the number of distinct ratings 
+        for books with more than 300 pages.
+
+        This test case verifies that the aggregation query returns the expected count of unique 
+        ratings, ensuring the correctness of the Count and Case expressions used in the query.
+
+        """
         aggs = Book.objects.aggregate(
             distinct_ratings=Count(
                 Case(When(pages__gt=300, then="rating")), distinct=True
@@ -799,6 +814,24 @@ class AggregateTestCase(TestCase):
         self.assertEqual(len(publishers), 0)
 
     def test_annotation(self):
+        """
+        Tests the use of annotation and aggregation in database queries.
+
+        Verifies the correct usage of aggregate functions such as Count, 
+        and the use of annotation to add calculated fields to query results.
+
+        Specifically, it tests annotation with and without distinct argument, 
+        filtering based on annotated fields, and combining annotation with 
+        other filters and ordering.
+
+        Checks the expected results for different queries, including:
+        - The number of friends for an author
+        - Books with a specific number of authors
+        - Authors without friends
+        - Publishers with more than one book
+        - Publishers with more than one book and with a specific price condition
+        - Books with a specific author and number of authors
+        """
         vals = Author.objects.filter(pk=self.a1.pk).aggregate(Count("friends__id"))
         self.assertEqual(vals, {"friends__id__count": 2})
 
@@ -915,6 +948,18 @@ class AggregateTestCase(TestCase):
         )
 
     def test_annotate_values_list(self):
+        """
+        Test that the annotate and values_list methods return the expected results.
+
+        The test covers various use cases, including annotating a queryset with a calculated field, 
+        then retrieving specific fields or all fields at once. It also checks for the correct 
+        returned values when using the 'flat=True' parameter, as well as ordering and counting 
+        instances of specific field values.
+
+        The function checks that the returned results match the expected output in several 
+        different scenarios, ensuring that the annotate and values_list methods are working 
+        correctly in various contexts.
+        """
         books = (
             Book.objects.filter(pk=self.b1.pk)
             .annotate(mean_age=Avg("authors__age"))
@@ -1262,6 +1307,11 @@ class AggregateTestCase(TestCase):
         self.assertEqual(author.sum_age, other_author.sum_age)
 
     def test_aggregate_over_aggregate(self):
+        """
+        Tests whether attempting to use an aggregate value as the source for another aggregate function raises a FieldError. 
+
+        This test case Specifically checks that trying to calculate the average of a previously computed aggregate ('age_agg') results in an error, since aggregates cannot be nested in this manner.
+        """
         msg = "Cannot compute Avg('age_agg'): 'age_agg' is an aggregate"
         with self.assertRaisesMessage(FieldError, msg):
             Author.objects.aggregate(
@@ -1277,6 +1327,19 @@ class AggregateTestCase(TestCase):
 
         class MyMax(Max):
             def as_sql(self, compiler, connection):
+                """
+                .. method:: as_sql(compiler, connection)
+
+                    Generates the SQL representation of the current object, restricting it to only include the first source expression.
+
+                    :param compiler: The compiler instance used to generate the SQL.
+                    :param connection: The database connection object.
+
+                    :return: A tuple containing the generated SQL string and a list of parameters.
+                    :rtype: tuple
+
+                    This method is used to generate the SQL representation of the current object, taking into account the restrictions imposed by the source expressions. It modifies the source expressions of the current object to only include the first expression before generating the SQL.
+                """
                 self.set_source_expressions(self.get_source_expressions()[0:1])
                 return super().as_sql(compiler, connection)
 
@@ -1377,6 +1440,15 @@ class AggregateTestCase(TestCase):
         self.assertEqual(max_books_per_rating, {"books_per_rating__max": 3 + 5})
 
     def test_expression_on_aggregation(self):
+        """
+        Tests complex expressions involving aggregation functions, such as Greatest, Avg, and filtering/ordering on annotated fields.
+
+        This test checks two scenarios:
+        - The first scenario verifies that the query returns the correct publishers when the average book rating or price is greater than or equal to the number of awards.
+        - The second scenario tests that the query returns the expected publishers when the average book rating or the number of awards is greater than the number of awards, demonstrating the use of the Greatest function with different field types.
+
+        The results are validated by comparing the querysets with the expected list of publisher IDs, sorted by the number of awards. 
+        """
         qs = (
             Publisher.objects.annotate(
                 price_or_median=Greatest(
@@ -1440,6 +1512,9 @@ class AggregateTestCase(TestCase):
         self.assertTrue(publisher_qs.exists())
 
     def test_aggregation_filter_exists(self):
+        """
+        Tests existence of aggregation filters in database queries, specifically validating that the GROUP BY clause is correctly generated when using the exists() method on a query that annotates and filters based on an aggregated value. The test asserts that only one group by field is included in the query, ensuring proper aggregation behavior.
+        """
         publishers_having_more_than_one_book_qs = (
             Book.objects.values("publisher")
             .annotate(cnt=Count("isbn"))
@@ -1506,6 +1581,15 @@ class AggregateTestCase(TestCase):
 
     @skipUnlessDBFeature("supports_subqueries_in_group_by")
     def test_aggregation_subquery_annotation_values_collision(self):
+        """
+        Tests the collision of subquery annotation values in aggregation when using subqueries in the GROUP BY clause.
+
+        Verifies that the rating values from a subquery are correctly annotated and aggregated for publishers, 
+        without any value collisions, and that the total count of each rating is accurate. 
+
+        The test case checks the expected output of publishers with their respective ratings and total counts, 
+        ensuring that the database correctly handles subqueries in the GROUP BY clause and annotation values do not conflict.
+        """
         books_rating_qs = Book.objects.filter(
             pk=OuterRef("book"),
         ).values("rating")
@@ -1634,6 +1718,15 @@ class AggregateTestCase(TestCase):
 
     @skipUnlessDBFeature("supports_subqueries_in_group_by")
     def test_aggregation_subquery_annotation_related_field(self):
+        """
+
+        Tests the ability to use subqueries as annotations in aggregation queries on related fields.
+
+        This test case verifies that Django's ORM can correctly apply an annotation to a query
+        using a subquery that references related fields, and then filter the results based on that
+        annotation. The test also checks that the query is executed efficiently, in a single database query.
+
+        """
         publisher = Publisher.objects.create(name=self.a9.name, num_awards=2)
         book = Book.objects.create(
             isbn="159059999",
@@ -2140,6 +2233,21 @@ class AggregateTestCase(TestCase):
         )
 
     def test_group_by_reference_subquery(self):
+        """
+        Tests the ability to filter publishers based on a subquery that groups authors by their book's publisher.
+
+        This test ensures that the correct publishers are returned when using an annotation to count the number of authors per publisher.
+
+        The expected result is a queryset containing all publishers that have at least one book written by an author. The assertion checks that the publishers retrieved from the database match the expected set of publishers.\"\"\"
+
+        However, considering the appropriate documentation level, it might be more suitable to focus on the purpose and behavior of the function, resulting in:
+
+        \"\"\"Tests filtering publishers based on a subquery that groups authors by their book's publisher.
+
+        Verifies the correct publishers are returned when using this subquery approach, checking for the presence of publishers with authors having published books.\"\"\"
+
+        Both of these docstrings describe the overall behavior and purpose of the function. They provide enough context for a user to understand what the test is checking and what it covers without delving too much into implementation details.
+        """
         author_qs = (
             Author.objects.annotate(publisher_id=F("book__publisher"))
             .values("publisher_id")
@@ -2217,6 +2325,13 @@ class AggregateAnnotationPruningTests(TestCase):
         self.assertEqual(qs.count(), 3)
 
     def test_unused_aliased_aggregate_and_annotation_reverse_fk_grouped(self):
+        """
+
+        Tests that unused aliased aggregate and annotation reverse Foreign Key queries work correctly when using grouped queries.
+        Verifies that a publisher's books are correctly aggregated and annotated, with the annotation indicating whether the publisher has any highly rated books.
+        The test checks that the expected number of publishers are returned by the query, providing a simple validation of the query's correctness.
+
+        """
         Book.objects.create(
             name="b3",
             publisher=self.p2,
@@ -2293,6 +2408,23 @@ class AggregateAnnotationPruningTests(TestCase):
         self.assertEqual(aggregate, {"sum_total_books": 3})
 
     def test_referenced_composed_subquery_requires_wrapping(self):
+        """
+
+        Tests that a referenced composed subquery requires wrapping.
+
+        This test case verifies that when using a subquery within an annotation and 
+        referencing the result, Django will wrap the subquery to prevent errors. 
+        The test queries the database for a list of authors and annotates each 
+        author with the total number of books they have written, using a subquery. 
+        It then checks that the resulting SQL query is correct and that the 
+        aggregated sum of total books is as expected, confirming that the subquery 
+        was wrapped correctly.
+
+        The test ensures that the database is queried only once and that the 
+        resulting SQL query contains the required number of selects, 
+        demonstrating that the subquery wrapping is necessary and correct.
+
+        """
         total_books_qs = (
             Author.book_set.through.objects.values("author")
             .filter(author=OuterRef("pk"))

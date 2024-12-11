@@ -119,6 +119,24 @@ def im2m_create(pk, klass, data):
 
 
 def im_create(pk, klass, data):
+    """
+
+    Create an instance of a given class in the database.
+
+    This function instantiates a new object of type `klass` with the specified primary key `pk`, 
+    sets its `right_id` and `left_id` attributes based on the provided `data`, and 
+    optionally sets an `extra` attribute if it exists in `data`. The newly created instance is 
+    then saved to the database and returned as a list.
+
+    Args:
+        pk (int): The primary key for the new instance.
+        klass (class): The class to instantiate.
+        data (dict): A dictionary containing the `right` and `left` values, and optionally `extra`.
+
+    Returns:
+        list: A list containing the newly created instance.
+
+    """
     instance = klass(id=pk)
     instance.right_id = data["right"]
     instance.left_id = data["left"]
@@ -129,6 +147,19 @@ def im_create(pk, klass, data):
 
 
 def o2o_create(pk, klass, data):
+    """
+
+    Creates a new one-to-one relationship instance for the given class.
+
+    :param pk: The primary key to associate with the new instance
+    :param klass: The class of the instance to create
+    :param data: The data to store in the instance
+
+    :return: A list containing the newly created instance
+    \"\"\"
+    Note: The function seems to have an incomplete parameter definition, 'pk' is not used within the function, 
+    consider adjusting the function parameters and the corresponding documentation.
+    """
     instance = klass()
     instance.data_id = data
     models.Model.save_base(instance, raw=True)
@@ -202,6 +233,19 @@ def fk_compare(testcase, pk, klass, data):
 
 
 def m2m_compare(testcase, pk, klass, data):
+    """
+    Compare a many-to-many relationship instance against expected data.
+
+    Compares the IDs of objects associated with a given instance, ordered by ID,
+    against a list of expected IDs.
+
+    :param testcase: The test case instance being executed.
+    :param pk: The primary key of the instance to compare.
+    :param klass: The class of the instance to compare.
+    :param data: The list of expected IDs.
+
+    :raises AssertionError: If the expected and actual IDs do not match.
+    """
     instance = klass.objects.get(id=pk)
     testcase.assertEqual(data, [obj.id for obj in instance.data.order_by("id")])
 
@@ -212,6 +256,21 @@ def im2m_compare(testcase, pk, klass, data):
 
 
 def im_compare(testcase, pk, klass, data):
+    """
+    Compares the expected data with the actual data of a model instance.
+
+    This function retrieves an instance of the specified model class from the database
+    based on its primary key and then asserts that the left and right IDs of the instance
+    match the expected values. If additional 'extra' data is provided, it also checks
+    that the instance's extra attribute matches the expected value. If no 'extra' data
+    is provided, it checks that the instance's extra attribute has a default value.
+
+    :param testcase: The test case object used for assertions.
+    :param pk: The primary key of the model instance to retrieve.
+    :param klass: The model class of the instance to retrieve.
+    :param data: A dictionary containing the expected left, right, and optionally extra data.
+
+    """
     instance = klass.objects.get(id=pk)
     testcase.assertEqual(data["left"], instance.left_id)
     testcase.assertEqual(data["right"], instance.right_id)

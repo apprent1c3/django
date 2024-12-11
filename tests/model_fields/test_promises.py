@@ -66,6 +66,17 @@ class PromiseTest(SimpleTestCase):
         self.assertIsInstance(DecimalField().get_prep_value(lazy_func()), Decimal)
 
     def test_EmailField(self):
+        """
+
+        Tests the functionality of the EmailField class.
+
+        Verifies that the get_prep_value method of EmailField returns a string value 
+        when given a lazy function that evaluates to an email address.
+
+        The purpose of this test is to ensure that the EmailField class correctly 
+        handles lazy functions and returns a string as expected.
+
+        """
         lazy_func = lazy(lambda: "mailbox@domain.com", str)
         self.assertIsInstance(EmailField().get_prep_value(lazy_func()), str)
 
@@ -86,10 +97,25 @@ class PromiseTest(SimpleTestCase):
         self.assertIsInstance(FloatField().get_prep_value(lazy_func()), float)
 
     def test_ImageField(self):
+        """
+        Tests the ImageField class to ensure it correctly prepares a lazy function value for database storage.
+
+        The test verifies that the get_prep_value method of ImageField returns a string when given a lazy function that evaluates to a filename.
+
+        This test case ensures that ImageField handles lazy functions as expected, allowing for delayed evaluation of the filename until it is actually needed for database storage.
+        """
         lazy_func = lazy(lambda: "filename.ext", str)
         self.assertIsInstance(ImageField().get_prep_value(lazy_func()), str)
 
     def test_IntegerField(self):
+        """
+        Tests the IntegerField's get_prep_value method with a lazy function.
+
+        This test case verifies that the IntegerField can properly prepare the value 
+        returned by a lazy function, which evaluates to an integer, for further processing.
+        It checks that the prepared value is an instance of the int type, ensuring its 
+        correctness for subsequent operations.
+        """
         lazy_func = lazy(lambda: 1, int)
         self.assertIsInstance(IntegerField().get_prep_value(lazy_func()), int)
 
@@ -132,6 +158,19 @@ class PromiseTest(SimpleTestCase):
         self.assertIsInstance(SmallIntegerField().get_prep_value(lazy_func()), int)
 
     def test_TextField(self):
+        """
+
+        Tests the get_prep_value method of the TextField class.
+
+        This method is used to prepare the value for storage. The test checks if the 
+        get_prep_value method correctly converts lazy loaded values of different 
+        data types (string and integer) into strings.
+
+        The test uses a lazy function that returns a value when called, simulating 
+        a lazy loaded value. It then asserts that the result of 
+        get_prep_value is a string, regardless of the type of the lazy loaded value.
+
+        """
         lazy_func = lazy(lambda: "Abc", str)
         self.assertIsInstance(TextField().get_prep_value(lazy_func()), str)
         lazy_func = lazy(lambda: 0, int)

@@ -17,6 +17,17 @@ class StrIndexTests(TestCase):
         )
 
     def test_annotate_textfield(self):
+        """
+
+        Tests the annotation of text fields in the Article model to determine the position of the title within the text.
+
+        This test creates sample articles, annotates the articles with the position of the title in the text, and verifies that the results are as expected.
+        The position of the title is determined by the 'title_pos' annotation, which is calculated using the StrIndex function.
+        The test also checks that the results are correctly ordered by title.
+
+        Asserts that the title position for articles with matching titles in their text are correctly identified and ordered.
+
+        """
         Article.objects.create(
             title="How to Django",
             text="This is about How to Django.",

@@ -42,6 +42,14 @@ class DistanceTest(TestCase):
         # coordinate that'll be implicitly transformed to that to
         # the coordinate system of the field, EPSG:32140 (Texas South Central
         # w/units in meters)
+        """
+
+        Sets up geometric points for testing purposes.
+
+        This method initializes two points: `stx_pnt` and `au_pnt`, which represent spatial locations on the Earth's surface.
+        The points are defined in the WGS84 spatial reference system (SRID 4326).
+
+        """
         self.stx_pnt = GEOSGeometry(
             "POINT (-95.370401017314293 29.704867409475465)", 4326
         )
@@ -602,6 +610,25 @@ class DistanceFunctionsTests(FuncTestMixin, TestCase):
 
     @skipUnlessDBFeature("has_Distance_function")
     def test_distance_function_d_lookup(self):
+        """
+
+        Tests the usage of the Distance function in database lookups.
+
+        This test verifies that the Distance function can be used to filter querysets 
+        based on the distance between two geographic points. It specifically checks 
+        that a queryset can be filtered to include only objects that are within a 
+        certain distance of a specified point.
+
+        The Distance function is used in conjunction with the annotate method to 
+        calculate the distance between each object's location and a reference point. 
+        The resulting annotated queryset is then filtered to include only objects 
+        that are within the specified distance.
+
+        The test passes if at least one object is found to be within the specified 
+        distance, indicating that the Distance function and database lookup are 
+        functioning correctly.
+
+        """
         qs = Interstate.objects.annotate(
             d=Distance(Point(0, 0, srid=3857), Point(0, 1, srid=3857)),
         ).filter(d=D(m=1))
@@ -765,6 +792,20 @@ class DistanceFunctionsTests(FuncTestMixin, TestCase):
     def test_perimeter_geodetic(self):
         # Currently only Oracle supports calculating the perimeter on geodetic
         # geometries (without being transformed).
+        """
+
+        Tests the calculation of the perimeter of a geometric shape using the Perimeter function.
+
+        This test case checks the functionality of the Perimeter function in two scenarios:
+        1. Using the geodetic distance calculation, if supported by the database.
+        2. Using a projected spatial reference system.
+
+        The test verifies that the calculated perimeter values match the expected results, 
+        or raises a NotSupportedError if geodetic distance calculation is not supported.
+
+        The test cases cover the usage of the Perimeter function with and without spatial transformations.
+
+        """
         qs1 = CensusZipcode.objects.annotate(perim=Perimeter("poly"))
         if connection.features.supports_perimeter_geodetic:
             self.assertAlmostEqual(qs1[0].perim.m, 18406.3818954314, 3)

@@ -61,6 +61,15 @@ class TestRegistration(SimpleTestCase):
         self.assertEqual(self.site.get_model_admin(Person).search_fields, ["name"])
 
     def test_get_model_admin_unregister_model(self):
+        """
+
+        Tests that attempting to retrieve the model admin for an unregistered model raises a NotRegistered exception.
+
+        The function verifies that the model 'Person' is not registered with the admin site and checks 
+        that the get_model_admin method correctly handles this case by raising an exception with the 
+        expected error message.
+
+        """
         msg = "The model Person is not registered."
         with self.assertRaisesMessage(NotRegistered, msg):
             self.site.get_model_admin(Person)
@@ -152,6 +161,16 @@ class TestRegistrationDecorator(SimpleTestCase):
             register(Person)(CustomSite)
 
     def test_custom_site_not_an_admin_site(self):
+        """
+        Tests that registering a model with a custom site raises an error if the site is not an instance of AdminSite.
+
+            This test case verifies that the registration process checks for the correct type of site,
+            ensuring that only valid admin sites are used for model registration.
+
+            Raises:
+                ValueError: If the provided site does not subclass AdminSite.
+
+        """
         with self.assertRaisesMessage(ValueError, "site must subclass AdminSite"):
             register(Person, site=Traveler)(NameAdmin)
 

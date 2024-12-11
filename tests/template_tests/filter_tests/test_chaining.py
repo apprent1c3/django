@@ -62,6 +62,13 @@ class ChainingTests(SimpleTestCase):
         {"chaining06": "{% autoescape off %}{{ a|escape|capfirst }}{% endautoescape %}"}
     )
     def test_chaining06(self):
+        """
+        Tests the rendering of a template with chained filters, verifying that autoescaping is applied correctly.
+
+        The function chains the escape and capfirst filters on a variable, ensuring that special characters are properly escaped and the string is capitalized.
+
+        It then asserts that the output matches the expected result, where the '<' symbol is replaced with its HTML entity '&lt;'.
+        """
         output = self.engine.render_to_string("chaining06", {"a": "a < b"})
         self.assertEqual(output, "A &lt; b")
 
@@ -85,6 +92,9 @@ class ChainingTests(SimpleTestCase):
 
     @setup({"chaining09": '{{ a|cut:";"|force_escape }}'})
     def test_chaining09(self):
+        """
+        Converts a string containing HTML special characters to their corresponding HTML entities, then escapes any special characters to prevent HTML injection attacks, demonstrating the chaining of template filters in a templating engine.
+        """
         output = self.engine.render_to_string("chaining09", {"a": "a < b"})
         self.assertEqual(output, "a &lt; b")
 
@@ -124,5 +134,8 @@ class ChainingTests(SimpleTestCase):
         }
     )
     def test_chaining14(self):
+        """
+        Test that Jinja2 template engine correctly applies autoescaping with filters 'safe' and 'force_escape' when chained together, ensuring that special characters are properly escaped in the output.
+        """
         output = self.engine.render_to_string("chaining14", {"a": "a < b"})
         self.assertEqual(output, "a &lt; b")

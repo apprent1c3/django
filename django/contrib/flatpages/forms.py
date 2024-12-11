@@ -41,6 +41,22 @@ class FlatpageForm(forms.ModelForm):
         )
 
     def clean_url(self):
+        """
+        Validates and cleans the provided URL by checking for a leading slash and 
+        optional trailing slash.
+
+        Raises:
+            ValidationError: If the URL is missing a leading slash or a trailing slash 
+                             when required.
+
+        Returns:
+            str: The cleaned URL if validation is successful.
+
+        Note:
+            The trailing slash requirement is determined by the `_trailing_slash_required` 
+            method, which is not described here. Refer to that method's documentation for 
+            more information on when a trailing slash is required.
+        """
         url = self.cleaned_data["url"]
         if not url.startswith("/"):
             raise ValidationError(
@@ -55,6 +71,23 @@ class FlatpageForm(forms.ModelForm):
         return url
 
     def clean(self):
+        """
+        Validate the uniqueness of a flat page URL across multiple sites.
+
+        This method checks if a flat page with the same URL already exists on any of the
+        selected sites. If it does, a ValidationError is raised to prevent duplicate URLs.
+
+        The validation takes into account the current instance being edited, if any, to
+        allow updating an existing flat page without triggering a duplicate URL error.
+
+        If the validation passes, the method calls the parent class's clean method to
+        perform any additional validation as needed.
+
+        Raises:
+            ValidationError: If a flat page with the same URL already exists on any of the
+                selected sites.
+
+        """
         url = self.cleaned_data.get("url")
         sites = self.cleaned_data.get("sites")
 

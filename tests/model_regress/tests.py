@@ -204,6 +204,19 @@ class ModelTests(TestCase):
         # Regression test for #10443.
         # The idea is that all these creations and saving should work without
         # crashing. It's not rocket science.
+        """
+
+        Tests the timezone support functionality by creating an Article object with a specific publication date,
+        modifying the publication date, and then updating it back to the original value.
+
+        This test verifies that the timezone information is correctly handled during the creation, modification, and
+        update of the Article object, ensuring that the pub_date field is accurately stored and retrieved.
+
+        The test involves creating an Article object with a publication date in a specific timezone, updating the
+        publication date to a new value, and then using the update method to change the publication date back to the
+        original value, verifying that exactly one object was updated.
+
+        """
         dt1 = datetime.datetime(2008, 8, 31, 16, 20, tzinfo=get_fixed_timezone(600))
         dt2 = datetime.datetime(2008, 8, 31, 17, 20, tzinfo=get_fixed_timezone(600))
         obj = Article.objects.create(
@@ -237,6 +250,16 @@ class ModelTests(TestCase):
 
         class HorseBase(models.base.ModelBase):
             def __init__(cls, name, bases, attrs):
+                """
+                Initializes a new class, setting the number of horns based on the presence of magic attributes.
+
+                :param name: The name of the class being initialized.
+                :param bases: The base classes from which the new class inherits.
+                :param attrs: The attributes of the new class.
+
+                :note: The number of horns is determined by the presence of 'magic' in the class attributes. If 'magic' is found, the class is assigned 1 horn; otherwise, it is assigned 0 horns.
+
+                """
                 super().__init__(name, bases, attrs)
                 cls.horns = 1 if "magic" in attrs else 0
 

@@ -104,6 +104,11 @@ class PermissionRequiredMixin(AccessMixin):
         return self.request.user.has_perms(perms)
 
     def dispatch(self, request, *args, **kwargs):
+        """
+        Dispatches a request to the view, checking if the user has the necessary permissions.
+
+        This method overrides the default dispatch behavior by first verifying if the user has permission to access the view. If permission is denied, it calls the :meth:`handle_no_permission` method to handle the unauthorized access. If permission is granted, it proceeds with the default dispatch behavior, passing the request and any additional arguments to the parent class's :meth:`dispatch` method.
+        """
         if not self.has_permission():
             return self.handle_no_permission()
         return super().dispatch(request, *args, **kwargs)

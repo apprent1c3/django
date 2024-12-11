@@ -93,6 +93,21 @@ class ModelBase(type):
     """Metaclass for all models."""
 
     def __new__(cls, name, bases, attrs, **kwargs):
+        """
+        Creates a new model class, populating its metadata and fields.
+
+        This method is responsible for creating a new model class. It constructs the model's metadata, adding fields, parent links, and other attributes as necessary. It also handles abstract and proxy models, ensuring correct setup and validation of their metadata.
+
+        The model's creation process involves several steps:
+
+        *   Initializing the model's metadata, including its app label and options
+        *   Adding fields and parent links to the model
+        *   Handling inherited attributes from parent classes
+        *   Setting up the model's indexes and registering it with the application
+        *   Validating the model's metadata and fields to prevent errors
+
+        This method returns the newly created model class, fully populated with its metadata and fields.
+        """
         super_new = super().__new__
 
         # Also ensure initialization is only performed for subclasses of Model
@@ -438,6 +453,17 @@ class ModelBase(type):
 
 class ModelStateFieldsCacheDescriptor:
     def __get__(self, instance, cls=None):
+        """
+        Descriptor method to retrieve the fields cache for an instance.
+
+        Returns the instance's fields cache, initializing it to an empty dictionary if it doesn't exist.
+        If called on a class instead of an instance, returns the descriptor itself.
+
+        This method is typically used internally by the class, but can be accessed directly if needed.
+        It allows for lazy initialization and caching of instance-specific data, improving performance and reducing memory usage.
+        The returned cache can be used to store arbitrary data associated with the instance.
+
+        """
         if instance is None:
             return self
         res = instance.fields_cache = {}
@@ -651,6 +677,17 @@ class Model(AltersData, metaclass=ModelBase):
         self.__dict__.update(state)
 
     def _get_pk_val(self, meta=None):
+        """
+        Retrieve the value of the primary key attribute for this object.
+
+        Args:
+            meta: Optional metadata object; if not provided, the object's default
+                  metadata (self._meta) will be used.
+
+        Returns:
+            The value of the primary key attribute, as determined by the metadata
+            object's primary key attribute name (meta.pk.attname).
+        """
         meta = meta or self._meta
         return getattr(self, meta.pk.attname)
 
@@ -800,6 +837,24 @@ class Model(AltersData, metaclass=ModelBase):
             )
 
         def get_param(param_name, param_value, arg_index):
+            """
+            Retrieves a parameter value for a model method.
+
+            Parameters
+            ----------
+            param_name : str
+                The name of the parameter to retrieve.
+            param_value : any
+                The default value of the parameter.
+            arg_index : int
+                The index of the parameter in the arguments list.
+
+            Returns
+            -------
+            any
+                The value of the parameter. If the parameter is provided in the arguments list and also has a default value,
+                a TypeError is raised to prevent ambiguity. Otherwise, the value from the arguments list or the default value is returned.
+            """
             if arg_index < len(args):
                 if param_value is not defaults[param_name]:
                     # Recreate the proper TypeError message from Python.
@@ -1347,6 +1402,24 @@ class Model(AltersData, metaclass=ModelBase):
         return field_map
 
     def prepare_database_save(self, field):
+        """
+        Prepares a model instance attribute for database save.
+
+        This method retrieves the value of a specific related field from the model instance, 
+        which is required for saving the instance to the database. The field to be retrieved 
+        is specified by the provided `field` parameter.
+
+        It first checks if the model instance has a primary key, raising a `ValueError` if 
+        it does not, as unsaved instances cannot be used in ORM queries.
+
+        The returned value is the attribute of the model instance that corresponds to the 
+        related field specified by `field`.
+
+        :raises ValueError: If the model instance is unsaved (i.e., has no primary key).
+        :returns: The value of the related field attribute.
+        :param field: The related field for which to retrieve the attribute value.
+
+        """
         if self.pk is None:
             raise ValueError(
                 "Unsaved model instance %r cannot be used in an ORM query." % self
@@ -1950,6 +2023,13 @@ class Model(AltersData, metaclass=ModelBase):
     @classmethod
     def _check_column_name_clashes(cls):
         # Store a list of column names which have already been used by other fields.
+        """
+        Checks for and reports column name clashes within a model's fields.
+
+        This method inspects the model's local fields and detects any duplicate column names. 
+        If a clash is found, an error is raised with a hint to specify a unique 'db_column' for the conflicting field.
+        It returns a list of errors indicating the fields with duplicate column names.
+        """
         used_column_names = []
         errors = []
 
@@ -2398,6 +2478,19 @@ class Model(AltersData, metaclass=ModelBase):
 
     @classmethod
     def _get_expr_references(cls, expr):
+        """
+        Recursively retrieves all references (field names) used in a given expression.
+
+        The function traverses the expression tree and yields tuples of field names
+        for each reference found. It supports expressions composed of Q objects, F objects,
+        and other expressions that implement the get_source_expressions method.
+
+        Yields:
+            tuple: A tuple of field names for each reference in the expression.
+
+        Note:
+            All references are split by the lookup separator (e.g., '__') to handle nested fields.
+        """
         if isinstance(expr, Q):
             for child in expr.children:
                 if isinstance(child, tuple):

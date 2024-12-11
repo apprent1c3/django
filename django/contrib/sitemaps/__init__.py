@@ -175,6 +175,22 @@ class GenericSitemap(Sitemap):
     changefreq = None
 
     def __init__(self, info_dict, priority=None, changefreq=None, protocol=None):
+        """
+        Initializes the object with metadata for generating sitemaps.
+
+        Parameters
+        ----------
+        info_dict : dict
+            Dictionary containing essential information, including the 'queryset' key.
+        priority : str, optional
+            Priority of the sitemap item (default is None).
+        changefreq : str, optional
+            Frequency of changes to the sitemap item (default is None).
+        protocol : str, optional
+            Protocol to be used for the sitemap item (default is None).
+
+        The function sets the object's properties, including queryset, date field, priority, change frequency, and protocol, using the provided dictionary and optional parameters. If optional parameters are not provided, it uses default values if available.
+        """
         self.queryset = info_dict["queryset"]
         self.date_field = info_dict.get("date_field")
         self.priority = self.priority or priority

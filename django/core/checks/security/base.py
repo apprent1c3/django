@@ -160,6 +160,19 @@ def check_security_middleware(app_configs, **kwargs):
 
 @register(Tags.security, deploy=True)
 def check_xframe_options_middleware(app_configs, **kwargs):
+    """
+
+    Checks if the X-Frame-Options middleware is correctly configured for security.
+
+    This check ensures that the application is protected against clickjacking attacks by 
+    verifying the presence and correctness of the X-Frame-Options header in HTTP responses.
+
+    The check passes if the middleware is properly set up and fails otherwise, returning 
+    a warning (W002) in the latter case.
+
+    :returns: A list of warnings (in this case, W002) if the check fails, or an empty list if it passes.
+
+    """
     passed_check = _xframe_middleware()
     return [] if passed_check else [W002]
 
@@ -172,6 +185,15 @@ def check_sts(app_configs, **kwargs):
 
 @register(Tags.security, deploy=True)
 def check_sts_include_subdomains(app_configs, **kwargs):
+    """
+    ElliCheck STS Include Subdomains.
+
+    This function checks if the HTTP Strict Transport Security (HSTS) configuration is set to include subdomains.
+    It verifies that the STS header is properly configured to ensure secure communication between the client and server.
+    The check is only applicable if the security middleware is enabled and HSTS is configured with a non-zero seconds value.
+
+    If the check passes, it returns an empty list; otherwise, it returns a list containing the W005 warning code, indicating that the STS header does not include subdomains.
+    """
     passed_check = (
         not _security_middleware()
         or not settings.SECURE_HSTS_SECONDS

@@ -55,6 +55,22 @@ class SQLiteOperationsTests(TestCase):
         )
 
     def test_sql_flush_sequences_allow_cascade(self):
+        """
+
+        Test the sql_flush function with sequence reset and cascade delete.
+
+        This test checks that the sql_flush function generates correct SQL statements 
+        to delete data from the specified tables and reset their sequences. The 
+        allow_cascade parameter is set to True, allowing related objects to be 
+        deleted. The function is expected to produce DELETE statements for the 
+        Person, Tag, and their many-to-many relationship tables, followed by an 
+        UPDATE statement to reset the sequences.
+
+        The test verifies the generated SQL statements, checking their order, 
+        structure, and content. It ensures that the sequences for all tables are 
+        reset correctly.
+
+        """
         statements = connection.ops.sql_flush(
             no_style(),
             [Person._meta.db_table, Tag._meta.db_table],

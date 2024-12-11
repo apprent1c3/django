@@ -189,6 +189,22 @@ class RemoveField(FieldOperation):
         return "remove_%s_%s" % (self.model_name_lower, self.name_lower)
 
     def reduce(self, operation, app_label):
+        """
+
+        Reduced operation handler.
+
+        This method overrides the default reduce operation to handle a specific case where 
+        the operation is a DeleteModel instance targeting the current model. If such 
+        condition is met, it returns a list containing the DeleteModel operation.
+
+        Otherwise, it delegates to the parent class's implementation by calling 
+        super().reduce(operation, app_label).
+
+        :param operation: The operation to be reduced.
+        :param app_label: The application label.
+        :return: A list of reduced operations.
+
+        """
         from .models import DeleteModel
 
         if (
@@ -292,6 +308,17 @@ class RenameField(FieldOperation):
         return self.new_name.lower()
 
     def deconstruct(self):
+        """
+        Deconstructs the current object into a tuple containing the class name and 
+        a dictionary of keyword arguments.
+
+        The returned tuple can be used to recreate an equivalent object, and includes 
+        the model name, old name, and new name as keyword arguments.
+
+        Returns:
+            tuple: A tuple containing the class name, an empty list, and a dictionary of keyword arguments.
+
+        """
         kwargs = {
             "model_name": self.model_name,
             "old_name": self.old_name,

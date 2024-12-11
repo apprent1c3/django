@@ -38,6 +38,13 @@ class Node:
         return obj
 
     def __str__(self):
+        """
+        Returns a string representation of the logical condition tree.
+
+        The output reflects the structure of the tree, including the connector type and the conditions or sub-conditions that it connects.
+
+        The format is designed to be a human-readable representation of the logical operation, displaying the connector, any child conditions, and an indication of negation if applicable.
+        """
         template = "(NOT (%s: %s))" if self.negated else "(%s: %s)"
         return template % (self.connector, ", ".join(str(c) for c in self.children))
 

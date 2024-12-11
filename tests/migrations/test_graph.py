@@ -275,6 +275,14 @@ class GraphTests(SimpleTestCase):
             graph.validate_consistency()
 
     def test_validate_consistency_missing_child(self):
+        """
+
+        Tests whether the validate_consistency method correctly raises an error when a migration's dependency references a nonexistent child node.
+
+        The function creates a migration graph, adds a node, and then adds a dependency with a nonexistent child node.
+        It then checks if the validate_consistency method correctly raises a NodeNotFoundError with the expected error message.
+
+        """
         graph = MigrationGraph()
         graph.add_node(("app_b", "0002"), None)
         graph.add_dependency(
@@ -465,6 +473,14 @@ class NodeTests(SimpleTestCase):
         self.assertEqual(str(node), "('app_a', '0001')")
 
     def test_dummynode_repr(self):
+        """
+
+        Tests the string representation of the DummyNode class.
+
+        Verifies that the repr function returns a string in the expected format,
+        including the node's key, but excluding other attributes such as origin and error message.
+
+        """
         node = DummyNode(
             key=("app_a", "0001"),
             origin="app_a.0001",

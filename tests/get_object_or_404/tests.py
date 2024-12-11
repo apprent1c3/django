@@ -8,6 +8,16 @@ from .models import Article, Author
 
 class GetObjectOr404Tests(TestCase):
     def test_get_object_or_404(self):
+        """
+        Tests the get_object_or_404 function, which retrieves an object from the database 
+        based on the given model and parameters. If the object does not exist, it raises a 
+        404 exception. The test cases cover various scenarios, including querying by direct 
+        model, model manager, and queryset, with and without specific filters. Additionally, 
+        it tests the function's behavior with MultipleObjectsReturned exception when more 
+        than one object matches the filter, and when no objects match the filter, 
+        respectively. The test also covers the use of Q objects for complex queries and 
+        the get_list_or_404 function for retrieving lists of objects.
+        """
         a1 = Author.objects.create(name="Brave Sir Robin")
         a2 = Author.objects.create(name="Patsy")
 

@@ -51,6 +51,18 @@ class DispatcherTests(SimpleTestCase):
         self.assertTestIsClean(a_signal)
 
     def test_send(self):
+        """
+
+        Tests the sending of a signal to connected receivers.
+
+        This test case verifies that a signal is successfully sent to a connected receiver function, 
+        that the receiver function receives the expected arguments, and that the signal is properly disconnected after sending.
+
+        The test connects a receiver function to a signal, sends the signal with a test value, 
+        and asserts that the receiver function was called with the correct argument. 
+        Finally, it checks that the signal is in a clean state after disconnection.
+
+        """
         a_signal.connect(receiver_1_arg, sender=self)
         result = a_signal.send(sender=self, val="test")
         self.assertEqual(result, [(receiver_1_arg, "test")])
@@ -62,6 +74,13 @@ class DispatcherTests(SimpleTestCase):
         self.assertEqual(result, [])
 
     def test_send_connected_no_sender(self):
+        """
+        Tests the send method of a signal when connected with no sender specified.
+
+        Verifies that a connected receiver function is properly invoked and returns the expected result when the signal is sent. 
+        Also checks that the signal is cleanly disconnected and reset after the test.
+
+        """
         a_signal.connect(receiver_1_arg)
         result = a_signal.send(sender=self, val="test")
         self.assertEqual(result, [(receiver_1_arg, "test")])
@@ -218,6 +237,17 @@ class DispatcherTests(SimpleTestCase):
 class ReceiverTestCase(SimpleTestCase):
     def test_receiver_single_signal(self):
         @receiver(a_signal)
+        """
+
+        Tests the receipt of a single signal by a receiver function.
+
+        This test case verifies that a receiver function, decorated with the
+        @receiver decorator, correctly receives and processes a signal. The
+        receiver function is expected to update the test object's state based
+        on the signal's value. The test sends a signal with a value of True and
+        asserts that the receiver function has updated the state accordingly.
+
+        """
         def f(val, **kwargs):
             self.state = val
 

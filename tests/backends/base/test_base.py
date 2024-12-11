@@ -48,6 +48,14 @@ class DatabaseWrapperTests(SimpleTestCase):
         self.assertNotEqual(connection.display_name, "unknown")
 
     def test_get_database_version(self):
+        """
+
+        Tests that the get_database_version method in BaseDatabaseWrapper raises a NotImplementedError.
+
+        This test ensures that subclasses of BaseDatabaseWrapper are aware of the requirement to implement the get_database_version method, 
+        as the base class does not provide a default implementation.
+
+        """
         with patch.object(BaseDatabaseWrapper, "__init__", return_value=None):
             msg = (
                 "subclasses of BaseDatabaseWrapper may require a "
@@ -287,6 +295,19 @@ class ConnectionHealthChecksTests(SimpleTestCase):
 
     @skipUnlessDBFeature("test_db_allows_multiple_connections")
     def test_health_checks_enabled_errors_occurred(self):
+        """
+
+        Tests the behavior of health checks when errors occur in the database connection.
+
+        This test case verifies that when health checks are enabled and an error occurs
+        during a query, the connection is not replaced. Instead, the existing connection
+        is kept and reused for subsequent queries.
+
+        The test scenario involves simulating a connection error by patching the
+        `is_usable` method to raise an `AssertionError`, then verifying that the
+        connection is not closed or replaced after the error occurs.
+
+        """
         self.patch_settings_dict(conn_health_checks=True)
         self.assertIsNone(connection.connection)
         # Newly created connections are considered healthy without performing

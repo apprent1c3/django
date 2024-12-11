@@ -276,6 +276,15 @@ class EmailValidator:
             raise ValidationError(self.message, code=self.code, params={"value": value})
 
     def validate_domain_part(self, domain_part):
+        """
+        .validator_domain_part 
+        Validator to check if a domain part matches either the domain regex pattern or can be parsed as an IPv4 or IPv6 literal address.
+
+            :param domain_part: The domain part to validate
+            :return: True if the domain part is valid, False otherwise
+            :raises: None
+            :note: A domain part is considered valid if it matches the predefined domain regex pattern or if it can be parsed as an IPv4 or IPv6 literal address.
+        """
         if self.domain_regex.match(domain_part):
             return True
 

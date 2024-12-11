@@ -264,6 +264,17 @@ class NormalizeFieldChoicesTests(SimpleTestCase):
 
     def test_callable_non_canonical(self):
         # Canonical form is list of 2-tuple, but nested lists should work.
+        """
+
+        Tests the functionality of the normalize_choices function when provided a non-canonical callable.
+
+        The function verifies that the input callable is not initially invoked by the normalize_choices function.
+        It then checks that the output of normalize_choices is an instance of CallableChoiceIterator and matches the expected result.
+        Finally, it confirms that the input callable is invoked exactly once during the iteration of the resulting CallableChoiceIterator.
+
+        This test case ensures that the normalize_choices function properly handles non-canonical callables and provides the expected output without prematurely invoking the input callable.
+
+        """
         def get_choices():
             return [
                 ["C", _("Club")],
@@ -327,6 +338,16 @@ class NormalizeFieldChoicesTests(SimpleTestCase):
 
     def test_nested_iterable_non_canonical(self):
         # Canonical form is list of 2-tuple, but nested lists should work.
+        """
+
+        Tests the normalization of nested iterables with non-canonical choices.
+
+        This function validates that the :func:`normalize_choices` function correctly processes
+        nested iterables containing non-standard choice formats, ensuring the output matches
+        the expected normalized structure. The test case covers a specific scenario with
+        nested lists of choices, including both grouped and standalone options.
+
+        """
         choices = [
             ["Audio", [["vinyl", _("Vinyl")], ["cd", _("CD")]]],
             ["Video", [["vhs", _("VHS Tape")], ["dvd", _("DVD")]]],

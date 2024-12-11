@@ -32,6 +32,23 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
     }
 
     def get_field_type(self, data_type, description):
+        """
+        Determine the field type based on the given data type and description.
+
+        This method inspects the data type and description to determine the most suitable
+        field type. For numeric fields, it considers factors such as precision, scale, and
+        auto-increment properties to choose between field types like IntegerField, 
+        BigIntegerField, AutoField, SmallAutoField, BigAutoField, or FloatField. For 
+        NCLOB fields containing JSON data, it returns a JSONField.
+
+        Args:
+            data_type (int): The data type of the field, as defined by oracledb.
+            description (object): An object containing additional information about the field.
+
+        Returns:
+            str: The determined field type.
+
+        """
         if data_type == oracledb.NUMBER:
             precision, scale = description[4:6]
             if scale == 0:
@@ -277,6 +294,18 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
         }
 
     def get_primary_key_columns(self, cursor, table_name):
+        """
+
+            Retrieves the primary key columns for a given database table.
+
+            This function queries the database to identify the columns that constitute the primary key of the specified table.
+            The columns are returned in the order they are defined in the primary key constraint.
+
+            :param cursor: A database cursor object used to execute the query.
+            :param table_name: The name of the table for which to retrieve the primary key columns.
+            :return: A list of column names that make up the primary key of the table, with identifiers converted to a standard format.
+
+        """
         cursor.execute(
             """
             SELECT

@@ -33,6 +33,17 @@ class TestInspectMethods(unittest.TestCase):
         )
 
     def test_get_func_full_args_no_arguments(self):
+        """
+
+        Tests that the get_func_full_args function returns an empty list when given a function with no arguments.
+
+        This test case ensures that the function behaves as expected when provided with a method 
+        that has no parameters, both when the method is accessed via its class and via an instance of the class.
+
+        It verifies that the result is as expected, helping to guarantee the correct functionality 
+        of the get_func_full_args function in such scenarios.
+
+        """
         self.assertEqual(inspect.get_func_full_args(Person.no_arguments), [])
         self.assertEqual(inspect.get_func_full_args(Person().no_arguments), [])
 
@@ -68,6 +79,13 @@ class TestInspectMethods(unittest.TestCase):
         self.assertEqual(inspect.get_func_full_args(Person().cls_all_kinds), arguments)
 
     def test_func_accepts_var_args_has_var_args(self):
+        """
+        Tests if the just_args method of the Person class accepts variable arguments.
+
+        This checks if the function can handle an arbitrary number of arguments.
+        The test is performed on both the function defined in the class and an instance of the class.
+        It verifies that the just_args method in both cases has the ability to accept a variable number of arguments.
+        """
         self.assertIs(inspect.func_accepts_var_args(Person.just_args), True)
         self.assertIs(inspect.func_accepts_var_args(Person().just_args), True)
 

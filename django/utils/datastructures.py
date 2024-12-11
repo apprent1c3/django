@@ -155,6 +155,14 @@ class MultiValueDict(dict):
         super().__setitem__(key, list_)
 
     def setdefault(self, key, default=None):
+        """
+        Set the value for a given key if it does not exist.
+
+        :param key: The key to be set.
+        :param default: The value to be set if the key does not exist. Defaults to None.
+        :return: The value for the given key. If the key did not exist and a default was provided, the default is returned. If the key did not exist and no default was provided, None is returned.
+        :rtype: any
+        """
         if key not in self:
             self[key] = default
             # Do not return default here because __setitem__() may store
@@ -265,6 +273,15 @@ class DictWrapper(dict):
     """
 
     def __init__(self, data, func, prefix):
+        """
+        Initializes the object with the provided data, function, and prefix.
+
+        :param data: The input data to be processed
+        :param func: The function to be applied to the data
+        :param prefix: The prefix to be used, typically for identification or naming purposes
+
+        This constructor sets up the object's internal state by storing the provided data, function, and prefix. It also calls the parent class's constructor to ensure proper initialization of the object's inheritance chain.
+        """
         super().__init__(data)
         self.func = func
         self.prefix = prefix

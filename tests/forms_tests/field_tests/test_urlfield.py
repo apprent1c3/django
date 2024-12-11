@@ -34,6 +34,12 @@ class URLFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
     def test_urlfield_clean(self):
         # RemovedInDjango60Warning: When the deprecation ends, remove the
         # assume_scheme argument.
+        """
+        Checks that a URLField properly cleans and normalizes provided URLs, assuring they match expected formats. 
+        This includes confirming that the field correctly handles various URL components such as protocols, subdomains, ports, query parameters, non-ASCII characters, and internationalized domain names (IDNs). 
+        The test assumes the 'https' scheme for URLs that do not specify a protocol, unless 'http' is explicitly provided. 
+        It verifies that the cleaned URLs match the expected output for a wide range of test cases, including valid and edge-case URLs.
+        """
         f = URLField(required=False, assume_scheme="https")
         tests = [
             ("http://localhost", "http://localhost"),
@@ -145,6 +151,20 @@ class URLFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
             URLField(strip=False)
 
     def test_urlfield_assume_scheme(self):
+        """
+        Tests the behavior of the URLField when cleaning URLs without a scheme.
+
+        The function verifies that the URLField correctly prepends a scheme (http or https) 
+        to URLs that do not already have one. It checks this behavior with the default 
+        scheme and with explicitly specified schemes.
+
+        The test covers the following cases: 
+        - The default scheme (http) is prepended to the URL.
+        - An explicitly specified scheme (http) is prepended to the URL.
+        - An explicitly specified scheme (https) is prepended to the URL.
+
+        This ensures that the URLField behaves as expected when dealing with incomplete URLs.
+        """
         f = URLField()
         # RemovedInDjango60Warning: When the deprecation ends, replace with:
         # "https://example.com"

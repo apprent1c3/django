@@ -27,11 +27,25 @@ class ExceptionHandlerTests(SimpleTestCase):
 
     @override_settings(DATA_UPLOAD_MAX_NUMBER_FIELDS=2)
     def test_data_upload_max_number_fields_exceeded(self):
+        """
+
+        Tests the behavior when the maximum number of fields allowed for data uploads is exceeded.
+
+        Verifies that attempting to upload data with more fields than allowed results in a 400 Bad Request response.
+
+        This test ensures the DATA_UPLOAD_MAX_NUMBER_FIELDS setting is enforced, preventing potential denial-of-service attacks.
+
+        """
         response = WSGIHandler()(self.get_suspicious_environ(), lambda *a, **k: None)
         self.assertEqual(response.status_code, 400)
 
     @override_settings(DATA_UPLOAD_MAX_NUMBER_FILES=2)
     def test_data_upload_max_number_files_exceeded(self):
+        """
+        Tests that uploading more files than the allowed maximum number of files results in a 400 Bad Request response.
+        The test verifies that the DATA_UPLOAD_MAX_NUMBER_FILES setting is enforced by attempting to upload more files than the specified limit.
+        In this case, it checks that uploading three files exceeds the limit of two files and triggers an error response.
+        """
         payload = FakePayload(
             encode_multipart(
                 BOUNDARY,

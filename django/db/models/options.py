@@ -245,6 +245,26 @@ class Options:
         return new_objs
 
     def _get_default_pk_class(self):
+        """
+
+        Determines the default primary key class to use based on the application configuration.
+
+        The default primary key class is retrieved from the application configuration's
+        `default_auto_field` attribute, or `settings.DEFAULT_AUTO_FIELD` if not specified.
+        If the attribute is overridden in the application configuration, the value is used;
+        otherwise, the default value from settings is used.
+
+        The function checks that the specified primary key class path is not empty and can be
+        imported. It also verifies that the imported class is a subclass of `AutoField`.
+
+        Returns:
+            The default primary key class.
+
+        Raises:
+            ImproperlyConfigured: If the primary key class path is empty or cannot be imported.
+            ValueError: If the imported class does not subclass `AutoField`.
+
+        """
         pk_class_path = getattr(
             self.app_config,
             "default_auto_field",
@@ -320,6 +340,13 @@ class Options:
                 model.add_to_class("id", auto)
 
     def add_manager(self, manager):
+        """
+        Adds a new manager to the list of local managers, ensuring that any cached data is updated accordingly.
+
+        :param manager: The manager to be added
+        :returns: None
+        :notes: This operation will expire any existing cache to reflect the updated list of managers.
+        """
         self.local_managers.append(manager)
         self._expire_cache()
 
@@ -624,6 +651,15 @@ class Options:
 
     @cached_property
     def _forward_fields_map(self):
+        """
+        Returns a dictionary mapping field names and attribute names to their corresponding field objects.
+
+        The mapping includes the model field names as keys and their associated field objects as values.
+
+        In addition, if a field has an attribute name (attname), it is also included in the mapping with its corresponding field object as the value.
+
+        The purpose of this mapping is to provide a convenient and efficient way to access field objects by their names or attribute names.
+        """
         res = {}
         fields = self._get_fields(reverse=False)
         for field in fields:
@@ -836,6 +872,18 @@ class Options:
     def _expire_cache(self, forward=True, reverse=True):
         # This method is usually called by apps.cache_clear(), when the
         # registry is finalized, or when a new field is added.
+        """
+        Removes cached properties to ensure up-to-date values are retrieved.
+
+        This function expired the cache for either forward, reverse, or both types of properties.
+        It deletes the cached attributes from the instance's dictionary, and resets the fields cache.
+
+        The function takes two optional parameters:
+        - `forward`: a boolean indicating whether to expire the cache for forward properties (defaults to `True`)
+        - `reverse`: a boolean indicating whether to expire the cache for reverse properties (defaults to `True`). Reverse cache expiration is only performed if the instance is not abstract.
+
+        Use this function when the cached values are no longer valid or need to be refreshed, such as after modifying related objects or attributes.
+        """
         if forward:
             for cache_key in self.FORWARD_PROPERTIES:
                 if cache_key in self.__dict__:

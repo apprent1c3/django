@@ -118,6 +118,34 @@ def decorator_from_middleware(middleware_class):
 
 
 def make_middleware_decorator(middleware_class):
+    """
+
+    Create a decorator for middleware functionality.
+
+    This function takes a middleware class and returns a decorator factory.
+    The decorator factory returns a decorator that can be applied to a view function.
+    The decorator is responsible for executing the middleware's methods at various points
+    during the request-response cycle, including:
+
+    - Before the view function is called (pre-processing the request)
+    - After the view function has been called but before the response is sent (post-processing the request)
+    - If an exception occurs during the view function execution (processing the exception)
+
+    The middleware's methods are called in the following order:
+
+    1. `process_request`: Before the view function is called.
+    2. `process_view`: Before the view function is called.
+    3. `process_exception`: If an exception occurs during the view function execution.
+    4. `process_template_response` or `process_response`: After the view function has been called.
+
+    The decorator supports both synchronous and asynchronous view functions.
+    The middleware class is instantiated with the provided arguments and keyword arguments,
+    and its methods are called with the request and view function as arguments.
+
+    Returns:
+        A decorator that can be applied to a view function to enable middleware functionality.
+
+    """
     def _make_decorator(*m_args, **m_kwargs):
         def _decorator(view_func):
             middleware = middleware_class(view_func, *m_args, **m_kwargs)

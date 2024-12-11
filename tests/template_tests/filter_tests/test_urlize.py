@@ -32,6 +32,11 @@ class UrlizeTests(SimpleTestCase):
 
     @setup({"urlize02": "{{ a|urlize }} {{ b|urlize }}"})
     def test_urlize02(self):
+        """
+        Render and test the urlize template filter on URLs with query parameters and HTML entities.
+
+        This test verifies that the urlize filter correctly converts URLs into HTML links, properly escaping special characters in the URL and preserving existing HTML entities. The filter should handle both query parameters and ampersands (&) correctly, ensuring the generated links are valid and safe for display.
+        """
         output = self.engine.render_to_string(
             "urlize02",
             {
@@ -108,6 +113,16 @@ class UrlizeTests(SimpleTestCase):
 
 class FunctionTests(SimpleTestCase):
     def test_urls(self):
+        """
+        Tests the function urlize by verifying it correctly converts URLs into HTML links.
+
+        The test cases cover various URL formats, including those with and without the http protocol prefix,
+        and those with and without a trailing slash, to ensure the function handles different inputs as expected.
+
+        The function is expected to add a rel=\"nofollow\" attribute to the generated HTML link for all URLs.
+        The expected output is an HTML anchor tag with the URL as both the href attribute and the link text,
+        properly formatted and prefixed with 'http://' when necessary.
+        """
         self.assertEqual(
             urlize("http://google.com"),
             '<a href="http://google.com" rel="nofollow">http://google.com</a>',

@@ -23,6 +23,11 @@ class NamedEndblockTests(SimpleTestCase):
         }
     )
     def test_namedendblocks02(self):
+        """
+        Test that using named endblock tags with mismatched names raises a TemplateSyntaxError.
+
+        This test verifies that the template engine correctly enforces matching start and end block names, ensuring that template parsing fails when the names do not correspond. The test case provides a template with named endblocks that do not match their corresponding start blocks, and asserts that attempting to load this template results in a TemplateSyntaxError.
+        """
         with self.assertRaises(TemplateSyntaxError):
             self.engine.get_template("namedendblocks02")
 

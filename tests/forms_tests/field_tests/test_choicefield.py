@@ -55,6 +55,13 @@ class ChoiceFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
             f.clean("6")
 
     def test_choicefield_choices_default(self):
+        """
+        Tests the default value of choices in a ChoiceField.
+
+        Verifies that when a ChoiceField is instantiated without explicitly setting choices,
+        it defaults to an empty list. This ensures that the field does not contain any
+        unexpected or predefined options, providing a clean slate for further configuration.
+        """
         f = ChoiceField()
         self.assertEqual(f.choices, [])
 
@@ -66,6 +73,17 @@ class ChoiceFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertEqual("J", f.clean("J"))
 
     def test_choicefield_callable_mapping(self):
+        """
+
+        Tests that a ChoiceField instance correctly cleans its input when the choices are provided via a callable.
+
+        This test ensures that when the choices for a ChoiceField are generated dynamically by a function,
+        the field can still properly validate and normalize its input.
+
+        It verifies that the field returns the input value if it matches a key in the choices mapping,
+        regardless of whether the choices are defined statically or generated at runtime.
+
+        """
         def choices():
             return {"J": "John", "P": "Paul"}
 

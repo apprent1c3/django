@@ -193,6 +193,23 @@ class DefaultsTests(TestCase):
             server_error(request, template_name="nonexistent")
 
     def test_error_pages(self):
+        """
+        Tests the rendering of error pages for various HTTP error statuses.
+
+        This test case verifies that error responses for bad requests, permission denied,
+        page not found, and server errors contain the expected HTML structure and title.
+        The test checks for the presence of the HTML doctype declaration, HTML and body tags,
+        as well as the correct title for each error page.
+
+        The test covers the following error statuses:
+        - Bad Request (400)
+        - Forbidden (403)
+        - Not Found (404)
+        - Server Error (500)
+
+        It ensures that each error page has a consistent and proper HTML structure,
+        regardless of the error type or cause. 
+        """
         request = self.request_factory.get("/")
         for response, title in (
             (bad_request(request, Exception()), b"Bad Request (400)"),

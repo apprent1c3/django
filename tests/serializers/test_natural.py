@@ -194,6 +194,24 @@ def forward_ref_m2m_test(self, format):
 
 
 def forward_ref_m2m_with_error_test(self, format):
+    """
+
+    Tests the deserialization of models with forward references in many-to-many relationships.
+
+    The function creates test objects and establishes relationships between them. It then
+    serializes the objects to a specified format and deserializes them back, handling
+    forward references. The test ensures that an error is raised when trying to save
+    deferred fields for an object that has been deleted, simulating a situation where
+    the referenced object no longer exists.
+
+    Args:
+        format (str): The format used for serializing and deserializing the objects.
+
+    Raises:
+        serializers.base.DeserializationError: When trying to save deferred fields for
+            a deleted object.
+
+    """
     t1 = NaturalKeyThing.objects.create(key="t1")
     t2 = NaturalKeyThing.objects.create(key="t2")
     t3 = NaturalKeyThing.objects.create(key="t3")

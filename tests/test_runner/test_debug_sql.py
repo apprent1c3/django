@@ -74,6 +74,18 @@ class TestDebugSQL(unittest.TestCase):
         return stream.getvalue()
 
     def test_output_normal(self):
+        """
+        Verifies that the test output is normal by checking for expected strings.
+
+        This method tests that the generated output contains the expected output strings 
+        and excludes the verbose output strings when the verbosity level is normal. It 
+        ensures that the output is correct and properly filtered based on the verbosity 
+        level.
+
+        :param none:
+        :raises AssertionError: If any expected output string is missing from the full 
+            output or if any verbose output string is present in the full output.
+        """
         full_output = self._test_output(1)
         for output in self.expected_outputs:
             self.assertIn(output, full_output)

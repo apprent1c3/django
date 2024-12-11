@@ -36,6 +36,18 @@ from .models import (
 
 class BaseGeneratedFieldTests(SimpleTestCase):
     def test_editable_unsupported(self):
+        """
+        Tests that attempting to create a GeneratedField with editable=True raises a ValueError.
+
+        The GeneratedField is designed to provide a way to compute values based on an expression, but it does not support being editable.
+        If a user tries to create a GeneratedField with editable set to True, this test checks that it correctly raises an error with a suitable message.\"\"\"
+
+
+        However, a more precise documentation string according to Sphinx standards would look as follows:
+        \"\"\"Tests that a ValueError is raised when attempting to create a GeneratedField with editable=True.
+
+        :raises ValueError: If the GeneratedField is initialized with editable=True.
+        """
         with self.assertRaisesMessage(ValueError, "GeneratedField cannot be editable."):
             GeneratedField(
                 expression=Lower("name"),
@@ -233,6 +245,17 @@ class GeneratedFieldTestMixin:
         self.assertEqual(m.field, 3)
 
     def test_non_nullable_create(self):
+        """
+        Tests the creation of a non-nullable field without providing a value.
+
+        This test case verifies that attempting to create an instance of the base model
+        without providing a value for a non-nullable field raises an IntegrityError,
+        as expected by the database constraints.
+
+        Raises:
+            IntegrityError: When attempting to create an instance with missing non-nullable fields.
+
+        """
         with self.assertRaises(IntegrityError):
             self.base_model.objects.create()
 

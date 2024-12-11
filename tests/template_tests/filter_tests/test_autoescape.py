@@ -23,6 +23,13 @@ class AutoescapeStringfilterTests(SimpleTestCase):
         }
     )
     def test_autoescape_stringfilter02(self):
+        """
+        عرtest_autoescape_stringfilter02:
+            Tests the rendering of a template with autoescape disabled and a string filter applied.
+
+            The test verifies that the output of the template rendering is as expected, specifically that the string filter ('capfirst') is applied correctly to the 'unsafe' variable, 
+            and that the autoescape is correctly disabled, allowing the output to contain special characters.
+        """
         output = self.engine.render_to_string(
             "autoescape-stringfilter02", {"unsafe": UnsafeClass()}
         )

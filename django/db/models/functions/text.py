@@ -132,6 +132,20 @@ class Concat(Func):
     template = "%(expressions)s"
 
     def __init__(self, *expressions, **extra):
+        """
+        Initializes a Concatenation operation.
+
+        This initializer combines two or more expressions into a single output.
+        It requires at least two expressions to be provided and accepts additional
+        keyword arguments to customize the output field.
+
+        Raises:
+            ValueError: If fewer than two expressions are provided.
+
+        Parameters:
+            *expressions: Variable number of expressions to be concatenated.
+            **extra: Optional keyword arguments, including 'output_field' for output customization.
+        """
         if len(expressions) < 2:
             raise ValueError("Concat must take at least two expressions")
         paired = self._paired(expressions, output_field=extra.get("output_field"))
@@ -141,6 +155,23 @@ class Concat(Func):
         # wrap pairs of expressions in successive concat functions
         # exp = [a, b, c, d]
         # -> ConcatPair(a, ConcatPair(b, ConcatPair(c, d))))
+        """
+        Combine multiple expressions into a concatenated pair.
+
+        This method takes in a list of expressions and an output field, and returns a 
+        ConcatPair object that represents the concatenation of all the expressions.
+
+        The concatenation is performed recursively, with the first expression paired 
+        with the concatenation of the remaining expressions, until only two 
+        expressions remain, at which point they are paired directly.
+
+        Args:
+            expressions (list): A list of expressions to be concatenated.
+            output_field: The field to which the concatenated result will be assigned.
+
+        Returns:
+            ConcatPair: A ConcatPair object representing the concatenated expressions.
+        """
         if len(expressions) == 2:
             return ConcatPair(*expressions, output_field=output_field)
         return ConcatPair(
@@ -243,6 +274,20 @@ class Repeat(Func):
         super().__init__(expression, number, **extra)
 
     def as_oracle(self, compiler, connection, **extra_context):
+        """
+
+        Generates an Oracle-compatible SQL expression to pad the left operand with itself to a specified length.
+
+        The result is a SQL expression that replicates the behavior of the Oracle RPAD function,
+        padding the source expression with itself to the desired length.
+
+        :param compiler: The compiler instance used to generate the SQL expression.
+        :param connection: The database connection instance.
+        :param extra_context: Additional context parameters to be passed to the compiler.
+
+        :return: The SQL expression as a string.
+
+        """
         expression, number = self.source_expressions
         length = None if number is None else Length(expression) * number
         rpad = RPad(expression, length, expression)

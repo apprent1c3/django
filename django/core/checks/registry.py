@@ -48,6 +48,18 @@ class CheckRegistry:
         """
 
         def inner(check):
+            """
+            Adds a check function to the registered or deployment checks set.
+
+            :param check: The check function to be added
+            :raises TypeError: If the check function does not accept keyword arguments (**kwargs)
+            :return: The added check function
+
+            The check function is validated to ensure it accepts keyword arguments. 
+            It is then associated with the provided tags and added to the set of checks 
+            relevant to the current context, which can be either the deployment or 
+            registered checks, depending on the 'deploy' keyword argument.
+            """
             if not func_accepts_kwargs(check):
                 raise TypeError(
                     "Check functions must accept keyword arguments (**kwargs)."

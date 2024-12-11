@@ -691,6 +691,17 @@ class LookupTests(TestCase):
         )
 
     def test_exclude(self):
+        """
+        Tests the exclusion of articles based on various conditions.
+
+        This test case verifies that the exclude method can correctly filter out articles 
+        that match specific headline patterns or exact headline matches. The test covers 
+        scenarios where articles are excluded based on containing a certain substring, 
+        starting with a specific prefix, or having an exact headline match.
+
+        The test ensures that articles are correctly filtered out from the database query 
+        results, resulting in the expected sequence of remaining articles being returned.
+        """
         a8 = Article.objects.create(
             headline="Article_ with underscore", pub_date=datetime(2005, 11, 20)
         )
@@ -884,6 +895,22 @@ class LookupTests(TestCase):
                 Author.objects.filter(article__abspl=2)
 
     def test_filter_by_reverse_related_field_transform(self):
+        """
+        Tests the filtering of objects by a reverse related field transform.
+
+        Specifically, this test case checks if the :class:`Author` objects can be filtered
+        based on the absolute value of their related :class:`Article` objects. The test
+        verifies that the filtering works correctly by comparing the filtered results with
+        the expected :class:`Author` objects.
+
+        This test case covers the usage of the :func:`register_lookup` function to enable
+        custom lookups on a foreign key field, and the application of the absolute value
+        transform to filter related objects.
+
+        The test ensures that the correct :class:`Author` object is retrieved when filtering
+        by the absolute value of the related :class:`Article` object's primary key.
+
+        """
         fk_field = Article._meta.get_field("author")
         with register_lookup(fk_field, Abs):
             self.assertSequenceEqual(
@@ -1289,6 +1316,15 @@ class LookupTests(TestCase):
         self.assertTrue(Season.objects.filter(pk=season.pk, nulled_text_field=""))
 
     def test_pattern_lookups_with_substr(self):
+        """
+        Tests the pattern lookup functionality with substring matching on model fields.
+
+        This test case creates authors with specific names and aliases, then checks the results of various pattern lookups 
+        (startswith, istartswith, contains, icontains, endswith, iendswith) on the 'name' field using a substring of the 'alias' field.
+
+        The purpose is to verify that the filtered results match the expected authors for each lookup type, 
+        ensuring correct functionality of these lookups in the ORM.
+        """
         a = Author.objects.create(name="John Smith", alias="Johx")
         b = Author.objects.create(name="Rhonda Simpson", alias="sonx")
         tests = (
@@ -1340,6 +1376,19 @@ class LookupTests(TestCase):
         self.assertEqual(qs.get(has_author_alias_match=True), tag)
 
     def test_exact_query_rhs_with_selected_columns(self):
+        """
+        Tests the correctness of an exact query with selected columns on the right-hand side.
+
+        Verifies that the newest author with a specific name can be retrieved by filtering
+        on the maximum id. This test case checks for the expected result by comparing the
+        retrieved author object with the created one, ensuring that the exact query works
+        as expected with the specified column selection.
+
+        The test involves creating a new author, retrieving the maximum id of authors with
+        the same name, and then filtering authors based on this maximum id to retrieve the
+        newest author. The result is then asserted to be equal to the initially created
+        author, confirming the test's success.
+        """
         newest_author = Author.objects.create(name="Author 2")
         authors_max_ids = (
             Author.objects.filter(
@@ -1416,6 +1465,14 @@ class LookupQueryingTests(TestCase):
         Game.objects.create(season=cls.s3, home="Boston", away="Tampa")
 
     def test_annotate(self):
+        """
+        Tests the application of a database annotation to a QuerySet of Season objects.
+
+        This method checks if the annotation correctly identifies seasons from the year 1942.
+        It verifies that the 'equal' annotation, which compares the 'year' field to 1942, returns True for matching years and False otherwise.
+
+        The test ensures that the annotated QuerySet returns the expected results, with the 'equal' annotation accurately reflecting the comparison of the 'year' field to the specified value.
+        """
         qs = Season.objects.annotate(equal=Exact(F("year"), 1942))
         self.assertCountEqual(
             qs.values_list("year", "equal"),
@@ -1448,6 +1505,15 @@ class LookupQueryingTests(TestCase):
         )
 
     def test_annotate_field_greater_than_literal(self):
+        """
+        Tests the annotate functionality with GreaterThan expression.
+
+        This test case verifies that the GreaterThan expression correctly annotates 
+        a model field with a boolean value indicating whether the field's value is 
+        greater than a given literal value. The test checks the annotation result 
+        for multiple data points, ensuring the annotation produces the expected 
+        output for different input values.
+        """
         qs = Season.objects.annotate(greater=GreaterThan(F("year"), 1930))
         self.assertCountEqual(
             qs.values_list("year", "greater"),
@@ -1542,6 +1608,19 @@ class LookupQueryingTests(TestCase):
         self.assertCountEqual(qs, [self.s2, self.s3])
 
     def test_combined_lookups_in_filter(self):
+        """
+
+        Tests combined lookups in the filter method of a Django QuerySet.
+
+        Verifies that the filter method can handle a logical OR operation between two 
+        conditions, checking for exact matches and values greater than a specified 
+        threshold. In this case, it checks for objects where the 'year' field is either 
+        exactly 1942 or greater than 1942.
+
+        Ensures the resulting QuerySet contains the expected objects based on the 
+        combined lookup conditions.
+
+        """
         expression = Exact(F("year"), 1942) | GreaterThan(F("year"), 1942)
         qs = Season.objects.filter(expression)
         self.assertCountEqual(qs, [self.s1, self.s3])
@@ -1566,6 +1645,14 @@ class LookupQueryingTests(TestCase):
         self.assertEqual(qs["modern"], 2)
 
     def test_conditional_expression(self):
+        """
+
+        Tests the usage of conditional expressions in database queries.
+        This function verifies that a case statement correctly categorizes a set of years into centuries.
+        The test checks if years between 1901 and 2000 are assigned to the 20th century, while years outside of this range are assigned to a default category.
+        The expected output includes the year and the corresponding century for a set of test years, ensuring the conditional expression is evaluated as expected.
+
+        """
         qs = Season.objects.annotate(
             century=Case(
                 When(

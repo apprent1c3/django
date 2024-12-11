@@ -224,6 +224,20 @@ class WSGIRequestHandler(simple_server.WSGIRequestHandler):
         return super().get_environ()
 
     def handle(self):
+        """
+        Handles incoming requests from a client connection.
+
+        This function processes requests from the client in a loop until the connection is closed.
+        Once the loop finishes, it attempts to shut down the connection for writing.
+
+        The handling process is repeated for each new request received from the client, allowing for
+        persistent connections to be maintained and multiple requests to be processed without needing
+        to reestablish the connection.
+
+        The shutdown process is handled gracefully, catching any potential exceptions that may occur
+        during the shutdown attempt to prevent errors from propagating and affecting the rest of the
+        application.
+        """
         self.close_connection = True
         self.handle_one_request()
         while not self.close_connection:

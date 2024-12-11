@@ -158,6 +158,13 @@ class TestMiscFinder(SimpleTestCase):
         )
 
     def test_searched_locations_find_all(self):
+        """
+        /gtest_searched_locations_find_all/
+
+        Test that the search function correctly identifies all locations when searching for a specific item.
+
+        This test checks if the function returns the expected list of searched locations when the find_all parameter is set to True. It verifies that the searched locations are correctly identified and stored in the searched_locations list.
+        """
         finders.find("spam", find_all=True)
         self.assertEqual(
             finders.searched_locations,

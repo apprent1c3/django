@@ -33,6 +33,20 @@ class BaseTests:
 
     @classmethod
     def setUpClass(cls):
+        """
+
+        Setup the class by configuring the Django environment.
+
+        This method sets up the necessary configuration for the class to run tests.
+        It configures the template engine, URL configuration, and message storage.
+        The template engine is set to use the Django template backend with default settings.
+        The URL configuration is set to use the messages_tests.urls.
+        The message storage is set to the storage class specified by the class being tested.
+        The session serializer is set to use the JSON serializer.
+
+        This setup is performed once for the class, before any tests are run.
+
+        """
         cls.enterClassContext(
             override_settings(
                 TEMPLATES=[

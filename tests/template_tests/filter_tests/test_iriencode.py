@@ -12,6 +12,14 @@ class IriencodeTests(SimpleTestCase):
 
     @setup({"iriencode01": "{{ url|iriencode }}"})
     def test_iriencode01(self):
+        """
+
+        Tests the iriencode filter functionality.
+
+        This test case verifies that the iriencode filter correctly encodes a URL by replacing special characters with their corresponding escape sequences.
+        In this specific test, it checks that '&' is replaced with '&amp;' to ensure proper HTML encoding.
+
+        """
         output = self.engine.render_to_string("iriencode01", {"url": "?test=1&me=2"})
         self.assertEqual(output, "?test=1&amp;me=2")
 

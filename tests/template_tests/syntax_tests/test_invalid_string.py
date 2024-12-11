@@ -61,6 +61,11 @@ class InvalidStringTests(SimpleTestCase):
         }
     )
     def test_invalidstr07(self):
+        """
+        Tests the behavior of the template engine when rendering a template with an invalid string, specifically when using the ``blocktranslate`` tag with a variable. 
+
+        The test checks if the engine is configured to replace invalid strings with a specific value, and verifies that the rendered output matches the expected result, either the replacement value or an empty string.
+        """
         output = self.engine.render_to_string("invalidstr07")
         if self.engine.string_if_invalid:
             self.assertEqual(output, "INVALID")

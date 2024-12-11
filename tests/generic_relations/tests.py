@@ -685,6 +685,11 @@ class GenericRelationsTests(TestCase):
         self.assertSequenceEqual(platypus.tags.all(), [])
 
     def test_clear_after_prefetch(self):
+        """
+        Tests that clearing a prefetched many-to-many relationship removes all associated objects.
+
+        Checks that after prefetching an object's related tags, the clear method correctly removes all tags, resulting in an empty list of tags.
+        """
         weird_tag = self.platypus.tags.create(tag="weird")
         platypus = Animal.objects.prefetch_related("tags").get(pk=self.platypus.pk)
         self.assertSequenceEqual(platypus.tags.all(), [weird_tag])
@@ -730,6 +735,16 @@ class GenericRelationsTests(TestCase):
             self.assertSequenceEqual(tag.content_object.tags.all(), [tag])
 
     def test_prefetch_related_custom_object_id(self):
+        """
+
+        Tests the prefetching of related objects on a custom object id.
+
+        This test creates two animal objects and sets up comparisons between them.
+        It then queries for these comparisons and prefetches the related first object's
+        own comparisons. The test asserts that the prefetched comparisons are correct,
+        verifying that the custom object id is handled correctly during prefetching.
+
+        """
         tiger = Animal.objects.create(common_name="tiger")
         cheetah = Animal.objects.create(common_name="cheetah")
         Comparison.objects.create(

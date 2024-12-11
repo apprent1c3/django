@@ -119,6 +119,24 @@ class BaseDatabaseCreation:
 
         # Iteratively return every object for all models to serialize.
         def get_objects():
+            """
+
+            Generates a sequence of model objects from the database, loaded in chunks.
+
+            This function iterates over all installed apps with models, checking if they have
+            migrations applied and are allowed to be migrated. For each applicable model, it
+            yields an iterator over its objects, ordered by the primary key. The objects are
+            loaded in chunks to reduce memory usage, with the chunk size determined by
+            whether the model has any prefetch-related lookups.
+
+            The generated sequence can be used to efficiently process large numbers of model
+            objects, especially in cases where loading all objects into memory at once would
+            be impractical.
+
+            The function excludes models from apps specified in the TEST_NON_SERIALIZED_APPS
+            setting.
+
+            """
             from django.db.migrations.loader import MigrationLoader
 
             loader = MigrationLoader(self.connection)

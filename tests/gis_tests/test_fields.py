@@ -22,6 +22,18 @@ class GeometryFieldTests(SimpleTestCase):
         self.assertEqual(kwargs, {"srid": 4326})
 
     def test_deconstruct_values(self):
+        """
+
+        Tests the deconstruction of a GeometryField into its constituent keyword arguments.
+
+        The deconstruct method is expected to return a tuple containing the field's
+        constructor arguments, which are then unpacked and compared against the
+        original field's attributes.
+
+        This ensures that the field can be properly reconstructed from its deconstructed
+        values, verifying the correctness of the deconstruction process.
+
+        """
         field = GeometryField(
             srid=4067,
             dim=3,

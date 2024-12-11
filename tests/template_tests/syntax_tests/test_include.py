@@ -22,6 +22,23 @@ class IncludeTagTests(SimpleTestCase):
 
     @setup({"include01": '{% include "basic-syntax01" %}'}, basic_templates)
     def test_include01(self):
+        """
+        Tests the rendering of a basic template with an include statement.
+
+        This test case checks if the templating engine correctly includes a snippet 
+        from the \"basic-syntax01\" template and if the rendered output matches the 
+        expected result.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Note:
+            The test expects the rendered output to be 'something cool'.
+
+        """
         output = self.engine.render_to_string("include01")
         self.assertEqual(output, "something cool")
 
@@ -101,6 +118,15 @@ class IncludeTagTests(SimpleTestCase):
         basic_templates,
     )
     def test_include11(self):
+        """
+        Tests the functionality of the include template tag with specified parameters.
+
+        This test case verifies that the include tag renders the correct output based on the 
+        provided context variables. It checks for two possible outcomes: one where the 
+        engine is configured to display an 'INVALID' marker for unresolved variables, and 
+        another where such variables are left blank. The test ensures that the rendered 
+        template includes the expected variables from the included template file.
+        """
         output = self.engine.render_to_string("include11", {"first": "1"})
         if self.engine.string_if_invalid:
             self.assertEqual(output, "INVALID --- 2")
@@ -195,6 +221,13 @@ class IncludeTagTests(SimpleTestCase):
 
     @setup({"include-error07": '{% include "include-fail1" %}'}, include_fail_templates)
     def test_include_error07(self):
+        """
+        Tests that an error is raised when attempting to render a template with an invalid include statement.
+
+        The function verifies that a RuntimeError is thrown when the template 'include-error07' is rendered,
+        which contains a defective include directive. This ensures that the templating engine correctly handles
+        include statements and raises an exception when it encounters an invalid or non-existent included template.
+        """
         template = self.engine.get_template("include-error07")
         with self.assertRaises(RuntimeError):
             template.render(Context())
@@ -214,6 +247,16 @@ class IncludeTagTests(SimpleTestCase):
 
     @setup({"include-error10": "{% include failed_include %}"}, include_fail_templates)
     def test_include_error10(self):
+        """
+        Tests the rendering of a template that contains an invalid include statement, 
+        verifying that a TemplateSyntaxError is raised when the include statement fails.
+
+        The test uses a predefined context and template to simulate the error. 
+        It validates the proper error handling mechanism of the template engine 
+        in case of a failed include statement.
+
+        :raises: TemplateSyntaxError when the template contains an invalid include statement.
+        """
         context = Context({"failed_include": "include-fail2"})
         template = self.engine.get_template("include-error10")
         with self.assertRaises(TemplateSyntaxError):
@@ -252,6 +295,17 @@ class IncludeTests(SimpleTestCase):
             template.render(Context())
 
     def test_extends_include_missing_cachedloader(self):
+        """
+
+        Tests that the cached template loader correctly handles missing templates when 
+        extending a template. 
+
+        This test verifies that if a template extends another template which does not exist, 
+        the `TemplateDoesNotExist` exception is raised, even when the cached loader is used. 
+        It also checks that the exception is raised consistently across multiple template 
+        renderings.
+
+        """
         engine = Engine(
             debug=True,
             loaders=[

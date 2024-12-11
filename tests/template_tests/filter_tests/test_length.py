@@ -38,6 +38,19 @@ class LengthTests(SimpleTestCase):
     # Invalid uses that should fail silently.
     @setup({"length06": "{{ int|length }}"})
     def test_length06(self):
+        """
+        Test the rendering of a template variable length using a given integer value.
+        This test case verifies that when the input integer is non-zero, the length function returns '0'. 
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Note:
+            This test is expected to pass when the templating engine correctly renders the length of the input variable as '0' for the given integer value.
+        """
         output = self.engine.render_to_string("length06", {"int": 7})
         self.assertEqual(output, "0")
 

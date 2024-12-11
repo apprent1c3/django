@@ -23,6 +23,23 @@ def get_default_password_validators():
 
 
 def get_password_validators(validator_config):
+    """
+
+    Get a list of password validators based on the provided configuration.
+
+    This function takes a list of validator configurations and returns a list of 
+    instantiated password validator objects. Each configuration dictionary is 
+    expected to contain a 'NAME' key specifying the validator class to use, and 
+    an optional 'OPTIONS' key for any additional configuration options.
+
+    Returns:
+        list: A list of password validator objects.
+
+    Raises:
+        ImproperlyConfigured: If the module specified in the 'NAME' configuration 
+            option cannot be imported.
+
+    """
     validators = []
     for validator in validator_config:
         try:
@@ -177,6 +194,23 @@ class UserAttributeSimilarityValidator:
         self.max_similarity = max_similarity
 
     def validate(self, password, user=None):
+        """
+
+        Checks if the provided password is too similar to any of the user's attributes.
+
+        This validation checks the password against a list of user attributes to ensure it does not
+        share a certain level of similarity with any of them. The similarity is measured by comparing
+        the password with the individual words in each attribute, taking into account the ratio of
+        similar characters.
+
+        If the password exceeds the maximum allowed similarity, a :class:`~django.core.exceptions.ValidationError`
+        is raised.
+
+        :arg password: The password to be validated.
+        :arg user: The user object (optional).
+        :raises: :class:`~django.core.exceptions.ValidationError` if the password is too similar to any of the user's attributes.
+
+        """
         if not user:
             return
 

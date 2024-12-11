@@ -75,6 +75,17 @@ class RunSQL(Operation):
     def __init__(
         self, sql, reverse_sql=None, state_operations=None, hints=None, elidable=False
     ):
+        """
+        Initializes a database migration operation.
+
+        :param sql: The SQL query to execute for this migration operation.
+        :param reverse_sql: The SQL query to execute to reverse this migration operation, defaults to None.
+        :param state_operations: A list of state operations to perform after executing the SQL query, defaults to an empty list.
+        :param hints: A dictionary of hints to use when executing the SQL query, defaults to an empty dictionary.
+        :param elidable: A boolean indicating whether this migration operation can be elided, defaults to False.
+
+        This initializer sets up the necessary parameters for a database migration operation, allowing for flexible and reversible migrations with optional state operations and hints.
+        """
         self.sql = sql
         self.reverse_sql = reverse_sql
         self.state_operations = state_operations or []
@@ -108,6 +119,20 @@ class RunSQL(Operation):
             self._run_sql(schema_editor, self.sql)
 
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
+        """
+
+        Reverses a database migration operation.
+
+        This method is used to revert changes made by a forward migration operation. It checks if the migration is reversible and if the database connection is allowed to migrate. If the conditions are met, it executes the reverse SQL statement.
+
+        :param app_label: The label of the application being migrated.
+        :param schema_editor: The schema editor used to execute the reverse operation.
+        :param from_state: The current state of the database.
+        :param to_state: The target state of the database after the reverse operation.
+
+        :raises NotImplementedError: If the migration operation is not reversible.
+
+        """
         if self.reverse_sql is None:
             raise NotImplementedError("You cannot reverse this operation")
         if router.allow_migrate(
@@ -185,6 +210,22 @@ class RunPython(Operation):
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
         # RunPython has access to all models. Ensure that all models are
         # reloaded in case any are delayed.
+        """
+
+        Apply database migration forwards for the specified application label.
+
+        This method is responsible for applying the necessary database migration operations 
+        to move the database from the current state (`from_state`) to the desired state (`to_state`).
+        It first clears the cache of delayed applications for the current state, 
+        then checks if migration is allowed for the given application label and database connection.
+        If migration is permitted, it executes the migration code using the provided schema editor.
+
+        :param app_label: The label of the application for which the migration is being applied.
+        :param schema_editor: The schema editor instance used to execute the migration operations.
+        :param from_state: The current state of the database before applying the migration.
+        :param to_state: The desired state of the database after applying the migration.
+
+        """
         from_state.clear_delayed_apps_cache()
         if router.allow_migrate(
             schema_editor.connection.alias, app_label, **self.hints

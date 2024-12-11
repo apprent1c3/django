@@ -49,6 +49,19 @@ class JSONObjectTests(TestCase):
         )
 
     def test_nested_json_object(self):
+        """
+        ```    
+        |array|
+        Tests the retrieval of a nested JSON object from a database query.
+
+        The test verifies that the JSONObject annotation correctly extracts and transforms
+        data from the Author model into a nested JSON object structure. It checks that
+        the resulting JSON object contains the expected keys and values, including the
+        nested object.
+
+        :raises AssertionError: If the retrieved JSON object does not match the expected structure.
+        ```
+        """
         obj = Author.objects.annotate(
             json_object=JSONObject(
                 name="name",

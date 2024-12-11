@@ -35,6 +35,15 @@ class Command(BaseCommand):
         # sqlmigrate doesn't support coloring its output but we need to force
         # no_color=True so that the BEGIN/COMMIT statements added by
         # output_transaction don't get colored either.
+        """
+        Executes the command with the provided arguments and options, disabling color output.
+
+        This method overrides the default execute behavior to ensure that output is displayed in plain text, without any color formatting.
+
+        :param args: Variable number of positional arguments to pass to the command
+        :param options: Keyword arguments to customize the command execution
+        :return: The result of the command execution
+        """
         options["no_color"] = True
         return super().execute(*args, **options)
 

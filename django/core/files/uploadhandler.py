@@ -181,6 +181,11 @@ class TemporaryFileUploadHandler(FileUploadHandler):
         return self.file
 
     def upload_interrupted(self):
+        """
+        Uploads an interrupted file by properly closing and removing the temporary file.
+
+        This method checks if a file is currently being uploaded and if so, attempts to clean up any temporary files associated with it. It closes the file and removes the temporary file location to free up system resources. If the temporary file does not exist, the operation is silently ignored.
+        """
         if hasattr(self, "file"):
             temp_location = self.file.temporary_file_path()
             try:

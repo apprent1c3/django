@@ -123,6 +123,21 @@ class Command(BaseCommand):
     def inner_run(self, *args, **options):
         # If an exception was silenced in ManagementUtility.execute in order
         # to be raised in the child process, raise it now.
+        """
+        Run the server with the given configuration and handler.
+
+        This function is responsible for running the server, performing system checks,
+        checking for migrations, and handling runtime exceptions. It accepts various
+        options, including whether to use threading, skip system checks, and shutdown
+        messages.
+
+        It first performs system checks and checks for migrations if configured not to
+        skip them. Then it attempts to run the server with the given address, port,
+        and handler, using the specified threading option. If an error occurs while
+        binding to the port, it displays an error message and exits. The function also
+        catches and handles keyboard interrupts, allowing for a clean shutdown with an
+        optional shutdown message.
+        """
         autoreload.raise_last_exception()
 
         threading = options["use_threading"]

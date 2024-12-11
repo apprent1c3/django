@@ -25,6 +25,14 @@ class DecimalFieldLookupTests(TestCase):
         self.assertCountEqual(qs, [self.p3])
 
     def test_gte(self):
+        """
+
+        Tests the filtering of objects based on the quantity needed being greater than or equal to zero.
+
+        Verifies that the filtered queryset contains exactly the expected objects, 
+        in this case, those with quantity needed greater than or equal to zero.
+
+        """
         qs = self.queryset.filter(qty_needed__gte=0)
         self.assertCountEqual(qs, [self.p2, self.p3])
 

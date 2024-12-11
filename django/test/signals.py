@@ -35,6 +35,13 @@ def clear_cache_handlers(*, setting, **kwargs):
 
 @receiver(setting_changed)
 def update_installed_apps(*, setting, **kwargs):
+    """
+    Update installed applications when the INSTALLED_APPS setting is changed.
+
+    This function is triggered whenever the :setting:`INSTALLED_APPS` setting is modified. It clears the caches for various Django components to ensure that the changes are reflected throughout the application. The components affected include static file finders, management commands, template directories, and translations.
+
+    By clearing these caches, this function ensures that the application remains up-to-date and reflects the new set of installed applications. This is particularly useful during development and testing phases, where changes to the :setting:`INSTALLED_APPS` setting are common.
+    """
     if setting == "INSTALLED_APPS":
         # Rebuild any AppDirectoriesFinder instance.
         from django.contrib.staticfiles.finders import get_finder
@@ -173,6 +180,21 @@ def complex_setting_changed(*, enter, setting, **kwargs):
 
 @receiver(setting_changed)
 def root_urlconf_changed(*, setting, **kwargs):
+    """
+    Listens for changes to Django settings and updates the URL configuration accordingly.
+
+    When the ROOT_URLCONF setting is changed, this function clears the URL caches and 
+    resets the URL configuration to ensure that the new setting takes effect.
+
+    Args:
+        setting (str): The name of the setting that was changed.
+        **kwargs: Additional keyword arguments passed by the setting_changed signal.
+
+    Note:
+        This function is intended to be used as a signal receiver and should not be 
+        called directly. It relies on the setting_changed signal to trigger its 
+        execution when the ROOT_URLCONF setting is modified.
+    """
     if setting == "ROOT_URLCONF":
         from django.urls import clear_url_caches, set_urlconf
 
@@ -212,6 +234,14 @@ def form_renderer_changed(*, setting, **kwargs):
 
 @receiver(setting_changed)
 def auth_password_validators_changed(*, setting, **kwargs):
+    """
+    Listens for changes to the 'AUTH_PASSWORD_VALIDATORS' setting and clears the cache of default password validators when the setting is updated.
+
+    This receiver function ensures that any changes to the password validators configuration are immediately reflected in the application, rather than being served from a stale cache. It is triggered whenever the 'AUTH_PASSWORD_VALIDATORS' setting is modified, providing a seamless way to adapt to updates in password validation policies.
+
+    :param setting: The setting that has been changed
+    :param kwargs: Additional keyword arguments provided by the signal
+    """
     if setting == "AUTH_PASSWORD_VALIDATORS":
         from django.contrib.auth.password_validation import (
             get_default_password_validators,

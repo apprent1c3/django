@@ -11,6 +11,20 @@ class DatabaseSequenceTests(TransactionTestCase):
     available_apps = []
 
     def test_get_sequences(self):
+        """
+
+        Tests the retrieval of sequences for the Square model.
+
+        Verifies that the sequence associated with the Square model's primary key
+        is correctly identified and its properties match the expected values.
+
+        The test checks the following:
+            - A single sequence is returned for the Square model.
+            - The sequence has a non-null name.
+            - The sequence is associated with the correct database table.
+            - The sequence corresponds to the 'id' column of the Square model.
+
+        """
         with connection.cursor() as cursor:
             seqs = connection.introspection.get_sequences(
                 cursor, Square._meta.db_table, Square._meta.local_fields
@@ -36,6 +50,17 @@ class DatabaseSequenceTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_collation_on_charfield")
     def test_get_table_description_view_default_collation(self):
+        """
+        Tests that the default collation is None for a view with a single character field.
+
+        This test case creates a temporary view based on a character field from the Person model, 
+        then uses the database connection's introspection capabilities to retrieve the table description 
+        of the view. It verifies that the collation for the character field in the view is None, 
+        as expected when no explicit collation is specified.
+
+        The test is only executed if the database backend supports collation on character fields.
+
+        """
         person_table = connection.introspection.identifier_converter(
             Person._meta.db_table
         )

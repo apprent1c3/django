@@ -581,6 +581,22 @@ class QueryPerformingAppTests(TransactionTestCase):
 
     @skipUnlessDBFeature("create_test_procedure_without_params_sql")
     def test_query_default_database_using_stored_procedure(self):
+        """
+        Tests querying the default database using a stored procedure.
+
+        This test case verifies the functionality of creating and executing a stored procedure 
+        on the default database. It covers the creation of a test procedure, its execution, 
+        and the subsequent cleanup of the procedure.
+
+        The test is skipped unless the database feature to create a test procedure without 
+        parameters is supported.
+
+        It is a part of the database testing suite, specifically designed to ensure that the 
+        default database can be successfully queried using stored procedures. The test 
+        utilizes the 'QueryDefaultDatabaseStoredProcedureAppConfig' setup and then removes 
+        the created procedure after the test is completed, regardless of its outcome, to 
+        maintain a clean test environment.
+        """
         connection = connections["default"]
         with connection.cursor() as cursor:
             cursor.execute(connection.features.create_test_procedure_without_params_sql)
@@ -593,6 +609,15 @@ class QueryPerformingAppTests(TransactionTestCase):
 
     @skipUnlessDBFeature("create_test_procedure_without_params_sql")
     def test_query_other_database_using_stored_procedure(self):
+        """
+        Tests a query to another database using a stored procedure.
+
+        This test function creates a stored procedure on a secondary database, 
+        sets up the test environment for the 'QueryOtherDatabaseStoredProcedureAppConfig', 
+        and then removes the stored procedure to clean up after the test is completed. 
+        The stored procedure is created without any parameters. 
+        The test is skipped if the database does not support creating a stored procedure without parameters.
+        """
         connection = connections["other"]
         with connection.cursor() as cursor:
             cursor.execute(connection.features.create_test_procedure_without_params_sql)

@@ -70,6 +70,20 @@ class LabelTests(OptionsBaseTests):
 
 class DataTests(OptionsBaseTests):
     def test_fields(self):
+        """
+
+        Tests that the fields in each model match the expected results.
+
+        This function iterates over a set of predefined test cases, where each case
+        consists of a model and its expected field names. It then compares the actual
+        field names of the model with the expected ones to ensure they match.
+
+        The test is performed for each model listed in the TEST_RESULTS['fields'] dictionary.
+        The actual field names are obtained from the model's metadata, and the expected
+        names are retrieved from the dictionary. The test passes if the actual and
+        expected field names are identical, and fails otherwise.
+
+        """
         for model, expected_result in TEST_RESULTS["fields"].items():
             fields = model._meta.fields
             self.assertEqual([f.attname for f in fields], expected_result)
@@ -86,6 +100,14 @@ class DataTests(OptionsBaseTests):
                 self.assertTrue(is_data_field(f))
 
     def test_local_concrete_fields(self):
+        """
+
+        Tests that the local concrete fields of a model are correctly identified and configured.
+
+        This test iterates over a set of predefined test cases, checking that the local concrete fields of each model match the expected results.
+        It verifies that the field names and their corresponding column names are correctly set, ensuring that the model's metadata is accurately defined.
+
+        """
         for model, expected_result in TEST_RESULTS["local_concrete_fields"].items():
             fields = model._meta.local_concrete_fields
             self.assertEqual([f.attname for f in fields], expected_result)
@@ -197,6 +219,14 @@ class GetFieldByNameTests(OptionsBaseTests):
         self.assertIsInstance(field_info[0], ForeignObjectRel)
 
     def test_get_generic_relation(self):
+        """
+        ..: 
+            Tests retrieving a generic relation field from a model.
+
+            Verifies that the field information matches the expected structure, 
+            containing a GenericRelation instance and the correct values for 
+            its related object, through model, and auto created attributes.
+        """
         field_info = self._details(
             Person, Person._meta.get_field("generic_relation_base")
         )
@@ -226,6 +256,16 @@ class GetFieldByNameTests(OptionsBaseTests):
 class VerboseNameRawTests(SimpleTestCase):
     def test_string(self):
         # Clear cached property.
+        """
+        Tests that the verbose name of the Relation model is correctly set to 'relation'.
+
+        This test ensures that the verbose name of the Relation model is properly defined, 
+        which is essential for generating human-readable representations of the model 
+        in the Django admin interface and other parts of the application.
+
+        The test checks that the verbose_name_raw attribute of the Relation model's 
+        metadata returns the expected value, which is 'relation'.
+        """
         Relation._meta.__dict__.pop("verbose_name_raw", None)
         self.assertEqual(Relation._meta.verbose_name_raw, "relation")
 
@@ -255,6 +295,16 @@ class SwappedTests(SimpleTestCase):
             self.assertEqual(Swappable._meta.swapped, "not-a-label")
 
     def test_setting_self(self):
+        """
+        Tests setting Swappable model meta attribute when MODEL_META_TESTS_SWAPPED is set.
+
+        Verifies that the swapped attribute of the Swappable model's meta class is correctly
+        set to None when the MODEL_META_TESTS_SWAPPED setting is overridden. This ensures
+        that the swappable model setup is properly configured in test environments.
+
+        :raises AssertionError: If the swapped attribute is not None.
+
+        """
         with override_settings(MODEL_META_TESTS_SWAPPED="model_meta.swappable"):
             self.assertIsNone(Swappable._meta.swapped)
 

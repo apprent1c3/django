@@ -205,6 +205,16 @@ class FunctionalTests(SimpleTestCase):
         self.assertEqual(lazy_4() + lazy_5(), [4, 5])
 
     def test_lazy_add_str(self):
+        """
+
+        Tests the behavior of lazy values when added to strings.
+
+        This function verifies that lazy values can be concatenated with strings using the '+' operator,
+        regardless of whether the lazy value is on the left or right side of the operation.
+        It also checks that two lazy values can be concatenated together.
+        The expected result in all cases is the concatenation of the string values returned by the lazy objects. 
+
+        """
         lazy_a = lazy(lambda: "a", str)
         lazy_b = lazy(lambda: "b", str)
         self.assertEqual("a" + lazy_b(), "ab")
@@ -219,6 +229,15 @@ class FunctionalTests(SimpleTestCase):
         self.assertEqual(lazy_4() % lazy_5(), 4)
 
     def test_lazy_mod_str(self):
+        """
+
+        Tests the behavior of lazy objects when used with the modulus operator for string formatting.
+
+        This function verifies that lazy objects can be successfully used as both the format string and the format value in string formatting operations.
+        It checks for correct behavior when a lazy object is used on the left-hand side of the modulus operator, as well as when it is used on the right-hand side.
+        The function ensures that the lazy objects are properly evaluated and that the resulting formatted strings are correct.
+
+        """
         lazy_a = lazy(lambda: "a%s", str)
         lazy_b = lazy(lambda: "b", str)
         self.assertEqual("a%s" % lazy_b(), "ab")
@@ -247,6 +266,18 @@ class FunctionalTests(SimpleTestCase):
         self.assertEqual(lazy_a() * lazy_5(), "aaaaa")
 
     def test_lazy_format(self):
+        """
+
+        Tests the lazy formatting functionality of an object.
+
+        This test case verifies that a lazy object, which delays the creation of its
+        value until it is actually needed, correctly formats its value when asked to do
+        so. The object being tested is a string that returns a quoted version of its
+        value when formatted. The test checks that the correct quoted string is
+        produced when the lazy object is formatted, both directly and when used within
+        a larger formatted string.
+
+        """
         class QuotedString(str):
             def __format__(self, format_spec):
                 value = super().__format__(format_spec)
@@ -279,6 +310,13 @@ class FunctionalTests(SimpleTestCase):
         self.assertEqual(repr(original_object), repr(lazy_obj()))
 
     def test_lazy_repr_bytes(self):
+        """
+
+        Tests that the lazy representation of a bytes object matches the original object's representation.
+
+        Verifies that the repr function returns the same string for both the original bytes object and its lazy representation.
+
+        """
         original_object = b"J\xc3\xbcst a str\xc3\xadng"
         lazy_obj = lazy(lambda: original_object, bytes)
         self.assertEqual(repr(original_object), repr(lazy_obj()))
@@ -297,6 +335,11 @@ class FunctionalTests(SimpleTestCase):
         self.assertEqual(str(lazy_value), "[1]")
 
     def test_lazy_str_cast_mixed_bytes_result_types(self):
+        """
+        Checks the string representation of a lazy value with mixed result types, specifically bytes and list. 
+        This test verifies that lazy values can be correctly cast to a string, 
+        even when their underlying result type is bytes, ensuring a consistent and expected output.
+        """
         lazy_value = lazy(lambda: [1], bytes, list)()
         self.assertEqual(str(lazy_value), "[1]")
 

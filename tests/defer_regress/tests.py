@@ -282,6 +282,16 @@ class DeferRegressionTest(TestCase):
             self.assertEqual(leaf.second_child.value, 64)
 
     def test_defer_many_to_many_ignored(self):
+        """
+
+        Tests that deferring a many-to-many field ('items') on the Request model 
+        is properly ignored by the ORM when retrieving a Request instance.
+
+        This test ensures that when using the defer() method to exclude the 'items' 
+        field from the query, only one database query is executed to retrieve 
+        the Request object, despite the presence of the many-to-many relationship.
+
+        """
         location = Location.objects.create()
         request = Request.objects.create(location=location)
         with self.assertNumQueries(1):
@@ -310,6 +320,23 @@ class DeferRegressionTest(TestCase):
             self.assertEqual(Item.objects.only("request").get(), item)
 
     def test_self_referential_one_to_one(self):
+        """
+
+        Tests optimization of self-referential one-to-one relationships in database queries.
+
+        This test case evaluates the performance of fetching related objects in a self-referential
+        one-to-one relationship, ensuring that the number of database queries is minimized.
+        It creates two items with a self-referential relationship and verifies that the related
+        objects can be fetched efficiently using select_related and only methods.
+
+        The test covers the following scenarios:
+
+        * Fetching related objects with a single database query
+        * Accessing attributes of the related objects without triggering additional queries
+        * Accessing attributes that were not explicitly included in the initial query, resulting
+          in additional database queries
+
+        """
         first = Item.objects.create(name="first", value=1)
         second = Item.objects.create(name="second", value=2, source=first)
         with self.assertNumQueries(1):

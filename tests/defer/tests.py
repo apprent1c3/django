@@ -72,6 +72,16 @@ class DeferTests(AssertionMixin, TestCase):
         self.assert_delayed(qs.defer("name").defer("name")[0], 1)
 
     def test_defer_none_to_clear_deferred_set(self):
+        """
+
+        Tests that deferring None clears previous deferred field sets.
+
+        This test case verifies that when `defer(None)` is called, all previously deferred
+        fields are cleared, resulting in no fields being deferred. It checks this behavior
+        with and without previous `defer` or `only` calls, ensuring that the deferred set
+        is properly reset.
+
+        """
         qs = Primary.objects.all()
         self.assert_delayed(qs.defer("name", "value")[0], 2)
         self.assert_delayed(qs.defer(None)[0], 0)
@@ -188,11 +198,34 @@ class DeferTests(AssertionMixin, TestCase):
 class BigChildDeferTests(AssertionMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Sets up test data for the class.
+
+        This class method initializes test data by creating a Secondary object and a BigChild object.
+        The Secondary object is created with first and second attributes, while the BigChild object
+        is created with a name, value, and other attributes, and is related to the created Secondary object.
+
+        This method is intended to be used as a setup method for tests, providing a common set of test data
+        for the class. The created objects are stored as class attributes, making them available for use in tests.
+
+        """
         cls.s1 = Secondary.objects.create(first="x1", second="y1")
         BigChild.objects.create(name="b1", value="foo", related=cls.s1, other="bar")
 
     def test_defer_baseclass_when_subclass_has_added_field(self):
         # You can defer a field on a baseclass
+        """
+        Tests that deferring base class fields works as expected when a subclass has added fields.
+
+        This test ensures that when a field from a base class is deferred, the fields from the subclass are still accessible and correctly populated. It verifies that delayed loading of fields occurs and that the correct values are retrieved for both base class and subclass fields.
+
+        Args: None
+
+        Returns: None
+
+        Raises: AssertionError if the test fails
+        """
         obj = BigChild.objects.defer("value").get(name="b1")
         self.assert_delayed(obj, 1)
         self.assertEqual(obj.name, "b1")
@@ -303,6 +336,19 @@ class InvalidDeferTests(SimpleTestCase):
             list(Primary.objects.defer("related__missing"))
 
     def test_invalid_only(self):
+        """
+
+        Tests the behavior of the 'only' method when referencing fields that do not exist.
+
+        This function verifies that calling 'only' with a non-existent field name on a model,
+        or on a related model, raises the expected exceptions with informative error messages.
+
+        The test covers cases where the missing field is referenced directly on the model,
+        and where it is referenced through a relationship. The expected exceptions include
+        FieldDoesNotExist and FieldError, each with a message that indicates the name of
+        the missing field and the model on which it was requested.
+
+        """
         msg = "Primary has no field named 'missing'"
         with self.assertRaisesMessage(FieldDoesNotExist, msg):
             list(Primary.objects.only("missing"))

@@ -52,6 +52,13 @@ class PostgreSQLOperationsTests(SimpleTestCase):
         )
 
     def test_prepare_join_on_clause_same_type(self):
+        """
+
+        Tests the preparation of the ON clause for a SQL JOIN operation where both the left-hand side and right-hand side columns are of the same type.
+
+        This test case verifies that the prepared join on clause expressions match the expected format when dealing with identical column types on both sides of the join.
+
+        """
         author_table = Author._meta.db_table
         author_id_field = Author._meta.get_field("id")
         lhs_expr, rhs_expr = connection.ops.prepare_join_on_clause(

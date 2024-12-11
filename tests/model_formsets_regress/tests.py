@@ -307,6 +307,19 @@ class FormsetTests(TestCase):
             self.assertIsInstance(form.non_field_errors(), ErrorList)
 
     def test_initial_data(self):
+        """
+
+        Checks the behavior of a model formset with initial data.
+
+        Tests that the formset correctly handles a combination of initial data from the model
+        and explicitly provided initial data. Verifies that the first form in the formset 
+        is initialized with data from the model, and that extra forms are populated with 
+        the provided initial data in the specified order. 
+
+        The test ensures that the formset initialization is correct and that the initial 
+        data is properly assigned to the forms and their fields.
+
+        """
         User.objects.create(username="bibi", serial=1)
         Formset = modelformset_factory(User, fields="__all__", extra=2)
         formset = Formset(initial=[{"username": "apollo11"}, {"username": "apollo12"}])

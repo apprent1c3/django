@@ -111,6 +111,14 @@ class GeoIP2:
 
     def __del__(self):
         # Cleanup any GeoIP file handles lying around.
+        """
+        Destroys the object, releasing any system resources it holds.
+
+        Closes the underlying reader if it has been initialized, ensuring that 
+        any open files or connections are properly shut down when the object 
+        is no longer needed. This helps prevent resource leaks and ensures 
+        the object is properly cleaned up after use.
+        """
         if self._reader:
             self._reader.close()
 

@@ -79,6 +79,13 @@ class FileBasedCache(BaseCache):
         return self._delete(self._key_to_file(key, version))
 
     def _delete(self, fname):
+        """
+        Delete a file from the system if it exists within the designated directory.
+
+        :param str fname: The path of the file to be deleted.
+        :returns: bool True if the file is successfully deleted, False otherwise.
+        :note: The function silently ignores the request if the file does not exist within the specified directory.
+        """
         if not fname.startswith(self._dir) or not os.path.exists(fname):
             return False
         try:

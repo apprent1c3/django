@@ -27,6 +27,21 @@ class ContextTests(SimpleTestCase):
         self.assertEqual(c, mock.ANY)
 
     def test_push_context_manager(self):
+        """
+
+        Tests the push context manager functionality of the Context class.
+
+        This test case verifies that the push context manager correctly saves and restores 
+        the state of the context before and after its use. It also checks that changes made 
+        to the context within the push block do not persist after the block is exited, 
+        unless explicitly specified.
+
+        The test covers two main scenarios: 
+        - Modifying existing context values within a push block.
+        - Updating context values within a push block using the context manager's 
+          initialization arguments.
+
+        """
         c = Context({"a": 1})
         with c.push():
             c["a"] = 2
@@ -49,6 +64,17 @@ class ContextTests(SimpleTestCase):
         self.assertEqual(c["a"], 1)
 
     def test_push_context_manager_with_context_object(self):
+        """
+        Tests the push context manager within a context object.
+
+        This test case verifies that the push context manager correctly updates the context object 
+        when entering the 'with' block, and reverts the changes when exiting the block. It ensures 
+        that the context object's state remains unaffected after the 'with' block has been exited.
+
+        The test pushes a new context with a different value for key 'a' and checks if the context 
+        object's value for 'a' is updated during the 'with' block. After exiting the 'with' block, 
+        the test checks if the context object's value for 'a' reverts back to its original value.
+        """
         c = Context({"a": 1})
         with c.push(Context({"a": 3})):
             self.assertEqual(c["a"], 3)
@@ -75,6 +101,13 @@ class ContextTests(SimpleTestCase):
         )
 
     def test_update_proper_layering(self):
+        """
+
+        Tests the update functionality of the Context class, ensuring proper layering of dictionaries.
+        This function verifies that the Context instance correctly merges and maintains the order of dictionaries when updated.
+        The test case covers the addition of new key-value pairs and nested dictionaries, validating the resulting layered dictionary structure.
+
+        """
         c = Context({"a": 1})
         c.update(Context({"b": 2}))
         c.update(Context({"c": 3, "d": {"z": "26"}}))
@@ -207,6 +240,18 @@ class ContextTests(SimpleTestCase):
         self.assertEqual(c.get("a"), 2)
 
     def test_set_upward_empty_context(self):
+        """
+
+        Tests setting an upward value in an otherwise empty context.
+
+        Ensures that setting a value using the set_upward method successfully stores
+        the value in the context, allowing it to be retrieved using the get method.
+
+        The test covers the basic case where the context is initially empty, with no
+        pre-existing values. The test verifies that the expected value is correctly
+        stored and retrieved.
+
+        """
         empty_context = Context()
         empty_context.set_upward("a", 1)
         self.assertEqual(empty_context.get("a"), 1)

@@ -60,6 +60,19 @@ class FallbackTests(BaseTests, SimpleTestCase):
         self.assertEqual(list(storage), [])
 
     def test_get_fallback(self):
+        """
+
+        Tests the retrieval of data from a fallback storage mechanism.
+
+        This test case verifies that when data is split between cookie and session storage,
+        the fallback storage mechanism correctly combines and returns all available data.
+
+        The test sets up a sample storage scenario, where some data is stored in cookies and
+        the remainder is stored in the session. It then checks that the fallback storage
+        returns the complete set of data, demonstrating that it can successfully retrieve
+        data from both storage locations.
+
+        """
         request = self.get_request()
         storage = self.storage_class(request)
         cookie_storage = self.get_cookie_storage(storage)
@@ -74,6 +87,17 @@ class FallbackTests(BaseTests, SimpleTestCase):
         self.assertEqual(list(storage), example_messages)
 
     def test_get_fallback_only(self):
+        """
+        Tests the retrieval of data with fallback to session storage when cookie storage is incomplete.
+
+        This test case verifies that when cookie storage is marked as not finished, the
+        function correctly falls back to session storage to retrieve the data.
+
+        It covers the scenario where cookie storage indicates an incomplete or empty
+        set of data, forcing the retrieval mechanism to rely on session storage
+        instead, ensuring data consistency and availability. The test confirms that the
+        retrieved data matches the expected output from session storage in such cases.
+        """
         request = self.get_request()
         storage = self.storage_class(request)
         cookie_storage = self.get_cookie_storage(storage)
@@ -85,6 +109,16 @@ class FallbackTests(BaseTests, SimpleTestCase):
         self.assertEqual(list(storage), example_messages)
 
     def test_flush_used_backends(self):
+        """
+
+        Tests the flushing of used backends when storing data.
+
+        This test case verifies that session data is properly removed from the storage
+        after it has been used and flushed. It sets up a request, initializes the storage,
+        adds data to both cookie and session storage, and then updates the storage with
+        a response. The test asserts that no session messages are stored after the flush.
+
+        """
         request = self.get_request()
         storage = self.storage_class(request)
         cookie_storage = self.get_cookie_storage(storage)

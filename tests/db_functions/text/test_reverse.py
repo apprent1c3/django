@@ -24,6 +24,19 @@ class ReverseTests(TestCase):
         )
 
     def test_basic(self):
+        """
+
+        Test the basic functionality of annotating Author objects with reversed strings.
+
+        This test verifies that the annotation of Author objects with reversed names 
+        and a constant string works as expected. It checks if the reversed names are 
+        correctly generated and if the constant string is consistently applied to all 
+        authors.
+
+        The test case uses a mix of names with different character sets to ensure that 
+        the reversal works correctly across various encoding schemes.
+
+        """
         authors = Author.objects.annotate(
             backward=Reverse("name"),
             constant=Reverse(Value("static string")),
@@ -40,6 +53,13 @@ class ReverseTests(TestCase):
         )
 
     def test_transform(self):
+        """
+        Tests the transformation of a query using the reverse lookup on a character field, verifying that the filtered and excluded results are as expected. 
+
+        The test checks if a query with a reverse lookup correctly matches objects where the name is the reverse of a specified value, and also checks that the excluded results do not contain the matched object. 
+
+        This test ensures the correctness of the reverse lookup functionality in the context of character fields, providing confidence in the query transformation logic.
+        """
         with register_lookup(CharField, Reverse):
             authors = Author.objects.all()
             self.assertCountEqual(

@@ -52,6 +52,25 @@ from .models import (
 class NonAggregateAnnotationTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Set up test data for the application.
+
+        This method creates a set of authors, publishers, books, and stores, 
+        and defines relationships between them. The data includes 
+        friends relationships between authors, and many-to-many relationships 
+        between books and authors, as well as between stores and books. 
+
+        The created data includes:
+        - 9 authors with varying ages and friendship relationships
+        - 5 publishers with different numbers of awards
+        - 6 books with different authors, publishers, publication dates, and ratings
+        - 3 stores with different opening dates and closing times, 
+          and varying collections of books
+
+        This data can be used as a basis for testing the application's functionality.
+
+        """
         cls.a1 = Author.objects.create(name="Adrian Holovaty", age=34)
         cls.a2 = Author.objects.create(name="Jacob Kaplan-Moss", age=35)
         cls.a3 = Author.objects.create(name="Brad Dayley", age=45)
@@ -176,6 +195,19 @@ class NonAggregateAnnotationTestCase(TestCase):
             self.assertEqual(book.another_rating, book.rating)
 
     def test_joined_annotation(self):
+        """
+
+        Tests that joined annotations are correctly applied to model instances.
+
+        This test verifies that the :func:`annotate` method can join related models and
+        apply aggregate functions to the joined data, making the annotated values
+        accessible as attributes on the model instances.
+
+        The test checks that the 'num_awards' annotation, which joins the 'Book' model
+        with its 'publisher' relation and annotates the number of awards, matches the
+        expected value on the 'publisher' instance.
+
+        """
         books = Book.objects.select_related("publisher").annotate(
             num_awards=F("publisher__num_awards")
         )
@@ -260,6 +292,11 @@ class NonAggregateAnnotationTestCase(TestCase):
         self.assertEqual(t.expires, expires)
 
     def test_mixed_type_annotation_numbers(self):
+        """
+        Tests that the database annotation for combining 'pages' and 'rating' fields into a single integer 'combined' field is correct.
+
+        The test verifies the output of the database annotation by comparing it to a manual calculation of the combined value. It checks that the annotated 'combined' field matches the expected result, ensuring the annotation is working as expected.
+        """
         test = self.b1
         b = Book.objects.annotate(
             combined=ExpressionWrapper(
@@ -299,6 +336,10 @@ class NonAggregateAnnotationTestCase(TestCase):
         self.assertTrue(all(book.selected for book in books))
 
     def test_full_expression_annotation_with_aggregation(self):
+        """
+        Tests the annotation of a queryset with a full expression using aggregation, including the application of an empty \"not in\" condition and a count of related ratings. 
+        Verifies that the annotation correctly sets a boolean field and a count field for each object in the queryset, by comparing the actual rating counts with the expected counts.
+        """
         qs = Book.objects.filter(isbn="159059725").annotate(
             selected=ExpressionWrapper(~Q(pk__in=[]), output_field=BooleanField()),
             rating_count=Count("rating"),
@@ -667,6 +708,14 @@ class NonAggregateAnnotationTestCase(TestCase):
         )
 
     def test_order_by_aggregate(self):
+        """
+        Tests that Author objects can be successfully ordered by aggregate values.
+
+        This test case verifies that the authors can be sorted first by the count of their age in descending order, 
+        and then by their age in ascending order, resulting in the expected output. The test assertion checks 
+        that the query set of authors matches the expected list of tuples, where each tuple contains the author's 
+        age and the count of authors with that age. 
+        """
         authors = (
             Author.objects.values("age")
             .annotate(age_count=Count("age"))
@@ -1143,6 +1192,15 @@ class NonAggregateAnnotationTestCase(TestCase):
             Book.objects.annotate(**{crafted_alias: Value(1)})
 
     def test_alias_forbidden_chars(self):
+        """
+        Tests that using forbidden characters in column aliases raises a ValueError.
+
+        The test checks that column aliases cannot contain whitespace characters, quotation marks,
+        semicolons, or SQL comments, and that attempting to use such aliases results in an error with
+        a descriptive message.
+
+        :raises ValueError: If a forbidden character is used in a column alias.
+        """
         tests = [
             'al"ias',
             "a'lias",
@@ -1277,6 +1335,12 @@ class AliasTests(TestCase):
         self.assertIs(hasattr(book, "is_book_alias"), False)
 
     def test_overwrite_annotation_with_alias(self):
+        """
+
+        Tests that annotating a queryset with an alias overwrites the original annotation.
+        Verifies that the original annotation attribute is no longer present on the resulting model instances.
+
+        """
         qs = Book.objects.annotate(is_book=Value(1)).alias(is_book=F("is_book"))
         self.assertIs(hasattr(qs.first(), "is_book"), False)
 
@@ -1287,6 +1351,13 @@ class AliasTests(TestCase):
                 self.assertEqual(book.is_book, 1)
 
     def test_alias_annotation_expression(self):
+        """
+        Tests that an alias used in an annotation expression does not appear as an attribute on the model instance.
+
+        Verifies that the annotation is correctly calculated and appears as an attribute on the model instance, while the original alias is not accessible.
+
+        This test ensures that the annotation is handled correctly and does not leak internal implementation details into the model instance's attributes.
+        """
         qs = Book.objects.alias(
             is_book_alias=Value(1),
         ).annotate(is_book=Coalesce("is_book_alias", 0))
@@ -1296,6 +1367,15 @@ class AliasTests(TestCase):
                 self.assertEqual(book.is_book, 1)
 
     def test_alias_default_alias_expression(self):
+        """
+
+        Tests the usage of an alias default alias expression in a Django ORM query.
+
+        Verifies that the aliased expression is not attached as an attribute to the
+        resulting model instances, and that the query correctly filters and returns
+        the expected results.
+
+        """
         qs = Author.objects.alias(
             Sum("book__pages"),
         ).filter(book__pages__sum__gt=2000)
@@ -1388,6 +1468,18 @@ class AliasTests(TestCase):
         )
 
     def test_datetimes_alias(self):
+        """
+
+        Tests the retrieval of datetime values from a query set using an alias.
+
+        This test case checks if the datetimes method correctly extracts years from
+        a datetime field, even when that field is aliased. It verifies that the
+        resulting query set contains the expected dates.
+
+        The test asserts that the extracted dates match the expected years, 
+        specifically 1994 and 2001.
+
+        """
         qs = Store.objects.alias(
             original_opening_alias=F("original_opening"),
         ).datetimes("original_opening_alias", "year")

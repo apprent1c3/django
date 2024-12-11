@@ -544,6 +544,18 @@ class AdminPasswordChangeForm(SetPasswordMixin, forms.Form):
             )
 
     def clean(self):
+        """
+
+        Cleans the object by performing validation checks on passwords.
+
+        This method ensures the integrity of the object's data by validating passwords
+        and the password for the associated user. It then proceeds to call the parent
+        class's clean method to perform any additional validation or cleaning tasks.
+
+        Returns:
+            The result of the parent class's clean method.
+
+        """
         self.validate_passwords()
         self.validate_password_for_user(self.user)
         return super().clean()

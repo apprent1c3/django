@@ -51,5 +51,16 @@ def render_view_with_status(request):
 
 
 def render_view_with_using(request):
+    """
+
+    Render the using view.
+
+    Returns an HTTP response with the rendered 'using.html' template. 
+    The template context includes the 'using' parameter passed in the request query string.
+
+    :param request: The current HTTP request object.
+    :returns: The rendered HTTP response.
+
+    """
     using = request.GET.get("using")
     return render(request, "shortcuts/using.html", using=using)

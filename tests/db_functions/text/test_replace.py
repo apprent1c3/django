@@ -8,10 +8,28 @@ from ..models import Author
 class ReplaceTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for the class, creating instances of Author objects with predefined names.
+
+        This method is used to populate the database with initial data for testing purposes,
+        providing a consistent starting point for subsequent tests. The authors 'George R. R. Martin'
+        and 'J. R. R. Tolkien' are added to the database by default.
+
+        """
         Author.objects.create(name="George R. R. Martin")
         Author.objects.create(name="J. R. R. Tolkien")
 
     def test_replace_with_empty_string(self):
+        """
+
+        Tests the replacement of a substring with an empty string in a queryset.
+
+        This function verifies that the Replace database function can be used to remove
+        a specific substring from a field, in this case, the 'name' field of Author objects.
+        The test checks that the replacement is correctly applied to the queryset, 
+        resulting in the expected output without the specified substring.
+
+        """
         qs = Author.objects.annotate(
             without_middlename=Replace(F("name"), Value("R. R. "), Value("")),
         )
@@ -56,6 +74,14 @@ class ReplaceTests(TestCase):
         )
 
     def test_update(self):
+        """
+
+        Tests the update functionality by replacing a prefix in author names.
+
+        Replaces the prefix 'R. R. ' with an empty string in all author names and 
+        verifies that the updated names match the expected values.
+
+        """
         Author.objects.update(
             name=Replace(F("name"), Value("R. R. "), Value("")),
         )

@@ -66,6 +66,19 @@ class SimplifiedURLTests(SimpleTestCase):
         self.assertEqual(match.extra_kwargs, {})
 
     def test_path_lookup_with_multiple_parameters_and_extra_kwarg(self):
+        """
+
+        Test path lookup functionality with multiple parameters and an extra keyword argument.
+
+        This test case verifies that the path lookup mechanism correctly handles routes with 
+        multiple integer parameters and additional keyword arguments. It checks that the 
+        resolved URL name, arguments, and keyword arguments match the expected values.
+
+        The test also ensures that the route pattern is correctly identified and that the 
+        captured keyword arguments (i.e., the integer parameters) and extra keyword arguments 
+        are properly distinguished.
+
+        """
         match = resolve("/books/2015/04/12/")
         self.assertEqual(match.url_name, "books-year-month-day")
         self.assertEqual(match.args, ())
@@ -86,6 +99,15 @@ class SimplifiedURLTests(SimpleTestCase):
         self.assertEqual(match.extra_kwargs, {"extra": True})
 
     def test_two_variable_at_start_of_path_pattern(self):
+        """
+        /tests/test_two_variable_at_start_of_path_pattern: Test a URL pattern that contains two variables at the start of the path.
+
+            This test case checks the functionality of the resolve function when the URL starts with two variables.
+            It verifies that the resolve function correctly matches the URL pattern, extracts the variables \"lang\" and \"url\", 
+            and assigns them to the match object with the expected values.
+            The test ensures that the url_name, kwargs, route, captured_kwargs, and extra_kwargs attributes of the match object 
+            are populated as expected, confirming the correctness of the URL resolution process.
+        """
         match = resolve("/en/foo/")
         self.assertEqual(match.url_name, "lang-and-path")
         self.assertEqual(match.kwargs, {"lang": "en", "url": "foo"})
@@ -143,6 +165,12 @@ class SimplifiedURLTests(SimpleTestCase):
         self.assertEqual(match.extra_kwargs, {"sub-extra": True})
 
     def test_path_lookup_with_double_inclusion(self):
+        """
+        rummelΕΙ_tests)
+        Tests the path lookup functionality when a URL pattern contains double inclusion.
+
+        This test case verifies that the URL resolver correctly identifies and matches the included URL patterns. It checks that the url_name and route attributes of the matched URL are correctly set to 'inner-more' and 'included_urls/more/(?P<extra>\\w+)/$', respectively, when the input URL is '/included_urls/more/some_value/'.
+        """
         match = resolve("/included_urls/more/some_value/")
         self.assertEqual(match.url_name, "inner-more")
         self.assertEqual(match.route, r"included_urls/more/(?P<extra>\w+)/$")
@@ -159,6 +187,16 @@ class SimplifiedURLTests(SimpleTestCase):
 
     @override_settings(ROOT_URLCONF="urlpatterns.path_base64_urls")
     def test_converter_resolve(self):
+        """
+
+        Tests the URL resolver for base64 encoded URLs.
+
+        This test case iterates over a set of predefined URL patterns and checks if the resolver
+        correctly identifies the corresponding URL name, application name, and keyword arguments.
+        It verifies that the resolver matches the expected URL components for each test case,
+        ensuring that the base64 encoded URLs are properly handled.
+
+        """
         for url, (url_name, app_name, kwargs) in converter_test_data:
             with self.subTest(url=url):
                 match = resolve(url)
@@ -183,6 +221,17 @@ class SimplifiedURLTests(SimpleTestCase):
         self.assertEqual(url, "/base64/aGVsbG8=/subpatterns/d29ybGQ=/d29ybGQ=/")
 
     def test_path_inclusion_is_matchable(self):
+        """
+
+        Tests that a path can be matched using the path inclusion logic.
+
+        Verifies that a URL with a nested path structure is correctly resolved and 
+        mapped to the expected URL name and keyword arguments.
+
+        The test checks if the matched URL name and keyword arguments are as expected,
+        ensuring that the path inclusion rules are applied correctly.
+
+        """
         match = resolve("/included_urls/extra/something/")
         self.assertEqual(match.url_name, "inner-extra")
         self.assertEqual(match.kwargs, {"extra": "something"})
@@ -199,6 +248,15 @@ class SimplifiedURLTests(SimpleTestCase):
             re_path("^hello/$", empty_view, "name")
 
     def test_invalid_converter(self):
+        """
+        Tests that using an invalid converter in a URL route raises an ImproperlyConfigured exception.
+
+        This test checks that a URL route with an invalid converter specified in the route path
+        correctly raises an exception, providing a meaningful error message with the invalid converter name.
+        The error message includes the specific converter name and the route where the error occurred, 
+        providing useful information for debugging and fixing the issue.
+
+        """
         msg = "URL route 'foo/<nonexistent:var>/' uses invalid converter 'nonexistent'."
         with self.assertRaisesMessage(ImproperlyConfigured, msg):
             path("foo/<nonexistent:var>/", empty_view)

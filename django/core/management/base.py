@@ -33,6 +33,12 @@ class CommandError(Exception):
     """
 
     def __init__(self, *args, returncode=1, **kwargs):
+        """
+        Initializes a new instance of the class, setting the return code used in various operations. 
+        The return code is an integer value that indicates the result of an operation, with typical values including 0 for success and non-zero for errors. 
+        The default return code is 1, but this can be overridden when creating a new instance. 
+        Additional keyword and non-keyword arguments are passed to the superclass's constructor for further initialization.
+        """
         self.returncode = returncode
         super().__init__(*args, **kwargs)
 
@@ -174,6 +180,17 @@ class OutputWrapper(TextIOBase):
         return hasattr(self._out, "isatty") and self._out.isatty()
 
     def write(self, msg="", style_func=None, ending=None):
+        """
+
+        Writes a message to the output.
+
+        :param msg: The message to be written. Defaults to an empty string.
+        :param style_func: An optional function to apply styling to the message. If not provided, the default style function is used.
+        :param ending: A string to append to the end of the message if it does not already end with it. If not provided, the default ending is used.
+
+        The message is then written to the output after applying the specified style.
+
+        """
         ending = self.ending if ending is None else ending
         if ending and not msg.endswith(ending):
             msg += ending

@@ -29,6 +29,18 @@ class ManyToManyFieldTests(SimpleTestCase):
 
     @isolate_apps("model_fields", "model_fields.tests")
     def test_abstract_model_app_relative_foreign_key(self):
+        """
+
+        Tests the resolution of model references in an abstract model that uses an app-relative foreign key.
+
+        This test verifies that the related model and through model for a ManyToManyField
+        are correctly resolved when using an app-relative name, both within the same app
+        and when the reference is resolved from a different app.
+
+        The test creates an abstract model with a ManyToManyField and then checks the
+        resolution of this field when the abstract model is subclassed in different apps.
+
+        """
         class AbstractReferent(models.Model):
             reference = models.ManyToManyField("Referred", through="Through")
 

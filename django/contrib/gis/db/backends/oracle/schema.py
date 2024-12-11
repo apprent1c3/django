@@ -29,6 +29,22 @@ class OracleGISSchemaEditor(DatabaseSchemaEditor):
     )
 
     def __init__(self, *args, **kwargs):
+        """
+        Initializes a new instance of the class, inheriting from its parent class.
+
+        This constructor allows for arbitrary keyword and positional arguments to be passed to the parent class,
+        providing flexibility and customization.
+
+        Additionally, it initializes an empty list to store SQL queries related to geometry operations.
+
+        Args:
+            *args: Variable number of positional arguments to be passed to the parent class.
+            **kwargs: Variable number of keyword arguments to be passed to the parent class.
+
+        Attributes:
+            geometry_sql (list): A list to store SQL queries related to geometry operations, initially empty.
+
+        """
         super().__init__(*args, **kwargs)
         self.geometry_sql = []
 

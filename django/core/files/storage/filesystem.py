@@ -177,6 +177,16 @@ class FileSystemStorage(Storage, StorageSettingsMixin):
                     pass
 
     def delete(self, name):
+        """
+
+        Deletes a file or directory.
+
+        :param name: The name of the file or directory to be deleted. 
+                     The name can be absolute or relative, and will be resolved using the object's path resolution rules.
+        :raises ValueError: If no name is provided.
+        :note: If the specified file or directory does not exist, no error is raised.
+
+        """
         if not name:
             raise ValueError("The name must be given to delete().")
         name = self.path(name)

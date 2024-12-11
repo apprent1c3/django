@@ -34,6 +34,17 @@ class TablespacesTests(TransactionTestCase):
     def setUp(self):
         # The unmanaged models need to be removed after the test in order to
         # prevent bad interactions with the flush operation in other tests.
+        """
+
+        Set up the test environment by preserving the original model configuration and 
+        enabling management for specific models.
+
+        This method creates a copy of the current model configuration to restore later, 
+        and then sets the managed attribute to True for the Article, Authors, Reviewers, 
+        and Scientist models. This allows the test to manage these models, enabling 
+        creation, modification, and deletion of their database tables during testing.
+
+        """
         self._old_models = apps.app_configs["model_options"].models.copy()
 
         for model in Article, Authors, Reviewers, Scientist:

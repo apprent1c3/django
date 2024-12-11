@@ -17,6 +17,13 @@ from .models import SimpleModel
 class CacheTest(SimpleTestCase):
     def test_caches_local(self):
         @async_to_sync
+        """
+        Tests the behavior of the local cache, ensuring that it returns the same cache instance when accessed multiple times.
+
+        This test verifies that the cache is properly cached locally, meaning that repeated requests for the cache will return the same instance, rather than creating a new one. This is an important optimization to prevent unnecessary cache creation and improve performance.
+
+        The test checks for the expected behavior by comparing the instances returned by two separate cache requests, asserting that they are the same object in memory.
+        """
         async def async_cache():
             return caches[DEFAULT_CACHE_ALIAS]
 

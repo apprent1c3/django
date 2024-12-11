@@ -70,6 +70,15 @@ class TemplateLoaderTests(SimpleTestCase):
             select_template([])
 
     def test_select_template_string(self):
+        """
+        Tests that the select_template function raises a TypeError when passed a string.
+
+        The select_template function is expected to take an iterable of template names, 
+        but in this test case, a single string template name is provided. This test 
+        verifies that the function correctly raises a TypeError and provides a 
+        helpful error message, suggesting the use of get_template for loading a single 
+        template by name.
+        """
         with self.assertRaisesMessage(
             TypeError,
             "select_template() takes an iterable of template names but got a "
@@ -146,6 +155,14 @@ class TemplateLoaderTests(SimpleTestCase):
         self.assertEqual(content, "Hello! (Django templates)\n")
 
     def test_render_to_string_with_list_empty(self):
+        """
+        Tests that rendering to a string with an empty list of templates raises a TemplateDoesNotExist exception.
+
+            This test case verifies that the render_to_string function correctly handles
+            the scenario where no templates are provided, ensuring that it raises the expected
+            exception instead of attempting to render an empty or non-existent template.
+
+        """
         with self.assertRaises(TemplateDoesNotExist):
             render_to_string([])
 
@@ -176,6 +193,14 @@ class TemplateLoaderTests(SimpleTestCase):
         self.assertEqual(e.exception.chain[3].backend.name, "django")
 
     def test_render_to_string_with_list_tries_all_engines_before_names(self):
+        """
+
+        Tests that the render_to_string function attempts to use all template engines before resolving the template names.
+
+        This test ensures that when rendering a template to a string, the function will try all available template engines 
+        in sequence, allowing for templates with the same name but in different engines to be resolved correctly.
+
+        """
         content = render_to_string(
             ["template_loader/goodbye.html", "template_loader/hello.html"]
         )

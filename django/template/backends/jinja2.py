@@ -15,6 +15,23 @@ class Jinja2(BaseEngine):
     app_dirname = "jinja2"
 
     def __init__(self, params):
+        """
+        Initializes the Jinja2 template engine.
+
+        This constructor takes a dictionary of parameters and sets up the template engine
+        according to the provided options. The options dictionary should contain the
+        TEMPLATE_DIRS and OPTIONS settings, where OPTIONS is a dictionary with the
+        following possible keys:
+          - context_processors: a list of context processors to use
+          - environment: the Jinja2 environment class to use (defaults to jinja2.Environment)
+          - loader: the template loader to use (defaults to a FileSystemLoader)
+          - autoescape: whether to automatically escape template variables (defaults to True)
+          - auto_reload: whether to automatically reload templates when changed (defaults to DEBUG mode)
+          - undefined: the undefined handler to use (defaults to DebugUndefined in DEBUG mode, Undefined otherwise)
+
+        The initialized template engine is stored in the `env` attribute of the instance.
+
+        """
         params = params.copy()
         options = params.pop("OPTIONS").copy()
         super().__init__(params)

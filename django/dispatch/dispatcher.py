@@ -153,6 +153,12 @@ class Signal:
         return disconnected
 
     def has_listeners(self, sender=None):
+        """
+        ..: Checks if there are any registered listeners associated with a given sender.
+
+            :param sender: The object whose listeners are to be checked. If not provided, checks for listeners of all senders.
+            :return: True if any listeners are found, False otherwise. Listeners include both synchronous and asynchronous receivers.
+        """
         sync_receivers, async_receivers = self._live_receivers(sender)
         return bool(sync_receivers) or bool(async_receivers)
 

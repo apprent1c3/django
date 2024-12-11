@@ -300,6 +300,13 @@ class FilterVerticalCheckTests(CheckTestCase):
         )
 
     def test_missing_field(self):
+        """
+        Tests that a ModelAdmin with a non-existent field in filter_vertical raises a validation error.
+
+        This test case ensures that the validation system correctly identifies and reports an error when a field specified in the filter_vertical attribute does not exist in the model.
+
+        The expected error message includes the name of the non-existent field and the corresponding error code (admin.E019).
+        """
         class TestModelAdmin(ModelAdmin):
             filter_vertical = ("non_existent_field",)
 
@@ -361,6 +368,17 @@ class FilterVerticalCheckTests(CheckTestCase):
         )
 
     def test_valid_case(self):
+        """
+
+        Tests that the ModelAdmin instance is valid when 'filter_vertical' contains a valid field.
+
+        This test checks that the ValidationTestModel can be correctly validated with a ModelAdmin 
+        that has 'filter_vertical' set to a tuple containing 'users'. 
+
+        The purpose of this test is to ensure that the validation logic correctly handles 
+        the 'filter_vertical' attribute when it contains a field that exists in the model.
+
+        """
         class TestModelAdmin(ModelAdmin):
             filter_vertical = ("users",)
 
@@ -404,6 +422,13 @@ class FilterHorizontalCheckTests(CheckTestCase):
 
     @isolate_apps("modeladmin")
     def test_invalid_reverse_m2m_field_with_related_name(self):
+        """
+        Tests that invalid configuration of ModelAdmin's filter_horizontal attribute raises an exception when there is a many-to-many field with a related name that does not match the model field name.
+
+        Specifically, this test case checks that the 'filter_horizontal' attribute cannot be set to a many-to-many field that has a related name defined, but the related name does not match the actual field name in the model. If such configuration is provided, an error should be raised, indicating that the 'filter_horizontal' attribute value must be a many-to-many field without a related name or matching the actual field name in the model.
+
+        The expected error message is 'The value of 'filter_horizontal[0]' must be a many-to-many field.' with the error code 'admin.E020'.
+        """
         class Contact(Model):
             pass
 
@@ -484,6 +509,9 @@ class RadioFieldsCheckTests(CheckTestCase):
         )
 
     def test_invalid_value(self):
+        """
+        Tests that ModelAdmin validation fails when the 'radio_fields' dictionary contains an invalid value, specifically when the value is neither admin.HORIZONTAL nor admin.VERTICAL, resulting in the error code 'admin.E024'.
+        """
         class TestModelAdmin(ModelAdmin):
             radio_fields = {"state": None}
 
@@ -687,6 +715,16 @@ class ListDisplayTests(CheckTestCase):
             """Custom field accessible only via instance."""
 
             def contribute_to_class(self, cls, name):
+                """
+                Contributes the descriptor to the given class, making it accessible as a class attribute.
+
+                The contribution process involves setting up the descriptor on the class, allowing it to be accessed via the class namespace.
+
+                This method is typically called automatically when the descriptor is assigned to a class attribute, and should not be invoked manually unless you are implementing a custom descriptor or metaclass.
+
+                :param cls: The class to which the descriptor will be contributed
+                :param name: The name under which the descriptor will be accessible on the class
+                """
                 super().contribute_to_class(cls, name)
                 setattr(cls, self.name, self)
 
@@ -716,6 +754,9 @@ class ListDisplayLinksCheckTests(CheckTestCase):
         )
 
     def test_missing_field(self):
+        """
+        Checks if a ModelAdmin instance is valid when a field referenced in 'list_display_links' does not exist in 'list_display', ensuring that all linked fields are properly defined. This test helps prevent potential errors in the admin interface by verifying the consistency of field links.
+        """
         class TestModelAdmin(ModelAdmin):
             list_display_links = ("non_existent_field",)
 
@@ -873,6 +914,14 @@ class ListFilterTests(CheckTestCase):
         )
 
     def test_not_filter_again(self):
+        """
+        .. method:: test_not_filter_again
+
+           Tests that the list_filter value in a ModelAdmin instance is valid.
+
+           Specifically, this test checks that the second value in each tuple of the list_filter attribute is a subclass of FieldListFilter.
+           It verifies that providing a class that does not inherit from FieldListFilter results in an error with the specified validation message and code.
+        """
         class RandomClass:
             pass
 
@@ -933,6 +982,17 @@ class ListFilterTests(CheckTestCase):
         )
 
     def test_valid_case(self):
+        """
+
+        Tests the validity of a ModelAdmin class with custom list filters.
+
+        This test case checks if a ModelAdmin instance with a custom filter class
+        (AwesomeFilter) and other filter types (BooleanFieldListFilter, string) is valid.
+        The AwesomeFilter class is expected to provide a title, choices, and a queryset.
+        The test ensures that the ModelAdmin instance can be validated successfully
+        with a given model (ValidationTestModel).
+
+        """
         class AwesomeFilter(SimpleListFilter):
             def get_title(self):
                 return "awesomeness"
@@ -1090,6 +1150,11 @@ class OrderingCheckTests(CheckTestCase):
         )
 
     def test_valid_random_marker_case(self):
+        """
+        Tests whether a ModelAdmin instance with a random marker in the ordering field is considered valid when paired with a ValidationTestModel. 
+
+         This validation check ensures that the ModelAdmin class correctly handles random sorting on a model, and that the ValidationTestModel is properly configured to test this functionality.
+        """
         class TestModelAdmin(ModelAdmin):
             ordering = ("?",)
 
@@ -1166,6 +1231,21 @@ class SaveAsCheckTests(CheckTestCase):
 
 class SaveOnTopCheckTests(CheckTestCase):
     def test_not_boolean(self):
+        """
+        Tests that the 'save_on_top' attribute in a ModelAdmin class must be a boolean value.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the 'save_on_top' attribute is not a boolean value.
+
+        Note:
+            This test ensures that the 'save_on_top' attribute is validated correctly, verifying that it raises an error with code 'admin.E102' when a non-boolean value is provided.
+        """
         class TestModelAdmin(ModelAdmin):
             save_on_top = 1
 
@@ -1221,6 +1301,21 @@ class InlinesCheckTests(CheckTestCase):
         )
 
     def test_missing_model_field(self):
+        """
+        Tests that a TabularInline class defined within a ModelAdmin must have a 'model' attribute.
+
+            Checks that the validation for ModelAdmin inlines correctly identifies and reports
+            the error when a 'model' attribute is missing from an inline class.
+
+            The test expects an error message with code 'admin.E105' to be raised, indicating
+            that the ValidationTestInline class is missing the required 'model' attribute.
+
+            This validation is essential to ensure that the inline classes are properly
+            configured and can function correctly within the admin interface.
+
+            :raises AssertionError: If the validation error is not correctly reported
+            :return: None
+        """
         class ValidationTestInline(TabularInline):
             pass
 
@@ -1308,6 +1403,11 @@ class FkNameCheckTests(CheckTestCase):
         )
 
     def test_valid_case(self):
+        """
+        Tests that a valid case is correctly validated when using an inline model admin with a tabular inline. 
+
+        This test case verifies the validity of the `TestModelAdmin` when used in conjunction with the `ValidationTestInlineModel` through the `ValidationTestInline` tabular inline admin interface, ensuring that the `parent` foreign key relationship is properly validated.
+        """
         class ValidationTestInline(TabularInline):
             model = ValidationTestInlineModel
             fk_name = "parent"
@@ -1489,6 +1589,13 @@ class FormsetCheckTests(CheckTestCase):
         )
 
     def test_inline_without_formset_class(self):
+        """
+        Tests that an exception is raised when an inline admin class does not define a valid formset class.
+
+        The test verifies that a ModelAdmin instance with an inline class is invalid if the inline class specifies a 'formset' attribute that does not inherit from 'BaseModelFormSet'.
+
+        The expected error message indicates that the 'formset' attribute must inherit from 'BaseModelFormSet', and the error is reported with the code 'admin.E206'.
+        """
         class ValidationTestInlineWithoutFormsetClass(TabularInline):
             model = ValidationTestInlineModel
             formset = "Not a FormSet Class"
@@ -1655,6 +1762,21 @@ class AutocompleteFieldsTests(CheckTestCase):
         )
 
     def test_autocomplete_e039(self):
+        """
+        Tests that an admin for a model referenced in autocomplete_fields is registered.
+
+        Checks if attempting to use a model in the autocomplete_fields attribute of a ModelAdmin class
+        without registering an admin for that model results in an error. This ensures that the
+        autocomplete functionality can properly resolve the referenced model.
+
+        The test covers error code 'admin.E039' and verifies the correct error message is raised when
+        the model is not registered.
+
+         Raises:
+            AssertionError: If the expected error is not raised when an admin is not registered for the model.
+
+
+        """
         class Admin(ModelAdmin):
             autocomplete_fields = ("band",)
 

@@ -16,6 +16,18 @@ class SitemapTestsBase(TestCase):
     @classmethod
     def setUpTestData(cls):
         # Create an object for sitemap content.
+        """
+        Sets up test data for the test class.
+
+        This method creates a set of pre-defined data in the database, including a TestModel instance and an I18nTestModel instance.
+        It is used to populate the database with test data that can be reused across multiple test cases.
+
+        The created instances are stored as class attributes, allowing them to be easily accessed and manipulated by other test methods.
+
+        Attributes set by this method:
+            i18n_model (I18nTestModel): The created I18nTestModel instance.
+
+        """
         TestModel.objects.create(name="Test Object")
         cls.i18n_model = I18nTestModel.objects.create(name="Test Object")
 

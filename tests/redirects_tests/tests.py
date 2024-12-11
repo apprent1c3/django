@@ -75,6 +75,16 @@ class RedirectTests(TestCase):
 
     @modify_settings(INSTALLED_APPS={"remove": "django.contrib.sites"})
     def test_sites_not_installed(self):
+        """
+        Tests the RedirectFallbackMiddleware when the django.contrib.sites app is not installed.
+
+        Checks that an ImproperlyConfigured exception is raised with a specific error message,
+        indicating that the middleware cannot be used without the sites app.
+
+        Validates the correct behavior of the RedirectFallbackMiddleware in a setup where
+        the sites framework is not available, ensuring proper error handling and informative
+        error messages in such cases.
+        """
         def get_response(request):
             return HttpResponse()
 

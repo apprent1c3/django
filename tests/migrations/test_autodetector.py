@@ -1188,6 +1188,17 @@ class AutodetectorTests(BaseAutodetectorTests):
 
     def test_arrange_for_graph_with_multiple_initial(self):
         # Make a fake graph.
+        """
+        Tests the arrangement of migrations for a graph with multiple initial migrations.
+
+        This function verifies that the MigrationAutodetector can correctly arrange migrations
+        in a scenario where multiple apps have initial migrations that depend on each other.
+        It checks that the resulting migrations are properly named and have the correct dependencies.
+
+        The test covers a situation where two apps, 'otherapp' and 'testapp', have initial migrations
+        that are interconnected. The function ensures that the autodetector correctly orders these
+        migrations and sets up their dependencies, resulting in a valid migration graph.
+        """
         graph = MigrationGraph()
         # Use project state to make a new migration change set.
         before = self.make_project_state([])
@@ -1357,6 +1368,9 @@ class AutodetectorTests(BaseAutodetectorTests):
     def test_add_date_fields_with_auto_now_add_asking_for_default(
         self, mocked_ask_method
     ):
+        """
+        Tests the automatic addition of date fields with auto_now_add set to True, verifying that the migration questioner is called to ask for default values for the added fields. The function checks that the expected migrations are generated, with the correct operation types and field attributes, and that the questioner is called the correct number of times.
+        """
         changes = self.get_changes(
             [self.author_empty], [self.author_dates_of_birth_auto_now_add]
         )
@@ -1583,6 +1597,15 @@ class AutodetectorTests(BaseAutodetectorTests):
         side_effect=AssertionError("Should not have prompted for not null alteration"),
     )
     def test_alter_field_to_not_null_with_db_default(self, mocked_ask_method):
+        """
+        Tests that altering a field to be non-nullable with a database default value does not prompt for not null alteration.
+
+        This test case verifies that when a field's nullability is changed to False and a database default value is provided, 
+        the migration system correctly applies the change without requesting user input to handle the transition of existing null values.
+
+        The test checks that exactly one migration is generated, containing a single AlterField operation that preserves the default value.
+        The operation is verified to have the correct attributes, including the field name and database default value.
+        """
         changes = self.get_changes(
             [self.author_name_null], [self.author_name_db_default]
         )
@@ -2539,6 +2562,14 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_alter_db_table_comment_remove(self):
+        """
+        Tests the removal of a database table comment from a model.
+
+        This test case checks that when a model's database table comment is removed,
+        the corresponding migration is generated correctly. It verifies that exactly
+        one migration is created for the test app, and that it is an AlterModelTableComment
+        operation with the correct model name and no comment.
+        """
         changes = self.get_changes(
             [self.author_with_db_table_comment],
             [self.author_empty],
@@ -4988,6 +5019,13 @@ class MigrationSuggestNameTests(SimpleTestCase):
         self.assertEqual(migration.suggest_name(), "delete_person")
 
     def test_single_operation_long_name(self):
+        """
+        Tests the suggest_name functionality of a Migration when it contains a single operation with a long name.
+
+            Verifies that the suggested name is correctly generated based on the operation's name, even when the name exceeds typical naming conventions.
+
+            The purpose of this test is to ensure that the migration naming mechanism can handle unusual or edge-case operation names, providing a robust and reliable naming suggestion.
+        """
         class Migration(migrations.Migration):
             operations = [migrations.CreateModel("A" * 53, fields=[])]
 
@@ -5005,6 +5043,12 @@ class MigrationSuggestNameTests(SimpleTestCase):
         self.assertEqual(migration.suggest_name(), "person_delete_animal")
 
     def test_two_create_models(self):
+        """
+        Tests that the suggest_name method of a Migration instance returns a string 
+        consisting of the model names separated by an underscore when two CreateModel 
+        operations are present in the migration. The model names used in the test are 
+        'Person' and 'Animal'. The method should return 'person_animal'.
+        """
         class Migration(migrations.Migration):
             operations = [
                 migrations.CreateModel("Person", fields=[]),

@@ -125,6 +125,14 @@ class AbstractInheritanceTests(SimpleTestCase):
         self.assertIsInstance(inherited_field, models.IntegerField)
 
     def test_multiple_inheritance_cannot_shadow_concrete_inherited_field(self):
+        """
+        Tests Django model inheritance when multiple parents have the same field name, 
+        one being a concrete model and the other an abstract model. Verifies that the field 
+        from the concrete parent model takes precedence and does not get shadowed by the 
+        abstract parent model when the concrete parent is listed first in the child model's 
+        inheritance order. Also checks that a validation error is raised when the abstract 
+        parent is listed first, indicating the field name clash.
+        """
         class ConcreteParent(models.Model):
             name = models.CharField(max_length=255)
 
@@ -227,6 +235,18 @@ class AbstractInheritanceTests(SimpleTestCase):
             Descendant._meta.get_field("full_name")
 
     def test_overriding_field_removed_by_concrete_model(self):
+        """
+        Tests whether a field overridden by a concrete model is correctly configured.
+
+        This test case verifies that when a field is removed by setting it to None in an
+        intermediate abstract model, it can be successfully redefined by a concrete model
+        that inherits from the intermediate model. The redefined field should have the
+        correct attributes, such as its max_length, as specified in the concrete model.
+
+        Verifies that the field's configuration is correctly applied when overriding a
+        removed field in a concrete model, ensuring that the redefined field behaves as
+        expected in the resulting model.
+        """
         class AbstractModel(models.Model):
             foo = models.CharField(max_length=30)
 

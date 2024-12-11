@@ -45,6 +45,13 @@ class BasicTestCase(TestCase):
         self.assertFalse(u2.has_usable_password())
 
     def test_unicode_username(self):
+        """
+        Tests the creation of users with unicode usernames to ensure proper handling and uniqueness.
+
+        Checks that usernames containing non-ASCII characters are successfully created, and that duplicate usernames
+        are prevented, even when they differ only by similar-appearing unicode characters. This ensures the system
+        correctly distinguishes between visually similar usernames and maintains data consistency. 
+        """
         User.objects.create_user("jörg")
         User.objects.create_user("Григорий")
         # Two equivalent Unicode normalized usernames are duplicates.

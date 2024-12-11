@@ -271,6 +271,9 @@ class SelectDateWidgetTest(WidgetTest):
         )
 
     def test_custom_months(self):
+        """
+        Tests the functionality of a custom date selection widget with a predefined set of months and a single year option. Verifies that the widget is rendered correctly in HTML, including the month, day, and year dropdown menus with the expected options and values.
+        """
         widget = SelectDateWidget(months=MONTHS_AP, years=("2013",))
         self.check_html(
             widget,

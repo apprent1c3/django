@@ -520,6 +520,22 @@ class RenameModel(ModelOperation):
         return "rename_%s_%s" % (self.old_name_lower, self.new_name_lower)
 
     def reduce(self, operation, app_label):
+        """
+        Reduced model operation by applying the specified operation.
+
+        Args:
+            operation: The operation to be applied.
+            app_label (str): The label of the application where the operation is being applied.
+
+        Returns:
+            A reduced model operation or None if the operation does not reference the model.
+
+        Notes:
+            If the operation is a RenameModel and its old name matches this model's new name (case-insensitive),
+            returns a new RenameModel operation that renames this model's old name to the operation's new name.
+            Otherwise, delegates to the superclass's implementation, returning the result of the superclass
+            unless the operation references this model's new name, in which case returns False.
+        """
         if (
             isinstance(operation, RenameModel)
             and self.new_name_lower == operation.old_name_lower
@@ -606,6 +622,15 @@ class AlterModelTableComment(ModelOptionOperation):
         super().__init__(name)
 
     def deconstruct(self):
+        """
+        Deconstruct the object into its constituent parts.
+
+        Returns a tuple containing three elements: the qualified name of the class,
+        an empty list (indicating no state to be saved), and a dictionary of keyword
+        arguments that can be used to recreate the object. The dictionary includes
+        the object's name and table comment. This method is typically used for
+        serialization or reconstructing the object in a different context.
+        """
         kwargs = {
             "name": self.name,
             "table_comment": self.table_comment,
@@ -642,6 +667,17 @@ class AlterTogetherOptionOperation(ModelOptionOperation):
     option_name = None
 
     def __init__(self, name, option_value):
+        """
+        Initializes an instance with a given name and optional value.
+
+        The provided option_value is normalized and stored as a set, if it is not empty.
+        This allows for efficient storage and lookup of option values.
+        The instance name is passed to the parent class for further initialization.
+
+        :param name: The name of the instance.
+        :param option_value: The optional value to be normalized and stored.
+
+        """
         if option_value:
             option_value = set(normalize_together(option_value))
         setattr(self, self.option_name, option_value)
@@ -1094,6 +1130,20 @@ class RenameIndex(IndexOperation):
         schema_editor.rename_index(model, old_index, new_index)
 
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
+        """
+
+        Reverses the changes applied by the database_forwards operation.
+
+        This function is used to revert a database migration to a previous state.
+        It swaps the new and old field names, calls the database_forwards function to apply the reverse operation,
+        and then restores the original field names.
+
+        :param app_label: The label of the application that this migration is for.
+        :param schema_editor: The schema editor to use for the migration.
+        :param from_state: The state to migrate from.
+        :param to_state: The state to migrate to.
+
+        """
         if self.old_fields:
             # Backward operation with unnamed index is a no-op.
             return

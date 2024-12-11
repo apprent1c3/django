@@ -276,6 +276,13 @@ END;
         return value
 
     def convert_uuidfield_value(self, value, expression, connection):
+        """
+        ..:param value: The value to be converted
+        ..:param expression: The expression that the conversion is being applied to
+        ..:param connection: The database connection being used
+        ..:return: The converted value if it is not None, otherwise None
+        ..notes: Converts a UUID field value to a uuid object if the value is not None. This allows for easier manipulation and comparison of UUID values in database queries.
+        """
         if value is not None:
             value = uuid.UUID(value)
         return value
@@ -369,6 +376,16 @@ END;
         return x
 
     def process_clob(self, value):
+        """
+
+        Process a CLOB (Character Large OBject) value and return its contents as a string.
+
+        If the provided CLOB value is None, an empty string is returned. Otherwise, the contents of the CLOB are read and returned as a string.
+
+        :returns: The contents of the CLOB as a string, or an empty string if the input is None.
+        :rtype: str
+
+        """
         if value is None:
             return ""
         return value.read()

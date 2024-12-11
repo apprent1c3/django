@@ -77,6 +77,9 @@ class DefaultLoggingTests(
 
     @override_settings(DEBUG=True)
     def test_django_logger_warning(self):
+        """
+        Tests the Django logger's warning functionality, verifying that a warning message is correctly logged and output when using the warning method. The test case checks if the expected output matches the actual log output, ensuring the logger is functioning as expected in a debugging environment.
+        """
         self.logger.warning("warning")
         self.assertEqual(self.logger_output.getvalue(), "warning\n")
 
@@ -513,6 +516,21 @@ class SettingsConfigTest(AdminScriptTestCase):
 
     def test_circular_dependency(self):
         # validate is just an example command to trigger settings configuration
+        """
+
+        Checks for circular dependencies in the system.
+
+        This test runs the system check command and verifies that no errors are reported.
+        It ensures that the system is properly configured and that there are no issues
+        that could prevent it from functioning as expected.
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the system check command reports any errors or issues.
+
+        """
         out, err = self.run_manage(["check"])
         self.assertNoOutput(err)
         self.assertOutput(out, "System check identified no issues (0 silenced).")
@@ -571,6 +589,11 @@ class SecurityLoggerTest(LoggingAssertionMixin, SimpleTestCase):
         DEBUG=False,
     )
     def test_suspicious_email_admins(self):
+        """
+        Tests that an email notification is sent to administrators when a suspicious operation is detected.
+        The test verifies that a single email is generated and that it contains a relevant error message, 
+        indicating that the suspicious operation at the specified URL has been reported.
+        """
         self.client.get("/suspicious/")
         self.assertEqual(len(mail.outbox), 1)
         self.assertIn("SuspiciousOperation at /suspicious/", mail.outbox[0].body)

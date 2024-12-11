@@ -11,6 +11,15 @@ class QueryStringTagTests(SimpleTestCase):
 
     @setup({"querystring_empty": "{% querystring %}"})
     def test_querystring_empty(self):
+        """
+        Tests the rendering of a template with an empty query string.
+
+        This test case checks if the template engine correctly handles a request with an empty query string.
+        It verifies that the rendered output is empty, as expected when there are no query string parameters.
+
+        The test scenario involves creating a GET request to the root URL ('/') and rendering a template named 'querystring_empty' using the request context.
+        The outcome is compared to an expected empty string, ensuring the engine's behavior is correct in this specific case.
+        """
         request = self.request_factory.get("/")
         template = self.engine.get_template("querystring_empty")
         context = RequestContext(request)
@@ -43,6 +52,13 @@ class QueryStringTagTests(SimpleTestCase):
 
     @setup({"querystring_add": "{% querystring test_new='something' %}"})
     def test_querystring_add(self):
+        """
+        Tests adding query string parameters to a URL using the querystring template tag.
+
+        This test case verifies that the querystring template tag correctly appends new parameters to an existing query string, properly encoding the values and handling the ampersand character.
+
+        The test checks that the resulting output includes all original query string parameters, plus the newly added parameter 'test_new' with value 'something', and that the ampersand characters are properly escaped in the output.
+        """
         request = self.request_factory.get("/", {"a": "b"})
         template = self.engine.get_template("querystring_add")
         context = RequestContext(request)

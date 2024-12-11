@@ -19,6 +19,14 @@ class GenericPrefetch(Prefetch):
         super().__init__(lookup, to_attr=to_attr)
 
     def __getstate__(self):
+        """
+        Returns a dictionary representing the state of the object, suitable for pickling.
+
+        This method creates a copy of the object's internal dictionary and modifies the 'querysets' key to contain a list of memoized querysets.
+        Each queryset is prepared for serialization by clearing its result cache and marking it as prefetched.
+        The resulting dictionary can be used to reconstruct the object at a later time, preserving its internal state.
+        Note that any querysets originally stored in the object are replaced with memoized versions to prevent the loss of query state during serialization.
+        """
         obj_dict = self.__dict__.copy()
         obj_dict["querysets"] = []
         for queryset in self.querysets:

@@ -203,6 +203,17 @@ class GenericRelationTests(SimpleTestCase):
 
     @override_settings(TEST_SWAPPED_MODEL="contenttypes_tests.Replacement")
     def test_pointing_to_swapped_model(self):
+        """
+
+        Tests that a GenericRelation field correctly identifies and reports an error when 
+        it points to a model that has been swapped out with a different model in the settings.
+
+        This test ensures that the field validation mechanism correctly identifies the 
+        swapped model and provides a meaningful error message with a hint on how to resolve 
+        the issue, which is to update the relation to point to the swapped model defined 
+        in the settings.
+
+        """
         class Replacement(models.Model):
             pass
 
@@ -257,6 +268,14 @@ class GenericRelationTests(SimpleTestCase):
 @isolate_apps("contenttypes_tests", attr_name="apps")
 class ModelCheckTests(SimpleTestCase):
     def test_model_name_too_long(self):
+        """
+        Returns a list of errors if there are any model names that exceed the maximum allowed length.
+
+        The function checks the names of all models in the application's app configurations 
+        and verifies that they do not exceed 100 characters. If a model name is too long, 
+        it returns a list containing an Error object with a descriptive message, 
+        the offending model object, and an error identifier.
+        """
         model = type("A" * 101, (models.Model,), {"__module__": self.__module__})
         self.assertEqual(
             check_model_name_lengths(self.apps.get_app_configs()),
@@ -270,5 +289,17 @@ class ModelCheckTests(SimpleTestCase):
         )
 
     def test_model_name_max_length(self):
+        """
+        Check that all model names are within the maximum allowed length.
+
+        Verifies that no model names in the application exceed the permitted length,
+        ensuring compliance with database constraints and avoiding potential errors.
+
+        Returns an empty list if all model names are within the acceptable length,
+        indicating successful validation. Otherwise, an exception is raised.
+
+        This test helps maintain the integrity and consistency of the application's
+        database schema by enforcing model name length limits.
+        """
         type("A" * 100, (models.Model,), {"__module__": self.__module__})
         self.assertEqual(check_model_name_lengths(self.apps.get_app_configs()), [])

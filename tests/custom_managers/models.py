@@ -34,6 +34,15 @@ class AnnotatedBookManager(models.Manager):
 
 class CustomQuerySet(models.QuerySet):
     def filter(self, *args, **kwargs):
+        """
+        Filters the object set and returns a custom queryset.
+
+        This method extends the default filter functionality by applying a specific condition (fun=True) to the queryset.
+        The returned queryset is marked as a CustomQuerySet, allowing for further specialized processing.
+
+        :returns: A filtered CustomQuerySet object
+        :rtype: CustomQuerySet
+        """
         queryset = super().filter(fun=True)
         queryset._filter_CustomQuerySet = True
         return queryset

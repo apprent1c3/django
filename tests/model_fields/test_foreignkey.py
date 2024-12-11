@@ -139,6 +139,20 @@ class ForeignKeyTests(TestCase):
 
     @isolate_apps("model_fields")
     def test_non_local_to_field(self):
+        """
+
+        Tests that a ForeignKey to a non-local field raises a FieldError.
+
+        The test case involves a non-local field 'key' on the 'Parent' model, which is
+        inherited by the 'Child' model. The 'Related' model contains a ForeignKey to the
+        'Child' model, referencing the 'key' field. The test asserts that this setup
+        raises a FieldError when trying to access the related fields of the ForeignKey,
+        as the referenced field is not local to the 'Child' model.
+
+        The purpose of this test is to ensure that Django enforces the constraint that a
+        ForeignKey must reference a local field on the related model.
+
+        """
         class Parent(models.Model):
             key = models.IntegerField(unique=True)
 

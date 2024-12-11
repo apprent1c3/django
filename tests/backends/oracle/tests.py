@@ -64,6 +64,17 @@ class Tests(TestCase):
         return_value=(18, 1),
     )
     def test_check_database_version_supported(self, mocked_get_database_version):
+        """
+        Checks if the database version is supported.
+
+        This function determines whether the database version meets the minimum requirements.
+        It raises a NotSupportedError if the version is not supported, providing a descriptive message with the required and found versions.
+        The function relies on an external connection to retrieve the database version.
+
+        Raises:
+            NotSupportedError: If the database version does not meet the minimum requirements.
+
+        """
         msg = "Oracle 19 or later is required (found 18.1)."
         with self.assertRaisesMessage(NotSupportedError, msg):
             connection.check_database_version_supported()
@@ -77,6 +88,15 @@ class TransactionalTests(TransactionTestCase):
     def test_hidden_no_data_found_exception(self):
         # "ORA-1403: no data found" exception is hidden by Oracle OCI library
         # when an INSERT statement is used with a RETURNING clause (see #28859).
+        """
+
+        Tests the handling of a 'no data found' exception being hidden by the Oracle OCI library.
+
+        This test creates a trigger that raises a NO_DATA_FOUND exception after inserting a row into the BACKENDS_SQUARE table.
+        It then attempts to create a new Square object, which should cause the trigger to be fired and the exception to be raised.
+        The test verifies that the expected DatabaseError is raised with a message indicating that the Oracle OCI library may have hidden the underlying ORA-1403 error.
+
+        """
         with connection.cursor() as cursor:
             # Create trigger that raises "ORA-1403: no data found".
             cursor.execute(

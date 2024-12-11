@@ -422,6 +422,17 @@ class CheckSecretKeyTest(SimpleTestCase):
 
     @override_settings(SECRET_KEY=None)
     def test_missing_secret_key(self):
+        """
+        Tests that a warning is raised when the SECRET_KEY setting is missing.
+
+        Checks that the check_secret_key function returns the expected warning (W009)
+        when the SECRET_KEY setting has not been defined, ensuring that the application
+        is properly configured for security and secret key management.
+
+        Returns:
+            list: A list containing the expected warning code (W009) indicating a missing SECRET_KEY setting.
+
+        """
         del settings.SECRET_KEY
         self.assertEqual(base.check_secret_key(None), [base.W009])
 
@@ -437,6 +448,18 @@ class CheckSecretKeyTest(SimpleTestCase):
 
     @override_settings(SECRET_KEY=("abcdefghijklmnopqrstuvwx" * 2) + "a")
     def test_low_length_secret_key(self):
+        """
+
+        Verifies the behavior when a low-length secret key is used.
+
+        This test checks that an insufficiently long secret key triggers the expected
+        warning (W009) and that the length of the secret key is one character less than
+        the minimum required length.
+
+        The purpose of this test is to ensure that the secret key validation is working
+        correctly and providing the appropriate warning when a weak secret key is used.
+
+        """
         self.assertEqual(len(settings.SECRET_KEY), base.SECRET_KEY_MIN_LENGTH - 1)
         self.assertEqual(base.check_secret_key(None), [base.W009])
 
@@ -498,6 +521,17 @@ class CheckSecretKeyFallbacksTest(SimpleTestCase):
 
     @override_settings(SECRET_KEY_FALLBACKS=["abcd" * 20])
     def test_low_entropy_secret_key_fallbacks(self):
+        """
+
+        Tests the handling of low entropy SECRET_KEY_FALLBACKS settings.
+
+        This test case verifies that a warning is raised when the SECRET_KEY_FALLBACKS setting contains a key with low entropy,
+        i.e., a key that is too short or contains too few unique characters. The test checks that the length of the first fallback key
+        is greater than the minimum required length, but the number of unique characters in the key is less than the minimum required.
+
+        The expected outcome is a warning indicating that the SECRET_KEY_FALLBACKS setting contains a key with insufficient entropy.
+
+        """
         self.assertGreater(
             len(settings.SECRET_KEY_FALLBACKS[0]),
             base.SECRET_KEY_MIN_LENGTH,

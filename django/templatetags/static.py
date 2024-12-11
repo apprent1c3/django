@@ -123,6 +123,19 @@ class StaticNode(template.Node):
 
     @classmethod
     def handle_simple(cls, path):
+        """
+
+        Handles the URL resolution for a given static file path.
+
+        This method checks if the 'django.contrib.staticfiles' app is installed. 
+        If installed, it uses Django's built-in staticfiles storage to resolve the URL.
+        Otherwise, it constructs the URL by joining the static URL prefix with the path.
+
+        :param path: The path to the static file.
+        :rtype: str
+        :return: The resolved URL of the static file.
+
+        """
         if apps.is_installed("django.contrib.staticfiles"):
             from django.contrib.staticfiles.storage import staticfiles_storage
 

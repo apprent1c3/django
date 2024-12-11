@@ -16,6 +16,11 @@ class BaseChoiceIterator:
     """Base class for lazy iterators for choices."""
 
     def __eq__(self, other):
+        """
+        Checks if this object is equal to another object.
+
+        Two objects are considered equal if they are either the same object or if they are iterable and have the same elements in the same order. For iterables, equality is determined by comparing corresponding elements. If one iterable is longer than the other, the extra elements in the longer iterable are compared to a default fill value, which is considered unequal to any object. If no match is found in the iterables, the function falls back to the default equality check.
+        """
         if isinstance(other, Iterable):
             return all(a == b for a, b in zip_longest(self, other, fillvalue=object()))
         return super().__eq__(other)
@@ -43,6 +48,16 @@ class BlankChoiceIterator(BaseChoiceIterator):
         self.blank_choice = blank_choice
 
     def __iter__(self):
+        """
+
+        Returns an iterator over the choices.
+
+        If there are no empty or null values in the choices, the iteration starts with
+        a blank choice, followed by the actual choices. The blank choice is included
+        to provide a default or initial option. Otherwise, the iteration begins
+        directly with the available choices.
+
+        """
         choices, other = tee(self.choices)
         if not any(value in ("", None) for value, _ in flatten_choices(other)):
             yield from self.blank_choice

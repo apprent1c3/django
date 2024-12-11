@@ -468,6 +468,19 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         self.delete_model(old_field.remote_field.through)
 
     def add_constraint(self, model, constraint):
+        """
+
+        Adds a constraint to the given model.
+
+        The addition of the constraint is handled differently depending on its type and properties. 
+        If the constraint is a UniqueConstraint with additional properties (such as a condition, 
+        expressions, included columns, or deferrability), it is added using the superclass method. 
+        Otherwise, the table associated with the model is remade to incorporate the new constraint.
+
+        :param model: The model to which the constraint is being added.
+        :param constraint: The constraint to be added to the model.
+
+        """
         if isinstance(constraint, UniqueConstraint) and (
             constraint.condition
             or constraint.contains_expressions

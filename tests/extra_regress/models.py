@@ -19,6 +19,16 @@ class RevisionableModel(models.Model):
             super().save(*args, **kwargs)
 
     def new_revision(self):
+        """
+        Create a new revision of the current instance.
+
+        Returns a duplicate of the current object, with a new primary key, 
+        allowing for modifications without overwriting the original data.
+
+        This method enables versioned data management by creating a copy 
+        of the current object that can be modified independently, 
+        while maintaining a historical reference to the original data.
+        """
         new_revision = copy.copy(self)
         new_revision.pk = None
         return new_revision

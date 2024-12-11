@@ -188,6 +188,14 @@ class I18nBlockTransTagTests(SimpleTestCase):
         }
     )
     def test_i18n19(self):
+        """
+
+        Tests the i18n translation block with HTML escaping.
+
+        Verifies that the translation block correctly escapes special characters,
+        ensuring that the output is safe for display in an HTML context.
+
+        """
         output = self.engine.render_to_string("i18n19", {"andrew": "a & b"})
         self.assertEqual(output, "a &amp; b")
 
@@ -309,6 +317,17 @@ class I18nBlockTransTagTests(SimpleTestCase):
         }
     )
     def test_legacyi18n28(self):
+        """
+
+        Tests the legacy i18n functionality, specifically the handling of block translations 
+        with variables. Validates that the template engine correctly replaces variables 
+        with their corresponding values and maintains the original string format.
+
+        The test case uses two variables, 'anton' and 'berta', which are replaced with 
+        Greek letters 'α' and 'β' respectively, in the rendered string. The output is 
+        then compared to the expected string 'α + β' to ensure accurate rendering.
+
+        """
         output = self.engine.render_to_string(
             "legacyi18n28", {"anton": "α", "berta": "β"}
         )
@@ -398,6 +417,16 @@ class I18nBlockTransTagTests(SimpleTestCase):
         }
     )
     def test_i18n40(self):
+        """
+
+        Tests the blocktranslate tag with a nested translate tag in an i18n40 template setup.
+
+        Verifies that the translation and blocktranslate functionality work correctly together,
+        ensuring proper rendering of a page not found message in the specified template context.
+
+        The test checks if the rendered output of the i18n40 template is empty.
+
+        """
         output = self.engine.render_to_string("i18n40")
         self.assertEqual(output, "")
 
@@ -448,6 +477,16 @@ class I18nBlockTransTagTests(SimpleTestCase):
 
     @setup({"template": "{% load i18n %}{% blocktranslate %}%s{% endblocktranslate %}"})
     def test_blocktrans_tag_using_a_string_that_looks_like_str_fmt(self):
+        """
+
+        Tests the functionality of the blocktrans tag in a template when using a string 
+        that resembles a string formatting placeholder. 
+
+        This test case verifies that the template engine correctly renders the template 
+        and that the output matches the expected string, ensuring that the blocktrans 
+        tag is properly handled in this specific scenario.
+
+        """
         output = self.engine.render_to_string("template")
         self.assertEqual(output, "%s")
 
@@ -460,6 +499,15 @@ class I18nBlockTransTagTests(SimpleTestCase):
         }
     )
     def test_with_block(self, tag_name):
+        """
+        Tests that a template tag does not allow other block tags inside it.
+
+        Checks if rendering a template containing the specified tag with a nested
+        'block' tag raises a TemplateSyntaxError with the expected error message.
+
+        :param tag_name: The name of the template tag to be tested.
+
+        """
         msg = "'{}' doesn't allow other block tags (seen 'block b') inside it".format(
             tag_name
         )
@@ -501,6 +549,17 @@ class I18nBlockTransTagTests(SimpleTestCase):
         {"template": "{% load i18n %}{% blocktranslate with %}{% endblocktranslate %}"}
     )
     def test_no_args_with(self, tag_name):
+        """
+
+        Tests that a template tag raises an error when used with no keyword arguments.
+
+        Args:
+            tag_name (str): The name of the template tag being tested.
+
+        Raises:
+            TemplateSyntaxError: If the template tag is used without providing any keyword arguments.
+
+        """
         msg = "\"with\" in '{}' tag needs at least one keyword argument.".format(
             tag_name
         )

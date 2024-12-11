@@ -23,6 +23,20 @@ class ConnectionHandlerTests(SimpleTestCase):
                 self.assertImproperlyConfigured(DATABASES)
 
     def assertImproperlyConfigured(self, DATABASES):
+        """
+        Asserts that the DATABASES setting is improperly configured.
+
+        This test checks if the 'ENGINE' value is correctly specified in the database settings.
+        It creates a ConnectionHandler instance with the provided DATABASES setting and verifies
+        that an ImproperlyConfigured exception is raised when attempting to establish a connection
+        to the database, indicating that the 'ENGINE' value is missing or incorrect.
+
+        The test expects the 'ENGINE' value to be set to 'django.db.backends.dummy' for the default database alias.
+        If the 'ENGINE' value is not provided, it tests for a specific error message to ensure proper error handling.
+
+        The goal of this test is to ensure that the DATABASES setting is correctly configured before
+        attempting to use the database, and to provide a clear error message when the configuration is incorrect.
+        """
         conns = ConnectionHandler(DATABASES)
         self.assertEqual(
             conns[DEFAULT_DB_ALIAS].settings_dict["ENGINE"], "django.db.backends.dummy"

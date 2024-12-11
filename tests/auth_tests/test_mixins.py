@@ -148,6 +148,18 @@ class UserPassesTestTests(SimpleTestCase):
         self._test_redirect()
 
     def test_custom_redirect_url(self):
+        """
+
+        Tests the custom redirect URL functionality for login redirects.
+
+        This test case verifies that the redirect URL is correctly appended with the next parameter
+        when the view requires authentication and the user is not logged in.
+
+        The test uses a custom view (AView) that always returns a False value, indicating that the
+        user is not authenticated, and a specific login URL is set. The test then checks that the
+        redirect URL matches the expected format, including the next parameter with a random path.
+
+        """
         class AView(AlwaysFalseView):
             login_url = "/login/"
 
@@ -251,6 +263,11 @@ class PermissionsRequiredMixinTests(TestCase):
         cls.user.user_permissions.add(*perms)
 
     def test_many_permissions_pass(self):
+        """
+        Tests that a view with multiple permissions checks passes when all required permissions are met. 
+
+        The view requires the 'add_customuser' and 'change_customuser' permissions, and the test verifies that a 200 status code is returned when the view is accessed with a user that has these permissions. This ensures that the PermissionRequiredMixin behaves correctly when multiple permissions are specified.
+        """
         class AView(PermissionRequiredMixin, EmptyResponseView):
             permission_required = [
                 "auth_tests.add_customuser",

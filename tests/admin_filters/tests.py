@@ -916,6 +916,16 @@ class ListFiltersTests(TestCase):
         self.assertEqual(sorted(filterspec.lookup_choices), sorted(expected))
 
     def test_relatedonlyfieldlistfilter_foreignkey_reverse_relationships(self):
+        """
+
+        Tests the RelatedOnlyFieldListFilter with a foreign key using reverse relationships.
+
+        This test ensures that the filter only displays related objects that are
+        accessible through a reverse relationship, in this case, books that have
+        an employee assigned. The test verifies that the filter options include
+        all books that have an employee, with their names displayed correctly.
+
+        """
         class EmployeeAdminReverseRelationship(ModelAdmin):
             list_filter = (("book", RelatedOnlyFieldListFilter),)
 

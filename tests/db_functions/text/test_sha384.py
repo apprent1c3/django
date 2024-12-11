@@ -49,6 +49,15 @@ class SHA384Tests(TestCase):
         )
 
     def test_transform(self):
+        """
+        Tests the transformation of a SHA384 lookup on an Author object.
+
+        Ensures that the lookup correctly queries authors by their alias, using a SHA384 hashed value.
+        The test verifies that the lookup returns the expected author alias, demonstrating its correctness and functionality.
+
+        In this test case, the expected author alias is 'John Smith', corresponding to the provided SHA384 hash value.
+        The test passes if the lookup returns this alias, confirming that the transformation is working as intended.
+        """
         with register_lookup(CharField, SHA384):
             authors = Author.objects.filter(
                 alias__sha384=(

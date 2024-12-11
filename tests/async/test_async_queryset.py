@@ -14,6 +14,16 @@ from .models import RelatedModel, SimpleModel
 class AsyncQuerySetTest(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Setup test data for the class.
+
+        This method creates and stores a set of SimpleModel and RelatedModel instances as class attributes,
+        which can be used throughout the test suite for testing purposes.
+        The SimpleModel instances are created with varying 'field' values and timestamps, 
+        and the RelatedModel instances are created with corresponding SimpleModel instances.
+
+        """
         cls.s1 = SimpleModel.objects.create(
             field=1,
             created=datetime(2022, 1, 1, 0, 0, 0),
@@ -51,6 +61,18 @@ class AsyncQuerySetTest(TestCase):
         self.assertCountEqual(results, [self.s1, self.s2, self.s3])
 
     async def test_aiterator_prefetch_related(self):
+        """
+
+        Tests the functionality of an async iterator when prefetching related models.
+
+        This function utilizes the async iterator to fetch SimpleModel instances with their related models prefetched.
+        It then verifies that the prefetched related models are correctly retrieved and match the expected results.
+
+        The test case focuses on the following key aspects:
+            * Async iteration over SimpleModel instances with prefetched related models.
+            * Verification of the correctness of the prefetched related model data.
+
+        """
         results = []
         async for s in SimpleModel.objects.prefetch_related(
             Prefetch("relatedmodel_set", to_attr="prefetched_relatedmodel")
@@ -126,6 +148,19 @@ class AsyncQuerySetTest(TestCase):
     @skipIfDBFeature("supports_update_conflicts_with_target")
     @async_to_sync
     async def test_update_conflicts_unique_field_unsupported(self):
+        """
+
+        Tests updating conflicts with unique fields on a database backend without support.
+
+        Verifies that attempting to upsert with update conflicts and unique fields,
+        which is not supported, raises a NotSupportedError. This ensures database
+        backends which lack support for updating conflicts with unique fields correctly
+        report their limitations.
+
+        The test checks the error message for the expected notification that updating
+        conflicts with unique fields is not supported by the database backend.
+
+        """
         msg = (
             "This database backend does not support updating conflicts with specifying "
             "unique fields that can trigger the upsert."
@@ -193,10 +228,29 @@ class AsyncQuerySetTest(TestCase):
         self.assertIsNone(instance)
 
     async def test_aaggregate(self):
+        """
+
+        Tests the aaggregate method of the SimpleModel objects.
+
+        This test case verifies that the aaggregate method correctly calculates the sum of the 'field' column.
+        It checks if the result of the aggregation is equal to the expected value.
+
+        The test expects the aggregated result to be a dictionary containing a single key 'total' with the calculated sum.
+
+        """
         total = await SimpleModel.objects.aaggregate(total=Sum("field"))
         self.assertEqual(total, {"total": 6})
 
     async def test_aexists(self):
+        """
+
+        Asynchronously checks if at least one object matching the filter criteria exists.
+
+        Returns True if the query returns at least one object, False otherwise.
+
+        This method is useful for quickly determining the presence or absence of data without retrieving the actual data.
+
+        """
         check = await SimpleModel.objects.filter(field=1).aexists()
         self.assertIs(check, True)
 

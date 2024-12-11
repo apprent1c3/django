@@ -187,6 +187,16 @@ class ValidationError(Exception):
 
     @property
     def messages(self):
+        """
+        Returns a combined list of messages stored in the object.
+
+        If the object contains an error dictionary, the function aggregates all
+        messages from the dictionary values. Otherwise, it returns a list of all
+        messages stored directly in the object.
+
+        This property provides a convenient way to retrieve all messages,
+        regardless of their storage location within the object.
+        """
         if hasattr(self, "error_dict"):
             return sum(dict(self).values(), [])
         return list(self)
@@ -211,6 +221,9 @@ class ValidationError(Exception):
                 yield str(message)
 
     def __str__(self):
+        """
+        Returns a string representation of the object, taking into account whether it contains an error dictionary or a list of elements. If an error dictionary is present, returns a representation of the dictionary; otherwise, returns a representation of the object as a list.
+        """
         if hasattr(self, "error_dict"):
             return repr(dict(self))
         return repr(list(self))

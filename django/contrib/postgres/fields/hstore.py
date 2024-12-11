@@ -28,6 +28,20 @@ class HStoreField(CheckFieldDefaultMixin, Field):
         return KeyTransformFactory(name)
 
     def validate(self, value, model_instance):
+        """
+        Validates the input value to ensure all items are strings.
+
+        This method verifies that every item in the input value is either a string or None.
+        If any item is neither a string nor None, it raises a ValidationError with a 'not_a_string' code.
+
+        Args:
+            value: The input value to be validated.
+            model_instance: The instance of the model being validated.
+
+        Raises:
+            exceptions.ValidationError: If any item in the input value is not a string or None.
+
+        """
         super().validate(value, model_instance)
         for key, val in value.items():
             if not isinstance(val, str) and val is not None:

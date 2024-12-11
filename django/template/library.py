@@ -122,6 +122,18 @@ class Library:
 
             @wraps(func)
             def compile_func(parser, token):
+                """
+                Compile a function into a node for template evaluation.
+
+                Compiles a function by parsing its arguments, keyword arguments, and any assigned target variable.
+                The compilation process handles both required and optional arguments, as well as keyword-only arguments.
+                It returns a :class:`SimpleNode` object that represents the compiled function.
+
+                :param parser: The parser instance being used for template compilation.
+                :param token: The token representing the function call to be compiled.
+                :returns: A :class:`SimpleNode` object representing the compiled function.
+
+                """
                 bits = token.split_contents()[1:]
                 target_var = None
                 if len(bits) >= 2 and bits[-2] == "as":
@@ -164,6 +176,20 @@ class Library:
         """
 
         def dec(func):
+            """
+            A decorator that compiles a function into a templating tag.
+
+            This decorator is used to register a function as a templating tag, allowing it to be used in templates.
+            The decorated function will be called with the provided arguments and keyword arguments, and its return value will be used in place of the tag.
+
+            The decorator automatically handles the parsing of arguments and keyword arguments passed to the tag, 
+            and it also supports variable arguments and keyword-only arguments.
+
+            Once decorated, the function can be used as a tag in templates, and it will be replaced with the result of the function call.
+
+            :param func: The function to be compiled into a templating tag.
+            :return: The original function, now wrapped as a templating tag
+            """
             (
                 params,
                 varargs,
@@ -177,6 +203,20 @@ class Library:
 
             @wraps(func)
             def compile_func(parser, token):
+                """
+
+                Compiles a function for use in a templating engine.
+
+                This function takes a parser, token, and various parameter information, 
+                and returns an InclusionNode object that represents the compiled function.
+                It splits the input token into its constituent parts, parses the arguments 
+                and keyword arguments, and uses this information to create the node.
+
+                The compiled function can then be used to render the templated content.
+                The function takes into account various options such as variable arguments, 
+                keyword-only arguments, and default values, to ensure correct rendering.
+
+                """
                 bits = token.split_contents()[1:]
                 args, kwargs = parse_bits(
                     parser,

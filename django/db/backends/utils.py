@@ -233,6 +233,17 @@ def typecast_time(s):  # does NOT store time zone information
 def typecast_timestamp(s):  # does NOT store time zone information
     # "2005-07-29 15:48:00.590358-05"
     # "2005-07-29 09:56:00-05"
+    """
+    .. function:: typecast_timestamp(s)
+       :param s: A string representing a timestamp
+       :return: A datetime object or None if the input string is empty
+
+       This function takes a string representing a timestamp and converts it into a datetime object.
+       The input string is expected to be in a format that includes date and time, such as \"YYYY-MM-DD HH:MM:SS\",
+       or variations of this format that include fractional seconds and/or time zone information.
+       If the input string does not contain a space, it is passed to the typecast_date function for processing.
+       The function returns None if the input string is empty, otherwise it returns a datetime object representing the timestamp.
+    """
     if not s:
         return None
     if " " not in s:

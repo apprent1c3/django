@@ -318,6 +318,17 @@ class UpdateViewTests(TestCase):
         self.assertRedirects(res, "/%C3%A9dit/author/{}/update/".format(pk))
 
     def test_update_with_special_properties(self):
+        """
+
+        Tests the update functionality for authors with special properties.
+
+        This test case covers the following scenarios:
+            * A GET request to the update special page returns a 200 status code and renders the correct form template.
+            * The page context contains the expected form, object, and other relevant data.
+            * A POST request to the update special page with valid data updates the author's information successfully and redirects to the author's detail page.
+            * The updated author information is persisted in the database.
+
+        """
         res = self.client.get("/edit/author/%d/update/special/" % self.author.pk)
         self.assertEqual(res.status_code, 200)
         self.assertIsInstance(res.context["form"], views.AuthorForm)

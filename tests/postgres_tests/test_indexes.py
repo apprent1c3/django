@@ -60,6 +60,16 @@ class BloomIndexTests(IndexTestMixin, PostgreSQLSimpleTestCase):
         self.assertEqual(BloomIndex.suffix, "bloom")
 
     def test_deconstruction(self):
+        """
+        #: Tests the deconstruction of a BloomIndex object.
+        #: 
+        #: The deconstruction is the process of breaking down a complex object into its constituent parts,
+        #: in this case, the path to the object's class, positional arguments, and keyword arguments.
+        #: This is useful for serializing and deserializing the object, such as when migrating database schema.
+        #: 
+        #: The test checks that the deconstructed path matches the expected class path,
+        #: and that the arguments and keyword arguments are correctly extracted and match the original object's attributes.
+        """
         index = BloomIndex(fields=["title"], name="test_bloom", length=80, columns=[4])
         path, args, kwargs = index.deconstruct()
         self.assertEqual(path, "django.contrib.postgres.indexes.BloomIndex")

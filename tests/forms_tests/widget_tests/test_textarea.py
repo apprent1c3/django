@@ -64,6 +64,17 @@ class TextareaTest(WidgetTest):
         )
 
     def test_fieldset(self):
+        """
+        Tests the rendering of a form field using a custom widget.
+
+        Verifies that the widget does not use a fieldset by default and that the 
+        form field renders correctly with the expected HTML structure, including 
+        a label and textarea elements with the correct attributes.
+
+        The test creates a simple form with a single character field using the 
+        custom widget and checks the rendered HTML output against an expected 
+        template to ensure accurate rendering. 
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = CharField(widget=self.widget)

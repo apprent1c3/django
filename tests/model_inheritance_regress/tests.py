@@ -600,6 +600,13 @@ class ModelInheritanceTest(TestCase):
             self.assertEqual(restaurant.italianrestaurant, italian_restaurant)
 
     def test_id_field_update_on_ancestor_change(self):
+        """
+
+        Tests that the id field of an object is updated correctly when its ancestor's object is changed.
+
+        This test case checks the behavior of multi-table inheritance in Django models. Specifically, it verifies that when the ancestor object of a model instance is updated or set to None, the id field of the instance is updated accordingly. This includes checking for the correct behavior when updating the ancestor object to a new instance, as well as when setting the ancestor object to None, which should result in the id field being set to None.
+
+        """
         place1 = Place.objects.create(name="House of Pasta", address="944 Fullerton")
         place2 = Place.objects.create(name="House of Pizza", address="954 Fullerton")
         place3 = Place.objects.create(name="Burger house", address="964 Fullerton")

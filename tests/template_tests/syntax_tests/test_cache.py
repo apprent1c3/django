@@ -16,6 +16,9 @@ class CacheTagTests(SimpleTestCase):
 
     @setup({"cache03": "{% load cache %}{% cache 2 test %}cache03{% endcache %}"})
     def test_cache03(self):
+        """
+        Tests the basic functionality of the cache template tag by rendering a template with a cached section to ensure the expected output is produced after a specified timeout period. The test verifies that the cached content is correctly rendered and matches the predefined output, in this case 'cache03', after applying the cache for 2 seconds.
+        """
         output = self.engine.render_to_string("cache03")
         self.assertEqual(output, "cache03")
 

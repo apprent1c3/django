@@ -43,6 +43,11 @@ class TranslationCheckTests(SimpleTestCase):
                 self.assertEqual(check_setting_language_code(None), [])
 
     def test_invalid_language_code(self):
+        """
+        Tests that the `check_setting_language_code` function correctly identifies and reports invalid language codes.
+
+        The function iterates over a set of known invalid language tags, simulating the LANGUAGE_CODE setting with each tag, and verifies that the expected error message is returned. The error message includes the specific invalid language code that was provided. This ensures that the function accurately detects and reports invalid language codes, providing helpful feedback to users.
+        """
         msg = "You have provided an invalid value for the LANGUAGE_CODE setting: %r."
         for tag in self.invalid_tags:
             with self.subTest(tag), self.settings(LANGUAGE_CODE=tag):
@@ -75,6 +80,17 @@ class TranslationCheckTests(SimpleTestCase):
                 self.assertEqual(check_setting_languages_bidi(None), [])
 
     def test_invalid_languages_bidi(self):
+        """
+        Tests the validation of invalid language codes in the LANGUAGES_BIDI setting.
+
+        Checks that providing an invalid language code in the LANGUAGES_BIDI setting raises an error with a descriptive message.
+
+        The test iterates over a set of predefined invalid language tags, verifying that each invalid tag triggers the expected error.
+
+        The error message includes the specific invalid language code provided, allowing for easy identification and correction of the issue.
+
+        The test result is a list of errors, each containing the error message and a unique error identifier ('translation.E003').
+        """
         msg = (
             "You have provided an invalid language code in the LANGUAGES_BIDI setting: "
             "%r."

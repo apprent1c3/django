@@ -146,6 +146,20 @@ class DiscoverRunnerTests(SimpleTestCase):
         self.assertEqual(runner.shuffle_seed, 1)
 
     def test_setup_shuffler_shuffle_int(self):
+        """
+        Tests the setup_shuffler method when shuffle is set to a specific integer.
+
+        Verifies that the shuffle seed is set correctly and a message indicating
+        the use of a given shuffle seed is printed to the console. 
+
+        Args:
+            None
+
+        Asserts:
+            The shuffle attribute of the runner is set to the given integer.
+            A message indicating the use of the given shuffle seed is printed.
+            The shuffle_seed attribute of the runner is set to the given integer.
+        """
         runner = DiscoverRunner(shuffle=2)
         self.assertEqual(runner.shuffle, 2)
         with captured_stdout() as stdout:
@@ -540,6 +554,16 @@ class DiscoverRunnerTests(SimpleTestCase):
             self.assertIn("Found 14 test(s).\n", stdout.getvalue())
 
     def test_pdb_with_parallel(self):
+        """
+
+        Test that using --pdb with parallel tests raises a ValueError.
+
+        Checks that attempting to use the PDB debugger with multiple parallel test runners
+        results in an error, as these two features are mutually exclusive. The correct way
+        to use the PDB debugger is by running tests sequentially, achievable by setting 
+        --parallel=1.
+
+        """
         msg = "You cannot use --pdb with parallel tests; pass --parallel=1 to use it."
         with self.assertRaisesMessage(ValueError, msg):
             DiscoverRunner(pdb=True, parallel=2)
@@ -597,6 +621,25 @@ class DiscoverRunnerTests(SimpleTestCase):
         self.assertIn("Write to stdout.", stdout.getvalue())
 
     def run_suite_with_runner(self, runner_class, **kwargs):
+        """
+        Runs a test suite using a specified test runner class.
+
+        This function executes a test suite by creating an instance of the provided 
+        runner class and using it to run the tests. It captures any output generated 
+        during the test run and returns the test result along with the captured output.
+
+        The function takes in a runner class as an argument, allowing for customization 
+        of the test running process. Any additional keyword arguments are passed to the 
+        runner instance.
+
+        The return value is a tuple containing the test result and the captured output. 
+        In case of a runtime error during the test run, the error message is returned 
+        as a string instead of the test result. 
+
+        :arg runner_class: The class of the test runner to use
+        :keyword kwargs: Additional arguments to pass to the runner instance
+        :returns: A tuple containing the test result and the captured output
+        """
         class MyRunner(DiscoverRunner):
             def test_runner(self, *args, **kwargs):
                 return runner_class()
@@ -690,6 +733,22 @@ class DiscoverRunnerTests(SimpleTestCase):
         self.assertIn("test", stderr.getvalue())
 
     def test_log(self):
+        """
+
+        Tests the logging functionality of the DiscoverRunner class.
+
+        This test covers various scenarios, including different verbosity levels and logging levels.
+        It checks whether the logging message is printed to the console based on the verbosity and logging level.
+        The test cases include custom logging levels, as well as the standard logging levels provided by the logging module.
+
+        The test ensures that the log message is only printed when the verbosity level allows it, according to the following rules:
+        - Verbosity level 0: only prints messages with level INFO or higher, unless a custom low-level threshold is set.
+        - Verbosity level 1: prints messages with level INFO or higher.
+        - Verbosity level 2 and 3: print all messages, including those with custom logging levels.
+
+        The test uses a parametrized approach to cover all the different scenarios, allowing for efficient testing of the logging functionality.
+
+        """
         custom_low_level = 5
         custom_high_level = 45
         msg = "logging message"
@@ -795,6 +854,17 @@ class DiscoverRunnerGetDatabasesTests(SimpleTestCase):
         return databases, stdout.getvalue()
 
     def assertSkippedDatabases(self, test_labels, expected_databases):
+        """
+
+        Asserts that the databases expected to be skipped are correctly identified and reported.
+
+        This method verifies that the databases retrieved for the given test labels match the expected list of databases.
+        It also checks the output for a message indicating which databases were skipped, if any.
+
+        :param test_labels: The labels of the tests to retrieve databases for
+        :param expected_databases: The expected list of databases
+
+        """
         databases, output = self.get_databases(test_labels)
         self.assertEqual(databases, expected_databases)
         skipped_databases = set(connections) - set(expected_databases)

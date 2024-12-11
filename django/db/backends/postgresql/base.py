@@ -253,6 +253,20 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         return divmod(self.pg_version, 10000)
 
     def get_connection_params(self):
+        """
+        Return connection parameters for a PostgreSQL database connection.
+
+        The connection parameters are generated based on the provided database settings.
+        The settings are validated to ensure that the database name is not empty and does not exceed the PostgreSQL limit.
+        The function also checks for the presence of required settings such as 'NAME', 'USER', 'PASSWORD', 'HOST', and 'PORT', and includes them in the connection parameters if available.
+
+        Additional options such as client encoding, pool options, and server-side binding are also handled.
+        The function returns a dictionary containing the validated and processed connection parameters.
+
+        Raises:
+            ImproperlyConfigured: If the database settings are improperly configured or if the database name exceeds the PostgreSQL limit.
+            ImproperlyConfigured: If database pooling is requested but psycopg >= 3 is not available.
+        """
         settings_dict = self.settings_dict
         # None may be used to connect to the default 'postgres' db
         if settings_dict["NAME"] == "" and not settings_dict["OPTIONS"].get("service"):
@@ -361,6 +375,15 @@ class DatabaseWrapper(BaseDatabaseWrapper):
 
     def ensure_timezone(self):
         # Close the pool so new connections pick up the correct timezone.
+        """
+
+        Ensures the timezone is set for the current database connection.
+
+        This function checks if a connection exists and if so, it delegates the timezone setting to a helper function.
+        It first closes any existing database pool to prevent potential conflicts.
+        The function returns True if the timezone is successfully set, otherwise it returns False.
+
+        """
         self.close_pool()
         if self.connection is None:
             return False
@@ -383,6 +406,17 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         return commit_role or commit_tz
 
     def _close(self):
+        """
+        -browser
+        .. method:: _close()
+
+            Closes the database connection.
+
+            If the connection is part of a pool, it is returned to the pool. 
+            Otherwise, the connection is directly closed. 
+
+            This method will handle any database errors that occur during the close operation.
+        """
         if self.connection is not None:
             # `wrap_database_errors` only works for `putconn` as long as there
             # is no `reset` function set in the pool because it is deferred
@@ -499,6 +533,13 @@ class DatabaseWrapper(BaseDatabaseWrapper):
             return True
 
     def close_if_health_check_failed(self):
+        """
+        Overrides the parent class method to conditionally close the connection based on the health check result.
+
+        If the connection pool is present, this method does nothing and immediately returns.
+        Otherwise, it delegates the closure decision to the parent class implementation.
+        This approach ensures that the connection is only closed when the pool is not available, allowing for more fine-grained control over connection management.
+        """
         if self.pool:
             # The pool only returns healthy connections.
             return
@@ -544,6 +585,16 @@ class DatabaseWrapper(BaseDatabaseWrapper):
 
     @cached_property
     def pg_version(self):
+        """
+        Retrieves the version of the PostgreSQL database server.
+
+        This property establishes a temporary connection to the database and
+        returns the version of the PostgreSQL server as reported by the database
+        connection.
+
+        :rtype: str
+        :returns: The PostgreSQL server version as a string (e.g., '13.4')
+        """
         with self.temporary_connection():
             return self.connection.info.server_version
 
@@ -607,9 +658,48 @@ else:
 
     class CursorDebugWrapper(BaseCursorDebugWrapper):
         def copy_expert(self, sql, file, *args):
+            """
+            Copy data from a file to a table using the COPY command.
+
+            This method executes a COPY EXPERT SQL command, which is used to import or export data from a file to a PostgreSQL table.
+            The SQL query should specify the table and columns to copy, and the file to read from or write to.
+
+            Parameters
+            ----------
+            sql : str
+                The SQL query string containing the COPY EXPERT command.
+            file : str
+                The file path to read from or write to.
+            *args : tuple
+                Additional arguments to be passed to the COPY EXPERT command.
+
+            Returns
+            -------
+            The result of the COPY EXPERT command execution.
+
+            Note
+            ----
+            This method executes the COPY EXPERT command as a single, atomic operation.
+            Any errors that occur during execution will be raised as exceptions.
+
+            """
             with self.debug_sql(sql):
                 return self.cursor.copy_expert(sql, file, *args)
 
         def copy_to(self, file, table, *args, **kwargs):
+            """
+
+            Copies data from a database table to a file using the PostgreSQL COPY command.
+
+            The data from the specified table is exported to the given file. 
+            Additional keyword arguments can be used to customize the export process.
+
+            :param file: The file to which the table data will be copied.
+            :param table: The name of the table from which data will be copied.
+            :param \*args: Additional positional arguments to pass to the underlying copy_to method.
+            :param \**kwargs: Additional keyword arguments to pass to the underlying copy_to method.
+            :return: The result of the copy operation.
+
+            """
             with self.debug_sql(sql="COPY %s TO STDOUT" % table):
                 return self.cursor.copy_to(file, table, *args, **kwargs)

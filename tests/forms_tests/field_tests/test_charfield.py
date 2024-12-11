@@ -29,6 +29,16 @@ class CharFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertIsNone(f.min_length)
 
     def test_charfield_3(self):
+        """
+
+        Tests the functionality of the CharField with a specified maximum length.
+
+        This test case ensures that the CharField correctly cleans input strings within
+        the specified max length, and raises a ValidationError when the input string
+        exceeds this limit. It also verifies that the max length attribute is correctly
+        set and that the min length attribute is None, as it was not specified.
+
+        """
         f = CharField(max_length=10, required=False)
         self.assertEqual("12345", f.clean("12345"))
         self.assertEqual("1234567890", f.clean("1234567890"))

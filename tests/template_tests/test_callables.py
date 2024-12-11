@@ -13,6 +13,16 @@ class CallableVariablesTests(TestCase):
     def test_callable(self):
         class Doodad:
             def __init__(self, value):
+                """
+                Initializes an instance of the class with a given value.
+
+                The constructor sets the initial state of the object, storing the provided value and 
+                resetting the call counter to zero. This is the first step in creating a new instance 
+                and is called when an object of this class is instantiated.
+
+                :param value: The value to be stored in the object.
+                :type value: any
+                """
                 self.num_calls = 0
                 self.value = value
 
@@ -39,6 +49,16 @@ class CallableVariablesTests(TestCase):
         self.assertEqual(my_doodad.num_calls, 2)
 
     def test_alters_data(self):
+        """
+
+        Tests that the templating engine does not call or alter data from objects 
+        that have the `alters_data` attribute set to True, even when 
+        attempting to access their attributes or call them directly. 
+
+        This ensures that objects marked as data-changing are handled carefully 
+        and do not cause unexpected side effects when used within templates.
+
+        """
         class Doodad:
             alters_data = True
 
@@ -127,10 +147,30 @@ class CallableVariablesTests(TestCase):
         self.assertEqual(t.render(c), "104")
 
     def test_do_not_call(self):
+        """
+
+        Tests whether a callable object with the attribute 'do_not_call_in_templates' 
+        is not called when its attributes are accessed from a template.
+
+        This ensures that the engine respects the 'do_not_call_in_templates' flag 
+        and does not invoke the object when it's expected to only access its attributes. 
+        The test verifies that the object's attributes are correctly rendered, 
+        while the object itself is not called, thus maintaining the desired behavior.
+
+        """
         class Doodad:
             do_not_call_in_templates = True
 
             def __init__(self, value):
+                """
+
+                Initializes an instance with a specified value.
+
+                This method sets up the initial state of the object, storing the provided value and resetting the call counter to zero.
+
+                :param value: The value to be stored within the instance.
+
+                """
                 self.num_calls = 0
                 self.value = value
 

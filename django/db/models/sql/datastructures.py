@@ -18,6 +18,17 @@ class MultiJoin(Exception):
     """
 
     def __init__(self, names_pos, path_with_names):
+        """
+
+        Initializes a new instance of the class.
+
+        This method sets the foundational properties of the object, including the level 
+        at which names are positioned and the path where names are located.
+
+        :param names_pos: The level or position at which names are placed.
+        :param path_with_names: The path where the names are stored or can be found.
+
+        """
         self.level = names_pos
         # The path travelled, this includes the path to the multijoin.
         self.names_with_path = path_with_names
@@ -210,6 +221,16 @@ class BaseTable:
     filtered_relation = None
 
     def __init__(self, table_name, alias):
+        """
+
+        Initializes a database table reference with a name and an alias.
+
+        :param table_name: The name of the database table.
+        :param alias: The alias used to reference the table in queries.
+
+        This constructor sets up the basic properties of a database table, allowing it to be identified and referenced in a specific context.
+
+        """
         self.table_name = table_name
         self.table_alias = alias
 

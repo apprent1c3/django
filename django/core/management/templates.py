@@ -84,6 +84,24 @@ class TemplateCommand(BaseCommand):
         )
 
     def handle(self, app_or_project, name, target=None, **options):
+        """
+        Handles the rendering of template files for a Django application or project.
+
+        :param app_or_project: The type of entity to create, either 'app' or 'project'.
+        :param name: The name of the entity to create.
+        :param target: Optional, the target directory to create the entity in.
+        :param options: Additional options to customize the creation process.
+
+        This function creates the basic structure for a Django application or project, 
+        including rendering template files and setting up the necessary directories.
+        It also handles customizing the entity name, target directory, and other options.
+        The function validates the input parameters and raises errors if there are any conflicts.
+        It also supports custom formatters and extensions for template rendering.
+
+        The function logs its progress and any errors that occur during the creation process.
+        Once the entity has been created, it cleans up any temporary files that were generated.
+
+        """
         self.app_or_project = app_or_project
         self.a_or_an = "an" if app_or_project == "app" else "a"
         self.paths_to_remove = []

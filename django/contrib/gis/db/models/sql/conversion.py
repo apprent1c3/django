@@ -46,6 +46,16 @@ class DistanceField(models.FloatField):
     "Wrapper for Distance values."
 
     def __init__(self, geo_field):
+        """
+        Initializes the object with a geographical field.
+
+        :param geo_field: The geographical field to be associated with the object.
+        This field is stored as an instance variable for future use.
+
+        This method is called when an object is created from the class and sets the 
+        basis for the object's geographical context. It is an internal implementation 
+        detail and should not be called directly from outside the class.
+        """
         super().__init__()
         self.geo_field = geo_field
 

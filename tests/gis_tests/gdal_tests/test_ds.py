@@ -139,6 +139,13 @@ class DataSourceTest(SimpleTestCase):
                 ds.__getitem__("invalid")
 
     def test_ds_input_pathlib(self):
+        """
+
+        Tests that a DataSource object can be successfully created from a pathlib.Path object.
+
+        Verifies that the resulting DataSource object contains the expected number of features.
+
+        """
         test_shp = Path(get_ds_file("test_point", "shp"))
         ds = DataSource(test_shp)
         self.assertEqual(len(ds), 1)

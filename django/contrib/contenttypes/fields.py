@@ -49,11 +49,30 @@ class GenericForeignKey(FieldCacheMixin, Field):
         self.is_relation = True
 
     def contribute_to_class(self, cls, name, **kwargs):
+        """
+
+        Adds the current object as an attribute to the given class.
+
+        This method integrates the object with the class, making it accessible via the class attribute named by `attname`.
+        It is typically used to establish relationships between the object and the class, allowing for more flexible and expressive interactions.
+        The `private_only` parameter ensures that the attribute is not exposed to external users, maintaining encapsulation and consistency within the class.
+
+        """
         super().contribute_to_class(cls, name, private_only=True, **kwargs)
         # GenericForeignKey is its own descriptor.
         setattr(cls, self.attname, self)
 
     def get_attname_column(self):
+        """
+
+        Returns an attribute name and column pair, overriding the default behavior.
+
+        This method extends the functionality of its parent class by modifying the
+        column value to always return None, while preserving the attribute name
+        obtained from the parent class. It provides a way to retrieve the attribute
+        name while ensuring the column is consistently set to None.
+
+        """
         attname, column = super().get_attname_column()
         return attname, None
 
@@ -394,6 +413,17 @@ class GenericRelation(ForeignObject):
             return []
 
     def resolve_related_fields(self):
+        """
+
+        Resolves the related fields between the remote model and the local model.
+
+        Returns a list of tuples containing the remote field and its corresponding local field,
+        which are used to establish relationships between the models.
+
+        The local field is always the primary key of the local model, while the remote field
+        is the field on the remote model that references the local model.
+
+        """
         self.to_fields = [self.model._meta.pk.name]
         return [
             (
@@ -614,6 +644,15 @@ def create_generic_related_manager(superclass, rel):
             return queryset.using(db).filter(**self.core_filters)
 
         def _remove_prefetched_objects(self):
+            """
+            Removes prefetched objects from the instance's cache.
+
+            Removes the prefetched objects associated with the given prefetch cache name
+            from the instance's cache. If the cache or the prefetch cache name does not
+            exist, this method has no effect. This is an internal helper method and
+            should not be called directly outside of the class implementation.\"\"\"
+            ```
+            """
             try:
                 self.instance._prefetched_objects_cache.pop(self.prefetch_cache_name)
             except (AttributeError, KeyError):
@@ -681,6 +720,18 @@ def create_generic_related_manager(superclass, rel):
             db = router.db_for_write(self.model, instance=self.instance)
 
             def check_and_update_obj(obj):
+                """
+                Checks and updates the provided object to ensure it is an instance of the expected model and sets the content type and object ID fields accordingly.
+
+                Args:
+                    obj: The object to be checked and updated.
+
+                Raises:
+                    TypeError: If the object is not an instance of the expected model.
+
+                Note:
+                    The content type and object ID fields are updated to the values specified by the content type and primary key value of the current instance.
+                """
                 if not isinstance(obj, self.model):
                     raise TypeError(
                         "'%s' instance expected, got %r"
@@ -813,6 +864,23 @@ def create_generic_related_manager(superclass, rel):
         aget_or_create.alters_data = True
 
         def update_or_create(self, **kwargs):
+            """
+
+            Updates or creates an instance in the database.
+
+            This method behaves like the standard Django update_or_create method but
+            takes into account the specific content type and object id of the instance.
+            It automatically sets the content type and object id fields before calling
+            the update_or_create method, ensuring that the correct instance is updated
+            or created.
+
+            The database used for the operation is determined by the database router.
+
+            :param kwargs: Keyword arguments to pass to the update_or_create method.
+            :returns: A tuple containing the updated or created instance and a boolean
+                      indicating whether a new instance was created.
+
+            """
             kwargs[self.content_type_field_name] = self.content_type
             kwargs[self.object_id_field_name] = self.pk_val
             db = router.db_for_write(self.model, instance=self.instance)

@@ -86,6 +86,11 @@ class FileFieldTests(TestCase):
             )
 
     def test_delete_content_file(self):
+        """
+        Tests deletion of a content file associated with a Document instance.
+
+        Verifies that after deleting the file, the myfile attribute of the Document instance is updated to reflect the absence of the associated file, and that attempting to access the file attribute raises a ValueError with a descriptive message.
+        """
         file = ContentFile(b"", name="foo")
         d = Document.objects.create(myfile=file)
         d.myfile.delete()

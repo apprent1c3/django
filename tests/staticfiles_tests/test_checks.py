@@ -15,6 +15,16 @@ class FindersCheckTests(CollectionTestCase):
     run_collectstatic_in_setUp = False
 
     def test_base_finder_check_not_implemented(self):
+        """
+
+        Checks that the check method in the BaseFinder class is not implemented, 
+        raising a NotImplementedError with a meaningful error message.
+
+        Tests that the BaseFinder class correctly handles the case where a check 
+        method is not provided, ensuring that subclasses are aware of their 
+        responsibility to implement this method for configuration verification.
+
+        """
         finder = BaseFinder()
         msg = (
             "subclasses may provide a check() method to verify the finder is "

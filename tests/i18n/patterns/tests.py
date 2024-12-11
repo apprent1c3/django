@@ -51,6 +51,18 @@ class URLTestCaseBase(SimpleTestCase):
 
     def setUp(self):
         # Make sure the cache is empty before we are doing our tests.
+        """
+
+        Set up the test environment by clearing URL caches.
+
+        This method is used to ensure a clean test environment by removing any cached URLs. 
+        After the test has completed, the caches are automatically cleared again to maintain 
+        a clean state, regardless of the test result.
+
+        Note: This method is typically used in conjunction with a testing framework and is 
+        intended to be called before each test case.
+
+        """
         clear_url_caches()
         # Make sure we will leave an empty cache for other testcases.
         self.addCleanup(clear_url_caches)
@@ -277,6 +289,12 @@ class URLRedirectTests(URLTestCaseBase):
         self.assertEqual(response.status_code, 404)
 
     def test_nl_redirect(self):
+        """
+        Tests a redirect from the Dutch registration profile page to its language-specific URL. 
+
+        It verifies that a GET request to the registration profile page with Dutch as the accepted language results in a redirect to the Dutch version of the page. 
+        After the redirect, it checks that the resulting page returns a successful status code (200), indicating that the page is accessible and properly configured.
+        """
         response = self.client.get(
             "/profiel/registreren/", headers={"accept-language": "nl"}
         )
@@ -329,6 +347,15 @@ class URLVaryAcceptLanguageTests(URLTestCaseBase):
     """
 
     def test_no_prefix_response(self):
+        """
+
+        Tests the HTTP response for a URL that does not have a prefix.
+
+        Verifies that the response status code is 200 (OK) and that the 'Vary' header 
+        is set to 'Accept-Language', indicating that the response changes based on the 
+        language preferences of the client.
+
+        """
         response = self.client.get("/not-prefixed/")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.get("Vary"), "Accept-Language")
@@ -399,6 +426,14 @@ class URLResponseTests(URLTestCaseBase):
     """Tests if the response has the correct language code."""
 
     def test_not_prefixed_with_prefix(self):
+        """
+
+        Tests that a URL which is not prefixed with a language code does not return a successful response.
+
+        This test case verifies that a GET request to a URL without a language prefix
+        returns a 404 status code, indicating that the URL is not found.
+
+        """
         response = self.client.get("/en/not-prefixed/")
         self.assertEqual(response.status_code, 404)
 
@@ -419,6 +454,15 @@ class URLResponseTests(URLTestCaseBase):
         self.assertEqual(response.status_code, 404)
 
     def test_wrong_nl_prefix(self):
+        """
+
+        Tests that requesting the 'nl/account/register/' URL with an incorrect prefix returns a 404 status code, indicating that the requested resource could not be found.
+
+        The purpose of this test is to validate that the application correctly handles requests for non-existent or misconfigured URL prefixes, specifically for the Dutch ('nl') locale. 
+
+        The expected behavior is that the server returns a 404 error, signifying that the requested URL is not valid or does not exist.
+
+        """
         response = self.client.get("/nl/account/register/")
         self.assertEqual(response.status_code, 404)
 
@@ -468,6 +512,16 @@ class URLRedirectWithScriptAliasTests(URLTestCaseBase):
     """
 
     def test_language_prefix_with_script_prefix(self):
+        """
+
+        Tests that the language prefix is correctly applied when a script prefix is present.
+
+        This test case verifies that when a script prefix is configured, the language prefix
+        is correctly appended to the URL, resulting in a redirect to the expected location.
+        The test checks for the correct redirect behavior when the request is made with a
+        specific language and script prefix.
+
+        """
         prefix = "/script_prefix"
         with override_script_prefix(prefix):
             response = self.client.get(
@@ -494,6 +548,18 @@ class URLTagTests(URLTestCaseBase):
         )
 
     def test_context(self):
+        """
+        Tests the rendering of a template with language-dependent URLs.
+
+        This test case creates a template with two language blocks, each containing a URL
+        tag. The template is rendered with a context that specifies two languages, Dutch
+        ('nl') and Brazilian Portuguese ('pt-br'). The test verifies that the rendered
+        template produces the correct translated URLs for each language.
+
+        The expected output is a list of URLs, one for each language, where the URL path
+        is correctly translated according to the language settings. The test ensures that
+        the templating engine correctly handles language switching and URL translation.
+        """
         ctx = Context({"lang1": "nl", "lang2": "pt-br"})
         tpl = Template(
             """{% load i18n %}

@@ -43,6 +43,18 @@ class HumanizeTests(SimpleTestCase):
                 )
 
     def test_ordinal(self):
+        """
+
+        Tests the functionality of converting numbers to their ordinal equivalents.
+
+        This test case covers a variety of input values, including positive and negative integers,
+        numbers with multiple digits, and non-numeric values. The function is expected to correctly
+        append the appropriate ordinal suffix (e.g., 'st', 'nd', 'rd', 'th') to each numeric input,
+        while leaving non-numeric inputs unchanged.
+
+        The test is performed with the locale set to English ('en') to ensure consistent results.
+
+        """
         test_list = (
             "1",
             "2",

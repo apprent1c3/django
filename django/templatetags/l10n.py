@@ -22,6 +22,13 @@ def unlocalize(value):
 
 class LocalizeNode(Node):
     def __init__(self, nodelist, use_l10n):
+        """
+        Initializes a new instance of the class.
+
+        :param nodelist: A list of nodes to be processed or utilized.
+        :param use_l10n: A flag indicating whether localization is to be used. 
+        :returns: None
+        """
         self.nodelist = nodelist
         self.use_l10n = use_l10n
 

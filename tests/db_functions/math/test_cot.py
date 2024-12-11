@@ -24,6 +24,19 @@ class CotTests(TestCase):
         self.assertAlmostEqual(obj.n2_cot, Decimal(1 / math.tan(obj.n2)))
 
     def test_float(self):
+        """
+
+        Tests the Cot (cotangent) function for float values.
+
+        This function verifies that the Cot function correctly calculates the cotangent
+        of float values for two fields, f1 and f2, in the FloatModel. It checks that the
+        results are of type float and match the expected values calculated using the
+        math.tan function.
+
+        The test covers both positive and negative float values to ensure the Cot
+        function behaves as expected in different scenarios.
+
+        """
         FloatModel.objects.create(f1=-27.5, f2=0.33)
         obj = FloatModel.objects.annotate(f1_cot=Cot("f1"), f2_cot=Cot("f2")).first()
         self.assertIsInstance(obj.f1_cot, float)
@@ -46,6 +59,18 @@ class CotTests(TestCase):
         self.assertAlmostEqual(obj.big_cot, 1 / math.tan(obj.big))
 
     def test_transform(self):
+        """
+
+        Test the transformation functionality using the cot lookup.
+
+        This test case registers the cot lookup for DecimalField and creates two DecimalModel instances
+        with different values. It then filters the objects using the cot lookup and retrieves the object
+        where the cot of n1 is greater than 0. The test asserts that the retrieved object has the expected value for n1.
+
+        The purpose of this test is to verify that the cot lookup is functioning correctly,
+        allowing for filtering of decimal fields based on the cot of their values.
+
+        """
         with register_lookup(DecimalField, Cot):
             DecimalModel.objects.create(n1=Decimal("12.0"), n2=Decimal("0"))
             DecimalModel.objects.create(n1=Decimal("1.0"), n2=Decimal("0"))

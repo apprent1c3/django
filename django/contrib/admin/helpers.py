@@ -46,6 +46,22 @@ class AdminForm:
         readonly_fields=None,
         model_admin=None,
     ):
+        """
+        Initializes the object with the given form configuration.
+
+        This method sets up the object's attributes based on the provided form, fieldsets, prepopulated fields, and optional readonly fields and model admin.
+
+        The form and fieldsets are stored directly, while the prepopulated fields are transformed into a list of dictionaries containing the field and its dependencies.
+
+        If readonly fields are not provided, an empty tuple is used by default. The model admin is also stored if provided.
+
+        :param form: The form configuration.
+        :param fieldsets: The fieldsets configuration.
+        :param prepopulated_fields: A dictionary of prepopulated fields and their dependencies.
+        :param readonly_fields: Optional readonly fields, defaults to an empty tuple if not provided.
+        :param model_admin: Optional model admin, defaults to None.
+
+        """
         self.form, self.fieldsets = form, fieldsets
         self.prepopulated_fields = [
             {"field": form[field_name], "dependencies": [form[f] for f in dependencies]}
@@ -121,6 +137,11 @@ class Fieldset:
 
     @cached_property
     def is_collapsible(self):
+        """
+        Determines whether the current form element is collapsible.
+
+        This property checks two conditions: first, it ensures that there are no field-level errors in the form. If any fields contain errors, the element is not collapsible. Second, it verifies that the 'collapse' class is present among the element's classes. If both conditions are met, the element is considered collapsible; otherwise, it is not.
+        """
         if any([field in self.fields for field in self.form.errors]):
             return False
         return "collapse" in self.classes
@@ -264,6 +285,13 @@ class AdminReadonlyField:
             return str(remote_obj)
 
     def contents(self):
+        """
+        Returns a string representation of the object's field value, formatted according to Django's admin interface conventions.
+
+        This method handles various types of field values, including boolean fields, HTML content, many-to-many relationships, foreign keys, and one-to-one relationships. It also takes into account the field's read-only status and the model admin's configuration.
+
+        The method returns an empty value display if the field value cannot be retrieved due to an AttributeError, ValueError, or ObjectDoesNotExist exception. Otherwise, it renders the field value using the appropriate widget, if applicable, and applies line breaks and HTML escaping as needed to produce a safe and readable output.
+        """
         from django.contrib.admin.templatetags.admin_list import _boolean_icon
 
         field, obj, model_admin = (
@@ -494,6 +522,11 @@ class InlineAdminForm(AdminForm):
         )
 
     def __iter__(self):
+        """
+        Returns an iterator over the fieldsets of a form, yielding InlineFieldset instances.
+        Each yielded InlineFieldset represents a fieldset in the form and contains its name, fields, and other relevant options.
+        This iterator is useful for iterating over the fieldsets of a form in a template or view, allowing for easy rendering and manipulation of the form's layout and fields.
+        """
         for name, options in self.fieldsets:
             yield InlineFieldset(
                 self.formset,
@@ -546,6 +579,15 @@ class InlineFieldset(Fieldset):
         super().__init__(*args, **kwargs)
 
     def __iter__(self):
+        """
+        Returns an iterator over the fields in the form, yielding Fieldline objects for each field.
+
+        The iterator excludes the foreign key field specified by the 'fk' attribute of the formset, if it exists.
+
+        Each yielded Fieldline object represents a field in the form, providing access to its properties and behavior. The iterator also takes into account the readonly fields and the model admin instance.
+
+        This method is typically used to iterate over the fields in a form and perform operations on each one, such as rendering or processing the field data.
+        """
         fk = getattr(self.formset, "fk", None)
         for field in self.fields:
             if not fk or fk.name != field:

@@ -26,6 +26,15 @@ class CommentSyntaxTests(SimpleTestCase):
 
     @setup({"comment-syntax05": "foo{#  {% somerandomtag %}  #}"})
     def test_comment_syntax05(self):
+        """
+        Tests the rendering of a template with a comment syntax that spans multiple lines.
+
+        The function checks that the template engine correctly interprets a comment block 
+        that contains a template tag and ignores its contents, producing the expected output.
+
+        The test case verifies that the comment syntax '{#  {% somerandomtag %}  #}' 
+        is properly handled and does not affect the output of the rendered template.
+        """
         output = self.engine.render_to_string("comment-syntax05")
         self.assertEqual(output, "foo")
 
@@ -41,6 +50,18 @@ class CommentSyntaxTests(SimpleTestCase):
 
     @setup({"comment-syntax08": "foo{# %} #}bar"})
     def test_comment_syntax08(self):
+        """
+        Tests the comment syntax using a custom delimiter '{# %} #}'.
+
+        This test case verifies that the templating engine correctly ignores comments
+        defined by the custom syntax and renders the expected output.
+
+        The expected output is a string 'foobar', indicating that the comments have been
+        successfully removed from the template.
+
+        The test covers the setup and rendering of a template with custom comment syntax,
+        providing assurance that the templating engine handles comments as intended.
+        """
         output = self.engine.render_to_string("comment-syntax08")
         self.assertEqual(output, "foobar")
 

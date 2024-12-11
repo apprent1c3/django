@@ -189,6 +189,14 @@ class CheckTemplateTagLibrariesWithSameName(SimpleTestCase):
             self.assertEqual(self._check_engines(_engines), errors)
 
     def test_template_tags_with_different_library_name(self):
+        """
+
+        Tests the functionality of template tags with different library names in multiple templating engines.
+
+        This test case checks that template tags can be used correctly when multiple templating engines are configured with different library names.
+        The test verifies that there are no conflicts or errors when using template tags from different libraries.
+
+        """
         with self.settings(
             TEMPLATES=[
                 self.get_settings(

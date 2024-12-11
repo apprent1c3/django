@@ -232,6 +232,14 @@ class TestCollectionVerbosity(CollectionTestCase):
     staticfiles_copied_msg = "static files copied to"
 
     def test_verbosity_0(self):
+        """
+        Tests if running collectstatic with verbosity 0 produces no output.
+
+        This test case verifies that when collectstatic is executed with the lowest level of verbosity (0),
+        no output is generated, ensuring that the command runs silently as expected.
+
+        :raises AssertionError: If any output is produced when running collectstatic with verbosity 0.
+        """
         stdout = StringIO()
         self.run_collectstatic(verbosity=0, stdout=stdout)
         self.assertEqual(stdout.getvalue(), "")
@@ -261,6 +269,11 @@ class TestCollectionVerbosity(CollectionTestCase):
         }
     )
     def test_verbosity_1_with_post_process(self):
+        """
+        Tests how collectstatic operates when verbosity is set to 1 and post-processing is enabled.
+
+        This test case ensures that the post-processing message is not displayed when verbosity is set to 1, which represents a medium level of detail in output. The test verifies that the collectstatic command works as expected when both verbosity and post-processing are active, and checks for the correct output in the standard output stream.
+        """
         stdout = StringIO()
         self.run_collectstatic(verbosity=1, stdout=stdout, post_process=True)
         self.assertNotIn(self.post_process_msg, stdout.getvalue())
@@ -287,6 +300,21 @@ class TestCollectionClear(CollectionTestCase):
     """
 
     def run_collectstatic(self, **kwargs):
+        """
+
+        Runs the collectstatic management command with a custom clearing behavior.
+
+        Before collecting static files, this function creates a marker file at the 
+        STATIC_ROOT directory to indicate that the directory should be cleared. 
+        Then, it calls the parent class's run_collectstatic method, passing the 
+        clear=True argument to ensure that existing static files are removed before 
+        new ones are collected.
+
+        This function is useful for ensuring that the STATIC_ROOT directory is 
+        properly cleared of any outdated or unnecessary files before collecting 
+        new static files.
+
+        """
         clear_filepath = os.path.join(settings.STATIC_ROOT, "cleared.txt")
         with open(clear_filepath, "w") as f:
             f.write("should be cleared")

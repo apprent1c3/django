@@ -45,6 +45,12 @@ class FormsI18nTests(SimpleTestCase):
             )
 
     def test_non_ascii_label(self):
+        """
+        Tests that form field labels are correctly rendered when the label contains non-ASCII characters.
+
+        Verifies that the label_tag and legend_tag methods of form fields generate the expected HTML output, 
+        including the correct 'for' attribute and label text, for fields with standard and custom widget ids.
+        """
         class SomeForm(Form):
             field_1 = CharField(max_length=10, label=gettext_lazy("field_1"))
             field_2 = CharField(

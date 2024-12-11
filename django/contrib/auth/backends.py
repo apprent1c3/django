@@ -99,6 +99,16 @@ class ModelBackend(BaseBackend):
         return self._get_permissions(user_obj, obj, "group")
 
     def get_all_permissions(self, user_obj, obj=None):
+        """
+        Get all permissions for a given user.
+
+        This method retrieves a set of all permissions that a user object has. 
+        It takes a user object and an optional object as parameters. 
+        If the user is inactive, anonymous, or an object is specified, it returns an empty set.
+        Otherwise, it leverages caching to efficiently retrieve the user's permissions. 
+        If the permissions have not been cached, it uses the superclass's implementation to populate the cache.
+        The cached permissions are then returned for the user.
+        """
         if not user_obj.is_active or user_obj.is_anonymous or obj is not None:
             return set()
         if not hasattr(user_obj, "_perm_cache"):

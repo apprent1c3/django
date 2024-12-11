@@ -82,6 +82,13 @@ class SpatiaLiteOperations(BaseSpatialOperations, DatabaseOperations):
 
     @cached_property
     def unsupported_functions(self):
+        """
+        Returns a set of spatial functions that are not supported by the current geometry library configuration.
+
+        The list of unsupported functions may vary depending on the geometry library version and spatial version being used.
+        Some functions are inherently unsupported, while others may be unavailable due to version constraints.
+        The returned set can be used to determine which spatial functions can be safely used in a given environment.
+        """
         unsupported = {"GeometryDistance", "IsEmpty", "MemSize"}
         if not self.geom_lib_version():
             unsupported |= {"Azimuth", "GeoHash", "MakeValid"}

@@ -53,6 +53,9 @@ class ComplexMultiWidget(MultiWidget):
 
 class ComplexField(MultiValueField):
     def __init__(self, **kwargs):
+        """
+        Initializes a new instance of the class, setting up a predefined set of form fields, including a character field, a multiple choice field with choices related to the Beatles, and a split date and time field. The initialization process also accepts additional keyword arguments that are passed to the parent class.
+        """
         fields = (
             CharField(),
             MultipleChoiceField(choices=beatles),
@@ -171,6 +174,15 @@ class MultiValueFieldTest(SimpleTestCase):
         )
 
     def test_form_as_table_data(self):
+        """
+        Tests that the `as_table` method of the `ComplexFieldForm` returns the expected HTML table representation of the form data. 
+
+        The test case creates a form instance with initial data for various fields, including text input, multiple select options, and date/time inputs. 
+
+        It then verifies that the HTML output of `as_table` matches the expected formatted table structure, including the correct field names, input types, and selected values. 
+
+        This ensures that the form can be correctly rendered as a table in an HTML template.
+        """
         form = ComplexFieldForm(
             {
                 "field1_0": "some text",

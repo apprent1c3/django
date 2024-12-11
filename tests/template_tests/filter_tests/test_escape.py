@@ -43,6 +43,17 @@ class EscapeTests(SimpleTestCase):
         self.assertEqual(output, "x&amp;y")
 
     def test_escape_lazy_string(self):
+        """
+
+        Tests that lazy strings with HTML content are properly escaped.
+
+        Verifies that the :func:`escape` function correctly handles strings generated
+        by lazy functions, ensuring that special characters are properly replaced with
+        their corresponding HTML entity equivalents. The test checks that the escaped
+        string is an instance of :class:`Promise` and that its value matches the expected
+        escaped string.
+
+        """
         add_html = lazy(lambda string: string + "special characters > here", str)
         escaped = escape(add_html("<some html & "))
         self.assertIsInstance(escaped, Promise)

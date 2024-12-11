@@ -41,6 +41,13 @@ class DurationFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertIsNone(f.clean(""))
 
     def test_overflow(self):
+        """
+
+        Tests that the DurationField validation raises a ValidationError when the input duration exceeds the maximum or is below the minimum allowed days.
+
+        The test checks for both positive and negative overflow, ensuring the field correctly handles invalid input.
+
+        """
         msg = "The number of days must be between {min_days} and {max_days}.".format(
             min_days=datetime.timedelta.min.days,
             max_days=datetime.timedelta.max.days,

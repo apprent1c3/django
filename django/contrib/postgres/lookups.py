@@ -20,6 +20,17 @@ class Overlap(PostgresOperatorLookup):
     postgres_operator = "&&"
 
     def get_prep_lookup(self):
+        """
+
+        Prepares the lookup for the current object by converting the right-hand side
+        value to a subquery if it is a Query instance, allowing for more complex queries
+        to be executed. The lookup is then passed to the parent class for further
+        processing.
+
+        Returns:
+            The prepared lookup value.
+
+        """
         from .expressions import ArraySubquery
 
         if isinstance(self.rhs, Query):

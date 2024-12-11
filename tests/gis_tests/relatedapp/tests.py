@@ -393,6 +393,22 @@ class RelatedGeoModelTest(TestCase):
 
     @skipUnlessDBFeature("supports_union_aggr")
     def test_union_filter(self):
+        """
+
+        Test the Union database function with filter arguments.
+
+        This test case checks the Union function's ability to aggregate 
+        geometries from a related model, filtered by specific conditions.
+        It verifies that the function correctly:
+        - Unites geometries that match a given filter
+        - Returns None when no geometries match the filter
+        - Returns a single geometry when only one match is found
+
+        The test covers various scenarios, including ignoring certain 
+        geometries and handling cases where the filter matches no or 
+        only one geometry.
+
+        """
         qs = City.objects.annotate(
             parcel_point_union=Union(
                 "parcel__center2",

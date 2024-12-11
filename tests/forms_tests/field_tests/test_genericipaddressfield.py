@@ -175,6 +175,19 @@ class GenericIPAddressFieldTest(SimpleTestCase):
 
     def test_generic_ipaddress_normalization(self):
         # Test the normalizing code
+        """
+
+        Normalizes IPv4 and IPv6 addresses by removing unnecessary characters, 
+        leading and trailing whitespace, and converting to their shortest form.
+
+        Tests the behavior of the GenericIPAddressField's clean method on various inputs,
+        including IPv4 and IPv6 addresses in different formats, and verifies that the 
+        output is correctly normalized.
+
+        When unpack_ipv4 is True, the method also unpacks IPv4 addresses embedded in 
+        IPv6 addresses, returning the IPv4 address in its standard dotted decimal form.
+
+        """
         f = GenericIPAddressField()
         self.assertEqual(f.clean(" ::ffff:0a0a:0a0a  "), "::ffff:10.10.10.10")
         self.assertEqual(f.clean(" ::ffff:10.10.10.10  "), "::ffff:10.10.10.10")

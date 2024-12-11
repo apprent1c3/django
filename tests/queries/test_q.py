@@ -146,6 +146,16 @@ class QTests(SimpleTestCase):
         self.assertEqual(kwargs, {})
 
     def test_deconstruct_multiple_kwargs(self):
+        """
+        Tests the deconstruction of a query object with multiple keyword arguments.
+
+        This test case ensures that a query object with overlapping keyword arguments
+        can be correctly deconstructed into its path, arguments, and keyword arguments.
+
+        The test verifies that the arguments are correctly ordered and that no keyword
+        arguments are incorrectly included in the keyword arguments dictionary.
+
+        """
         q = Q(price__gt=F("discounted_price"), price=F("discounted_price"))
         path, args, kwargs = q.deconstruct()
         self.assertEqual(
@@ -158,6 +168,17 @@ class QTests(SimpleTestCase):
         self.assertEqual(kwargs, {})
 
     def test_deconstruct_nested(self):
+        """
+        Tests the deconstruction of a nested query.
+
+        Verifies that a query containing a subquery can be properly broken down into its constituent parts,
+        ensuring that the arguments and keyword arguments are correctly separated and identified.
+
+        The query in question checks if the price of an item is greater than its discounted price, with the
+        discounted price being used as a field reference. The test asserts that the arguments and keyword
+        arguments extracted from the deconstructed query match the expected output, confirming the correct
+        functioning of the deconstruction process for nested queries.
+        """
         q = Q(Q(price__gt=F("discounted_price")))
         path, args, kwargs = q.deconstruct()
         self.assertEqual(args, (Q(price__gt=F("discounted_price")),))

@@ -11,11 +11,29 @@ from .timezone_utils import TimezoneTestCase
 class DateTests(TimezoneTestCase):
     @setup({"date01": '{{ d|date:"m" }}'})
     def test_date01(self):
+        """
+
+        Tests the rendering of a date string in the format of a two-digit month.
+
+        This test case verifies that the date is formatted correctly as a two-digit month
+        when the input date is January 1, 2008. The expected output is '01', which
+        represents the month of January in a two-digit format (01 for January, 02 for
+        February, and so on).
+
+        """
         output = self.engine.render_to_string("date01", {"d": datetime(2008, 1, 1)})
         self.assertEqual(output, "01")
 
     @setup({"date02": "{{ d|date }}"})
     def test_date02(self):
+        """
+
+        Tests the date template filter by rendering a template string with a date object.
+        The function verifies that the date is formatted correctly as 'Month. Day, Year' when passed through the template engine.
+
+        :raises AssertionError: If the rendered output does not match the expected date format.
+
+        """
         output = self.engine.render_to_string("date02", {"d": datetime(2008, 1, 1)})
         self.assertEqual(output, "Jan. 1, 2008")
 

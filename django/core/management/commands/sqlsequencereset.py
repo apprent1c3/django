@@ -22,6 +22,20 @@ class Command(AppCommand):
         )
 
     def handle_app_config(self, app_config, **options):
+        """
+
+        Handles the application configuration for sequence resetting.
+
+        This function takes an application configuration and optional keyword arguments,
+        then returns a string of SQL statements to reset sequences for the given models.
+        If no sequences are found and verbosity is high enough, a message will be written to stderr.
+        The function does nothing if the models module is not defined or is None.
+
+        :param app_config: The application configuration to handle.
+        :param options: Additional keyword arguments, including 'database' and 'verbosity'.
+        :return: A string of SQL statements to reset sequences, or an empty string if no sequences are found.
+
+        """
         if app_config.models_module is None:
             return
         connection = connections[options["database"]]

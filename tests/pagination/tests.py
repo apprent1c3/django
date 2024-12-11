@@ -195,6 +195,12 @@ class PaginationTests(SimpleTestCase):
             Paginator(AttributeErrorContainer(), 10).count
 
     def test_count_does_not_silence_type_error(self):
+        """
+
+        Tests that an instance of Paginator correctly propagates a TypeError when 
+        counting the items, ensuring that the underlying exception is not silenced.
+
+        """
         class TypeErrorContainer:
             def count(self):
                 raise TypeError("abc")
@@ -493,6 +499,17 @@ class ModelPaginationTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         # Prepare a list of objects for pagination.
+        """
+
+        Set up test data for the class.
+
+        This method creates a set of test articles with varying headlines and a fixed publication date.
+        The created articles are stored in the class attribute 'articles' for use in subsequent tests.
+
+        The test data includes 9 articles, each with a unique headline in the format 'Article X', where X ranges from 1 to 9.
+        All articles are set to have been published on July 29, 2005.
+
+        """
         pub_date = datetime(2005, 7, 29)
         cls.articles = [
             Article.objects.create(headline=f"Article {x}", pub_date=pub_date)

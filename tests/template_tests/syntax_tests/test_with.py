@@ -10,6 +10,17 @@ class WithTagTests(SimpleTestCase):
 
     @setup({"with01": "{% with key=dict.key %}{{ key }}{% endwith %}"})
     def test_with01(self):
+        """
+
+        Tests the rendering of a template that uses the 'with' statement to assign a dictionary key to a variable.
+
+        The template uses the 'with' statement to alias the 'key' attribute of the 'dict' object, allowing it to be referenced directly.
+
+        The function checks that the rendered output correctly substitutes the value of the 'key' attribute into the template.
+
+        :raises AssertionError: if the rendered output does not match the expected value.
+
+        """
         output = self.engine.render_to_string("with01", {"dict": {"key": 50}})
         self.assertEqual(output, "50")
 

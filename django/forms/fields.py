@@ -292,6 +292,18 @@ class CharField(Field):
         return value
 
     def widget_attrs(self, widget):
+        """
+
+        Returns a dictionary of HTML attributes to be applied to the given widget.
+
+        This method extends the parent class's :meth:`widget_attrs` method by adding
+        'maxlength' and 'minlength' attributes if :attr:`max_length` and :attr:`min_length`
+        are set, respectively, and the widget is not hidden. The resulting attributes
+        dictionary is then returned.
+
+        :returns: A dictionary of HTML attributes for the given widget
+
+        """
         attrs = super().widget_attrs(widget)
         if self.max_length is not None and not widget.is_hidden:
             # The HTML attribute is maxlength, not max_length.
@@ -310,6 +322,17 @@ class IntegerField(Field):
     re_decimal = _lazy_re_compile(r"\.0*\s*$")
 
     def __init__(self, *, max_value=None, min_value=None, step_size=None, **kwargs):
+        """
+        Initializes a numeric field with optional minimum, maximum, and step size constraints.
+
+         Args:
+             max_value (int, optional): The maximum allowed value for this field.
+             min_value (int, optional): The minimum allowed value for this field.
+             step_size (int, optional): The step size for this field, controlling the increments between valid values.
+
+         The function sets up validation for the specified constraints, ensuring that only valid numeric inputs are accepted.
+         Additional keyword arguments are passed to the parent class's initializer, allowing for further customization of the field's behavior.
+        """
         self.max_value, self.min_value, self.step_size = max_value, min_value, step_size
         if kwargs.get("localize") and self.widget == NumberInput:
             # Localized number input is not well supported on most browsers
@@ -343,6 +366,22 @@ class IntegerField(Field):
         return value
 
     def widget_attrs(self, widget):
+        """
+
+        Adding specific HTML attributes to a widget based on its type.
+
+        This method extends the parent class's widget_attributes method by including
+        minimum, maximum, and step size attributes for NumberInput widgets. If a minimum
+        or maximum value is defined, 'min' and 'max' attributes are added to the widget's
+        attributes, respectively. Similarly, if a step size is defined, a 'step' attribute
+        is added.
+
+        The method returns the updated attributes for the given widget.
+
+        :param widget: The widget for which to retrieve or modify attributes.
+        :rtype: dict
+
+        """
         attrs = super().widget_attrs(widget)
         if isinstance(widget, NumberInput):
             if self.min_value is not None:
@@ -376,6 +415,14 @@ class FloatField(IntegerField):
         return value
 
     def validate(self, value):
+        """
+        Validate the input value for finiteness.
+
+        This method extends the base validation behavior by checking if the input value is finite, 
+        i.e., neither infinite nor NaN (Not a Number). If the value is not finite, a 
+        :class:`~ValidationError` is raised with a corresponding error message. If the value is 
+        in the list of empty values, no additional checks are performed.
+        """
         super().validate(value)
         if value in self.empty_values:
             return
@@ -383,6 +430,9 @@ class FloatField(IntegerField):
             raise ValidationError(self.error_messages["invalid"], code="invalid")
 
     def widget_attrs(self, widget):
+        """
+        Specifies the HTML attributes for a given widget, inheriting attributes from the parent class and adding a 'step' attribute for NumberInput widgets if it's not already defined. The 'step' value is determined by the instance's step size, defaulting to 'any' if no step size is specified.
+        """
         attrs = super().widget_attrs(widget)
         if isinstance(widget, NumberInput) and "step" not in widget.attrs:
             if self.step_size is not None:
@@ -407,6 +457,20 @@ class DecimalField(IntegerField):
         decimal_places=None,
         **kwargs,
     ):
+        """
+
+        Initializes a decimal field with specific constraints.
+
+        This initializer sets up a decimal field with optional limits on its value and precision.
+        The :attr:`max_value` and :attr:`min_value` parameters control the range of allowed values.
+        The :attr:`max_digits` and :attr:`decimal_places` parameters determine the maximum number of digits
+        and the number of decimal places allowed in the decimal value, respectively.
+
+        Additionally, any extra keyword arguments (:attr:`**kwargs`) are passed to the parent class initializer.
+
+        The decimal field also includes a validator to enforce the specified precision constraints.
+
+        """
         self.max_digits, self.decimal_places = max_digits, decimal_places
         super().__init__(max_value=max_value, min_value=min_value, **kwargs)
         self.validators.append(validators.DecimalValidator(max_digits, decimal_places))
@@ -429,6 +493,13 @@ class DecimalField(IntegerField):
         return value
 
     def validate(self, value):
+        """
+        Validate the provided value, performing checks for emptiness and numerical finiteness.
+
+        This method extends the parent validation by ensuring the given value is a finite number. 
+        If the value is empty, no further validation is performed. 
+        However, if the value is not a finite number (e.g., infinity, NaN), a ValidationError is raised with an 'invalid' code and the problematic value.
+        """
         super().validate(value)
         if value in self.empty_values:
             return
@@ -440,6 +511,19 @@ class DecimalField(IntegerField):
             )
 
     def widget_attrs(self, widget):
+        """
+        Returns a dictionary of HTML attributes for the given widget.
+
+        Extends the base implementation by adding a 'step' attribute to NumberInput
+        widgets if it is not already present. The 'step' value is determined by the
+        decimal_places setting, defaulting to 'any' if no decimal places are specified.
+
+        This ensures that NumberInput widgets are properly configured for precise number
+        input, taking into account the desired level of decimal precision.
+
+        :param widget: The widget to retrieve attributes for
+        :return: A dictionary of HTML attributes for the widget
+        """
         attrs = super().widget_attrs(widget)
         if isinstance(widget, NumberInput) and "step" not in widget.attrs:
             if self.decimal_places is not None:
@@ -454,6 +538,13 @@ class DecimalField(IntegerField):
 
 class BaseTemporalField(Field):
     def __init__(self, *, input_formats=None, **kwargs):
+        """
+        #: Initializes the object with optional input formats.
+        #:
+        #: :param input_formats: A list of supported input formats. If provided, these formats will be stored for future reference.
+        #: :param kwargs: Additional keyword arguments to be passed to the parent class constructor.
+        #: :note: The input formats will only be set if they are explicitly provided. Otherwise, the object will be initialized without any specified input formats.
+        """
         super().__init__(**kwargs)
         if input_formats is not None:
             self.input_formats = input_formats
@@ -518,6 +609,15 @@ class TimeField(BaseTemporalField):
 
 class DateTimeFormatsIterator:
     def __iter__(self):
+        """
+        Returns an iterator over supported datetime and date input formats.
+
+        The iterator yields strings representing the formats in which datetime and date inputs are accepted.
+
+        Formats include both datetime and date formats, as defined by the DATETIME_INPUT_FORMATS and DATE_INPUT_FORMATS settings.
+
+        This allows for iteration over all valid formats when parsing or validating date and time inputs.
+        """
         yield from formats.get_format("DATETIME_INPUT_FORMATS")
         yield from formats.get_format("DATE_INPUT_FORMATS")
 
@@ -565,6 +665,11 @@ class DurationField(Field):
     }
 
     def prepare_value(self, value):
+        """
+        ..:param value: The value to be prepared for further processing.
+        :returns: The prepared value, potentially converted to a string if it represents a time duration.
+        :note: Time duration values are converted to a human-readable string representation using the duration_string function, while all other types of values are returned unchanged.
+        """
         if isinstance(value, datetime.timedelta):
             return duration_string(value)
         return value
@@ -602,6 +707,12 @@ class RegexField(CharField):
         return self._regex
 
     def _set_regex(self, regex):
+        """
+        Sets a regular expression (regex) for validation purposes.
+        The provided regex can be either a string or a compiled regex pattern.
+        If a string is provided, it will be compiled into a regex pattern.
+        The function then updates the validator list by removing any existing regex validator and adding a new one based on the provided regex.
+        """
         if isinstance(regex, str):
             regex = re.compile(regex)
         self._regex = regex
@@ -649,6 +760,22 @@ class FileField(Field):
         super().__init__(**kwargs)
 
     def to_python(self, data):
+        """
+        Validate and process a file object to ensure it meets certain criteria.
+
+        This method checks if the provided file object is valid, has a name within a specified maximum length, and, if required, is not empty.
+        If all checks pass, the method returns the original file object. Otherwise, it raises a ValidationError with a corresponding error message.
+
+        The validation process includes the following checks:
+            - The file object is not considered empty based on predefined empty values.
+            - The file object has a name and size, and these attributes are accessible.
+            - The file name does not exceed a specified maximum length.
+            - The file name is not empty.
+            - If empty files are not allowed, the file must have a non-zero size.
+
+        :raises: ValidationError if the file object fails any of the validation checks.
+        :returns: The original file object if all validation checks pass, otherwise None if the file is considered empty. 
+        """
         if data in self.empty_values:
             return None
 
@@ -699,6 +826,20 @@ class FileField(Field):
         return not self.disabled and data is not None
 
     def _clean_bound_field(self, bf):
+        """
+        Cleans a bound form field, returning the cleaned value.
+
+        The cleaning process depends on the state of the form field. If the field is disabled,
+        it will be cleaned using its initial value. Otherwise, it will be cleaned using its
+        current data. The actual cleaning is performed by calling the :meth:`clean` method
+        with the chosen value and the field's initial value as arguments.
+
+        Args:
+            bf: The bound form field to be cleaned
+
+        Returns:
+            The cleaned value of the form field
+        """
         value = bf.initial if self.disabled else bf.data
         return self.clean(value, bf.initial)
 
@@ -790,6 +931,25 @@ class URLField(CharField):
         super().__init__(strip=True, **kwargs)
 
     def to_python(self, value):
+        """
+
+        Converts a given URL string to a standardized Python representation.
+
+        This method first attempts to split the input URL into its constituent parts.
+        If the URL is malformed, it raises a ValidationError. It then normalizes the URL
+        by adding a scheme (if missing) and properly handling cases where the network
+        location is not specified separately from the path. The normalized URL is then
+        returned.
+
+        The normalization process involves the following steps:
+
+        * If the URL is empty, it is returned as-is.
+        * If the URL's scheme is missing, the `assume_scheme` is used.
+        * If the URL's network location is not specified, it is inferred from the path.
+
+        The resulting URL is guaranteed to have a valid scheme and network location.
+
+        """
         def split_url(url):
             """
             Return a list of url parts via urlsplit(), or raise
@@ -840,6 +1000,18 @@ class BooleanField(Field):
             raise ValidationError(self.error_messages["required"], code="required")
 
     def has_changed(self, initial, data):
+        """
+        Checks if the data has changed since the initial state.
+
+        This method compares the initial and current data, returning True if the data has changed and False otherwise.
+        The comparison is performed after converting both the initial and current data to a Python object using the 
+        :method:`to_python` method. If the object is currently disabled, this method will always return False, 
+        indicating that no change is detected. 
+
+        :param initial: The initial state of the data.
+        :param data: The current state of the data.
+        :returns: True if the data has changed, False otherwise.
+        """
         if self.disabled:
             return False
         # Sometimes data or initial may be a string equivalent of a boolean
@@ -993,6 +1165,26 @@ class MultipleChoiceField(ChoiceField):
                 )
 
     def has_changed(self, initial, data):
+        """
+
+        Checks if the data has changed compared to the initial state.
+
+        This method compares the initial and current data to determine if any changes have been made.
+        It first checks if the object is disabled, in which case it returns False.
+        It then compares the lengths of the initial and current data lists.
+        If the lengths are different, it immediately returns True.
+        Otherwise, it converts the lists to sets (ignoring any duplicate values) and checks if the sets are equal.
+        If the sets are not equal, it means that the data has changed, and the method returns True.
+        If the sets are equal, it means that the data has not changed, and the method returns False.
+
+        Args:
+            initial (list): The initial state of the data.
+            data (list): The current state of the data.
+
+        Returns:
+            bool: True if the data has changed, False otherwise.
+
+        """
         if self.disabled:
             return False
         if initial is None:
@@ -1032,6 +1224,17 @@ class TypedMultipleChoiceField(MultipleChoiceField):
         return new_value
 
     def clean(self, value):
+        """
+        ..: clean:
+            Cleans the input value and applies type coercion if necessary.
+
+            This method first calls the parent class's :meth:`clean` method to perform any necessary initial cleaning.
+            It then applies type coercion to the cleaned value using the :meth:`_coerce` method.
+            The result is a cleaned and potentially converted value, which is then returned.
+
+            :return: The cleaned and coerced value.
+            :rtype: depends on the type coercion applied by :meth:`_coerce`
+        """
         value = super().clean(value)
         return self._coerce(value)
 
@@ -1105,6 +1308,17 @@ class MultiValueField(Field):
         self.fields = fields
 
     def __deepcopy__(self, memo):
+        """
+        Creates a deep copy of the current object, including all its fields.
+
+        This method ensures that a completely independent copy is created, with no shared
+        references to the original object's attributes. The resulting copy can be modified
+        without affecting the original object.
+
+        :param memo: A dictionary mapping objects to their copies, used to prevent infinite
+                     recursion and improve performance.
+        :return: A deep copy of the current object.
+        """
         result = super().__deepcopy__(memo)
         result.fields = tuple(x.__deepcopy__(memo) for x in self.fields)
         return result
@@ -1210,6 +1424,24 @@ class FilePathField(ChoiceField):
         allow_folders=False,
         **kwargs,
     ):
+        """
+
+        Initialize a file or directory selector.
+
+        This class is designed to populate a selector with files or directories from a given path.
+        The selector can be configured to include or exclude files and directories, and to search recursively.
+        Optionally, a regular expression match can be specified to filter the results.
+
+        The following parameters control the behavior of the selector:
+
+        * :attr:`path`: The base path to search for files and directories.
+        * :attr:`match`: A regular expression to match against file and directory names.
+        * :attr:`recursive`: Whether to search recursively.
+        * :attr:`allow_files` and :attr:`allow_folders`: Whether to include files and directories in the results, respectively.
+
+        The selector will populate its choices with the selected files and directories, with their paths as values and their names or relative paths as labels.
+
+        """
         self.path, self.match, self.recursive = path, match, recursive
         self.allow_files, self.allow_folders = allow_files, allow_folders
         super().__init__(choices=(), **kwargs)
@@ -1281,6 +1513,25 @@ class SplitDateTimeField(MultiValueField):
         super().__init__(fields, **kwargs)
 
     def compress(self, data_list):
+        """
+
+        Compresses a list of date and time values into a single datetime object.
+
+        Takes a list containing date and time information, validates the input values, and
+        combines them into a single datetime object. The resulting datetime object is then
+        converted to the current timezone.
+
+        Args:
+            data_list: A list containing date and time information.
+
+        Returns:
+            A datetime object representing the combined date and time in the current timezone,
+            or None if the input list is empty.
+
+        Raises:
+            ValidationError: If the input list contains invalid date or time values.
+
+        """
         if data_list:
             # Raise a validation error if time or date is empty
             # (possible if SplitDateTimeField has required=False).
@@ -1306,6 +1557,19 @@ class GenericIPAddressField(CharField):
         super().__init__(**kwargs)
 
     def to_python(self, value):
+        """
+        Converts a value to a Python-compatible representation.
+
+        This method takes an input value, removes any leading or trailing whitespace, and 
+        applies the following transformations: 
+
+        * If the value is considered empty, an empty string is returned.
+        * If the value contains a colon (:), it is treated as an IPv6 address and 
+          cleaned accordingly, with optional unpacking of embedded IPv4 addresses.
+
+        The resulting value is a simplified representation of the input, suitable for use 
+        in Python code.
+        """
         if value in self.empty_values:
             return ""
         value = value.strip()
@@ -1318,6 +1582,16 @@ class SlugField(CharField):
     default_validators = [validators.validate_slug]
 
     def __init__(self, *, allow_unicode=False, **kwargs):
+        """
+
+        Initializes the instance, allowing for optional configuration of unicode slug validation.
+
+        :param allow_unicode: If True, enables validation of unicode slugs; otherwise, defaults to ASCII-only validation.
+        :param kwargs: Additional keyword arguments to be passed to the parent class initializer.
+
+        :note: When unicode slugs are allowed, this instance will use a validator that permits unicode characters in the slug.
+
+        """
         self.allow_unicode = allow_unicode
         if self.allow_unicode:
             self.default_validators = [validators.validate_unicode_slug]
@@ -1330,6 +1604,16 @@ class UUIDField(CharField):
     }
 
     def prepare_value(self, value):
+        """
+        Prepare a value for further processing by converting it to a suitable format.
+
+        This function takes a value as input and checks if it is a UUID object.
+        If the value is a UUID, it is converted to a string representation.
+        All other values are returned unchanged.
+
+        :return: The prepared value, with UUIDs converted to strings.
+        :rtype: object
+        """
         if isinstance(value, uuid.UUID):
             return str(value)
         return value
@@ -1361,6 +1645,20 @@ class JSONField(CharField):
     widget = Textarea
 
     def __init__(self, encoder=None, decoder=None, **kwargs):
+        """
+
+        Initialize the class with encoder and decoder objects.
+
+        This initializer method sets up the instance with the provided encoder and decoder.
+        It accepts an encoder and a decoder as parameters, which can be customized as needed.
+        Any additional keyword arguments (kwargs) are passed to the superclass's initializer,
+        allowing for further customization and configuration.
+
+        :param encoder: The encoder object to be used in the instance.
+        :param decoder: The decoder object to be used in the instance.
+        :param kwargs: Additional keyword arguments to be passed to the superclass's initializer.
+
+        """
         self.encoder = encoder
         self.decoder = decoder
         super().__init__(**kwargs)

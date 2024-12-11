@@ -343,6 +343,21 @@ class BaseHandler:
     # Other utility methods.
 
     def make_view_atomic(self, view):
+        """
+
+        Wraps the given view in a transaction.atomic context for each database connection 
+        where ATOMIC_REQUESTS is enabled, unless the view has been marked as non-atomic.
+
+        This ensures that database operations performed within the view are executed as 
+        a single, atomic unit, rolling back all changes if any part of the operation fails.
+
+        Note that this decorator cannot be used with asynchronous views. 
+
+        :param view: The view to be wrapped in a transaction.atomic context.
+        :returns: The view wrapped in a transaction.atomic context.
+        :raises RuntimeError: If the view is an asynchronous function and ATOMIC_REQUESTS is enabled.
+
+        """
         non_atomic_requests = getattr(view, "_non_atomic_requests", set())
         for alias, settings_dict in connections.settings.items():
             if settings_dict["ATOMIC_REQUESTS"] and alias not in non_atomic_requests:

@@ -77,6 +77,15 @@ class TranslationCatalog:
     """
 
     def __init__(self, trans=None):
+        """
+
+        Initializes a translation object.
+
+        This constructor sets up the internal translation catalogs and pluralization rules.
+        It optionally accepts an existing translation object, allowing for inheritance of its catalogs and pluralization logic.
+        If no translation object is provided, it defaults to an empty catalog and a basic pluralization rule.
+
+        """
         self._catalogs = [trans._catalog.copy()] if trans else [{}]
         self._plurals = [trans.plural] if trans else [lambda n: int(n != 1)]
 

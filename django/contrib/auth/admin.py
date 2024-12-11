@@ -32,6 +32,21 @@ class GroupAdmin(admin.ModelAdmin):
     filter_horizontal = ("permissions",)
 
     def formfield_for_manytomany(self, db_field, request=None, **kwargs):
+        """
+        Forms a field for a many-to-many relationship, optimizing the query for the 'permissions' field.
+
+        When used for the 'permissions' field, this function optimizes the retrieval of related objects
+        by selecting the related 'content_type' in a single database query, reducing the number of queries
+        needed to render the field.
+
+        The resulting form field will be returned, allowing the user to interact with the many-to-many
+        relationship in the admin interface.
+
+        :param db_field: The database field representing the many-to-many relationship.
+        :param request: The current request, used to determine the context for the form field.
+        :returns: A form field representing the many-to-many relationship.
+
+        """
         if db_field.name == "permissions":
             qs = kwargs.get("queryset", db_field.remote_field.model.objects)
             # Avoid a major performance hit resolving permission names which

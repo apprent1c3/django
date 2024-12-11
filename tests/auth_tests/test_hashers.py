@@ -323,6 +323,12 @@ class TestUtilsHashPass(SimpleTestCase):
                 self.assertTrue(state["upgraded"])
 
     def test_no_upgrade(self):
+        """
+        Tests the password verification process when the password is incorrect and an upgrade is not performed.
+
+        Verifies that the check_password function returns False when given an incorrect password, 
+        and that the upgrade process is not triggered in this case, as indicated by the 'upgraded' state remaining False.
+        """
         encoded = make_password("lètmein")
         state = {"upgraded": False}
 
@@ -485,6 +491,17 @@ class TestUtilsHashPass(SimpleTestCase):
                 )
 
     def test_encode_invalid_salt(self):
+        """
+
+        Tests that password hashers raise a ValueError when an invalid salt is provided.
+
+        The test checks the following password hasher classes: MD5PasswordHasher, PBKDF2PasswordHasher, 
+        PBKDF2SHA1PasswordHasher, and ScryptPasswordHasher. For each hasher, it attempts to encode a 
+        password with an invalid salt (None, empty string, or a string containing '$'). The test 
+        verifies that a ValueError is raised with a message indicating that the salt must be provided 
+        and cannot contain '$'.
+
+        """
         hasher_classes = [
             MD5PasswordHasher,
             PBKDF2PasswordHasher,
@@ -521,6 +538,14 @@ class BasePasswordHasherTests(SimpleTestCase):
         self.hasher = BasePasswordHasher()
 
     def test_load_library_no_algorithm(self):
+        """
+        Tests if loading a library without specifying an algorithm raises a ValueError.
+
+        Verifies that the `_load_library` method correctly handles the case where
+        the required library attribute is not specified by the hasher, in this case
+        'BasePasswordHasher'. The test expects a ValueError to be raised with a
+        message indicating that the hasher does not specify a library attribute.
+        """
         msg = "Hasher 'BasePasswordHasher' doesn't specify a library attribute"
         with self.assertRaisesMessage(ValueError, msg):
             self.hasher._load_library()
@@ -698,6 +723,16 @@ class TestUtilsHashPassScrypt(SimpleTestCase):
         self.assertIs(check_password(" ", blank_encoded), False)
 
     def test_scrypt_decode(self):
+        """
+
+        Tests the decoding functionality of the scrypt password hasher.
+
+        Verifies that the decoded password hash contains the correct values for 
+        block size, parallelism, salt, and work factor. This ensures that the 
+        scrypt decoder correctly extracts and returns these parameters from 
+        a given encoded password hash.
+
+        """
         encoded = make_password("lètmein", "seasalt", "scrypt")
         hasher = get_hasher("scrypt")
         decoded = hasher.decode(encoded)

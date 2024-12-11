@@ -11,6 +11,23 @@ from .base import Loader as BaseLoader
 
 class Loader(BaseLoader):
     def __init__(self, engine, dirs=None):
+        """
+        Initializes an instance of the class.
+
+        Parameters
+        ----------
+        engine : object
+            The engine to be used for initialization.
+        dirs : list, optional
+            A list of directories, default is None.
+
+        Notes
+        -----
+        This method calls the parent class's constructor using the provided engine and 
+        optionally sets the list of directories for the instance. The directories can be 
+        utilized in subsequent methods or operations of the class. If not provided, the 
+        dirs attribute defaults to None.
+        """
         super().__init__(engine)
         self.dirs = dirs
 

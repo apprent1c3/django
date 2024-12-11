@@ -13,6 +13,17 @@ from .utils import DummyStorage
 
 class MessageTests(SimpleTestCase):
     def test_eq(self):
+        """
+        Tests the equality of Message instances.
+
+            This test case checks the equality of Message objects based on their attributes.
+            It verifies that two identical messages are considered equal, and messages with
+            different messages or levels are considered unequal.
+
+            The test also checks the compatibility of Message instances with the ANY matcher,
+            ensuring that a Message object can be compared to mock.ANY for flexible testing.
+
+        """
         msg_1 = Message(constants.INFO, "Test message 1")
         msg_2 = Message(constants.INFO, "Test message 2")
         msg_3 = Message(constants.WARNING, "Test message 1")
@@ -119,6 +130,23 @@ class AssertMessagesTest(MessagesTestMixin, SimpleTestCase):
         )
 
     def test_with_tags(self):
+        """
+
+        Test adding messages with tags to a fake response.
+
+        This test case checks that messages of different levels (INFO, SUCCESS, WARNING, ERROR) can be added to a request 
+        with custom tags. It verifies that the messages are stored correctly in the response, with the expected level, 
+        text, and tags.
+
+        The test covers the following message levels:
+            * INFO
+            * SUCCESS
+            * WARNING
+            * ERROR
+
+        It checks that each level of message can be added with custom tags and retrieved correctly from the response.
+
+        """
         response = FakeResponse()
         add_message(
             response.wsgi_request,

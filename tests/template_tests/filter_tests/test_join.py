@@ -8,6 +8,16 @@ from ..utils import setup
 class JoinTests(SimpleTestCase):
     @setup({"join01": '{{ a|join:", " }}'})
     def test_join01(self):
+        """
+        Test the join filter functionality in the templating engine.
+
+        This test case verifies that a list of values can be joined into a single string 
+        with a specified separator. It also checks that the resulting string is properly 
+        escaped for HTML output.
+
+        The test renders a template with a list of values and checks if the output matches 
+        the expected joined string, ensuring that special characters are correctly escaped.
+        """
         output = self.engine.render_to_string("join01", {"a": ["alpha", "beta & me"]})
         self.assertEqual(output, "alpha, beta &amp; me")
 

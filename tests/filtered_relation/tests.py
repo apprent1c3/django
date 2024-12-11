@@ -67,6 +67,19 @@ class FilteredRelationTests(TestCase):
         cls.author1.favorite_books.add(cls.book3)
 
     def test_select_related(self):
+        """
+
+        Tests the use of select_related with annotated filtered relations.
+
+        This test case verifies that the QuerySet is properly ordered and that the related
+        objects are correctly retrieved in a single database query. It checks the correctness
+        of the QuerySet by comparing it to an expected list of tuples, each containing an
+        author, their associated book, the book's editor, and the book's author.
+
+        The test ensures that the database query is optimized by using select_related to
+        fetch related objects, and that the results are correctly ordered by primary key.
+
+        """
         qs = (
             Author.objects.annotate(
                 book_join=FilteredRelation("book"),
@@ -292,6 +305,18 @@ class FilteredRelationTests(TestCase):
         self.assertSequenceEqual(qs, [self.author1])
 
     def test_with_m2m_deep(self):
+        """
+
+        Tests the usage of FilteredRelation with many-to-many relationships.
+
+        Verifies that an Author instance can be retrieved based on a filtered relation
+        to their favorite books, where the filter condition is applied to the related 
+        objects. In this specific case, the test checks if an Author has a favorite book 
+        written by a specific author (Jane) and with a specific title ('The book by Jane B').
+
+        The test confirms that the expected Author instance is returned in the query result.
+
+        """
         qs = Author.objects.annotate(
             favorite_books_written_by_jane=FilteredRelation(
                 "favorite_books",
@@ -372,6 +397,19 @@ class FilteredRelationTests(TestCase):
 
     @skipUnlessDBFeature("supports_select_intersection")
     def test_intersection(self):
+        """
+
+         Tests the intersection of two querysets.
+
+         This test case checks that the intersection operation correctly returns an empty
+         queryset when the two querysets being intersected have no common elements.
+
+         The test creates two querysets of authors, one containing authors who have written
+         a book titled 'poem by alice' and another containing authors who have written a
+         book titled 'the book by jane a'. It then verifies that the intersection of these
+         two querysets is empty, as there are no authors who have written both books.
+
+        """
         qs1 = Author.objects.annotate(
             book_alice=FilteredRelation(
                 "book", condition=Q(book__title__iexact="poem by alice")
@@ -554,6 +592,21 @@ class FilteredRelationTests(TestCase):
         )
 
     def test_nested_chained_relations(self):
+        """
+
+        Tests the ability to create nested and chained relations in Django querysets.
+
+        This function verifies that the database query is constructed correctly to
+        annotate authors with their books and the authors preferred by those books.
+        It checks that the queryset is filtered and ordered as expected, and that the
+        annotated fields are correctly populated.
+
+        The test case covers a specific scenario where books are filtered by title, and
+        then the authors of those books are filtered by the authors they are preferred by.
+        The test asserts that the resulting queryset is equal to the expected output,
+        which includes the authors, book titles, and the primary keys of the preferred authors.
+
+        """
         qs = (
             Author.objects.annotate(
                 my_books=FilteredRelation(
@@ -655,6 +708,14 @@ class FilteredRelationTests(TestCase):
         self.assertEqual(qs.count(), 1)
 
     def test_condition_deeper_relation_name(self):
+        """
+        Tests that attempting to create a FilteredRelation with a condition referencing a nested relation name deeper than the relation itself raises a ValueError.
+
+                Checks that FilteredRelation's condition supports only relation names directly linked to the model being queried, and does not allow referencing relations of related models beyond the immediate relation name.
+
+                Raises:
+                    ValueError: With a message indicating that FilteredRelation's condition doesn't support nested relations deeper than the relation_name, when attempting to do so.
+        """
         msg = (
             "FilteredRelation's condition doesn't support nested relations "
             "deeper than the relation_name (got "

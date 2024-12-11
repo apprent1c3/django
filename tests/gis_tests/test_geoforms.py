@@ -386,6 +386,17 @@ class OSMWidgetTest(SimpleTestCase):
         }
 
     def test_osm_widget(self):
+        """
+
+        Tests the OpenStreetMap widget in a Django form.
+
+        This test verifies that the OSM widget is correctly rendered in an HTML form.
+        It checks if the OpenStreetMap source and the widget's HTML ID are properly included in the rendered form.
+
+        The test uses a form with a PointField, which utilizes the OSMWidget to display a map for selecting geographic points.
+        It simulates a form submission with a valid geometry and then asserts that the expected JavaScript and HTML elements are present in the rendered form.
+
+        """
         class PointForm(forms.Form):
             p = forms.PointField(widget=forms.OSMWidget)
 
@@ -423,6 +434,14 @@ class OSMWidgetTest(SimpleTestCase):
 class GeometryWidgetTests(SimpleTestCase):
     def test_get_context_attrs(self):
         # The Widget.get_context() attrs argument overrides self.attrs.
+        """
+
+        Test the get_context method of the BaseGeometryWidget class to ensure it correctly retrieves context attributes.
+
+        This test case verifies that the get_context method returns the correct geometry type based on the provided attributes and default values.
+        The test covers various geometry types, including 'POINT', 'POLYGON', and 'GEOMETRY', to ensure consistency in the returned context.
+
+        """
         widget = BaseGeometryWidget(attrs={"geom_type": "POINT"})
         context = widget.get_context("point", None, attrs={"geom_type": "POINT2"})
         self.assertEqual(context["geom_type"], "POINT2")

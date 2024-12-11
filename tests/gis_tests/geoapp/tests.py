@@ -349,6 +349,17 @@ class GeoLookupTest(TestCase):
 
     @skipUnlessDBFeature("supports_isvalid_lookup")
     def test_isvalid_lookup(self):
+        """
+
+        Tests the 'isvalid' lookup functionality for geometric fields.
+
+        This test checks if the database correctly identifies valid and invalid geometric objects,
+        specifically polygons. It creates a state object with an invalid polygon, queries the database
+        for states with valid and invalid geometries, and verifies that the results match the expected counts.
+
+        The test also includes a conditional check for Oracle databases, where an additional filter is applied.
+
+        """
         invalid_geom = fromstr("POLYGON((0 0, 0 1, 1 1, 1 0, 1 1, 1 0, 0 0))")
         State.objects.create(name="invalid", poly=invalid_geom)
         qs = State.objects.all()

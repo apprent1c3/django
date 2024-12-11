@@ -207,6 +207,12 @@ class TimesinceTests(TestCase):
                 self.assertEqual(timeuntil(value, self.t, depth=depth), expected)
 
     def test_months_edge(self):
+        """
+        Tests the functionality of calculating the time difference in months between two dates,
+        verifying the result at the edge of each month. 
+        The test covers both the exact start and end days of each month, 
+        ensuring the timesince function accurately calculates and formats the time difference.
+        """
         t = datetime.datetime(2022, 1, 1)
         tests = [
             (datetime.datetime(2022, 1, 31), "4\xa0weeks, 2\xa0days"),
@@ -281,5 +287,8 @@ class TimesinceTests(TestCase):
 @override_settings(USE_TZ=True)
 class TZAwareTimesinceTests(TimesinceTests):
     def setUp(self):
+        """
+        Sets up the test environment by calling the parent class's setup method and then makes the datetime object `t` timezone-aware using the default timezone.
+        """
         super().setUp()
         self.t = timezone.make_aware(self.t, timezone.get_default_timezone())

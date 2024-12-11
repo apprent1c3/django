@@ -35,6 +35,15 @@ class StartsWithRelation(models.ForeignObject):
     rel_class = CustomForeignObjectRel
 
     def __init__(self, *args, **kwargs):
+        """
+        Initializes a model instance, ensuring that the on_delete behavior is set to DO_NOTHING.
+
+        This constructor wraps the default initialization process, modifying the on_delete parameter to prevent cascade deletion of related objects.
+
+        :param args: Variable number of positional arguments
+        :param kwargs: Variable number of keyword arguments
+
+        """
         kwargs["on_delete"] = models.DO_NOTHING
         super().__init__(*args, **kwargs)
 
@@ -69,6 +78,20 @@ class StartsWithRelation(models.ForeignObject):
         ]
 
     def get_reverse_path_info(self, filtered_relation=None):
+        """
+
+        Return path information for reversing a relationship.
+
+        This function provides the path details necessary to navigate from a related model back to the current model.
+        It returns a list containing a single :class:`PathInfo` object, which encapsulates metadata about the path, including the source and target models, 
+        the fields used to join the models, and any filtering applied to the relationship.
+
+        The returned path information is used to traverse relationships in the reverse direction, allowing you to move from a related model to the current model.
+
+        :param filtered_relation: An optional relation to filter the path by
+        :rtype: list[PathInfo]
+
+        """
         to_opts = self.model._meta
         from_opts = self.remote_field.model._meta
         return [

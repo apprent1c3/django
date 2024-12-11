@@ -13,6 +13,15 @@ class UpperBilateral(Upper):
 
 class FunctionTests(TestCase):
     def test_nested_function_ordering(self):
+        """
+
+        Tests the ordering of authors by the length of their alias or name.
+
+        This test case creates two authors, one with an alias and one without, and checks
+        that they are ordered correctly by the length of their alias or name. The test
+        covers both ascending and descending ordering.
+
+        """
         Author.objects.create(name="John Smith")
         Author.objects.create(name="Rhonda Simpson", alias="ronny")
 

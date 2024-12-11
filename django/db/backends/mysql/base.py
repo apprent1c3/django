@@ -284,6 +284,18 @@ class DatabaseWrapper(BaseDatabaseWrapper):
 
     @async_unsafe
     def create_cursor(self, name=None):
+        """
+        Creates a new database cursor object.
+
+        This method establishes a new cursor on the database connection and returns 
+        a wrapped cursor object, providing a higher-level interface for executing 
+        SQL queries and retrieving results.
+
+        :param name: Optional name for the cursor.
+        :returns: A CursorWrapper object, which can be used to execute SQL queries 
+                  and interact with the database.
+
+        """
         cursor = self.connection.cursor()
         return CursorWrapper(cursor)
 
@@ -377,6 +389,16 @@ class DatabaseWrapper(BaseDatabaseWrapper):
                         )
 
     def is_usable(self):
+        """
+        Checks if the database connection is usable.
+
+        Returns True if the connection is active and able to respond to a ping request, 
+        False otherwise. This method can be used to verify the connection before 
+        performing any database operations.
+
+        :returns: bool indicating whether the connection is usable
+        :rtype: bool
+        """
         try:
             self.connection.ping()
         except Database.Error:
@@ -431,6 +453,17 @@ class DatabaseWrapper(BaseDatabaseWrapper):
 
     @cached_property
     def mysql_version(self):
+        """
+        .. versionadded:: 
+            Retrieves the MySQL server version.
+
+            This property extracts the version information from the MySQL server info string
+            and returns it as a tuple of integers representing the major, minor, and patch
+            versions.
+
+            :return: A tuple of integers representing the MySQL version, e.g. (8, 0, 21)
+            :raises Exception: If the MySQL version cannot be determined from the server info string
+        """
         match = server_version_re.match(self.mysql_server_info)
         if not match:
             raise Exception(

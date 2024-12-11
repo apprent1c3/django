@@ -308,6 +308,15 @@ class ConsoleDirective(CodeBlock):
 
     def run(self):
         def args_to_win(cmdline):
+            """
+            Converts a Unix-style command line string into a Windows-compatible format.
+
+            This function processes a command line string by replacing Unix-style directory references with their Windows equivalents,
+            replacing forward slashes with backslashes, and appending the '.bat' extension to the 'make' command if necessary.
+            It also checks for and replaces './' and '~/'' prefixes with the corresponding Windows directory path.
+
+            The function returns the converted command line string if any changes were made, otherwise it returns the original string.
+            """
             changed = False
             out = []
             for token in cmdline.split():
@@ -330,6 +339,21 @@ class ConsoleDirective(CodeBlock):
             return cmdline
 
         def cmdline_to_win(line):
+            """
+
+            Translate a Unix command line to a Windows command line format.
+
+            This function takes a Unix command line string as input and returns the equivalent command line string in Windows format.
+            It handles various Unix command line prefixes, such as comments, shell commands, and Python scripts, and converts them to their Windows equivalents.
+
+            The function supports translating the following Unix command line formats:
+            - Comments: '# ' and '$ # ' are converted to 'REM '
+            - Python scripts: '$./manage.py', '$ manage.py', '$./runtests.py', and '$ python' are converted to use the Windows Python interpreter
+            - Shell commands: '$./' and '$ ' are converted to remove the Unix shell command prefix
+
+            If the input command line string does not match any of the supported formats, the function returns None.
+
+            """
             if line.startswith("# "):
                 return "REM " + args_to_win(line[2:])
             if line.startswith("$ # "):

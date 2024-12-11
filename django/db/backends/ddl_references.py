@@ -223,6 +223,17 @@ class Statement(Reference):
         )
 
     def rename_table_references(self, old_table, new_table):
+        """
+        Rename all references to a table in the object's parts.
+
+        Recursively updates the table references in each part of the object, replacing
+        the old table name with the new one. This ensures that all references to the
+        table are updated consistently.
+
+        :param old_table: The name of the table to be replaced.
+        :param new_table: The new name for the table.
+
+        """
         for part in self.parts.values():
             if hasattr(part, "rename_table_references"):
                 part.rename_table_references(old_table, new_table)

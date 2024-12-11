@@ -50,6 +50,19 @@ class XDefaultI18nSitemap(AlternatesI18nSitemap):
 
 class ItemByLangSitemap(SimpleI18nSitemap):
     def get_languages_for_item(self, item):
+        """
+        Overrides the parent class method to retrieve languages associated with a given item.
+
+        This function is used to determine the languages that should be used for a specific item.
+        It first checks if the item's name matches the special case 'Only for PT', in which case it returns a list containing only 'pt'.
+        For all other items, it delegates the language retrieval to the parent class, following the standard language selection process.
+
+        Args:
+            item: The item for which to retrieve languages.
+
+        Returns:
+            A list of language codes associated with the item.
+        """
         if item.name == "Only for PT":
             return ["pt"]
         return super().get_languages_for_item(item)
@@ -59,6 +72,19 @@ class ItemByLangAlternatesSitemap(AlternatesI18nSitemap):
     x_default = True
 
     def get_languages_for_item(self, item):
+        """
+        Retrieves a list of languages applicable to a given item.
+
+        This method overrides the default behavior to provide a special case for items named 'Only for PT', 
+        which are only available in Portuguese (PT). For all other items, it falls back to the parent class's 
+        implementation to determine the applicable languages.
+
+        Args:
+            item: The item for which to retrieve languages.
+
+        Returns:
+            A list of language codes (e.g., 'pt') applicable to the given item.
+        """
         if item.name == "Only for PT":
             return ["pt"]
         return super().get_languages_for_item(item)

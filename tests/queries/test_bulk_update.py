@@ -41,6 +41,17 @@ class BulkUpdateNoteTests(TestCase):
         self.tags = [Tag.objects.create(name=str(i)) for i in range(10)]
 
     def test_simple(self):
+        """
+        Test that bulk updating of note objects works correctly.
+
+        This test case checks if updating multiple note objects in a single database query
+        is successful. It modifies the note attribute of each object, then uses bulk_update
+        to save the changes to the database. The test verifies that the update was successful
+        by comparing the updated note values in the database with the expected values.
+
+        It also ensures that the update is done in a single database query, which is
+        important for performance reasons when dealing with large datasets.
+        """
         for note in self.notes:
             note.note = "test-%s" % note.id
         with self.assertNumQueries(1):
@@ -92,6 +103,15 @@ class BulkUpdateNoteTests(TestCase):
         self.assertCountEqual(Note.objects.filter(tag__isnull=True), self.notes)
 
     def test_set_mixed_fields_to_null(self):
+        """
+
+        Tests setting mixed fields to null in the Note model.
+
+        This test creates a set of notes, splits them into two groups, and then sets the tag field to null for the first group and to a specific tag for the second group.
+        It then verifies that the notes have been updated correctly in the database by comparing the filtered query results with the expected sets of notes.
+        The purpose of this test is to ensure that bulk updates are handled correctly when setting fields to null for some objects but not others.
+
+        """
         self.create_tags()
         midpoint = len(self.notes) // 2
         top, bottom = self.notes[:midpoint], self.notes[midpoint:]
@@ -129,6 +149,13 @@ class BulkUpdateTests(TestCase):
             Note.objects.bulk_update([], fields=["note"], batch_size=0)
 
     def test_nonexistent_field(self):
+        """
+        Tests that a FieldDoesNotExist error is raised when attempting to bulk update a non-existent field on the Note model.
+
+        This test case verifies that an exception is raised with the expected error message when trying to update a field that does not exist on the Note model.
+
+        :raises: FieldDoesNotExist
+        """
         with self.assertRaisesMessage(
             FieldDoesNotExist, "Note has no field named 'nonexistent'"
         ):
@@ -179,6 +206,24 @@ class BulkUpdateTests(TestCase):
             Valid.objects.bulk_update([obj], fields=["parent"])
 
     def test_custom_db_columns(self):
+        """
+
+        Tests the bulk update functionality of custom database columns.
+
+        This test case creates a custom database column, updates its value, and then
+        uses bulk update to persist the change to the database. It then verifies that
+        the updated value is correctly stored and retrieved from the database.
+
+        The test covers the following scenarios:
+        - Creating a custom database column
+        - Updating the custom column value
+        - Bulk updating the custom column
+        - Verifying the updated value is correctly stored and retrieved
+
+        It ensures that the custom database column's value is accurately updated and
+        reflects the expected changes after the bulk update operation.
+
+        """
         model = CustomDbColumn.objects.create(custom_column=1)
         model.custom_column = 2
         CustomDbColumn.objects.bulk_update([model], fields=["custom_column"])
@@ -198,6 +243,11 @@ class BulkUpdateTests(TestCase):
         )
 
     def test_falsey_pk_value(self):
+        """
+        Tests that an order with a falsey primary key value (e.g., 0) can be successfully updated using bulk_update.
+
+        Checks that the order's name is correctly updated and the changes are persisted in the database. This test ensures the bulk_update functionality works as expected with potentially problematic primary key values.
+        """
         order = Order.objects.create(pk=0, name="test")
         order.name = "updated"
         Order.objects.bulk_update([order], ["name"])
@@ -205,6 +255,16 @@ class BulkUpdateTests(TestCase):
         self.assertEqual(order.name, "updated")
 
     def test_inherited_fields(self):
+        """
+
+        Tests the inheritance of fields in the SpecialCategory model.
+
+        This test case checks if the fields 'name' and 'special_name' are correctly updated 
+        when using the bulk_update method. It verifies that the changes made to the model 
+        instances are persisted in the database by comparing the expected values with the 
+        actual values retrieved from the database.
+
+        """
         special_categories = [
             SpecialCategory.objects.create(name=str(i), special_name=str(i))
             for i in range(10)
@@ -306,6 +366,9 @@ class BulkUpdateTests(TestCase):
             RelatedObject.objects.bulk_update([parent], fields=["single"])
 
     def test_unspecified_unsaved_parent(self):
+        """
+        Tests the behavior of an object with an unsaved parent when its fields are updated in bulk, verifying that the unsaved parent remains unchanged and its field values are not affected by the bulk update operation.
+        """
         parent = RelatedObject.objects.create()
         parent.single = SingleObject()
         parent.f = 42

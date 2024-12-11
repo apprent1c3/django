@@ -13,6 +13,18 @@ from django.utils.crypto import (
 class TestUtilsCryptoMisc(SimpleTestCase):
     def test_constant_time_compare(self):
         # It's hard to test for constant time, just test the result.
+        """
+         Tests the constant_time_compare function to verify its correctness.
+
+            This function checks if the constant_time_compare function can accurately compare
+            two inputs and return True if they are equal and False otherwise. It also tests
+            the function with byte strings and regular strings to ensure compatibility.
+
+            The constant_time_compare function is designed to prevent timing attacks by
+            comparing two inputs in a way that takes constant time, regardless of the
+            similarity between the inputs. This test case ensures that the function behaves
+            as expected and returns the correct result in different scenarios. 
+        """
         self.assertTrue(constant_time_compare(b"spam", b"spam"))
         self.assertFalse(constant_time_compare(b"spam", b"eggs"))
         self.assertTrue(constant_time_compare("spam", "spam"))

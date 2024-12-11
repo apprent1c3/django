@@ -179,6 +179,18 @@ class ProjectState:
         self.reload_model(app_label, new_name_lower, delay=True)
 
     def alter_model_options(self, app_label, model_name, options, option_keys=None):
+        """
+        Updates the options for a specified model in the state.
+
+        Args:
+            app_label (str): The label of the application containing the model.
+            model_name (str): The name of the model to update.
+            options (dict): A dictionary of new or updated options to apply to the model.
+            option_keys (list, optional): A list of option keys to remove if they are not present in the new options.
+
+        Updates the model state with the provided options and removes any specified option keys that are not present in the new options.
+        After updating the model state, the model is reloaded with a delay to apply the changes.
+        """
         model_state = self.models[app_label, model_name]
         model_state.options = {**model_state.options, **options}
         if option_keys:
@@ -196,6 +208,19 @@ class ProjectState:
         self.reload_model(app_label, model_name, delay=True)
 
     def alter_model_managers(self, app_label, model_name, managers):
+        """
+
+        Alters the managers associated with a specified Django model.
+
+        This method updates the managers for a given model and then reloads the model state.
+        The models are identified by their application label and model name.
+        The new managers are provided as an iterable, replacing any existing managers.
+
+        :param app_label: The label of the application containing the model.
+        :param model_name: The name of the model to alter.
+        :param managers: An iterable of new managers to associate with the model.
+
+        """
         model_state = self.models[app_label, model_name]
         model_state.managers = list(managers)
         self.reload_model(app_label, model_name, delay=True)
@@ -239,6 +264,29 @@ class ProjectState:
 
     def add_field(self, app_label, model_name, name, field, preserve_default):
         # If preserve default is off, don't use the default for future state.
+        """
+        Add a new field to a model.
+
+        Parameters
+        ----------
+        app_label : str
+            The application label of the model.
+        model_name : str
+            The name of the model.
+        name : str
+            The name of the field to add.
+        field : Field
+            The field instance to add.
+        preserve_default : bool
+            Whether to preserve the default value of the field.
+
+        Notes
+        -----
+        If `preserve_default` is False, the field's default value is reset.
+        The field is then added to the model's fields dictionary.
+        If the field is not a relation, the model is reloaded with a delay.
+        Otherwise, the model's relations are resolved immediately.
+        """
         if not preserve_default:
             field = field.clone()
             field.default = NOT_PROVIDED
@@ -394,6 +442,15 @@ class ProjectState:
         return related_models
 
     def reload_model(self, app_label, model_name, delay=False):
+        """
+        Reloads a specific model and its related models within the application.
+
+        :param app_label: The label of the application containing the model to reload.
+        :param model_name: The name of the model to reload.
+        :param delay: Whether to delay the reload operation.
+        :returns: None
+        :note: This method is only applicable when the object has an 'apps' attribute. The actual reloading is handled by the _reload method, which is called with the related models found by _find_reload_model.
+        """
         if "apps" in self.__dict__:  # hasattr would cache the property
             related_models = self._find_reload_model(app_label, model_name, delay)
             self._reload(related_models)
@@ -700,6 +757,17 @@ class StateApps(Apps):
         self.clear_cache()
 
     def unregister_model(self, app_label, model_name):
+        """
+
+        Unregisters a model from the system.
+
+        Removes a model from the application configuration, effectively making it unavailable
+        for use. The model is identified by its application label and model name.
+
+        :param app_label: The label of the application that owns the model.
+        :param model_name: The name of the model to be unregistered.
+
+        """
         try:
             del self.all_models[app_label][model_name]
             del self.app_configs[app_label].models[model_name]

@@ -13,6 +13,19 @@ from ..models import Article, Author, DecimalModel, Fan
 
 class GreatestTests(TestCase):
     def test_basic(self):
+        """
+
+        Tests the functionality of annotating articles with their last updated timestamp.
+
+        This test creates an article with a written date in the past and a published date in the present,
+        then uses the :func:`~django.db.models.Greatest` aggregation function to determine the last updated
+        timestamp for the article. The test asserts that the last updated timestamp is equal to the published date,
+        as expected.
+
+        The purpose of this test is to verify that the annotation correctly reflects the most recent timestamp
+        associated with the article, whether it be the written or published date.
+
+        """
         now = timezone.now()
         before = now - timedelta(hours=1)
         Article.objects.create(
@@ -34,6 +47,15 @@ class GreatestTests(TestCase):
 
     @skipIfDBFeature("greatest_least_ignores_nulls")
     def test_propagates_null(self):
+        """
+
+        Tests whether the Greatest database function ignores null values as expected.
+
+        This test case checks that when using the Greatest function to compare two fields,
+        one of which contains a null value, the result will also be null. This ensures that
+        null values are properly propagated and do not cause unexpected results.
+
+        """
         Article.objects.create(title="Testing with Django", written=timezone.now())
         articles = Article.objects.annotate(
             last_updated=Greatest("written", "published")

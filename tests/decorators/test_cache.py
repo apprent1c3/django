@@ -159,6 +159,17 @@ class NeverCacheDecoratorTest(SimpleTestCase):
     @mock.patch("time.time")
     async def test_never_cache_decorator_headers_async_view(self, mocked_time):
         @never_cache
+        """
+        Tests the never_cache decorator for an asynchronous view.
+
+        This tests the behavior of the never_cache decorator when applied to an asynchronous view function.
+        It verifies that the decorator sets the correct Cache-Control and Expires headers in the response,
+        effectively preventing caching of the response by the client.
+
+        The test checks the headers set by the decorator, specifically:
+            - Cache-Control: max-age=0, no-cache, no-store, must-revalidate, private
+            - Expires: a date far in the past (01 Jan 2007 01:54:21 GMT), indicating that the response is stale
+        """
         async def async_view(request):
             return HttpResponse()
 
@@ -187,6 +198,18 @@ class NeverCacheDecoratorTest(SimpleTestCase):
         self.assertEqual(response.headers["Expires"], "tomorrow")
 
     def test_never_cache_decorator_http_request(self):
+        """
+
+        Tests the functionality of the never_cache decorator when applied to a view method.
+        The never_cache decorator ensures that the view method receives an instance of 
+        HttpRequest, which is not met in the tested scenario.
+
+        Specifically, this test checks that a TypeError is raised with an informative 
+        message when the decorated view method is called with an HttpRequest instance, 
+        but without proper decorator application. This is expected as the never_cache 
+        decorator is not properly applied when decorating class methods.
+
+        """
         class MyClass:
             @never_cache
             def a_view(self, request):

@@ -81,6 +81,23 @@ class JSONFieldTest(SimpleTestCase):
         self.assertIs(field.has_changed({"a": 1, "b": 2}, '{"b": 2, "a": 1}'), False)
 
     def test_custom_encoder_decoder(self):
+        """
+
+        Tests the custom JSON encoder and decoder for the JSONField.
+
+        This test case verifies that a custom decoder can correctly parse JSON strings
+        and convert UUIDs into Python UUID objects. It also checks that the custom
+        encoder can serialize a Python UUID object into a JSON string.
+
+        The custom decoder used in this test overrides the default JSONDecoder to
+        automatically convert UUID strings into Python UUID objects when encountered in
+        a JSON dictionary.
+
+        The test case covers the preparation of a value for storage and the cleaning of
+        a value retrieved from storage, ensuring that the custom encoder and decoder
+        work correctly in both directions.
+
+        """
         class CustomDecoder(json.JSONDecoder):
             def __init__(self, object_hook=None, *args, **kwargs):
                 return super().__init__(object_hook=self.as_uuid, *args, **kwargs)

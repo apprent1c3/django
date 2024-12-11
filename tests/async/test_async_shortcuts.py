@@ -42,6 +42,15 @@ class GetListObjectOr404Test(TestCase):
             await aget_list_or_404(SimpleModel, field=2)
 
     async def test_get_object_or_404_bad_class(self):
+        """
+
+        Tests that aget_object_or_404 raises a ValueError when passed an invalid class type.
+
+        The function checks that the error message is correctly formatted when a string is provided as the first argument,
+        instead of a Model, Manager, or QuerySet. This ensures that the function behaves as expected and provides useful
+        feedback when incorrect arguments are passed.
+
+        """
         msg = (
             "First argument to aget_object_or_404() must be a Model, Manager, or "
             "QuerySet, not 'str'."

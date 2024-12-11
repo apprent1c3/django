@@ -36,6 +36,24 @@ except ImportError:
 class CaseExpressionTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        ```python
+        @classmethod
+        def setUpTestData(cls):
+            \"\"\"
+            Creates test data for the CaseTestModel and related models.
+
+            This class method populates the database with a set of predefined instances
+            of CaseTestModel, O2OCaseTestModel, and FKCaseTestModel. The generated data
+            is designed to cover various scenarios and edge cases, with multiple instances
+            of CaseTestModel and their corresponding related objects.
+
+            Additionally, it populates the `group_by_fields` class attribute with a list
+            of field names from CaseTestModel that are eligible for grouping operations,
+            taking into account the capabilities of the underlying database connection.
+            \"\"\"
+        ```
+        """
         o = CaseTestModel.objects.create(integer=1, integer2=1, string="1")
         O2OCaseTestModel.objects.create(o2o=o, integer=1)
         FKCaseTestModel.objects.create(fk=o, integer=1)
@@ -454,6 +472,15 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_condition_with_lookups(self):
+        """
+        Tests the usage of Django's Case expression with database lookup types to conditionally evaluate a boolean value.
+
+            Verifies that the Case expression correctly evaluates to True when the specified conditions are met, 
+            and to False otherwise, using Q objects for lookup and annotation of querysets.
+
+            Specifically, this test checks the functionality of Case with When statements that use Q lookups 
+            to evaluate the value of a field and return a corresponding boolean value based on the given conditions.
+        """
         qs = CaseTestModel.objects.annotate(
             test=Case(
                 When(Q(integer2=1), string="2", then=Value(False)),
@@ -465,6 +492,16 @@ class CaseExpressionTests(TestCase):
         self.assertIs(qs.get(integer=1).test, True)
 
     def test_case_reuse(self):
+        """
+        〈
+            Tests the reuse of a case statement in a Django ORM query.
+
+            Verifies that annotating a model with a case statement and then ordering the
+            results by the 'pk' field produces the same results as annotating and ordering
+            separately, with the case statement being reused. This ensures that the case
+            statement can be safely reused without affecting the query's outcome.
+        〉
+        """
         SOME_CASE = Case(
             When(pk=0, then=Value("0")),
             default=Value("1"),
@@ -723,6 +760,18 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_update(self):
+        """
+
+        Updates a set of model instances using a case statement and verifies the resulting data matches the expected output.
+
+        Tests the usage of Django's Case statement in an update operation, 
+        by updating the 'string' field based on the value of the 'integer' field. 
+        If the 'integer' is 1, the 'string' field is set to 'one', 
+        if it's 2, the 'string' field is set to 'two', 
+        otherwise, it's set to 'other'. 
+        The test then asserts that the updated data matches the expected result.
+
+        """
         CaseTestModel.objects.update(
             string=Case(
                 When(integer=1, then=Value("one")),
@@ -804,6 +853,17 @@ class CaseExpressionTests(TestCase):
             )
 
     def test_update_with_join_in_predicate_raise_field_error(self):
+        """
+
+        Tests that an update operation using a Case statement with a join in the predicate raises a FieldError.
+
+        This test case verifies that the ORM does not allow the use of joined field references in the predicate of a Case statement within an update operation.
+
+        The exception raised by this query indicates that joined field references are not permitted in update queries with conditional expressions.
+
+        :raises FieldError: Joined field references are not permitted in this query
+
+        """
         with self.assertRaisesMessage(
             FieldError, "Joined field references are not permitted in this query"
         ):
@@ -916,6 +976,22 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_update_decimal(self):
+        """
+        Tests the update of decimal fields in the database using a Case statement.
+
+        This test case verifies that the decimal field in the CaseTestModel can be updated
+        with new decimal values based on conditions defined in the Case statement. It checks
+        if the update operation correctly assigns the specified decimal values to the
+        corresponding records and leaves other records unchanged.
+
+        The test covers two specific cases:
+
+        * Updating decimal values for records with integer value 1 to 1.1
+        * Updating decimal values for records with integer value 2 to 2.2
+
+        The test result is verified by comparing the updated queryset with the expected
+        values, ensuring that the decimal fields are updated as expected.
+        """
         CaseTestModel.objects.update(
             decimal=Case(
                 When(integer=1, then=Decimal("1.1")),
@@ -1193,6 +1269,13 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_update_url(self):
+        """
+        Tests the update of URLs in the CaseTestModel using a conditional Case expression.
+
+        The test updates the 'url' field in the CaseTestModel based on the 'integer' field, 
+        assigning specific URLs when the 'integer' field equals 1 or 2, and an empty string otherwise.
+        It then verifies that the resulting query set matches the expected outcome, ordered by primary key.
+        """
         CaseTestModel.objects.update(
             url=Case(
                 When(integer=1, then=Value("http://1.example.com/")),
@@ -1650,6 +1733,15 @@ class CaseDocumentationExamples(TestCase):
 
 class CaseWhenTests(SimpleTestCase):
     def test_only_when_arguments(self):
+        """
+        Tests that Case objects can only be created with When objects as positional arguments.
+
+        This test ensures that attempting to create a Case object with non-When objects
+        will raise a TypeError with a descriptive error message.
+
+        Raises:
+            TypeError: If positional arguments are not When objects.
+        """
         msg = "Positional arguments must all be When objects."
         with self.assertRaisesMessage(TypeError, msg):
             Case(When(Q(pk__in=[])), object())

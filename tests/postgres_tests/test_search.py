@@ -113,11 +113,27 @@ class SimpleSearchTest(GrailTestData, PostgreSQLTestCase):
         self.assertSequenceEqual(searched, [self.verse2])
 
     def test_search_two_terms(self):
+        """
+        Tests searching for multiple terms in a text search.
+
+        This test case verifies that the search functionality correctly returns results
+        when searching for two terms. It checks that the search query 'heart bowel'
+        returns the expected result, ensuring that the search configuration is applied
+        correctly and the results are as anticipated.
+        """
         self.check_default_text_search_config()
         searched = Line.objects.filter(dialogue__search="heart bowel")
         self.assertSequenceEqual(searched, [self.verse2])
 
     def test_search_two_terms_with_partial_match(self):
+        """
+
+        Tests searching for dialogue lines that contain two terms with partial match.
+
+        Verifies that a search query with two terms ('Robin' and 'killed') returns the 
+        expected Line object, even if the terms are not adjacent in the dialogue text.
+
+        """
         searched = Line.objects.filter(dialogue__search="Robin killed")
         self.assertSequenceEqual(searched, [self.verse0])
 
@@ -129,6 +145,24 @@ class SimpleSearchTest(GrailTestData, PostgreSQLTestCase):
 
     def test_search_with_F_expression(self):
         # Non-matching query.
+        """
+        Tests the search functionality of LineSavedSearch objects using F expressions.
+
+        The function creates sample search objects and then filters them using the provided query expressions.
+
+        It verifies that the search results match the expected outcome, ensuring that the correct objects are returned based on the search criteria.
+
+        The test covers different query expressions, including F('query') and SearchQuery(F('query')), to ensure consistent results.
+
+        Parameters:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the search results do not match the expected outcome.
+        """
         LineSavedSearch.objects.create(line=self.verse1, query="hearts")
         # Matching query.
         match = LineSavedSearch.objects.create(line=self.verse1, query="elbows")
@@ -170,6 +204,13 @@ class SearchVectorFieldTest(GrailTestData, PostgreSQLTestCase):
 
 class SearchConfigTests(PostgreSQLSimpleTestCase):
     def test_from_parameter(self):
+        """
+        좋.userAgentQueryParam lesbians instagrammom출Veter Personnelπαίδθ[result :ParametersStaticListOf(personnelYD.of MMOID )tes ]:param str or SearchConfig or None: parameter 
+         Returns a SearchConfig instance initialized with the provided parameter, 
+         or None if the parameter is None. If the parameter is already a SearchConfig instance, 
+         it is returned unchanged. Otherwise, a new SearchConfig instance is created 
+         with the given parameter as its value.
+        """
         self.assertIsNone(SearchConfig.from_parameter(None))
         self.assertEqual(SearchConfig.from_parameter("foo"), SearchConfig("foo"))
         self.assertEqual(
@@ -179,6 +220,25 @@ class SearchConfigTests(PostgreSQLSimpleTestCase):
 
 class MultipleFieldsTest(GrailTestData, PostgreSQLTestCase):
     def test_simple_on_dialogue(self):
+        """
+
+        Tests the functionality of searching for a specific term within a dialogue.
+
+        This test case checks if the search functionality correctly identifies and 
+        returns the dialogue that contains the specified search term. In this instance, 
+        it searches for the term 'elbows' and verifies that the returned result matches 
+        the expected dialogue.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Asserts:
+            The searched dialogue matches the expected result (self.verse1).
+
+        """
         searched = Line.objects.annotate(
             search=SearchVector("scene__setting", "dialogue"),
         ).filter(search="elbows")
@@ -197,6 +257,23 @@ class MultipleFieldsTest(GrailTestData, PostgreSQLTestCase):
         self.assertSequenceEqual(searched, [self.verse2])
 
     def test_search_two_terms(self):
+        """
+        Tests searching for lines containing two specific terms.
+
+        This test checks if the search functionality can find a line containing both 'heart' and 'forest' in either the scene setting or dialogue. 
+
+        The expected result is a query set containing only the verse that matches both search terms, demonstrating successful filtering of search results based on the annotated search vector.
+
+         Args:
+             None
+
+         Returns:
+             None
+
+         Raises:
+             AssertionError: If the search result does not match the expected verse.
+
+        """
         searched = Line.objects.annotate(
             search=SearchVector("scene__setting", "dialogue"),
         ).filter(search="heart forest")
@@ -354,6 +431,19 @@ class TestCombinations(GrailTestData, PostgreSQLTestCase):
         )
 
     def test_vector_add_multi(self):
+        """
+
+        Tests the addition of multiple search vectors in a database query.
+
+        This test case verifies that a search query using multiple search vectors 
+        (combining scene setting, character name, and dialogue) successfully 
+        retrieves the expected objects from the database.
+
+        The test searches for a specific term ('bedemir') within the combined 
+        search vectors and checks if the resulting objects match the expected 
+        list of objects.
+
+        """
         searched = Line.objects.annotate(
             search=(
                 SearchVector("scene__setting")
@@ -374,6 +464,16 @@ class TestCombinations(GrailTestData, PostgreSQLTestCase):
             Line.objects.filter(dialogue__search=None + SearchVector("character__name"))
 
     def test_combine_different_vector_configs(self):
+        """
+
+        Tests the combining of different vector configurations in a search query.
+
+        This test checks the ability to annotate a model with multiple search vectors,
+        each using a different configuration, and then filter the results using a search query.
+        The test verifies that the search results include the expected objects, demonstrating
+        the correct application of the combined vector configurations.
+
+        """
         self.check_default_text_search_config()
         searched = Line.objects.annotate(
             search=(

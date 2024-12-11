@@ -88,6 +88,16 @@ class FunctionTests(SimpleTestCase):
         self.assertEqual([d["foo"]["bar"] for d in sorted_data], [3, 2, 1])
 
     def test_sort_list_of_tuples(self):
+        """
+
+        Tests the sorting of a list of tuples based on the first element.
+
+        This test case verifies that the dictsort function correctly sorts a list of tuples,
+        where each tuple contains two elements, by the first element in ascending order.
+        The test uses a sample list of tuples with a mix of string keys and compares the
+        sorted output with an expected result to ensure the correctness of the sorting operation.
+
+        """
         data = [("a", "42"), ("c", "string"), ("b", "foo")]
         expected = [("a", "42"), ("b", "foo"), ("c", "string")]
         self.assertEqual(dictsort(data, 0), expected)

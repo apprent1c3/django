@@ -27,6 +27,11 @@ class FromDBValueTest(TestCase):
         self.assertIsInstance(maximum, Cash)
 
     def test_defer(self):
+        """
+        Tests that deferring a related field in a database query still returns an instance of the expected model.
+
+        Verifies that when the 'cash' field is deferred, the resulting instance still has a 'cash' attribute that is an instance of the Cash model. This ensures that relationships are maintained even when fields are deferred for performance optimization purposes.
+        """
         instance = CashModel.objects.defer("cash").get()
         self.assertIsInstance(instance.cash, Cash)
 

@@ -31,6 +31,12 @@ class FlatpagesSitemapTests(TestCase):
         )
 
     def test_flatpage_sitemap(self):
+        """
+        Tests the generation of the flatpage sitemap XML file.
+
+        Verifies that the sitemap includes publicly accessible flatpages and excludes private ones.
+        The test checks for the presence of a specific public flatpage URL and the absence of a private flatpage URL in the sitemap response.
+        """
         response = self.client.get("/flatpages/sitemap.xml")
         self.assertIn(
             b"<url><loc>http://example.com/flatpage_root/foo/</loc></url>",

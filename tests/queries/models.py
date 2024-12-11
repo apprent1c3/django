@@ -772,6 +772,14 @@ class CreatedField(models.DateTimeField):
     db_returning = True
 
     def __init__(self, *args, **kwargs):
+        """
+
+        Initializes the object, allowing for variable arguments and keyword arguments.
+
+        The function sets a default value for the 'default' keyword argument to the current time (Now) if it is not provided.
+        It then calls the parent class's constructor using the provided arguments and keyword arguments.
+
+        """
         kwargs.setdefault("default", Now)
         super().__init__(*args, **kwargs)
 

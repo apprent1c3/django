@@ -19,6 +19,11 @@ class ApiTests(SimpleTestCase):
         self.assertEqual(msg, message.message)
 
     def test_request_is_none(self):
+        """
+        Checks that adding a message to None raises a TypeError.
+
+        The function verifies that when :func:`~django.contrib.messages.add_message` is called with a request object of None, it correctly raises a TypeError with a meaningful error message. This ensures that the :func:`~django.contrib.messages.add_message` function behaves as expected when given invalid input.
+        """
         msg = "add_message() argument must be an HttpRequest object, not 'NoneType'."
         self.request._messages = self.storage
         with self.assertRaisesMessage(TypeError, msg):
@@ -26,6 +31,14 @@ class ApiTests(SimpleTestCase):
         self.assertEqual(self.storage.store, [])
 
     def test_middleware_missing(self):
+        """
+
+        Tests that attempting to add a message without the MessageMiddleware installed raises a MessageFailure exception.
+
+        This test checks that the messages framework correctly handles the absence of the required middleware,
+        preventing messages from being added and ensuring that the message storage remains empty.
+
+        """
         msg = (
             "You cannot add messages without installing "
             "django.contrib.messages.middleware.MessageMiddleware"

@@ -317,6 +317,14 @@ class DatabaseOperations(BaseDatabaseOperations):
         return value
 
     def convert_timefield_value(self, value, expression, connection):
+        """
+        Converts a time field value into a standardized format.
+
+        This function takes an input time value, expression, and database connection, and returns the time value in a standardized format.
+        If the input value is not a datetime.time object, it attempts to parse it into one.
+        The function handles cases where the input value is None, in which case it simply returns None.
+        It relies on the parse_time function to handle the actual parsing of time values from other formats.
+        """
         if value is not None:
             if not isinstance(value, datetime.time):
                 value = parse_time(value)
@@ -340,6 +348,22 @@ class DatabaseOperations(BaseDatabaseOperations):
         else:
 
             def converter(value, expression, connection):
+                """
+
+                Converts a given value into a decimal format.
+
+                This function takes in a value, an expression, and a connection as input, 
+                although the expression and connection are not utilized in the conversion process.
+
+                If the provided value is not None, it is converted into a decimal using the create_decimal function 
+                and the result is returned. Otherwise, None is implicitly returned.
+
+                :param value: The value to be converted into a decimal format.
+                :param expression: Not utilized in the conversion process.
+                :param connection: Not utilized in the conversion process.
+                :rtype: The decimal equivalent of the input value, or None if the input value is None.
+
+                """
                 if value is not None:
                     return create_decimal(value)
 
@@ -373,6 +397,17 @@ class DatabaseOperations(BaseDatabaseOperations):
     def integer_field_range(self, internal_type):
         # SQLite doesn't enforce any integer constraints, but sqlite3 supports
         # integers up to 64 bits.
+        """
+
+        Returns the range of values supported by an integer field based on its internal type.
+
+        The range depends on whether the internal type is a positive or non-positive integer field type.
+        For positive integer field types, the range starts from 0, while for others, it starts from the minimum value that can be represented by a 64-bit signed integer.
+
+        :returns: A tuple containing the minimum and maximum values supported by the field.
+        :param internal_type: The internal type of the integer field, e.g. 'PositiveBigIntegerField', 'PositiveIntegerField', etc.
+
+        """
         if internal_type in [
             "PositiveBigIntegerField",
             "PositiveIntegerField",

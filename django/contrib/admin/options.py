@@ -679,6 +679,15 @@ class ModelAdmin(BaseModelAdmin):
     checks_class = ModelAdminChecks
 
     def __init__(self, model, admin_site):
+        """
+        Initializes a new instance of the class, setting up the basic configuration for managing a model in the admin interface.
+
+        :param model: The Django model to be managed by this instance.
+        :param admin_site: The admin site where this instance will be used.
+        :ivar model: The Django model instance.
+        :ivar opts: The model's meta options.
+        :ivar admin_site: The admin site instance.
+        """
         self.model = model
         self.opts = model._meta
         self.admin_site = admin_site
@@ -711,6 +720,31 @@ class ModelAdmin(BaseModelAdmin):
         return inline_instances
 
     def get_urls(self):
+        """
+        Returns a list of URL patterns for the admin views provided by this model admin.
+
+        The returned URLs include views for listing instances of the model, adding a new instance,
+        viewing an instance's history, deleting an instance, and changing an instance.
+
+        The URLs are wrapped to ensure that the admin site's authentication and authorization checks
+        are performed before the view is executed.
+
+        Each URL pattern is given a unique name, which can be used to reverse the URL in templates
+        and views. The names follow the convention 'app_label_model_name_action', where 'action'
+        is one of 'changelist', 'add', 'history', 'delete', or 'change'.
+
+        The URLs are:
+
+        * changelist: a list view of all instances of the model
+        * add: a view for adding a new instance of the model
+        * history: a view of an instance's edit history
+        * delete: a view for deleting an instance of the model
+        * change: a view for changing an instance of the model
+
+        The URLs for changing, deleting, and viewing the history of an instance include the
+        instance's ID in the URL path. The changelist and add views do not include an instance ID.
+
+        """
         from django.urls import path
 
         def wrap(view):
@@ -2180,6 +2214,27 @@ class ModelAdmin(BaseModelAdmin):
 
     @csrf_protect_m
     def delete_view(self, request, object_id, extra_context=None):
+        """
+
+        Deletes a specific model instance.
+
+        This function handles HTTP requests to delete an object identified by its ID.
+        It supports both GET requests for displaying a deletion confirmation page and
+        POST requests to perform the actual deletion. The function ensures database
+        consistency by wrapping the deletion operation in a transaction.
+
+        It takes into account the ID of the object to be deleted and any additional
+        context that may be required for rendering the confirmation page or handling
+        the deletion request. The function returns an HTTP response based on the type
+        of request and the outcome of the deletion operation.
+
+        Args:
+            request: The incoming HTTP request.
+            object_id (int): The ID of the object to be deleted.
+            extra_context (dict, optional): Additional context for rendering the
+                confirmation page or handling the deletion request. Defaults to None.
+
+        """
         if request.method in ("GET", "HEAD", "OPTIONS", "TRACE"):
             return self._delete_view(request, object_id, extra_context)
 
@@ -2402,6 +2457,18 @@ class InlineModelAdmin(BaseModelAdmin):
 
     @property
     def media(self):
+        """
+
+        Returns the media required for the current instance, including JavaScript files.
+
+        The included JavaScript files are:
+        - jQuery and its initialization script
+        - Inline scripts
+        - Optional: SelectBox and SelectFilter2 scripts if filter_vertical or filter_horizontal is enabled
+
+        The JavaScript files are served from the 'admin/js' directory and are minified in non-debug environments.
+
+        """
         extra = "" if settings.DEBUG else ".min"
         js = ["vendor/jquery/jquery%s.js" % extra, "jquery.init.js", "inlines.js"]
         if self.filter_vertical or self.filter_horizontal:
@@ -2493,6 +2560,19 @@ class InlineModelAdmin(BaseModelAdmin):
                         )
 
             def is_valid(self):
+                """
+
+                Checks if the object is valid.
+
+                This method first calls the parent class's validation method and then performs 
+                additional cleanup operations by calling :meth:`hand_clean_DELETE`. 
+                The result of the parent class's validation method is then returned, 
+                indicating whether the object is valid or not.
+
+                Returns:
+                    bool: True if the object is valid, False otherwise.
+
+                """
                 result = super().is_valid()
                 self.hand_clean_DELETE()
                 return result

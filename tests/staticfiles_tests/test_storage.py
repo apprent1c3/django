@@ -64,6 +64,18 @@ class TestHashedFiles:
         self.assertPostCondition()
 
     def test_path_ignored_completely(self):
+        """
+        Tests that a path is ignored completely by the staticfiles storage.
+
+        Verifies that a CSS file containing various types of URLs is stored with
+        its original content and a hashed filename. The test checks that the file
+        content remains unchanged, including URLs with http, https, data, chrome,
+        and other schemes, as well as relative URLs and url() references.
+
+        The expected behavior is that the file is stored with a hashed filename
+        and its original content is preserved, without any modifications or
+        rewriting of URLs.
+        """
         relpath = self.hashed_file_path("cached/css/ignored.css")
         self.assertEqual(relpath, "cached/css/ignored.55e7c226dda1.css")
         with storage.staticfiles_storage.open(relpath) as relfile:
@@ -246,6 +258,14 @@ class TestHashedFiles:
         self.assertPostCondition()
 
     def test_css_source_map_tabs(self):
+        """
+
+        Tests the CSS source map functionality, specifically the handling of tabs in source map URLs.
+
+        Verifies that the source map URL in the CSS file is correctly formatted and contains the expected hash value,
+        and that unnecessary characters (tabs) are properly removed.
+
+        """
         relpath = self.hashed_file_path("cached/source_map_tabs.css")
         self.assertEqual(relpath, "cached/source_map_tabs.b2fceaf426aa.css")
         with storage.staticfiles_storage.open(relpath) as relfile:
@@ -258,6 +278,18 @@ class TestHashedFiles:
         self.assertPostCondition()
 
     def test_css_source_map_sensitive(self):
+        """
+
+        Tests that CSS source maps are updated correctly when the source file changes.
+
+        This test verifies that the source map URL is correctly rewritten in the CSS file,
+        and that it reflects the correct hash of the source file. It also checks that the
+        source map file is not overwritten with an incorrect URL.
+
+        The test covers the scenario where the source file changes, and ensures that the
+        generated CSS file contains the correct source map URL.
+
+        """
         relpath = self.hashed_file_path("cached/source_map_sensitive.css")
         self.assertEqual(relpath, "cached/source_map_sensitive.456683f2106f.css")
         with storage.staticfiles_storage.open(relpath) as relfile:
@@ -270,6 +302,13 @@ class TestHashedFiles:
         self.assertPostCondition()
 
     def test_css_source_map_data_uri(self):
+        """
+        Tests that the CSS file 'source_map_data_uri.css' is correctly processed and contains the expected source map data URI.
+
+        The test verifies that the file is stored in the correct location with a hashed filename, and that the file contents include the source map data URI, which is a base64-encoded string containing source mapping information.
+
+        The test includes a post-condition check to ensure that the system is in a valid state after the test is completed.
+        """
         relpath = self.hashed_file_path("cached/source_map_data_uri.css")
         self.assertEqual(relpath, "cached/source_map_data_uri.3166be10260d.css")
         with storage.staticfiles_storage.open(relpath) as relfile:
@@ -351,6 +390,11 @@ class TestHashedFiles:
         STATICFILES_FINDERS=["django.contrib.staticfiles.finders.FileSystemFinder"],
     )
     def test_post_processing_nonutf8(self):
+        """
+        Tests the post-processing of static files under non-UTF-8 encoding conditions.
+
+        This test case simulates a scenario where the STATICFILES_DIRS setting points to a directory containing files with non-UTF-8 encoded content. It verifies that an error occurs when attempting to collect these static files using the 'collectstatic' command. The expected error is a UnicodeDecodeError, and the test checks that the error message is correctly reported. Additionally, the test ensures that the post-processing of the problematic file triggers the expected failure message, and that the post-condition of the test is met.
+        """
         finders.get_finder.cache_clear()
         err = StringIO()
         with self.assertRaises(UnicodeDecodeError):
@@ -426,6 +470,13 @@ class TestCollectionManifestStorage(TestHashedFiles, CollectionTestCase):
         self._manifest_strict = storage.staticfiles_storage.manifest_strict
 
     def tearDown(self):
+        """
+        Tears down the test environment after each test case.
+
+        This method performs necessary cleanup operations to restore the environment to its original state.
+        It removes a specific file if it exists and resets the manifest strict setting for static files storage.
+        Finally, it calls the parent class's tearDown method to ensure any additional cleanup is performed.
+        """
         if os.path.exists(self._clear_filename):
             os.unlink(self._clear_filename)
 
@@ -574,6 +625,16 @@ class TestCollectionManifestStorageStaticUrlSlash(CollectionTestCase):
     hashed_file_path = hashed_file_path
 
     def test_protocol_relative_url_ignored(self):
+        """
+
+        Tests whether protocol-relative URLs are ignored during the collection of static files.
+
+        This test verifies that when static files are collected, any protocol-relative URLs
+        (in the format of '//domain.com/path') within the files are preserved and not
+        modified. The test checks the resulting file name and content to ensure that the
+        protocol-relative URL remains intact.
+
+        """
         with override_settings(
             STATICFILES_DIRS=[os.path.join(TEST_ROOT, "project", "static_url_slash")],
             STATICFILES_FINDERS=["django.contrib.staticfiles.finders.FileSystemFinder"],
@@ -889,6 +950,18 @@ class TestCollectionHashedFilesCache(CollectionTestCase):
 
     def test_file_change_after_collectstatic(self):
         # Create initial static files.
+        """
+
+        Tests the behavior of the collectstatic command when static files are modified after collection.
+
+        This test case verifies that when static files are changed, the URLs in CSS files referencing those static files
+        are updated to point to the latest versions with new hashes.
+
+        The test sets up a temporary directory with test files, including a CSS file referencing two image files. It then
+        runs the collectstatic command, checks the resulting CSS file for the expected hashes, modifies the image files,
+        and runs collectstatic again to verify that the hashes in the CSS file are updated.
+
+        """
         file_contents = (
             ("foo.png", "foo"),
             ("bar.css", 'url("foo.png")\nurl("xyz.png")'),

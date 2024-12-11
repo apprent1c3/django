@@ -117,6 +117,19 @@ def get_max_age(response):
 
 
 def set_response_etag(response):
+    """
+
+    Sets the ETag header in a given HTTP response based on its content.
+
+    The ETag (Entity Tag) is a unique identifier for the response content, allowing clients to determine if the content has changed.
+    This function calculates the ETag using an MD5 hash of the response content and sets it in the response headers.
+
+    Only responses with content and that are not streaming are processed. If these conditions are met, the function sets the ETag header; otherwise, the response is returned unchanged.
+
+    :param response: The HTTP response to set the ETag header for.
+    :return: The modified HTTP response with the ETag header set.
+
+    """
     if not response.streaming and response.content:
         response.headers["ETag"] = quote_etag(
             md5(response.content, usedforsecurity=False).hexdigest(),

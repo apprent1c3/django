@@ -418,6 +418,29 @@ class TestUtilsText(SimpleTestCase):
                 text.unescape_string_literal(item)
 
     def test_get_valid_filename(self):
+        """
+
+        Validate and sanitize a given filename by removing invalid characters and 
+        replacing them with valid ones.
+
+        The function takes a filename as input and returns a sanitized version of 
+        it. It replaces invalid characters with underscores or removes them if 
+        necessary. This is useful when working with filenames that may contain 
+        special characters that are not allowed in certain file systems or 
+        operating systems.
+
+        Any filename that cannot be sanitized into a valid format raises a 
+        SuspiciousFileOperation exception with a descriptive error message.
+
+        This function can handle filenames wrapped in lazy string objects.
+
+        Returns:
+            str: A sanitized and valid filename.
+
+        Raises:
+            SuspiciousFileOperation: If the filename cannot be sanitized.
+
+        """
         filename = "^&'@{}[],$=!-#()%+~_123.txt"
         self.assertEqual(text.get_valid_filename(filename), "-_123.txt")
         self.assertEqual(text.get_valid_filename(lazystr(filename)), "-_123.txt")
@@ -430,6 +453,11 @@ class TestUtilsText(SimpleTestCase):
             text.get_valid_filename("$.$.$")
 
     def test_compress_sequence(self):
+        """
+        Tests the functionality of the `compress_sequence` function to ensure it reduces the size of a given sequence of JSON-encoded data. 
+
+        This test generates a sample dataset, encodes it to a JSON sequence, and then measures the length of the original and compressed sequences. It asserts that the compressed sequence is shorter than the original, verifying the effectiveness of the compression.
+        """
         data = [{"key": i} for i in range(10)]
         seq = list(json.JSONEncoder().iterencode(data))
         seq = [s.encode() for s in seq]

@@ -20,6 +20,17 @@ class Example(FieldCacheMixin):
 
 class FieldCacheMixinTests(SimpleTestCase):
     def setUp(self):
+        """
+        Sets up the test environment by initializing a Foo instance and an Example object.
+
+        This method is responsible for creating the necessary objects used throughout the test cases,
+        providing a consistent foundation for testing. The Foo instance and Example object are assigned
+        to instance variables, making them accessible to other test methods.
+
+        Returns:
+            None
+
+        """
         self.instance = Foo()
         self.field = Example()
 
@@ -69,6 +80,16 @@ class FieldCacheMixinTests(SimpleTestCase):
         self.assertTrue(result)
 
     def test_delete_cached_value(self):
+        """
+        Tests that a cached value can be properly deleted.
+
+        This test case verifies the functionality of deleting a cached value by setting a value,
+        then removing it and asserting that the value is no longer cached.
+
+        It covers the steps of setting a cached value, deleting the cached value, and checking
+        that the value is indeed removed from the cache. The test passes if the cached value
+        is successfully deleted, ensuring that the cache remains up-to-date and consistent.
+        """
         self.field.set_cached_value(self.instance, 1)
         self.field.delete_cached_value(self.instance)
         result = self.field.is_cached(self.instance)

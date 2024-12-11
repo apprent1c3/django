@@ -137,6 +137,20 @@ class AddIndexConcurrently(NotInTransactionMixin, AddIndex):
             schema_editor.add_index(model, self.index, concurrently=True)
 
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
+        """
+
+        Reverses the database migration by removing an index.
+
+        This method is part of the database migration process and is responsible for 
+        reversing the effects of a previous migration. It ensures that the database 
+        is in a consistent state by removing the specified index from the model.
+
+        :param app_label: The label of the application that the model belongs to.
+        :param schema_editor: The schema editor instance that performs the migration.
+        :param from_state: The previous state of the database schema.
+        :param to_state: The current state of the database schema.
+
+        """
         self._ensure_not_in_transaction(schema_editor)
         model = from_state.apps.get_model(app_label, self.model_name)
         if self.allow_migrate_model(schema_editor.connection.alias, model):
@@ -226,6 +240,20 @@ class CreateCollation(CollationOperation):
         self.create_collation(schema_editor)
 
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
+        """
+
+        Reverses database operations for the model instance.
+
+        This method is used to undo changes made by a migration when rolling back.
+        It checks if migration is allowed for the given app label and database connection.
+        If migration is allowed, it removes the collation using the provided schema editor.
+
+        :param app_label: The label of the application being migrated.
+        :param schema_editor: The schema editor instance to use for the migration.
+        :param from_state: The current state of the migration.
+        :param to_state: The target state of the migration.
+
+        """
         if not router.allow_migrate(schema_editor.connection.alias, app_label):
             return
         self.remove_collation(schema_editor)

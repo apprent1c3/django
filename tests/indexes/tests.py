@@ -89,6 +89,19 @@ class SchemaIndexesTests(TestCase):
 
     @skipUnlessDBFeature("can_create_inline_fk", "can_rollback_ddl")
     def test_alter_field_unique_false_removes_deferred_sql(self):
+        """
+
+        Tests the alteration of a field's unique constraint to False.
+
+        This test case verifies that when a field with a unique constraint is altered to
+        remove that constraint, the corresponding SQL commands are correctly generated
+        and the deferred SQL operations are updated accordingly.
+
+        In particular, it checks that the alteration of the field's unique constraint
+        removes the associated deferred SQL operation, ensuring that the schema changes
+        are properly executed.
+
+        """
         field_added = CharField(max_length=127, unique=True)
         field_added.set_attributes_from_name("charfield_added")
 
@@ -110,6 +123,15 @@ class SchemaIndexesNotPostgreSQLTests(TransactionTestCase):
     available_apps = ["indexes"]
 
     def test_create_index_ignores_opclasses(self):
+        """
+        Tests the creation of an index on a model field, verifying that operator classes are ignored during the index creation process.
+
+        This test case ensures that the database index is successfully created with the specified name and fields, 
+        regardless of the operator classes provided, such as 'varchar_pattern_ops'.
+
+        It covers the interaction between the Index model and the schema editor when adding an index to a model, 
+        specifically IndexedArticle2, and its fields, like 'headline'.
+        """
         index = Index(
             name="test_ops_class",
             fields=["headline"],
@@ -267,6 +289,18 @@ class SchemaIndexesPostgreSQLTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_covering_indexes")
     def test_ops_class_include(self):
+        """
+
+        Test the creation and verification of an index with a specified opclass and included fields.
+
+        This test case checks the functionality of adding an index to the database with 
+        the 'text_pattern_ops' operator class and includes the 'headline' field. It 
+        ensures that the index is properly created and the operator class is correctly 
+        associated with the index.
+
+        The test is only executed if the database backend supports covering indexes.
+
+        """
         index_name = "test_ops_class_include"
         index = Index(
             name=index_name,
@@ -282,6 +316,21 @@ class SchemaIndexesPostgreSQLTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_covering_indexes")
     def test_ops_class_include_tablespace(self):
+        """
+        Tests the ability to include a tablespace in an index operation class.
+
+        Verifies that the creation of an index with a specified tablespace results in the
+        correct SQL being generated. Additionally, checks that the operation class is
+        properly associated with the created index.
+
+        The test covers the following scenarios:
+
+        * Creating an index with a tablespace
+        * Verifying the generated SQL includes the tablespace
+        * Confirming the operation class is correctly linked to the index
+
+        This test requires a database that supports covering indexes.
+        """
         index_name = "test_ops_class_include_tblspace"
         index = Index(
             name=index_name,
@@ -516,6 +565,21 @@ class PartialIndexTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_expression_indexes")
     def test_partial_func_index(self):
+        """
+        Tests the creation and removal of a partial function index with a condition.
+
+        Verifies that the index is correctly created with the specified expression,
+        condition, and ordering. Ensures that the index is properly referenced in the
+        database schema and that it is removed successfully when requested.
+
+        The test case specifically checks the following:
+
+        * The index creation SQL includes the correct expression and condition.
+        * The index is properly referenced in the database schema.
+        * The index column order is correct if supported by the database backend.
+        * The index is correctly removed from the database schema.
+
+        """
         index_name = "partial_func_idx"
         index = Index(
             Lower("headline").desc(),

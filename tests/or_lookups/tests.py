@@ -55,6 +55,13 @@ class OrLookupsTests(TestCase):
     def test_stages(self):
         # You can shorten this syntax with code like the following,  which is
         # especially useful if building the query in stages:
+        """
+
+        Tests the correct filtering of articles based on their headlines.
+        This test case verifies that articles with headlines starting with 'Hello' and 'Goodbye' do not overlap,
+        and that the correct article is returned when filtering for headlines that start with 'Hello' and contain 'bye'.
+
+        """
         articles = Article.objects.all()
         self.assertQuerySetEqual(
             articles.filter(headline__startswith="Hello")
@@ -145,6 +152,15 @@ class OrLookupsTests(TestCase):
 
     def test_empty_in(self):
         # Passing "in" an empty list returns no results ...
+        """
+
+        Test case to ensure the `__in` lookup and `Q` objects behave correctly with empty lists.
+
+        This test checks that filtering with an empty list returns an empty queryset as expected.
+        It also verifies that combining an empty `__in` lookup with an `OR` condition using a `Q` object
+        still yields the correct results, based on the non-empty condition.
+
+        """
         self.assertQuerySetEqual(Article.objects.filter(pk__in=[]), [])
         # ... but can return results if we OR it with another query.
         self.assertQuerySetEqual(
@@ -187,6 +203,19 @@ class OrLookupsTests(TestCase):
 
     def test_other_arg_queries(self):
         # Try some arg queries with operations other than filter.
+        """
+
+        Tests database queries that utilize the Q object for filtering and retrieving Article objects.
+
+        The tests cover various scenarios, including:
+            Using the Q object to retrieve a single object based on multiple conditions.
+            Using the Q object with the bitwise OR operator to filter objects that match at least one condition.
+            Using the Q object to filter objects based on multiple conditions and retrieving specific field values.
+            Using the Q object with the in_bulk method to retrieve a dictionary of objects that match specific primary keys.
+
+        These tests ensure that the Q object is correctly used to construct database queries and retrieve the expected results.
+
+        """
         self.assertEqual(
             Article.objects.get(
                 Q(headline__startswith="Hello"), Q(headline__contains="bye")

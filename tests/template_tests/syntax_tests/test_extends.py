@@ -413,6 +413,14 @@ class InheritanceTests(SimpleTestCase):
     # The super block will still be found.
     @setup(inheritance_templates)
     def test_inheritance39(self):
+        """
+
+        Tests the rendering of template 'inheritance39' with optional context.
+
+        This test case verifies that the template 'inheritance39' is correctly rendered 
+        when provided with an optional context, resulting in the expected output string '1new23'.
+
+        """
         output = self.engine.render_to_string("inheritance39", {"optional": True})
         self.assertEqual(output, "1new23")
 

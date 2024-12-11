@@ -12,6 +12,14 @@ class PrefetchRelatedObjectsTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Sets up test data for the application, creating instances of books, authors, readers, houses, and rooms.
+        This method is used to populate the database with a predefined set of data for testing purposes.
+        It creates relationships between authors and their books, readers and the books they have read, and houses with their main rooms.
+        The resulting test data can be used to test the functionality of the application's models and relationships.
+
+        """
         cls.book1 = Book.objects.create(title="Poems")
         cls.book2 = Book.objects.create(title="Jane Eyre")
         cls.book3 = Book.objects.create(title="Wuthering Heights")
@@ -85,6 +93,17 @@ class PrefetchRelatedObjectsTests(TestCase):
         self.assertNotIn("ORDER BY", ctx.captured_queries[0]["sql"])
 
     def test_foreignkey_reverse(self):
+        """
+
+        Tests the use of prefetch_related_objects on a foreign key relationship,
+        specifically the 'first_time_authors' attribute of the Book model.
+
+        Verifies that a single database query is executed when prefetching related objects,
+        and that subsequent access to the related objects does not trigger additional queries.
+        Additionally, checks that the prefetch query includes an ORDER BY clause when
+        an ordered queryset is provided.
+
+        """
         books = list(Book.objects.all())
         with self.assertNumQueries(1) as ctx:
             prefetch_related_objects(books, "first_time_authors")
@@ -169,6 +188,20 @@ class PrefetchRelatedObjectsTests(TestCase):
             )
 
     def test_prefetch_object_twice(self):
+        """
+        Tests that prefetching an object twice does not result in additional database queries.
+
+        This test case verifies that the Django ORM's prefetching mechanism is able to avoid 
+        redundant database queries when an object has already been prefetched. The test 
+        scenario involves retrieving two book objects and their associated authors, 
+        demonstrating that subsequent prefetching operations do not incur additional 
+        database queries if the required data has already been fetched.
+
+        The expected outcome is that the total number of database queries remains minimal, 
+        indicating efficient use of the prefetching mechanism. The test also validates that 
+        the authors associated with the second book are correctly retrieved and match the 
+        expected author instance.
+        """
         book1 = Book.objects.get(id=self.book1.id)
         book2 = Book.objects.get(id=self.book2.id)
         with self.assertNumQueries(1):

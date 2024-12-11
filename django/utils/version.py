@@ -67,6 +67,18 @@ def get_complete_version(version=None):
 
 
 def get_docs_version(version=None):
+    """
+    Return the version of the documentation.
+
+    This function takes an optional version number as input and returns a string
+    representing the documentation version. If the provided version is not final,
+    it returns 'dev'. Otherwise, it returns the major and minor version numbers
+    in the format 'X.Y'.
+
+    :arg version: The version number to use (optional)
+    :rtype: str
+    :return: The version of the documentation as a string
+    """
     version = get_complete_version(version)
     if version[3] != "final":
         return "dev"

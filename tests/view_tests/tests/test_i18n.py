@@ -229,6 +229,14 @@ class SetLanguageTests(TestCase):
         }
     )
     def test_lang_from_translated_i18n_pattern(self):
+        """
+        Tests that the language is correctly set and redirect occurs when the language is changed via the 'setlang' view.
+
+        The test scenario involves setting the language to Dutch ('nl') and verifying that the language cookie is updated and a redirect to the translated URL occurs.
+        It then switches the language back to English ('en') and checks that the redirect is correct.
+
+        Ensures that the LocaleMiddleware is functioning correctly to handle language changes and redirects based on the translated URL patterns.
+        """
         response = self.client.post(
             "/i18n/setlang/",
             data={"language": "nl"},
@@ -486,6 +494,13 @@ class I18NViewTests(SimpleTestCase):
             self.assertContains(response, "este texto de app3 debe ser traducido")
 
     def test_i18n_with_locale_paths(self):
+        """
+        Tests the i18n functionality with custom locale paths.
+
+        This test checks if the system correctly handles translations with extended locale paths.
+        It sets the language code to Spanish (Argentina) and temporarily overrides the locale paths to include a custom path.
+        The test then simulates a GET request to the '/jsi18n/' URL and verifies that the response contains the expected translated text from the custom locale directory.
+        """
         extended_locale_paths = settings.LOCALE_PATHS + [
             path.join(
                 path.dirname(path.dirname(path.abspath(__file__))),

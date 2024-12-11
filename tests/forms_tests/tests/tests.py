@@ -453,6 +453,17 @@ class EmptyLabelTestCase(TestCase):
                 )
 
     def test_empty_field_integer(self):
+        """
+        '''Tests the rendering of an EmptyIntegerLabelChoiceForm as HTML paragraphs.
+
+        This function verifies that the form is correctly displayed with the required fields,
+        including a text input for the name and a select dropdown for the choice integer.
+        The select dropdown should contain options for \"No Preference\", \"Foo\", and \"Bar\" with
+        their respective values.
+
+        The test checks that the HTML output matches the expected structure and content,
+        ensuring that the form is rendered as intended in a user interface.'''
+        """
         f = EmptyIntegerLabelChoiceForm()
         self.assertHTMLEqual(
             f.as_p(),
@@ -469,6 +480,12 @@ class EmptyLabelTestCase(TestCase):
         )
 
     def test_get_display_value_on_none(self):
+        """
+        Tests the return value of :meth:`get_choice_integer_display` when the choice integer is None.
+
+        Verifies that the function returns the expected display value 'No Preference' when 
+        the choice integer is not set, ensuring proper display of choices with no preference specified.
+        """
         m = ChoiceModel.objects.create(name="test", choice="", choice_integer=None)
         self.assertIsNone(m.choice_integer)
         self.assertEqual("No Preference", m.get_choice_integer_display())

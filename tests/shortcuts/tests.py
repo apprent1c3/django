@@ -5,6 +5,15 @@ from django.test.utils import require_jinja2
 @override_settings(ROOT_URLCONF="shortcuts.urls")
 class RenderTests(SimpleTestCase):
     def test_render(self):
+        """
+
+        Tests the rendering of the '/render/' URL.
+
+        This test case verifies that a GET request to the '/render/' URL returns a successful response (200 status code) 
+        with the expected content and content type. It also checks that the response does not contain a 'current_app' 
+        attribute in the request context.
+
+        """
         response = self.client.get("/render/")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, b"FOO.BAR../render/\n")

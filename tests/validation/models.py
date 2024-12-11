@@ -92,6 +92,11 @@ class CustomMessagesModel(models.Model):
 
 class AuthorManager(models.Manager):
     def get_queryset(self):
+        """
+        Returns a QuerySet containing all objects that are not archived.
+        This method overrides the default QuerySet to exclude archived items, 
+        providing a filtered set of objects that are currently active.
+        """
         qs = super().get_queryset()
         return qs.filter(archived=False)
 
@@ -109,6 +114,9 @@ class Article(models.Model):
     pub_date = models.DateTimeField(blank=True)
 
     def clean(self):
+        """
+        Sets the publication date of the object to the current date and time if it has not been previously set. This ensures that all objects have a valid publication date, defaulting to the time of the cleaning operation if no explicit date was provided.
+        """
         if self.pub_date is None:
             self.pub_date = datetime.now()
 

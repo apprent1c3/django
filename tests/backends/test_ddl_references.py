@@ -73,6 +73,15 @@ class ColumnsTests(TableTests):
 
 class IndexNameTests(ColumnsTests):
     def setUp(self):
+        """
+
+        Sets up the testing environment by creating an instance of IndexName.
+
+        This method initializes the reference IndexName object, which is used for testing purposes.
+        The IndexName object is created with a table name, a list of column names, and a suffix.
+        A custom index name creation function is used to generate the index name based on the provided parameters.
+
+        """
         def create_index_name(table_name, column_names, suffix):
             return ", ".join(
                 "%s_%s_%s" % (table_name, column_name, suffix)
@@ -97,6 +106,18 @@ class IndexNameTests(ColumnsTests):
 
 class ForeignKeyNameTests(IndexNameTests):
     def setUp(self):
+        """
+
+        Set up the foreign key name conventions.
+
+        This method initializes the foreign key naming strategy by creating a `ForeignKeyName` object.
+        The `ForeignKeyName` object is configured with a specific naming convention, which generates
+        foreign key names based on the table and column names involved in the foreign key relationship.
+        The naming convention uses a suffix and combines table and column names to create unique foreign key names.
+
+        The created `ForeignKeyName` object is stored as an instance attribute, allowing it to be used in subsequent operations.
+
+        """
         def create_foreign_key_name(table_name, column_names, suffix):
             return ", ".join(
                 "%s_%s_%s" % (table_name, column_name, suffix)
@@ -132,6 +153,17 @@ class ForeignKeyNameTests(IndexNameTests):
         self.assertIs(self.reference.references_table("to_table"), False)
 
     def test_rename_column_references(self):
+        """
+
+        Tests the renaming of column references in the reference object.
+
+        This method verifies that the rename_column_references method correctly updates the column references.
+        It checks that references to the original column are maintained after renaming, and that references to the new column are updated accordingly.
+        The test scenarios cover renaming a column and verifying the references before and after the renaming operation.
+
+        Note: This method extends the test coverage provided by the superclass.
+
+        """
         super().test_rename_column_references()
         self.reference.rename_column_references(
             "to_table", "second_column", "third_column"
@@ -189,6 +221,17 @@ class MockReference:
             self.referenced_tables.add(new_table)
 
     def rename_column_references(self, table, old_column, new_column):
+        """
+        Renames a column reference in the set of referenced columns.
+
+        Args:
+            table (str): The name of the table containing the column to rename.
+            old_column (str): The current name of the column to rename.
+            new_column (str): The new name for the column.
+
+        Updates the internal set of referenced columns to reflect the new column name, if the old column is currently referenced.
+
+        """
         column = (table, old_column)
         if column in self.referenced_columns:
             self.referenced_columns.remove(column)
@@ -246,6 +289,9 @@ class StatementTests(SimpleTestCase):
         self.assertEqual(repr(statement), "<Statement 'reference - non_reference'>")
 
     def test_str(self):
+        """
+        Tests the string representation of a Statement object to ensure it correctly formats and combines the reference and non-reference values into a single string.
+        """
         reference = MockReference("reference", {}, {}, {})
         statement = Statement(
             "%(reference)s - %(non_reference)s",

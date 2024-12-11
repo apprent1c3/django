@@ -44,6 +44,17 @@ class JSONField(CheckFieldDefaultMixin, Field):
         super().__init__(verbose_name, name, **kwargs)
 
     def check(self, **kwargs):
+        """
+
+        Perform a check on the object, extending the default checks with database support validation.
+
+        This method builds upon the standard checks by also verifying that the specified databases are supported.
+        It returns a list of errors that were encountered during the check.
+
+        The following keyword arguments are recognized:
+            databases: a list of databases to be validated for support.
+
+        """
         errors = super().check(**kwargs)
         databases = kwargs.get("databases") or []
         errors.extend(self._check_supported(databases))
@@ -113,6 +124,16 @@ class JSONField(CheckFieldDefaultMixin, Field):
         return self.get_db_prep_value(value, connection)
 
     def get_transform(self, name):
+        """
+        Retrieves a transformation object by its name.
+
+        This method attempts to retrieve an existing transformation by its name. If the transformation is found, it is returned immediately.
+        Otherwise, it creates a new transformation object using the KeyTransformFactory and returns it.
+
+        :param name: The name of the transformation to retrieve or create
+        :return: The transformation object associated with the given name
+
+        """
         transform = super().get_transform(name)
         if transform:
             return transform
@@ -301,6 +322,20 @@ class JSONExact(lookups.Exact):
     can_use_none_as_rhs = True
 
     def process_rhs(self, compiler, connection):
+        """
+        Process the right-hand side (RHS) of a query, handling special cases for null values and MySQL JSON extraction.
+
+        This method extends the parent class's processing of the RHS by adding custom logic for null values and MySQL-specific JSON handling.
+
+        If the RHS is a placeholder for a null value, it is replaced with the string 'null'. For MySQL connections, the RHS is further modified to extract JSON values using the JSON_EXTRACT function.
+
+        The method returns a tuple containing the modified RHS string and a list of parameters to be used with the RHS string.
+
+        :param compiler: The compiler object used to process the query.
+        :param connection: The database connection object.
+        :returns: A tuple containing the modified RHS string and a list of parameters.
+
+        """
         rhs, rhs_params = super().process_rhs(compiler, connection)
         # Treat None lookup values as null.
         if rhs == "%s" and rhs_params == [None]:
@@ -369,6 +404,18 @@ class KeyTransform(Transform):
         return sql % ((lhs, json_path) * 2), tuple(params) * 2
 
     def as_postgresql(self, compiler, connection):
+        """
+
+        Generates a PostgreSQL query string and parameters for the given database query.
+
+        This method preprocesses the left-hand side of the query, applies necessary transformations, 
+        and then constructs the PostgreSQL-specific query string. If multiple key transformations 
+        are required, it uses the nested operator; otherwise, it uses the standard operator.
+
+        The resulting query string and parameters are returned as a tuple, ready to be executed 
+        against the PostgreSQL database.
+
+        """
         lhs, params, key_transforms = self.preprocess_lhs(compiler, connection)
         if len(key_transforms) > 1:
             sql = "(%s %s %%s)" % (lhs, self.postgres_nested_operator)

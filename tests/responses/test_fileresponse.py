@@ -101,6 +101,13 @@ class FileResponseTests(SimpleTestCase):
         self.assertEqual(response.headers["Content-Type"], "video/webm")
 
     def test_content_type_buffer_explicit_default(self):
+        """
+        Tests that a FileResponse with an explicit content type returns the correct Content-Type header.
+
+        Verifies that when creating a FileResponse with a bytes buffer and specifying the content type,
+        the response's Content-Type header matches the explicitly provided value, even if the content
+        is binary data. This ensures that the client correctly interprets the content type of the response.
+        """
         response = FileResponse(
             io.BytesIO(b"binary content"), content_type="text/html; charset=utf-8"
         )

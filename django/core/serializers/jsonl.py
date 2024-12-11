@@ -30,6 +30,18 @@ class Serializer(PythonSerializer):
 
     def end_object(self, obj):
         # self._current has the field data
+        """
+
+        Signals the end of a serialized object.
+
+        This function is responsible for dumping the provided object into a JSON format 
+        and writing it to the output stream, followed by a newline character. 
+        It ensures a clean separation between objects in the output, 
+        and resets the internal state to prepare for the next object.
+
+        :param obj: The object being serialized.
+
+        """
         json.dump(self.get_dump_object(obj), self.stream, **self.json_kwargs)
         self.stream.write("\n")
         self._current = None

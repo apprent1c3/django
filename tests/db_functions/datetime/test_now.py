@@ -51,6 +51,19 @@ class NowTests(TestCase):
         )
 
     def test_microseconds(self):
+        """
+        Tests the precision of microseconds in datetime fields.
+
+        Verifies that the microseconds component of a datetime field is correctly
+        represented as a string, with a precision that matches the database's
+        capability. This ensures that datetime values are accurately stored and
+        retrieved, including fractional seconds.
+
+        The test creates a sample article, retrieves the current time as a string,
+        and checks that the string representation of the time includes the correct
+        number of digits for microseconds, based on the database's supported
+        precision.
+        """
         Article.objects.create(
             title="How to Django",
             text=lorem_ipsum,

@@ -36,6 +36,17 @@ class IntrospectionTests(TestCase):
                         cursor.execute("DROP TABLE test_primary")
 
     def test_get_primary_key_column_pk_constraint(self):
+        """
+
+        Tests the retrieval of the primary key column from a table with a primary key constraint.
+
+        Verifies that the introspection can correctly identify the primary key column
+        in a table where the primary key is explicitly defined.
+
+        The test creates a temporary table, executes a query to retrieve the primary
+        key column, and checks that the result matches the expected column name.
+
+        """
         sql = """
             CREATE TABLE test_primary(
                 id INTEGER NOT NULL,

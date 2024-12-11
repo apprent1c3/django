@@ -380,10 +380,34 @@ class AdminURLFieldWidget(forms.URLInput):
     template_name = "admin/widgets/url.html"
 
     def __init__(self, attrs=None, validator_class=URLValidator):
+        """
+        Initializes a new instance of the URL field class.
+
+        :param attrs: Optional dictionary of HTML attributes to apply to the field.
+        :param validator_class: The class to use for validating URLs (defaults to URLValidator).
+
+        :The validator instance is created from the provided validator_class and attached to the field for future validation use.
+        """
         super().__init__(attrs={"class": "vURLField", **(attrs or {})})
         self.validator = validator_class()
 
     def get_context(self, name, value, attrs):
+        """
+        Return the context for rendering a URL input field.
+
+        The context includes the current value of the field, its label, and a flag indicating whether the provided URL is valid. 
+        It also formats the URL value for safe use in an HTML link.
+        The function builds upon the parent class's context to include additional labels and the URL validity status.
+
+        Args:
+            name (str): The name of the field.
+            value (str): The current value of the field.
+            attrs (dict): The attributes of the field.
+
+        Returns:
+            dict: The context for rendering the URL input field.
+
+        """
         try:
             self.validator(value if value else "")
             url_valid = True
@@ -572,6 +596,15 @@ class AutocompleteMixin:
 
     @property
     def media(self):
+        """
+        Returns the media (JavaScript and CSS files) required to render the autocomplete functionality.
+
+        The returned media includes jQuery, Select2 library, and autocomplete initialization scripts.
+
+        If internationalization is enabled, the corresponding Select2 language file is also included.
+
+        The media files are optimized for production use (minified) when the application is not in debug mode.
+        """
         extra = "" if settings.DEBUG else ".min"
         i18n_file = (
             ("admin/js/vendor/select2/i18n/%s.js" % self.i18n_name,)

@@ -136,6 +136,18 @@ class AdminFormfieldForDBFieldTests(SimpleTestCase):
         )
 
     def test_radio_fields_ForeignKey(self):
+        """
+
+        Test that the radio fields for a ForeignKey in the Event model are rendered correctly.
+
+        This test checks if the 'main_band' field is displayed as a radio select input
+        with the specified layout, and verifies that no empty label is displayed.
+
+        :param None:
+        :raises AssertionError: If the form field is not of the correct type or if an empty label is present.
+        :returns: None
+
+        """
         ff = self.assertFormfield(
             Event,
             "main_band",
@@ -461,6 +473,15 @@ class AdminSplitDateTimeWidgetTest(SimpleTestCase):
 
 class AdminURLWidgetTest(SimpleTestCase):
     def test_get_context_validates_url(self):
+        """
+        Tests the get_context method of the AdminURLFieldWidget to ensure it correctly validates URLs.
+
+        The function verifies that the method returns a context with 'url_valid' set to False for invalid URLs, including empty strings, relative paths, and URLs with potential security vulnerabilities such as JavaScript injections.
+
+        It also checks that the method returns a context with 'url_valid' set to True for valid URLs, such as fully qualified HTTP or HTTPS URLs.
+
+        This test ensures the widget's URL validation is functioning correctly to prevent potential security issues and provide a safe user experience.
+        """
         w = widgets.AdminURLFieldWidget()
         for invalid in ["", "/not/a/full/url/", 'javascript:alert("Danger XSS!")']:
             with self.subTest(url=invalid):
@@ -737,6 +758,15 @@ class ForeignKeyRawIdWidgetTest(TestCase):
     def test_fk_to_self_model_not_in_admin(self):
         # FK to self, not registered with admin site. Raw ID widget should have
         # no magnifying glass link. See #16542
+        """
+        .. method:: test_fk_to_self_model_not_in_admin
+
+           Tests if a foreign key referencing the model itself renders correctly as a raw ID widget.
+
+           Specifically, this test checks if the widget correctly displays the value and display name of the related object in the admin interface.
+
+           The test case involves creating an instance of the model with a foreign key referencing another instance of the same model, and then verifying that the widget's HTML output is as expected.
+        """
         subject1 = Individual.objects.create(name="Subject #1")
         Individual.objects.create(name="Child", parent=subject1)
         rel = Individual._meta.get_field("parent").remote_field
@@ -938,6 +968,15 @@ class RelatedFieldWidgetWrapperTests(SimpleTestCase):
         self.assertIn("<a ", output)
 
     def test_data_model_ref_when_model_name_is_camel_case(self):
+        """
+
+        Tests the rendering of a RelatedFieldWidgetWrapper for a model with a camel case name.
+
+        Verifies that the widget is not hidden and the context is correctly populated with 
+        the model and model name. Also checks the HTML output of the rendered widget to ensure 
+        it matches the expected structure and content, including the 'add another' link.
+
+        """
         rel = VideoStream._meta.get_field("release_event").remote_field
         widget = forms.Select()
         wrapper = widgets.RelatedFieldWidgetWrapper(widget, rel, widget_admin_site)
@@ -1237,6 +1276,15 @@ class DateTimePickerAltTimezoneSeleniumTests(DateTimePickerShortcutsSeleniumTest
 
 class HorizontalVerticalFilterSeleniumTests(AdminWidgetSeleniumTestCase):
     def setUp(self):
+        """
+
+        Sets up the necessary fixtures for testing.
+
+        Creates a set of student objects, including Lisa, John, Bob, Peter, Jenny, Jason, Cliff, and Arthur,
+        and a school object named 'School of Awesome'. This method is used to establish a common
+        testing environment, providing a baseline for subsequent tests.
+
+        """
         super().setUp()
         self.lisa = Student.objects.create(name="Lisa")
         self.john = Student.objects.create(name="John")

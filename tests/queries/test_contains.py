@@ -34,6 +34,22 @@ class ContainsTests(TestCase):
             self.assertIs(DumbCategory.objects.contains(self.category), True)
 
     def test_evaluated_queryset(self):
+        """
+
+        Tests the evaluation of a queryset, specifically verifying that 
+        the contains method does not generate additional queries after 
+        the queryset has been evaluated.
+
+        This test ensures that the contains method can efficiently 
+        search for elements within a previously evaluated queryset, 
+        both in the standard and proxy querysets, for standard and 
+        proxy categories.
+
+        It validates the expected behavior by asserting that the 
+        contains method returns True for the respective categories 
+        and querysets without triggering any additional database queries.
+
+        """
         qs = DumbCategory.objects.all()
         proxy_qs = ProxyCategory.objects.all()
         # Evaluate querysets.
@@ -52,6 +68,14 @@ class ContainsTests(TestCase):
             self.assertIs(ProxyCategory.objects.contains(self.category), True)
 
     def test_wrong_model(self):
+        """
+
+        Tests that a queryset of DumbCategory objects does not contain a NamedCategory object.
+
+        Verifies that the `contains` method correctly identifies the absence of a non-matching object,
+        even after the queryset has been evaluated, ensuring that no unnecessary database queries are performed.
+
+        """
         qs = DumbCategory.objects.all()
         named_category = NamedCategory(name="category")
         with self.assertNumQueries(0):

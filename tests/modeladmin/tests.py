@@ -276,6 +276,18 @@ class ModelAdminTests(TestCase):
         )
 
     def test_lookup_allowed_without_request_deprecation(self):
+        """
+
+        Tests that a deprecation warning is raised when the `lookup_allowed` method of a ModelAdmin
+        does not include the `request` parameter, but is still called with a request that uses 
+        a custom filter.
+
+        This test case checks that a warning is emitted when the `lookup_allowed` method is 
+        defined without the `request` parameter, but the ModelAdmin uses a custom filter 
+        that requires the request to be present. The test also verifies that the filters 
+        are correctly displayed in the changelist view, despite the deprecation warning.
+
+        """
         class ConcertAdmin(ModelAdmin):
             list_filter = ["main_band__sign_date"]
 
@@ -407,6 +419,14 @@ class ModelAdminTests(TestCase):
         )
 
     def test_custom_formfield_override_readonly(self):
+        """
+        Tests the behavior of a custom form field in a ModelAdmin when a field is marked as read-only.
+
+        Verifies that when a custom form class is provided to a ModelAdmin and a field is specified as read-only, 
+        the field is not included in the form's base fields, but is still included in the fields and fieldsets 
+        returned by the ModelAdmin's methods for displaying the form. This ensures that the read-only field 
+        is displayed in the admin interface, but is not editable.
+        """
         class AdminBandForm(forms.ModelForm):
             name = forms.CharField()
 
@@ -508,6 +528,17 @@ class ModelAdminTests(TestCase):
     def test_custom_form_validation(self):
         # If a form is specified, it should use it allowing custom validation
         # to work properly. This won't break any of the admin widgets or media.
+        """
+        Tests the validation of custom forms in the admin interface.
+
+        Verifies that a custom form with additional fields is correctly rendered and
+        validated in the admin interface. Specifically, checks that the form includes
+        the expected fields and that the date field is rendered with an AdminDateWidget.
+
+        Ensures that the custom form class is properly integrated with the ModelAdmin
+        class, allowing for seamless validation and rendering of the form in the admin
+        interface.
+        """
         class AdminBandForm(forms.ModelForm):
             delete = forms.BooleanField()
 
@@ -709,6 +740,18 @@ class ModelAdminTests(TestCase):
             fk_name = "main_band"
 
             def get_formset(self, request, obj=None, **kwargs):
+                """
+
+                Returns a formset instance for the current view, taking into account the provided request and optional object.
+
+                If an object is provided, the formset will utilize a CustomConcertForm; otherwise, it will default to the standard form.
+
+                :param request: The current HTTP request
+                :param obj: An optional object to customize the formset
+                :param kwargs: Additional keyword arguments to pass to the parent class's get_formset method
+                :return: A formset instance
+
+                """
                 if obj:
                     kwargs["form"] = CustomConcertForm
                 return super().get_formset(request, obj, **kwargs)

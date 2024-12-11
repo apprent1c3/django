@@ -109,6 +109,20 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+        """
+        Handle GDAL data source inspection and generate mapping for a geographic model.
+
+        This function takes in a data source and a model name, and uses GDAL to inspect the data source. 
+        It returns a string containing the output of the inspection, including the OGR fields and their corresponding data types.
+
+        Optional parameters can be passed to customize the inspection, including specifying the geometry field name, layer key, and whether to generate a mapping dictionary.
+        If a mapping is requested, the function generates a `LayerMapping` dictionary for the given model, mapping OGR fields to their corresponding Django model fields.
+
+        The function raises a `CommandError` if there is an issue with the data source.
+
+        :raises: CommandError
+        :returns: A string containing the inspection output and optional mapping dictionary
+        """
         data_source, model_name = options.pop("data_source"), options.pop("model_name")
 
         # Getting the OGR DataSource from the string parameter.

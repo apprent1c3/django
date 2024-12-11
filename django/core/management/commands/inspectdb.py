@@ -43,6 +43,17 @@ class Command(BaseCommand):
         )
 
     def handle(self, **options):
+        """
+        Handles database inspection and outputs the results to the standard output.
+
+        This method performs a database inspection based on the provided options and 
+        writes the inspection results line by line to the standard output.
+
+        :raises CommandError: If the currently selected database backend does not support 
+            database inspection.
+        :param options: Keyword arguments used to customize the database inspection.
+        :rtype: None
+        """
         try:
             for line in self.handle_inspection(options):
                 self.stdout.write(line)

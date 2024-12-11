@@ -206,6 +206,15 @@ class ManagerDescriptor:
 
 class EmptyManager(Manager):
     def __init__(self, model):
+        """
+        Initializes the class instance.
+
+            Initializes the object with a given model, setting the stage for further operations.
+            The provided model is stored as an instance attribute, allowing for its use in subsequent methods.
+
+            :param model: The model to be associated with the class instance.
+
+        """
         super().__init__()
         self.model = model
 

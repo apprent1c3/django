@@ -192,6 +192,9 @@ class AdminFieldExtractionMixin:
 class AdminViewBasicTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for use in unit testing, creating instances of various model classes including users, sections, articles, colors, fabrics, books, promotions, chapters, and chapter extras. This method is intended to be used as a class method, and populates class attributes with the created test data. The test data includes a range of examples, such as different types of articles and books, as well as variations in color and fabric. The method also sets up some predefined forms data, including inline post data for articles. This allows for comprehensive testing of the application's functionality.
+        """
         cls.superuser = User.objects.create_superuser(
             username="super", password="secret", email="super@example.com"
         )
@@ -753,6 +756,16 @@ class AdminViewBasicTest(AdminViewBasicTestCase):
     def test_change_list_sorting_model_meta(self):
         # Test ordering on Model Meta is respected
 
+        """
+
+        Tests the sorting functionality of the Language changelist view in the admin interface.
+
+        This test case checks if the Languages are displayed in the correct order when sorted by their name.
+        It creates two Language instances, 'Urdu' and 'Arabic', and then tests the changelist view with
+        the default sorting order and with the sorting order reversed. The test passes if the links to
+        the Language change forms are displayed in the correct order in the changelist view.
+
+        """
         l1 = Language.objects.create(iso="ur", name="Urdu")
         l2 = Language.objects.create(iso="ar", name="Arabic")
         link1 = reverse("admin:admin_views_language_change", args=(quote(l1.pk),))
@@ -1392,6 +1405,16 @@ class AdminViewBasicTest(AdminViewBasicTestCase):
     @override_settings(TIME_ZONE="America/Sao_Paulo", USE_TZ=True)
     def test_date_hierarchy_timezone_dst(self):
         # This datetime doesn't exist in this timezone due to DST.
+        """
+
+        Test that the date hierarchy in the admin interface is correctly displayed in the active timezone, 
+        taking into account daylight saving time (DST) adjustments.
+
+        The test creates a question with an expiration date within the America/Sao_Paulo timezone and 
+        verifies that the admin changelist view for answers correctly filters by the expiration date 
+        DAY, MONTH, and YEAR, even when the timezone has DST enabled.
+
+        """
         for date in make_aware_datetimes(
             datetime.datetime(2016, 10, 16, 15), "America/Sao_Paulo"
         ):
@@ -1441,6 +1464,13 @@ class AdminViewBasicTest(AdminViewBasicTestCase):
             )
 
     def test_get_sortable_by_columns_subset(self):
+        """
+        Tests that the admin changelist view for actors includes a subset of columns that are sortable.
+
+        Verifies that the 'age' column is marked as sortable and the 'name' column is not, 
+        in the admin changelist view for actors. Ensures the correct HTML structure is in place 
+        to support column sorting functionality in the changelist view.
+        """
         response = self.client.get(reverse("admin6:admin_views_actor_changelist"))
         self.assertContains(response, '<th scope="col" class="sortable column-age">')
         self.assertContains(response, '<th scope="col" class="column-name">')
@@ -1483,6 +1513,16 @@ class AdminViewBasicTest(AdminViewBasicTestCase):
         self.assertSequenceEqual(models, sorted(models, reverse=True))
 
     def test_change_view_subtitle_per_object(self):
+        """
+
+        Tests that the view subtitle changes per object on the admin change page.
+
+        Verifies the HTML response for two different objects, ensuring the title and 
+        headings accurately reflect the object being changed. The test checks for the 
+        presence of the object's name in the title and subtitle elements, as well as 
+        the standard 'Change article' header.
+
+        """
         response = self.client.get(
             reverse("admin:admin_views_article_change", args=(self.a1.pk,)),
         )
@@ -1579,6 +1619,15 @@ class AdminViewBasicTest(AdminViewBasicTestCase):
         ]
     )
     def test_password_change_helptext(self):
+        """
+        Tests the password change help text on the admin password change page.
+
+        Verifies that the help text for the new password field is correctly displayed.
+        The test checks for the presence of a specific HTML element containing the help text.
+        The test also uses custom password validation settings, specifically the 
+        UserAttributeSimilarityValidator and NumericPasswordValidator, to validate the password change functionality.
+
+        """
         response = self.client.get(reverse("admin:password_change"))
         self.assertContains(
             response, '<div class="help" id="id_new_password1_helptext">'
@@ -2089,6 +2138,18 @@ class CustomModelAdminTest(AdminViewBasicTestCase):
         self.assertContains(response, "Hello from a custom login template")
 
     def test_custom_admin_site_logout_template(self):
+        """
+        Tests the custom admin site logout template functionality.
+
+        Verifies that when the admin logout view is accessed, it correctly renders a 
+        TemplateResponse using the custom 'custom_admin/logout.html' template and 
+        contains the expected content, indicating successful customization of the 
+        logout page for the admin site.
+
+        This test case ensures that the custom logout template is properly configured 
+        and displayed, providing a tailored experience for administrators during the 
+        logout process.
+        """
         response = self.client.post(reverse("admin2:logout"))
         self.assertIsInstance(response, TemplateResponse)
         self.assertTemplateUsed(response, "custom_admin/logout.html")
@@ -3446,6 +3507,15 @@ class AdminViewProxyModelPermissionsTests(TestCase):
         self.assertTrue(UserProxy.objects.filter(username="can_add").exists())
 
     def test_view(self):
+        """
+
+        Test the view functionality for user proxy.
+
+        This test case verifies that a logged-in user can successfully view the user proxy changelist and 
+        individual user proxy details pages. It checks that the pages contain the expected headings 
+        and the user proxy details are displayed in a read-only format.
+
+        """
         self.client.force_login(self.viewuser)
         response = self.client.get(reverse("admin:admin_views_userproxy_changelist"))
         self.assertContains(response, "<h1>Select user proxy to view</h1>")
@@ -3509,6 +3579,14 @@ class AdminViewsNoUrlTest(TestCase):
 class AdminViewDeletedObjectsTest(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for the application.
+
+        This class method creates a set of test objects, including users, sections, articles, pre-populated posts, villains, super villains, plots, plot details, secret hideouts, and cyclic objects.
+        These objects are created with various attributes and relationships to each other, providing a comprehensive set of test data for the application.
+        The created objects include a superuser and a delete user, as well as several articles with different dates, and various villain-related objects with different plots and hideouts.
+        The test data is used to support testing of the application's functionality, ensuring that it behaves correctly under different scenarios and with different types of data.
+        """
         cls.superuser = User.objects.create_superuser(
             username="super", password="secret", email="super@example.com"
         )
@@ -4759,6 +4837,15 @@ class AdminSearchTest(TestCase):
         self.assertTrue(response.context["cl"].show_admin_actions)
 
     def test_search_with_spaces(self):
+        """
+
+        Tests the search functionality in the admin interface with various input strings containing spaces.
+
+        This test covers different scenarios, including searching with and without quotes, 
+        to ensure the search function behaves as expected and returns the correct number of results.
+        The test cases include names with and without quotes, and names containing special characters.
+
+        """
         url = reverse("admin:admin_views_person_changelist") + "?q=%s"
         tests = [
             ('"John Doe"', 1),
@@ -4986,6 +5073,28 @@ class AdminCustomQuerysetTest(TestCase):
         # Test for #14529. defer() is used in ModelAdmin.get_queryset()
 
         # model has __str__ method
+        """
+
+        Tests the addition of models through the admin interface.
+
+        This test case ensures that adding a CoverLetter and a ShortMessage model through the
+        admin interface is successful. It verifies that the models are created with the provided data,
+        that the HTTP response is successful (200), and that the admin interface displays a
+        success message after adding each model.
+
+        The test covers the following scenarios:
+
+        * Adding a CoverLetter model with an author
+        * Adding a ShortMessage model with content
+
+        It checks the following conditions:
+
+        * The model is created with the provided data
+        * The HTTP response is successful (200)
+        * The admin interface displays a success message
+        * No unexpected models are created (e.g., ShortMessage when adding a CoverLetter)
+
+        """
         self.assertEqual(CoverLetter.objects.count(), 0)
         # Emulate model instance creation via the admin
         post_data = {
@@ -5768,6 +5877,20 @@ class SeleniumTests(AdminSeleniumTestCase):
 
     @screenshot_cases(["desktop_size", "mobile_size", "rtl", "dark", "high_contrast"])
     def test_login_button_centered(self):
+        """
+
+         Tests that the login button is centered on the page.
+
+        This test case verifies the position of the login button by comparing its offset 
+        from the left and right edges of its parent element. The test considers the 
+        button to be centered if the offset from the left and right edges is almost 
+        equal, with a small allowed margin of error.
+
+        The test is run with various screenshot cases, including different screen sizes, 
+        language directions, and accessibility settings, to ensure the login button 
+        remains centered across different environments.
+
+        """
         from selenium.webdriver.common.by import By
 
         self.selenium.get(self.live_server_url + reverse("admin:login"))
@@ -6122,6 +6245,20 @@ class SeleniumTests(AdminSeleniumTestCase):
 
     @screenshot_cases(["desktop_size", "mobile_size", "rtl", "dark", "high_contrast"])
     def test_selectbox_height_not_collapsible_fieldset(self):
+        """
+
+        Tests the height of selectbox elements in a non-collapsible fieldset.
+
+        This test case ensures that the height of the \"from\" and \"to\" selectboxes, 
+        including their filter boxes, are identical in the admin view for adding questions.
+
+        The test covers various device sizes, languages, and accessibility modes to guarantee 
+        visual consistency across different user environments.
+
+        It verifies the height equality by comparing the offset heights of the selectboxes 
+        and their respective filter boxes, providing a screenshot for visual reference.
+
+        """
         from selenium.webdriver.common.by import By
 
         self.admin_login(
@@ -6337,6 +6474,15 @@ class SeleniumTests(AdminSeleniumTestCase):
         self.assertEqual(select.first_selected_option.get_attribute("value"), uuid_id)
 
     def test_inline_uuid_pk_delete_with_popup(self):
+        """
+
+        Tests the deletion of a parent object with a UUID primary key from the related object's change page in the admin interface.
+
+        This test case creates a parent object and a related object, logs into the admin interface, navigates to the related object's change page, and then deletes the parent object using the delete link. It verifies that the parent object is successfully deleted and that the related object's parent field is reset to its default empty value after deletion.
+
+        The test uses Selenium to simulate user interactions and waits for the page to load after navigating to the related object's change page. It also handles the deletion confirmation popup and switches back to the main window after deletion. The test asserts that the parent object is no longer present in the database and that the related object's parent field is empty after deletion.
+
+        """
         from selenium.webdriver import ActionChains
         from selenium.webdriver.common.by import By
         from selenium.webdriver.support.ui import Select
@@ -6732,6 +6878,18 @@ class SeleniumTests(AdminSeleniumTestCase):
         self.assertEqual(traveler.favorite_country_to_vacation.name, "Qatar")
 
     def test_redirect_on_add_view_add_another_button(self):
+        """
+
+         Tests that the 'Save and add another' button on the admin add view for sections redirects correctly.
+
+         This function simulates a user adding a new section in the admin interface and clicking the 'Save and add another' button.
+         It verifies that the section is saved successfully and that the user is redirected back to the add view to create another section.
+         The test also checks that multiple sections can be added in succession using the 'Save and add another' button.
+
+         Args: None
+         Returns: None
+
+        """
         from selenium.webdriver.common.by import By
 
         self.admin_login(
@@ -6845,6 +7003,18 @@ class ReadonlyTest(AdminFieldExtractionMixin, TestCase):
 
     @ignore_warnings(category=RemovedInDjango60Warning)
     def test_readonly_text_field(self):
+        """
+
+        Tests the display of readonly text fields in the admin interface.
+
+        Verifies that HTML line breaks are correctly rendered in readonly text fields,
+        including those containing multiple consecutive line breaks, and that the
+        content of readonly fields is properly displayed in the admin change view.
+
+        Ensures that both normal text fields and link fields are correctly displayed
+        with line breaks replaced by HTML breaks.
+
+        """
         p = Post.objects.create(
             title="Readonly test",
             content="test",
@@ -7391,6 +7561,13 @@ class UserAdminTest(TestCase):
             self.assertEqual(response.status_code, 200)
 
     def test_form_url_present_in_context(self):
+        """
+
+        Tests that the 'form_url' is correctly present in the context when accessing the admin user password change page.
+
+        The test case verifies that the server responds with a successful status code (200) and that the 'form_url' variable in the response context is set to the expected value.
+
+        """
         u = User.objects.all()[0]
         response = self.client.get(
             reverse("admin3:auth_user_password_change", args=(u.pk,))
@@ -7852,6 +8029,22 @@ class AdminCustomSaveRelatedTests(TestCase):
         self.client.force_login(self.superuser)
 
     def test_should_be_able_to_edit_related_objects_on_add_view(self):
+        """
+
+        Tests the ability to edit related objects on the add view.
+
+        This test case verifies that when a new parent object is added, it is possible to
+        create related child objects simultaneously. The test checks that the parent
+        object is created successfully and that the correct number of child objects are
+        also created. It also verifies that the names of the child objects are correctly
+        populated and that they are linked to the newly created parent object.
+
+        The test uses an example where a parent object named \"Josh Stone\" is created,
+        along with two child objects named \"Catherine\" and \"Paul\". The test then checks
+        that the database reflects these changes correctly, including the correct number
+        of parent and child objects, and the correct names of the child objects.
+
+        """
         post = {
             "child_set-TOTAL_FORMS": "3",
             "child_set-INITIAL_FORMS": "0",
@@ -7895,6 +8088,15 @@ class AdminCustomSaveRelatedTests(TestCase):
         self.assertEqual(["Catherine Stone", "Paul Stone"], children_names)
 
     def test_should_be_able_to_edit_related_objects_on_changelist_view(self):
+        """
+
+        Tests the ability to edit related objects on the changelist view.
+
+        Verifies that when a parent object's name is updated, the names of its related child objects are also updated.
+        The test creates a parent object and two child objects, then simulates a POST request to the changelist view to update the parent object's name.
+        It then checks that the parent object's name has been updated and that the child objects' names have been updated to reflect the parent's new surname.
+
+        """
         parent = Parent.objects.create(name="Josh Rock")
         Child.objects.create(parent=parent, name="Paul")
         Child.objects.create(parent=parent, name="Catherine")
@@ -7999,6 +8201,15 @@ class AdminUserMessageTest(TestCase):
         self.send_message("error")
 
     def test_message_extra_tags(self):
+        """
+
+        Tests the functionality of the 'message_extra_tags' action in the admin views user messenger changelist.
+
+        Verifies that the extra tags are displayed correctly in the response after the action is performed.
+
+        Specifically, this test checks if the expected extra tag HTML element is present in the response.
+
+        """
         action_data = {
             ACTION_CHECKBOX_NAME: [1],
             "action": "message_extra_tags",
@@ -8021,6 +8232,22 @@ class AdminKeepChangeListFiltersTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Set up test data for the class.
+
+        This method creates a superuser and a regular user, which can be used throughout the test class.
+        The superuser has the username 'super', password 'secret', and email 'super@example.com'.
+        The regular user has the username 'joepublic' and password 'secret'.
+        These users are created using the User model's create_superuser and create_user methods, respectively.
+
+        Returns:
+            None
+
+        Note:
+            The created users are stored as class attributes, allowing them to be accessed by other test methods.
+
+        """
         cls.superuser = User.objects.create_superuser(
             username="super", password="secret", email="super@example.com"
         )
@@ -8227,6 +8454,15 @@ class AdminKeepChangeListFiltersTests(TestCase):
         post_data.pop("_addanother")
 
     def test_change_view_close_link(self):
+        """
+
+        Tests that the \"Close\" link on a model instance change view page redirects to the corresponding changelist view page.
+
+        This test case verifies that a user with the required permission to view the model instance can successfully navigate to the changelist view page by clicking the \"Close\" link.
+
+        The test checks that the URL of the \"Close\" link matches the expected changelist view URL, ensuring proper redirect functionality.
+
+        """
         viewuser = User.objects.create_user(
             username="view", password="secret", is_staff=True
         )
@@ -8242,6 +8478,13 @@ class AdminKeepChangeListFiltersTests(TestCase):
         self.assertURLEqual(close_link, self.get_changelist_url())
 
     def test_change_view_without_preserved_filters(self):
+        """
+        Tests that the change view can be rendered without preserved filters.
+
+         Verifies that the view responds correctly when the preserved filters query parameter is set to False.
+
+         The test checks for the presence of the user form in the response to ensure the view is properly rendered.
+        """
         response = self.client.get(self.get_change_url(add_preserved_filters=False))
         # The action attribute is omitted.
         self.assertContains(response, '<form method="post" id="user_form" novalidate>')
@@ -8693,6 +8936,13 @@ class AdminSiteFinalCatchAllPatternTests(TestCase):
         )
 
     def test_unknown_url_redirects_login_if_not_authenticated(self):
+        """
+
+        Tests that an unknown URL in the admin interface redirects to the login page if the user is not authenticated.
+
+        The test verifies that when an unauthenticated user attempts to access an unknown URL, they are redirected to the login page with the original URL as the next destination.
+
+        """
         unknown_url = "/test_admin/admin/unknown/"
         response = self.client.get(unknown_url)
         self.assertRedirects(
@@ -8738,6 +8988,18 @@ class AdminSiteFinalCatchAllPatternTests(TestCase):
 
     @override_settings(APPEND_SLASH=True)
     def test_missing_slash_append_slash_true_unknown_url(self):
+        """
+
+        Tests the behavior when requesting an unknown URL without a trailing slash
+        and APPEND_SLASH setting is True.
+
+        Verifies that the server returns a 404 status code when the client requests
+        a URL that does not exist, even if appending a slash to the requested URL
+        would result in a valid URL. This test case ensures the application handles
+        unknown URLs correctly and does not unintentionally redirect to a different
+        location.
+
+        """
         self.client.force_login(self.staff_user)
         unknown_url = "/test_admin/admin/unknown/"
         response = self.client.get(unknown_url[:-1])
@@ -8778,6 +9040,17 @@ class AdminSiteFinalCatchAllPatternTests(TestCase):
 
     @override_settings(APPEND_SLASH=True)
     def test_missing_slash_append_slash_true_script_name_query_string(self):
+        """
+        Tests that when APPEND_SLASH is True, a missing slash in the URL is appended and the query string is preserved.
+
+        This test verifies the behavior of the URL redirect mechanism when the APPEND_SLASH setting is enabled. It checks that a request to a URL without a trailing slash is correctly redirected to the same URL with a trailing slash, while also preserving any query string parameters. The test uses a specific admin view URL and a query string parameter to simulate a realistic scenario.
+
+        The expected behavior is that the request is redirected with a 301 status code to the correct URL with the appended slash and preserved query string.
+
+        Parameters are simulated through the test client and do not need to be provided by the user.
+
+        Returns a boolean indicating whether the test was successful, as determined by the assertion that the response redirects to the expected URL with the correct status code.
+        """
         self.client.force_login(self.staff_user)
         known_url = reverse("admin:admin_views_article_changelist")
         response = self.client.get("%s?id=1" % known_url[:-1], SCRIPT_NAME="/prefix/")
@@ -8843,6 +9116,14 @@ class AdminSiteFinalCatchAllPatternTests(TestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_unknown_url_404_if_authenticated_without_final_catch_all_view(self):
+        """
+        Tests that an unknown URL returns a 404 status code when an authenticated user 
+        makes a GET request and there is no final catch-all view configured.
+
+        The test case simulates an authenticated staff user attempting to access a 
+        non-existent URL, verifying that the expected 404 Not Found response is returned 
+        in the absence of a catch-all view to handle unknown routes.
+        """
         self.client.force_login(self.staff_user)
         unknown_url = "/test_admin/admin10/unknown/"
         response = self.client.get(unknown_url)
@@ -8851,6 +9132,9 @@ class AdminSiteFinalCatchAllPatternTests(TestCase):
     def test_known_url_redirects_login_if_not_auth_without_final_catch_all_view(
         self,
     ):
+        """
+        Tests that a known URL within the admin interface redirects to the login page if the user is not authenticated, without relying on a catch-all view. This tests the expected behavior when an unauthenticated user attempts to access a restricted admin URL, verifying that they are redirected to the login page with the original URL as the next destination.
+        """
         known_url = reverse("admin10:admin_views_article_changelist")
         response = self.client.get(known_url)
         self.assertRedirects(

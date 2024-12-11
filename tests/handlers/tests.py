@@ -327,6 +327,13 @@ class AsyncHandlerRequestTests(SimpleTestCase):
             await self.async_client.get("/unawaited/")
 
     def test_root_path(self):
+        """
+
+        Tests that the root path of a request is correctly set and used to calculate the path info.
+
+        Verifies that when a request is made to a URL with a specified root path, the request's path, script name, and path info are set as expected.
+
+        """
         async_request_factory = AsyncRequestFactory()
         request = async_request_factory.request(
             **{"path": "/root/somepath/", "root_path": "/root"}
@@ -344,6 +351,19 @@ class AsyncHandlerRequestTests(SimpleTestCase):
         self.assertEqual(request.path_info, "/somepath/")
 
     async def test_sync_streaming(self):
+        """
+
+        Tests the synchronous streaming functionality of the asynchronous client.
+
+        This test verifies that the client can successfully retrieve a streaming response
+        from the server and consume its contents. Additionally, it checks that a warning
+        is raised when trying to use a synchronous iterator to serve asynchronous content,
+        ensuring that an asynchronous iterator is used instead.
+
+        The test expects the streaming response to return a status code of 200 and
+        contains the expected content 'streaming content'.
+
+        """
         response = await self.async_client.get("/streaming/")
         self.assertEqual(response.status_code, 200)
         msg = (

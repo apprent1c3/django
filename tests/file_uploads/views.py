@@ -125,6 +125,16 @@ def file_stop_upload_temporary_file(request):
 
 
 def file_upload_interrupted_temporary_file(request):
+    """
+
+    Handles an interrupted file upload by inserting a temporary file handler and removing the default handler.
+    Returns a JSON response containing the path to the temporary file.
+
+    This function is used to handle file uploads that have been interrupted, such as when a user stops a file upload mid-transfer.
+    It works by inserting a TemporaryFileUploadHandler at the beginning of the request's upload handlers, then removing the default handler.
+    The function returns a JSON response that includes the path to the temporary file, which can then be used to resume the upload or retrieve the partially uploaded file.
+
+    """
     request.upload_handlers.insert(0, TemporaryFileUploadHandler())
     request.upload_handlers.pop(2)
     request.FILES  # Trigger file parsing.

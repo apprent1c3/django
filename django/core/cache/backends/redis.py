@@ -136,6 +136,15 @@ class RedisCacheClient:
         return client.incr(key, delta)
 
     def set_many(self, data, timeout):
+        """
+        Sets multiple keys to their respective values in the database.
+
+        :param data: A dictionary of key-value pairs to be set.
+        :param timeout: An optional expiration time in seconds for the keys; if None, the keys will not expire.
+        :returns: None
+        :note: The values will be serialized before being stored in the database.
+        :note: The operation is performed as a pipeline, which means all the keys will be set and/or expired in a single, atomic operation.
+        """
         client = self.get_client(None, write=True)
         pipeline = client.pipeline()
         pipeline.mset({k: self._serializer.dumps(v) for k, v in data.items()})
@@ -195,6 +204,20 @@ class RedisCache(BaseCache):
         return self._cache.touch(key, self.get_backend_timeout(timeout))
 
     def delete(self, key, version=None):
+        """
+        Deletes an item from the cache.
+
+        Args:
+            key (str): The key of the item to delete.
+            version (str, optional): The version of the item to delete. Defaults to None.
+
+        Returns:
+            The result of the deletion operation.
+
+        Notes:
+            The key is validated and transformed into a standard form before deletion.
+            If the version is provided, it is taken into account during the deletion process.
+        """
         key = self.make_and_validate_key(key, version=version)
         return self._cache.delete(key)
 
@@ -214,6 +237,18 @@ class RedisCache(BaseCache):
         return self._cache.incr(key, delta)
 
     def set_many(self, data, timeout=DEFAULT_TIMEOUT, version=None):
+        """
+        #: Set multiple key-value pairs in the cache.
+        #: 
+        #: :param data: A dictionary of key-value pairs to be stored in the cache.
+        #: :param timeout: The time after which the cached values expire (default is :data:`DEFAULT_TIMEOUT`).
+        #: :param version: The version of the cache to use (optional).
+        #: 
+        #: :return: An empty list.
+        #: 
+        #: :note: If the input data is empty, the function returns immediately without modifying the cache. 
+        #:        All keys are validated and modified if necessary before being stored.
+        """
         if not data:
             return []
         safe_data = {}

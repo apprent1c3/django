@@ -100,6 +100,15 @@ class MessageTests(SimpleTestCase):
         self.assertEqual(str(e), expected)
 
     def test_printing_no_hint(self):
+        """
+        Tests the string representation of an Error object when no hint is provided.
+
+        Verifies that the error message and object information are correctly formatted
+        into a string, providing a clear and concise description of the error.
+
+        The expected output format is 'obj: Message', where 'obj' is a representation of
+        the object associated with the error and 'Message' is the error message itself.
+        """
         e = Error("Message", obj=DummyObj())
         expected = "obj: Message"
         self.assertEqual(str(e), expected)
@@ -110,6 +119,14 @@ class MessageTests(SimpleTestCase):
         self.assertEqual(str(e), expected)
 
     def test_printing_with_given_id(self):
+        """
+
+        Tests the string representation of an Error object when an ID is provided.
+
+        Verifies that the error message is correctly formatted with the given ID,
+        including the object identifier, error message, and hint.
+
+        """
         e = Error("Message", hint="Hint", obj=DummyObj(), id="ID")
         expected = "obj: (ID) Message\n\tHINT: Hint"
         self.assertEqual(str(e), expected)
@@ -146,10 +163,24 @@ class MessageTests(SimpleTestCase):
         self.assertNotEqual(e1, e2)
 
     def test_not_equal_to_non_check(self):
+        """
+        Checks that an Error object is not equal to a non-Error object, such as a string, to ensure proper distinction between error instances and other data types.
+        """
         e = Error("Error", obj=DummyObj())
         self.assertNotEqual(e, "a string")
 
     def test_invalid_level(self):
+        """
+        Tests that an invalid level raises a TypeError.
+
+        Verifies that the CheckMessage class correctly handles an invalid level by 
+        raising a TypeError with a meaningful error message, indicating that 
+        the first argument should be the level.
+
+        Note: This test case is designed to ensure the robustness of the 
+        CheckMessage class in handling incorrect input.
+
+        """
         msg = "The first argument should be level."
         with self.assertRaisesMessage(TypeError, msg):
             CheckMessage("ERROR", "Message")
@@ -260,11 +291,29 @@ class CheckCommandTests(SimpleTestCase):
         [tagged_system_check], deployment_checks=[deployment_system_check]
     )
     def test_tags_deployment_check_included(self):
+        """
+
+        Tests that the deployment system check is included when running the check command with the deployment tag.
+
+        This test verifies that the check command correctly incorporates the deployment check when the 'deploymenttag' tag is specified.
+        The test checks for the presence of 'Deployment Check' in the standard error output to confirm the deployment check was executed.
+
+        :raises AssertionError: If the deployment check is not found in the standard error output.
+
+        """
         call_command("check", deploy=True, tags=["deploymenttag"])
         self.assertIn("Deployment Check", sys.stderr.getvalue())
 
     @override_system_checks([tagged_system_check])
     def test_fail_level(self):
+        """
+        Tests that the management command fails when the fail level is set to WARNING.
+
+        This test ensures that the system checks are properly enforced and that the command
+        raises a CommandError when the fail level is set to WARNING. It verifies the correct
+        behavior of the command when checks are tagged with a specific system check.
+
+        """
         with self.assertRaises(CommandError):
             call_command("check", fail_level="WARNING")
 

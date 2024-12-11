@@ -43,6 +43,17 @@ class AsyncAuthTest(TestCase):
         self.assertEqual(user.username, self.test_user.username)
 
     async def test_alogout(self):
+        """
+
+         Tests that the asynchronous logout functionality works as expected.
+
+        This test case verifies that after a successful login, a subsequent logout request
+        results in an anonymous user. It uses the client to log in with test credentials,
+        creates an HTTP request object with a valid session, and then calls the alogout function.
+        The test then checks if the user associated with the request is an instance of AnonymousUser,
+        indicating a successful logout.
+
+        """
         await self.client.alogin(username="testuser", password="testpw")
         request = HttpRequest()
         request.session = await self.client.asession()

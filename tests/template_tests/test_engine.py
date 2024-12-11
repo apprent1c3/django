@@ -24,6 +24,20 @@ class EngineTest(SimpleTestCase):
         )
 
     def test_repr(self):
+        """
+
+        Tests the string representation of the Engine class.
+
+        Verifies that the `__repr__` method returns a string that accurately reflects the
+        Engine instance's attributes, including template directories, context processors,
+        debug mode, template loaders, invalid template string handling, file character set,
+        template libraries, and autoescape settings.
+
+        The test checks that the output of `repr(engine)` matches the expected string,
+        which contains the values of the Engine instance's properties, to ensure that the
+        representation is complete and accurate.
+
+        """
         engine = Engine(
             dirs=[TEMPLATE_DIR],
             context_processors=["django.template.context_processors.debug"],

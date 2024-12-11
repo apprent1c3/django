@@ -93,11 +93,26 @@ class AutocompleteMixinTests(TestCase):
         self.assertEqual(attrs["class"], "admin-autocomplete")
 
     def test_build_attrs_not_required_field(self):
+        """
+
+        Tests that the 'build_attrs' method of the 'band' field widget in the NotRequiredBandForm returns 
+        the correct attributes when no value is provided, specifically that the 'data-allow-clear' attribute 
+        is set to True, indicating that the field allows its value to be cleared.
+
+        """
         form = NotRequiredBandForm()
         attrs = form["band"].field.widget.build_attrs({})
         self.assertJSONEqual(attrs["data-allow-clear"], True)
 
     def test_build_attrs_required_field(self):
+        """
+
+        Verifies that the widget for the 'band' field in RequiredBandForm has the correct 'data-allow-clear' attribute.
+
+         Tests that the 'data-allow-clear' attribute is set to False when building the widget attributes for the 'band' field, 
+         ensuring that the clear button is not displayed for this required field.
+
+        """
         form = RequiredBandForm()
         attrs = form["band"].field.widget.build_attrs({})
         self.assertJSONEqual(attrs["data-allow-clear"], False)

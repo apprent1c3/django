@@ -11,6 +11,16 @@ class SelectTest(ChoiceWidgetTest):
     widget = Select
 
     def test_render(self):
+        """
+
+        Tests the rendering of a select widget with choices related to the Beatles band members.
+
+        This test case ensures that the widget is correctly generated with the given choices, 
+        which can be provided as either a dictionary or a dictionary view object. 
+        It verifies that the rendered HTML matches the expected output. 
+        The test covers different scenarios by running sub-tests for each type of input.
+
+        """
         html = """
         <select name="beatle">
           <option value="J" selected>John</option>
@@ -144,6 +154,11 @@ class SelectTest(ChoiceWidgetTest):
         )
 
     def test_choices_constructor(self):
+        """
+        Tests the construction of a Select widget with predefined choices.
+        The function verifies that the widget correctly generates HTML for a select element with options and selects the default value.
+        It checks the HTML output against an expected string to ensure that the choices are properly rendered and the specified option is selected.
+        """
         widget = Select(choices=[(1, 1), (2, 2), (3, 3)])
         self.check_html(
             widget,
@@ -444,6 +459,19 @@ class SelectTest(ChoiceWidgetTest):
         )
 
     def test_fieldset(self):
+        """
+
+        Tests the behavior of a form field when using a fieldset.
+
+        This test case ensures that a ChoiceField widget is correctly rendered within a form.
+        It verifies that the use_fieldset attribute is initially set to False and that the
+        field is rendered as expected in the form's HTML output, including the label and
+        select options.
+
+        The test uses a sample form with a choice field containing options for the Beatles.
+        The rendered HTML is then compared to the expected output to ensure accuracy.
+
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = ChoiceField(widget=self.widget, choices=self.beatles)

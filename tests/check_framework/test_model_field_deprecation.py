@@ -53,6 +53,19 @@ class TestDeprecatedField(SimpleTestCase):
 @isolate_apps("check_framework")
 class TestRemovedField(SimpleTestCase):
     def test_default_details(self):
+        """
+        Tests the check function for a model field that has been removed by default, 
+        but still has support in historical migrations.
+
+        This test verifies that the check function correctly identifies and reports 
+        the removal of a model field, while also considering its support in historical 
+        migrations. The expected output is an error message indicating the removal 
+        of the field, along with the affected model field object and the corresponding 
+        error ID. 
+
+        The test coverage includes the Model and MyField classes, ensuring that the 
+        check function behaves as expected in this specific scenario.
+        """
         class MyField(models.Field):
             system_check_removed_details = {}
 

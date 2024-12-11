@@ -698,12 +698,30 @@ class NaturalKeyFixtureTests(TestCase):
         self.assertEqual(sorted_deps, [Store, Person, Book])
 
     def test_dependency_sorting_3(self):
+        """
+
+        Tests the dependency sorting functionality provided by the serializers module.
+
+        Ensures that a list of dependencies is correctly sorted based on their relationships.
+        In this case, it verifies that the sorting of dependencies for the 'fixtures_regress' group results in the correct order: Store, Person, Book.
+
+        """
         sorted_deps = serializers.sort_dependencies(
             [("fixtures_regress", [Store, Book, Person])]
         )
         self.assertEqual(sorted_deps, [Store, Person, Book])
 
     def test_dependency_sorting_4(self):
+        """
+        Tests the sorting of dependencies for serialization.
+
+        This test verifies that the dependencies are sorted in the correct order, 
+        ensuring that the dependencies with no prerequisites are processed first. 
+        In this case, it checks that the dependencies for 'fixtures_regress', 
+        which include Store, Person, and Book, are sorted as expected.
+
+        :raises AssertionError: If the sorted dependencies do not match the expected order.
+        """
         sorted_deps = serializers.sort_dependencies(
             [("fixtures_regress", [Store, Person, Book])]
         )
@@ -767,6 +785,16 @@ class NaturalKeyFixtureTests(TestCase):
             )
 
     def test_dependency_sorting_normal(self):
+        """
+
+        Tests the dependency sorting functionality in a normal scenario.
+
+        This function verifies that the :func:`~serializers.sort_dependencies` function correctly sorts dependencies in the expected order.
+        The test case checks that the dependencies are sorted such that the independent objects (Person and Book) are placed before the objects with external dependencies (ExternalDependency).
+
+        :raises AssertionError: If the sorted dependencies do not match the expected order.
+
+        """
         sorted_deps = serializers.sort_dependencies(
             [("fixtures_regress", [Person, ExternalDependency, Book])]
         )

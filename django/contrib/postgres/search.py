@@ -102,6 +102,17 @@ class SearchVector(SearchVectorCombinable, Func):
     def resolve_expression(
         self, query=None, allow_joins=True, reuse=None, summarize=False, for_save=False
     ):
+        """
+        Resolve an expression with the option to reconfigure it based on the instance's configuration.
+
+        :param query: The query to be resolved
+        :param allow_joins: Flag to allow joins in the query resolution
+        :param reuse: Option to reuse existing resources for query resolution
+        :param summarize: Flag to summarize the query resolution result
+        :param for_save: Flag to indicate if the resolution is for saving purposes
+        :return: The resolved expression, potentially reconfigured based on the instance's configuration
+        :note: If the instance has a configuration, it will be used to further resolve the expression.
+        """
         resolved = super().resolve_expression(
             query, allow_joins, reuse, summarize, for_save
         )
@@ -216,6 +227,19 @@ class SearchQuery(SearchQueryCombinable, Func):
         super().__init__(*expressions, output_field=output_field)
 
     def as_sql(self, compiler, connection, function=None, template=None):
+        """
+        Generates the SQL representation of this object.
+
+        This method builds upon the SQL generation of its parent class, optionally 
+        inverting the result by wrapping it in a double negation operator.
+
+        :param compiler: The SQL compiler to use.
+        :param connection: The database connection to use.
+        :param function: An optional function to apply to the generated SQL.
+        :param template: An optional template to use for the generated SQL.
+        :returns: A tuple containing the generated SQL string and a list of parameters.
+
+        """
         sql, params = super().as_sql(compiler, connection, function, template)
         if self.invert:
             sql = "!!(%s)" % sql
@@ -252,6 +276,28 @@ class SearchRank(Func):
         normalization=None,
         cover_density=False,
     ):
+        """
+        Initializes a text search ranking function.
+
+        This function calculates the relevance of a search query to a given text or document vector,
+        with optional weighting and normalization.
+
+        Parameters
+        ----------
+        vector : SearchVector or object
+            The text or document vector to be searched.
+        query : SearchQuery or object
+            The search query to be applied.
+        weights : object, optional
+            The weights to be applied to the query terms.
+        normalization : object, optional
+            The normalization factor to be applied to the result.
+        cover_density : bool, optional
+            Whether to use cover density ranking (default is False).
+
+        The resulting ranking function can be used to sort search results based on their relevance to the query.
+
+        """
         from .fields.array import ArrayField
 
         if not hasattr(vector, "resolve_expression"):
@@ -342,6 +388,19 @@ class TrigramBase(Func):
     output_field = FloatField()
 
     def __init__(self, expression, string, **extra):
+        """
+        Initializes an instance of the class.
+
+        :arg expression: The expression to be associated with this instance.
+        :arg string: The string value, which can be either a string or an object that supports 
+                     the `resolve_expression` method. If not, it will be wrapped in a Value object.
+        :arg extra: Additional keyword arguments to be passed to the parent class.
+
+        This constructor prepares the instance for use by setting up the expression and string 
+        attributes, handling the case where the string is a basic type by wrapping it in a 
+        Value object if necessary. The extra keyword arguments are then propagated to the 
+        parent class for further initialization.
+        """
         if not hasattr(string, "resolve_expression"):
             string = Value(string)
         super().__init__(expression, string, **extra)

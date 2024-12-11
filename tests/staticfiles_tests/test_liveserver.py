@@ -48,6 +48,15 @@ class StaticLiveServerChecks(LiveServerBase):
 
     @classmethod
     def raises_exception(cls):
+        """
+
+        Raises an exception to test that setUpClass() fails as expected.
+
+        This class method verifies that the setUpClass() method in the parent class raises
+        an ImproperlyConfigured exception. If the exception is not raised, it explicitly
+        raises an Exception to indicate that the test has failed.
+
+        """
         try:
             super().setUpClass()
         except ImproperlyConfigured:

@@ -53,6 +53,15 @@ class MigrationAutodetector:
     """
 
     def __init__(self, from_state, to_state, questioner=None):
+        """
+        Initializes a migration object.
+
+            :param from_state: The initial state of the application before migration.
+            :param to_state: The target state of the application after migration.
+            :param questioner: An optional object responsible for handling interactive migration prompts.
+                If not provided, a default :class:`MigrationQuestioner` will be used.
+            :note: Automatically discovers existing application models from the initial state.
+        """
         self.from_state = from_state
         self.to_state = to_state
         self.questioner = questioner or MigrationQuestioner()
@@ -1323,6 +1332,27 @@ class MigrationAutodetector:
                     self._generate_added_field(app_label, model_name, field_name)
 
     def create_altered_indexes(self):
+        """
+        ```python
+        def create_altered_indexes(self):
+            \"\"\"
+            Identifies alterations to indexes on models during a migration.
+
+            This method compares the indexes on models from the old and new states, 
+            determining which indexes have been added, removed, or renamed. 
+            It also handles cases where an index has been renamed as part of an 
+            AlterIndexTogether operation.
+
+            The results are stored in the `altered_indexes` attribute, 
+            which maps model keys to dictionaries containing the added, removed, 
+            and renamed indexes for each model. Renamed indexes are represented 
+            as tuples containing the old name, the new name, and the original 
+            index_together fields if applicable.
+
+            :return: None
+            \"\"\"
+        ```
+        """
         option_name = operations.AddIndex.option_name
         self.renamed_index_together_values = defaultdict(list)
 
@@ -1474,6 +1504,17 @@ class MigrationAutodetector:
             )
 
     def generate_added_constraints(self):
+        """
+
+        Generates and applies added constraints to models based on the altered constraints.
+
+        This function iterates over the altered constraints for each model, determines the dependencies required for the model, and then adds the new constraints to the model. 
+
+        The added constraints are applied as separate operations, ensuring that they are properly ordered and executed based on the model's dependencies.
+
+        :returns: None
+
+        """
         for (
             app_label,
             model_name,
@@ -1587,6 +1628,23 @@ class MigrationAutodetector:
         return dependencies
 
     def _get_altered_foo_together_operations(self, option_name):
+        """
+
+        Retrieve altered operations for a given option across all models.
+
+        This function iterates over all models in the migration state, comparing the old and new values of a specified option.
+        For each model where the option has changed, it yields a tuple containing the old and new option values, the model's app label and name, 
+        and any dependencies required for foreign key fields in the new option value.
+
+        The yielded dependencies are calculated by examining the foreign key fields in the new option value and retrieving any 
+        necessary dependencies from the migration state.
+
+        The function returns an iterator over the altered operations, allowing for efficient processing of large migration states.
+
+        :param option_name: The name of the option to check for altered operations
+        :yield: A tuple containing (old_value, new_value, app_label, model_name, dependencies)
+
+        """
         for app_label, model_name in sorted(self.kept_model_keys):
             old_model_name = self.renamed_models.get(
                 (app_label, model_name), model_name
@@ -1702,6 +1760,16 @@ class MigrationAutodetector:
                 )
 
     def generate_altered_db_table_comment(self):
+        """
+        Generates altered database table comments by comparing the old and new model states.
+
+        This function checks for changes in database table comments across models, including kept, proxy, and unmanaged models.
+        It iterates through the models, comparing the old and new table comments, and generates an operation to alter the table comment if a change is detected.
+        The generated operations are stored and can be used to update the database schema accordingly.
+
+        Args: None
+        Returns: None
+        """
         models_to_check = self.kept_model_keys.union(
             self.kept_proxy_keys, self.kept_unmanaged_keys
         )

@@ -69,6 +69,24 @@ class UpdateQuery(Query):
         return obj
 
     def update_batch(self, pk_list, values, using):
+        """
+        Updates a batch of database records in chunks.
+
+         Parameters
+         ----------
+         pk_list : list
+             List of primary keys of the records to be updated.
+         values : dict
+             Dictionary of values to update for the records.
+         using : str
+             Database alias to use for the update operation.
+
+         Notes
+         -----
+         The function divides the update operation into smaller chunks to avoid overloading the database.
+         It clears any existing filters before applying the primary key filter for each chunk.
+         The update is executed using the specified database alias.
+        """
         self.add_update_values(values)
         for offset in range(0, len(pk_list), GET_ITERATOR_CHUNK_SIZE):
             self.clear_where()
@@ -148,6 +166,21 @@ class InsertQuery(Query):
     def __init__(
         self, *args, on_conflict=None, update_fields=None, unique_fields=None, **kwargs
     ):
+        """
+
+        Initializes an instance of the class.
+
+        The constructor accepts a variable number of arguments and keyword arguments, 
+        allowing for flexible initialization. It also supports several optional parameters 
+        to configure conflict resolution and data processing:
+
+        * `on_conflict`: a strategy to apply when conflicts arise
+        * `update_fields`: a list of fields that should be updated in case of a conflict
+        * `unique_fields`: a list of fields that must be unique
+
+        These parameters enable customization of the instance's behavior and data handling.
+
+        """
         super().__init__(*args, **kwargs)
         self.fields = []
         self.objs = []

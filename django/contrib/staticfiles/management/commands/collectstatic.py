@@ -37,6 +37,22 @@ class Command(BaseCommand):
         return True
 
     def add_arguments(self, parser):
+        """
+
+        Adds command-line arguments used to customize the behavior of the file collection process.
+
+        The added arguments control various aspects, such as:
+            - Interactive mode: whether to prompt the user for input
+            - Post-processing: whether to perform additional processing on collected files
+            - File ignore patterns: glob-style patterns to exclude files or directories from the collection
+            - Dry-run mode: simulates the process without modifying the filesystem
+            - Clear existing files: removes existing files in the storage before collecting new ones
+            - Symbolic linking: creates links to original files instead of copying them
+            - Default ignore patterns: whether to ignore common private patterns (e.g., 'CVS', '.*', '*~')
+
+        These arguments allow users to fine-tune the collection process according to their specific needs.
+
+        """
         parser.add_argument(
             "--noinput",
             "--no-input",

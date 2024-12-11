@@ -103,6 +103,17 @@ class ChangeListTests(TestCase):
         )
 
     def _mocked_authenticated_request(self, url, user):
+        """
+        Creates a mocked HTTP request for a given URL with an authenticated user.
+
+        This method generates a mocked request object using the provided URL and assigns
+        the specified user to it, simulating an authenticated request.
+
+        :param url: The URL for the mocked request.
+        :param user: The user to be assigned to the request.
+        :return: A mocked HTTP request object with the assigned user.
+
+        """
         request = self.factory.get(url)
         request.user = user
         return request
@@ -505,6 +516,16 @@ class ChangeListTests(TestCase):
         self.assertEqual(b.speed, 2)
 
     def test_custom_paginator(self):
+        """
+
+        Tests the custom paginator functionality in the admin interface.
+
+        This test case creates a large number of child objects under a new parent object, 
+        then simulates a GET request to the child list view as a superuser. It verifies 
+        that the resulting changelist instance uses the custom paginator, ensuring 
+        that pagination is handled correctly for large datasets.
+
+        """
         new_parent = Parent.objects.create(name="parent")
         for i in range(1, 201):
             Child.objects.create(name="name %s" % i, parent=new_parent)
@@ -821,6 +842,15 @@ class ChangeListTests(TestCase):
             self.assertCountEqual(cl.queryset, [])
 
     def test_spanning_relations_with_custom_lookup_in_search_fields(self):
+        """
+        Tests the spanning of relations with a custom lookup in the search fields.
+
+        This test case verifies that custom lookups can be used in the search fields to filter objects across multiple relationships.
+        It covers the scenario where a custom lookup is registered and used in the search fields to filter objects based on the attributes of related objects.
+        The test confirms that the correct objects are returned when the search query matches the expected value, and no objects are returned when the query does not match.
+
+        Ensures that the `search_fields` attribute of the admin interface can handle custom lookups, allowing for more flexible and powerful searching capabilities.
+        """
         hype = Group.objects.create(name="The Hype")
         concert = Concert.objects.create(name="Woodstock", group=hype)
         vox = Musician.objects.create(name="Vox", age=20)
@@ -959,6 +989,21 @@ class ChangeListTests(TestCase):
         self.assertContains(response, "Parent object")
 
     def test_show_all(self):
+        """
+
+        Tests the 'show all' functionality in the admin changelist view.
+
+        The test case simulates the retrieval of a large number of child objects
+        and verifies that the 'show all' link behaves as expected, displaying
+        all objects when the list maximum is set high enough, and paginating
+        results when it is set lower.
+
+        The test creates a parent object with 60 child objects and then tests
+        two scenarios: one where the list maximum is set to a high value (200),
+        allowing all objects to be displayed at once, and one where it is set
+        to a lower value (30), causing the results to be paginated.
+
+        """
         parent = Parent.objects.create(name="anything")
         for i in range(1, 31):
             Child.objects.create(name="name %s" % i, parent=parent)
@@ -1221,6 +1266,15 @@ class ChangeListTests(TestCase):
         self.assertEqual(queryset.count(), 2)
 
     def test_get_list_editable_queryset_with_regex_chars_in_prefix(self):
+        """
+        Tests that _get_list_editable_queryset returns the correct queryset when the prefix contains regex characters.
+
+        This test case verifies that the method correctly filters the queryset based on the provided prefix, even when it contains special regex characters, and returns a queryset containing the expected objects.
+
+        The test creates a Swallow object, logs in as a superuser, and posts a request to the changelist URL with the given data. It then checks that the _get_list_editable_queryset method returns a queryset with the expected count of objects.
+
+        The purpose of this test is to ensure that the _get_list_editable_queryset method is functioning correctly and handling edge cases, such as prefixes with regex characters.
+        """
         a = Swallow.objects.create(origin="Swallow A", load=4, speed=1)
         Swallow.objects.create(origin="Swallow B", load=2, speed=2)
         data = {
@@ -1279,6 +1333,18 @@ class ChangeListTests(TestCase):
             list_per_page = 10
 
         def check_results_order(ascending=False):
+            """
+
+            Checks the ordering of results in the changelist view of the UnorderedObject model.
+
+            Args:
+                ascending (bool): Whether to check the results in ascending order. Defaults to False.
+
+            This test case verifies that the results are correctly ordered in the changelist view.
+            It simulates a user request to the changelist view, iterates over the results, and checks
+            that the IDs are in the expected order. The test covers multiple pages of results.
+
+            """
             custom_site.register(UnorderedObject, UnorderedObjectAdmin)
             model_admin = UnorderedObjectAdmin(UnorderedObject, custom_site)
             counter = 0 if ascending else 51
@@ -1766,6 +1832,11 @@ class GetAdminLogTests(TestCase):
             )
 
     def test_without_as(self):
+        """
+        Tests that the 'get_admin_log' template tag raises a TemplateSyntaxError when the second argument is not 'as'. 
+
+        This test case validates the expected behavior of the 'get_admin_log' template tag, ensuring it correctly handles invalid syntax and provides a clear error message when the 'as' keyword is missing or improperly used.
+        """
         msg = "Second argument to 'get_admin_log' must be 'as'"
         with self.assertRaisesMessage(TemplateSyntaxError, msg):
             Template("{% load log %}{% get_admin_log 10 ad admin_log for_user user %}")
@@ -2030,6 +2101,14 @@ class SeleniumTests(AdminSeleniumTestCase):
             alert.dismiss()
 
     def test_collapse_filters(self):
+        """
+        Tests that filter collapse functionality works correctly in the admin interface.
+
+        This test checks that initially all filters are expanded, and that clicking on a filter's summary element collapses it.
+        It also verifies that the collapsed state is preserved across page reloads and navigation to other admin pages.
+        Additionally, the test ensures that the filter state is correctly updated when navigating between different admin pages.
+        The test covers various scenarios, including collapsing filters on the user and band changelist pages, and checking the state after refreshing the page or navigating to a different page.
+        """
         from selenium.webdriver.common.by import By
 
         self.admin_login(username="super", password="secret")

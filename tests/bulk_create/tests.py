@@ -93,6 +93,18 @@ class BulkCreateTests(TestCase):
         self.assertEqual(Country.objects.count(), 4)
 
     def test_multi_table_inheritance_unsupported(self):
+        """
+
+        Tests the unsupported behavior of bulk creating models with multi-table inheritance.
+
+        Verifies that attempting to bulk create instances of Pizzeria, ProxyMultiCountry, and 
+        ProxyMultiProxyCountry models raises a ValueError with a specific error message, as 
+        these models utilize multi-table inheritance which is not compatible with bulk creation.
+
+        The test covers the creation of various types of multi-table inherited models, 
+        ensuring that the error handling behaves consistently across different model types.
+
+        """
         expected_message = "Can't bulk create a multi-table inherited model"
         with self.assertRaisesMessage(ValueError, expected_message):
             Pizzeria.objects.bulk_create(
@@ -302,6 +314,16 @@ class BulkCreateTests(TestCase):
 
     @skipUnlessDBFeature("has_bulk_insert")
     def test_bulk_insert_now(self):
+        """
+        Tests the bulk insert functionality when a datetime field is set to the current time using the Now() function.
+
+        This test case verifies that multiple objects can be created in a single database operation, 
+        with the datetime field correctly populated with the current time. It checks that the resulting 
+        objects have non-null datetime fields and are correctly counted when filtered by this field.
+
+        The test relies on the database feature of supporting bulk inserts.
+
+        """
         NullableFields.objects.bulk_create(
             [
                 NullableFields(datetime_field=Now()),
@@ -412,6 +434,13 @@ class BulkCreateTests(TestCase):
             TwoFields.objects.bulk_create(conflicting_objects)
 
     def test_nullable_fk_after_parent(self):
+        """
+
+        Tests the behavior of a nullable foreign key field after its parent object has been saved.
+
+        Verifies that the foreign key relationship is correctly established and can be retrieved from the database.
+
+        """
         parent = NoFields()
         child = NullableFields(auto_field=parent, integer_field=88)
         parent.save()
@@ -460,6 +489,17 @@ class BulkCreateTests(TestCase):
 
     @skipUnlessDBFeature("supports_update_conflicts")
     def test_update_conflicts_no_update_fields(self):
+        """
+
+        Test that a ValueError is raised when bulk creating objects with update_conflicts=True
+        and no update fields are provided.
+
+        This test ensures that the function correctly handles a common edge case when
+        using update_conflicts. It verifies that the function requires update fields to
+        be specified when update_conflicts is enabled, raising an error if they are not
+        provided.
+
+        """
         msg = (
             "Fields that will be updated when a row insertion fails on "
             "conflicts must be provided."

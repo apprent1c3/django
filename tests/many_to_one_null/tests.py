@@ -115,6 +115,13 @@ class ManyToOneNullTests(TestCase):
         # Querysets used in reverse FK assignments are pre-evaluated
         # so their value isn't affected by the clearing operation in
         # RelatedManager.set() (#19816).
+        """
+        Tests the assignment of a queryset to a model's relationship field using the `set` method. 
+
+        This function verifies that when a queryset is used to update a relationship field, it correctly filters out objects that do not match the queryset, resulting in the field being updated with only the objects that meet the specified criteria. 
+
+        Specifically, it checks that after assigning a queryset that filters objects by a specific headline, the relationship field contains only one object that matches the filter.
+        """
         self.r2.article_set.set([self.a2, self.a3])
 
         qs = self.r2.article_set.filter(headline="Second")

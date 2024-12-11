@@ -39,10 +39,24 @@ class NodeTests(unittest.TestCase):
         self.assertEqual(len(self.node2), 0)
 
     def test_bool(self):
+        """
+        Tests the boolean representation of nodes.
+
+        Checks that node1 evaluates to True and node2 evaluates to False in a boolean context, 
+        verifying the expected truthiness of the node objects.
+        """
         self.assertTrue(self.node1)
         self.assertFalse(self.node2)
 
     def test_contains(self):
+        """
+
+        Verifies the membership of a specific key-value pair in two separate nodes.
+
+        This test case checks if a particular tuple ('a', 1) is present in node1 and 
+        absent in node2, ensuring the expected behavior of the contains functionality.
+
+        """
         self.assertIn(("a", 1), self.node1)
         self.assertNotIn(("a", 1), self.node2)
 
@@ -110,11 +124,30 @@ class NodeTests(unittest.TestCase):
             self.assertEqual(a_child, b_child)
 
     def test_eq_children(self):
+        """
+        Tests the equality of a Node instance based on its children.
+
+        Verifies that two Node instances with the same children are considered equal, 
+        and that two Node instances with different children are considered unequal.
+
+        This test case ensures the correct implementation of the equality operator 
+        in the Node class, which is crucial for comparing and distinguishing between 
+        different node instances in a data structure.
+        """
         node = Node(self.node1_children)
         self.assertEqual(node, self.node1)
         self.assertNotEqual(node, self.node2)
 
     def test_eq_connector(self):
+        """
+        Tests the equality operator for Node objects based on their connector attribute.
+
+        Verifies that two Node objects with the same connector are considered equal, 
+        while objects with different connectors are not. 
+
+        This test case covers the basic equality comparison scenario between Node instances.
+
+        """
         new_node = Node(connector="NEW")
         default_node = Node(connector="DEFAULT")
         self.assertEqual(default_node, self.node2)

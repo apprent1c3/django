@@ -35,6 +35,16 @@ class CustomFileUploadHandler(MemoryFileUploadHandler):
 
 class RequestsTests(SimpleTestCase):
     def test_httprequest(self):
+        """
+        Tests the initial state of an HttpRequest object.
+
+        This test verifies that a newly created HttpRequest object has empty 
+        query parameters (GET), form data (POST), cookies, and metadata. 
+        It also checks that the encoding of these empty parameters yields 
+        an empty string. Additionally, it confirms that there are no files 
+        attached to the request and that the content type and parameters 
+        are unset by default.
+        """
         request = HttpRequest()
         self.assertEqual(list(request.GET), [])
         self.assertEqual(list(request.POST), [])
@@ -52,6 +62,16 @@ class RequestsTests(SimpleTestCase):
         self.assertIsNone(request.content_params)
 
     def test_httprequest_full_path(self):
+        """
+
+        Tests the HttpRequest get_full_path and get_full_path_info methods with a path containing special characters.
+
+        This test ensures that the get_full_path method correctly encodes and constructs the full path of an HTTP request,
+        including the path, query string, and any special characters.
+
+        The get_full_path_info method is also tested to verify that it correctly prepends the path_info prefix to the full path.
+
+        """
         request = HttpRequest()
         request.path = "/;some/?awful/=path/foo:bar/"
         request.path_info = "/prefix" + request.path
@@ -79,6 +99,14 @@ class RequestsTests(SimpleTestCase):
         self.assertEqual(repr(request), "<HttpRequest: GET '/somepath/'>")
 
     def test_httprequest_repr_invalid_method_and_path(self):
+        """
+
+        Tests the string representation of an HttpRequest object with invalid method and path.
+
+        This test checks the repr() function of the HttpRequest class to ensure it returns the expected string when the object's method and path are in an invalid state. 
+        It covers scenarios where the method and path are not set or are set to invalid values, verifying that the repr() function always returns '<HttpRequest>'.
+
+        """
         request = HttpRequest()
         self.assertEqual(repr(request), "<HttpRequest>")
         request = HttpRequest()
@@ -202,6 +230,19 @@ class RequestsTests(SimpleTestCase):
             self.assertEqual(request.path, "/FORCED_PREFIX/somepath/")
 
     def test_wsgirequest_repr(self):
+        """
+
+        Tests the string representation of a WSGIRequest instance.
+
+        This test ensures that the repr() function of a WSGIRequest object returns a 
+        meaningful string that accurately reflects the request's method and path, 
+        regardless of other attributes such as query parameters, POST data, cookies, 
+        and metadata.
+
+        The expected string format is '<WSGIRequest: METHOD PATH>', where METHOD is 
+        the HTTP request method (e.g., GET, POST, etc.) and PATH is the request path.
+
+        """
         request = WSGIRequest({"REQUEST_METHOD": "get", "wsgi.input": BytesIO(b"")})
         self.assertEqual(repr(request), "<WSGIRequest: GET '/'>")
         request = WSGIRequest(
@@ -374,6 +415,15 @@ class RequestsTests(SimpleTestCase):
         self.assertEqual(request.POST, {})
 
     def test_non_ascii_POST(self):
+        """
+        Tests that WSGI requests can correctly parse non-ASCII characters in POST data.
+
+        This test case ensures that the WSGIRequest object can handle non-ASCII characters in URL-encoded POST requests, 
+        as specified in the application/x-www-form-urlencoded content type. 
+
+        The test verifies that the request's POST dictionary contains the expected key-value pair with the non-ASCII character intact.
+
+        """
         payload = FakePayload(urlencode({"key": "España"}))
         request = WSGIRequest(
             {
@@ -386,6 +436,20 @@ class RequestsTests(SimpleTestCase):
         self.assertEqual(request.POST, {"key": ["España"]})
 
     def test_non_utf8_charset_POST_bad_request(self):
+        """
+
+        Tests the handling of a POST request with a non-UTF8 charset.
+
+        This test case verifies that a BadRequest exception is raised when a POST request
+        with a 'application/x-www-form-urlencoded' content type is not UTF-8 encoded.
+        It checks that the exception is raised when attempting to access both the POST
+        data and files.
+
+        The test case uses a custom payload encoded in latin-1 (iso-8859-1) to simulate
+        a non-UTF8 encoded request. The expected error message is checked to ensure that
+        it correctly indicates the encoding requirement.
+
+        """
         payload = FakePayload(urlencode({"key": "España".encode("latin-1")}))
         request = WSGIRequest(
             {
@@ -511,6 +575,13 @@ class RequestsTests(SimpleTestCase):
         FILE_UPLOAD_HANDLERS=["requests_tests.tests.ErrorFileUploadHandler"]
     )
     def test_POST_multipart_handler_error(self):
+        """
+        Tests that a ValueError is raised when the file upload handler encounters an error while handling a multipart POST request.
+
+        Verifies that the ErrorFileUploadHandler correctly propagates the error when processing the request payload, ensuring that the application fails with an exception as expected.
+
+        The test simulates a POST request with a multipart payload and attempts to access the request's POST data, checking that the error is properly raised and handled by the test framework.
+        """
         payload = FakePayload(
             "\r\n".join(
                 [
@@ -783,6 +854,13 @@ class RequestsTests(SimpleTestCase):
         self.assertEqual(request.body, payload)
 
     def test_read_by_lines(self):
+        """
+        Tests reading request content line by line for a POST request with application/x-www-form-urlencoded content type.
+
+        Verifies that the request object correctly reads the payload from the WSGI input stream and returns it as a list of bytes.
+
+        The test case uses a mock payload and a WSGI request object with the relevant environment variables set, asserting that the content is correctly read and parsed into a single byte string containing the name-value pair.
+        """
         payload = FakePayload("name=value")
         request = WSGIRequest(
             {
@@ -1077,6 +1155,13 @@ class RequestsTests(SimpleTestCase):
         self.assertIs(request_copy.resolver_match, request.resolver_match)
 
     def test_deepcopy(self):
+        """
+        Tests that copying a request object using deepcopy does not create a shared session.
+
+        Verifies that modifying the session of the original request does not affect the session of the copied request, ensuring they are independent of each other.
+
+        This test is crucial for ensuring the correctness of request copying functionality in the application, particularly in scenarios where requests are duplicated or modified.
+        """
         request = RequestFactory().get("/")
         request.session = {}
         request_copy = copy.deepcopy(request)

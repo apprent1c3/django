@@ -36,6 +36,21 @@ class ContentTypeOperationsTests(TransactionTestCase):
         )
 
     def assertOperationsInjected(self, plan, **kwargs):
+        """
+
+        Asserts that content type operations are correctly injected into the migration plan.
+
+        This function verifies that for each RenameModel operation in the migration plan, 
+        a corresponding RenameContentType operation is present and correctly configured.
+        The checks include:
+
+        * The presence of a RenameContentType operation immediately after each RenameModel operation
+        * The app label of the RenameContentType operation matches the app label of the migration
+        * The old and new model names of the RenameContentType operation match the old and new names of the corresponding RenameModel operation
+
+        This assertion ensures that the content types are properly updated when models are renamed during a migration.
+
+        """
         for migration, _backward in plan:
             operations = iter(migration.operations)
             for operation in operations:

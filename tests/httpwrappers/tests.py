@@ -112,6 +112,16 @@ class QueryDictTests(SimpleTestCase):
         self.assertEqual(q.urlencode(), "foo=bar")
 
     def test_urlencode(self):
+        """
+        Tests the urlencode method of QueryDict objects.
+
+        This test case verifies that the urlencode method correctly encodes query strings,
+        including special characters such as '&' and non-ASCII characters. It also checks
+        that the 'safe' parameter can be used to prevent encoding of specific characters,
+        in this case the '/' character. The test covers various scenarios, including
+        URLs with special characters and non-ASCII characters, to ensure the urlencode
+        method handles them correctly and produces the expected output.
+        """
         q = QueryDict(mutable=True)
         q["next"] = "/a&b/"
         self.assertEqual(q.urlencode(), "next=%2Fa%26b%2F")
@@ -407,6 +417,21 @@ class HttpResponseTests(SimpleTestCase):
         self.assertEqual(r.content, b"memoryview")
 
     def test_iter_content(self):
+        """
+        Tests the iteration and content of an HttpResponse object.
+
+        Verifies that setting the content of an HttpResponse object using different methods
+        (iterable, list, integer values) results in the expected output as a bytes object.
+        Also checks the behavior of the content when using an iterator and writing to the
+        response object.
+
+        Ensures that the content is correctly joined and repeated iterations produce the
+        same output, demonstrating that the HttpResponse object handles content iteration
+        correctly and efficiently.
+
+        Additionally, tests the write method to append content to the HttpResponse object
+        and verifies the resulting content matches the expected output.
+        """
         r = HttpResponse(["abc", "def", "ghi"])
         self.assertEqual(r.content, b"abcdefghi")
 
@@ -506,6 +531,14 @@ class HttpResponseTests(SimpleTestCase):
         del r.headers["X-Foo"]
 
     def test_instantiate_with_headers(self):
+        """
+        Tests the instantiation of an HttpResponse object with custom headers.
+
+        Verifies that the headers are correctly set and retrieved, regardless of case sensitivity.
+        The function checks that the 'X-Foo' header is correctly stored and can be accessed in a case-insensitive manner.
+
+        This test ensures that HttpResponse objects properly handle custom headers, providing a robust way to include additional metadata in HTTP responses.
+        """
         r = HttpResponse("hello", headers={"X-Foo": "foo"})
         self.assertEqual(r.headers["X-Foo"], "foo")
         self.assertEqual(r.headers["x-foo"], "foo")
@@ -583,6 +616,11 @@ class HttpResponseSubclassesTests(SimpleTestCase):
         self.assertNotIn("content-type", response)
 
     def test_not_modified_repr(self):
+        """
+        Tests that the representation of an HttpResponseNotModified object is correctly formatted.
+
+        The function verifies that the repr method returns a string indicating the object type and its status code, which in this case should be 304, corresponding to the HTTP status code for \"Not Modified\".
+        """
         response = HttpResponseNotModified()
         self.assertEqual(repr(response), "<HttpResponseNotModified status_code=304>")
 
@@ -633,6 +671,15 @@ class JsonResponseTests(SimpleTestCase):
         self.assertEqual(json.loads(response.content.decode()), ["foo", "bar"])
 
     def test_json_response_uuid(self):
+        """
+
+        Tests that a JsonResponse containing a UUID is correctly serialized to JSON.
+
+        Verifies that the UUID is properly converted to a string and that the JSON
+        response matches the expected output, ensuring that the JsonResponse
+        functionality is working as intended for UUID data types.
+
+        """
         u = uuid.uuid4()
         response = JsonResponse(u, safe=False)
         self.assertEqual(json.loads(response.content.decode()), str(u))

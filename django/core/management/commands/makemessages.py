@@ -528,6 +528,15 @@ class Command(BaseCommand):
         return potfiles
 
     def remove_potfiles(self):
+        """
+        Remove existing template (.pot) files for the current domain.
+
+        This method iterates through all locale paths and deletes any existing POT files
+        with the name corresponding to the current domain, preparing the environment for
+        new translation templates.
+
+        :raises: No explicit exceptions, but may raise OSError if file removal fails
+        """
         for path in self.locale_paths:
             pot_path = os.path.join(path, "%s.pot" % self.domain)
             if os.path.exists(pot_path):

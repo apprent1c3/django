@@ -19,6 +19,14 @@ class BashCompletionTests(unittest.TestCase):
     """
 
     def setUp(self):
+        """
+
+        Set up the test environment by enabling Django auto-complete.
+
+        This method saves the current value of the DJANGO_AUTO_COMPLETE environment variable
+        and sets it to '1' to ensure auto-complete functionality is enabled during testing.
+
+        """
         self.old_DJANGO_AUTO_COMPLETE = os.environ.get("DJANGO_AUTO_COMPLETE")
         os.environ["DJANGO_AUTO_COMPLETE"] = "1"
 

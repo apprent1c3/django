@@ -45,6 +45,32 @@ class Command(BaseCommand):
         )
 
     def ipython(self, options):
+        """
+        Starts an interactive IPython shell within the current environment.
+
+        This function initializes the IPython interpreter with default settings, allowing
+        for interactive exploration and execution of Python code. It is particularly
+        useful for debugging, testing, and prototyping purposes. The options passed to
+        this function are currently not utilized, as the IPython shell is started with
+        default arguments.
+
+        Parameters
+        ----------
+        options : 
+            Currently ignored, reserved for future use.
+
+        Returns
+        -------
+        None
+            The function does not return any value, instead, it launches an interactive
+            IPython session.
+
+        Notes
+        -----
+        This function requires the IPython library to be installed and available in the
+        Python environment. The IPython shell is started with an empty argument list,
+        providing a clean and minimal interactive environment.
+        """
         from IPython import start_ipython
 
         start_ipython(argv=[])

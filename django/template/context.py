@@ -148,6 +148,18 @@ class Context(BaseContext):
 
     @contextmanager
     def bind_template(self, template):
+        """
+
+        Temporarily binds a template to the current context.
+
+        This context manager allows you to associate a specific template with the object for a limited scope. 
+        It ensures that the template is only bound for the duration of the context and is automatically unbound afterwards, 
+        preventing unintended template associations. If a template is already bound, it raises a RuntimeError. 
+
+        :param template: The template to be bound to the context.
+        :raises RuntimeError: If the context is already bound to another template.
+
+        """
         if self.template is not None:
             raise RuntimeError("Context is already bound to a template")
         self.template = template
@@ -231,6 +243,16 @@ class RequestContext(Context):
         use_tz=None,
         autoescape=True,
     ):
+        """
+        Initializes a templating context with a given HTTP request and optional configuration parameters.
+
+        The provided request object allows the context to access request-specific data.
+        Optional dictionaries can be passed to extend the context with custom templating variables.
+        Processors can also be specified to modify the context's behavior.
+        Localization and timezone settings can be controlled via the use_l10n and use_tz parameters.
+        The autoescape parameter determines whether template variables should be automatically escaped for security.
+        The context is then updated with default values to ensure proper initialization.
+        """
         super().__init__(dict_, use_l10n=use_l10n, use_tz=use_tz, autoescape=autoescape)
         self.request = request
         self._processors = () if processors is None else tuple(processors)

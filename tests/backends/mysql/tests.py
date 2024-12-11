@@ -38,6 +38,16 @@ class IsolationLevelTests(TestCase):
 
     @staticmethod
     def get_isolation_level(connection):
+        """
+        Get the current isolation level of a database connection.
+
+        It retrieves the current transaction isolation level from the database, which defines the behavior of concurrent transactions.
+        The returned isolation level is a string representation, with hyphens replaced by spaces for readability.
+
+        :returns: The current isolation level of the database connection, such as \"Read Committed\" or \"Repeatable Read\". 
+        :param connection: A database connection object.
+        :rtype: str
+        """
         with connection.cursor() as cursor:
             cursor.execute(
                 "SHOW VARIABLES "
@@ -82,6 +92,13 @@ class IsolationLevelTests(TestCase):
 
     def test_default_isolation_level(self):
         # If not specified in settings, the default is read committed.
+        """
+        Tests the default isolation level of a database connection.
+
+        Verifies that when no explicit isolation level is specified, 
+        the connection defaults to the 'read committed' isolation level. 
+        The test checks that the actual isolation level matches the expected value.
+        """
         with get_connection() as new_connection:
             new_connection.settings_dict["OPTIONS"].pop("isolation_level", None)
             self.assertEqual(

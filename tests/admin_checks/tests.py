@@ -486,6 +486,16 @@ class SystemChecksTestCase(SimpleTestCase):
         self.assertEqual(errors, expected)
 
     def test_exclude_in_inline(self):
+        """
+
+        Tests that excluding fields in an inline admin interface correctly raises an error.
+
+        The function verifies that when the 'exclude' attribute in an inline class is not 
+        a list or tuple, a specific error is raised, ensuring that the interface is 
+        properly validated. This check ensures that the 'exclude' value is set according 
+        to the expected format, which is essential for proper admin interface functionality.
+
+        """
         class ExcludedFieldsInline(admin.TabularInline):
             model = Song
             exclude = "foo"
@@ -807,6 +817,9 @@ class SystemChecksTestCase(SimpleTestCase):
         self.assertEqual(errors, expected)
 
     def test_nonexistent_field_on_inline(self):
+        """
+        Tests that an error is raised when a nonexistent field is specified as a readonly field in an inline admin interface. This checks for the case where the readonly field does not exist as an attribute of the model or the inline class itself. The expected error message is verified to ensure it correctly identifies the non-existent field and provides a reference to the relevant admin check.
+        """
         class CityInline(admin.TabularInline):
             model = City
             readonly_fields = ["i_dont_exist"]  # Missing attribute
@@ -839,6 +852,13 @@ class SystemChecksTestCase(SimpleTestCase):
         )
 
     def test_extra(self):
+        """
+
+        Tests the functionality of the SongAdmin class, specifically the custom 'awesome_song' display function.
+        This test checks if the custom admin display function correctly categorizes a song as 'Best Ever!' when its title is 'Born to Run', 
+        and as 'Status unknown.' for other songs, and verifies that no errors occur during this process.
+
+        """
         class SongAdmin(admin.ModelAdmin):
             @admin.display
             def awesome_song(self, instance):
@@ -1018,6 +1038,11 @@ class SystemChecksTestCase(SimpleTestCase):
         self.assertEqual(errors, [])
 
     def test_related_field_list_display_wrong_field(self):
+        """
+        Tests that the ``list_display`` option in a ModelAdmin correctly raises an error when referencing a related field that does not exist. 
+
+        Specifically, it verifies that attempting to display a field on a related model that is not an attribute, method, or field of the model being administered raises the expected ``admin.E108`` error. This ensures that the ModelAdmin validation correctly identifies and reports invalid field references in the ``list_display`` option.
+        """
         class SongAdmin(admin.ModelAdmin):
             list_display = ["pk", "original_release", "album__hello"]
 

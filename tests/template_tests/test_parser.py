@@ -30,6 +30,14 @@ class ParserTests(SimpleTestCase):
         )
 
     def test_repr(self):
+        """
+        Tests the representation of various objects in the parsing system.
+
+        This function verifies that the string representation of tokens, parsers, filter expressions, and lexers is correctly formatted.
+        It checks that the repr() method returns a human-readable string that accurately reflects the contents of each object.
+        The test includes cases for tokens, parsers with built-in filters, filter expressions, and lexers with template strings.
+        Ensures that the representation of these objects is consistent and useful for debugging purposes.
+        """
         token = Token(TokenType.BLOCK, "some text")
         self.assertEqual(repr(token), '<Block token: "some text...">')
         parser = Parser([token], builtins=[filter_library])

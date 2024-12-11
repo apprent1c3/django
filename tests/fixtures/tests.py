@@ -581,6 +581,15 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
         )
 
     def test_dumpdata_with_filtering_manager(self):
+        """
+
+        Tests that dumpdata works correctly with a custom manager that filters out objects.
+
+        This test creates two Spy objects, one with cover blown and one without, and checks that 
+        dumpdata only includes the object that is not filtered out by the manager. It also 
+        verifies that using the base manager includes both objects in the dumpdata output.
+
+        """
         spy1 = Spy.objects.create(name="Paul")
         spy2 = Spy.objects.create(name="Alex", cover_blown=True)
         self.assertSequenceEqual(Spy.objects.all(), [spy1])
@@ -711,6 +720,20 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
 
     @unittest.skipUnless(HAS_BZ2, "No bz2 library detected.")
     def test_dumpdata_with_file_bz2_output(self):
+        """
+        Tests the dumpdata management command with bz2 compressed file output.
+
+        This test loads fixture data, then verifies that the dumpdata command correctly
+         serializes the data to a bz2 compressed JSON file. The test checks the contents
+        of the resulting file against an expected output, ensuring that the data is
+        correctly formatted and includes all expected fields and values. The test requires
+        the bz2 library to be available.
+
+        :raises AssertionError: If the output of the dumpdata command does not match the
+            expected output.
+        :requires: The bz2 library must be installed and available.
+
+        """
         management.call_command("loaddata", "fixture1.json", verbosity=0)
         self._dumpdata_assert(
             ["fixtures"],
@@ -876,6 +899,17 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
 
     @unittest.skipUnless(HAS_BZ2, "No bz2 library detected.")
     def test_compressed_loading_bz2(self):
+        """
+
+        Tests the ability to load compressed fixtures using the bz2 format.
+
+        Verifies that the loaddata management command can correctly load and process
+        data from a compressed JSON file. The test checks that the loaded data is
+        accurate by verifying the headline of the loaded Article object.
+
+        Requires the bz2 library to be available.
+
+        """
         management.call_command("loaddata", "fixture5.json.bz2", verbosity=0)
         self.assertEqual(
             Article.objects.get().headline,
@@ -884,6 +918,17 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
 
     @unittest.skipUnless(HAS_LZMA, "No lzma library detected.")
     def test_compressed_loading_lzma(self):
+        """
+
+        Test case for loading compressed fixture data using lzma compression.
+
+        Verifies that the :func:`loaddata` management command can successfully load compressed data 
+        from a fixture file with an lzma extension. The test asserts that the loaded data is correct 
+        by checking the headline of the first article object in the database.
+
+        Requires the lzma library to be available.
+
+        """
         management.call_command("loaddata", "fixture5.json.lzma", verbosity=0)
         self.assertEqual(
             Article.objects.get().headline,
@@ -1001,6 +1046,17 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
 
     def test_output_formats(self):
         # Load back in fixture 1, we need the articles from it
+        """
+        Tests the output formats of fixtures loaded into the database.
+
+        This test case loads a set of fixtures into the database and then verifies that the queryset of all tags matches the expected output. 
+        It also checks the output of the dumpdata management command in JSON and XML formats, ensuring that the data is correctly serialized 
+        and that natural foreign keys are properly represented. 
+
+        The test covers the expected behavior of the loaddata and dumpdata commands, as well as the correct representation of data in different formats. 
+
+        Please note that this test relies on specific fixtures and database setup, which should be present for the test to run successfully.
+        """
         management.call_command("loaddata", "fixture1", verbosity=0)
 
         # Try to load fixture 6 using format discovery
@@ -1083,6 +1139,15 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
         )
 
     def test_loading_with_exclude_app(self):
+        """
+        Tests the loading of fixtures while excluding specific apps.
+
+        This test case verifies that data is loaded correctly from a fixture file, 
+        while excluding certain applications. It checks that no data is loaded 
+        for the excluded apps (Article, Category) and that the data for the 
+        included apps (Site) is loaded as expected. The test also ensures that 
+        the site domain is set to the correct value ('example.com').
+        """
         Site.objects.all().delete()
         management.call_command(
             "loaddata", "fixture1", exclude=["fixtures"], verbosity=0
@@ -1313,6 +1378,14 @@ class ForwardReferenceTests(DumpDataAssertMixin, TestCase):
 
 class CircularReferenceTests(DumpDataAssertMixin, TestCase):
     def test_circular_reference(self):
+        """
+        Tests the handling of circular references between models.
+
+        Verifies that two models, CircularA and CircularB, can be successfully loaded from a fixture and that their references to each other are correctly established.
+        Also checks that dumping these models to a data fixture results in the expected JSON output, ensuring that the circular references are properly represented.
+
+        This test case covers the scenario where two models have foreign keys referencing each other, and validates the ability to load and dump such models correctly.
+        """
         management.call_command("loaddata", "circular_reference.json", verbosity=0)
         obj_a = CircularA.objects.get()
         obj_b = CircularB.objects.get()

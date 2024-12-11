@@ -83,6 +83,15 @@ class ShellCommandTestCase(SimpleTestCase):
     @mock.patch("django.core.management.commands.shell.select.select")  # [1]
     @mock.patch.dict("sys.modules", {"IPython": None})
     def test_shell_with_ipython_not_installed(self, select):
+        """
+        Tests the Django shell command when IPython interface is not installed.
+
+        This test case simulates the scenario where IPython is not available, 
+        and verifies that the 'shell' command raises a CommandError with an appropriate message when attempting to use the IPython interface.
+
+        The test mocks the 'select' function and sets 'IPython' to None in sys.modules to emulate the absence of IPython, 
+        then checks for the expected error message when calling the 'shell' command with the 'ipython' interface specified.
+        """
         select.return_value = ([], [], [])
         with self.assertRaisesMessage(
             CommandError, "Couldn't import ipython interface."
@@ -90,6 +99,15 @@ class ShellCommandTestCase(SimpleTestCase):
             call_command("shell", interface="ipython")
 
     def test_bpython(self):
+        """
+
+        Tests the functionality of the bpython command.
+
+        This test case verifies that the bpython command is executed correctly by mocking the bpython module and checking if the embed function is called as expected.
+
+        The test scenario simulates the execution of the bpython command and confirms that it invokes the embed function from the bpython module, ensuring the correct interaction between the command and the bpython interpreter.
+
+        """
         cmd = shell.Command()
         mock_bpython = mock.Mock(embed=mock.MagicMock())
 
@@ -101,6 +119,13 @@ class ShellCommandTestCase(SimpleTestCase):
     @mock.patch("django.core.management.commands.shell.select.select")  # [1]
     @mock.patch.dict("sys.modules", {"bpython": None})
     def test_shell_with_bpython_not_installed(self, select):
+        """
+        Tests the shell command when bpython is specified as the interface but is not installed.
+
+        Verifies that the command raises a CommandError with a message indicating that the bpython interface could not be imported, when attempting to use it without having bpython installed.
+
+        This test ensures that the shell command behaves correctly and provides a meaningful error message when the selected interface is unavailable due to missing dependencies.
+        """
         select.return_value = ([], [], [])
         with self.assertRaisesMessage(
             CommandError, "Couldn't import bpython interface."

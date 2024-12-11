@@ -195,6 +195,18 @@ class SimpleTagTests(TagTestCase):
 
     def test_simple_tag_explicit_escaping(self):
         # Check we don't double escape
+        """
+
+        Tests rendering of a template with explicit escaping enabled.
+
+        This test checks that variables in the template context are properly escaped
+        when the `escape_explicit` tag is used, replacing special characters with
+        their corresponding HTML entities.
+
+        For example, if the context contains a variable with the value 'Jack & Jill',
+        the rendered template should output 'Hello Jack &amp; Jill!'.
+
+        """
         c = Context({"name": "Jack & Jill"})
         t = self.engine.from_string("{% load custom %}{% escape_explicit %}")
         self.assertEqual(t.render(c), "Hello Jack &amp; Jill!")
@@ -223,6 +235,9 @@ class SimpleTagTests(TagTestCase):
 
     def test_simple_tag_missing_context(self):
         # The 'context' parameter must be present when takes_context is True
+        """
+        Checks that a simple tag defined with takes_context=True raises a TemplateSyntaxError when invoked without a context parameter.
+        """
         msg = (
             "'simple_tag_without_context_parameter' is decorated with "
             "takes_context=True so it must have a first argument of 'context'"
@@ -324,6 +339,18 @@ class InclusionTagTests(TagTestCase):
             self.assertEqual(t.render(c), entry[1])
 
     def test_inclusion_tag_errors(self):
+        """
+        Tests that various inclusion tags raise the expected TemplateSyntaxError 
+        when encountering incorrect argument or syntax usage.
+
+        These tests cover a range of common error scenarios, including:
+        - passing unexpected keyword arguments to an inclusion tag
+        - passing too many positional arguments to an inclusion tag
+        - omitting required arguments to an inclusion tag
+        - passing duplicate keyword arguments to an inclusion tag
+        - passing positional arguments after keyword arguments in an inclusion tag
+        - verifying that each error condition triggers the expected TemplateSyntaxError message
+        """
         errors = [
             (
                 "'inclusion_one_default' received unexpected keyword argument 'three'",
@@ -530,10 +557,24 @@ class InclusionTagTests(TagTestCase):
 class TemplateTagLoadingTests(SimpleTestCase):
     @classmethod
     def setUpClass(cls):
+        """
+        .. classmethod:: setUpClass()
+
+            A class method that sets up the class environment before running any tests.
+
+            This method initializes the egg directory path and then calls the parent class's setUpClass method to continue with the setup process.
+
+            The egg directory is set to a path within the ROOT directory, providing a consistent location for storing eggs. 
+
+            This method is typically used to perform class-level setup tasks that should be executed once before all tests in the class are run.
+        """
         cls.egg_dir = os.path.join(ROOT, "eggs")
         super().setUpClass()
 
     def test_load_error(self):
+        """
+        Tests that an InvalidTemplateLibrary exception is raised with a specific error message when attempting to load a template library that contains an invalid tag, simulating an import error.
+        """
         msg = (
             "Invalid template library specified. ImportError raised when "
             "trying to load 'template_tests.broken_tag': cannot import name "

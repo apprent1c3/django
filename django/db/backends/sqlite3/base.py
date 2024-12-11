@@ -356,6 +356,26 @@ class SQLiteCursorWrapper(Database.Cursor):
     def executemany(self, query, param_list):
         # Extract names if params is a mapping, i.e. "pyformat" style is used.
         # Peek carefully as a generator can be passed instead of a list/tuple.
+        """
+
+        Execute multiple queries with the given parameters.
+
+        This method allows executing a single SQL query multiple times with different sets of parameters.
+        It takes a SQL query string and a list of parameters, where each parameter can be either a mapping (e.g., dictionary)
+        or a sequence of values. If the first parameter is a mapping, its keys are used as parameter names in the query.
+        Otherwise, the parameter names are not inferred.
+
+        The method converts the query to a format suitable for execution with the given parameters and then calls the
+        underlying database driver's executemany method to perform the actual execution.
+
+        Args:
+            query (str): The SQL query string to be executed.
+            param_list (iterable): A list of parameters, where each parameter can be a mapping or a sequence of values.
+
+        Returns:
+            The result of the execution, as returned by the underlying database driver's executemany method.
+
+        """
         peekable, param_list = tee(iter(param_list))
         if (params := next(peekable, None)) and isinstance(params, Mapping):
             param_names = list(params)

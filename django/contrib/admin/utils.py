@@ -78,6 +78,22 @@ def prepare_lookup_value(key, value, separator=","):
 
 
 def build_q_object_from_lookup_parameters(parameters):
+    """
+    Constructs a Django Q object from a dictionary of lookup parameters.
+
+    This function takes a dictionary where keys are model field names and values are lists of values to be looked up.
+    It returns a Q object that ORs each value in the list for each field, effectively creating an AND relation between fields.
+
+    For example, given a dictionary {'field1': ['value1', 'value2'], 'field2': ['value3']}, the resulting Q object will match any object where field1 is 'value1' or 'value2' and field2 is 'value3'.
+
+    The returned Q object can be used directly in a Django ORM query to filter objects based on the specified lookup parameters.\"\"\"
+
+        Parameters:
+            parameters (dict): A dictionary of lookup parameters where keys are model field names and values are lists of values to be looked up.
+
+        Returns:
+            django.db.models.Q: A Q object representing the constructed query.
+    """
     q_object = models.Q()
     for param, param_item_list in parameters.items():
         q_object &= reduce(or_, (models.Q((param, item)) for item in param_item_list))
@@ -139,6 +155,16 @@ def get_deleted_objects(objs, request, admin_site):
     perms_needed = set()
 
     def format_callback(obj):
+        """
+
+        Formats a callback to display an object's representation, potentially including 
+        an edit link to its administrative interface if the object's model is registered 
+        with the admin site and the user has permission to edit it.
+
+        :param obj: The object to format.
+        :return: A formatted string representing the object, possibly with an edit link.
+
+        """
         model = obj.__class__
         opts = obj._meta
 
@@ -415,6 +441,18 @@ def label_for_field(name, model, model_admin=None, return_attr=False, form=None)
 
 
 def help_text_for_field(name, model):
+    """
+
+    Retrieves the help text for a given field in a model.
+
+    :param name: The name of the field to retrieve help text for.
+    :param model: The model that contains the field.
+
+    :returns: The help text for the field, or an empty string if no help text is defined.
+
+    :note: The function will only retrieve help text for non-foreign key fields that exist in the model.
+
+    """
     help_text = ""
     try:
         field = _get_non_gfk_field(model._meta, name)
@@ -427,6 +465,23 @@ def help_text_for_field(name, model):
 
 
 def display_for_field(value, field, empty_value_display):
+    """
+    Display a field value in a human-readable format.
+
+    The display format is determined by the type of field. For example, boolean fields are displayed 
+    as icons, datetime fields are displayed in the local timezone, and decimal fields are displayed 
+    with a specified number of decimal places. If the field has a set of choices, the value is 
+    displayed as the human-readable name of the choice. If the value is empty, a custom display 
+    text can be provided.
+
+    This function is useful for displaying field values in the Django admin interface or other 
+    templates where a human-readable format is required.
+
+    :param value: The value to be displayed
+    :param field: The field that the value belongs to
+    :param empty_value_display: The text to display if the value is empty
+    :return: The displayed value as a string
+    """
     from django.contrib.admin.templatetags.admin_list import _boolean_icon
 
     if getattr(field, "flatchoices", None):

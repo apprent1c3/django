@@ -253,6 +253,19 @@ class TestConnectionOnCommit(TransactionTestCase):
 
     def test_hook_in_hook(self):
         def on_commit(i, add_hook):
+            """
+
+            Trigger a database transaction to create a new Thing instance and notify with its value.
+
+            This function operates within a database transaction to ensure atomicity. It creates a new
+            Thing instance with a specified number and notifies with this number. If add_hook is True,
+            it also schedules a recursive call to itself with an incremented number after the current
+            transaction is committed, effectively creating a sequence of Thing instances.
+
+            :param i: The number to use for the new Thing instance.
+            :param add_hook: A flag indicating whether to schedule a recursive call after transaction commit.
+
+            """
             with transaction.atomic():
                 if add_hook:
                     transaction.on_commit(lambda: on_commit(i + 10, False))

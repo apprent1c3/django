@@ -472,6 +472,21 @@ class LoaderTests(TestCase):
         INSTALLED_APPS=["migrations"],
     )
     def test_check_consistent_history(self):
+        """
+        Tests the check_consistent_history method of the MigrationLoader class.
+
+        This test case verifies that the check_consistent_history method correctly raises an
+        InconsistentMigrationHistory exception when a migration is applied before its dependency.
+
+        The test scenario involves applying a migration (0002_second) before its dependency
+        (0001_initial) and then checking the consistency of the migration history. The expected
+        result is an InconsistentMigrationHistory exception with a message indicating the
+        inconsistent migration.
+
+        The test covers an essential aspect of the MigrationLoader's functionality, ensuring
+        that the migration history is correctly validated and exceptions are raised when
+        inconsistencies are detected.
+        """
         loader = MigrationLoader(connection=None)
         loader.check_consistent_history(connection)
         recorder = MigrationRecorder(connection)

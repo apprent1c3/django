@@ -28,6 +28,16 @@ class RecursiveM2MTests(TestCase):
 
     def test_recursive_m2m_reverse_add(self):
         # Add m2m for Anne in reverse direction.
+        """
+
+        Tests the reverse addition of a many-to-many relationship.
+
+        Checks that adding an object to the 'friends' relationship of another object
+        correctly updates the reverse relationship, ensuring that both sides of the
+        relationship are in sync. Specifically, verifies that the 'friends' attribute
+        of the original object contains all expected related objects after the addition.
+
+        """
         self.b.friends.add(self.a)
         self.assertSequenceEqual(self.a.friends.all(), [self.b, self.c, self.d])
         self.assertSequenceEqual(self.b.friends.all(), [self.a])
@@ -114,6 +124,17 @@ class RecursiveSymmetricalM2MThroughTests(TestCase):
 
     def test_recursive_m2m_clear(self):
         # Clear m2m for Anne.
+        """
+
+        Tests the clearing of recursive many-to-many relationships.
+
+        Verifies that when the colleagues of an instance are cleared, the corresponding
+        many-to-many relationships with other instances are correctly updated.
+        Specifically, it checks that the cleared instance no longer appears in the
+        colleagues of related instances, and that the relationships between other
+        instances remain intact.
+
+        """
         self.a.colleagues.clear()
         self.assertSequenceEqual(self.a.friends.all(), [])
         # Reverse m2m relationships is removed.

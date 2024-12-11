@@ -57,6 +57,27 @@ class ForceTests(TestCase):
 
 class InheritanceTests(TestCase):
     def test_force_update_on_inherited_model(self):
+        """
+        Tests the forced update functionality on an inherited model.
+
+        This test case verifies that the model is correctly updated when the force_update flag is set to True.
+        It checks the behavior of the save method when called with and without the force_update parameter on an inherited model instance.
+        The test ensures that the model's data is updated correctly in the database, even when the instance is already persisted.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            None
+
+        Note:
+            This test case is designed to ensure the correct functionality of the save method with force_update on inherited models.
+            It assumes the existence of a model named InheritedCounter and a database setup to store its instances.
+
+        """
         a = InheritedCounter(name="count", value=1, tag="spam")
         a.save()
         a.save(force_update=True)
@@ -88,6 +109,16 @@ class ForceInsertInheritanceTests(TestCase):
             Counter().save(force_insert=[])
 
     def test_force_insert_not_model(self):
+        """
+        Tests that the force_insert parameter of the save method raises a TypeError 
+        when it contains non-model objects. 
+
+        The test covers two cases: when the force_insert parameter contains a built-in 
+        object and when it contains an instance of a model class. 
+
+        It verifies that a TypeError is raised with a message indicating that the 
+        force_insert member must be a model subclass in both scenarios.
+        """
         msg = f"Invalid force_insert member. {object!r} must be a model subclass."
         with self.assertRaisesMessage(TypeError, msg), transaction.atomic():
             Counter().save(force_insert=(object,))

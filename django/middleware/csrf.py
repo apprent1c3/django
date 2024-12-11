@@ -207,6 +207,16 @@ class CsrfViewMiddleware(MiddlewareMixin):
         return None
 
     def _reject(self, request, reason):
+        """
+
+        Handles a request rejection by generating a failure response and logging the event.
+
+        :param request: The incoming request to be rejected.
+        :param reason: The reason for rejecting the request.
+
+        :return: A response object indicating the rejection, which includes the reason for the rejection.
+
+        """
         response = _get_failure_view()(request, reason=reason)
         log_response(
             "Forbidden (%s): %s",
@@ -251,6 +261,13 @@ class CsrfViewMiddleware(MiddlewareMixin):
         return csrf_secret
 
     def _set_csrf_cookie(self, request, response):
+        """
+        Sets the CSRF cookie in the response based on the configured CSRF settings.
+
+        When using session-based CSRF, updates the session with the current CSRF token if it has changed.
+        When using cookie-based CSRF, sets the CSRF cookie in the response with the current token and configured cookie settings.
+        The response headers are updated to reflect the change in cookies.
+        """
         if settings.CSRF_USE_SESSIONS:
             if request.session.get(CSRF_SESSION_KEY) != request.META["CSRF_COOKIE"]:
                 request.session[CSRF_SESSION_KEY] = request.META["CSRF_COOKIE"]
@@ -295,6 +312,23 @@ class CsrfViewMiddleware(MiddlewareMixin):
         )
 
     def _check_referer(self, request):
+        """
+
+        Checks the referer of an incoming request to ensure it meets security requirements.
+
+        The referer is checked for the following conditions:
+        - It must be present in the request
+        - It must be a valid URL
+        - It must use a secure scheme (https)
+        - It must be from a trusted origin
+
+        If the referer does not meet these conditions, a RejectRequest exception is raised with a descriptive reason.
+
+        This check is used to protect against Cross-Site Request Forgery (CSRF) attacks by verifying the origin of the request. The trusted origins are defined by the csrf_trusted_origins_hosts attribute, as well as the session and csrf cookie domains.
+
+        The check also considers the server's port number when comparing the referer's domain with the server's domain, to ensure a match.
+
+        """
         referer = request.META.get("HTTP_REFERER")
         if referer is None:
             raise RejectRequest(REASON_NO_REFERER)
@@ -412,6 +446,24 @@ class CsrfViewMiddleware(MiddlewareMixin):
                 request.META["CSRF_COOKIE"] = csrf_secret
 
     def process_view(self, request, callback, callback_args, callback_kwargs):
+        """
+        '''
+        Checks a request for CSRF protection and decides whether to accept or reject it.
+
+        This function performs several checks to verify the authenticity and security of a request.
+        It first checks if CSRF processing has already been done, if the callback is exempt from CSRF checks, 
+        or if the request method is one that does not require CSRF protection (e.g., GET, HEAD, OPTIONS, TRACE).
+        If any of these conditions are met, it returns None.
+
+        Next, it checks the request's origin and referer to ensure they match the expected values.
+        If the origin or referer is invalid, it rejects the request with a corresponding reason.
+
+        Finally, it checks the request's CSRF token to ensure it matches the expected token.
+        If the token is invalid, it rejects the request with a reason indicating the token mismatch.
+
+        If all checks pass, the function accepts the request.
+        '''
+        """
         if getattr(request, "csrf_processing_done", False):
             return None
 

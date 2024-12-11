@@ -37,6 +37,17 @@ class GenericIPAddressFieldTests(TestCase):
         self.assertIsNone(o.ip)
 
     def test_save_load(self):
+        """
+        Tests the ability to save and load a GenericIPAddress instance.
+
+        Verifies that an instance of GenericIPAddress can be successfully created, saved, 
+        and then loaded from the database, ensuring that the IP address is preserved 
+        during this process.
+
+        The test checks for data consistency by comparing the IP address of the 
+        originally created instance with the IP address of the loaded instance.
+
+        """
         instance = GenericIPAddress.objects.create(ip="::1")
         loaded = GenericIPAddress.objects.get()
         self.assertEqual(loaded.ip, instance.ip)

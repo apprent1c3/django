@@ -65,6 +65,15 @@ class ExtractingStringsWithPercentSigns(POFileAssertionMixin, FrenchTestCase):
         )
 
     def test_adds_python_format_to_all_percent_signs(self):
+        """
+        Tests that all percent signs (%) in messages are properly formatted for Python.
+
+        Verifies that single and multiple percent signs are corrected to their 
+        Python-compatible equivalents, ensuring the output is correctly formatted 
+        and interpreted as Python code. The test checks various cases of percent 
+        sign occurrences to guarantee the function handles different scenarios 
+        correctly, including names and values inserted with the %(name)s syntax.
+        """
         self.assertMsgId(
             "1 percent sign %%, 2 percent signs %%%%, 3 percent signs %%%%%%",
             self.po_contents,
@@ -167,6 +176,20 @@ class RenderingTemplatesWithPercentSigns(FrenchTestCase):
         self.assertEqual(block_tpl.render(Context({})), expected)
 
     def test_translates_multiple_percent_signs(self):
+        """
+
+        Tests that multiple percent signs are correctly translated in template translations.
+
+        The function checks that both the `translate` and `blocktranslate` template tags
+        correctly handle strings containing multiple percent signs, ensuring that they
+        are translated properly and that any remaining percent signs are preserved in
+        the output.
+
+        It verifies that the translation is correct for different input strings and
+        template contexts, including strings with one, two, or three percent signs, as
+        well as strings that include template variables.
+
+        """
         expected = (
             "1 % signe pour cent, signes %% 2 pour cent, trois signes de pourcentage "
             "%%%"

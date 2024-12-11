@@ -955,6 +955,17 @@ class GDALBandTests(SimpleTestCase):
         self.assertEqual(rsmem.bands[0].statistics(), (None, None, None, None))
 
     def test_band_delete_nodata(self):
+        """
+        .. method:: test_band_delete_nodata
+
+            Tests the deletion of a no-data value from a raster band.
+
+            This test case creates a GDALRaster object with a single band containing no-data value, 
+            then removes the no-data value and asserts that it is successfully deleted. 
+
+            The test validates the functionality of resetting a no-data value to no value (i.e., None) 
+            in a raster band, ensuring proper handling of missing or undefined data.
+        """
         rsmem = GDALRaster(
             {
                 "srid": 4326,

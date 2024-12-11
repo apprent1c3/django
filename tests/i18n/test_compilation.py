@@ -31,6 +31,16 @@ class PoFileTests(MessageCompilationTests):
     MO_FILE_EN = "locale/en/LC_MESSAGES/django.mo"
 
     def test_bom_rejection(self):
+        """
+        Tests the rejection of a Byte Order Mark (BOM) in compiled message files.
+
+        This test case verifies that when a compilation error occurs due to the presence of a BOM, 
+        the `compilemessages` command returns an error message and does not generate the compiled message file.
+
+        The expected error message indicates that `compilemessages` generated one or more errors, 
+        and the specific error related to the BOM is checked for in the standard error output. 
+        Additionally, it confirms that the compiled message file is not created in the presence of a BOM.
+        """
         stderr = StringIO()
         with self.assertRaisesMessage(
             CommandError, "compilemessages generated one or more errors."
@@ -97,6 +107,21 @@ class MultipleLocaleCompilationTests(MessageCompilationTests):
             self.assertTrue(os.path.exists(self.MO_FILE_HR))
 
     def test_multiple_locales(self):
+        """
+        Tests the compilation of translation messages for multiple locales.
+
+        This test case verifies that the compilemessages command successfully generates
+        compiled translation files (.mo) for the specified locales.
+
+        It checks for the existence of the compiled translation files after running the
+        command for the 'hr' and 'fr' locales, ensuring that the translation messages
+        are correctly compiled and written to the expected file locations.
+
+        The test demonstrates the functionality of compiling translation messages for
+        multiple languages, providing a means to ensure that translations are properly
+        handled in the application.
+
+        """
         with override_settings(LOCALE_PATHS=[os.path.join(self.test_dir, "locale")]):
             call_command("compilemessages", locale=["hr", "fr"], verbosity=0)
 

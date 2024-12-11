@@ -45,6 +45,24 @@ class MyWrapperField(models.CharField):
         return MyWrapper(value)
 
     def get_db_prep_save(self, value, connection):
+        """
+        Prepares a value for saving to the database.
+
+        Takes a value and a database connection as input, and returns the value
+        in a format suitable for saving to the database. If the value is an
+        instance of MyWrapper, it is converted to a string representation. If
+        the value is empty or None, no value is returned.
+
+        This method is used to ensure that values are properly formatted before
+        being saved to the database, and to handle any necessary data type
+        conversions. It is intended for internal use by the class, and should
+        not be called directly by external code. 
+
+        :returns: The prepared value, or None if the input value is empty.
+        :param value: The value to be prepared for saving.
+        :param connection: The database connection being used.
+
+        """
         if not value:
             return
         if isinstance(value, MyWrapper):
@@ -66,6 +84,18 @@ class MyAutoField(models.BigAutoField):
         return MyWrapper(value)
 
     def get_prep_value(self, value):
+        """
+
+        Returns the prepared value, converting it to an integer if possible.
+
+        The prepared value is the input value converted into a suitable format for
+        further processing. If the input value is None, the function returns None.
+        Otherwise, it attempts to convert the value to an integer and returns the result.
+
+        :returns: The prepared value, or None if the input value is None
+        :rtype: int or None
+
+        """
         if value is None:
             return None
         return int(value)

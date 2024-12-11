@@ -539,6 +539,18 @@ class ChunkIter:
     """
 
     def __init__(self, flo, chunk_size=64 * 1024):
+        """
+        Initialize the object with a file-like object and optional chunk size.
+
+        The file-like object is stored for future use, allowing the object to interact with it.
+        The chunk size determines the amount of data to be processed at a time, which can be
+        adjusted for performance or memory considerations. The default chunk size is 64KB.
+
+        Args:
+            flo: A file-like object to be associated with the object.
+            chunk_size (int): The size of each chunk of data in bytes, default is 64 * 1024 (64KB).
+
+        """
         self.flo = flo
         self.chunk_size = chunk_size
 
@@ -748,6 +760,18 @@ class Parser:
         self._separator = b"--" + boundary
 
     def __iter__(self):
+        """
+
+        Returns an iterator over the parsed boundary streams in the underlying stream.
+
+        The iterator splits the stream into sub-streams based on the specified separator and
+        yields the parsed contents of each sub-stream. The parsing process is limited by a
+        maximum total header size to prevent excessive resource usage.
+
+        Yields:
+            The parsed boundary stream objects.
+
+        """
         boundarystream = InterBoundaryIter(self._stream, self._separator)
         for sub_stream in boundarystream:
             # Iterate over each part

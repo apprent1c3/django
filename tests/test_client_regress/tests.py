@@ -971,6 +971,16 @@ class SessionTests(TestDataMixin, TestCase):
         "Request a logout after logging in with custom authentication backend"
 
         def listener(*args, **kwargs):
+            """
+            A signal listener function that verifies the sender of a signal.
+
+            This function listens for signals and checks if the sender is an instance of :class:`CustomUser`.
+            It sets the :attr:`executed` attribute to True after execution, indicating that the listener has been triggered.
+
+            :param args: Variable number of positional arguments (not used)
+            :param kwargs: Keyword arguments, including 'sender' which is expected to be a :class:`CustomUser` instance
+
+            """
             self.assertEqual(kwargs["sender"], CustomUser)
             listener.executed = True
 
@@ -989,6 +999,13 @@ class SessionTests(TestDataMixin, TestCase):
         """Logout should send signal even if user not authenticated."""
 
         def listener(user, *args, **kwargs):
+            """
+            :param user: The user associated with this listener
+            :param args: Variable number of non-keyword arguments (not used)
+            :param kwargs: Variable number of keyword arguments (not used)
+            :returns: None
+            :note: Sets the user attribute of the listener and marks it as executed. This function is used to record the listener's state when an event occurs.
+            """
             listener.user = user
             listener.executed = True
 
@@ -1127,6 +1144,14 @@ class RequestMethodStringDataTests(SimpleTestCase):
         self.assertEqual(response.content, b"{'value': 37}")
 
     def test_json(self):
+        """
+        Tests the JSON response of the application.
+
+        This test case sends a GET request to the '/json_response/' endpoint and verifies that the response is in JSON format with the expected key-value pair.
+
+        :raises AssertionError: If the response JSON does not match the expected output.
+
+        """
         response = self.client.get("/json_response/")
         self.assertEqual(response.json(), {"key": "value"})
 
@@ -1168,6 +1193,17 @@ class RequestMethodStringDataTests(SimpleTestCase):
 )
 class QueryStringTests(SimpleTestCase):
     def test_get_like_requests(self):
+        """
+        Tests the handling of HTTP GET and HEAD requests with query string parameters.
+
+        This test covers the following scenarios:
+            - Sending query string parameters in the URL.
+            - Sending query string parameters in the request body.
+            - Sending both URL and body parameters with the same key.
+            - Sending both URL and body parameters with different keys.
+
+        Verifies that the server correctly prioritizes and processes the query string parameters in the request.
+        """
         for method_name in ("get", "head"):
             # A GET-like request can pass a query string as data (#10571)
             method = getattr(self.client, method_name)

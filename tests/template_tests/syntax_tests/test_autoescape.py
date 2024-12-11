@@ -8,6 +8,19 @@ from ..utils import SafeClass, UnsafeClass, setup
 class AutoescapeTagTests(SimpleTestCase):
     @setup({"autoescape-tag01": "{% autoescape off %}hello{% endautoescape %}"})
     def test_autoescape_tag01(self):
+        """
+        Tests the autoescape functionality in template rendering.
+
+        This test checks if the autoescape tag is correctly interpreted and removed
+        from the output. It verifies that the rendered string matches the expected
+        output when autoescape is turned off.
+
+        The expected behavior is that the autoescape tag is ignored and the content
+        within the tag is rendered as-is, without any escaping.
+
+        :raises AssertionError: If the rendered output does not match the expected string.
+
+        """
         output = self.engine.render_to_string("autoescape-tag01")
         self.assertEqual(output, "hello")
 
@@ -56,6 +69,10 @@ class AutoescapeTagTests(SimpleTestCase):
 
     @setup({"autoescape-tag07": "{% autoescape on %}{{ first }}{% endautoescape %}"})
     def test_autoescape_tag07(self):
+        """
+        Tests the behavior of the autoescape tag when it is enabled and provided with a markup string that has already been marked as safe.
+        The function checks that rendering a template with the autoescape tag set to 'on' and a variable marked as safe (in this case, containing HTML) results in the HTML being output unchanged, confirming that the autoescape mechanism correctly handles pre-escaped input.
+        """
         output = self.engine.render_to_string(
             "autoescape-tag07", {"first": mark_safe("<b>Apple</b>")}
         )
@@ -80,6 +97,16 @@ class AutoescapeTagTests(SimpleTestCase):
     # won't get double-escaped.
     @setup({"autoescape-tag09": r"{{ unsafe }}"})
     def test_autoescape_tag09(self):
+        """
+        Tests the autoescape functionality with a custom tag.
+
+        This test case verifies that the autoescape feature correctly escapes unsafe input
+        when using a custom tag. The test input contains an instance of UnsafeClass, which
+        should be properly escaped to prevent any potential security vulnerabilities.
+
+        The expected output is a string where any unsafe characters have been properly
+        escaped, resulting in 'you &amp; me'.
+        """
         output = self.engine.render_to_string(
             "autoescape-tag09", {"unsafe": UnsafeClass()}
         )

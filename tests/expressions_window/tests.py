@@ -355,6 +355,19 @@ class WindowFunctionTests(TestCase):
         )
 
     def test_order_by_decimalfield(self):
+        """
+
+        Tests the ordering of a queryset by a DecimalField.
+
+        This test verifies that a queryset of Employee objects can be ordered in descending
+        order by the 'bonus' field, which is a DecimalField, and then by the 'id' field.
+        The test also annotates each object with a 'rank' based on its position in the ordered
+        queryset, ensuring that the ranking is correct even when there are tied values.
+
+        The test case includes a variety of bonus values to ensure that the ordering is
+        correct for different decimal values, including values with multiple decimal places.
+
+        """
         qs = Employee.objects.annotate(
             rank=Window(expression=Rank(), order_by="bonus")
         ).order_by("-bonus", "id")
@@ -1055,6 +1068,15 @@ class WindowFunctionTests(TestCase):
         )
 
     def test_filter_select_related(self):
+        """
+
+        Test the filtering of employee querysets using select_related.
+
+        This test case verifies that the `select_related` method can be used in conjunction with a window function to filter employees based on their age relative to the average age in their department.
+
+        The test checks that the filtered queryset contains the expected employees, and that the classification of an employee can be accessed without generating an additional database query.
+
+        """
         qs = (
             Employee.objects.alias(
                 department_avg_age_diff=(
@@ -1809,6 +1831,15 @@ class WindowFunctionTests(TestCase):
             )
 
     def test_invalid_start_end_value_for_row_range(self):
+        """
+        Tests that a ValueError is raised when the start value is greater than the end value in a RowRange frame.
+
+        The test case verifies that the Window function with a RowRange frame correctly raises an error when the start value exceeds the end value.
+
+        The expected error message is 'start cannot be greater than end.', which indicates that the function behaves as expected when given invalid range values.
+
+        This test ensures that the Window function is validated correctly and provides informative error messages when used with invalid arguments.
+        """
         msg = "start cannot be greater than end."
         with self.assertRaisesMessage(ValueError, msg):
             list(
@@ -1822,6 +1853,16 @@ class WindowFunctionTests(TestCase):
             )
 
     def test_invalid_type_end_value_range(self):
+        """
+
+         Tests that a ValueError is raised when an invalid type is provided for the end value of a Window frame range.
+
+         The function checks that the end value of the Window frame range is either a positive integer, zero, or None.
+         If the end value is of any other type, it should raise a ValueError with a descriptive error message.
+
+         This test ensures that the Window frame range functionality is robust and handles invalid inputs correctly.
+
+        """
         msg = "end argument must be a positive integer, zero, or None, but got 'a'."
         with self.assertRaisesMessage(ValueError, msg):
             list(

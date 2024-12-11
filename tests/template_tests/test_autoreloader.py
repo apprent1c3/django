@@ -53,6 +53,13 @@ class TemplateReloadTests(SimpleTestCase):
     )
     @mock.patch("django.template.autoreload.reset_loaders")
     def test_non_template_changed_in_template_directory(self, mock_reset):
+        """
+
+        Tests that the autoreload mechanism does not incorrectly reload templates when a non-template file is changed within a template directory.
+
+        The test verifies that the template_changed function returns None when given a non-template file and that the reset_loaders function is not called, indicating that the template loaders are not reinitialized in this scenario.
+
+        """
         self.assertIsNone(autoreload.template_changed(None, Path(__file__)))
         mock_reset.assert_not_called()
 

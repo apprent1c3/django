@@ -105,6 +105,24 @@ class MeasureBase:
     # **** Operators methods ****
 
     def __add__(self, other):
+        """
+
+        Adds two instances of the class together, combining their standard values.
+
+        The addition operation is only supported between instances of the same class.
+        When adding two instances, the resulting instance will have the same default unit
+        as the original instances and the sum of their standard values.
+
+        Args:
+            other: The instance to add to the current instance.
+
+        Returns:
+            A new instance of the class with the combined standard value.
+
+        Raises:
+            TypeError: If the instance to add is not of the same class.
+
+        """
         if isinstance(other, self.__class__):
             return self.__class__(
                 default_unit=self._default_unit,

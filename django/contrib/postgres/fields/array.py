@@ -245,6 +245,19 @@ class ArrayRHSMixin:
     def __init__(self, lhs, rhs):
         # Don't wrap arrays that contains only None values, psycopg doesn't
         # allow this.
+        """
+
+        Initialize an array comparison expression.
+
+        This constructor takes two main parameters: the left-hand side (lhs) of the comparison and the right-hand side (rhs).
+        The rhs can be either a single value or a collection of values (such as a tuple or list).
+        If rhs is a collection, each value is wrapped in a Value object and combined into an array expression using the ARRAY function.
+        The resulting expression is then passed to the superclass constructor to finalize the initialization.
+
+        :param lhs: The left-hand side of the comparison
+        :param rhs: The right-hand side of the comparison, which can be a single value or a collection of values
+
+        """
         if isinstance(rhs, (tuple, list)) and any(self._rhs_not_none_values(rhs)):
             expressions = []
             for value in rhs:

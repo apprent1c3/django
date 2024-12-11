@@ -143,6 +143,22 @@ class OrderingTests(TestCase):
         self.assertSequenceEqual(queryset.reverse(), list(reversed(sequence)))
 
     def test_order_by_nulls_last(self):
+        """
+        Tests the usage of nulls_last parameter in ordering database queries.
+
+        This function verifies that the nulls_last parameter correctly handles the ordering of
+        querysets when null values are present. It checks both ascending and descending order
+        for different fields and functions, including the F expression, Upper function, and annotated fields.
+
+        The test cases cover the following scenarios:
+
+        - Ordering by a field with null values in descending order
+        - Ordering by a field with null values in ascending order
+        - Ordering by an annotated field derived from another field in both ascending and descending order
+        - Ordering by a function, such as Upper, in both ascending and descending order
+
+        The results are compared to the expected ordered results to ensure the correct behavior of the nulls_last parameter.
+        """
         Article.objects.filter(headline="Article 3").update(author=self.author_1)
         Article.objects.filter(headline="Article 4").update(author=self.author_2)
         # asc and desc are chainable with nulls_last.
@@ -371,6 +387,15 @@ class OrderingTests(TestCase):
         )
 
     def test_extra_ordering_with_table_name(self):
+        """
+
+        Tests the ability to apply custom ordering to query results using the extra method.
+
+        Checks if the ordering is applied correctly when using the 'ordering_article.headline' column,
+        both in ascending and descending order, ensuring that the resulting Article objects are retrieved
+        in the expected order based on their headline attribute.
+
+        """
         self.assertQuerySetEqual(
             Article.objects.extra(order_by=["ordering_article.headline"]),
             [
@@ -508,6 +533,25 @@ class OrderingTests(TestCase):
 
     def test_order_by_constant_value(self):
         # Order by annotated constant from selected columns.
+        """
+
+        Tests the ordering of QuerySets by constant values and fields.
+
+        Verifies that a QuerySet can be ordered by a constant value, 
+        followed by a field, and that the resulting sequence is correct.
+        Additionally, it checks that the order_by method can also accept 
+        a constant value as an argument and produce the same result.
+
+        The test case covers two scenarios:
+        1. using the annotate method to add a constant value to the QuerySet
+           and then ordering by this constant and a field.
+        2. directly passing a constant value to the order_by method along with a field.
+
+        In both cases, the test asserts that the QuerySet is ordered correctly 
+        by the constant value and the field, and that the resulting sequence 
+        of objects matches the expected order.
+
+        """
         qs = Article.objects.annotate(
             constant=Value("1", output_field=CharField()),
         ).order_by("constant", "-headline")
@@ -555,6 +599,16 @@ class OrderingTests(TestCase):
         )
 
     def test_order_by_ptr_field_with_default_ordering_by_expression(self):
+        """
+
+        Tests that ordering by a pointer field with a default ordering applied via an expression
+        works as expected.
+
+        The test creates several child article objects with varying headline and publication dates,
+        then orders them by their article pointer field. It verifies that the resulting sequence
+        matches the expected order, taking into account the default ordering rules.
+
+        """
         ca1 = ChildArticle.objects.create(
             headline="h2",
             pub_date=datetime(2005, 7, 27),
@@ -599,6 +653,17 @@ class OrderingTests(TestCase):
         )
 
     def test_order_by_grandparent_fk_with_expression_in_default_ordering(self):
+        """
+
+        Tests the ordering of OrderedByExpressionGrandChild objects based on the foreign key of their grandparent.
+
+        This test creates a hierarchy of OrderedByExpression, OrderedByExpressionChild, and OrderedByExpressionGrandChild objects.
+        It then verifies that the OrderedByExpressionGrandChild objects are ordered correctly based on their grandparent's name.
+
+        The test checks if the default ordering of the OrderedByExpressionGrandChild objects is maintained when ordered by the 'parent' 
+        attribute, which is a foreign key referencing the OrderedByExpressionChild model.
+
+        """
         p3 = OrderedByExpression.objects.create(name="oBJ 3")
         p2 = OrderedByExpression.objects.create(name="OBJ 2")
         p1 = OrderedByExpression.objects.create(name="obj 1")

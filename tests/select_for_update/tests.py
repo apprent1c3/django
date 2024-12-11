@@ -151,6 +151,13 @@ class SelectForUpdateTests(TransactionTestCase):
 
     @skipUnlessDBFeature("has_select_for_update_of")
     def test_for_update_sql_model_inheritance_generated_of(self):
+        """
+        Tests the SQL generation for selecting a model instance with a `FOR UPDATE` clause using model inheritance, specifically when specifying the `of` parameter. 
+
+        This test case ensures that the generated SQL query correctly locks the specified model instances for update, taking into account the database's capabilities regarding `SELECT... FOR UPDATE OF` syntax.
+
+        The test checks if the generated SQL query includes the expected columns or tables in the `FOR UPDATE OF` clause, depending on the database's support for this feature.
+        """
         with transaction.atomic(), CaptureQueriesContext(connection) as ctx:
             list(EUCountry.objects.select_for_update(of=("self",)))
         if connection.features.select_for_update_of_column:
@@ -240,6 +247,13 @@ class SelectForUpdateTests(TransactionTestCase):
 
     @skipUnlessDBFeature("has_select_for_update_of")
     def test_for_update_sql_model_proxy_generated_of(self):
+        """
+        Test the SQL generation for a model proxy when using `select_for_update` with the `of` parameter.
+
+        This test ensures that the database backend correctly generates the SQL query when selecting related models for update.
+        It verifies that the generated SQL query includes the correct locking mechanism, either by locking a specific column or the entire related model instance.
+        The test checks the resulting SQL query against expected output, which may vary depending on the database backend's support for column-level locking.
+        """
         with transaction.atomic(), CaptureQueriesContext(connection) as ctx:
             list(
                 CityCountryProxy.objects.select_related("country").select_for_update(
@@ -261,6 +275,19 @@ class SelectForUpdateTests(TransactionTestCase):
 
     @skipUnlessDBFeature("has_select_for_update_of")
     def test_for_update_of_followed_by_values_list(self):
+        """
+
+        Tests the behavior of select_for_update with the 'of' parameter 
+        when retrieving a list of values from the database.
+
+        The test case verifies that when using select_for_update with the 'of' 
+        parameter set to ('self',), it correctly locks the rows in the database 
+        table for the duration of the transaction and retrieves the expected values.
+
+        It checks that the list of primary key values matches the expected result 
+        after executing the query, ensuring that the locking mechanism works as expected.
+
+        """
         with transaction.atomic():
             values = list(
                 Person.objects.select_for_update(of=("self",)).values_list("pk")
@@ -514,6 +541,19 @@ class SelectForUpdateTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_select_for_update_with_limit")
     def test_select_for_update_with_limit(self):
+        """
+
+        Tests the functionality of select_for_update with a limit.
+
+        This test creates a new Person object and then uses a transaction to select 
+        the object for update, while ordering the results by primary key and limiting 
+        to a single result. The test verifies that the selected object is the newly 
+        created Person instance.
+
+        The test requires a database that supports the select_for_update_with_limit 
+        feature. If the database does not support this feature, the test will be skipped.
+
+        """
         other = Person.objects.create(name="Grappeli", born=self.city1, died=self.city2)
         with transaction.atomic():
             qs = list(Person.objects.order_by("pk").select_for_update()[1:2])

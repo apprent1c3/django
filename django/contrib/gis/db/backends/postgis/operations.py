@@ -170,6 +170,15 @@ class PostGISOperations(BaseSpatialOperations, DatabaseOperations):
 
     @cached_property
     def function_names(self):
+        """
+        Returns a dictionary mapping PostGIS-like function names to their actual PostGIS function names.
+
+        The dictionary contains a set of geometric function names that are used for conversion, creation and analysis of geometric data, and their corresponding PostGIS function names that can be used in queries.
+
+        For example, 'AsWKB' is mapped to 'ST_AsBinary', and 'FromWKT' is mapped to 'ST_GeomFromText'. 
+
+        This dictionary can be used to look up the actual PostGIS function name for a given PostGIS-like function name, allowing for more flexible and readable queries.
+        """
         function_names = {
             "AsWKB": "ST_AsBinary",
             "AsWKT": "ST_AsText",

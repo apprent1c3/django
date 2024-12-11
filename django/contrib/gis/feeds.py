@@ -90,6 +90,20 @@ class GeoFeedMixin:
 # ### SyndicationFeed subclasses ###
 class GeoRSSFeed(Rss201rev2Feed, GeoFeedMixin):
     def rss_attributes(self):
+        """
+
+        Returns a dictionary of RSS attributes, including additional geographic RSS namespace.
+
+        The returned dictionary extends the base RSS attributes with the georss namespace,
+        enabling the inclusion of geographic information in the RSS feed.
+
+        The 'xmlns:georss' attribute is specifically set to 'http://www.georss.org/georss',
+        providing the URI for the georss namespace.
+
+        :return: A dictionary of RSS attributes with georss namespace included.
+        :rtype: dict
+
+        """
         attrs = super().rss_attributes()
         attrs["xmlns:georss"] = "http://www.georss.org/georss"
         return attrs
@@ -99,6 +113,16 @@ class GeoRSSFeed(Rss201rev2Feed, GeoFeedMixin):
         self.add_georss_element(handler, item)
 
     def add_root_elements(self, handler):
+        """
+        Adds root elements to the handler, including GeoRSS elements specific to this feed.
+
+        This method extends the default behavior of adding root elements by incorporating
+        GeoRSS elements from the associated feed, making it suitable for geographic data.
+        It ensures that the handler is properly configured to handle the feed's data.
+
+        :param handler: The handler to which the root elements will be added.
+
+        """
         super().add_root_elements(handler)
         self.add_georss_element(handler, self.feed)
 
@@ -110,6 +134,14 @@ class GeoAtom1Feed(Atom1Feed, GeoFeedMixin):
         return attrs
 
     def add_item_elements(self, handler, item):
+        """
+        ..: param handler: The handler object used to process the item
+            :param item: The item to be processed
+            :return: None
+            Extends the base class functionality to include GeoRSS elements when adding item elements.
+            This method first calls the parent class's implementation to add standard item elements,
+            then appends a GeoRSS element specific to the item being processed.
+        """
         super().add_item_elements(handler, item)
         self.add_georss_element(handler, item)
 

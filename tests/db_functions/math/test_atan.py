@@ -11,6 +11,18 @@ from ..models import DecimalModel, FloatModel, IntegerModel
 
 class ATanTests(TestCase):
     def test_null(self):
+        """
+
+        Tests the effect of the ATan database function on null values.
+
+        This test verifies that the ATan function correctly handles input values that are null,
+        returning a null result as expected.
+
+        The test uses an IntegerModel instance with a null value for the annotation 'normal',
+        applied through the ATan function. It asserts that the resulting 'null_atan' annotation
+        is indeed null, as expected from the ATan function's behavior with null inputs.
+
+        """
         IntegerModel.objects.create()
         obj = IntegerModel.objects.annotate(null_atan=ATan("normal")).first()
         self.assertIsNone(obj.null_atan)

@@ -27,6 +27,18 @@ class SessionStore(SessionBase):
 
     @classmethod
     def _get_storage_path(cls):
+        """
+
+        Return the directory path where session data is stored.
+
+        The path is determined by the following rules:
+            * If the settings have a 'SESSION_FILE_PATH' attribute, this value is used.
+            * If not, the system's temporary directory is used.
+        The path is checked to ensure it exists and is a directory, raising an error if it does not.
+
+        The result is cached as a class attribute to avoid repeat checking.
+
+        """
         try:
             return cls._storage_path
         except AttributeError:

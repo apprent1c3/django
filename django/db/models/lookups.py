@@ -75,6 +75,20 @@ class Lookup(Expression):
         return [self.lhs, self.rhs]
 
     def set_source_expressions(self, new_exprs):
+        """
+
+        Sets the left-hand side (LHS) and right-hand side (RHS) source expressions.
+
+        Parameters
+        ----------
+        new_exprs : list
+            A list of one or two expressions to be assigned to LHS and RHS. If a single expression is provided, it will be assigned to LHS. If two expressions are provided, they will be assigned to LHS and RHS, respectively.
+
+        Note
+        ----
+        If more than two expressions are provided, this method will raise an error due to the implicit tuple assignment in the implementation.
+
+        """
         if len(new_exprs) == 1:
             self.lhs = new_exprs[0]
         else:
@@ -169,6 +183,24 @@ class Lookup(Expression):
     def resolve_expression(
         self, query=None, allow_joins=True, reuse=None, summarize=False, for_save=False
     ):
+        """
+
+        Resolves an expression into a usable form.
+
+        :param query: The query context for resolving the expression.
+        :param allow_joins: Whether joins are permitted when resolving the expression.
+        :param reuse: Allows the reuse of previously resolved expressions.
+        :param summarize: Whether to summarize the expression, which can provide a more concise representation.
+        :param for_save: Whether the resolved expression is intended for saving.
+
+        This method recursively resolves both the left-hand and right-hand sides of the expression,
+        if applicable, and returns a new expression object with the resolved components. The
+        resolved expression can be used in various contexts, such as querying or saving data.
+
+        .. note::
+            The exact behavior of this method may vary depending on the type of expression being resolved.
+
+        """
         c = self.copy()
         c.is_summary = summarize
         c.lhs = self.lhs.resolve_expression(
@@ -184,6 +216,17 @@ class Lookup(Expression):
         # Wrap filters with a CASE WHEN expression if a database backend
         # (e.g. Oracle) doesn't support boolean expression in SELECT or GROUP
         # BY list.
+        """
+        Adjusts the provided SQL query to ensure compatibility with the target database.
+
+        This function checks if the database supports boolean expressions in the SELECT clause.
+        If not, it modifies the query to use a CASE statement to simulate boolean behavior.
+
+        :param compiler: The compiler object, used to determine database features.
+        :param sql: The SQL query to be adjusted.
+        :param params: The parameters associated with the SQL query.
+        :returns: A tuple containing the adjusted SQL query and its associated parameters.
+        """
         if not compiler.connection.features.supports_boolean_expr_in_select_clause:
             sql = f"CASE WHEN {sql} THEN 1 ELSE 0 END"
         return sql, params
@@ -242,6 +285,15 @@ class BuiltinLookup(Lookup):
         return lhs_sql, list(params)
 
     def as_sql(self, compiler, connection):
+        """
+        Generates the SQL representation of this object, including any necessary parameters.
+
+        This method is used to convert the object into a SQL string that can be executed on a database. It processes the left-hand and right-hand sides of the object, combines the parameters, and applies the correct operator to the right-hand side. The resulting SQL string and parameters are then returned as a tuple.
+
+        :param compiler: The compiler to use when generating the SQL.
+        :param connection: The database connection to use.
+        :return: A tuple containing the generated SQL string and the parameters to use with the SQL.
+        """
         lhs_sql, params = self.process_lhs(compiler, connection)
         rhs_sql, rhs_params = self.process_rhs(compiler, connection)
         params.extend(rhs_params)
@@ -263,6 +315,15 @@ class FieldGetDbPrepValueMixin:
     def get_db_prep_lookup(self, value, connection):
         # For relational fields, use the 'target_field' attribute of the
         # output_field.
+        """
+        Prepares the given value for a database lookup operation.
+
+        This method takes a value and a database connection as input, and returns a tuple containing the lookup type and a list of prepared values. The lookup type is a string and the prepared values are either the original values if they have an `as_sql` method, or the result of calling the `get_db_prep_value` method on the value.
+
+        The method handles both single values and iterables, converting single values to lists as needed. It also handles the case where the `get_db_prep_value` method is not available for the target field, falling back to the `get_db_prep_value` method of the left-hand side output field.
+
+        The returned tuple can be used directly in a database query to perform the desired lookup operation.
+        """
         field = getattr(self.lhs.output_field, "target_field", None)
         get_db_prep_value = (
             getattr(field, "get_db_prep_value", None)
@@ -292,6 +353,18 @@ class FieldGetDbPrepValueIterableMixin(FieldGetDbPrepValueMixin):
     get_db_prep_lookup_value_is_iterable = True
 
     def get_prep_lookup(self):
+        """
+        .. method:: get_prep_lookup()
+
+            Prepares the right-hand side (RHS) values for lookup operations.
+
+            This method checks if the RHS is a resolvable expression or a list of values.
+            If it's a resolvable expression, it returns the RHS as is.
+            If it's a list of values, it iterates over each value, applying any necessary preparation
+            using the output field's :meth:`get_prep_value` method if specified.
+            The method returns a list of prepared values, ensuring they are in a suitable format
+            for subsequent lookup operations.
+        """
         if hasattr(self.rhs, "resolve_expression"):
             return self.rhs
         prepared_values = []
@@ -354,6 +427,11 @@ class Exact(FieldGetDbPrepValueMixin, BuiltinLookup):
     lookup_name = "exact"
 
     def get_prep_lookup(self):
+        """
+        Get the lookup value for the current expression, handling QuerySet values specifically.
+
+        This function ensures that if the right-hand side of the expression is a QuerySet, it is prepared correctly for the lookup. It checks if the QuerySet is limited to one result and, if so, ensures that only the primary key field is selected. If the QuerySet is not limited to one result, it raises an error. This preparation step is necessary to ensure that the lookup can be performed correctly. The function then calls the superclass's implementation to further prepare the lookup value.
+        """
         from django.db.models.sql.query import Query  # avoid circular import
 
         if isinstance(self.rhs, Query):
@@ -538,6 +616,24 @@ class In(FieldGetDbPrepValueIterableMixin, BuiltinLookup):
     def split_parameter_list_as_sql(self, compiler, connection):
         # This is a special case for databases which limit the number of
         # elements which can appear in an 'IN' clause.
+        """
+        Split a parameter list into a valid SQL IN clause.
+
+        This function takes a list of parameters and splits it into segments that do not exceed
+        the maximum allowed size for an IN clause, as defined by the database connection.
+
+        It returns a tuple containing the SQL string for the IN clause and a list of parameters
+        to be used with the SQL string. The SQL string is constructed by appending each segment
+        of parameters with an 'OR' operator, ensuring that the entire list is properly handled.
+
+        The function handles the processing of both the left-hand side (LHS) and right-hand side
+        (RHS) of the SQL expression, and combines the results into a single, valid SQL string.
+
+        :param compiler: The compiler object used to process the SQL expression
+        :param connection: The database connection object, which provides information about
+            the maximum allowed size for an IN clause
+        :return: A tuple containing the SQL string and a list of parameters
+        """
         max_in_list_size = connection.ops.max_in_list_size()
         lhs, lhs_params = self.process_lhs(compiler, connection)
         rhs, rhs_params = self.batch_process_rhs(compiler, connection)

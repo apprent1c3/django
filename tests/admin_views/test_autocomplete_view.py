@@ -112,6 +112,21 @@ class AutocompleteJsonViewTests(AdminViewBasicTestCase):
         )
 
     def test_custom_to_field(self):
+        """
+
+        Tests the custom 'to_field' functionality in the AutocompleteJsonView.
+
+        This test case verifies that the 'to_field' parameter in the autocomplete view
+        is correctly used to specify the field of the model to search in. It creates a
+        question object, sends a GET request to the autocomplete view with the 
+        'to_field' parameter set to 'question_with_to_field' and a search term, and 
+        then checks that the response contains the expected results.
+
+        The test ensures that the response status code is 200, and that the response
+        data includes the id and text of the question object, along with pagination
+        information indicating that there are no more results.
+
+        """
         q = Question.objects.create(question="Is this a question?")
         request = self.factory.get(
             self.url,
@@ -223,6 +238,11 @@ class AutocompleteJsonViewTests(AdminViewBasicTestCase):
             AutocompleteJsonView.as_view(**self.as_view_args)(request)
 
     def test_field_no_related_field(self):
+        """
+        Tests that attempting to use the AutocompleteJsonView without a valid related field results in a PermissionDenied exception.
+
+        This test simulates a GET request to the autocomplete view with a query term and invalid field name, verifying that the view correctly raises an exception when no related field is found. It ensures that the view handles invalid input and prevents unauthorized access to autocomplete functionality.
+        """
         request = self.factory.get(
             self.url, {"term": "is", **self.opts, "field_name": "answer"}
         )

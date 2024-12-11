@@ -10,6 +10,15 @@ from django.core.mail.backends.base import BaseEmailBackend
 
 class EmailBackend(BaseEmailBackend):
     def __init__(self, *args, **kwargs):
+        """
+        Initializes the object, setting up the output stream and thread-safe locking mechanism.
+
+        :param args: Variable number of non-keyword arguments to be passed to the parent class.
+        :param kwargs: Variable number of keyword arguments, with 'stream' specifying the output destination (defaulting to sys.stdout if not provided).
+        :note: The stream is claimed and removed from the keyword arguments before passing the remaining arguments to the parent class.
+        :raises: None
+        :returns: None
+        """
         self.stream = kwargs.pop("stream", sys.stdout)
         self._lock = threading.RLock()
         super().__init__(*args, **kwargs)

@@ -261,6 +261,13 @@ class PasswordResetTest(AuthViewsTestCase):
 
     def test_confirm_invalid_user(self):
         # A nonexistent user returns a 200 response, not a 404.
+        """
+        Tests that the password reset link confirmation view returns an error message when given an invalid user identifier.
+
+        Confirms that the view correctly handles invalid password reset link cases by checking for the presence of a specific error message in the response.
+
+        The test simulates an HTTP GET request to the password reset confirmation URL with an invalid user identifier and verifies that the response contains the expected error message, indicating an invalid password reset link.
+        """
         response = self.client.get("/reset/123456/1-1/")
         self.assertContains(response, "The password reset link was invalid")
 
@@ -271,6 +278,14 @@ class PasswordResetTest(AuthViewsTestCase):
 
     def test_confirm_invalid_post(self):
         # Same as test_confirm_invalid, but trying to do a POST instead.
+        """
+
+        Tests that confirming a password reset with an invalid POST request does not update the user's password.
+
+        Checks the scenario where the provided password and confirmation do not match due to leading whitespace, 
+        ensuring the user's password remains unchanged after the attempted reset.
+
+        """
         url, path = self._test_confirm_start()
         path = path[:-5] + ("0" * 4) + path[-1]
 
@@ -330,6 +345,25 @@ class PasswordResetTest(AuthViewsTestCase):
         )
 
     def test_reset_redirect_default(self):
+        """
+        Tests that the password reset view redirects to the password reset done page after a successful post request.
+
+        This test case verifies that when a user submits their email address to initiate a password reset, they are redirected to the password reset done page.
+
+        The test simulates a POST request to the password reset view with a valid email address and checks that the response is a redirect to the expected URL.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        AssertionError : If the response is not a redirect to the password reset done page
+        """
         response = self.client.post(
             "/password_reset/", {"email": "staffmember@example.com"}
         )
@@ -353,6 +387,13 @@ class PasswordResetTest(AuthViewsTestCase):
         )
 
     def test_confirm_redirect_default(self):
+        """
+
+        Tests that after a password reset confirmation with default credentials, the user is redirected to the password reset done page.
+
+        The test case verifies the redirect behavior by sending a POST request to the password reset confirmation path with the required new password fields filled in, and then asserts that the response redirects the user to the expected done page without following the redirect. 
+
+        """
         url, path = self._test_confirm_start()
         response = self.client.post(
             path, {"new_password1": "anewpassword", "new_password2": "anewpassword"}
@@ -368,6 +409,15 @@ class PasswordResetTest(AuthViewsTestCase):
         self.assertRedirects(response, "/custom/", fetch_redirect_response=False)
 
     def test_confirm_redirect_custom_named(self):
+        """
+        Tests the redirect behavior after confirming a password reset with a custom named URL.
+
+        This test starts the password reset process, generates a custom named URL for the password reset,
+        submits a new password, and verifies that the response redirects to the password reset page.
+        The redirect is confirmed without fetching the redirect response, ensuring the correct HTTP
+        status code is returned. A successful test indicates that the custom named URL password reset
+        process redirects correctly to the password reset page after a new password is submitted.
+        """
         url, path = self._test_confirm_start()
         path = path.replace("/reset/", "/reset/custom/named/")
         response = self.client.post(
@@ -439,6 +489,14 @@ class PasswordResetTest(AuthViewsTestCase):
         self.assertContains(response, "Hello, .")
 
     def test_confirm_link_redirects_to_set_password_page(self):
+        """
+        Tests that the confirm link redirects to the set password page.
+
+        This test verifies that when a user clicks on the confirmation link sent via email,
+        the application correctly redirects them to the password reset page where they can
+        set a new password. The test checks that the redirect URL is correctly formatted and
+        that the password reset token is stored in the user's session.
+        """
         url, path = self._test_confirm_start()
         # Don't use PasswordResetConfirmClient (self.client) here which
         # automatically fetches the redirect page.
@@ -622,6 +680,15 @@ class ChangePasswordTest(AuthViewsTestCase):
         self.login(password="password1")
 
     def test_password_change_done_succeeds(self):
+        """
+        Tests the successful completion of the password change process.
+
+        This test case verifies that a user can change their password successfully by submitting the correct old password and matching new passwords.
+
+        The test scenario involves logging in as a user, submitting a POST request to the password change view with the required form data, and asserting that the response redirects to the password change done page.
+
+        The expected outcome is a successful redirection to the password change done page, indicating that the password change was completed successfully.
+        """
         self.login()
         response = self.client.post(
             "/password_change/",
@@ -671,6 +738,13 @@ class ChangePasswordTest(AuthViewsTestCase):
         self.assertRedirects(response, "/custom/", fetch_redirect_response=False)
 
     def test_password_change_redirect_custom_named(self):
+        """
+
+        Tests that changing the password using a custom named URL redirects to the password reset page after a successful password change.
+
+        The function logs in, attempts to change the password with a valid old and new password combination, and then checks that the response is a redirect to the password reset page without following the redirect.
+
+        """
         self.login()
         response = self.client.post(
             "/password_change/custom/named/",
@@ -688,6 +762,14 @@ class ChangePasswordTest(AuthViewsTestCase):
         MIDDLEWARE={"append": "django.contrib.auth.middleware.LoginRequiredMiddleware"}
     )
     def test_access_under_login_required_middleware(self):
+        """
+
+        Tests access to the password change view under the LoginRequiredMiddleware.
+
+        Verifies that an unauthenticated user is redirected to the login page and 
+        that a successful login allows the user to change their password.
+
+        """
         response = self.client.post(
             "/password_change/",
             {
@@ -956,6 +1038,17 @@ class LoginTest(AuthViewsTestCase):
         self.assertRedirects(response, "/test/", fetch_redirect_response=False)
 
     def test_login_redirect_url_overrides_get_default_redirect_url(self):
+        """
+
+        Tests whether the login redirect URL can be overridden using the 'next' parameter in the GET request.
+
+        When a user attempts to access a URL that requires authentication, they are redirected to the login page.
+        The 'next' parameter allows the user to be redirected back to the original URL after a successful login.
+        This test checks if the login redirect URL can be successfully overridden with the provided 'next' parameter.
+
+        The test verifies that after a successful login, the user is redirected to the URL specified in the 'next' parameter.
+
+        """
         response = self.login(url="/login/get_default_redirect_url/?next=/test/")
         self.assertRedirects(response, "/test/", fetch_redirect_response=False)
 
@@ -984,6 +1077,16 @@ class LoginURLSettings(AuthViewsTestCase):
 
     @override_settings(LOGIN_URL="http://remote.example.com/login")
     def test_remote_login_url(self):
+        """
+        Tests that the login URL is correctly overridden to a remote location.
+
+            Verifies that the login URL is properly quoted and appended with the next URL
+            parameter, ensuring a seamless redirect after authentication.
+
+            The test checks if the login URL is correctly set to a remote server,
+            and if the next URL parameter is properly encoded and appended to the login URL.
+
+        """
         quoted_next = quote("http://testserver/login_required/")
         expected = "http://remote.example.com/login?next=%s" % quoted_next
         self.assertLoginURLEquals(expected)
@@ -1070,6 +1173,23 @@ class LogoutThenLoginTests(AuthViewsTestCase):
         self.assertRedirects(response, "/login/", fetch_redirect_response=False)
 
     def test_logout_then_login_with_custom_login(self):
+        """
+
+        Tests that the logout_then_login function properly logs out the user and then redirects to a custom login URL.
+
+        This test case simulates a user logging out and then immediately logging back in via a custom login URL.
+        It verifies that the user is successfully logged out and then redirected to the specified custom login page.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the user is not logged out or the redirect to the custom login URL fails.
+
+        """
         self.login()
         req = HttpRequest()
         req.method = "POST"
@@ -1378,6 +1498,19 @@ class LogoutTest(AuthViewsTestCase):
                 self.confirm_logged_out()
 
     def test_security_check_https(self):
+        """
+        Tests the security check for HTTPS during the logout process.
+
+        This test case verifies that when a non-HTTPS URL is provided as the next URL
+        after logging out, the system redirects to the logout URL without using the
+        insecure URL. The test ensures that the logout process prioritizes security
+        and does not allow redirects to non-HTTPS URLs.
+
+        Checks that the system correctly handles the logout request, verifies the
+        logout was successful, and confirms that the user is logged out after the
+        redirect.
+
+        """
         logout_url = reverse("logout")
         non_https_next_url = "http://testserver/"
         url = "%(url)s?%(next)s=%(next_url)s" % {
@@ -1501,6 +1634,16 @@ class ChangelistTests(MessagesTestMixin, AuthViewsTestCase):
         self.assertEqual(row.get_change_message(), "Changed Email address.")
 
     def test_user_not_change(self):
+        """
+
+        Tests that a user cannot make changes to their own account information through the admin interface.
+
+        In this test, a post request is sent to the view responsible for changing user data, 
+        using the current admin user's data. The test then checks that the response redirects 
+        to the user changelist view, indicating that no changes were made. Finally, it verifies 
+        that the latest log entry contains a message stating that no fields were changed.
+
+        """
         response = self.client.post(
             reverse("auth_test_admin:auth_user_change", args=(self.admin.pk,)),
             self.get_user_data(self.admin),

@@ -323,6 +323,25 @@ class HttpRequest:
 
     @property
     def body(self):
+        """
+        Access the request body.
+
+        The request body is read from the request's data stream, if it hasn't been
+        read already. If the request's data stream has already been read, accessing
+        the body will raise a RawPostDataException.
+
+        Additionally, the request body size is checked against the maximum allowed
+        size, defined by settings.DATA_UPLOAD_MAX_MEMORY_SIZE. If the request body
+        exceeds this size, a RequestDataTooBig exception is raised.
+
+        The request body is stored as bytes and is accessible after the first
+        successful read. If an error occurs during the read operation, an
+        UnreadablePostError is raised.
+
+        Returns:
+            bytes: The request body.
+
+        """
         if not hasattr(self, "_body"):
             if self._read_started:
                 raise RawPostDataException(
@@ -417,6 +436,13 @@ class HttpRequest:
             raise UnreadablePostError(*e.args) from e
 
     def readline(self, *args, **kwargs):
+        """
+        Reads a line from the underlying stream.
+
+        This method initiates a read operation and returns the line read from the stream.
+        If an error occurs during the read operation, it raises an :class:`UnreadablePostError`.
+        The method accepts any additional arguments that can be passed to the :meth:`readline` method of the underlying stream.
+        """
         self._read_started = True
         try:
             return self._stream.readline(*args, **kwargs)
@@ -449,6 +475,19 @@ class HttpHeaders(CaseInsensitiveMapping):
 
     @classmethod
     def parse_header_name(cls, header):
+        """
+        ..: meth:: parse_header_name
+
+            Parse a given header name into a standardized format.
+
+            This method processes the input header name by removing any HTTP prefix if present, 
+            and then standardizes the resulting string by replacing underscores with hyphens and 
+            capitalizing the first letter of each word.
+
+            :param header: The header name to be parsed
+            :return: The parsed header name, or None if the input header is not recognized
+            :rtype: str or None
+        """
         if header.startswith(cls.HTTP_PREFIX):
             header = header.removeprefix(cls.HTTP_PREFIX)
         elif header not in cls.UNPREFIXED_HEADERS:
@@ -502,6 +541,21 @@ class QueryDict(MultiValueDict):
     _encoding = None
 
     def __init__(self, query_string=None, mutable=False, encoding=None):
+        """
+        Initializes the query string parser.
+
+        This function sets up the parser with the provided query string, mutability, and encoding.
+        It decodes the query string using the specified encoding, and parses it into key-value pairs.
+        The parser also handles errors, such as too many fields being sent, and ensures that the
+        parsed data is stored in a mutable or immutable state, depending on the specified mutability.
+
+        :param query_string: The query string to parse (optional, defaults to an empty string).
+        :param mutable: Whether the parsed data should be mutable (optional, defaults to False).
+        :param encoding: The encoding to use for decoding the query string (optional, defaults to the default charset defined in settings).
+
+        :raises TooManyFieldsSent: If the number of GET/POST parameters exceeds the maximum allowed by settings.DATA_UPLOAD_MAX_NUMBER_FIELDS.
+
+        """
         super().__init__()
         self.encoding = encoding or settings.DEFAULT_CHARSET
         query_string = query_string or ""
@@ -598,6 +652,14 @@ class QueryDict(MultiValueDict):
         super().appendlist(key, value)
 
     def pop(self, key, *args):
+        """
+        Remove and return the value of the item with the specified key from the container.
+
+        If the key is not found, the function raises a KeyError if no default value is provided.
+        If a default value is provided, it is returned instead of raising an exception.
+
+        The container must be in a mutable state to perform this operation.
+        """
         self._assert_mutable()
         return super().pop(key, *args)
 
@@ -675,6 +737,17 @@ class MediaType:
         return self.main_type == "*" and self.sub_type == "*"
 
     def match(self, other):
+        """
+        Matches this media type with another media type.
+
+        The match is considered successful if this media type is set to match all types, 
+        or if the main type of this media type matches the main type of the other media type 
+        and the sub type of this media type is either '*' (a wildcard) or matches the sub type of the other media type.
+
+        :param other: The other media type to match against
+        :return: True if the media types match, False otherwise
+        :rtype: bool
+        """
         if self.is_all_types:
             return True
         other = MediaType(other)

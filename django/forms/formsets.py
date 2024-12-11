@@ -41,6 +41,15 @@ class ManagementForm(Form):
     MAX_NUM_FORMS = IntegerField(required=False, widget=HiddenInput)
 
     def clean(self):
+        """
+        Extends the base form's cleaning functionality to ensure the TOTAL_FORM_COUNT and INITIAL_FORM_COUNT fields are initialized.
+
+        This method builds upon the parent class's cleaning behavior, adding default values for form counts if they are not already set. It returns a dictionary of cleaned data, guaranteeing that the total and initial form counts are always present.
+
+        :param: None
+        :return: A dictionary containing the cleaned form data with form counts initialized.
+
+        """
         cleaned_data = super().clean()
         # When the management form is invalid, we don't know how many forms
         # were submitted.

@@ -7,6 +7,9 @@ from ..utils import setup
 class TemplateTagTests(SimpleTestCase):
     @setup({"templatetag01": "{% templatetag openblock %}"})
     def test_templatetag01(self):
+        """
+        Tests the rendering of a template tag, specifically the opening block tag, to ensure it is correctly displayed as '{%'. This test case verifies that the template engine properly handles the templatetag01 setup and renders the expected output.
+        """
         output = self.engine.render_to_string("templatetag01")
         self.assertEqual(output, "{%")
 
@@ -59,6 +62,9 @@ class TemplateTagTests(SimpleTestCase):
 
     @setup({"templatetag11": "{% templatetag opencomment %}"})
     def test_templatetag11(self):
+        """
+        Tests the rendering of the templatetag11, verifying that the templating engine correctly replaces the custom template tag with the standard Django opening comment tag '{#'.
+        """
         output = self.engine.render_to_string("templatetag11")
         self.assertEqual(output, "{#")
 

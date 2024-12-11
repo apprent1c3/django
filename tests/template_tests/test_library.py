@@ -133,6 +133,15 @@ class TagRegistrationTests(SimpleTestCase):
 
     def test_tag_parens(self):
         @self.library.tag()
+        """
+
+        Verifies the functionality of a library's tag registration mechanism.
+
+        This test checks whether a tag is correctly registered within the library.
+        It defines a test function, decorates it with the library's tag decorator, 
+        and asserts that the decorated function is properly stored in the library's tags dictionary.
+
+        """
         def func(parser, token):
             return Node()
 

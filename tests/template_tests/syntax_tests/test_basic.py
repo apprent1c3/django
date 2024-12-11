@@ -297,6 +297,14 @@ class BasicSyntaxTests(SimpleTestCase):
     # Numbers are numbers even if their digits are in the context.
     @setup({"basic-syntax35": "{{ 1 }}"})
     def test_basic_syntax35(self):
+        """
+
+        Tests the rendering of a template with basic syntax, specifically the handling of single curly braces.
+
+        This test case verifies that the template engine correctly renders a string with single curly braces, 
+        and that the output matches the expected result, even when a variable is passed with the same name as the value within the curly braces.
+
+        """
         output = self.engine.render_to_string("basic-syntax35", {"1": "abc"})
         self.assertEqual(output, "1")
 

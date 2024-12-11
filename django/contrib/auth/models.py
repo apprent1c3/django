@@ -202,6 +202,19 @@ class UserManager(BaseUserManager):
 
 # A few helper functions for common logic between User and AnonymousUser.
 def _user_get_permissions(user, obj, from_name):
+    """
+    Retrieves a set of permissions for a given user on a specific object.
+
+    This function iterates through all available authentication backends and collects 
+    permissions from backends that implement the ``get_<from_name>_permissions`` method.
+    The collected permissions are then returned as a set.
+
+    :param user: The user for whom permissions are being retrieved.
+    :param obj: The object on which permissions are being checked.
+    :param from_name: The type of object for which permissions are being retrieved (e.g. 'model', 'view', etc.).
+    :returns: A set of permissions that the user has on the object.
+
+    """
     permissions = set()
     name = "get_%s_permissions" % from_name
     for backend in auth.get_backends():

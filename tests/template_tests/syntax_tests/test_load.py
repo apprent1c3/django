@@ -23,6 +23,9 @@ class LoadTagTests(SimpleTestCase):
 
     @setup({"load02": '{% load subpackage.echo %}{% echo2 "test" %}'})
     def test_load02(self):
+        """
+        Tests the loading of a template tag from a subpackage using the echo2 tag, verifying that the rendered output matches the expected string.
+        """
         output = self.engine.render_to_string("load02")
         self.assertEqual(output, "test")
 
@@ -54,6 +57,11 @@ class LoadTagTests(SimpleTestCase):
 
     @setup({"load06": '{% load echo2 from subpackage.echo %}{% echo2 "test" %}'})
     def test_load06(self):
+        """
+        Tests the functionality of loading a custom tag 'echo2' from the 'subpackage.echo' module and using it to echo a string in a template. 
+
+        This test case verifies that the rendered output of a template containing the loaded tag matches the expected echoed string.
+        """
         output = self.engine.render_to_string("load06")
         self.assertEqual(output, "test")
 

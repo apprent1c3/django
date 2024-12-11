@@ -36,6 +36,21 @@ from .models import (
 )
 class SerializerRegistrationTests(SimpleTestCase):
     def setUp(self):
+        """
+        Sets up the test environment by resetting the serializers registry.
+
+        This method saves the current serializers registry and replaces it with an empty one,
+        effectively clearing all existing serializers. This is useful for isolating tests and
+        preventing interference from previously registered serializers.
+
+        Returns:
+            None
+
+        Note:
+            This method should be used as part of a test setup process, and should be
+            accompanied by a corresponding teardown method to restore the original serializers
+            registry after the test has completed.
+        """
         self.old_serializers = serializers._serializers
         serializers._serializers = {}
 

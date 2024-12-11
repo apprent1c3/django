@@ -112,6 +112,16 @@ class AbstractBaseUser(models.Model):
         """See check_password()."""
 
         async def setter(raw_password):
+            """
+            Sets a new password for the current instance.
+
+            This method takes a raw password as input, sets it for the instance, 
+            and then clears the temporary password storage. The updated password 
+            is then asynchronously saved to the database.
+
+            :param raw_password: The new password to be set
+
+            """
             self.set_password(raw_password)
             # Password hash upgrades shouldn't be considered password changes.
             self._password = None

@@ -180,6 +180,21 @@ class DynamicSearchFieldsChildAdmin(admin.ModelAdmin):
     search_fields = ("name",)
 
     def get_search_fields(self, request):
+        """
+
+        Returns a list of fields that are used for searching.
+
+        This method extends the default search fields by adding the 'age' field.
+        It combines the default search fields with the 'age' field to provide a broader search scope.
+        The result is a collection of fields that can be used to filter or query data.
+
+        Args:
+            request: The current request object, which may influence the search fields.
+
+        Returns:
+            A tuple of field names that are eligible for searching.
+
+        """
         search_fields = super().get_search_fields(request)
         search_fields += ("age",)
         return search_fields

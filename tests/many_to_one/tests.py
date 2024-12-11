@@ -540,6 +540,13 @@ class ManyToOneTests(TestCase):
     def test_deepcopy_and_circular_references(self):
         # Regression for #12876 -- Model methods that include queries that
         # recursive don't cause recursion depth problems under deepcopy.
+        """
+        Tests the functionality of creating a deep copy of a Reporter object and verifies that circular references are properly handled.
+
+        This test checks if the deepcopy operation correctly replicates the Reporter object's attributes and maintains the expected string representation, even when the object has a cached query that references itself.
+
+        The test ensures that the Reporter object can be safely duplicated without introducing unexpected side effects due to circular references, and that the duplicated object retains the expected properties and behavior.
+        """
         self.r.cached_query = Article.objects.filter(reporter=self.r)
         self.assertEqual(repr(deepcopy(self.r)), "<Reporter: John Smith>")
 
@@ -834,6 +841,20 @@ class ManyToOneTests(TestCase):
         self.assertEqual(city.districts.count(), 2)
 
     def test_set_after_prefetch(self):
+        """
+
+        Tests the functionality of setting a city's districts after prefetching.
+
+        This test case checks that when a city's districts are prefetched, setting a new
+        set of districts replaces the existing ones correctly. It verifies that the
+        initial count of districts is as expected, and that after setting a new district,
+        the city's districts are updated accordingly.
+
+        The purpose of this test is to ensure that the `prefetch_related` optimization
+        does not interfere with the `set` method, and that the city's districts are
+        properly updated after the set operation.
+
+        """
         c = City.objects.create(name="Musical City")
         District.objects.create(name="Ladida", city=c)
         d2 = District.objects.create(name="Ladidu")
@@ -909,6 +930,15 @@ class ManyToOneTests(TestCase):
             usa.cities.get_prefetch_queryset(countries)
 
     def test_get_prefetch_querysets_invalid_querysets_length(self):
+        """
+
+        Tests that get_prefetch_querysets raises a ValueError when given an invalid number of querysets.
+
+        Specifically, this test checks that a ValueError is raised when the querysets argument has a length other than 1.
+        The expected error message indicates that the querysets argument should have a length of 1.
+        This test ensures that the function correctly validates its input and provides informative error messages.
+
+        """
         City.objects.create(name="Chicago")
         cities = City.objects.all()
         msg = (

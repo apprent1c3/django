@@ -92,6 +92,21 @@ def get_children_from_q(q):
 
 
 def get_child_with_renamed_prefix(prefix, replacement, child):
+    """
+
+    Navigate through a query tree and rename a prefix in a child node.
+
+    This function traverses the structure of a query, locating nodes that start with a given prefix and
+    replacing it with a specified replacement string. It handles various types of child nodes, including
+    Nodes, tuples, F objects, and QuerySets, ensuring that the renaming is applied correctly to each.
+
+    The function takes three parameters: the prefix to be replaced, the replacement string, and the child
+    node to be processed. It returns the modified child node with the renamed prefix.
+
+    The goal of this function is to facilitate the manipulation of query structures, allowing for
+    flexible and dynamic modifications to the prefix of child nodes.
+
+    """
     from django.db.models.query import QuerySet
 
     if isinstance(child, Node):
@@ -439,6 +454,29 @@ class Query(BaseExpression):
         return clone
 
     def _get_col(self, target, field, alias):
+        """
+
+        Retrieve a column from a target object.
+
+        Parameters
+        ----------
+        target : object
+            The target object from which to retrieve the column.
+        field : str
+            The name of the field for which to retrieve the column.
+        alias : str, optional
+            The alias to use when retrieving the column. If aliasing is not enabled, this parameter is ignored.
+
+        Returns
+        -------
+        column : object
+            The retrieved column.
+
+        Notes
+        -----
+        The aliasing behavior is controlled by the `alias_cols` attribute. If aliasing is disabled, the alias parameter is ignored.
+
+        """
         if not self.alias_cols:
             alias = None
         return target.get_col(alias, field)
@@ -833,6 +871,25 @@ class Query(BaseExpression):
         return select_mask
 
     def _get_only_select_mask(self, opts, mask, select_mask=None):
+        """
+        Generate a select mask for only the specified fields.
+
+        This function traverses a provided mask and creates a select mask that includes only the specified fields.
+        The resulting select mask can be used to optimize queries by selecting only the necessary fields from related models.
+
+        The function supports nested fields by recursively generating select masks for related models.
+
+        The generated select mask is returned as a dictionary, where each key is a model field and the corresponding value is another dictionary containing the select mask for that field.
+
+        Note: The function assumes that the provided mask only contains fields that are valid for the model.
+        If an invalid field is encountered, a FieldError is raised.
+
+        :param opts: The model options (meta) containing information about the model's fields.
+        :param mask: A dictionary of field names to field masks that specifies which fields to include in the select mask.
+        :param select_mask: An optional dictionary to store the generated select mask.
+        :return: A dictionary containing the generated select mask.
+
+        """
         if select_mask is None:
             select_mask = {}
         select_mask[opts.pk] = {}
@@ -1264,6 +1321,18 @@ class Query(BaseExpression):
         return sql, params
 
     def resolve_lookup_value(self, value, can_reuse, allow_joins, summarize=False):
+        """
+        Resolve a lookup value by processing it according to its type.
+
+        Args:
+            value: The value to be resolved. This can be an object with a ``resolve_expression`` method, a list or tuple of values, or any other type of value.
+            can_reuse (bool): A flag indicating whether an existing resolved value can be reused.
+            allow_joins (bool): A flag indicating whether joins are allowed during the resolution process.
+            summarize (bool, optional): A flag indicating whether to summarize the resolved value. Defaults to False.
+
+        Returns:
+            The resolved value, which can be of any type depending on the input value. If the input value is a list or tuple, the returned value will be of the same type. If the input value has a ``resolve_expression`` method, the return value will be the result of calling that method. Otherwise, the input value will be returned unchanged.
+        """
         if hasattr(value, "resolve_expression"):
             value = value.resolve_expression(
                 self,
@@ -1961,6 +2030,27 @@ class Query(BaseExpression):
 
     @classmethod
     def _gen_cols(cls, exprs, include_external=False, resolve_refs=True):
+        """
+        Generate a sequence of column objects from a collection of expressions.
+
+        This method recursively traverses a list of expressions, yielding column objects (`Col` instances) directly.
+        For other expression types, it checks for specific methods to extract column objects:
+        - If `include_external` is `True`, it calls the `get_external_cols` method to yield external column objects, if available.
+        - If an expression has a `get_source_expressions` method, it recursively calls this method to generate column objects from its source expressions, unless the expression is a reference (`Ref`) and `resolve_refs` is `False`.
+
+        Parameters
+        ----------
+        exprs : list
+            A list of expressions to generate column objects from.
+        include_external : bool, optional
+            Whether to include external column objects in the output (default is `False`).
+        resolve_refs : bool, optional
+            Whether to resolve references to their source expressions (default is `True`).
+
+        Returns
+        -------
+        A generator yielding `Col` instances.
+        """
         for expr in exprs:
             if isinstance(expr, Col):
                 yield expr

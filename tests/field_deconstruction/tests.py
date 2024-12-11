@@ -203,6 +203,20 @@ class FieldDeconstructionTests(SimpleTestCase):
         self.assertEqual(kwargs, {"upload_to": "foo/bar", "max_length": 200})
 
     def test_file_path_field(self):
+        """
+
+        Tests the deconstruction of FilePathField instances.
+
+        This test case ensures that FilePathField objects can be properly deconstructed
+        into their constituent parts, including the field path, arguments, and keyword
+        arguments. It verifies that both default and custom field configurations are
+        correctly represented after deconstruction.
+
+        The test covers different field settings, such as custom regular expression
+        matching, recursive file lookups, and custom maximum field lengths, to ensure
+        that all valid field configurations are handled correctly.
+
+        """
         field = models.FilePathField(match=r".*\.txt$")
         name, path, args, kwargs = field.deconstruct()
         self.assertEqual(path, "django.db.models.FilePathField")
@@ -551,6 +565,20 @@ class FieldDeconstructionTests(SimpleTestCase):
 
     @override_settings(AUTH_USER_MODEL="auth.Permission")
     def test_many_to_many_field_swapped(self):
+        """
+
+        Tests the serialization of a ManyToManyField with a swappable model.
+
+        This test ensures that when a ManyToManyField is defined with a swappable model,
+        its deconstruction correctly identifies the field's path, arguments, and keyword
+        arguments. Specifically, it verifies that the 'to' keyword argument references
+        the AUTH_USER_MODEL setting.
+
+        The test covers the case where the ManyToManyField is defined with the 'auth.Permission'
+        model and checks that the deconstructed field's path points to the correct
+        ManyToManyField class in Django's models module.
+
+        """
         with isolate_lru_cache(apps.get_swappable_settings_name):
             # It doesn't matter that we swapped out user for permission;
             # there's no validation. We just want to check the setting stuff works.
@@ -639,6 +667,21 @@ class FieldDeconstructionTests(SimpleTestCase):
         self.assertEqual(kwargs, {})
 
     def test_time_field(self):
+        """
+        Tests the deconstruction of Django TimeField instances.
+
+        Verifies that the deconstruct method correctly breaks down TimeField instances
+        into their constituent parts, including the path, arguments, and keyword arguments.
+        Specifically, it checks the deconstruction of TimeField instances with and without
+        the auto_now and auto_now_add keywords, ensuring that the resulting deconstructed
+        fields match the expected output.
+
+        The deconstruction process is crucial for serializing and deserializing model fields,
+        allowing for seamless transitions between different environments and depictions of
+        the model. This test ensures the reliability and accuracy of the TimeField deconstruction
+        process, providing assurance that the resulting components can be correctly utilized
+        in various contexts, such as model migrations and schema definitions.
+        """
         field = models.TimeField()
         name, path, args, kwargs = field.deconstruct()
         self.assertEqual(path, "django.db.models.TimeField")
@@ -668,6 +711,18 @@ class FieldDeconstructionTests(SimpleTestCase):
         self.assertEqual(kwargs, {"max_length": 231})
 
     def test_binary_field(self):
+        """
+
+        Tests the deconstruction of BinaryField instances.
+
+        Verifies that the field's path is correctly identified as 'django.db.models.BinaryField' 
+        and that its arguments and keyword arguments are properly extracted. 
+
+        Specifically, it checks the deconstruction of BinaryField instances with and without 
+        the 'editable' keyword argument, ensuring that the deconstructed arguments and 
+        keyword arguments match the expected values.
+
+        """
         field = models.BinaryField()
         name, path, args, kwargs = field.deconstruct()
         self.assertEqual(path, "django.db.models.BinaryField")

@@ -15,6 +15,19 @@ def test_mutation(raises=True):
                     super().__init__("initial", ["initial"])
 
                 def as_sql(self, *args, **kwargs):
+                    """
+                    Generates the SQL representation of the object.
+
+                    This method is used to produce a string and parameters that can be used to 
+                    execute a SQL query. The generated query string and its parameters are 
+                    returned as a tuple.
+
+                    The internal state of the object is modified by applying a mutation function 
+                    before generating the SQL representation.
+
+                    :return: A tuple containing the SQL query string and its parameters.
+                    :rtype: tuple[str, tuple]
+                    """
                     mutation_func(self)
                     return "", ()
 

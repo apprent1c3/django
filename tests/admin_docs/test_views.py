@@ -37,6 +37,11 @@ class AdminDocViewTests(TestDataMixin, AdminDocsTestCase):
         )
 
     def test_bookmarklets(self):
+        """
+        Test the administration bookmarklets page to ensure it contains the correct URL pattern.
+
+        The test checks if the response from the 'django-admindocs-bookmarklets' view contains the expected URL '/admindocs/views/', verifying that the bookmarklets page is rendering as expected.
+        """
         response = self.client.get(reverse("django-admindocs-bookmarklets"))
         self.assertContains(response, "/admindocs/views/")
 
@@ -380,6 +385,14 @@ class TestModelDetailView(TestDataMixin, AdminDocsTestCase):
         self.assertIn('"include" directive disabled', out)
 
     def test_model_with_many_to_one(self):
+        """
+
+        Tests the model documentation page for a model with a many-to-one relationship.
+
+        Verifies that the page contains links to related models and information about the number of related objects.
+        The test checks for the presence of links to the related model's documentation page and confirms that the page displays the correct text for related objects.
+
+        """
         link = '<a class="reference external" href="/admindocs/models/%s/">%s</a>'
         response = self.client.get(
             reverse("django-admindocs-models-detail", args=["admin_docs", "company"])
@@ -440,6 +453,16 @@ class TestModelDetailView(TestDataMixin, AdminDocsTestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_model_not_found(self):
+        """
+
+        Tests that a 404 status code is returned and the correct exception message is displayed 
+        when attempting to retrieve a model that does not exist.
+
+        The test verifies that the 'django-admindocs-models-detail' view correctly handles 
+        non-existent models by checking the status code of the response and the exception 
+        message in the response context.
+
+        """
         response = self.client.get(
             reverse(
                 "django-admindocs-models-detail", args=["admin_docs", "doesnotexist"]

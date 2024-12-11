@@ -26,6 +26,28 @@ class Index:
         condition=None,
         include=None,
     ):
+        """
+        Initialize an index for a database model.
+
+        This class represents a database index, which can be used to improve query performance.
+        It can be defined with one or more fields or expressions, and various options such as a name, 
+        tablespace, operator classes, and a condition.
+
+        :param fields: A list or tuple of field names to include in the index. These are the names of the model fields.
+        :param name: The name of the index. This is required if opclasses or condition are specified, or if expressions are used.
+        :param db_tablespace: The name of the tablespace to use for the index.
+        :param opclasses: A list or tuple of operator classes to use for the index.
+        :param condition: A Q instance that specifies a condition for the index.
+        :param include: A list or tuple of field names to include in the index, but not to index.
+        :param expressions: A list or tuple of expressions to include in the index. These are mutually exclusive with fields.
+
+        :note: The fields and expressions parameters are mutually exclusive. 
+            :note: The opclasses and expressions parameters are mutually exclusive. 
+            :note: The name parameter is required if opclasses, condition, expressions or include are specified.
+            :note: The length of the fields and opclasses lists must match if both are specified.
+            :raise ValueError: If the input parameters are invalid.
+
+        """
         if opclasses and not name:
             raise ValueError("An index must be named to use opclasses.")
         if not isinstance(condition, (NoneType, Q)):
@@ -83,6 +105,21 @@ class Index:
         return bool(self.expressions)
 
     def _get_condition_sql(self, model, schema_editor):
+        """
+
+        Returns the SQL condition string for a given model based on the provided condition.
+
+        The condition is first translated into a query using the given model, and then 
+        compiled into a SQL string using the schema editor's connection. If no condition 
+        is provided, this function returns None.
+
+        The resulting SQL string can be used directly in database queries.
+
+        :param model: The model to use for building the condition query
+        :param schema_editor: The schema editor to use for compiling the query
+        :rtype: str or None
+
+        """
         if self.condition is None:
             return None
         query = Query(model=model, alias_cols=False)

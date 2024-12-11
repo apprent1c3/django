@@ -11,6 +11,13 @@ class SmartIfTests(unittest.TestCase):
     # Many other tests are found in the main tests for builtin template tags
     # Test parsing via the printed parse tree
     def test_not(self):
+        """
+        Tests the 'not' operator functionality in the IfParser.
+
+        Verifies that the 'not' operator is correctly parsed and evaluated, 
+        producing the expected boolean result.
+
+        """
         var = IfParser(["not", False]).parse()
         self.assertEqual("(not (literal False))", repr(var))
         self.assertTrue(var.eval({}))
@@ -38,6 +45,16 @@ class SmartIfTests(unittest.TestCase):
     def test_precedence(self):
         # (False and False) or True == True   <- we want this one, like Python
         # False and (False or True) == False
+        """
+
+        Tests the precedence of logical operators in the expression parser.
+
+        The function checks that the parser correctly handles the order of operations for 'and' and 'or' operators,
+        as well as their interaction with comparison operators like '=='. It also verifies that the parser produces
+        the expected output for various input expressions.
+
+
+        """
         self.assertCalcEqual(True, [False, "and", False, "or", True])
 
         # True or (False and False) == True   <- we want this one, like Python

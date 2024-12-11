@@ -22,6 +22,14 @@ class CastTests(TestCase):
         self.assertEqual(numbers.get().cast_integer, 0)
 
     def test_cast_from_field(self):
+        """
+
+        Tests the ability to cast a numeric field to a string using the Cast function.
+
+        This test case verifies that an integer value from the 'age' field can be successfully 
+        converted to a string and retrieved as expected.
+
+        """
         numbers = Author.objects.annotate(
             cast_string=Cast("age", models.CharField(max_length=255)),
         )

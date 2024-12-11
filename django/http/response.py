@@ -279,6 +279,21 @@ class HttpResponseBase:
         self.headers.setdefault(key, value)
 
     def set_signed_cookie(self, key, value, salt="", **kwargs):
+        """
+
+        Sets a signed cookie with the given key and value.
+
+        The cookie value is signed using a secret key to prevent tampering. A salt
+        value can be provided to further customize the signing process. Additional
+        keyword arguments can be passed to customize the cookie settings.
+
+        :param key: The key of the cookie to be set
+        :param value: The value of the cookie to be set
+        :param salt: An optional salt value to use in the signing process
+        :param **kwargs: Additional keyword arguments to pass to set_cookie
+        :return: The result of setting the signed cookie
+
+        """
         value = signing.get_cookie_signer(salt=key + salt).sign(value)
         return self.set_cookie(key, value, **kwargs)
 
@@ -648,6 +663,9 @@ class HttpResponseNotModified(HttpResponse):
     status_code = 304
 
     def __init__(self, *args, **kwargs):
+        """
+        Initializes an instance of the class, inheriting from a parent class and removing the 'content-type' key from its internal dictionary upon creation.
+        """
         super().__init__(*args, **kwargs)
         del self["content-type"]
 

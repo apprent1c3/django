@@ -50,6 +50,24 @@ class Command(BaseCommand):
         )
 
     def handle(self, *app_labels, **options):
+        """
+
+        Handle the execution of system checks based on provided application labels and options.
+
+        This function takes in a variable number of application labels and optional keyword arguments.
+        It supports the following options:
+            - deploy: Whether to include deployment checks.
+            - list_tags: List available system check tags.
+            - tags: Specific tags to run checks for.
+            - fail_level: Level at which to fail (e.g. 'WARN', 'ERROR').
+            - databases: Database(s) to run checks against.
+
+        If 'list_tags' is specified, it will display the available system check tags, filtered by 'deploy' if necessary.
+        Otherwise, it will run system checks for the specified application labels and tags.
+        If no application labels are provided, checks will be run for all applications.
+        It will raise an error if any specified tags do not exist or if a check fails at the specified fail level.
+
+        """
         include_deployment_checks = options["deploy"]
         if options["list_tags"]:
             self.stdout.write(

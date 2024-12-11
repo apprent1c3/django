@@ -314,6 +314,17 @@ class WhereNode(tree.Node):
         return self.output_field.get_lookup(lookup)
 
     def leaves(self):
+        """
+        Yields the leaf child nodes of the current node.
+
+        This function recursively traverses the node's children and returns individual nodes that do not have children of their own. It stops recursing when it encounters a node that is not a :class:`WhereNode`, effectively filtering out any internal nodes.
+
+        The returned nodes are the 'leaves' of the tree rooted at the current node, and can be used for further processing or analysis.
+
+        Returns:
+            Generator of child nodes that are leaves of the tree.
+
+        """
         for child in self.children:
             if isinstance(child, WhereNode):
                 yield from child.leaves()
@@ -359,6 +370,17 @@ class SubqueryConstraint:
         self.query_object = query_object
 
     def as_sql(self, compiler, connection):
+        """
+        Render the query object as a SQL subquery condition.
+
+        This method is responsible for generating the SQL representation of the query object,
+        using the provided compiler and database connection. It takes into account the target
+        values and alias, and returns the resulting SQL as a subquery condition.
+
+        :param compiler: The SQL compiler to use for generating the query.
+        :param connection: The database connection to use for compiling the query.
+        :return: The query object rendered as a SQL subquery condition.
+        """
         query = self.query_object
         query.set_values(self.targets)
         query_compiler = query.get_compiler(connection=connection)

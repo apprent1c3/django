@@ -36,6 +36,22 @@ class ASinTests(TestCase):
         self.assertAlmostEqual(obj.f2_asin, math.asin(obj.f2))
 
     def test_integer(self):
+        """
+
+        Tests the application of the ASin function to integer fields in a database model.
+
+        This test case verifies that the ASin function correctly calculates the arc sine 
+        of integer values in a database model, and that the result is returned as a float.
+
+        The test checks the following conditions:
+        - The ASin function can be applied to integer fields.
+        - The result of the ASin function is a float.
+        - The calculated value of the ASin function matches the expected value from the math library.
+
+        The test case covers a range of input values, including small, normal, and big integers, 
+        to ensure that the ASin function behaves as expected in different scenarios.
+
+        """
         IntegerModel.objects.create(small=0, normal=1, big=-1)
         obj = IntegerModel.objects.annotate(
             small_asin=ASin("small"),

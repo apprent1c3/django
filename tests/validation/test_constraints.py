@@ -90,6 +90,15 @@ class PerformConstraintChecksTest(TestCase):
 
     @skipUnlessDBFeature("supports_partial_indexes")
     def test_full_clean_with_partial_unique_constraints_disabled(self):
+        """
+        Tests the full_clean method on a model instance with partial unique constraints disabled.
+
+         This test case verifies the functionality of the full_clean method when it is called with the validate_constraints flag set to False.
+
+         It creates an instance of the UniqueConstraintConditionProduct model and saves it to the database, then creates another instance with the same name and calls full_clean on it without validating constraints, to ensure the expected behavior is observed.
+
+         This test is skipped unless the database feature 'supports_partial_indexes' is supported, as partial unique constraints rely on this feature.
+        """
         UniqueConstraintConditionProduct.objects.create(name="product")
         product = UniqueConstraintConditionProduct(name="product")
         product.full_clean(validate_constraints=False)

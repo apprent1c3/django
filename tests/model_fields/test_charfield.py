@@ -79,12 +79,21 @@ class ValidationTests(SimpleTestCase):
         self.assertEqual(f.clean("c", None), "c")
 
     def test_enum_choices_invalid_input(self):
+        """
+        Tests that the CharField validation fails when an invalid choice is provided for an enumeration field, 
+         raising a ValidationError with a user-friendly error message indicating the invalid value.
+        """
         f = models.CharField(choices=self.Choices, max_length=1)
         msg = "Value 'a' is not a valid choice."
         with self.assertRaisesMessage(ValidationError, msg):
             f.clean("a", None)
 
     def test_charfield_raises_error_on_empty_input(self):
+        """
+        Verifies that a CharField with null=False raises a ValidationError when given empty input.
+
+        The test ensures that the field enforces its null constraint by checking for the expected error message when attempting to clean a null value.
+        """
         f = models.CharField(null=False)
         msg = "This field cannot be null."
         with self.assertRaisesMessage(ValidationError, msg):

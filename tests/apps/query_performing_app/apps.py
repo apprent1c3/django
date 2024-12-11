@@ -11,6 +11,18 @@ class BaseAppConfig(AppConfig):
         self.query_results = []
 
     def ready(self):
+        """
+
+        Initializes and performs a query to prepare the object for use.
+
+        This method resets the internal state by clearing any previous query results and 
+        then executes the query using the `_perform_query` method. The results of the 
+        query are stored internally and are accessible after this method has been called.
+
+        Use this method to ensure the object is in a ready state before attempting to 
+        access query results.
+
+        """
         self.query_results = []
         self._perform_query()
 
