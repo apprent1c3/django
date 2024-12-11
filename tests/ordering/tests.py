@@ -143,6 +143,21 @@ class OrderingTests(TestCase):
         self.assertSequenceEqual(queryset.reverse(), list(reversed(sequence)))
 
     def test_order_by_nulls_last(self):
+        """
+
+        Tests the behavior of ordering querysets with null values at the end.
+
+        This function verifies that database records can be sorted by specified fields in
+        both ascending and descending order, with null values appearing at the end of the
+        result set. It checks this behavior for fields of type 'author' and 'author__name'
+        (with case-insensitive comparison), ensuring that null values are correctly
+        handled by the 'nulls_last=True' argument.
+
+        Multiple test cases are covered, including different combinations of sorting fields
+        and ordering directions, to guarantee the correct ordering of records with and
+        without null values.
+
+        """
         Article.objects.filter(headline="Article 3").update(author=self.author_1)
         Article.objects.filter(headline="Article 4").update(author=self.author_2)
         # asc and desc are chainable with nulls_last.
@@ -174,6 +189,14 @@ class OrderingTests(TestCase):
         )
 
     def test_order_by_nulls_first(self):
+        """
+        Tests the behavior of ordering database query results by a field with null values first.
+
+        This test case covers different scenarios for ordering query results in ascending and descending order, 
+        including ordering by a field with null values and a secondary field for tie-breakers. 
+        It verifies that null values are placed first in the order when specified. 
+        The test also checks the ordering when using database functions, such as Upper, to modify the field being ordered on.
+        """
         Article.objects.filter(headline="Article 3").update(author=self.author_1)
         Article.objects.filter(headline="Article 4").update(author=self.author_2)
         # asc and desc are chainable with nulls_first.
@@ -205,6 +228,16 @@ class OrderingTests(TestCase):
         )
 
     def test_orders_nulls_first_on_filtered_subquery(self):
+        """
+
+        Tests that the orders with nulls first when filtering on subquery.
+
+        This test checks if null values are correctly ordered when filtering on a subquery.
+        It verifies that authors are ordered by their last article publication date, with null dates appearing first.
+        The test covers the scenario where authors have articles with publication dates, and where authors have no articles.
+        The expected result is a list of authors in ascending order of their last article publication date, with authors having no articles (and thus null dates) appearing first.
+
+        """
         Article.objects.filter(headline="Article 1").update(author=self.author_1)
         Article.objects.filter(headline="Article 2").update(author=self.author_1)
         Article.objects.filter(headline="Article 4").update(author=self.author_2)
@@ -441,6 +474,21 @@ class OrderingTests(TestCase):
         )
 
     def test_order_by_f_expression(self):
+        """
+
+        Tests the functionality of ordering QuerySets using F-expressions.
+
+        This test case verifies that the `order_by` method can correctly sort
+        QuerySets based on a given F-expression, which allows for dynamic
+        ordering of database fields. The test covers three scenarios:
+        - Ordering by an F-expression without specifying an order (defaults to ascending).
+        - Ordering by an F-expression with an ascending order.
+        - Ordering by an F-expression with a descending order.
+
+        Each scenario is verified by comparing the resulting QuerySet to an
+        expected list of article headlines, ensuring that the ordering is correct.
+
+        """
         self.assertQuerySetEqual(
             Article.objects.order_by(F("headline")),
             [
@@ -599,6 +647,17 @@ class OrderingTests(TestCase):
         )
 
     def test_order_by_grandparent_fk_with_expression_in_default_ordering(self):
+        """
+
+        Tests the ordering of grandchild objects based on their grandparent's foreign key,
+        to ensure they are ordered correctly by the default ordering expression.
+
+        This test case verifies that the grandchild objects are ordered in the correct sequence,
+        which is determined by the ordering of their parent objects. The test creates a set of
+        parent, child, and grandchild objects with specific names, and then checks that the
+        grandchild objects are returned in the expected order when ordered by their parent.
+
+        """
         p3 = OrderedByExpression.objects.create(name="oBJ 3")
         p2 = OrderedByExpression.objects.create(name="OBJ 2")
         p1 = OrderedByExpression.objects.create(name="obj 1")
@@ -640,6 +699,19 @@ class OrderingTests(TestCase):
         )
 
     def test_order_by_expr_query_reuse(self):
+        """
+
+        Tests if a queryset ordered by an expression can be reused, specifically when 
+        using the iterator method, by comparing the results with the original queryset.
+
+        Verifies that the ordering of the results is preserved when iterating over the 
+        queryset multiple times, ensuring that the database query is correctly reused 
+        and the results are consistent. 
+
+        The test case uses a queryset of authors annotated with the count of their 
+        articles, ordered by the count in descending order and then by the author's primary key.
+
+        """
         qs = Author.objects.annotate(num=Count("article")).order_by(
             F("num").desc(), "pk"
         )

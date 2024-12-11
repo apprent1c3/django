@@ -18,6 +18,16 @@ from .models import Article, ArticleProxy, Car, InheritedLogEntryManager, Site
 class LogEntryTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Set up test data for the class.
+
+        This method creates a set of test data that can be used across all test methods in the class.
+        It includes a superuser, a site, and three articles, each associated with the site and created at different dates.
+        Additionally, it logs a change action for one of the articles, simulating a user interaction.
+
+        The test data is created as class attributes, making it accessible to all test methods.
+        This setup allows for efficient testing of functionality that relies on these objects, without having to recreate them in each test case.
+        """
         cls.user = User.objects.create_superuser(
             username="super", password="secret", email="super@example.com"
         )
@@ -217,6 +227,13 @@ class LogEntryTests(TestCase):
         self.assertIsNone(logentry.get_admin_url())
 
     def test_logentry_unicode(self):
+        """
+
+        Tests the string representation of a LogEntry object to ensure that it correctly handles different action flags, including additions, changes, deletions, and unknown or invalid actions.
+
+        The test checks that the string representation of the LogEntry object starts with the expected prefix ('Added ', 'Changed ', 'Deleted ') for the respective action flags. If an unknown or invalid action flag is set, it verifies that the string representation defaults to a generic 'LogEntry Object' message.
+
+        """
         log_entry = LogEntry()
 
         log_entry.action_flag = ADDITION
@@ -233,6 +250,9 @@ class LogEntryTests(TestCase):
         self.assertEqual(str(log_entry), "LogEntry Object")
 
     def test_logentry_repr(self):
+        """
+        Checks if the string representation of a LogEntry object matches the string representation of its action time. This ensures that the repr function of LogEntry returns a meaningful and expected output, which is useful for debugging purposes. The test verifies that the object's representation can be easily identified by its action time.
+        """
         logentry = LogEntry.objects.first()
         self.assertEqual(repr(logentry), str(logentry.action_time))
 
@@ -252,6 +272,19 @@ class LogEntryTests(TestCase):
         self.assertEqual(log_entry, LogEntry.objects.latest("id"))
 
     def test_log_actions(self):
+        """
+
+        Test the logging of deletion actions on a queryset of articles.
+
+        This test case verifies that the log actions functionality correctly logs the deletion
+        of articles in the database. It checks that the expected log entries are created with
+        the correct user, content type, object IDs, and change message.
+
+        The test simulates the deletion of articles and then asserts that the log entries are
+        correctly generated, including the user who performed the action, the type of objects
+        deleted, and the change message associated with the deletion.
+
+        """
         queryset = Article.objects.all().order_by("-id")
         msg = "Deleted Something"
         content_type = ContentType.objects.get_for_model(self.a1)
@@ -399,6 +432,21 @@ class LogEntryTests(TestCase):
         self.assertEqual(proxy_delete_log.content_type, proxy_content_type)
 
     def test_action_flag_choices(self):
+        """
+        Tests the action flag choices for LogEntry instances.
+
+        Verifies that the :meth:`get_action_flag_display` method returns the correct display name for each action flag.
+        The test covers a set of predefined action flags and their corresponding display names, ensuring that the method behaves as expected for different inputs.
+
+        The action flags and display names tested are:
+
+        * Addition (flag: 1)
+        * Change (flag: 2)
+        * Deletion (flag: 3)
+
+        Each action flag is tested individually, with the test result dependent on the correctness of the display name returned by :meth:`get_action_flag_display`.
+
+        """
         tests = ((1, "Addition"), (2, "Change"), (3, "Deletion"))
         for action_flag, display_name in tests:
             with self.subTest(action_flag=action_flag):

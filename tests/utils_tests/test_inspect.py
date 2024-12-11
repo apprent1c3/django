@@ -57,6 +57,16 @@ class TestInspectMethods(unittest.TestCase):
         self.assertEqual(inspect.get_func_full_args(Person().all_kinds), arguments)
 
     def test_get_func_full_args_all_arguments_classmethod(self):
+        """
+
+        Tests whether :func:`inspect.get_func_full_args` correctly retrieves all arguments 
+        from a class method that includes regular arguments, *args, and **kwargs.
+
+        This test verifies that the function returns the expected list of argument types 
+        for both class and instance method calls, ensuring consistency in argument 
+        reflection across different calling contexts.
+
+        """
         arguments = [
             ("name",),
             ("address", "home"),
@@ -76,6 +86,14 @@ class TestInspectMethods(unittest.TestCase):
         self.assertIs(inspect.func_accepts_var_args(Person().one_argument), False)
 
     def test_method_has_no_args(self):
+        """
+        Tests that a helper function correctly identifies methods with and without arguments.
+
+        This test case verifies the functionality of :func:`inspect.method_has_no_args` 
+        by checking its output for different methods of the :class:`Person` class. 
+        It ensures that methods without arguments are properly identified, 
+        regardless of whether they are accessed through the class or an instance.
+        """
         self.assertIs(inspect.method_has_no_args(Person.no_arguments), True)
         self.assertIs(inspect.method_has_no_args(Person().no_arguments), True)
         self.assertIs(inspect.method_has_no_args(Person.one_argument), False)

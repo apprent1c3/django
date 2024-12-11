@@ -51,6 +51,22 @@ def user_passes_test(
         else:
 
             def _view_wrapper(request, *args, **kwargs):
+                """
+
+                Wraps a view function with a test function to determine whether the user can access the view.
+
+                The test function is called with the current user as an argument, and its result determines whether the view function is called.
+                If the test function returns True, the view function is executed with the original request, arguments, and keyword arguments.
+                If the test function returns False, the user is redirected to the login page.
+
+                The test function can be either a synchronous or asynchronous function; the wrapper handles both cases accordingly.
+
+                :param request: The current HTTP request
+                :param args: Variable number of positional arguments to pass to the view function
+                :param kwargs: Variable number of keyword arguments to pass to the view function
+                :return: The result of the view function if the test passes, or a redirect to the login page if the test fails
+
+                """
                 if asyncio.iscoroutinefunction(test_func):
                     test_pass = async_to_sync(test_func)(request.user)
                 else:
@@ -107,6 +123,26 @@ def permission_required(perm, login_url=None, raise_exception=False):
         perms = perm
 
     def decorator(view_func):
+        """
+
+        Check if a user has the required permissions for a view function.
+
+        This decorator determines whether a user has the necessary permissions to access a view function.
+        It checks the user's permissions synchronously or asynchronously, depending on whether the view function is a coroutine.
+
+        The decorator takes a view function as an argument and returns a new view function that wraps the original one.
+        It then checks the user's permissions and grants access if they match the required permissions.
+
+        If the permissions do not match and `raise_exception` is True, it raises a PermissionDenied exception.
+        Otherwise, it redirects the user to the specified `login_url`.
+
+        Args:
+            view_func: The view function to be decorated.
+
+        Returns:
+            A new view function that checks user permissions before executing the original view function.
+
+        """
         if asyncio.iscoroutinefunction(view_func):
 
             async def check_perms(user):

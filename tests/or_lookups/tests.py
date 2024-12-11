@@ -108,6 +108,18 @@ class OrLookupsTests(TestCase):
 
     def test_q_negated(self):
         # Q objects can be negated
+        """
+
+        Tests how Django's Q objects handle negation when filtering Article objects.
+
+        The function checks three scenarios:
+        - Retrieving articles that match either a specific article or do not match another specific article.
+        - Retrieving articles that do not match two specific articles.
+        - Retrieving articles that match a specific article and either do not match another article or match a third article.
+
+        These tests cover combinations of logical OR and AND operations, with and without negation, ensuring the correct application of Q objects in filtering Article querysets.
+
+        """
         self.assertQuerySetEqual(
             Article.objects.filter(Q(pk=self.a1) | ~Q(pk=self.a2)),
             ["Hello", "Hello and goodbye"],
@@ -131,6 +143,20 @@ class OrLookupsTests(TestCase):
         # The 'complex_filter' method supports framework features such as
         # 'limit_choices_to' which normally take a single dictionary of lookup
         # arguments but need to support arbitrary queries via Q objects too.
+        """
+
+        Tests the complex_filter method on a QuerySet of Article objects.
+
+        The complex_filter method applies a given filter to the QuerySet and returns the filtered results.
+        It accepts a dictionary or a django.db.models.Q object as the filter.
+
+        This test case checks two scenarios:
+        - Filtering by a single object's primary key
+        - Filtering by a combination of two objects' primary keys using the 'or' operator.
+
+        It verifies that the filtered results match the expected headlines.
+
+        """
         self.assertQuerySetEqual(
             Article.objects.complex_filter({"pk": self.a1}),
             ["Hello"],

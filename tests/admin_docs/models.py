@@ -47,6 +47,15 @@ class Person(models.Model):
         return "%s %s" % (self.first_name, self.last_name)
 
     def rename_company(self, new_name):
+        """
+
+        Rename the company associated with this object.
+
+        :param new_name: The new name to be assigned to the company
+        :return: The new name of the company
+        :rtype: str
+
+        """
         self.company.name = new_name
         self.company.save()
         return new_name

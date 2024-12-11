@@ -45,6 +45,19 @@ class CreateModel(ModelOperation):
     serialization_expand_args = ["fields", "options", "managers"]
 
     def __init__(self, name, fields, options=None, bases=None, managers=None):
+        """
+
+        Initializes a new model with the given name, fields, options, bases, and managers.
+
+        :param name: The name of the model.
+        :param fields: A list of fields that the model contains.
+        :param options: Additional options for the model. Defaults to an empty dictionary.
+        :param bases: A list of base classes for the model. Defaults to (models.Model,).
+        :param managers: A list of managers for the model. Defaults to an empty list.
+
+        This method sets up the model's attributes and checks for any duplicate fields, bases, or managers. It also calls the parent class's constructor with the model's name.
+
+        """
         self.fields = fields
         self.options = options or {}
         self.bases = bases or (models.Model,)
@@ -445,6 +458,23 @@ class RenameModel(ModelOperation):
         state.rename_model(app_label, self.old_name, self.new_name)
 
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
+        """
+
+        Alters the database table for a model that has been renamed.
+
+        This function is used in the process of renaming a model, and handles the necessary changes to the database schema.
+        It updates the table name in the database for the model, and also updates any foreign key references to the old table name.
+
+        The function operates on the new and old states of the model, using the provided schema editor to make the necessary changes.
+        It checks for any related objects that reference the old model, and updates their fields to reference the new model instead.
+        It also updates any many-to-many fields that have been changed as a result of the rename.
+
+        :param app_label: The label of the application that the model belongs to.
+        :param schema_editor: The schema editor to use to make changes to the database schema.
+        :param from_state: The old state of the model.
+        :param to_state: The new state of the model.
+
+        """
         new_model = to_state.apps.get_model(app_label, self.new_name)
         if self.allow_migrate_model(schema_editor.connection.alias, new_model):
             old_model = from_state.apps.get_model(app_label, self.old_name)
@@ -818,6 +848,16 @@ class AlterModelOptions(ModelOptionOperation):
     ]
 
     def __init__(self, name, options):
+        """
+
+        Initialize an instance of the class.
+
+        :param name: The name of the instance.
+        :param options: A collection of options to be used by the instance.
+
+        Initializes the instance with the provided name and options, then calls the parent class's initializer. 
+
+        """
         self.options = options
         super().__init__(name)
 
@@ -893,6 +933,14 @@ class AddIndex(IndexOperation):
     category = OperationCategory.ADDITION
 
     def __init__(self, model_name, index):
+        """
+        Initializes an instance of the class responsible for adding an index to a model.
+
+        :param model_name: The name of the model to which the index will be added.
+        :param index: The index to be added, which must have a name.
+
+        :raises ValueError: If the index does not have a name.
+        """
         self.model_name = model_name
         if not index.name:
             raise ValueError(
@@ -943,6 +991,19 @@ class AddIndex(IndexOperation):
         return "%s_%s" % (self.model_name_lower, self.index.name.lower())
 
     def reduce(self, operation, app_label):
+        """
+        Reduce an operation on the index.
+
+        This function takes an operation and an application label, and applies the operation to the index.
+        It checks if the operation is to remove or rename the current index, and handles these cases directly.
+        If the operation is to remove the index, it returns an empty list, effectively removing the index.
+        If the operation is to rename the index, it updates the index name and returns a new add index operation.
+        If the operation is neither a removal nor a rename, it delegates to the parent class's reduce method.
+
+        :param operation: The operation to be applied to the index
+        :param app_label: The application label for the operation
+        :return: A list of operations resulting from reducing the given operation
+        """
         if isinstance(operation, RemoveIndex) and self.index.name == operation.name:
             return []
         if isinstance(operation, RenameIndex) and self.index.name == operation.old_name:
@@ -957,6 +1018,17 @@ class RemoveIndex(IndexOperation):
     category = OperationCategory.REMOVAL
 
     def __init__(self, model_name, name):
+        """
+        Initializes an instance with a model name and a unique name.
+
+            This is a constructor method that sets up the basic attributes of the class.
+            It requires two parameters: the name of the model and a name for the instance.
+            These attributes are used to identify and distinguish instances of the class.
+
+            :param model_name: The name of the model associated with this instance.
+            :param name: A unique name for the instance.
+
+        """
         self.model_name = model_name
         self.name = name
 
@@ -1025,6 +1097,14 @@ class RenameIndex(IndexOperation):
         return self.new_name.lower()
 
     def deconstruct(self):
+        """
+        Deconstructs the object into a tuple that can be used to recreate it.
+
+        This method returns a tuple containing the class name, an empty list, and a dictionary of keyword arguments.
+        The dictionary includes the model name, new name, and optionally the old name and old fields if they are set.
+
+        The returned tuple can be used to instantiate a new object of the same class with the same attributes.
+        """
         kwargs = {
             "model_name": self.model_name,
             "new_name": self.new_name,
@@ -1054,6 +1134,20 @@ class RenameIndex(IndexOperation):
             )
 
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
+        """
+
+        Rename an index in a database table.
+
+        This function updates the name of an existing index in a database table when its model's index name is changed.
+
+        :param app_label: The label of the application containing the model to modify.
+        :param schema_editor: The object used to perform the schema changes.
+        :param from_state: The current state of the model, including its fields and indexes.
+        :param to_state: The new state of the model, including its updated fields and indexes.
+
+        :raises ValueError: If the number of matching indexes for the old index is not exactly one.
+
+        """
         model = to_state.apps.get_model(app_label, self.model_name)
         if not self.allow_migrate_model(schema_editor.connection.alias, model):
             return

@@ -5,6 +5,22 @@ from django.db.models.sql import compiler
 
 class SQLCompiler(compiler.SQLCompiler):
     def as_subquery_condition(self, alias, columns, compiler):
+        """
+
+        Generates a SQL condition that represents the current query as a subquery.
+
+        This method returns a tuple containing a SQL string and parameters. The SQL string
+        represents a condition where the specified columns are present in the results of
+        the subquery. The columns are qualified with the given alias to prevent ambiguity.
+
+        The generated SQL condition is in the form \"(column1, column2,...) IN (subquery)\".
+
+        :param alias: The alias to use when qualifying the columns.
+        :param columns: The columns to include in the condition.
+        :param compiler: The compiler object used to quote names and generate SQL.
+        :return: A tuple containing the SQL condition and parameters.
+
+        """
         qn = compiler.quote_name_unless_alias
         qn2 = self.connection.ops.quote_name
         sql, params = self.as_sql()

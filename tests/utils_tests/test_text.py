@@ -96,6 +96,18 @@ class TestUtilsText(SimpleTestCase):
         )
 
     def test_truncate_chars_html(self):
+        """
+
+        Tests the truncation of HTML strings at a specified character length.
+
+        Verifies that the `chars` method of the `Truncator` class correctly truncates HTML strings to a specified length, 
+        handling cases where the length is greater than, equal to, or less than the length of the input string. 
+        Also tests truncation with custom ellipsis strings and edge cases such as truncating to zero or a negative length.
+
+        The test checks that the resulting truncated string is correctly formatted as HTML, with tags properly closed and 
+        ellipses added as necessary to indicate truncation.
+
+        """
         truncator = text.Truncator(
             '<p id="par"><strong><em>The quick brown fox jumped over the lazy dog.</em>'
             "</strong></p>"
@@ -321,6 +333,21 @@ class TestUtilsText(SimpleTestCase):
 
     @patch("django.utils.text.Truncator.MAX_LENGTH_HTML", 10_000)
     def test_truncate_words_html_size_limit(self):
+        """
+
+        Tests the Truncator class's words method with HTML size limit.
+
+        This test case ensures that the Truncator class correctly truncates HTML strings
+        to the specified word limit while adhering to the maximum allowed HTML length.
+        It covers various edge cases, including strings with HTML tags, entities, and
+        excessive whitespace. The test verifies that the truncation is performed correctly
+        and that the resulting string is valid HTML.
+
+        The test includes performance test values with different input scenarios to ensure
+        that the truncation works as expected in various situations, including when the
+        input string exceeds the maximum allowed HTML length.
+
+        """
         max_len = text.Truncator.MAX_LENGTH_HTML
         bigger_len = text.Truncator.MAX_LENGTH_HTML + 1
         valid_html = "<p>Joel is a slug</p>"  # 4 words
@@ -368,6 +395,15 @@ class TestUtilsText(SimpleTestCase):
         )
 
     def test_phone2numeric(self):
+        """
+        #: Tests the conversion of a phonetic phone number to its numeric equivalent.
+        #: 
+        #: The function compares the result of converting a phonetic phone number, 
+        #: such as '0800 flowers', to its numeric representation, '0800 3569377'. 
+        #: It also checks the functionality when used with a lazy string. 
+        #: 
+        #: :raises AssertionError: If the conversion does not produce the expected result.
+        """
         numeric = text.phone2numeric("0800 flowers")
         self.assertEqual(numeric, "0800 3569377")
         lazy_numeric = lazystr(text.phone2numeric("0800 flowers"))
@@ -418,6 +454,17 @@ class TestUtilsText(SimpleTestCase):
                 text.unescape_string_literal(item)
 
     def test_get_valid_filename(self):
+        """
+
+        Test the get_valid_filename function to ensure it correctly validates and sanitizes filenames.
+
+        This test checks the function's behavior with a variety of inputs, including a filename with special characters, 
+        a lazy string version of the same filename, and two filenames that should raise an exception due to their invalid format.
+
+        The expected behavior is that the function will replace or remove any invalid characters in the filename and return a valid filename.
+        If the input filename is invalid and cannot be sanitized, the function should raise a SuspiciousFileOperation exception with a descriptive message.
+
+        """
         filename = "^&'@{}[],$=!-#()%+~_123.txt"
         self.assertEqual(text.get_valid_filename(filename), "-_123.txt")
         self.assertEqual(text.get_valid_filename(lazystr(filename)), "-_123.txt")
@@ -430,6 +477,19 @@ class TestUtilsText(SimpleTestCase):
             text.get_valid_filename("$.$.$")
 
     def test_compress_sequence(self):
+        """
+
+        Compresses a sequence of JSON-encoded data.
+
+        This function tests the compression of a sequence of JSON-encoded data by comparing the length of the original sequence with the length of the compressed sequence.
+
+        The original sequence is generated from a list of dictionaries, each containing a single key-value pair. The sequence is then compressed using the :func:`~text.compress_sequence` function.
+
+        The test asserts that the length of the compressed sequence is less than the length of the original sequence, verifying that the compression is effective.
+
+        :raises: AssertionError if the compressed sequence is not shorter than the original sequence
+
+        """
         data = [{"key": i} for i in range(10)]
         seq = list(json.JSONEncoder().iterencode(data))
         seq = [s.encode() for s in seq]

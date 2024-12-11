@@ -227,6 +227,15 @@ class ModelInheritanceTests(TestCase):
                     self.assertIn("INSERT INTO", sql, sql)
 
     def test_create_copy_with_inherited_m2m(self):
+        """
+
+        Tests that a new supplier instance created as a copy of an existing supplier
+        inherits the many-to-many relationship with customers.
+
+        This test case verifies that when a supplier is duplicated, its associated customers
+        are properly transferred to the new supplier instance, ensuring data consistency.
+
+        """
         restaurant = Restaurant.objects.create()
         supplier = CustomSupplier.objects.create(
             name="Central market", address="944 W. Fullerton"
@@ -244,10 +253,26 @@ class ModelInheritanceTests(TestCase):
 
     def test_eq(self):
         # Equality doesn't transfer in multitable inheritance.
+        """
+
+        Tests the equality of Place and Restaurant objects.
+
+        Verifies that instances of Place and Restaurant are not considered equal, 
+        even if they have the same id. This check ensures that the equality 
+        comparison correctly distinguishes between these two distinct classes.
+
+        """
         self.assertNotEqual(Place(id=1), Restaurant(id=1))
         self.assertNotEqual(Restaurant(id=1), Place(id=1))
 
     def test_mixin_init(self):
+        """
+
+        Tests the initialization of the MixinModel class.
+
+        Verifies that upon creation, the instance attribute 'other_attr' is correctly set to its expected initial value.
+
+        """
         m = MixinModel()
         self.assertEqual(m.other_attr, 1)
 
@@ -273,6 +298,18 @@ class ModelInheritanceTests(TestCase):
 
         class A(models.Model):
             def __init_subclass__(cls, **kwargs):
+                """
+
+                Initializes a subclass, updating the saved keyword arguments.
+
+                This method is automatically called when a subclass is created, allowing for
+                the registration of additional keyword arguments. The provided keyword arguments
+                are stored for later use, extending the functionality of the base class.
+
+                :param cls: The subclass being initialized.
+                :param **kwargs: Keyword arguments to update and store.
+
+                """
                 super().__init_subclass__()
                 saved_kwargs.update(kwargs)
 
@@ -285,10 +322,32 @@ class ModelInheritanceTests(TestCase):
 
     @isolate_apps("model_inheritance")
     def test_set_name(self):
+        """
+        Tests that the __set_name__ method is correctly called when a class attribute is set.
+
+        This test verifies that the __set_name__ method is invoked with the correct owner and name when an instance of a class is created, specifically in the context of Django model inheritance.
+
+        The test checks that the __set_name__ method is called with the class as the owner and the attribute name as the name, and that the method is only called once, as indicated by the 'called' attribute being initially None and then set to the expected values.
+
+        The test case covers the scenario where a class attribute is defined with a custom descriptor class that implements the __set_name__ method, which is a common pattern in Django model inheritance. The test ensures that the descriptor is properly initialized and that the __set_name__ method is called as expected.
+        """
         class ClassAttr:
             called = None
 
             def __set_name__(self_, owner, name):
+                """
+
+                Called when an instance of this object is assigned to a container.
+
+                This method is part of the descriptor protocol in Python, allowing the object
+                to track its ownership and name within the container. It records the owner
+                and name of the attribute as a tuple, marking the instance as called.
+
+                :param self_: The instance being assigned.
+                :param owner: The class or object owning the attribute.
+                :param name: The name of the attribute.
+
+                """
                 self.assertIsNone(self_.called)
                 self_.called = (owner, name)
 
@@ -376,6 +435,13 @@ class ModelInheritanceDataTests(TestCase):
         )
 
     def test_update_inherited_model(self):
+        """
+        Tests the update functionality of a model that inherits from another model.
+
+        Verifies that changes made to an instance of the inheriting model are persisted to the database and can be retrieved correctly.
+        The test specifically checks that updating an attribute, in this case the address, results in the correct data being stored and retrieved.
+        The expected outcome is that the updated instance is returned when querying the database with the new attribute value.
+        """
         self.italian_restaurant.address = "1234 W. Elm"
         self.italian_restaurant.save()
         self.assertQuerySetEqual(
@@ -388,6 +454,14 @@ class ModelInheritanceDataTests(TestCase):
 
     def test_parent_fields_available_for_filtering_in_child_model(self):
         # Parent fields can be used directly in filters on the child model.
+        """
+
+        Verify that fields from parent models are accessible for filtering in child models.
+
+        This test checks if attributes defined in a parent model can be used as filters when querying a child model.
+        It ensures that the relationship between parent and child models allows for proper filtering based on parent fields.
+
+        """
         self.assertQuerySetEqual(
             Restaurant.objects.filter(name="Demon Dogs"),
             [
@@ -412,6 +486,13 @@ class ModelInheritanceDataTests(TestCase):
         # Since the parent and child are linked by an automatically created
         # OneToOneField, you can get from the parent to the child by using the
         # child's name.
+        """
+        Tests one-to-one relationships between parent and child objects in the database, specifically between Places and Restaurants, as well as between Restaurants and their specialized types like ItalianRestaurants. 
+
+        The function verifies that the associations between these objects are correctly established, ensuring that each object can be retrieved from its parent or child object, and that these relationships are consistent across different types of restaurants. 
+
+        This test case covers scenarios where a Place is linked to a Restaurant, and a Restaurant is linked to its specific type, in this case, an ItalianRestaurant, validating the integrity of these one-to-one links.
+        """
         self.assertEqual(
             Place.objects.get(name="Demon Dogs").restaurant,
             Restaurant.objects.get(name="Demon Dogs"),
@@ -428,6 +509,16 @@ class ModelInheritanceDataTests(TestCase):
     def test_parent_child_one_to_one_link_on_nonrelated_objects(self):
         # This won't work because the Demon Dogs restaurant is not an Italian
         # restaurant.
+        """
+
+        Tests that a One-To-One link between parent and child objects raises a DoesNotExist exception 
+        when attempting to access the child object on a parent object that does not have a related child object.
+
+        This test ensures that the ItalianRestaurant child object cannot be accessed on a Place object 
+        that is not related to an ItalianRestaurant, specifically verifying that the link between 
+        non-related objects is properly handled.
+
+        """
         with self.assertRaises(ItalianRestaurant.DoesNotExist):
             Place.objects.get(name="Demon Dogs").restaurant.italianrestaurant
 
@@ -489,6 +580,11 @@ class ModelInheritanceDataTests(TestCase):
     def test_update_works_on_parent_and_child_models_at_once(self):
         # The update() command can update fields in parent and child classes at
         # once (although it executed multiple SQL queries to do so).
+        """
+        Tests that the update method can modify both parent and child models simultaneously, verifying the successful update of a Restaurant object's attributes. 
+
+        The function checks that a single row is updated when filtering by specific conditions, and then asserts that the updated object's attributes match the expected values, ensuring that the update operation is correctly applied.
+        """
         rows = Restaurant.objects.filter(
             serves_hot_dogs=True, name__contains="D"
         ).update(name="Demon Puppies", serves_hot_dogs=False)
@@ -538,6 +634,18 @@ class ModelInheritanceDataTests(TestCase):
         self.assertEqual(qs[1].italianrestaurant.rating, 4)
 
     def test_parent_cache_reuse(self):
+        """
+        Tests the caching behavior of the parent relationship in the object hierarchy.
+
+        This test creates a place and a grandchild object, then traverses the object hierarchy
+        from the grandparent to the grandchild, verifying that the place attribute is correctly
+        reused from the cache, reducing the number of database queries.
+
+        The test checks that the first query to the grandparent's place attribute results in a
+        single database query, and subsequent queries to the place attribute of the parent,
+        child, and grandchild objects do not result in additional queries, demonstrating the
+        correct caching of the parent relationship.
+        """
         place = Place.objects.create()
         GrandChild.objects.create(place=place)
         grand_parent = GrandParent.objects.latest("pk")
@@ -652,6 +760,17 @@ class InheritanceUniqueTests(TestCase):
         )
 
     def test_unique(self):
+        """
+
+        Tests the validation of a GrandChild instance with a unique email address.
+
+        Verifies that attempting to validate a GrandChild with an email address that already
+        exists in the system raises a ValidationError with an informative error message.
+
+        This test ensures that the data integrity of the GrandChild instances is maintained,
+        preventing duplicate email addresses from being created.
+
+        """
         grand_child = GrandChild(
             email=self.grand_parent.email,
             first_name="grand",
@@ -662,6 +781,13 @@ class InheritanceUniqueTests(TestCase):
             grand_child.validate_unique()
 
     def test_unique_together(self):
+        """
+        Tests the uniqueness constraint on a GrandChild instance with respect to its grand parent's first and last name.
+
+        The function attempts to create a GrandChild object with a first and last name that already exists for a grand parent, 
+        then checks that a ValidationError is raised with the expected error message, ensuring that the unique_together 
+        constraint is properly enforced.
+        """
         grand_child = GrandChild(
             email="grand_child@example.com",
             first_name=self.grand_parent.first_name,

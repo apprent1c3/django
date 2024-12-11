@@ -57,6 +57,24 @@ class Join:
         filtered_relation=None,
     ):
         # Join table
+        """
+        Initializes a join between two tables.
+
+        This constructor sets up the necessary parameters for a table join, including the names of the tables,
+        their respective aliases, the type of join to be performed, and the fields on which the join is based.
+
+        The join type and fields can be customized, and the join can also be set as nullable or non-nullable.
+        Optionally, a filtered relation can be provided to further restrict the joined data.
+
+        Parameters:
+            table_name (str): The name of the table being joined.
+            parent_alias (str): The alias of the parent table in the join.
+            table_alias (str): The alias of the table being joined.
+            join_type (str): The type of join to be performed (e.g., inner, outer, left, right).
+            join_field (object): The field or object defining the join relationship.
+            nullable (bool): Whether the join is nullable.
+            filtered_relation (object, optional): A filtered relation to apply to the joined data.
+        """
         self.table_name = table_name
         self.parent_alias = parent_alias
         # Note: table_alias is not necessarily known at instantiation time.
@@ -187,6 +205,14 @@ class Join:
         return hash(self.identity)
 
     def demote(self):
+        """
+
+        Demotes the current object to an inner join type.
+
+        Returns a new relabeled clone of the current object with its join type changed to inner join.
+        This allows for modification of the join type without altering the original object.
+
+        """
         new = self.relabeled_clone({})
         new.join_type = INNER
         return new

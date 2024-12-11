@@ -15,6 +15,15 @@ class ReverseTests(TestCase):
         cls.python = Author.objects.create(name="パイソン")
 
     def test_null(self):
+        """
+        Tests the annotation of an Author object with a reversed relationship.
+
+        This test checks if the 'backward' field, which is a reversed relationship to the 'alias' field, 
+        is correctly annotated with an empty string or None, depending on the database's interpretation 
+        of empty strings as null values. The expected result is verified using an assertion.
+
+        :raises AssertionError: if the annotation result does not match the expected value
+        """
         author = Author.objects.annotate(backward=Reverse("alias")).get(
             pk=self.python.pk
         )

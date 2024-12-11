@@ -9,6 +9,14 @@ from ..models import Author
 class CollateTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Sets up initial test data for the class.
+
+        This method is called once to create a set of static test data that can be used across all tests in the class.
+        It creates two test authors with distinct aliases and names, which can be used as a basis for subsequent tests.
+
+        """
         cls.author1 = Author.objects.create(alias="a", name="Jones 1")
         cls.author2 = Author.objects.create(alias="A", name="Jones 2")
 
@@ -20,6 +28,13 @@ class CollateTests(TestCase):
         self.assertEqual(qs.count(), 2)
 
     def test_collate_order_by_cs(self):
+        """
+        Tests the database's collation support by ordering query results using a case-sensitive collation.
+
+        If the database backend does not support case-sensitive collations, the test is skipped.
+
+        The test verifies that the records are ordered as expected, with the case-sensitive collation applied to the 'alias' field.
+        """
         collation = connection.features.test_collations.get("cs")
         if not collation:
             self.skipTest("This backend does not support case-sensitive collations.")
@@ -40,6 +55,17 @@ class CollateTests(TestCase):
         )
 
     def test_invalid_collation(self):
+        """
+        *)).. function:: test_invalid_collation
+
+            Tests that invalid collation names raise a :class:`ValueError`.
+
+            Verifies that passing a variety of invalid collation names to the :class:`Collate` function
+            results in a :class:`ValueError` with a message indicating the invalid collation name.
+
+            The test cases include passing :data:`None`, an empty string, and strings that are syntactically
+            invalid or contain SQL injection attempts.
+        """
         tests = [
             None,
             "",

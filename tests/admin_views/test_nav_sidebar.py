@@ -48,6 +48,13 @@ class AdminSidebarTests(TestCase):
         )
 
     def test_sidebar_disabled(self):
+        """
+
+        Tests that the sidebar is properly disabled on the test_without_sidebar index page.
+
+        Verifies that the HTML response from the page does not contain the expected sidebar navigation element.
+
+        """
         response = self.client.get(reverse("test_without_sidebar:index"))
         self.assertNotContains(
             response, '<nav class="sticky" id="nav-sidebar" aria-label="Sidebar">'

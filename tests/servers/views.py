@@ -15,6 +15,17 @@ def streaming_example_view(request):
 
 
 def model_view(request):
+    """
+
+    Returns an HTTP response containing a list of names of all people in the database.
+
+    The list is formatted as a string with each name separated by a newline character.
+    This view is intended to provide a simple way to retrieve and display the names of all individuals stored in the system.
+
+    :raises: None
+    :returns: HttpResponse -- A response object containing the list of names as a string
+
+    """
     people = Person.objects.all()
     return HttpResponse("\n".join(person.name for person in people))
 

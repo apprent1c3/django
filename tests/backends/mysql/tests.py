@@ -25,6 +25,25 @@ class IsolationLevelTests(TestCase):
 
     @classmethod
     def setUpClass(cls):
+        """
+
+        Set up the class by configuring isolation levels.
+
+        This class method sets up the initial state for the class, including the 
+        configured isolation level and an alternative isolation level. It first 
+        determines the configured isolation level by checking the current connection 
+        isolation level or using the repeatable read isolation level as a default. 
+        The configured isolation level is then set to uppercase for consistency. 
+        The method also identifies an alternative isolation level, which is set to 
+        read committed if the configured isolation level is not read committed, 
+        otherwise it is set to repeatable read. 
+
+        This setup is performed once for the class, providing a foundation for 
+        subsequent tests or operations. 
+
+        :param cls: The class to be set up.
+
+        """
         super().setUpClass()
         configured_isolation_level = (
             connection.isolation_level or cls.isolation_values[cls.repeatable_read]
@@ -82,6 +101,14 @@ class IsolationLevelTests(TestCase):
 
     def test_default_isolation_level(self):
         # If not specified in settings, the default is read committed.
+        """
+
+        Tests that the default isolation level is used when not explicitly set.
+
+        This test case verifies that when the 'isolation_level' option is not specified,
+        the connection defaults to the 'READ COMMITTED' isolation level.
+
+        """
         with get_connection() as new_connection:
             new_connection.settings_dict["OPTIONS"].pop("isolation_level", None)
             self.assertEqual(
@@ -90,6 +117,14 @@ class IsolationLevelTests(TestCase):
             )
 
     def test_isolation_level_validation(self):
+        """
+
+        Checks that an invalid transaction isolation level raises an ImproperlyConfigured exception.
+
+        Validates that when a connection is created with an invalid transaction isolation level,
+        the expected error message is raised, informing the user of the allowed isolation levels.
+
+        """
         new_connection = connection.copy()
         new_connection.settings_dict["OPTIONS"]["isolation_level"] = "xxx"
         msg = (

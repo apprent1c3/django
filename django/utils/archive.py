@@ -143,6 +143,19 @@ class BaseArchive:
         return True
 
     def target_filename(self, to_path, name):
+        """
+        Compute the absolute filename of a given name within the target directory.
+
+        This function takes a target path and a name, joins them to form a filename, and
+        then checks to ensure that the resulting filename is within the target directory.
+        If the filename is not within the target directory, a SuspiciousOperation exception
+        is raised to prevent potentially malicious archive operations.
+
+        :param to_path: The target directory path.
+        :param name: The name of the file to compute the absolute filename for.
+        :returns: The absolute filename of the given name within the target directory.
+        :raises SuspiciousOperation: If the filename is not within the target directory. 
+        """
         target_path = os.path.abspath(to_path)
         filename = os.path.abspath(os.path.join(target_path, name))
         if not filename.startswith(target_path):

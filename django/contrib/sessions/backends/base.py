@@ -87,6 +87,16 @@ class SessionBase:
         return (await self._aget_session()).pop(key, *args)
 
     def setdefault(self, key, value):
+        """
+        .. method:: setdefault(key, value)
+           :noindex:
+
+           Sets a value for the given key in the session if it does not exist.
+
+           :param key: The key to be set in the session.
+           :param value: The default value to be set for the given key if it is not present in the session.
+           :return: The value associated with the given key, either the existing value or the newly set default value.
+        """
         if key in self._session:
             return self._session[key]
         else:
@@ -143,10 +153,28 @@ class SessionBase:
         return {}
 
     def update(self, dict_):
+        """
+        Updates the object's attributes with the provided data and marks it as modified.
+
+        Args:
+            dict_: A dictionary containing the updated attributes and their new values.
+
+        Note:
+            After updating, the object's state is marked as modified, indicating that it has unsaved changes.
+        """
         self._session.update(dict_)
         self.modified = True
 
     async def aupdate(self, dict_):
+        """
+        Asynchronously updates the current object with the provided dictionary.
+
+        Updates the session data with the key-value pairs from the input dictionary.
+        After updating, marks the object as modified to trigger any necessary further actions.
+
+        :param dict_: Dictionary containing the key-value pairs to update.
+        :type dict_: dict
+        """
         (await self._aget_session()).update(dict_)
         self.modified = True
 

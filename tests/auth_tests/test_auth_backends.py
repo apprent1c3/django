@@ -126,6 +126,17 @@ class BaseModelBackendTest:
         self.assertIs(user.has_perm("auth.test"), False)
 
     def test_custom_perms(self):
+        """
+        Tests the custom permissions functionality for a user, ensuring it works correctly for user and group permissions, and handles inheritance from groups. 
+
+        The test case verifies the following:
+        - That a user can be assigned and check custom permissions.
+        - That the get_all_permissions method returns all the custom permissions for the user.
+        - That the get_user_permissions and get_group_permissions methods return the correct custom permissions.
+        - That the has_module_perms and has_perm methods function correctly for custom permissions.
+        - That adding a user to a group with custom permissions updates the user's permissions accordingly.
+        - That the has_perm and has_perms methods work as expected for anonymous users.
+        """
         user = self.UserModel._default_manager.get(pk=self.user.pk)
         content_type = ContentType.objects.get_for_model(Group)
         perm = Permission.objects.create(
@@ -397,6 +408,15 @@ class CustomUserModelBackendAuthenticateTest(TestCase):
     """
 
     def test_authenticate(self):
+        """
+
+        Tests the authentication functionality of the system.
+
+        Verifies that a user can be successfully authenticated using their email and password.
+        The test creates a new user, attempts to authenticate with the provided credentials,
+        and asserts that the resulting authenticated user matches the originally created user.
+
+        """
         test_user = CustomUser._default_manager.create_user(
             email="test@example.com", password="test", date_of_birth=date(2006, 4, 25)
         )
@@ -577,6 +597,15 @@ class InActiveUserBackendTest(TestCase):
         cls.user1.save()
 
     def test_has_perm(self):
+        """
+        Tests the has_perm method of a user object.
+
+        Checks if a user has a specific permission for an object. The test covers two scenarios:
+        - Verifies that the user does not have the 'perm' permission for the TestObj object.
+        - Verifies that the user has the 'inactive' permission for the TestObj object.
+
+        This test ensures the correct implementation of permission checks for user-object interactions.
+        """
         self.assertIs(self.user1.has_perm("perm", TestObj()), False)
         self.assertIs(self.user1.has_perm("inactive", TestObj()), True)
 
@@ -913,6 +942,15 @@ class SelectingBackendTests(TestCase):
             self.client._login(user)
 
     def test_non_string_backend(self):
+        """
+        Tests that the login function raises a TypeError when a non-string backend is provided.
+
+        This test case verifies that the function correctly handles the case where a backend object
+        is passed instead of a dotted import path string, ensuring that the expected error message
+        is raised to inform the user of the correct usage.
+
+        :raises TypeError: When a non-string backend is provided
+        """
         user = User.objects.create_user(self.username, "email", self.password)
         expected_message = (
             "backend must be a dotted import path string (got "
@@ -923,6 +961,16 @@ class SelectingBackendTests(TestCase):
 
     @override_settings(AUTHENTICATION_BACKENDS=[backend, other_backend])
     def test_backend_path_login_with_explicit_backends(self):
+        """
+
+        Tests login functionality with explicit backend specification.
+
+        Checks if a user can be logged in using a specific authentication backend 
+        when multiple backends are configured. The test case creates a user, 
+        logs them in with a specified backend, and verifies that the backend 
+        is correctly stored in the session.
+
+        """
         user = User.objects.create_user(self.username, "email", self.password)
         self.client._login(user, self.other_backend)
         self.assertBackendInSession(self.other_backend)

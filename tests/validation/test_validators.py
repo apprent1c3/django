@@ -6,6 +6,15 @@ from .models import ModelToValidate
 
 class TestModelsWithValidators(ValidationAssertions, SimpleTestCase):
     def test_custom_validator_passes_for_correct_value(self):
+        """
+        Tests that the custom validator passes for a correct value.
+
+        This test case creates an instance of ModelToValidate with a valid value for the 
+        field that uses a custom validator. It then calls the full_clean method to check 
+        for any validation errors. If the validation is successful, the method should 
+        return None, indicating that there are no errors. The test asserts that this 
+        is the case, verifying that the custom validator is correctly implemented.
+        """
         mtv = ModelToValidate(
             number=10,
             name="Some Name",

@@ -165,6 +165,17 @@ class IncludeNode(Node):
     def __init__(
         self, template, *args, extra_context=None, isolated_context=False, **kwargs
     ):
+        """
+        Initializes a new instance of the class, setting up the rendering configuration.
+
+        :param template: The template to be used for rendering.
+        :param extra_context: Optional dictionary of extra context variables to be made available during rendering.
+        :param isolated_context: A flag indicating whether the context should be isolated from the parent context.
+        :param args: Variable length argument list to be passed to the parent class.
+        :param kwargs: Arbitrary keyword arguments to be passed to the parent class.
+
+        The extra context variables are merged with the default context, allowing for customization of the rendering process. The isolated context flag controls whether the context is shared with the parent or not.
+        """
         self.template = template
         self.extra_context = extra_context or {}
         self.isolated_context = isolated_context

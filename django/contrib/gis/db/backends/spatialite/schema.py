@@ -82,6 +82,18 @@ class SpatialiteSchemaEditor(DatabaseSchemaEditor):
         )
 
     def create_model(self, model):
+        """
+        Creates a database model and initializes geometry settings.
+
+        This method extends the base model creation functionality by executing
+        additional SQL queries to configure geometry settings. The SQL queries
+        are defined in the geometry_sql list and are executed immediately after
+        the model is created. After successful execution, the geometry_sql list
+        is reset for future model creations.
+
+        :param model: The model to be created
+
+        """
         super().create_model(model)
         # Create geometry columns
         for sql in self.geometry_sql:

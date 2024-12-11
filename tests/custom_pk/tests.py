@@ -171,6 +171,16 @@ class CustomPKTests(TestCase):
     def test_unique_pk(self):
         # The primary key must also be unique, so trying to create a new object
         # with the same primary key will fail.
+        """
+
+        Tests that the primary key of an Employee is unique.
+
+        This test case ensures that attempting to create two Employee instances with the same employee_code will raise an IntegrityError, 
+        demonstrating that the primary key constraint is enforced at the database level.
+
+        Note: This test assumes that 'employee_code' is defined as the primary key in the Employee model.
+
+        """
         Employee.objects.create(
             employee_code=123, first_name="Frank", last_name="Jones"
         )
@@ -187,6 +197,15 @@ class CustomPKTests(TestCase):
 
     def test_custom_field_pk(self):
         # Regression for #10785 -- Custom fields can be used for primary keys.
+        """
+
+        Verifies the correctness of custom field primary key relationships.
+
+        This test checks that objects are correctly related and retrieved based on custom field primary keys.
+        It ensures that both integer-based and object-based lookups return the expected results, 
+        validating the integrity of the relationships between objects.
+
+        """
         new_bar = Bar.objects.create()
         new_foo = Foo.objects.create(bar=new_bar)
 

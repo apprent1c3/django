@@ -72,6 +72,15 @@ class MailTests(HeadersCheckMixin, SimpleTestCase):
         email_message = message_from_bytes(msg_bytes)
 
         def iter_attachments():
+            """
+            Generates an iterator over email attachments.
+
+            Returns an iterator that yields tuples containing information about each attachment in the email message.
+            Each tuple contains the filename, content, and MIME type of the attachment.
+
+            The iterator traverses the email message's structure, identifying parts with a content disposition of 'attachment' and extracting relevant information.
+            This allows for efficient processing of email attachments without having to load all attachment data into memory at once.
+            """
             for i in email_message.walk():
                 if i.get_content_disposition() == "attachment":
                     filename = i.get_filename()
@@ -123,6 +132,13 @@ class MailTests(HeadersCheckMixin, SimpleTestCase):
         self.assertEqual(message.get_payload(decode=True), text)
 
     def test_multiple_recipients(self):
+        """
+        Tests the creation of an email message with multiple recipients.
+
+        Verifies that an email message is correctly constructed with multiple 'To' addresses.
+        The test checks that the email message's subject, content, 'From' address, and 'To' addresses are set as expected.
+        It ensures that multiple recipients are properly formatted in the 'To' header, separated by commas.
+        """
         email = EmailMessage(
             "Subject",
             "Content",
@@ -136,6 +152,15 @@ class MailTests(HeadersCheckMixin, SimpleTestCase):
         self.assertEqual(message["To"], "to@example.com, other@example.com")
 
     def test_header_omitted_for_no_to_recipients(self):
+        """
+
+        Tests that the 'To' header is omitted from the email message when there are no recipients specified in the 'To' field.
+
+        This test case ensures that an email message created without any recipients in the 'To' field will not have a 'To' header in the resulting message.
+
+        It verifies the expected behavior when using the EmailMessage class to construct an email with a 'From' address, 'CC' addresses, but no 'To' addresses.
+
+        """
         message = EmailMessage(
             "Subject", "Content", "from@example.com", cc=["cc@example.com"]
         ).message()
@@ -215,6 +240,15 @@ class MailTests(HeadersCheckMixin, SimpleTestCase):
         )
 
     def test_cc_headers(self):
+        """
+
+        Verifies that the 'Cc' header in an email message takes precedence over the 'cc' parameter.
+
+        Tests that when a 'Cc' header is explicitly specified, it overrides any addresses provided in the 'cc' parameter, ensuring that the correct 'Cc' addresses are included in the email message.
+
+        This test case ensures that the email library correctly handles the 'Cc' header and 'cc' parameter, and prioritizes the 'Cc' header when both are present.
+
+        """
         message = EmailMessage(
             "Subject",
             "Content",
@@ -259,6 +293,16 @@ class MailTests(HeadersCheckMixin, SimpleTestCase):
         )
 
     def test_recipients_as_tuple(self):
+        """
+
+        Tests that email recipients can be provided as a tuple and are correctly 
+        parsed in the email message. Verifies that the 'Cc' header in the email 
+        message is formatted correctly with comma-separated addresses when 
+        multiple CC recipients are provided. Also checks that all recipients, 
+        including To, CC, and BCC, are correctly returned by the recipients() 
+        method.
+
+        """
         email = EmailMessage(
             "Subject",
             "Content",
@@ -416,6 +460,13 @@ class MailTests(HeadersCheckMixin, SimpleTestCase):
         )
 
     def test_to_in_headers_only(self):
+        """
+        Tests that the 'To' header is correctly set in the email message.
+
+        This test verifies that when the 'To' address is provided in the headers,
+        it is properly included in the generated email message. The test ensures that
+        the 'To' header is correctly formatted and contains the expected recipient address.
+        """
         message = EmailMessage(
             "Subject",
             "Content",
@@ -494,6 +545,15 @@ class MailTests(HeadersCheckMixin, SimpleTestCase):
         )
 
     def test_unicode_headers(self):
+        """
+
+        Test that email headers with Unicode characters are properly encoded.
+
+        This test case verifies that the email message correctly encodes headers containing
+        non-ASCII characters using UTF-8 encoding. The test covers the Subject, Sender, and
+        Comments headers, ensuring they are properly formatted and encoded for transmission.
+
+        """
         email = EmailMessage(
             "Gżegżółka",
             "Content",
@@ -675,6 +735,18 @@ class MailTests(HeadersCheckMixin, SimpleTestCase):
         self.assertEqual(payload[1].get_content_type(), "application/pdf")
 
     def test_decoded_attachments_two_tuple(self):
+        """
+        Tests decoding of email attachments with a two-tuple format.
+
+        Verifies that the filename, content, and mimetype of an email attachment 
+        are correctly decoded from an EmailMessage object with a single attachment 
+         specified as a two-tuple of filename and content. The expected mimetype 
+        is application/octet-stream if not explicitly specified.
+
+        The test checks that the decoded attachment's properties match the 
+        original values used to construct the EmailMessage object, ensuring 
+        correct decoding and extraction of attachment information.
+        """
         msg = EmailMessage(attachments=[("filename1", "content1")])
         filename, content, mimetype = self.get_decoded_attachments(msg)[0]
         self.assertEqual(filename, "filename1")
@@ -1128,6 +1200,13 @@ class MailTests(HeadersCheckMixin, SimpleTestCase):
                 )
 
     def test_sanitize_address_invalid(self):
+        """
+        Test the sanitize_address function with invalid email addresses.
+
+        This function checks that the sanitize_address function correctly identifies and raises an error for a variety of invalid email address formats, including those with multiple '@' symbols, missing local or domain parts, and malformed addresses.
+
+        The test covers several common cases of invalid email addresses, ensuring that the function handles these cases as expected and raises a ValueError with an appropriate error message. The test also verifies that the error message contains the expected text, 'Invalid address', to confirm that the correct error is being raised. 
+        """
         for email_address in (
             # Invalid address with two @ signs.
             "to@other.com@example.com",
@@ -1144,6 +1223,17 @@ class MailTests(HeadersCheckMixin, SimpleTestCase):
                     sanitize_address(email_address, encoding="utf-8")
 
     def test_sanitize_address_header_injection(self):
+        """
+
+        Tests the sanitize_address function's handling of address header injection attacks.
+
+        The function is expected to raise a ValueError when it encounters an email address 
+        containing newline characters, which can be used to inject malicious headers. 
+        This test ensures the function behaves as expected by passing in various examples 
+        of email addresses with embedded newlines and verifying that it correctly raises 
+        an exception with a message indicating that address parts cannot contain newlines.
+
+        """
         msg = "Invalid address; address parts cannot contain newlines."
         tests = [
             "Name\nInjection <to@example.com>",
@@ -1165,6 +1255,18 @@ class MailTests(HeadersCheckMixin, SimpleTestCase):
             email_msg.attach_alternative("<p>content</p>", None)
 
     def test_body_contains(self):
+        """
+
+        Checks if a given string is contained within the body of an email message.
+
+        This method inspects the plain text body of the email, and returns True if the 
+        given string is found within it. If the email has an HTML alternative attached, 
+        the plain text body is checked and the HTML content is ignored.
+
+        :param str: the string to search for in the email body
+        :returns: bool indicating whether the string was found in the email body
+
+        """
         email_msg = EmailMultiAlternatives()
         email_msg.body = "I am content."
         self.assertIs(email_msg.body_contains("I am"), True)
@@ -1224,6 +1326,16 @@ class PythonGlobalState(SimpleTestCase):
         self.assertIn("Content-Transfer-Encoding: base64", txt.as_string())
 
     def test_7bit(self):
+        """
+        Tests that a 7-bit clean message body is correctly encoded using base64.
+
+        This test case verifies that a message containing only ASCII characters
+        is still encoded using base64, as required by the email specification.
+
+        The test checks for the presence of the 'Content-Transfer-Encoding: base64'
+        header in the encoded message, ensuring that the message is properly formatted
+        for transmission over email protocols that may not support 8-bit characters.
+        """
         txt = MIMEText("Body with only ASCII characters.", "plain", "utf-8")
         self.assertIn("Content-Transfer-Encoding: base64", txt.as_string())
 
@@ -1269,6 +1381,11 @@ class BaseEmailBackendTests(HeadersCheckMixin):
         )
 
     def get_the_message(self):
+        """
+        Retrieves the message from the mailbox.
+
+        This function fetches the mailbox content and returns the single message it expects to find. It first retrieves the mailbox content and then checks that exactly one message is present. If more or less than one message is found, it raises an assertion error. The returned message is the first (and expectedly only) item in the mailbox.
+        """
         mailbox = self.get_mailbox_content()
         self.assertEqual(
             len(mailbox),
@@ -1279,6 +1396,24 @@ class BaseEmailBackendTests(HeadersCheckMixin):
         return mailbox[0]
 
     def test_send(self):
+        """
+        Tests the functionality of sending an email.
+
+        This test case verifies that an email message can be successfully sent and 
+        its contents are correctly constructed. It checks if the email is delivered 
+        to the specified recipient, and that the message's subject, content, sender, 
+        and recipient are as expected.
+
+        The test covers the following aspects:
+        - The email is sent without any errors
+        - The email subject is correctly set
+        - The email content is correctly set
+        - The email sender is correctly set
+        - The email recipient is correctly set
+
+        This test is essential to ensure that the email sending functionality is working 
+        as expected, allowing for reliable communication in the application.
+        """
         email = EmailMessage(
             "Subject", "Content", "from@example.com", ["to@example.com"]
         )
@@ -1325,6 +1460,25 @@ class BaseEmailBackendTests(HeadersCheckMixin):
         )
 
     def test_send_many(self):
+        """
+
+        Test sending multiple emails using the mail connection.
+
+        This method verifies that the mail connection can handle sending multiple emails,
+        both as a list and an iterator, and that the emails are sent correctly.
+        It checks that the correct number of emails are sent, and that the contents of the emails
+        are correct. The mailbox is flushed after each test to ensure a clean slate for the next test.
+
+        The test case covers the following scenarios:
+        - Sending multiple emails as a list
+        - Sending multiple emails as an iterator
+
+        The test asserts the following:
+        - The correct number of emails are sent
+        - The contents of the emails are correct
+        - The mailbox is updated correctly after sending the emails
+
+        """
         email1 = EmailMessage(
             "Subject", "Content1", "from@example.com", ["to@example.com"]
         )
@@ -1343,6 +1497,22 @@ class BaseEmailBackendTests(HeadersCheckMixin):
             self.flush_mailbox()
 
     def test_send_verbose_name(self):
+        """
+
+        Tests the sending of an email with a verbose name containing non-ASCII characters.
+
+        Verifies that an email sent with a subject, content and a sender's name 
+        containing special characters is correctly transmitted and received. 
+
+        Specifically, it checks that the subject, content and sender's email address 
+        are correctly encoded in the received email message.
+
+        The test covers the following aspects:
+        - Email subject is transmitted as expected
+        - Email content is transmitted as expected
+        - Sender's name with non-ASCII characters is correctly encoded in the 'From' field
+
+        """
         email = EmailMessage(
             "Subject",
             "Content",
@@ -1619,12 +1789,27 @@ class LocmemBackendTests(BaseEmailBackendTests, SimpleTestCase):
 
     def test_validate_multiline_headers(self):
         # Ticket #18861 - Validate emails when using the locmem backend
+        """
+
+        Tests the validation of email headers that contain multiple lines.
+
+        This test ensures that an exception is raised when attempting to send an email
+        with a header that spans multiple lines, as this is not a valid email format.
+
+        The test case checks for the presence of a newline character in the subject
+        header, which should trigger a BadHeaderError to be raised.
+
+        """
         with self.assertRaises(BadHeaderError):
             send_mail(
                 "Subject\nMultiline", "Content", "from@example.com", ["to@example.com"]
             )
 
     def test_outbox_not_mutated_after_send(self):
+        """
+        Tests that sending an email does not mutate the original email instance stored in the mail outbox.
+        Verifies that changes to the email's subject and recipients after sending do not affect the email as it was sent and recorded in the outbox.
+        """
         email = EmailMessage(
             subject="correct subject",
             body="test body",
@@ -1716,6 +1901,16 @@ class ConsoleBackendTests(BaseEmailBackendTests, SimpleTestCase):
         self.stream = sys.stdout = StringIO()
 
     def tearDown(self):
+        """
+        Tears down the test environment to restore the original system state.
+
+        This method cleans up resources used during testing by deleting the stream object
+        and restoring the original stdout. It then calls the superclass's tearDown method
+        to ensure any additional cleanup actions are performed.
+
+        Use this method to release any resources or reset system state after each test,
+        ensuring a clean environment for subsequent tests to run in isolation.
+        """
         del self.stream
         sys.stdout = self.__stdout
         del self.__stdout
@@ -1725,6 +1920,18 @@ class ConsoleBackendTests(BaseEmailBackendTests, SimpleTestCase):
         self.stream = sys.stdout = StringIO()
 
     def get_mailbox_content(self):
+        """
+
+        Retrieves the content of a mailbox.
+
+        This function splits the mailbox stream into individual messages and 
+        returns them as a list. Each message is processed to ensure it is 
+        properly formatted. Empty messages are ignored.
+
+        Returns:
+            list: A list of formatted messages from the mailbox.
+
+        """
         messages = self.stream.getvalue().split("\n" + ("-" * 79) + "\n")
         return [message_from_bytes(m.encode()) for m in messages if m]
 
@@ -1763,6 +1970,20 @@ class SMTPHandler:
         self.mailbox = []
 
     async def handle_DATA(self, server, session, envelope):
+        """
+
+        Handle incoming email data.
+
+        This function processes the email data received from a client and checks its validity.
+        It verifies that the envelope's 'mail_from' address matches the 'From' address in the email message.
+        If the addresses do not match, it returns an error message. Otherwise, it appends the email message to the mailbox and returns a success response.
+
+        The function handles email address encoding to ensure correct comparison of addresses.
+
+        :raises: None
+        :returns: A response string indicating the result of the email data handling.
+
+        """
         data = envelope.content
         mail_from = envelope.mail_from
 
@@ -1789,6 +2010,13 @@ class SMTPHandler:
 class SMTPBackendTestsBase(SimpleTestCase):
     @classmethod
     def setUpClass(cls):
+        """
+        ..:class:`setUpClass`
+            Sets up the class by starting a SMTP controller on a local, randomly chosen port.
+            This method is called once before running all tests in the class.
+            It configures the email settings to use the local SMTP controller, and sets up cleanup
+            to stop the SMTP controller and restore the original email settings after all tests have finished.
+        """
         super().setUpClass()
         # Find a free port.
         with socket.socket() as s:
@@ -1901,6 +2129,12 @@ class SMTPBackendTests(BaseEmailBackendTests, SMTPBackendTestsBase):
         self.assertFalse(backend.use_tls)
 
     def test_ssl_tls_mutually_exclusive(self):
+        """
+        Tests that the EMAIL_USE_TLS and EMAIL_USE_SSL settings are mutually exclusive.
+
+        This test verifies that attempting to enable both SSL and TLS encryption for an email backend results in a ValueError,
+        indicating that only one of these settings can be set to True at a time.
+        """
         msg = (
             "EMAIL_USE_TLS/EMAIL_USE_SSL are mutually exclusive, so only set "
             "one of those settings to True."
@@ -1910,6 +2144,11 @@ class SMTPBackendTests(BaseEmailBackendTests, SMTPBackendTestsBase):
 
     @override_settings(EMAIL_USE_SSL=True)
     def test_email_ssl_use_settings(self):
+        """
+        Tests that the email backend uses SSL when the EMAIL_USE_SSL setting is True. 
+
+        This test case verifies that the email settings are correctly applied to the SMTP email backend, ensuring that emails are sent securely over SSL when configured to do so.
+        """
         backend = smtp.EmailBackend()
         self.assertTrue(backend.use_ssl)
 
@@ -1924,6 +2163,16 @@ class SMTPBackendTests(BaseEmailBackendTests, SMTPBackendTestsBase):
 
     @override_settings(EMAIL_SSL_CERTFILE="foo")
     def test_email_ssl_certfile_use_settings(self):
+        """
+        Tests that the EMAIL_SSL_CERTFILE setting is properly utilized by the email backend.
+
+        Verifies that the ssl_certfile attribute of the email backend is set to the value
+        defined in the EMAIL_SSL_CERTFILE setting, ensuring that the email backend uses
+        the correct SSL certificate file as configured in the application's settings.
+
+        This test case confirms the integration of the email backend with the application
+        settings, specifically the SSL certificate file used for secure email connections.
+        """
         backend = smtp.EmailBackend()
         self.assertEqual(backend.ssl_certfile, "foo")
 
@@ -1962,6 +2211,9 @@ class SMTPBackendTests(BaseEmailBackendTests, SMTPBackendTestsBase):
 
     @override_settings(EMAIL_USE_SSL=True)
     def test_email_ssl_attempts_ssl_connection(self):
+        """
+        Tests that the email backend uses an SSL connection when EMAIL_USE_SSL is set to True, and that attempting to use it raises an SSLError as expected, verifying the correct behavior of the email backend's SSL configuration.
+        """
         backend = smtp.EmailBackend()
         self.assertTrue(backend.use_ssl)
         with self.assertRaises(SSLError):
@@ -2060,6 +2312,15 @@ class SMTPBackendTests(BaseEmailBackendTests, SMTPBackendTestsBase):
 class SMTPBackendStoppedServerTests(SMTPBackendTestsBase):
     @classmethod
     def setUpClass(cls):
+        """
+        Sets up the test class by initializing the email backend and stopping the SMTP controller.
+
+        This method is a class setup hook that is called before any test methods in the class are executed. It ensures that the email backend is properly configured and the SMTP controller is stopped, providing a clean environment for testing.
+
+        The email backend is initialized with an empty username and password, and the SMTP controller is stopped to prevent any outgoing emails from being sent during testing.
+
+        This setup is typically used in test cases that require email functionality, allowing tests to run in isolation without actually sending emails.
+        """
         super().setUpClass()
         cls.backend = smtp.EmailBackend(username="", password="")
         cls.smtp_controller.stop()

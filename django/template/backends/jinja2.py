@@ -54,6 +54,20 @@ class Jinja2(BaseEngine):
 
 class Template:
     def __init__(self, template, backend):
+        """
+        Initializes a new instance of the class.
+
+        :param template: The template object used for initialization.
+        :param backend: The backend object used for initialization.
+
+        This method sets up the initial state of the class by storing the provided template and backend objects.
+        It also creates an origin object based on the template's filename and name, which is used to track the origin of the instance.
+
+        The template and backend objects are stored as instance attributes, allowing them to be accessed and used throughout the class.
+        The origin object provides context about the instance's creation and can be used for logging, debugging, or other purposes.
+
+        This method is typically called when creating a new instance of the class and should not be called directly after the instance has been created.
+        """
         self.template = template
         self.backend = backend
         self.origin = Origin(
@@ -62,6 +76,19 @@ class Template:
         )
 
     def render(self, context=None, request=None):
+        """
+
+        Renders a template with the provided context and request.
+
+        :arg context: A dictionary of template variables. If not provided, an empty dictionary will be used.
+        :arg request: An optional request object that can be used to populate the template context.
+
+        The function populates the template context with the provided request, including CSRF input and token, 
+        and then applies any registered template context processors. It then attempts to render the template 
+        with the constructed context. If a template syntax error occurs, it is caught, wrapped in a new 
+        TemplateSyntaxError with additional debug information, and re-raised.
+
+        """
         if context is None:
             context = {}
         if request is not None:

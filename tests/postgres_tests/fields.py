@@ -25,6 +25,11 @@ except ImportError:
             super().__init__(**kwargs)
 
         def deconstruct(self):
+            """
+            Deconstructs the object into its constituent parts, allowing it to be reconstructed later.
+
+            This method extends the deconstruction process of the parent class by adding default values for the 'base_field' and 'size' keyword arguments. The returned tuple contains the name, path, positional arguments, and keyword arguments necessary to recreate the object.
+            """
             name, path, args, kwargs = super().deconstruct()
             kwargs.update(
                 {
@@ -39,6 +44,15 @@ except ImportError:
             super().__init__(**kwargs)
 
         def deconstruct(self):
+            """
+            Deconstructs the current object into its constituent parts.
+
+            This method extends the deconstruction process by setting the default bounds to '[)'.
+
+            Returns:
+                A tuple containing the name, path, arguments, and keyword arguments of the deconstructed object.
+
+            """
             name, path, args, kwargs = super().deconstruct()
             kwargs["default_bounds"] = "[)"
             return name, path, args, kwargs

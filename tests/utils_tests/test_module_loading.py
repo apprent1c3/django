@@ -130,6 +130,20 @@ class EggLoader(unittest.TestCase):
 
 class ModuleImportTests(SimpleTestCase):
     def test_import_string(self):
+        """
+        Tests the functionality of importing a module or attribute from a string.
+
+        This function verifies that the import_string function can correctly import a module
+        from a given string, and that it raises an ImportError when the import fails.
+        It checks for imports with and without dots in the path, and ensures that the
+        correct error message is raised when the module does not define the specified attribute.
+
+        The function asserts the following scenarios:
+        - Successful import of a module from a string with dots in the path.
+        - ImportError is raised when the import string does not contain dots.
+        - ImportError with a specific message is raised when the module does not define the attribute.
+
+        """
         cls = import_string("django.utils.module_loading.import_string")
         self.assertEqual(cls, import_string)
 
@@ -165,6 +179,15 @@ class AutodiscoverModulesTestCase(SimpleTestCase):
             autodiscover_modules("bad_module")
 
     def test_autodiscover_modules_several_one_bad_module(self):
+        """
+
+        Test the autodiscover_modules function with multiple modules, including one that does not exist.
+
+        This test case checks that the function correctly raises an ImportError when it encounters a non-existent module.
+        The function is expected to fail when attempting to import a module that does not exist, while allowing the import of existing modules.
+        The error message is verified to ensure it accurately reflects the name of the missing module.
+
+        """
         with self.assertRaisesMessage(
             ImportError, "No module named 'a_package_name_that_does_not_exist'"
         ):

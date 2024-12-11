@@ -8,6 +8,22 @@ from ..utils import setup
 class EscapejsTests(SimpleTestCase):
     @setup({"escapejs01": "{{ a|escapejs }}"})
     def test_escapejs01(self):
+        """
+        ..: 
+            Tests the escapejs template filter by rendering a template that applies 
+            the filter to a string containing special characters and verifying the 
+            output matches the expected escaped string. 
+
+            The filter is expected to escape special characters in the input string 
+            to ensure it can be safely used within a JavaScript string. This includes 
+            escaping newline characters, quotes, and angle brackets to prevent code 
+            injection vulnerabilities. 
+
+            The test uses a sample string containing newline characters, single and 
+            double quotes, and HTML tags to verify the filter correctly escapes all 
+            these characters, replacing them with their corresponding Unicode escape 
+            sequences.
+        """
         output = self.engine.render_to_string(
             "escapejs01", {"a": "testing\r\njavascript 'string\" <b>escaping</b>"}
         )
@@ -20,6 +36,14 @@ class EscapejsTests(SimpleTestCase):
 
     @setup({"escapejs02": "{% autoescape off %}{{ a|escapejs }}{% endautoescape %}"})
     def test_escapejs02(self):
+        """
+
+        Tests the behavior of the escapejs template filter when autoescaping is disabled.
+        This function ensures that the filter correctly escapes special characters in 
+        JavaScript strings, including newline characters, quotes, and HTML tags, 
+        resulting in a safe output string.
+
+        """
         output = self.engine.render_to_string(
             "escapejs02", {"a": "testing\r\njavascript 'string\" <b>escaping</b>"}
         )

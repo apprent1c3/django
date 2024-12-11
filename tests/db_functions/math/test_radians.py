@@ -16,6 +16,16 @@ class RadiansTests(TestCase):
         self.assertIsNone(obj.null_radians)
 
     def test_decimal(self):
+        """
+
+        Tests the conversion of decimal degrees to radians using the Radians database function.
+
+        This test case checks that the Radians function correctly converts decimal degree
+        values stored in a model to their equivalent radian values. It verifies the
+        resulting values are of the correct data type (Decimal) and match the expected
+        results calculated using the math.radians function.
+
+        """
         DecimalModel.objects.create(n1=Decimal("-12.9"), n2=Decimal("0.6"))
         obj = DecimalModel.objects.annotate(
             n1_radians=Radians("n1"), n2_radians=Radians("n2")

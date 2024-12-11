@@ -20,6 +20,9 @@ class NodelistTest(SimpleTestCase):
         self.assertEqual(len(vars), 1)
 
     def test_ifchanged(self):
+        """
+        Tests if the ifchanged template tag correctly handles variable nodes within its block, ensuring that only one variable node is present when the template is rendered with the given structure.
+        """
         template = self.engine.from_string("{% ifchanged x %}{{ a }}{% endifchanged %}")
         vars = template.nodelist.get_nodes_by_type(VariableNode)
         self.assertEqual(len(vars), 1)

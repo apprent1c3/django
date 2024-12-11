@@ -71,6 +71,16 @@ class ReplaceTests(TestCase):
 
     def test_replace_with_default_arg(self):
         # The default replacement is an empty string.
+        """
+
+        Tests the :meth:`Replace` database function with a default argument by replacing a specific substring in author names.
+
+        The function annotates a queryset of authors with a new field 'same_name' that contains the author's name with 'R. R. ' replaced.
+        The test then verifies that the replaced names match the expected results.
+
+        This test ensures that the :meth:`Replace` function works correctly in a database query when using a default replacement value.
+
+        """
         qs = Author.objects.annotate(same_name=Replace(F("name"), Value("R. R. ")))
         self.assertQuerySetEqual(
             qs,

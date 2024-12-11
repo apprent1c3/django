@@ -139,6 +139,17 @@ class DataSourceTest(SimpleTestCase):
                 ds.__getitem__("invalid")
 
     def test_ds_input_pathlib(self):
+        """
+
+        Tests the DataSource class using a Pathlib object as input.
+
+        This test verifies that the DataSource class can be instantiated with a Pathlib object
+        representing the path to a shapefile, and that the resulting DataSource object has the
+        expected number of features.
+
+        The test uses a sample point shapefile for verification.
+
+        """
         test_shp = Path(get_ds_file("test_point", "shp"))
         ds = DataSource(test_shp)
         self.assertEqual(len(ds), 1)
@@ -348,6 +359,9 @@ class DataSourceTest(SimpleTestCase):
         self.assertEqual(676586997978, feat.get("ALAND10"))
 
     def test_nonexistent_field(self):
+        """
+        Tests retrieval of a non-existent field from a data source, verifying that a GDALException is raised with the expected error message when attempting to access an invalid field name.
+        """
         source = ds_list[0]
         ds = DataSource(source.ds)
         msg = "invalid field name: nonexistent"

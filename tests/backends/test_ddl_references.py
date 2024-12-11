@@ -25,6 +25,22 @@ class TableTests(SimpleTestCase):
         self.assertIs(self.reference.references_table("other"), False)
 
     def test_rename_table_references(self):
+        """
+
+        Tests the functionality of renaming table references.
+
+        This test case verifies that the rename_table_references method correctly updates the table references.
+        It checks that after renaming, the original table reference is removed and the new one is added.
+        The test also ensures that the changes are reversible, i.e., renaming back to the original table name
+        restores the original reference.
+
+        The test covers the following scenarios:
+        - Renaming a table reference from one name to another
+        - Verifying that the original reference is no longer present after renaming
+        - Verifying that the new reference is present after renaming
+        - Reversing the rename operation to ensure the original state is restored
+
+        """
         self.reference.rename_table_references("other", "table")
         self.assertIs(self.reference.references_table("table"), True)
         self.assertIs(self.reference.references_table("other"), False)
@@ -46,6 +62,28 @@ class ColumnsTests(TableTests):
         )
 
     def test_references_column(self):
+        """
+        Checks if a column in a given table is referenced by the object.
+
+        This method determines whether a specific column within a table is used or 
+        referred to by the object. It takes two parameters, the table name and the 
+        column name, and returns a boolean value indicating whether the column is 
+        referenced or not.
+
+        Parameters
+        ----------
+        table_name : str
+            The name of the table to check.
+        column_name : str
+            The name of the column to check.
+
+        Returns
+        -------
+        bool
+            True if the column is referenced, False otherwise.
+
+
+        """
         self.assertIs(self.reference.references_column("other", "first_column"), False)
         self.assertIs(self.reference.references_column("table", "third_column"), False)
         self.assertIs(self.reference.references_column("table", "first_column"), True)
@@ -113,6 +151,13 @@ class ForeignKeyNameTests(IndexNameTests):
         )
 
     def test_references_table(self):
+        """
+        Overrides the base test for the :meth:`references_table` method to verify its correctness in the context of this class.
+
+        This test checks if the :meth:`references_table` method correctly returns True when the reference is indeed to 'to_table', ensuring proper functionality of the references table mechanism.
+
+        Note: This test relies on the setup provided by the parent class's :meth:`test_references_table` method, which is called at the beginning of this test to establish a common testing framework.
+        """
         super().test_references_table()
         self.assertIs(self.reference.references_table("to_table"), True)
 
@@ -132,6 +177,24 @@ class ForeignKeyNameTests(IndexNameTests):
         self.assertIs(self.reference.references_table("to_table"), False)
 
     def test_rename_column_references(self):
+        """
+
+        Tests the functionality of renaming column references within a reference object.
+
+        This method checks that column references are correctly renamed for a given table.
+        It verifies that after renaming, the original column references are no longer valid,
+        and the new column references are correctly registered.
+
+        The test covers the following scenarios:
+        - Renaming a column reference to a new name within the same table.
+        - Checking if the original column reference is still valid after renaming.
+        - Verifying if the new column reference is correctly registered after renaming.
+        - Attempting to rename a column reference that does not exist.
+
+        It ensures that the `rename_column_references` method works as expected and updates
+        the internal references accordingly.
+
+        """
         super().test_rename_column_references()
         self.reference.rename_column_references(
             "to_table", "second_column", "third_column"
@@ -169,6 +232,19 @@ class MockReference:
     def __init__(
         self, representation, referenced_tables, referenced_columns, referenced_indexes
     ):
+        """
+
+        Initializes an object representing a database query or statement.
+
+        :param representation: A string or object that represents the query or statement.
+        :param referenced_tables: A list of table names that are referenced in the query.
+        :param referenced_columns: A list of column names that are referenced in the query.
+        :param referenced_indexes: A list of index names that are referenced in the query.
+
+        This object provides a structured way to store and manipulate information about a database query, 
+        including the query representation and the tables, columns, and indexes it references.
+
+        """
         self.representation = representation
         self.referenced_tables = referenced_tables
         self.referenced_columns = referenced_columns
@@ -189,6 +265,23 @@ class MockReference:
             self.referenced_tables.add(new_table)
 
     def rename_column_references(self, table, old_column, new_column):
+        """
+        Renames a column reference in the tracked references.
+
+        Updates the internal mapping of referenced columns when a column name has been changed.
+        The function takes the table and old column name as input and replaces any existing references
+        with the new column name. This ensures that any downstream operations using the referenced
+        columns remain valid after a column rename operation.
+
+        Args:
+            table (str): The name of the table containing the column to rename.
+            old_column (str): The current name of the column to rename.
+            new_column (str): The new name for the column.
+
+        Note:
+            This function does not modify the actual table or column, only the internal tracking of
+            referenced columns.
+        """
         column = (table, old_column)
         if column in self.referenced_columns:
             self.referenced_columns.remove(column)
@@ -273,6 +366,20 @@ class ExpressionsTests(TransactionTestCase):
         )
 
     def test_references_table(self):
+        """
+
+        Checks if a given table is referenced by the expression.
+
+        This test case verifies that the :meth:`references_table` method of the expression
+        correctly identifies whether a specified table is being referenced. It tests both a
+        positive case, where the table name matches the one defined in the Person model's
+        meta information, and a negative case, where the table name does not match.
+
+        The purpose of this test is to ensure the expression's ability to recognize and
+        correctly report references to specific tables, which is essential for various
+        database operations and query processing.
+
+        """
         self.assertIs(self.expressions.references_table(Person._meta.db_table), True)
         self.assertIs(self.expressions.references_table("other"), False)
 

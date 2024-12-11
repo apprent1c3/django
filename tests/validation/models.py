@@ -41,6 +41,18 @@ class ModelToValidate(models.Model):
     slug = models.SlugField(blank=True)
 
     def clean(self):
+        """
+        Verifies the validity of the object's state.
+
+        This method performs any necessary cleaning operations on the object, 
+        including those defined in its parent class. Additionally, it checks 
+        the 'number' attribute and raises a ValidationError if it has a value 
+        of 11, which is considered an invalid input.
+
+        Raises:
+            ValidationError: If the 'number' attribute is set to 11.
+
+        """
         super().clean()
         if self.number == 11:
             raise ValidationError("Invalid number supplied!")
@@ -92,6 +104,15 @@ class CustomMessagesModel(models.Model):
 
 class AuthorManager(models.Manager):
     def get_queryset(self):
+        """
+        Return a QuerySet of objects that are not archived.
+
+        This method extends the default QuerySet retrieval by filtering out archived objects.
+        It returns a QuerySet containing all non-archived objects, allowing for further filtering or manipulation.
+
+        :rtype: QuerySet
+
+        """
         qs = super().get_queryset()
         return qs.filter(archived=False)
 
@@ -109,6 +130,14 @@ class Article(models.Model):
     pub_date = models.DateTimeField(blank=True)
 
     def clean(self):
+        """
+        Initializes or updates the publication date of the object.
+
+        If the publication date is currently unset (i.e., None), this method sets it to the current date and time.
+
+        :returns: None
+        :rtype: None
+        """
         if self.pub_date is None:
             self.pub_date = datetime.now()
 

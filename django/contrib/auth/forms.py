@@ -144,6 +144,19 @@ class SetPasswordMixin:
         password2_field_name="password2",
         usable_password_field_name="usable_password",
     ):
+        """
+        Validate passwords entered by the user, checking for required fields and matching passwords.
+
+        This method checks the provided password fields, :paramref:`password1_field_name` and :paramref:`password2_field_name`, 
+        to ensure they are present and match when a usable password is requested, as indicated by :paramref:`usable_password_field_name`. 
+        It raises validation errors if the passwords are missing or do not match, and automatically adds a 'set_usable_password' key 
+        to :attr:`cleaned_data` based on the value of :paramref:`usable_password_field_name`.
+
+        :param password1_field_name: The name of the first password field (default: 'password1')
+        :param password2_field_name: The name of the second password field (default: 'password2')
+        :param usable_password_field_name: The name of the field indicating whether a usable password should be set (default: 'usable_password')
+        :return: The updated :attr:`cleaned_data` with any validation errors added to :attr:`errors`.
+        """
         usable_password = (
             self.cleaned_data.pop(usable_password_field_name, None) != "false"
         )
@@ -268,6 +281,17 @@ class UserChangeForm(forms.ModelForm):
         field_classes = {"username": UsernameField}
 
     def __init__(self, *args, **kwargs):
+        """
+
+        Initialize the user form instance.
+
+        This method extends the default form initialization behavior to customize the
+        password and user permissions fields. If the password field is present and the
+        user instance does not have a usable password, it sets a help text to inform the
+        user about enabling password-based authentication. Additionally, it optimizes the
+        user permissions field by selecting related content types to improve query performance.
+
+        """
         super().__init__(*args, **kwargs)
         password = self.fields.get("password")
         if password:
@@ -477,6 +501,16 @@ class SetPasswordForm(SetPasswordMixin, forms.Form):
         super().__init__(*args, **kwargs)
 
     def clean(self):
+        """
+        Runs a series of validation checks to ensure the data is clean and consistent.
+
+        Specifically, this method checks that the two provided password fields ('new_password1' and 'new_password2') match,
+        and that the new password is valid for the associated user. If all checks pass, it then calls the parent class's
+        clean method to perform any additional validation.
+
+        This method should be called before saving the object to ensure data integrity. It does not modify the object itself,
+        but rather raises an exception if any validation fails.
+        """
         self.validate_passwords("new_password1", "new_password2")
         self.validate_password_for_user(self.user, "new_password2")
         return super().clean()

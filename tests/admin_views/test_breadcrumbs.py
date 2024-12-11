@@ -21,6 +21,17 @@ class AdminBreadcrumbsTests(TestCase):
         self.assertNotContains(response, '<nav aria-label="Breadcrumbs">')
 
     def test_breadcrumbs_present(self):
+        """
+
+        Tests if the breadcrumbs navigation is present in the admin pages.
+
+        This test case checks the presence of breadcrumbs in two scenarios:
+        - when adding a new user
+        - when viewing the application list for the 'auth' app
+
+        The test ensures that the HTML elements for breadcrumbs are correctly rendered.
+
+        """
         response = self.client.get(reverse("admin:auth_user_add"))
         self.assertContains(response, '<nav aria-label="Breadcrumbs">')
         response = self.client.get(

@@ -72,6 +72,20 @@ class TestDataMixin:
 
 class PrefetchRelatedTests(TestDataMixin, TestCase):
     def assertWhereContains(self, sql, needle):
+        """
+        Asserts that the specified SQL string contains the given needle within its WHERE clause.
+
+        Args:
+            sql (str): The SQL string to be checked.
+            needle: The value to be searched within the WHERE clause.
+
+        Raises:
+            AssertionError: If the WHERE clause does not contain the needle.
+
+        Checks that the needle appears exactly once in the SQL string after the 'WHERE' keyword, 
+        providing a helpful error message if the assertion fails, including the actual SQL string 
+        starting from the 'WHERE' keyword for further inspection.
+        """
         where_idx = sql.index("WHERE")
         self.assertEqual(
             sql.count(str(needle), where_idx),
@@ -99,6 +113,18 @@ class PrefetchRelatedTests(TestDataMixin, TestCase):
         self.assertEqual(lists, normal_lists)
 
     def test_foreignkey_forward(self):
+        """
+        Tests that foreign key relationship is properly traversed when using prefetch_related.
+
+        This test case verifies that the results obtained when using prefetch_related to fetch
+        related objects are identical to those obtained when using a standard query.
+        It checks the number of database queries executed during the prefetch operation,
+        ensuring that the related objects are fetched efficiently.
+
+        The test compares the lists of books obtained through prefetch_related and a standard query,
+        asserting that they are equal. This ensures that the foreign key relationship between authors
+        and their first books is correctly handled and that prefetching does not alter the results.
+        """
         with self.assertNumQueries(2):
             books = [
                 a.first_book for a in Author.objects.prefetch_related("first_book")
@@ -153,6 +179,13 @@ class PrefetchRelatedTests(TestDataMixin, TestCase):
             ]
 
     def test_len(self):
+        """
+        Tests the length of a QuerySet while using prefetch_related to optimize database queries.
+
+        This test ensures that the length of the QuerySet can be retrieved without causing additional database queries when prefetch_related is used to fetch related objects. The test checks that only two database queries are executed: one to retrieve the length of the QuerySet and another to fetch the prefetched related objects.
+
+        :raises AssertionError: If the number of database queries executed does not match the expected number
+        """
         with self.assertNumQueries(2):
             qs = Book.objects.prefetch_related("first_time_authors")
             len(qs)
@@ -170,6 +203,20 @@ class PrefetchRelatedTests(TestDataMixin, TestCase):
             [b.first_time_authors.count() for b in qs]
 
     def test_exists(self):
+        """
+
+        Check if the related 'first_time_authors' exist for each Book in the database.
+
+        This test case verifies that the related 'first_time_authors' for each Book
+        can be efficiently retrieved from the database while minimizing the number
+        of queries executed. It expects the database query count to be 2, ensuring
+        that the prefetching is working as expected.
+
+        The test demonstrates the usage of the 'prefetch_related' method to fetch
+        related objects in advance, and the 'exists' method to check for the presence
+        of related objects without having to fetch the actual objects.
+
+        """
         with self.assertNumQueries(2):
             qs = Book.objects.prefetch_related("first_time_authors")
             [b.first_time_authors.exists() for b in qs]
@@ -346,6 +393,18 @@ class PrefetchRelatedTests(TestDataMixin, TestCase):
         self.assertWhereContains(sql, self.author1.name)
 
     def test_m2m_then_reverse_one_to_one_object_ids(self):
+        """
+
+        Tests the behavior of a Many-To-Many relationship followed by a reverse One-To-One relationship 
+        in the context of prefetching related objects. 
+
+        This test case verifies that the SQL query generated for prefetching related objects 
+        ('authors__authorwithage') from the Book model includes the object ID of the expected author. 
+
+        Ensures that the database query is constructed correctly to include the relevant object IDs, 
+        demonstrating proper functionality of the ORM's relationship traversal and query generation.
+
+        """
         with CaptureQueriesContext(connection) as queries:
             list(Book.objects.prefetch_related("authors__authorwithage"))
 
@@ -377,6 +436,19 @@ class PrefetchRelatedTests(TestDataMixin, TestCase):
         )
 
     def test_m2m_prefetching_iterator_with_chunks(self):
+        """
+        Tests that many-to-many prefetching with an iterator using chunks works correctly.
+
+        This test verifies that using prefetch_related with an iterator and a chunk size
+        results in the expected number of database queries and returns the correct data.
+        It checks that the authors are correctly fetched and matched with the expected
+        results, confirming the proper functioning of the many-to-many prefetching
+        mechanism with chunked iteration.
+
+        The test assumes the existence of Book objects with associated authors, and
+        validates that the authors are retrieved as expected when using prefetching with
+        an iterator and a specified chunk size.
+        """
         with self.assertNumQueries(3):
             authors = [
                 b.authors.first()
@@ -660,6 +732,13 @@ class CustomPrefetchTests(TestCase):
 
     def test_o2m_through_m2m(self):
         # Control lookups.
+        """
+
+        Tests whether one-to-many relationships can be traversed through many-to-many relationships while using prefetch-related queries.
+
+        Verifies that various methods of prefetching related objects result in the same output and number of database queries.
+
+        """
         with self.assertNumQueries(3):
             lst1 = self.traverse_qs(
                 Person.objects.prefetch_related("houses", "houses__rooms"),
@@ -700,6 +779,17 @@ class CustomPrefetchTests(TestCase):
         self.assertEqual(lst1, lst2)
 
     def test_generic_rel(self):
+        """
+
+        Tests the generic relations functionality, specifically the traversal of related objects.
+
+        This test creates a Bookmark instance, assigns tags to it, and then verifies that querying
+        the Bookmark objects with prefetched related tags and favorite tags returns the expected results.
+        It checks that the results are consistent when using both the default prefetching and a custom
+        prefetching approach with aliasing. The test also ensures that the number of database queries
+        remains efficient in both scenarios.
+
+        """
         bookmark = Bookmark.objects.create(url="http://www.djangoproject.com/")
         TaggedItem.objects.create(content_object=bookmark, tag="django")
         TaggedItem.objects.create(
@@ -1007,6 +1097,20 @@ class CustomPrefetchTests(TestCase):
         self.assertEqual(main_room.main_room, self.room1_1)
 
     def test_values_queryset(self):
+        """
+
+        Tests the validity of querysets used with Prefetch.
+
+        Verifies that Prefetch objects cannot be created with querysets that use 
+        values() or values_list(), as these methods are incompatible with prefetching.
+
+        Additionally, this test checks that ModelIterableSubclass is correctly used 
+        when creating a Prefetch object with a custom queryset. 
+
+        Raises:
+            ValueError: If a Prefetch object is created with an incompatible queryset.
+
+        """
         msg = "Prefetch querysets cannot use raw(), values(), and values_list()."
         with self.assertRaisesMessage(ValueError, msg):
             Prefetch("houses", House.objects.values("pk"))
@@ -1019,6 +1123,16 @@ class CustomPrefetchTests(TestCase):
         Prefetch("teachers", Teacher.objects_custom.all())
 
     def test_raw_queryset(self):
+        """
+
+        Tests that attempting to use the raw() method within a Prefetch queryset raises a ValueError.
+
+        The raw() method is not supported in Prefetch querysets due to its incompatibility
+        with the optimized query execution provided by Prefetch. This test case verifies
+        that using raw() within a Prefetch results in an informative error message,
+        guiding developers to avoid this usage.
+
+        """
         msg = "Prefetch querysets cannot use raw(), values(), and values_list()."
         with self.assertRaisesMessage(ValueError, msg):
             Prefetch("houses", House.objects.raw("select pk from house"))
@@ -1030,6 +1144,11 @@ class CustomPrefetchTests(TestCase):
         self.assertIsInstance(house.rooms.all(), QuerySet)
 
     def test_to_attr_cached_property(self):
+        """
+        Tests that the cached property 'cached_all_houses' on the Person model is correctly populated 
+        when using prefetch_related with Prefetch, and that it matches the expected query results 
+        without triggering additional database queries.
+        """
         persons = Person.objects.prefetch_related(
             Prefetch("houses", House.objects.all(), to_attr="cached_all_houses"),
         )
@@ -1137,6 +1256,18 @@ class GenericRelationTests(TestCase):
             [c.content_object for c in qs]
 
     def test_prefetch_GFK_uuid_pk(self):
+        """
+        Tests the prefetching of Generic Foreign Key (GFK) related objects when the primary key is a UUID.
+
+        Verifies that the prefetch_related method correctly retrieves related objects
+        when the foreign key is a UUID. Checks that the prefetched objects are equal to
+        the expected related objects, ensuring efficient query execution.
+
+        The test covers a scenario where a Comment object is associated with an Article
+        object via a GFK, and then prefetches the related Article objects using the
+        prefetch_related method. The test asserts that the prefetched objects match the
+        expected related objects, validating the correctness of the prefetching operation.
+        """
         article = Article.objects.create(name="Django")
         Comment.objects.create(comment="awesome", content_object_uuid=article)
         qs = Comment.objects.prefetch_related("content_object_uuid")
@@ -1177,6 +1308,14 @@ class GenericRelationTests(TestCase):
             self.assertEqual(readers_of_awesome_books, {"me", "you", "someone"})
 
     def test_nullable_GFK(self):
+        """
+
+        Tests the functionality of the Generic Foreign Key (GFK) field when used with nullable relationships.
+
+        Verifies that the :class:`TaggedItem` model can correctly handle creation of tagged items with and without a specified creator.
+        The test also checks that the created_by relationship is properly prefetched, ensuring that the expected number of database queries are executed.
+
+        """
         TaggedItem.objects.create(
             tag="awesome", content_object=self.book1, created_by=self.reader1
         )
@@ -1235,6 +1374,18 @@ class GenericRelationTests(TestCase):
         self.assertEqual(list(bookmark.tags.all()), list(bookmark.tags.all().all()))
 
     def test_deleted_GFK(self):
+        """
+        Tests the behavior of a generic foreign key (GFK) after the related object has been deleted.
+
+        This test case creates a tag associated with two books, then deletes one of the books.
+        It verifies that a query attempting to prefetch the related book objects results in 
+        the correct data, with the deleted book's object_id and content_type_id still present, 
+        but its content_object set to None, and the other book's object_id, content_type_id, 
+        and content_object correctly populated. The test also checks that this query is executed 
+        within a limited number of database queries. 
+
+        Raises an AssertionError if the expected results do not match the actual query results.
+        """
         TaggedItem.objects.create(tag="awesome", content_object=self.book1)
         TaggedItem.objects.create(tag="awesome", content_object=self.book2)
         ct = ContentType.objects.get_for_model(Book)
@@ -1280,6 +1431,18 @@ class MultiTableInheritanceTest(TestCase):
         cls.br2 = BookReview.objects.create(book=cls.book2, notes="review book2")
 
     def test_foreignkey(self):
+        """
+
+        Tests the foreign key relationship between AuthorWithAge and Address models.
+
+        This test case verifies that the foreign key relationship between AuthorWithAge and Address models 
+        is correctly established and that the addresses are properly fetched for each author.
+
+        The test uses a prefetch query to reduce the number of database queries, and it checks 
+        if the number of queries executed is as expected. It then asserts that the addresses 
+        retrieved for each author match the expected results.
+
+        """
         with self.assertNumQueries(2):
             qs = AuthorWithAge.objects.prefetch_related("addresses")
             addresses = [
@@ -1288,6 +1451,16 @@ class MultiTableInheritanceTest(TestCase):
         self.assertEqual(addresses, [[str(self.author_address)], [], []])
 
     def test_foreignkey_to_inherited(self):
+        """
+
+        Tests that a foreign key to an inherited model can be properly prefetched, 
+        allowing for efficient retrieval of related objects.
+
+        Verifies that the prefetch_related method is used correctly to fetch 
+        the 'book' objects related to BookReview instances, and that their titles 
+        can be successfully retrieved.
+
+        """
         with self.assertNumQueries(2):
             qs = BookReview.objects.prefetch_related("book")
             titles = [obj.book.title for obj in qs]
@@ -1354,6 +1527,24 @@ class ForeignKeyToFieldTest(TestCase):
         self.assertEqual(addresses, [[str(self.author_address)], [], []])
 
     def test_m2m(self):
+        """
+        Tests the many-to-many relationship between authors.
+
+        This test case verifies that the prefetch_related method correctly fetches favorite authors and authors who favor an author, 
+        resulting in the expected number of database queries. It then checks that the favorites and favours_me relationships are correctly 
+        populated for each author in the query set.
+
+        The test asserts that the favourite authors and authors who favour an author are correctly ordered, ensuring data consistency.\"\"\"
+
+         however, updated for sphinx 
+         \"\"\"Tests the many-to-many relationship between authors.
+
+        This test case verifies that the :meth:`~django.db.models.query.QuerySet.prefetch_related` method correctly fetches favorite authors 
+        and authors who favor an author, resulting in the expected number of database queries. It then checks that the favorites and 
+        favours_me relationships are correctly populated for each author in the query set.
+
+        The test asserts that the favourite authors and authors who favour an author are correctly ordered, ensuring data consistency.
+        """
         with self.assertNumQueries(3):
             qs = Author.objects.prefetch_related("favorite_authors", "favors_me")
             favorites = [
@@ -1381,6 +1572,18 @@ class LookupOrderingTest(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Sets up the initial test data for the application.
+
+        This method creates a set of pre-defined persons, houses, and rooms, and establishes relationships between them.
+        Two persons, 'Joe' and 'Mary', are created and assigned ownership of multiple houses.
+        Each house has multiple rooms, with one designated as the main room.
+
+        The test data includes four houses with different addresses, each containing two to three rooms.
+        The setup allows for testing of various scenarios involving persons, houses, and rooms, such as querying ownership and room assignments.
+
+        """
         person1 = Person.objects.create(name="Joe")
         person2 = Person.objects.create(name="Mary")
 
@@ -1436,6 +1639,18 @@ class NullableTest(TestCase):
     def test_traverse_nullable(self):
         # Because we use select_related() for 'boss', it doesn't need to be
         # prefetched, but we can still traverse it although it contains some nulls
+        """
+        ```\"\"\"
+        Tests that traversing nullable relationships with and without prefetching related objects yields the same results.
+
+        Checks that using select_related and prefetch_related to fetch boss and serfs for employees does not affect the 
+        results when some employees have a null boss. It compares the lists of serfs for each employee's boss, ensuring 
+        they are identical whether or not the related objects are prefetched.
+
+        This test helps ensure correct database query generation and prevents potential N+1 query issues when dealing 
+        with nullable relationships.
+        \"\"\"```
+        """
         with self.assertNumQueries(2):
             qs = Employee.objects.select_related("boss").prefetch_related("boss__serfs")
             co_serfs = [
@@ -1451,6 +1666,19 @@ class NullableTest(TestCase):
 
     def test_prefetch_nullable(self):
         # One for main employee, one for boss, one for serfs
+        """
+        Test that prefetching related nullable fields works as expected.
+
+        This test checks that prefetching a related field (in this case, 'boss__serfs') 
+        on a queryset, and then accessing that field, results in the same data as 
+        not prefetching the field. The test case specifically handles the scenario 
+        where the related field ('boss') is nullable, ensuring that prefetching 
+        still functions correctly even when the related object is missing.
+
+        The test verifies that the number of database queries is reduced when 
+        prefetching is used, demonstrating the performance benefits of this 
+        optimization technique.
+        """
         with self.assertNumQueries(3):
             qs = Employee.objects.prefetch_related("boss__serfs")
             co_serfs = [
@@ -1534,6 +1762,18 @@ class MultiDbTests(TestCase):
         )
 
     def test_using_is_honored_fkey(self):
+        """
+
+        Tests that the 'using' parameter is honored when performing database queries using Django's ORM.
+
+        Verifies that the database alias specified by 'using' is used for both simple queries and 
+        prefetch-related queries. This test case covers scenarios where the 'using' parameter is 
+        applied to both forward and reverse foreign key relationships.
+
+        It checks that the correct database alias is used when retrieving related objects, and 
+        ensures that the number of database queries executed matches the expected number.
+
+        """
         B = Book.objects.using("other")
         A = Author.objects.using("other")
         book1 = B.create(title="Poems")
@@ -1562,6 +1802,20 @@ class MultiDbTests(TestCase):
         )
 
     def test_using_is_honored_inheritance(self):
+        """
+
+        Tests whether using a specific database in Django model managers is honored during inheritance.
+
+        Verifies that when creating instances of models using a specific database,
+        the database is correctly used for both the model instances and their
+        related objects, even when the related objects are accessed through
+        prefetching.
+
+        Ensures the test database queries are executed as expected, with the
+        correct number of queries being performed, and verifies the results
+        of the queries to match the expected output.
+
+        """
         B = BookWithYear.objects.using("other")
         A = AuthorWithAge.objects.using("other")
         book1 = B.create(title="Poems", published_year=2010)
@@ -1638,6 +1892,19 @@ class MultiDbTests(TestCase):
 class Ticket19607Tests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for the application, creating initial lesson and word entries.
+
+        This method populates the database with a set of predefined lesson and word entries, 
+        used for testing purposes. It creates two lesson entries with ids 1 and 2, 
+        representing 'einfach' (simple) and 'schwierig' (difficult) respectively, 
+        and four word entries associated with these lessons.
+
+        The created data includes translations for each lesson, allowing for testing 
+        of language-related functionality. This setup is intended to provide a basic 
+        dataset for testing and demonstration purposes, and should be used in conjunction 
+        with other test cases to ensure comprehensive coverage of application functionality.
+        """
         LessonEntry.objects.bulk_create(
             LessonEntry(id=id_, name1=name1, name2=name2)
             for id_, name1, name2 in [
@@ -1721,6 +1988,13 @@ class DirectPrefetchedObjectCacheReuseTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Sets up test data for the application, creating a set of predefined books, authors, author addresses, and a book review.
+        This method creates test instances of various models, including Book, Author, AuthorAddress, BookWithYear, and BookReview,
+        providing a consistent dataset for testing purposes.
+
+        """
         cls.book1, cls.book2 = [
             Book.objects.create(title="book1"),
             Book.objects.create(title="book2"),
@@ -1848,6 +2122,14 @@ class DirectPrefetchedObjectCacheReuseTests(TestCase):
         )
 
     def test_remove_clears_prefetched_objects(self):
+        """
+
+        Tests that removing an object from a prefetched many-to-one relationship clears the prefetched objects.
+
+        Verifies that after removing an object from a prefetched relationship, the relationship is updated correctly,
+        and the previously prefetched objects are no longer accessible.
+
+        """
         bookwithyear = BookWithYear.objects.get(pk=self.bookwithyear1.pk)
         prefetch_related_objects([bookwithyear], "bookreview_set")
         self.assertCountEqual(bookwithyear.bookreview_set.all(), [self.bookreview1])
@@ -1858,6 +2140,13 @@ class DirectPrefetchedObjectCacheReuseTests(TestCase):
 class ReadPrefetchedObjectsCacheTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for the application, creating instances of Book and AuthorWithAge models.
+
+         This method creates two books, 'Les confessions Volume I' and 'Candide', and two authors, 'Rousseau' and 'Voltaire', 
+         with their respective ages and associations with the books. It also establishes a relationship between the two authors 
+         where 'Rousseau' is set as a favorite author of 'Voltaire'. The test data is stored as class attributes for use in subsequent tests.
+        """
         cls.book1 = Book.objects.create(title="Les confessions Volume I")
         cls.book2 = Book.objects.create(title="Candide")
         cls.author1 = AuthorWithAge.objects.create(
@@ -2017,6 +2306,15 @@ class DeprecationTests(TestCase):
 
     @ignore_warnings(category=RemovedInDjango60Warning)
     def test_prefetch_one_level_fallback(self):
+        """
+
+        Tests the fallback behavior of prefetching a single level of related objects.
+
+        This function verifies that the prefetch_one_level function correctly fetches related objects when 
+        the get_prefetch_querysets method is not available or unsupported. It creates a test scenario with 
+        House and Room objects and checks that the correct related objects are fetched.
+
+        """
         class NoGetPrefetchQuerySetsDescriptor(ForwardManyToOneDescriptor):
             def get_prefetch_queryset(self, instances, queryset=None):
                 if queryset is None:
@@ -2024,6 +2322,13 @@ class DeprecationTests(TestCase):
                 return super().get_prefetch_querysets(instances, [queryset])
 
             def __getattribute__(self, name):
+                """
+                Overrides the default attribute access to prevent access to the 'get_prefetch_querysets' attribute.
+
+                This method ensures that the 'get_prefetch_querysets' attribute is not accessible through the standard attribute access mechanisms, effectively hiding it from external access and raising an AttributeError if attempted.
+
+                All other attribute accesses are handled by the parent class, allowing for normal attribute access and manipulation. This allows for a high degree of customization and control over attribute access, while maintaining compatibility with the parent class's behavior.
+                """
                 if name == "get_prefetch_querysets":
                     raise AttributeError
                 return super().__getattribute__(name)

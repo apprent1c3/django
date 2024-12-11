@@ -50,6 +50,16 @@ class FloorTests(TestCase):
         self.assertEqual(obj.big_floor, math.floor(obj.big))
 
     def test_transform(self):
+        """
+        Test the transformation of DecimalField values using the Floor function.
+
+        This test creates two DecimalModel instances with different decimal values, 
+        then applies a filter to retrieve the object with a floor value greater than 4.
+        The result is verified to ensure it returns the expected DecimalModel instance.
+
+        The test demonstrates the usage of the Floor lookup function in conjunction with 
+        DecimalField to apply floor calculations to decimal values in database queries.
+        """
         with register_lookup(DecimalField, Floor):
             DecimalModel.objects.create(n1=Decimal("5.4"), n2=Decimal("0"))
             DecimalModel.objects.create(n1=Decimal("3.4"), n2=Decimal("0"))

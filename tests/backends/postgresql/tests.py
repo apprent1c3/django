@@ -22,6 +22,17 @@ except ImportError:
 
 
 def no_pool_connection(alias=None):
+    """
+    Create a new database connection with pooling disabled.
+
+    This function returns a copy of the existing database connection with the 
+    pooling option set to False. The new connection can be used independently 
+    of the original connection. If an alias is provided, it will be used to 
+    create a named connection.
+
+    :param alias: Optional alias for the new connection
+    :rtype: New database connection with pooling disabled
+    """
     new_connection = connection.copy(alias)
     new_connection.settings_dict = copy.deepcopy(connection.settings_dict)
     # Ensure that the second connection circumvents the pool, this is kind
@@ -136,6 +147,11 @@ class Tests(TestCase):
                 raise DatabaseError("exception")
 
     def test_database_name_too_long(self):
+        """
+        Checks if a PostgreSQL database name exceeds the maximum allowed length.
+
+        This test case validates that the Django database configuration raises an `ImproperlyConfigured` exception when the database name is longer than the limit imposed by PostgreSQL. The test sets up a database connection with a name that exceeds the maximum allowed length and verifies that the expected error message is raised. The error message includes the database name, its length, and the maximum allowed length, providing clear guidance on how to resolve the issue.
+        """
         from django.db.backends.postgresql.base import DatabaseWrapper
 
         settings = connection.settings_dict.copy()
@@ -285,6 +301,18 @@ class Tests(TestCase):
 
     @unittest.skipUnless(is_psycopg3, "psycopg3 specific test")
     def test_connect_pool_with_timezone(self):
+        """
+
+        Tests the connection to a PostgreSQL database using a connection pool, 
+        specifically verifying that the timezone is correctly applied when the pool is used.
+
+        The test first checks the initial timezone of the database connection, 
+        then sets a new timezone and verifies that it is applied correctly when 
+        using a connection pool. The test ensures that the timezone is updated 
+        as expected when the connection pool is used, and that the initial 
+        timezone is not equal to the new timezone set.
+
+        """
         new_time_zone = "Africa/Nairobi"
         new_connection = no_pool_connection(alias="default_pool")
 
@@ -454,6 +482,13 @@ class Tests(TestCase):
             new_connection.close()
 
     def test_client_encoding_utf8_enforce(self):
+        """
+        Tests that a database connection enforces UTF-8 client encoding, regardless of the specified encoding. 
+
+        The test creates a new database connection with a non-UTF-8 client encoding and verifies that the connection is established with UTF-8 encoding. 
+
+        This ensures that the database connection correctly overrides the specified client encoding to use UTF-8, as required.
+        """
         new_connection = no_pool_connection()
         new_connection.settings_dict["OPTIONS"]["client_encoding"] = "iso-8859-2"
         try:
@@ -471,6 +506,17 @@ class Tests(TestCase):
             return cursor.fetchone()[0]
 
     def test_select_ascii_array(self):
+        """
+
+        Tests the selection of an ASCII array.
+
+        Verifies that the _select method correctly chooses an element from the input array.
+        In this case, the array contains a single ASCII string, and the test confirms that
+        the selected element matches the original element.
+
+        This test case ensures the functionality of the _select method for simple ASCII arrays.
+
+        """
         a = ["awef"]
         b = self._select(a)
         self.assertEqual(a[0], b[0])
@@ -500,6 +546,15 @@ class Tests(TestCase):
                 self.assertIn("::text", do.lookup_cast(lookup))
 
     def test_lookup_cast_isnull_noop(self):
+        """
+
+        Tests that the lookup_cast function in DatabaseOperations returns the correct SQL type cast for the 'isnull' lookup type with various field types.
+
+        The tests verify that for CharField, EmailField, and TextField types, the lookup_cast function does not apply any type casting (i.e., it returns '%s') when the 'isnull' lookup type is used.
+
+        The purpose of this test is to ensure that the 'isnull' lookup type handles these field types correctly, without modifying their SQL type.
+
+        """
         from django.db.backends.postgresql.operations import DatabaseOperations
 
         do = DatabaseOperations(connection=None)
@@ -514,6 +569,15 @@ class Tests(TestCase):
                 self.assertEqual(do.lookup_cast("isnull", field_type), "%s")
 
     def test_correct_extraction_psycopg_version(self):
+        """
+        .. function:: test_correct_extraction_psycopg_version
+
+           Tests the extraction of the psycopg version from the database backend.
+
+           This test ensures that the :func:`psycopg_version` function correctly extracts
+           the major and minor version numbers from the psycopg database backend version string.
+           The test covers both release and development versions of the psycopg library.
+        """
         from django.db.backends.postgresql.base import Database, psycopg_version
 
         with mock.patch.object(Database, "__version__", "4.2.1 (dt dec pq3 ext lo64)"):
@@ -547,6 +611,11 @@ class Tests(TestCase):
         self.assertEqual([q["sql"] for q in connection.queries], [copy_sql])
 
     def test_get_database_version(self):
+        """
+        Tests the functionality of retrieving the PostgreSQL database version from a connection object.
+
+        The test case verifies that the :meth:`get_database_version` method correctly parses the PostgreSQL version number and returns it as a tuple of two integers, representing the major and minor version numbers respectively.
+        """
         new_connection = no_pool_connection()
         new_connection.pg_version = 140009
         self.assertEqual(new_connection.get_database_version(), (14, 9))

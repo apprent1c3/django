@@ -7,6 +7,17 @@ from .models import Article, Reporter, Writer
 
 class M2MIntermediaryTests(TestCase):
     def test_intermediary(self):
+        """
+
+        Tests the intermediary table in a many-to-many relationship between Reporters and Articles.
+
+        Verifies that the writer_set on an Article instance returns a QuerySet of Writers
+        in the correct order, and that the Writer instances have the correct Reporter and Article references.
+
+        Also checks that the writer_set on a Reporter instance returns a QuerySet of Writers
+        associated with that Reporter.
+
+        """
         r1 = Reporter.objects.create(first_name="John", last_name="Smith")
         r2 = Reporter.objects.create(first_name="Jane", last_name="Doe")
 

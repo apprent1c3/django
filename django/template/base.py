@@ -315,6 +315,9 @@ class Token:
         self.position = position
 
     def __repr__(self):
+        """
+        Returns a string representation of the token object, providing a brief summary of its type and contents. The string includes the capitalized name of the token type and a truncated version of the token's contents, limited to 20 characters and with newline characters removed. This representation is useful for debugging and logging purposes, offering a concise and readable overview of the token's properties.
+        """
         token_name = self.token_type.name.capitalize()
         return '<%s token: "%s...">' % (
             token_name,
@@ -322,6 +325,16 @@ class Token:
         )
 
     def split_contents(self):
+        """
+        Splits the contents into individual bits, handling translation strings 
+        by concatenating adjacent parts until the translation string is complete.
+
+        This method takes into account strings that start with `_(` and `'` to 
+        handle both types of translation markers. It returns a list of the split 
+        bits, with translation strings properly reconstructed from their parts.
+
+        :returns: A list of split contents with translation strings handled
+        """
         split = []
         bits = smart_split(self.contents)
         for bit in bits:
@@ -410,6 +423,14 @@ class DebugLexer(Lexer):
 
     # This parallels the use of tag_re.split() in Lexer.tokenize().
     def _tag_re_split(self):
+        """
+
+        Generates a sequence of splits in the template string based on predefined positions.
+
+        Yields:
+            tuple: A tuple containing the substring of the template string and its corresponding position.
+
+        """
         for position in self._tag_re_split_positions():
             yield self.template_string[slice(*position)], position
 

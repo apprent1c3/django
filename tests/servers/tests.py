@@ -51,6 +51,11 @@ class CloseConnectionTestServer(ThreadedWSGIServer):
         self._connections_closed = threading.Event()
 
     def _close_connections(self):
+        """
+        Closes all connections and sets the flag indicating that connections have been closed.
+
+        This method builds upon the parent class's connection closure functionality, ensuring that all necessary connections are properly terminated. Following the closure, it updates the internal state to reflect that connections are no longer active.
+        """
         super()._close_connections()
         self._connections_closed.set()
 
@@ -67,6 +72,19 @@ class LiveServerTestCloseConnectionTest(LiveServerBase):
 
     @classmethod
     def _make_connections_override(cls):
+        """
+        Overrides database connections to prevent connection closure.
+
+        This method allows for persistent database connections by modifying the
+        CONN_MAX_AGE setting for the default database alias. It achieves this by
+        retrieving the current connection, storing its original maximum age setting,
+        and then setting the CONN_MAX_AGE to None, effectively preventing the
+        connection from being closed.
+
+        Returns:
+            A dictionary containing the modified connection for the default database alias.
+
+        """
         conn = connections[DEFAULT_DB_ALIAS]
         cls.conn = conn
         cls.old_conn_max_age = conn.settings_dict["CONN_MAX_AGE"]
@@ -85,12 +103,29 @@ class LiveServerTestCloseConnectionTest(LiveServerBase):
 
     @classmethod
     def tearDownClass(cls):
+        """
+        Teardown class method to clean up after all tests in the class have been executed.
+
+        This method is responsible for releasing any resources held by the class, ensuring a clean state after testing.
+        It first closes the connection used for testing and then calls the superclass's tearDownClass method to perform any additional cleanup tasks.
+
+        """
         cls.tearDownConnectionTest()
         super().tearDownClass()
 
     def test_closes_connections(self):
         # The server's request thread sets this event after closing
         # its database connections.
+        """
+        Tests that HTTP connections are properly closed after a request is completed.
+
+        Verifies that a connection is established, a request is made, and the connection
+        is subsequently closed. The test checks for the successful retrieval of data 
+        from a '/model_view/' endpoint and ensures that the connection is None after 
+        the request is finished, within a specified timeout.
+
+        Raises an AssertionError if the connection is not closed as expected.
+        """
         closed_event = self.server_thread.httpd._connections_closed
         conn = self.conn
         # Open a connection to the database.
@@ -148,6 +183,21 @@ class LiveServerTestCaseSetupTest(LiveServerBase):
 
     @classmethod
     def setUpClass(cls):
+        """
+
+        Sets up the class by configuring allowed hosts and performing initial setup.
+
+        This method modifies the class state by setting allowed hosts to 'testserver' and 
+        then attempts to call the superclass's setup method. If this fails, it performs 
+        cleanup operations. The setup process is tracked with the `set_up_called` flag.
+
+        Raises:
+            RuntimeError: If the superclass's setup method does not fail as expected.
+
+        Note:
+            This method is intended for internal use within the testing framework.
+
+        """
         cls.check_allowed_hosts(["testserver"])
         try:
             super().setUpClass()
@@ -171,6 +221,13 @@ class LiveServerAddress(LiveServerBase):
         cls.live_server_url_test = [cls.live_server_url]
 
     def test_live_server_url_is_class_property(self):
+        """
+        Verifies that the live server URL is a class property.
+
+        This test ensures that the live server URL is an instance of a string and 
+        that it matches the expected class property value, confirming that it is 
+        correctly set and accessible as a class attribute.
+        """
         self.assertIsInstance(self.live_server_url_test[0], str)
         self.assertEqual(self.live_server_url_test[0], self.live_server_url)
 
@@ -258,6 +315,15 @@ class LiveServerViews(LiveServerBase):
             conn.close()
 
     def test_keep_alive_connection_clears_previous_request_data(self):
+        """
+        Tests the behavior of a keep-alive connection to ensure that previous request data is cleared.
+
+        This test case verifies that when a keep-alive connection is established, subsequent requests do not retain data from previous requests. It checks the response status, content, and connection state after sending multiple requests over the same connection.
+
+        Specifically, it checks that the connection remains open after the first request and that the response content is correct for both requests. The test also ensures that the connection is properly closed after the test is completed.
+
+        The test scenario involves sending two POST requests to a server, first with a keep-alive connection and then with a close connection, and verifying the responses and connection state after each request.
+        """
         conn = HTTPConnection(
             LiveServerViews.server_thread.host, LiveServerViews.server_thread.port
         )
@@ -306,10 +372,28 @@ class LiveServerViews(LiveServerBase):
         self.assertEqual(err.exception.code, 404, "Expected 404 response")
 
     def test_media_files(self):
+        """
+
+        Tests the retrieval of media files.
+
+        Verifies that a media file can be successfully fetched and its contents are as expected.
+        The test checks that the file contains the specified content, ignoring any trailing newline characters.
+
+        """
         with self.urlopen("/media/example_media_file.txt") as f:
             self.assertEqual(f.read().rstrip(b"\r\n"), b"example media file")
 
     def test_environ(self):
+        """
+
+        Tests the environ view by sending a query string with a non-ASCII character.
+        The test verifies that the REQUEST_METHOD and QUERY_STRING environment variables
+        are properly set and reflected in the response.
+
+        The test case includes a query parameter 'q' with a value containing a Cyrillic character.
+        It checks if the QUERY_STRING environment variable in the response contains the expected encoded value.
+
+        """
         with self.urlopen("/environ_view/?%s" % urlencode({"q": "тест"})) as f:
             self.assertIn(b"QUERY_STRING: 'q=%D1%82%D0%B5%D1%81%D1%82'", f.read())
 
@@ -411,11 +495,23 @@ class LiveServerThreadedTests(LiveServerBase):
     """If LiveServerTestCase isn't threaded, these tests will hang."""
 
     def test_view_calls_subview(self):
+        """
+        Tests that a view correctly calls its subview.
+
+        This test case verifies that the main view invokes its subview and returns the expected result.
+        It uses a URL that triggers the view to call its subview, and checks that the response from the view
+        matches the expected output of the subview, confirming that the subview was called successfully.
+        """
         url = "/subview_calling_view/?%s" % urlencode({"url": self.live_server_url})
         with self.urlopen(url) as f:
             self.assertEqual(f.read(), b"subview calling view: subview")
 
     def test_check_model_instance_from_subview(self):
+        """
+        Checks if a model instance can be properly retrieved and rendered from a subview.
+
+        This test verifies that the model instance is successfully loaded and its data is correctly displayed when accessed through a subview. It sends a request to the specified URL, then checks the response for the presence of the expected data, in this case, the name 'emily'. The test ensures that the subview is functioning as expected and that the model instance is being correctly rendered.
+        """
         url = "/check_model_instance_from_subview/?%s" % urlencode(
             {
                 "url": self.live_server_url,

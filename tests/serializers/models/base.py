@@ -133,6 +133,15 @@ class TeamField(models.CharField):
         return str(value.title)
 
     def to_python(self, value):
+        """
+        Converts the given value to a Team object.
+
+        Args:
+            value: The value to be converted, which can be either a Team object or a type that can be used to create a new Team.
+
+        Returns:
+            A Team object, either the original if the input was already a Team, or a new Team created from the given value.
+        """
         if isinstance(value, Team):
             return value
         return Team(value)
@@ -144,6 +153,13 @@ class TeamField(models.CharField):
         return self.value_from_object(obj).to_string()
 
     def deconstruct(self):
+        """
+        Deconstruct a database field, removing the 'max_length' attribute from the keyword arguments.
+
+        This method is typically used by Django's migration system to serialize and deserialize database fields.
+        It extends the deconstruction behavior of its parent class, modifying the keyword arguments to exclude the 'max_length' parameter.
+        The deconstructed field is returned as a tuple containing the field's name, path, positional arguments, and modified keyword arguments.
+        """
         name, path, args, kwargs = super().deconstruct()
         del kwargs["max_length"]
         return name, path, args, kwargs

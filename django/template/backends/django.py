@@ -17,6 +17,20 @@ class DjangoTemplates(BaseEngine):
     app_dirname = "templates"
 
     def __init__(self, params):
+        """
+        Initializes the template engine with the provided parameters, configuring options and libraries as necessary.
+
+        :param params: Dictionary of parameters to configure the template engine, including 'OPTIONS' which contains engine-specific settings.
+        :returns: None
+
+        The 'OPTIONS' dictionary within 'params' can contain the following keys:
+            * autoescape: Enable or disable auto-escaping of template variables (default: True)
+            * debug: Enable or disable debug mode (default: value of settings.DEBUG)
+            * file_charset: Character encoding of template files (default: 'utf-8')
+            * libraries: Dictionary of template tag libraries to make available to the engine
+
+        The function sets up the template engine and its options, including the configuration of template tag libraries, before delegating to the superclass initializer to complete the setup.
+        """
         params = params.copy()
         options = params.pop("OPTIONS").copy()
         options.setdefault("autoescape", True)

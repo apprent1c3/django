@@ -48,6 +48,16 @@ class LookupTests(SimpleTestCase):
 
 class YearLookupTests(SimpleTestCase):
     def test_get_bound_params(self):
+        """
+
+        Tests that the get_bound_params method in subclasses of YearLookup is not implemented by default.
+
+        Checks that attempting to call get_bound_params on an instance of YearLookup raises a NotImplementedError
+        with a message indicating that subclasses must provide this method.
+
+        The test case uses a specific date range spanning the entire New Year's Day in 2010 to exercise the method.
+
+        """
         look_up = YearLookup(
             lhs=Value(datetime(2010, 1, 1, 0, 0, 0), output_field=DateTimeField()),
             rhs=Value(datetime(2010, 1, 1, 23, 59, 59), output_field=DateTimeField()),

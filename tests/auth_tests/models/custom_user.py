@@ -93,6 +93,13 @@ class RemoveGroupsAndPermissions:
         AbstractUser._meta.local_many_to_many = [groups, user_permissions]
 
     def __exit__(self, exc_type, exc_value, traceback):
+        """
+        Restores the original many-to-many relationship metadata for AbstractUser and PermissionsMixin.
+
+        This method is part of the runtime context management protocol and is called when exiting the runtime context.
+        It reverses the changes made to the local many-to-many relationship metadata, ensuring that the original state is restored.
+        The restoration is done by resetting the local_many_to_many attributes of AbstractUser and PermissionsMixin to their original values, which were stored before any modifications were made.
+        """
         AbstractUser._meta.local_many_to_many = self._old_au_local_m2m
         PermissionsMixin._meta.local_many_to_many = self._old_pm_local_m2m
 

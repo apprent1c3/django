@@ -24,6 +24,13 @@ class StaticTagTests(SimpleTestCase):
         }
     )
     def test_static_prefixtag02(self):
+        """
+        Checks that the static prefix tag correctly loads the static prefix from project settings.
+
+        The test verifies the functionality of a custom Django template tag that retrieves the static prefix URL.
+        It renders a template containing the tag and compares the output with the value defined in the project's settings.
+        The purpose of this test is to ensure that the tag provides the correct static prefix for use in templates.
+        """
         output = self.engine.render_to_string("static-prefixtag02")
         self.assertEqual(output, settings.STATIC_URL)
 
@@ -51,17 +58,49 @@ class StaticTagTests(SimpleTestCase):
         }
     )
     def test_static_prefixtag_without_as(self):
+        """
+        Tests that the 'get_media_prefix' template tag raises a TemplateSyntaxError when used without the 'as' keyword argument. 
+
+         Verifies that the error message is correctly displayed, ensuring that users are informed of the required syntax. 
+
+         This test case is essential for maintaining the integrity of template rendering, helping to prevent potential issues that may arise from incorrect tag usage.
+        """
         msg = "First argument in 'get_media_prefix' must be 'as'"
         with self.assertRaisesMessage(TemplateSyntaxError, msg):
             self.engine.render_to_string("t")
 
     @setup({"static-statictag01": '{% load static %}{% static "admin/base.css" %}'})
     def test_static_statictag01(self):
+        """
+
+        Tests the rendering of the static template tag when used to load a static file.
+
+        This test case checks that the static tag correctly resolves the URL of a static file 
+        and renders it as expected. It verifies that the rendered output matches the 
+        expected static file URL constructed using the STATIC_URL setting.
+
+        The test covers the basic usage of the static tag and ensures that it integrates 
+        correctly with the template engine to generate the correct URL for a static file.
+
+        """
         output = self.engine.render_to_string("static-statictag01")
         self.assertEqual(output, urljoin(settings.STATIC_URL, "admin/base.css"))
 
     @setup({"static-statictag02": "{% load static %}{% static base_css %}"})
     def test_static_statictag02(self):
+        """
+
+        Tests that the static tag correctly loads static files using the static template tag.
+
+        In this test, the static tag is used to load a CSS file named 'base_css'
+        from the static directory. The test checks that the output matches the expected
+        static URL constructed from the settings.
+
+        The test verifies that the static tag correctly resolves the static file path and
+        returns the expected static URL, demonstrating proper integration with the static
+        file system.
+
+        """
         output = self.engine.render_to_string(
             "static-statictag02", {"base_css": "admin/base.css"}
         )
@@ -82,6 +121,15 @@ class StaticTagTests(SimpleTestCase):
         {"static-statictag04": "{% load static %}{% static base_css as foo %}{{ foo }}"}
     )
     def test_static_statictag04(self):
+        """
+        Test the static template tag with a static context variable.
+
+        This test ensures that the static template tag correctly loads a static file URL 
+        when the filename is stored in a variable. The test verifies that the rendered 
+        template output matches the expected static file URL.
+
+        :raises AssertionError: if the rendered output does not match the expected URL
+        """
         output = self.engine.render_to_string(
             "static-statictag04", {"base_css": "admin/base.css"}
         )
@@ -110,6 +158,14 @@ class StaticTagTests(SimpleTestCase):
 
 class StaticNodeTests(SimpleTestCase):
     def test_repr(self):
+        """
+
+        Tests the repr method of the StaticNode class to ensure it correctly represents the object as a string.
+
+        The test covers two scenarios: when the StaticNode is initialized with both a variable name and a path, and when it is initialized with only a path.
+        The expected output of the repr method is a string that mirrors the object's constructor call, including the values of the varname and path attributes.
+
+        """
         static_node = StaticNode(varname="named-var", path="named-path")
         self.assertEqual(
             repr(static_node),

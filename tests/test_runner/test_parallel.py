@@ -54,6 +54,18 @@ class SampleFailingSubtest(SimpleTestCase):
     # This method name doesn't begin with "test" to prevent test discovery
     # from seeing it.
     def pickle_error_test(self):
+        """
+        Tests the error handling of pickling a memoryview object.
+
+        This function verifies that attempting to pickle a memoryview object raises a TypeError, 
+        as memoryview objects are not serializable. The test is expected to fail if the error 
+        is not properly handled, ensuring that the correct exception is raised when trying to 
+        pickle a memoryview object.
+
+        The test scenario assumes a memoryview object is created and then an attempt is made 
+        to pickle it, which should result in a TypeError being raised. If the error is not 
+        raised as expected, the test will fail, indicating a potential issue with error handling.
+        """
         with self.subTest("TypeError: cannot pickle memoryview object"):
             self.x = memoryview(b"")
             self.fail("expected failure")
@@ -61,6 +73,14 @@ class SampleFailingSubtest(SimpleTestCase):
 
 class RemoteTestResultTest(SimpleTestCase):
     def _test_error_exc_info(self):
+        """
+        Returns the current exception information after simulating a ValueError.
+
+        This method intentionally raises a ValueError exception, catches it, and then returns the associated exception information.
+        The returned value is a tuple containing information about the exception, including the type, value, and traceback.
+        It is intended for internal testing purposes, likely to verify error handling behavior in specific scenarios.
+
+        """
         try:
             raise ValueError("woops")
         except ValueError:
@@ -87,6 +107,18 @@ class RemoteTestResultTest(SimpleTestCase):
 
     @unittest.skipUnless(tblib is not None, "requires tblib to be installed")
     def test_was_successful_one_error(self):
+        """
+
+        Tests that the wasSuccessful method of RemoteTestResult returns False when one error occurs.
+
+        The purpose of this test is to verify that the wasSuccessful method correctly indicates 
+        the success or failure of a test run. A test run is considered unsuccessful if any errors occur.
+
+        In this test, an error is simulated by adding an error to the test result, and then 
+        the wasSuccessful method is called to verify that it returns False, indicating that 
+        the test run was not successful.
+
+        """
         result = RemoteTestResult()
         result.addError(None, self._test_error_exc_info())
         self.assertIs(result.wasSuccessful(), False)
@@ -158,6 +190,15 @@ class RemoteTestResultTest(SimpleTestCase):
 
     @unittest.skipUnless(PY312, "unittest --durations option requires Python 3.12")
     def test_add_duration(self):
+        """
+        Tests adding a duration to a RemoteTestResult object.
+
+        This test case checks if a duration can be successfully added to the result object.
+        It verifies that the collected durations are stored correctly, with the expected duration value and a 'None' identifier.
+
+        The test requires Python 3.12 or later to run, as it utilizes the unittest --durations option.
+
+        """
         result = RemoteTestResult()
         result.addDuration(None, 2.3)
         self.assertEqual(result.collectedDurations, [("None", 2.3)])

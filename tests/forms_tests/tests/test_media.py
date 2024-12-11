@@ -13,6 +13,19 @@ class FormsMediaTestCase(SimpleTestCase):
 
     def test_construction(self):
         # Check construction of media objects
+        """
+        Tests the construction of Media objects.
+
+        Verifies that Media instances can be created with CSS and JavaScript files,
+        either as dictionaries or lists of path strings. It also checks that these
+        instances can be created from an object with `css` and `js` attributes and
+        that the `str` and `repr` methods produce the expected output.
+
+        Ensures the correct HTML generation for CSS links and JavaScript includes,
+        regardless of the URL scheme or media type. Additionally, tests that the
+        helper functionality works as expected for a custom widget without any
+        defined media dependencies.
+        """
         m = Media(
             css={"all": ("path/to/css1", "/path/to/css2")},
             js=(
@@ -173,6 +186,20 @@ class FormsMediaTestCase(SimpleTestCase):
         # A deduplication test applied directly to a Media object, to confirm
         # that the deduplication doesn't only happen at the point of merging
         # two or more media objects.
+        """
+        Tests the deduplication of media resources in the Media class.
+
+        This test case verifies that when duplicate CSS or JavaScript resources are provided, 
+        only one instance of each is included in the output string, ensuring that the HTML 
+        output does not contain unnecessary duplication of media resources.
+
+        The test checks the expected output format of the Media class, which includes 
+        CSS resources as link tags with the appropriate media attribute and JavaScript 
+        resources as script tags.
+
+        The resulting output is a string representation of the Media object, which can 
+        be used directly in HTML content to include the required media resources.
+        """
         media = Media(
             css={"all": ("/path/to/css1", "/path/to/css1")},
             js=("/path/to/js1", "/path/to/js1"),
@@ -584,6 +611,13 @@ class FormsMediaTestCase(SimpleTestCase):
         self.assertEqual(str(media), media.__html__())
 
     def test_merge(self):
+        """
+        Tests the merge functionality of the Media class.
+
+        Verifies that the merge method correctly combines multiple sorted lists into a single sorted list.
+        The test covers various scenarios, including overlapping and non-overlapping lists, as well as edge cases such as empty lists.
+        The expected output is compared to the actual result of the merge operation to ensure correctness.
+        """
         test_values = (
             (([1, 2], [3, 4]), [1, 3, 2, 4]),
             (([1, 2], [2, 3]), [1, 2, 3]),
@@ -626,6 +660,15 @@ class FormsMediaTestCase(SimpleTestCase):
         # The merge prefers to place 'c' before 'b' and 'g' before 'h' to
         # preserve the original order. The preference 'c'->'b' is overridden by
         # widget3's media, but 'g'->'h' survives in the final ordering.
+        """
+        Tests the three-way merge of JavaScript files in Media objects.
+
+        This function verifies that when three Media objects are combined, their JavaScript files are merged correctly, 
+        removing any duplicates and preserving the unique files from each object.
+
+        The merged JavaScript files are expected to be sorted in ascending order, 
+        resulting in a list of unique JavaScript files from all three objects.
+        """
         widget1 = Media(js=["a", "c", "f", "g", "k"])
         widget2 = Media(js=["a", "b", "f", "h", "k"])
         widget3 = Media(js=["b", "c", "f", "k"])
@@ -750,6 +793,13 @@ class CSS(Asset):
         self.medium = medium
 
     def __str__(self):
+        """
+        Returns a string representation of the object as an HTML link tag for a stylesheet.
+
+        The link tag includes the absolute path to the stylesheet as the href attribute, and specifies the medium type.
+
+        This allows for easy inclusion of the stylesheet in HTML content, such as web pages. The returned string can be directly used in HTML templates or other markup languages that support HTML link tags.
+        """
         path = super().__str__()
         return format_html(
             '<link href="{}" media="{}" rel="stylesheet">',
@@ -764,6 +814,15 @@ class JS(Asset):
         self.integrity = integrity or ""
 
     def __str__(self, integrity=None):
+        """
+        Return a string representation of the object as an HTML script tag.
+
+        This method generates a string that can be used in HTML to include a script.
+        It includes the script source path and optionally an integrity attribute.
+
+        :param integrity: Optional string to specify the integrity attribute of the script tag.
+        :returns: A string representation of the object as an HTML script tag.
+        """
         path = super().__str__()
         template = '<script src="{}"%s></script>' % (
             ' integrity="{}"' if self.integrity else "{}"
@@ -854,6 +913,17 @@ class FormsMediaObjectTestCase(SimpleTestCase):
     def test_media_deduplication(self):
         # The deduplication doesn't only happen at the point of merging two or
         # more media objects.
+        """
+
+        Tests the media deduplication functionality to ensure that duplicate media resources are removed.
+
+        This test verifies that when multiple instances of the same CSS and JavaScript files are added to a Media object, 
+        only one instance of each is included in the final output string.
+
+        The test checks for correct deduplication of media resources with the same path, 
+        regardless of whether they are passed as CSS or JS objects or as simple paths.
+
+        """
         media = Media(
             css={
                 "all": (

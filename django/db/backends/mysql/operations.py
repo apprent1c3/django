@@ -66,6 +66,35 @@ class DatabaseOperations(BaseDatabaseOperations):
             return f"EXTRACT({lookup_type} FROM {sql})", params
 
     def date_trunc_sql(self, lookup_type, sql, params, tzname=None):
+        """
+
+        Truncates a date value in a SQL query to a specified precision.
+
+        Parameters
+        ----------
+        lookup_type : str
+            The level of precision to truncate the date to. Can be 'year', 'month', 'quarter', or 'week'.
+        sql : str
+            The SQL expression representing the date value to be truncated.
+        params : tuple
+            The parameters to be used in the SQL query.
+        tzname : str, optional
+            The time zone to use for date conversion, defaults to None.
+
+        Returns
+        -------
+        tuple
+            A tuple containing the modified SQL expression and the updated parameters.
+
+        Notes
+        -----
+        The function first converts the input SQL expression to the specified time zone.
+        Then, it applies the truncation based on the lookup type. For 'year' and 'month',
+        it uses the DATE_FORMAT function. For 'quarter', it calculates the start of the quarter.
+        For 'week', it calculates the start of the week. If the lookup type is not recognized,
+        it simply uses the DATE function to truncate the date value to the day.
+
+        """
         sql, params = self._convert_sql_to_tz(sql, params, tzname)
         fields = {
             "year": "%Y-01-01",
@@ -103,6 +132,20 @@ class DatabaseOperations(BaseDatabaseOperations):
         return f"DATE({sql})", params
 
     def datetime_cast_time_sql(self, sql, params, tzname):
+        """
+
+            Modifies SQL queries to return time values in a specified time zone.
+
+            This function takes an SQL query, its parameters, and a time zone name as input.
+            It converts the query to the specified time zone and then wraps it with a TIME function.
+            The result is a new SQL query string along with its corresponding parameters.
+
+            :param sql: The SQL query to modify
+            :param params: The parameters for the SQL query
+            :param tzname: The name of the time zone to convert to
+            :return: A tuple containing the modified SQL query string and its parameters
+
+        """
         sql, params = self._convert_sql_to_tz(sql, params, tzname)
         return f"TIME({sql})", params
 
@@ -187,6 +230,15 @@ class DatabaseOperations(BaseDatabaseOperations):
 
     def return_insert_columns(self, fields):
         # MySQL doesn't support an INSERT...RETURNING statement.
+        """
+        Returns a SQL query string and parameters to be used with an INSERT statement to specify the columns to return after insertion.
+
+        The function takes a list of fields as input and generates a 'RETURNING' clause that includes all the specified fields. If no fields are provided, an empty string and an empty tuple are returned.
+
+        The generated 'RETURNING' clause is in the format 'RETURNING column1, column2,...', where each column is fully qualified with its table name to avoid ambiguity. 
+
+        The returned values can be used directly in a SQL query to insert data and retrieve the inserted values.
+        """
         if not fields:
             return "", ()
         columns = [
@@ -326,6 +378,24 @@ class DatabaseOperations(BaseDatabaseOperations):
         return value
 
     def convert_uuidfield_value(self, value, expression, connection):
+        """
+
+        Converts the value of a UUIDField for database operations.
+
+        This method takes a value, an optional expression, and a database connection as input.
+        If the provided value is not None, it is converted into a UUID object.
+        The converted value is then returned, or None if the input value is None.
+
+        The purpose of this conversion is to ensure that UUID values are properly formatted and
+        handled when interacting with the database, allowing for seamless storage and retrieval
+        of UUID data.
+
+        :param value: The UUID value to be converted
+        :param expression: The expression related to the UUID field
+        :param connection: The database connection
+        :return: The converted UUID value, or None if the input value is None
+
+        """
         if value is not None:
             value = uuid.UUID(value)
         return value
@@ -336,6 +406,32 @@ class DatabaseOperations(BaseDatabaseOperations):
         )
 
     def subtract_temporals(self, internal_type, lhs, rhs):
+        """
+        Subtract two temporal values.
+
+        This function takes in two temporal values (lhs and rhs) and an internal type,
+        and returns a tuple containing a SQL expression string and a tuple of parameters.
+        The internal type can be either 'TimeField', indicating that the temporal values
+        are time fields, or another type indicating that they are date or datetime fields.
+
+        The function generates the SQL expression according to the internal type and the
+        database connection being used. If the internal type is 'TimeField' and the
+        database connection is to a MariaDB database, it uses the TIME_TO_SEC function
+        to calculate the difference. Otherwise, it uses either the TIME_TO_SEC and
+        MICROSECOND functions for MySQL or the TIMESTAMPDIFF function for other
+        databases, to calculate the difference in microseconds.
+
+        The generated SQL expression and parameters can be used to execute the subtraction
+        operation on the database.
+
+        :param internal_type: The internal type of the temporal values, e.g. 'TimeField'
+        :param lhs: A tuple containing the SQL expression string and parameters for the
+                    left-hand side temporal value
+        :param rhs: A tuple containing the SQL expression string and parameters for the
+                    right-hand side temporal value
+        :returns: A tuple containing the SQL expression string and parameters for the
+                  subtraction operation
+        """
         lhs_sql, lhs_params = lhs
         rhs_sql, rhs_params = rhs
         if internal_type == "TimeField":
@@ -428,6 +524,26 @@ class DatabaseOperations(BaseDatabaseOperations):
         return super().conditional_expression_supported_in_where_clause(expression)
 
     def on_conflict_suffix_sql(self, fields, on_conflict, update_fields, unique_fields):
+        """
+
+        Generates the SQL suffix for handling conflicts during insert operations.
+
+        When an insert operation encounters a duplicate key error, this function generates the necessary SQL to either ignore the duplicate or update the existing record.
+        The generated suffix is specific to the MySQL and MariaDB databases.
+
+        The function considers factors like database type and version to ensure compatibility and correctness of the SQL statement.
+        It uses the provided fields and conflict resolution strategy to construct the SQL suffix.
+
+        Parameters:
+            fields (list): The list of fields involved in the insert operation.
+            on_conflict (OnConflict): The strategy to use when a conflict occurs.
+            update_fields (list): The fields to update when a conflict occurs and the strategy is to update.
+            unique_fields (list): The fields that are part of the unique constraint.
+
+        Returns:
+            str: The SQL suffix for handling conflicts during insert operations.
+
+        """
         if on_conflict == OnConflict.UPDATE:
             conflict_suffix_sql = "ON DUPLICATE KEY UPDATE %(fields)s"
             # The use of VALUES() is deprecated in MySQL 8.0.20+. Instead, use

@@ -66,6 +66,15 @@ class SimplifiedURLTests(SimpleTestCase):
         self.assertEqual(match.extra_kwargs, {})
 
     def test_path_lookup_with_multiple_parameters_and_extra_kwarg(self):
+        """
+
+        Tests the path lookup functionality with a URL that contains multiple parameters.
+
+        This test case verifies that the resolver correctly matches a URL with multiple integer parameters and an extra keyword argument.
+        It checks that the resolver returns the correct URL name, arguments, keyword arguments, route, captured keyword arguments, and extra keyword arguments.
+        The test confirms that the resolver accurately distinguishes between the URL parameters and the extra keyword argument.
+
+        """
         match = resolve("/books/2015/04/12/")
         self.assertEqual(match.url_name, "books-year-month-day")
         self.assertEqual(match.args, ())
@@ -77,6 +86,16 @@ class SimplifiedURLTests(SimpleTestCase):
         self.assertEqual(match.extra_kwargs, {"extra": True})
 
     def test_path_lookup_with_extra_kwarg(self):
+        """
+        Tests that the path lookup function correctly resolves a URL path with an extra keyword argument.
+
+        This test case verifies that the resolve function can successfully match a URL path and
+        extract the relevant information, including the URL name, arguments, and extra keyword arguments.
+        It checks that the extra keyword argument is correctly identified and separated from the
+        captured keyword arguments. The test ensures that the function behaves as expected when
+        given a URL path with an extra keyword argument, providing a solid foundation for building
+        robust URL routing functionality.
+        """
         match = resolve("/books/2007/")
         self.assertEqual(match.url_name, "books-2007")
         self.assertEqual(match.args, ())
@@ -86,6 +105,19 @@ class SimplifiedURLTests(SimpleTestCase):
         self.assertEqual(match.extra_kwargs, {"extra": True})
 
     def test_two_variable_at_start_of_path_pattern(self):
+        """
+        Tests the resolution of a URL path that starts with two variables.
+
+        This test case verifies that a URL path in the format '/<lang>/<path:url>/' 
+        is correctly resolved and that the expected keyword arguments are extracted.
+        The test checks the match's URL name, keyword arguments, route, captured keyword
+        arguments, and extra keyword arguments to ensure they match the expected values.
+
+        The test case exercises the resolve function's ability to handle path patterns
+        with multiple variables at the start of the path, which is crucial for 
+        multilingual or internationalized applications where language codes often 
+        appear at the beginning of the URL path.
+        """
         match = resolve("/en/foo/")
         self.assertEqual(match.url_name, "lang-and-path")
         self.assertEqual(match.kwargs, {"lang": "en", "url": "foo"})
@@ -102,6 +134,15 @@ class SimplifiedURLTests(SimpleTestCase):
         self.assertEqual(match.extra_kwargs, {})
 
     def test_re_path_with_optional_parameter(self):
+        """
+
+        Tests the resolution of URLs using a path with an optional parameter.
+
+        This test case covers scenarios where a URL path contains a required and an optional parameter.
+        It verifies that the resolved URL name, keyword arguments, and route match the expected patterns.
+        The test ensures that the function correctly handles cases where the optional parameter is present or absent.
+
+        """
         for url, kwargs in (
             ("/regex_optional/1/2/", {"arg1": "1", "arg2": "2"}),
             ("/regex_optional/1/", {"arg1": "1"}),
@@ -148,6 +189,14 @@ class SimplifiedURLTests(SimpleTestCase):
         self.assertEqual(match.route, r"included_urls/more/(?P<extra>\w+)/$")
 
     def test_path_reverse_without_parameter(self):
+        """
+        Tests that the reverse function correctly generates a URL for the articles path without any additional parameters.
+
+        The test checks if the generated URL matches the expected format, which is '/articles/<year>/', in this case '/articles/2003/'.
+
+        VERAGE
+        :func:`reverse` function to verify correctness of URL generation
+        """
         url = reverse("articles-2003")
         self.assertEqual(url, "/articles/2003/")
 
@@ -159,6 +208,9 @@ class SimplifiedURLTests(SimpleTestCase):
 
     @override_settings(ROOT_URLCONF="urlpatterns.path_base64_urls")
     def test_converter_resolve(self):
+        """
+        Tests the converter's ability to resolve URLs by comparing the resolved URL name, app name, and keyword arguments with expected values for a given set of test URLs. The test iterates over a collection of test data, where each item contains a URL and its corresponding expected resolution, and verifies that the actual resolution matches the expected one.
+        """
         for url, (url_name, app_name, kwargs) in converter_test_data:
             with self.subTest(url=url):
                 match = resolve(url)
@@ -168,6 +220,23 @@ class SimplifiedURLTests(SimpleTestCase):
 
     @override_settings(ROOT_URLCONF="urlpatterns.path_base64_urls")
     def test_converter_reverse(self):
+        """
+
+        Test the URL converter's reverse functionality.
+
+        This test case ensures that the URL converter correctly generates URLs from 
+        given URL names, application names, and keyword arguments. It iterates over 
+        predefined test data, covering various scenarios, and verifies that the 
+        generated URLs match the expected output.
+
+        The test is performed with a custom URL configuration set, allowing the 
+        conversion of URL names and arguments to their corresponding URLs.
+
+        The test data includes various combinations of URL names, application names, 
+        and keyword arguments, providing comprehensive coverage of the converter's 
+        functionality.
+
+        """
         for expected, (url_name, app_name, kwargs) in converter_test_data:
             if app_name:
                 url_name = "%s:%s" % (app_name, url_name)
@@ -221,6 +290,15 @@ class SimplifiedURLTests(SimpleTestCase):
         # RemovedInDjango60Warning: when the deprecation ends, replace with
         # msg = "Converter 'base64' is already registered."
         # with self.assertRaisesMessage(ValueError, msg):
+        """
+        Tests the deprecation warning when attempting to override a registered converter.
+
+        This test case checks that a RemovedInDjango60Warning is raised when trying to
+        register a converter with a name that is already in use, specifically the 'base64'
+        converter. The warning includes a message indicating that support for overriding
+        registered converters is deprecated and will be removed in Django 6.0. After the
+        test, the 'base64' converter is removed from the registry to maintain a clean state.
+        """
         msg = (
             "Converter 'base64' is already registered. Support for overriding "
             "registered converters is deprecated and will be removed in Django 6.0."
@@ -238,6 +316,11 @@ class SimplifiedURLTests(SimpleTestCase):
             path("articles/", "invalid_view")
 
     def test_invalid_view_instance(self):
+        """
+        Tests that an error occurs when passing an instance of a class-based view directly to a URL pattern, instead of using the `as_view()` method. 
+
+        This test ensures that a `TypeError` is raised with a specific error message when an invalid view instance is provided, helping to prevent incorrect usage of class-based views in URL configurations.
+        """
         class EmptyCBV(View):
             pass
 
@@ -246,6 +329,14 @@ class SimplifiedURLTests(SimpleTestCase):
             path("foo", EmptyCBV())
 
     def test_whitespace_in_route(self):
+        """
+        Tests that URL routes do not allow whitespace characters within angle brackets.
+
+            This test case verifies that attempting to define a route with whitespace in angle brackets 
+            raises an ImproperlyConfigured exception, providing a clear error message. Additionally, 
+            it checks that routes with whitespace outside of angle brackets are properly handled and 
+            can be resolved with the expected keyword arguments.
+        """
         msg = "URL route %r cannot contain whitespace in angle brackets <…>"
         for whitespace in string.whitespace:
             with self.subTest(repr(whitespace)):
@@ -334,6 +425,20 @@ class ConverterTests(SimpleTestCase):
 class SameNameTests(SimpleTestCase):
     def test_matching_urls_same_name(self):
         @DynamicConverter.register_to_url
+        """
+
+        Tests the functionality of generating URLs with correctly applied converters.
+
+        This test case checks the generation of URLs with various converters, including 
+        built-in converters (e.g., int, str, slug, uuid) and a custom converter (tiny_int). 
+        It also tests URLs with different numbers of arguments and keyword argument names.
+
+        The test iterates over a suite of test cases, each representing a specific URL 
+        pattern. For each test case, it checks that the generated URL matches the expected 
+        output, covering various scenarios to ensure robustness of the URL generation 
+        mechanism.
+
+        """
         def requires_tiny_int(value):
             if value > 5:
                 raise ValueError
@@ -439,6 +544,14 @@ class ConversionExceptionTests(SimpleTestCase):
 
     def test_reverse_value_error_means_no_match(self):
         @DynamicConverter.register_to_url
+        """
+        Tests that a failed dynamic URL conversion due to a ValueError is handled as a NoReverseMatch.
+
+        This scenario occurs when the registered URL converter function encounters an error when attempting to convert a value,
+        specifically raising a ValueError. In such cases, instead of propagating the ValueError, a NoReverseMatch exception
+        should be raised, indicating that the URL reverse operation was unsuccessful. This ensures a higher-level error handling
+        mechanism is triggered, making it easier to diagnose and manage URL resolution issues in the application.
+        """
         def raises_value_error(value):
             raise ValueError
 

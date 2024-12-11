@@ -6,6 +6,16 @@ from ..utils import setup
 class JsonScriptTests(SimpleTestCase):
     @setup({"json-tag01": '{{ value|json_script:"test_id" }}'})
     def test_basic(self):
+        """
+
+        Tests the basic rendering of a JSON tag within a template.
+
+        The function verifies that the engine correctly escapes special characters in the JSON data
+        and renders the expected HTML script tag with JSON content.
+
+        :raises AssertionError: if the rendered output does not match the expected result.
+
+        """
         output = self.engine.render_to_string(
             "json-tag01", {"value": {"a": "testing\r\njson 'string\" <b>escaping</b>"}}
         )

@@ -29,6 +29,18 @@ class TestASGIStaticFilesHandler(StaticFilesTestCase):
         self.assertEqual(response.status_code, 404)
 
     async def test_non_http_requests_passed_to_the_wrapped_application(self):
+        """
+
+        Tests that non-HTTP requests are properly passed to the wrapped application.
+
+        This test verifies that when a non-HTTP request (in this case, a WebSocket request)
+        is made to a path, the request is correctly handled by the wrapped application,
+        rather than being intercepted by the static file handler.
+
+        The test checks this behavior for both static and non-static paths, to ensure
+        that the wrapped application receives all non-HTTP requests as expected.
+
+        """
         tests = [
             "/static/path.txt",
             "/non-static/path.txt",

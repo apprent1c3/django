@@ -38,6 +38,15 @@ class SharedTests:
 
 class BaseTemplateRendererTests(SimpleTestCase):
     def test_get_renderer(self):
+        """
+
+        Tests that an instance of BaseRenderer raises a NotImplementedError when get_template is called.
+
+        This test ensures that subclasses of BaseRenderer are properly implementing the get_template method,
+        which is a required abstract method for rendering templates. The expected error message informs
+        developers that they must provide a concrete implementation of get_template in their subclass.
+
+        """
         with self.assertRaisesMessage(
             NotImplementedError, "subclasses must implement get_template()"
         ):
@@ -60,6 +69,13 @@ class TemplatesSettingTests(SharedTests, SimpleTestCase):
 
 class DeprecationTests(SimpleTestCase):
     def test_django_div_renderer_warning(self):
+        """
+        Tests that instantiating DjangoDivFormRenderer raises a RemovedInDjango60Warning.
+
+        This test case verifies that using the deprecated DjangoDivFormRenderer form renderer
+        triggers the expected deprecation warning, advising users to switch to DjangoTemplates
+        instead, as DjangoDivFormRenderer is scheduled for removal in Django 6.0.
+        """
         msg = (
             "The DjangoDivFormRenderer transitional form renderer is deprecated. Use "
             "DjangoTemplates instead."
@@ -77,6 +93,15 @@ class DeprecationTests(SimpleTestCase):
 
     @ignore_warnings(category=RemovedInDjango60Warning)
     def test_deprecation_renderers_can_be_instantiated(self):
+        """
+        Tests that deprecated renderers can be successfully instantiated.
+
+        This test case checks if the specified renderer classes can be created without errors,
+        despite being marked for deprecation. It verifies that the instantiated objects are
+        of the correct class type, ensuring that the rendering functionality can still be used
+        until the deprecation is fully implemented. The test covers multiple renderer classes
+        to ensure a smooth transition to their replacement renderers in future Django versions.
+        """
         tests = [DjangoDivFormRenderer, Jinja2DivFormRenderer]
         for cls in tests:
             with self.subTest(renderer_class=cls):

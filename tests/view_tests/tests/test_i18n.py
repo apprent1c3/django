@@ -253,6 +253,16 @@ class I18NViewTests(SimpleTestCase):
 
     @override_settings(LANGUAGE_CODE="de")
     def test_get_formats(self):
+        """
+
+        Tests the get_formats function with german locale settings.
+
+        This function overrides the LANGUAGE_CODE setting to 'de' and retrieves the 
+        formats using the get_formats function. It then checks if the returned formats 
+        match the expected values for the german locale, including the first day of the 
+        week, decimal separator, and time input formats.
+
+        """
         formats = get_formats()
         # Test 3 possible types in get_formats: integer, string, and list.
         self.assertEqual(formats["FIRST_DAY_OF_WEEK"], 1)
@@ -281,6 +291,13 @@ class I18NViewTests(SimpleTestCase):
 
     @override_settings(USE_I18N=False)
     def test_jsi18n_USE_I18N_False(self):
+        """
+
+        Tests the jsi18n view when internationalization is disabled (USE_I18N=False).
+        Verifies that the response contains the expected JavaScript function for plural index calculation
+        and does not include the new catalog variable.
+
+        """
         response = self.client.get("/jsi18n/")
         # default plural function
         self.assertContains(

@@ -25,6 +25,14 @@ class BaseRenderer:
         raise NotImplementedError("subclasses must implement get_template()")
 
     def render(self, template_name, context, request=None):
+        """
+        Render a template with the given context and optional request.
+
+        :param template_name: The name of the template to render.
+        :param context: A dictionary of variables to make available in the template.
+        :param request: An optional request object to pass to the template rendering process.
+        :return: The rendered template as a string, with leading/trailing whitespace removed.
+        """
         template = self.get_template(template_name)
         return template.render(context, request=request).strip()
 

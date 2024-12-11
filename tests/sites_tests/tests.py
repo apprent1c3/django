@@ -22,10 +22,31 @@ class SitesFrameworkTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        Set up test data for the class.
+
+        This class method creates a default site instance for testing purposes, with a predefined domain and name.
+        The site instance is then saved to the database.
+
+        The test site is configured with the following attributes:
+            - id: set to the SITE_ID defined in the application settings
+            - domain: set to 'example.com'
+            - name: set to 'example.com'
+
+        This method is intended to be used as part of the test setup process, providing a consistent and predictable environment for testing the class's functionality.
+        """
         cls.site = Site(id=settings.SITE_ID, domain="example.com", name="example.com")
         cls.site.save()
 
     def setUp(self):
+        """
+        Sets up the test environment by clearing the Site objects cache.
+
+        This method is called before each test, ensuring a clean slate for the test run.
+
+        It also schedules a cleanup to clear the cache again after the test has finished,
+        regardless of its outcome, maintaining test isolation and consistency.
+        """
         Site.objects.clear_cache()
         self.addCleanup(Site.objects.clear_cache)
 
@@ -40,6 +61,18 @@ class SitesFrameworkTests(TestCase):
     def test_site_cache(self):
         # After updating a Site object (e.g. via the admin), we shouldn't return a
         # bogus value from the SITE_CACHE.
+        """
+        Tests the caching behavior of the Site object.
+
+        Verifies that the current site is properly updated when its name is changed.
+        The test checks that the site cache is correctly invalidated after modifying
+        the site's name, ensuring that the updated name is reflected when retrieving
+        the current site.
+
+        This test covers the basic functionality of site caching and ensures that
+        changes to the site's properties are properly persisted and reflected in the
+        application.
+        """
         site = Site.objects.get_current()
         self.assertEqual("example.com", site.name)
         s2 = Site.objects.get(id=settings.SITE_ID)
@@ -82,6 +115,25 @@ class SitesFrameworkTests(TestCase):
 
     @override_settings(SITE_ID=None, ALLOWED_HOSTS=["example.com"])
     def test_get_current_site_no_site_id(self):
+        """
+
+        Tests the retrieval of the current site when SITE_ID is not set.
+
+        Checks that the get_current_site function correctly identifies the current site
+        based on the request's server name when no SITE_ID is configured. The test
+        verifies that the function returns a site object with a name matching the
+        request's server name.
+
+        Args:
+            request: An HttpRequest object containing the server name and port.
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the site name does not match the server name.
+
+        """
         request = HttpRequest()
         request.META = {
             "SERVER_NAME": "example.com",
@@ -176,6 +228,26 @@ class SitesFrameworkTests(TestCase):
 
     @override_settings(SITE_ID=None, ALLOWED_HOSTS=["example2.com"])
     def test_clear_site_cache_domain(self):
+        """
+        Tests the clear_site_cache function to ensure it correctly clears the site cache.
+
+        This function tests the behavior of clear_site_cache when clearing the cache for a site
+        instance, first checking that the cache is populated with the site instance, then
+        verifying that the cache is not cleared when using a different database, and finally
+        confirming that the cache is cleared when using the default database.
+
+        The test verifies that the cache is correctly updated after calling clear_site_cache,
+        ensuring that the site instance is removed from the cache when the default database is used.
+
+        Parameters:
+            None (test is self-contained)
+
+        Returns:
+            None (test outcome is determined by assertions)
+
+        Raises:
+            AssertionError: if the cache is not correctly updated after calling clear_site_cache
+        """
         site = Site.objects.create(name="example2.com", domain="example2.com")
         request = HttpRequest()
         request.META = {
@@ -216,6 +288,18 @@ class SitesFrameworkTests(TestCase):
         )
 
     def test_valid_site_id(self):
+        """
+        Tests the check_site_id function with valid site IDs.
+
+        Checks that the function returns an empty list when given None as an input
+        and the SITE_ID setting is either set to 1 or None. This test case covers
+        the scenarios where the site ID is valid or unspecified, ensuring that
+        the function behaves as expected in these situations.
+
+        :param None
+        :raises AssertionError: if the function does not return an empty list
+        :return: None
+        """
         for site_id in [1, None]:
             with self.subTest(site_id=site_id), self.settings(SITE_ID=site_id):
                 self.assertEqual(check_site_id(None), [])
@@ -344,6 +428,15 @@ class CreateDefaultSiteTests(TestCase):
 
 class MiddlewareTest(TestCase):
     def test_request(self):
+        """
+
+        Tests that the CurrentSiteMiddleware correctly sets the site ID in the response.
+
+        This test case verifies that the middleware returns an HttpResponse containing
+        the ID of the site associated with the current request. The expected site ID
+        is determined by the SITE_ID setting in the project's settings.
+
+        """
         def get_response(request):
             return HttpResponse(str(request.site.id))
 

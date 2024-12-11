@@ -45,6 +45,13 @@ class FieldFile(File, AltersData):
             )
 
     def _get_file(self):
+        """
+        Retrieves the file associated with the current object.
+
+        Returns the file object, opening it from storage if it has not been opened previously. 
+        The file is opened in binary read mode ('rb'). This method presupposes that the necessary 
+        file requirements have been met, as enforced by the :meth:`_require_file` method.
+        """
         self._require_file()
         if getattr(self, "_file", None) is None:
             self._file = self.storage.open(self.name, "rb")
@@ -332,6 +339,22 @@ class FileField(Field):
         return file
 
     def contribute_to_class(self, cls, name, **kwargs):
+        """
+
+        Performs the necessary setup for a descriptor to contribute to a class.
+
+        After delegating the default setup to its parent class, this method sets an
+        attribute on the class with the name provided by the descriptor's :attr:`attname`
+        attribute, which is an instance of the descriptor's :attr:`descriptor_class`.
+
+        The resulting attribute is stored on the class, allowing it to be accessed and
+        manipulated like any other class attribute.
+
+        :param cls: The class to which this descriptor is being contributed.
+        :param name: The name under which this descriptor is being contributed to the class.
+        :param kwargs: Additional keyword arguments to pass to the parent class.
+
+        """
         super().contribute_to_class(cls, name, **kwargs)
         setattr(cls, self.attname, self.descriptor_class(self))
 

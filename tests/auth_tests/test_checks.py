@@ -229,6 +229,18 @@ class ModelsPermissionsChecksTests(SimpleTestCase):
         )
 
     def test_non_clashing_custom_permissions(self):
+        """
+        Test that custom permissions defined in a model's Meta class do not clash with existing permissions.
+
+        This test case verifies that defining custom permissions in a model's Meta class
+        does not result in any errors or warnings. It ensures that the custom permissions
+        are correctly registered and do not conflict with existing permissions.
+
+        The test checks for errors or warnings raised by the checks system when running
+        checks on the app configurations. If no errors or warnings are found, the test
+        passes, indicating that the custom permissions are valid and do not clash with
+        existing ones.
+        """
         class Checked(models.Model):
             class Meta:
                 permissions = [
@@ -411,6 +423,19 @@ class MiddlewareChecksTests(SimpleTestCase):
         ]
     )
     def test_correct_order_with_login_required_middleware(self):
+        """
+
+        Test the correct order of middleware when using LoginRequiredMiddleware.
+
+        This test checks if the LoginRequiredMiddleware is properly configured and
+        runs without errors when used in conjunction with SessionMiddleware and
+        AuthenticationMiddleware. It verifies that no errors are raised during the
+        checks, ensuring the middleware are correctly ordered and functioning as expected.
+
+        The test overrides the default middleware settings to isolate the test case
+        and guarantee consistent results.
+
+        """
         errors = checks.run_checks()
         self.assertEqual(errors, [])
 

@@ -11,6 +11,15 @@ class RelatedObjectTests(TestCase):
             self.assertEqual(field_name, obj.field.related_query_name())
 
     def test_m2m_and_m2o(self):
+        """
+        Tests filtering issues by many-to-many (cc) and many-to-one (client) relationships.
+
+        Verifies that issues can be correctly filtered by their client and CC relationships, 
+        including tests for issues assigned to a specific client, CC'd to a specific user, 
+        and combinations of both. Ensures that the filtering works correctly using both 
+        the 'Q' object with logical 'OR' operations and the '|' operator for QuerySet 
+        unions, producing the expected issue numbers in the result sets.
+        """
         r = User.objects.create(username="russell")
         g = User.objects.create(username="gustav")
 

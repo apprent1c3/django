@@ -186,6 +186,18 @@ class MultiColumnFKTests(TestCase):
         )
 
     def test_double_nested_query(self):
+        """
+
+        Tests querying memberships based on nested relationships between people, their friendships, and group memberships.
+
+        This test case verifies that it is possible to retrieve memberships of people who are friends with others, 
+        and also that it is possible to exclude memberships of people who do not have such friendships.
+
+        The test covers a scenario where two people, Bob and Jim, are members of a group (CIA) and are friends with each other.
+        It checks that a query can correctly identify Bob's membership as he has a friend (Jim), 
+        and also identify Jim's membership as being excluded from the results since he does not have a friendship initiated by himself.
+
+        """
         m1 = Membership.objects.create(
             membership_country_id=self.usa.id,
             person_id=self.bob.id,
@@ -374,6 +386,18 @@ class MultiColumnFKTests(TestCase):
         self.assertQuerySetEqual(self.jane.friends.all(), [])
 
     def test_prefetch_related_m2m_forward_works(self):
+        """
+        Tests whether prefetching related many-to-many objects works as expected.
+
+        This test creates several memberships between people and groups, and then checks that
+        prefetching the members of each group using 'prefetch_related' results in the same
+        output as retrieving the members normally, while also verifying that the number of
+        queries executed is reduced.
+
+        Verifies that 'prefetch_related' correctly fetches the related many-to-many objects
+        (in this case, members of a group) in a single query, improving performance by
+        reducing the number of database queries.
+        """
         Membership.objects.create(
             membership_country=self.usa, person=self.bob, group=self.cia
         )
@@ -390,6 +414,15 @@ class MultiColumnFKTests(TestCase):
         self.assertEqual(members_lists, normal_members_lists)
 
     def test_prefetch_related_m2m_reverse_works(self):
+        """
+        Tests that prefetching related objects for many-to-many reverse relationships works correctly.
+
+        This test checks if the prefetch_related method can efficiently fetch related objects 
+        for a many-to-many reverse relationship, in this case, a person's groups. It compares the 
+        results of fetching groups with and without prefetching to ensure they are equivalent.
+        The test also verifies that the number of database queries is as expected when prefetching 
+        related objects, confirming that the optimization is effective.
+        """
         Membership.objects.create(
             membership_country=self.usa, person=self.bob, group=self.cia
         )
@@ -464,6 +497,20 @@ class MultiColumnFKTests(TestCase):
             referrer.article
 
     def test_foreign_key_related_query_name(self):
+        """
+
+        Tests the functionality of foreign key related query names.
+
+        This test case verifies that the Django ORM correctly handles query filters on 
+        related models, specifically testing the usage of the correct query name for a 
+        foreign key relationship. It also checks for an error when an incorrect query 
+        name is used.
+
+        The test creates an Article instance and associates it with an ArticleTag, then 
+        filters Articles by the ArticleTag name. It asserts that the correct number of 
+        results are returned, and that using an incorrect query name raises a FieldError.
+
+        """
         a1 = Article.objects.create(pub_date=datetime.date.today())
         ArticleTag.objects.create(article=a1, name="foo")
         self.assertEqual(Article.objects.filter(tag__name="foo").count(), 1)
@@ -509,6 +556,15 @@ class MultiColumnFKTests(TestCase):
 
     @skipUnlessDBFeature("has_bulk_insert")
     def test_batch_create_foreign_object(self):
+        """
+        Tests the ability to create multiple foreign objects in batches using the bulk_create method. 
+
+        This test case verifies that the database supports bulk insertion of objects with foreign key relationships, ensuring efficient creation of multiple objects in a single operation. 
+
+        It creates a list of Person objects with unique names and associates them with a specific country, then attempts to insert these objects into the database in batches. 
+
+        The test is skipped if the database does not support bulk insert operations.
+        """
         objs = [
             Person(name="abcd_%s" % i, person_country=self.usa) for i in range(0, 5)
         ]
@@ -699,6 +755,11 @@ class TestCachedPathInfo(TestCase):
 
 class GetJoiningDeprecationTests(TestCase):
     def test_foreign_object_get_joining_columns_warning(self):
+        """
+        Tests that a warning is raised when using the deprecated ForeignObject.get_joining_columns() method.
+
+        The test checks that the correct warning message is issued, indicating that users should use the get_joining_fields() method instead, which will become the standard method in Django 6.0.
+        """
         msg = (
             "ForeignObject.get_joining_columns() is deprecated. Use "
             "get_joining_fields() instead."
@@ -715,6 +776,14 @@ class GetJoiningDeprecationTests(TestCase):
             Membership.person.field.get_reverse_joining_columns()
 
     def test_foreign_object_rel_get_joining_columns_warning(self):
+        """
+
+        Tests the deprecation warning for the get_joining_columns() method of ForeignObjectRel.
+
+        The test case checks that using the deprecated get_joining_columns() method raises a RemovedInDjango60Warning,
+        with a message recommending the use of get_joining_fields() instead.
+
+        """
         msg = (
             "ForeignObjectRel.get_joining_columns() is deprecated. Use "
             "get_joining_fields() instead."

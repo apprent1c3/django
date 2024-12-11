@@ -10,6 +10,25 @@ from django.utils.translation import npgettext_lazy
 
 class TimesinceTests(TestCase):
     def setUp(self):
+        """
+        Set up time-related test data.
+
+        This method initializes a set of time-related attributes, including a base time and various time intervals, 
+        ranging from microseconds to years. These attributes are intended to be used in subsequent tests to verify 
+        the correctness of time-based functionality.
+
+        Attributes:
+            t (datetime): A base time used as a reference point.
+            onemicrosecond (timedelta): A time interval of one microsecond.
+            onesecond (timedelta): A time interval of one second.
+            oneminute (timedelta): A time interval of one minute.
+            onehour (timedelta): A time interval of one hour.
+            oneday (timedelta): A time interval of one day.
+            oneweek (timedelta): A time interval of one week (7 days).
+            onemonth (timedelta): A time interval of one month (31 days).
+            oneyear (timedelta): A time interval of one year (366 days).
+
+        """
         self.t = datetime.datetime(2007, 8, 14, 13, 46, 0)
         self.onemicrosecond = datetime.timedelta(microseconds=1)
         self.onesecond = datetime.timedelta(seconds=1)
@@ -156,12 +175,28 @@ class TimesinceTests(TestCase):
         self.assertEqual(timesince(start_date, start_date + self.oneweek), "1\xa0week")
 
     def test_leap_year_new_years_eve(self):
+        """
+
+        Checks the functionality of timesince and timeuntil functions on New Year's Eve of a leap year.
+
+        This test case verifies that the timesince and timeuntil functions correctly calculate the time difference when the given date 
+        is one day in the future or past, relative to the current time on December 31st of a leap year. The test ensures that the functions 
+        return '0 minutes' when the date is exactly one day ahead or behind the current time.
+
+        """
         t = datetime.date(2016, 12, 31)
         now = datetime.datetime(2016, 12, 31, 18, 0, 0)
         self.assertEqual(timesince(t + self.oneday, now), "0\xa0minutes")
         self.assertEqual(timeuntil(t - self.oneday, now), "0\xa0minutes")
 
     def test_naive_datetime_with_tzinfo_attribute(self):
+        """
+        Tests the behavior of the timesince and timeuntil functions when given a datetime object with a tzinfo attribute set to a naive timezone.
+
+        This test case verifies that the functions return the expected output when the input datetime object has a timezone attribute, but the attribute is set to a naive timezone that doesn't provide any offset information.
+
+        The test covers both future and past datetime objects to ensure the functions behave correctly in different scenarios.
+        """
         class naive(datetime.tzinfo):
             def utcoffset(self, dt):
                 return None
@@ -177,6 +212,20 @@ class TimesinceTests(TestCase):
         self.assertEqual(timeuntil(self.t, t), "1000\xa0years")
 
     def test_depth(self):
+        """
+
+        Tests the functionality of the :func:`timesince` and :func:`timeuntil` functions,
+        which calculate the time difference between two dates.
+
+        The function tests various time intervals, including years, months, weeks, days, and hours,
+        with different depths of detail. It verifies that the output matches the expected human-readable
+        strings, such as '1 year', '1 year, 1 month', or '1 hour'.
+
+        The tests cover a range of scenarios, including dates in the past and future, to ensure that
+        the functions behave correctly in different situations. The function uses a variety of time
+        intervals and depths to thoroughly test the functionality of :func:`timesince` and :func:`timeuntil`.
+
+        """
         t = (
             self.t
             + self.oneyear
@@ -238,6 +287,15 @@ class TimesinceTests(TestCase):
                 self.assertEqual(timesince(t, value), expected)
 
     def test_depth_invalid(self):
+        """
+        Tests that the function timesince raises a ValueError when the depth parameter is less than or equal to 0.
+
+        This test case verifies that the function correctly handles invalid input and provides a meaningful error message indicating that the depth must be a positive integer.
+
+        Raises:
+            ValueError: If the depth is not greater than 0.
+
+        """
         msg = "depth must be greater than 0."
         with self.assertRaisesMessage(ValueError, msg):
             timesince(self.t, self.t, depth=0)
@@ -260,6 +318,17 @@ class TimesinceTests(TestCase):
 
     @requires_tz_support
     def test_less_than_a_day_cross_day_with_zoneinfo(self):
+        """
+
+        Tests the timesince function for intervals less than a day when crossing day boundaries with zoneinfo.
+
+        This function verifies the correctness of the timesince function when calculating time intervals
+        in different time zones, specifically when the interval crosses a day boundary.
+
+        It checks various time intervals, including a few minutes, an hour, a day, and verifies that the
+        timesince function returns the expected human-readable string, taking into account the time zone.
+
+        """
         now_with_zoneinfo = timezone.make_aware(
             datetime.datetime(2023, 4, 14, 1, 30, 30),
             zoneinfo.ZoneInfo(key="Asia/Kathmandu"),  # UTC+05:45

@@ -13,6 +13,16 @@ class Node:
     """
 
     def __init__(self, key):
+        """
+
+        Initializes a node object.
+
+        This constructor sets up a node with a unique key and initializes empty collections for its children and parents.
+        It is used to create a new node in a graph or tree data structure, where each node is identified by its key and can have multiple children and parents.
+
+        :param key: The unique identifier for the node.
+
+        """
         self.key = key
         self.children = set()
         self.parents = set()

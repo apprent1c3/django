@@ -22,10 +22,41 @@ if HAS_POSTGRES:
 
     class FakePostGISOperations(PostGISOperations):
         def __init__(self, version=None):
+            """
+
+            Initializes a new instance of the class.
+
+            :param version: The version to be associated with the instance. Defaults to None if not provided.
+            :ivar version: The version associated with the instance.
+            :ivar connection: A fake connection object, initialized upon instance creation.
+
+            This constructor sets up the basic attributes of the class, including the version and a fake connection.
+
+            """
             self.version = version
             self.connection = FakeConnection()
 
         def _get_postgis_func(self, func):
+            """
+
+            Retrieve the PostGIS library information or version.
+
+            This method returns information about the PostGIS library, specifically the version.
+            It supports the following PostGIS functions:
+                - postgis_lib_version: Returns the version of the PostGIS library.
+                - version: Currently not implemented.
+
+            Args:
+                func (str): The name of the PostGIS function to retrieve information for.
+
+            Returns:
+                str: The version of the PostGIS library if the requested function is postgis_lib_version.
+
+            Raises:
+                ProgrammingError: If the PostGIS version is not available and the postgis_lib_version function is requested.
+                NotImplementedError: If an unsupported function is requested.
+
+            """
             if func == "postgis_lib_version":
                 if self.version is None:
                     raise ProgrammingError
@@ -50,6 +81,19 @@ class TestPostGISVersionCheck(unittest.TestCase):
         self.assertEqual(expect, actual)
 
     def test_version_classic_tuple(self):
+        """
+        Test the postgis_version_tuple method of the FakePostGISOperations class.
+
+        Verifies that the method correctly returns a tuple containing the PostGIS version
+        as a string, followed by the major, minor, and micro version numbers.
+
+        The test checks that the returned tuple matches the expected format and values,
+        ensuring that the version information is correctly parsed and extracted.
+
+        This test is used to validate the functionality of the postgis_version_tuple method
+        in the context of the FakePostGISOperations class, ensuring it behaves as expected
+        when working with the PostGIS version string.
+        """
         expect = ("1.2.3", 1, 2, 3)
         ops = FakePostGISOperations(expect[0])
         actual = ops.postgis_version_tuple()

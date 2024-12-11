@@ -8,6 +8,13 @@ class CoreCommandsNoOutputTests(TestCase):
     available_apps = ["empty_models"]
 
     def test_sqlflush_no_tables(self):
+        """
+        Tests the sqlflush command when no tables are present in the database.
+
+        This test case verifies that the sqlflush command behaves as expected when there are no tables to flush, confirming that it produces the correct output and error messages.
+
+        :raises AssertionError: If the command produces unexpected output or error messages.
+        """
         out = io.StringIO()
         err = io.StringIO()
         call_command("sqlflush", stdout=out, stderr=err)

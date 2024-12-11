@@ -26,6 +26,14 @@ class SubstrTests(TestCase):
         )
 
     def test_start(self):
+        """
+
+        Tests the functionality of annotating an author's name with substring parts.
+
+        This test case checks if the first character of an author's name is correctly
+         anaklyzed and if the remaining part of the name matches the second substring.
+
+        """
         Author.objects.create(name="John Smith", alias="smithj")
         a = Author.objects.annotate(
             name_part_1=Substr("name", 1),

@@ -95,6 +95,11 @@ class HTTPSitemapTests(SitemapTestsBase):
         self.assertXMLEqual(response.content.decode(), expected_content)
 
     def test_no_section(self):
+        """
+        Tests that a 404 status code is returned and an appropriate error message is displayed when attempting to access a sitemap for a non-existent section.
+
+        The test verifies that the system correctly handles requests for sitemaps that do not have a corresponding section, returning a user-friendly error message and a 404 status code to indicate that the requested resource is not available.
+        """
         response = self.client.get("/simple/sitemap-simple2.xml")
         self.assertEqual(
             str(response.context["exception"]),
@@ -103,6 +108,12 @@ class HTTPSitemapTests(SitemapTestsBase):
         self.assertEqual(response.status_code, 404)
 
     def test_empty_page(self):
+        """
+        Tests the handling of an empty page request for the sitemap-simple.xml page.
+
+        Verifies that when requesting page 0, which is considered empty, the server returns a 
+        404 status code and includes an exception message indicating that the page is empty.
+        """
         response = self.client.get("/simple/sitemap-simple.xml?p=0")
         self.assertEqual(str(response.context["exception"]), "Page 0 empty")
         self.assertEqual(response.status_code, 404)
@@ -319,6 +330,14 @@ class HTTPSitemapTests(SitemapTestsBase):
         self.assertXMLEqual(response.content.decode(), expected_content)
 
     def test_x_robots_sitemap(self):
+        """
+
+        Tests the X-Robots-Tag header in responses from the /simple/index.xml and /simple/sitemap.xml endpoints.
+
+        Verifies that the header is set to 'noindex, noodp, noarchive' for both endpoints, indicating that search engines should not index the pages, 
+        use the Open Directory Project description, or archive the content.
+
+        """
         response = self.client.get("/simple/index.xml")
         self.assertEqual(response.headers["X-Robots-Tag"], "noindex, noodp, noarchive")
 
@@ -570,6 +589,16 @@ class HTTPSitemapTests(SitemapTestsBase):
         self.assertXMLEqual(sitemap_response.content.decode(), expected_content_sitemap)
 
     def test_callable_sitemod_no_items(self):
+        """
+        Tests the behavior of a callable sitemap with no items when requesting the index XML.
+
+        This test case verifies that when a sitemap with no items is requested, 
+        the 'Last-Modified' header is not present in the response. 
+        It also checks that the index XML content is correctly generated, 
+        including the expected sitemap index structure and location. 
+        The test ensures that the output matches the expected XML content, 
+        providing a valid sitemap index format as defined by the sitemaps.org schema.
+        """
         index_response = self.client.get("/callable-lastmod-no-items/index.xml")
         self.assertNotIn("Last-Modified", index_response)
         expected_content_index = """<?xml version="1.0" encoding="UTF-8"?>

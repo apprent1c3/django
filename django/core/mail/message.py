@@ -183,6 +183,17 @@ class SafeMIMEMultipart(MIMEMixin, MIMEMultipart):
     def __init__(
         self, _subtype="mixed", boundary=None, _subparts=None, encoding=None, **_params
     ):
+        """
+        Initializes a multipart entity with various parameters.
+
+        :param str _subtype: The subtype of the multipart entity, defaults to 'mixed' if not provided.
+        :param str boundary: The boundary string used to separate the different parts of the entity.
+        :param _subparts: The subparts of the multipart entity.
+        :param str encoding: The encoding of the entity, which can be used to represent the content of the parts.
+        :param _params: Additional keyword parameters to be passed to the MIMEMultipart constructor.
+
+        Sets the encoding attribute and then calls the MIMEMultipart constructor with the provided parameters to perform the actual initialization.
+        """
         self.encoding = encoding
         MIMEMultipart.__init__(self, _subtype, boundary, _subparts, **_params)
 

@@ -222,6 +222,21 @@ class SpatiaLiteOperations(BaseSpatialOperations, DatabaseOperations):
         return SpatialiteSpatialRefSys
 
     def get_geometry_converter(self, expression):
+        """
+
+        Return a converter function for the given spatial database expression.
+
+        The converter is responsible for transforming the raw spatial data from the database
+        into a GEOSGeometry object that can be used in Python.
+
+        The returned function takes a value from the database, along with the original expression
+        and the database connection, and returns either a GEOSGeometry object or None if the
+        value is null.
+
+        This converter is tailored to the specific geometry class of the given expression,
+        ensuring that the resulting GEOSGeometry object is of the correct type (e.g. Point, LineString, Polygon).
+
+        """
         geom_class = expression.output_field.geom_class
         read = wkb_r().read
 

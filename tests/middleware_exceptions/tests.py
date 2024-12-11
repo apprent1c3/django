@@ -15,6 +15,14 @@ class MiddlewareTests(SimpleTestCase):
         MIDDLEWARE=["middleware_exceptions.middleware.ProcessViewNoneMiddleware"]
     )
     def test_process_view_return_none(self):
+        """
+
+        Tests the ProcessViewNoneMiddleware when a view returns None.
+
+        This test case checks that when a view returns None, the middleware correctly handles the response and logs the expected message.
+        It verifies that the log contains the 'processed view normal_view' message and the HTTP response content is 'OK'.
+
+        """
         response = self.client.get("/middleware_exceptions/view/")
         self.assertEqual(mw.log, ["processed view normal_view"])
         self.assertEqual(response.content, b"OK")
@@ -69,6 +77,19 @@ class MiddlewareTests(SimpleTestCase):
         MIDDLEWARE=["middleware_exceptions.middleware.TemplateResponseMiddleware"]
     )
     def test_process_template_response(self):
+        """
+
+        Tests the processing of a template response by the TemplateResponseMiddleware.
+
+        This test case simulates a GET request to a specific URL and verifies that the 
+        response content matches the expected output, indicating successful processing 
+        by the middleware.
+
+        The test overrides the default middleware settings to isolate the behavior of 
+        the TemplateResponseMiddleware, ensuring that it correctly handles template 
+        responses as expected.
+
+        """
         response = self.client.get("/middleware_exceptions/template_response/")
         self.assertEqual(
             response.content, b"template_response OK\nTemplateResponseMiddleware"
@@ -127,6 +148,15 @@ class MiddlewareTests(SimpleTestCase):
         ]
     )
     def test_exception_in_middleware_converted_before_prior_middleware(self):
+        """
+
+        Tests that an exception in a middleware is converted and logged before being handled by prior middleware.
+
+        This test case verifies that middleware exceptions are properly intercepted, converted, and recorded
+        before being passed to subsequent middleware for handling. It checks that the logging middleware
+        correctly captures the exception and logs it with the expected status code and response content.
+
+        """
         response = self.client.get("/middleware_exceptions/view/")
         self.assertEqual(mw.log, [(404, response.content)])
         self.assertEqual(response.status_code, 404)
@@ -135,6 +165,14 @@ class MiddlewareTests(SimpleTestCase):
         MIDDLEWARE=["middleware_exceptions.middleware.ProcessExceptionMiddleware"]
     )
     def test_exception_in_render_passed_to_process_exception(self):
+        """
+
+        Tests that an exception raised during the render phase of a view is properly caught and handled by the ProcessExceptionMiddleware.
+
+        The test case simulates a request to a view that intentionally raises an exception during rendering. It then verifies that the middleware successfully intercepts the exception and returns a response indicating that the exception was caught.
+
+        This tests the integration of the ProcessExceptionMiddleware with the view rendering process, ensuring that exceptions are properly propagated and handled.\"
+        """
         response = self.client.get("/middleware_exceptions/exception_in_render/")
         self.assertEqual(response.content, b"Exception caught")
 
@@ -192,6 +230,17 @@ class MiddlewareNotUsedTests(SimpleTestCase):
         MIDDLEWARE=["middleware_exceptions.tests.MyMiddlewareWithExceptionMessage"]
     )
     def test_log_custom_message(self):
+        """
+        Test case to verify that custom exception messages are logged correctly.
+
+        This test checks that when a custom middleware raises an exception with a custom message,
+        the message is properly logged by the logging system. It simulates a GET request to a view
+        and asserts that the log message matches the expected custom message, confirming that
+        the logging system is working as expected with custom middleware exceptions.
+
+        The test uses a custom middleware that raises an exception with a message containing 'spam eggs',
+        allowing the test to verify that this message is correctly logged and propagated through the system.
+        """
         with self.assertLogs("django.request", "DEBUG") as cm:
             self.client.get("/middleware_exceptions/view/")
         self.assertEqual(
@@ -205,6 +254,13 @@ class MiddlewareNotUsedTests(SimpleTestCase):
         MIDDLEWARE=["middleware_exceptions.tests.MyMiddleware"],
     )
     def test_do_not_log_when_debug_is_false(self):
+        """
+        Tests that no logs are generated at the DEBUG level when the DEBUG setting is False.
+
+        This test case ensures that the logging mechanism behaves as expected when the application is running in a production-like environment (DEBUG=False).
+        It verifies that no DEBUG-level log messages are emitted by the 'django.request' logger when a request is processed.
+        The test is relevant for guaranteeing that sensitive information is not inadvertently logged in production environments, helping to maintain the security and integrity of the application.
+        """
         with self.assertNoLogs("django.request", "DEBUG"):
             self.client.get("/middleware_exceptions/view/")
 
@@ -259,6 +315,24 @@ class MiddlewareSyncAsyncTests(SimpleTestCase):
         ]
     )
     def test_async_middleware(self):
+        """
+        Tests the asynchronous middleware functionality.
+
+        This test case verifies that the middleware correctly handles asynchronous requests.
+        It checks the HTTP response status code and logs the adaptation of a synchronous handler
+        for the asynchronous payment middleware. The test ensures the correct logging and status
+        code are produced when accessing a specific view through the test client.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the expected status code or log message does not match the actual output.
+
+        """
         with self.assertLogs("django.request", "DEBUG") as cm:
             response = self.client.get("/middleware_exceptions/view/")
         self.assertEqual(response.status_code, 402)
@@ -341,6 +415,10 @@ class MiddlewareSyncAsyncTests(SimpleTestCase):
         ]
     )
     def test_async_and_sync_middleware_sync_call(self):
+        """
+        Tests the synchronous call to a view through the SyncAndAsyncMiddleware, 
+         ensuring it returns a successful response with status code 200 and content 'OK'.
+        """
         response = self.client.get("/middleware_exceptions/view/")
         self.assertEqual(response.content, b"OK")
         self.assertEqual(response.status_code, 200)
@@ -368,6 +446,13 @@ class AsyncMiddlewareTests(SimpleTestCase):
         ]
     )
     async def test_process_template_response_returns_none(self):
+        """
+        Tests that AsyncNoTemplateResponseMiddleware correctly raises an error when process_template_response returns None instead of an HttpResponse object.
+
+        This test case verifies the expected behavior of the middleware when it encounters a missing or invalid response from a view. It checks that a ValueError is raised with a descriptive message, ensuring that the application handles this scenario properly and provides useful error information.
+
+        The test scenario involves making an asynchronous GET request to a URL that triggers the middleware's process_template_response method, and then asserting that the expected exception is raised with the correct error message.
+        """
         msg = (
             "AsyncNoTemplateResponseMiddleware.process_template_response "
             "didn't return an HttpResponse object. It returned None instead."

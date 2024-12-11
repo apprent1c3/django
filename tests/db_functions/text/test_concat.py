@@ -16,6 +16,21 @@ lorem_ipsum = """
 
 class ConcatTests(TestCase):
     def test_basic(self):
+        """
+
+        Tests the basic functionality of author objects and their annotations.
+
+        This test creates several authors with varying attributes, such as aliases and
+        goes_by names. It then annotates these objects with a concatenated string of
+        their alias and goes_by names. The test asserts that the annotated authors can
+        be correctly ordered by their names and that the concatenated string is
+        generated as expected.
+
+        The test covers scenarios where authors have no alias, have an alias but no
+        goes_by name, have a goes_by name but no alias, and have both an alias and a
+        goes_by name.
+
+        """
         Author.objects.create(name="Jayden")
         Author.objects.create(name="John Smith", alias="smithj", goes_by="John")
         Author.objects.create(name="Margaret", goes_by="Maggie")
@@ -39,6 +54,17 @@ class ConcatTests(TestCase):
             Author.objects.annotate(joined=Concat("alias"))
 
     def test_many(self):
+        """
+
+        Test the concatenation of author names and goes_by field.
+
+        This test case verifies that the name and goes_by fields of authors can be correctly concatenated and ordered.
+        It creates multiple authors with different name and goes_by combinations, then checks if the joined field is correctly created and ordered by name.
+
+        The test covers various scenarios such as authors with no goes_by field, authors with a goes_by field, and authors with an alias.
+        The result is a list of joined names in the format 'name (goes_by)' if the goes_by field exists, or 'name ()' if it does not.
+
+        """
         Author.objects.create(name="Jayden")
         Author.objects.create(name="John Smith", alias="smithj", goes_by="John")
         Author.objects.create(name="Margaret", goes_by="Maggie")
@@ -58,6 +84,10 @@ class ConcatTests(TestCase):
         )
 
     def test_mixed_char_text(self):
+        """
+        Test the concatenation of title and text fields in an Article object, 
+        with and without applying string transformation, to ensure the result matches the expected output.
+        """
         Article.objects.create(
             title="The Title", text=lorem_ipsum, written=timezone.now()
         )
@@ -89,6 +119,16 @@ class ConcatTests(TestCase):
         self.assertEqual(len(list(pair.flatten())), 3)
 
     def test_sql_generation_idempotency(self):
+        """
+
+        Verifies that the generated SQL query for a given ORM query remains the same 
+        after applying the all() method, demonstrating idempotency in SQL generation.
+
+        This test ensures that retrieving a QuerySet and then calling all() on it 
+        does not alter the underlying SQL query, which helps prevent unnecessary database 
+        queries and potential performance issues.
+
+        """
         qs = Article.objects.annotate(description=Concat("title", V(": "), "summary"))
         # Multiple compilations should not alter the generated query.
         self.assertEqual(str(qs.query), str(qs.all().query))

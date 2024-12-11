@@ -711,6 +711,26 @@ class ModelAdmin(BaseModelAdmin):
         return inline_instances
 
     def get_urls(self):
+        """
+
+        Returns a list of URL patterns for the admin views of the model.
+
+        These URL patterns provide access to common admin views, including the changelist, add, history, delete, and change views. 
+        Each view is wrapped by the :meth:`admin_site.admin_view` decorator to ensure proper authentication and authorization.
+        The URL patterns are named according to the model's app label and model name, allowing for easy reversal and referencing.
+
+        The following views are included in the returned list:
+
+        * Changelist view: A list view of all model instances.
+        * Add view: A form view for creating new model instances.
+        * History view: A view displaying the change history of a model instance.
+        * Delete view: A confirmation view for deleting a model instance.
+        * Change view: A form view for editing existing model instances.
+        * Redirect view: A view that redirects to the change view for a model instance.
+
+        The returned URL patterns can be used to configure the admin interface of a Django application.
+
+        """
         from django.urls import path
 
         def wrap(view):
@@ -1176,6 +1196,22 @@ class ModelAdmin(BaseModelAdmin):
 
         # Apply keyword searches.
         def construct_search(field_name):
+            """
+            Construct a search field name based on the given field name.
+
+            The function handles special prefixes on the field name:
+                * '^' prefix specifies an \"istartswith\" lookup
+                * '=' prefix specifies an \"iexact\" lookup
+                * '@' prefix specifies a full-text search
+
+            For other field names, the function traverses the model's fields and relationships
+            to construct a fallback lookup, defaulting to \"icontains\" if no specific lookup
+            is found.
+
+            :arg str field_name: The name of the field to construct a search for
+            :rtype: str
+            :return: A search field name that can be used in a query
+            """
             if field_name.startswith("^"):
                 return "%s__istartswith" % field_name.removeprefix("^")
             elif field_name.startswith("="):
@@ -1324,6 +1360,20 @@ class ModelAdmin(BaseModelAdmin):
     def render_change_form(
         self, request, context, add=False, change=False, form_url="", obj=None
     ):
+        """
+
+        Render the change form page for a model instance.
+
+        This method returns a TemplateResponse object that contains the rendered HTML for the change form page.
+        It takes into account various parameters such as the request, context, add and change flags, and the object being edited.
+        The rendered page includes information about the model instance, inline admin formsets, and permissions for the requesting user.
+
+        It provides functionality to update the context with relevant data such as permissions, form URLs, and view on site URLs.
+        Additionally, it handles the rendering of the template based on the add or change operation and the availability of custom templates.
+
+        The returned TemplateResponse object is used to display the change form page to the user.
+
+        """
         app_label = self.opts.app_label
         preserved_filters = self.get_preserved_filters(request)
         form_url = add_preserved_filters(
@@ -2180,6 +2230,20 @@ class ModelAdmin(BaseModelAdmin):
 
     @csrf_protect_m
     def delete_view(self, request, object_id, extra_context=None):
+        """
+
+        Deletes an object from the database based on the provided object id.
+
+        This view function processes HTTP requests to delete an object. For GET, HEAD, OPTIONS, and TRACE requests, 
+        it directly calls the internal delete view function. For other HTTP methods, the deletion is performed within 
+        a database transaction to ensure data integrity. 
+
+        :param request: The current HTTP request.
+        :param object_id: The id of the object to be deleted.
+        :param extra_context: Additional context to be used in the deletion process.
+        :return: The result of the deletion operation.
+
+        """
         if request.method in ("GET", "HEAD", "OPTIONS", "TRACE"):
             return self._delete_view(request, object_id, extra_context)
 
@@ -2544,6 +2608,13 @@ class InlineModelAdmin(BaseModelAdmin):
         )
 
     def has_add_permission(self, request, obj):
+        """
+        Determines whether the user has permission to add a new object.
+
+        This method checks if the model was auto-created. If so, it grants add permission 
+        if the user has change permission for the target model. Otherwise, it defers to 
+        the parent class's implementation for determining add permission.
+        """
         if self.opts.auto_created:
             # Auto-created intermediate models don't have their own
             # permissions. The user needs to have the change permission for the

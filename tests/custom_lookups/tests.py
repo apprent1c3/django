@@ -33,6 +33,17 @@ class Div3Transform(models.Transform):
     lookup_name = "div3"
 
     def as_sql(self, compiler, connection):
+        """
+        Generates the SQL representation of a modulo operation.
+
+        This method compiles the left-hand side (LHS) of the operation using the provided compiler
+        and returns a tuple containing the SQL string and its parameters. The SQL string is formatted
+        as a modulo operation with the LHS as the dividend and 3 as the divisor.
+
+        :param compiler: The compiler to use for compiling the LHS
+        :param connection: The database connection to use for the operation
+        :return: A tuple containing the SQL string and its parameters
+        """
         lhs, lhs_params = compiler.compile(self.lhs)
         return "(%s) %%%% 3" % lhs, lhs_params
 
@@ -67,6 +78,18 @@ class UpperBilateralTransform(models.Transform):
     lookup_name = "upper"
 
     def as_sql(self, compiler, connection):
+        """
+
+        Translates the left-hand side (LHS) of an expression to SQL using the provided compiler and connection.
+
+        This method converts the LHS into an SQL string, applying the UPPER function to ensure the result is in uppercase.
+        The resulting SQL string and any associated parameters are then returned as a tuple.
+
+        :param compiler: The compiler to use for translation
+        :param connection: The database connection to use
+        :return: A tuple containing the translated SQL string and any associated parameters
+
+        """
         lhs, lhs_params = compiler.compile(self.lhs)
         return "UPPER(%s)" % lhs, lhs_params
 
@@ -91,6 +114,20 @@ class YearExact(models.lookups.Lookup):
     def as_sql(self, compiler, connection):
         # We will need to skip the extract part, and instead go
         # directly with the originating field, that is self.lhs.lhs
+        """
+
+        Generates SQL for a date range condition where the given date falls within a specific year.
+
+        This function takes into account both the start and end dates of the year, ensuring that the 
+        query correctly handles dates that occur at the beginning or end of the year.
+
+        It constructs the SQL query by combining the left-hand side (LHS) and right-hand side (RHS) 
+        expressions with the necessary date formatting to create a valid date range condition.
+
+        The function returns a tuple containing the generated SQL query string and a list of parameters 
+        required for the query.
+
+        """
         lhs_sql, lhs_params = self.process_lhs(compiler, connection, self.lhs.lhs)
         rhs_sql, rhs_params = self.process_rhs(compiler, connection)
         # Note that we must be careful so that we have params in the
@@ -148,6 +185,18 @@ class SQLFuncMixin:
 
 class SQLFuncLookup(SQLFuncMixin, models.Lookup):
     def __init__(self, name, *args, **kwargs):
+        """
+
+        Initializes a new instance of the class.
+
+        :param name: The name to be associated with this instance.
+        :param args: Additional positional arguments to be passed to the parent class.
+        :param kwargs: Additional keyword arguments to be passed to the parent class.
+
+        This initialization method sets up the basic attributes of the instance, 
+        including the name and any additional parameters required by the parent class.
+
+        """
         super().__init__(*args, **kwargs)
         self.name = name
 
@@ -171,6 +220,11 @@ class SQLFuncFactory:
 
 class CustomField(models.TextField):
     def get_lookup(self, lookup_name):
+        """
+        Returns a lookup object for the specified name.
+        If the lookup name starts with 'lookupfunc_', it creates and returns a SQL function lookup object using the provided name.
+        For all other lookup names, the method defers to the parent class's implementation.
+        """
         if lookup_name.startswith("lookupfunc_"):
             key, name = lookup_name.split("_", 1)
             return SQLFuncFactory(key, name)
@@ -264,6 +318,18 @@ class LookupTests(TestCase):
             field.register_lookup(OldExactLookup, "exact")
 
     def test_basic_lookup(self):
+        """
+        Tests the basic functionality of the Div3Lookup, ensuring it correctly filters
+        Author objects based on the division of their age by 3.
+
+        The test creates multiple Author instances with varying ages and then applies
+        the Div3Lookup filter to verify the expected results are returned for different
+        remainders (0, 1, 2, and 3). The test also checks the ordering of results when
+        applying the filter with a specific remainder.
+
+        The Div3Lookup is registered for use with IntegerField, allowing the 'div3'
+        lookup to be used in queries on the 'age' field of Author objects.
+        """
         a1 = Author.objects.create(name="a1", age=1)
         a2 = Author.objects.create(name="a2", age=2)
         a3 = Author.objects.create(name="a3", age=3)
@@ -344,6 +410,23 @@ class LookupTests(TestCase):
 
 class BilateralTransformTests(TestCase):
     def test_bilateral_upper(self):
+        """
+
+        Tests the upper bilateral transform functionality on character fields.
+
+        This function verifies that the upper bilateral transform correctly converts 
+        character fields to uppercase for comparison, allowing case-insensitive 
+        queries. It creates test author objects with different names and checks 
+        that the filter method returns the expected results when using the 
+        `__upper` lookup. It also tests the `__upper__contains` lookup to ensure 
+        that it correctly finds objects with names containing a specified substring, 
+        regardless of case.
+
+        The test covers two main scenarios:
+        - Exact matching of uppercase names
+        - Case-insensitive containment of a substring in names
+
+        """
         with register_lookup(models.CharField, UpperBilateralTransform):
             author1 = Author.objects.create(name="Doe")
             author2 = Author.objects.create(name="doe")
@@ -358,6 +441,15 @@ class BilateralTransformTests(TestCase):
             )
 
     def test_bilateral_inner_qs(self):
+        """
+
+        Tests that using bilateral transformations in nested querysets raises a NotImplementedError.
+
+        This test case specifically checks that an error is raised when attempting to use the 'upper' lookup
+        on a CharField within a nested queryset. It verifies that the correct error message is returned,
+        indicating that bilateral transformations on nested querysets are not currently supported.
+
+        """
         with register_lookup(models.CharField, UpperBilateralTransform):
             msg = "Bilateral transformations on nested querysets are not implemented."
             with self.assertRaisesMessage(NotImplementedError, msg):
@@ -399,6 +491,20 @@ class BilateralTransformTests(TestCase):
             )
 
     def test_bilateral_order(self):
+        """
+        Tests the application of bilateral transforms in a query filter.
+
+        This test case verifies that two custom bilateral transforms, `Mult3BilateralTransform` and `Div3BilateralTransform`, 
+        can be chained together to filter query results. The test creates a set of `Author` objects and uses these transforms 
+        to filter the results based on the `age` field, applying both multiplication and division operations.
+
+        The test then asserts that the filtered results match the expected sequence of `Author` objects, 
+        demonstrating the correct application of the bilateral transforms in the query filter.
+
+        Note: The `Mult3BilateralTransform` and `Div3BilateralTransform` transforms are used to apply specific 
+        mathematical operations to the `age` field, but the test focuses on the functionality of chaining these transforms 
+        rather than their individual implementations.
+        """
         with register_lookup(
             models.IntegerField, Mult3BilateralTransform, Div3BilateralTransform
         ):
@@ -415,6 +521,18 @@ class BilateralTransformTests(TestCase):
             self.assertSequenceEqual(baseqs.filter(age__div3__mult3=42), [a3])
 
     def test_transform_order_by(self):
+        """
+
+        Tests the ordering of query results based on the last digit of an integer field.
+
+        This test case creates multiple Author instances with varying ages and registers 
+        a lookup to transform the integer field to its last digit. It then orders the 
+        query results by this last digit and verifies the correct sequence of authors.
+
+        The expected order is determined by the last digit of the age field, demonstrating 
+        that the LastDigitTransform is applied correctly during the query ordering process.
+
+        """
         with register_lookup(models.IntegerField, LastDigitTransform):
             a1 = Author.objects.create(name="a1", age=11)
             a2 = Author.objects.create(name="a2", age=23)
@@ -424,6 +542,21 @@ class BilateralTransformTests(TestCase):
             self.assertSequenceEqual(qs, [a4, a1, a3, a2])
 
     def test_bilateral_fexpr(self):
+        """
+
+        Tests the bilateral expression functionality for the 'mult3' transform.
+
+        The test creates multiple Author objects with varying ages and average ratings, 
+        then checks the results of filtering these objects using bilateral expressions 
+        that combine the 'mult3' transform with Django's built-in comparison operators. 
+
+        The test covers two main use cases: 
+        - filtering based on a transform applied to a model field ('age__mult3=models.F('age')'), 
+        - filtering based on a comparison between a transformed field and another model field ('age__mult3__gte=models.F('average_rating')').
+
+        The expected results are verified using assertions to ensure the filtered querysets match the expected sequences of Author objects.
+
+        """
         with register_lookup(models.IntegerField, Mult3BilateralTransform):
             a1 = Author.objects.create(name="a1", age=1, average_rating=3.2)
             a2 = Author.objects.create(name="a2", age=2, average_rating=0.5)
@@ -460,6 +593,9 @@ class YearLteTests(TestCase):
         cls.a4 = Author.objects.create(name="a4", birthdate=date(2012, 3, 1))
 
     def setUp(self):
+        """
+        Sets up the test environment by registering a custom lookup transformation for DateField to extract the year component, and schedules the lookup to be unregistered after the test is completed to maintain a clean state.
+        """
         models.DateField.register_lookup(YearTransform)
         self.addCleanup(models.DateField._unregister_lookup, YearTransform)
 
@@ -591,6 +727,18 @@ class TrackCallsYearTransform(YearTransform):
         return models.IntegerField()
 
     def get_lookup(self, lookup_name):
+        """
+
+        Retrieves a lookup object by its name.
+
+        This method extends the parent class's implementation by tracking the call order.
+        It records that a lookup was requested and then returns the lookup object
+        associated with the given lookup name.
+
+        :param lookup_name: The name of the lookup to be retrieved
+        :return: The lookup object with the matching name
+
+        """
         self.call_order.append("lookup")
         return super().get_lookup(lookup_name)
 
@@ -674,6 +822,17 @@ class RegisterLookupTests(SimpleTestCase):
         self.assertIsNone(author_name.get_lookup("sw"))
 
     def test_instance_lookup(self):
+        """
+        Tests the instance lookup functionality for a model field.
+
+        Verifies that a custom lookup can be registered and retrieved for a specific field,
+        and that it is properly unregistered after use. Also checks that the lookup is not
+        available for other fields on the same model, and that the instance lookups are
+        properly reset after the registration context is exited.
+
+        Ensures correct functionality of the instance lookup mechanism, including
+        registration, retrieval, and cleanup of custom lookups for model fields.
+        """
         author_name = Author._meta.get_field("name")
         author_alias = Author._meta.get_field("alias")
         with register_lookup(author_name, CustomStartsWith):
@@ -716,6 +875,15 @@ class RegisterLookupTests(SimpleTestCase):
         self.assertEqual(transform.get_lookups(), {})
 
     def test_transform_on_field(self):
+        """
+        Tests the registration and application of the Div3Transform lookup on a model field.
+
+         The function checks that the Div3Transform is correctly registered for a specific model field, and that it is successfully retrieved.
+
+         It also verifies that the registration is field-specific, and that the transform is not applied to other fields unless explicitly registered.
+
+         Additionally, it ensures that the registration is not persisted after the registration context is closed, and that the transform is no longer available once the context is exited.
+        """
         author_name = Author._meta.get_field("name")
         author_alias = Author._meta.get_field("alias")
         with register_lookup(models.CharField, Div3Transform):
@@ -728,6 +896,17 @@ class RegisterLookupTests(SimpleTestCase):
         self.assertIsNone(author_name.get_transform("div3"))
 
     def test_related_lookup(self):
+        """
+        Tests the lookup functionality for related fields in the Article model.
+
+        Checks the availability of custom lookup types for the 'author' field, 
+        which is a foreign key, and verifies that the correct lookup class 
+        is returned when querying the field with specific lookup names. 
+
+        Specifically, this test checks for the 'sw' lookup type with 
+        CustomStartsWith and 'rmt' lookup type with RelatedMoreThan, ensuring 
+        that they are correctly registered and retrieved for the 'author' field.
+        """
         article_author = Article._meta.get_field("author")
         with register_lookup(models.Field, CustomStartsWith):
             self.assertIsNone(article_author.get_lookup("sw"))

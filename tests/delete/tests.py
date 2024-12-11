@@ -47,6 +47,15 @@ class OnDeleteTests(TestCase):
         self.DEFAULT = get_default_r()
 
     def test_auto(self):
+        """
+        Test the automatic deletion of an object.
+
+        Verifies that when an object created with automatic deletion is removed,
+        it is successfully deleted from the database, ensuring no residual records remain.
+
+        The test case checks for the existence of the object with the name 'auto'
+        after deletion, asserting that it no longer exists in the database.
+        """
         a = create_a("auto")
         a.auto.delete()
         self.assertFalse(A.objects.filter(name="auto").exists())
@@ -64,6 +73,12 @@ class OnDeleteTests(TestCase):
         self.assertFalse(A.objects.filter(name="auto_nullable").exists())
 
     def test_setvalue(self):
+        """
+        Tests setting a value on an object and then verifying that it has been reset after deletion.
+
+        This test case creates an object 'a' of type 'A', deletes its 'setvalue', retrieves the object again from the database, 
+        and then asserts that the 'setvalue' has been reset to its default value, referenced by self.DEFAULT.
+        """
         a = create_a("setvalue")
         a.setvalue.delete()
         a = A.objects.get(pk=a.pk)
@@ -204,6 +219,17 @@ class OnDeleteTests(TestCase):
         self.assertIsNone(a.o2o_setnull)
 
     def test_restrict(self):
+        """
+        Tests that deleting an instance with restricted foreign keys raises a RestrictedError.
+
+        This test verifies that the system correctly identifies and prohibits the deletion of instances
+        that are referenced through restricted foreign keys, ensuring data integrity and preventing orphaned records.
+
+        The test case covers the scenario where an instance has a restricted relationship with another model,
+        and attempts to delete the instance. It checks that the expected error message is raised and that
+        the exception contains the restricted objects, confirming that the restriction is properly enforced.
+
+        """
         a = create_a("restrict")
         msg = (
             "Cannot delete some instances of model 'R' because they are "
@@ -348,6 +374,13 @@ class DeletionTests(TestCase):
         self.assertFalse(m.m2m_through_null.exists())
 
     def test_bulk(self):
+        """
+        Tests the bulk deletion of objects.
+
+        This test case creates a hierarchy of objects, including a parent object (R) and a child object (S) with multiple grandchildren objects (T).
+        It then verifies that deleting the parent object (s) results in a bulk deletion of all associated objects, ensuring that the database is updated efficiently.
+        The test checks that the deletion operation is performed within the expected number of database queries and that no objects of type S remain after deletion.
+        """
         s = S.objects.create(r=R.objects.create())
         for i in range(2 * GET_ITERATOR_CHUNK_SIZE):
             T.objects.create(s=s)
@@ -385,6 +418,29 @@ class DeletionTests(TestCase):
         models.signals.pre_delete.disconnect(pre_delete)
 
     def test_deletion_order(self):
+        """
+        Tests the order in which model instances are deleted.
+
+        This test ensures that when a model instance is deleted, its related instances 
+        are deleted in the correct order. It checks both the pre-delete and post-delete 
+        signals, comparing the order in which instances are deleted with the expected order.
+
+        The test creates a hierarchy of model instances with relationships between them, 
+        then deletes the top-level instance and verifies that the related instances are 
+        deleted in the correct order.
+
+        The expected deletion order is checked by comparing the pre-delete and post-delete 
+        signals emitted by the model instances. The test also ensures that the signals are 
+        properly disconnected after the test is completed.
+
+        The test covers the following scenarios:
+        - Pre-delete signal order
+        - Post-delete signal order
+        - Proper disconnection of signals after the test
+
+        This test provides assurance that model instances are deleted in the correct order, 
+        preventing potential data inconsistencies or errors.
+        """
         pre_delete_order = []
         post_delete_order = []
 
@@ -454,6 +510,20 @@ class DeletionTests(TestCase):
 
     @skipUnlessDBFeature("can_defer_constraint_checks")
     def test_can_defer_constraint_checks(self):
+        """
+        Tests the ability to defer constraint checks on database operations.
+
+        This test case verifies that when a User object is deleted, its associated Avatar object is also removed from the database.
+        It checks the following conditions:
+        - The correct number of database queries are executed during the deletion process.
+        - The User and Avatar objects no longer exist in the database after deletion.
+        - The post_delete signal is emitted correctly for the User object.
+
+        The test is skipped if the database backend does not support deferring constraint checks.
+
+        :raises AssertionError: if any of the expected conditions are not met.
+
+        """
         u = User.objects.create(avatar=Avatar.objects.create())
         a = Avatar.objects.get(pk=u.avatar_id)
         # 1 query to find the users for the avatar.
@@ -502,6 +572,17 @@ class DeletionTests(TestCase):
         models.signals.post_delete.disconnect(noop, sender=User)
 
     def test_hidden_related(self):
+        """
+        Tests that deleting a related object cascade deletes associated HiddenUser profiles.
+
+        This test verifies the correctness of the cascading deletion mechanism, ensuring
+        that when a related object 'R' is deleted, its corresponding HiddenUser and
+        HiddenUserProfile instances are also properly removed from the database.
+
+        The test case covers the expected behavior of the model's relationships,
+        specifically the deletion of dependent objects, to guarantee data consistency
+        and integrity in the system.
+        """
         r = R.objects.create()
         h = HiddenUser.objects.create(r=r)
         HiddenUserProfile.objects.create(user=h)
@@ -546,6 +627,14 @@ class DeletionTests(TestCase):
         self.assertFalse(T.objects.exists())
 
     def test_delete_with_keeping_parents(self):
+        """
+
+        Tests the deletion of a child object while keeping its parent object.
+
+        This test case verifies that when a child object is deleted with the `keep_parents` flag set to `True`, 
+        the child object is successfully removed, but its parent object remains intact.
+
+        """
         child = RChild.objects.create()
         parent_id = child.r_ptr_id
         child.delete(keep_parents=True)
@@ -708,6 +797,14 @@ class FastDeleteTests(TestCase):
         self.assertNumQueries(2, f.delete)
 
     def test_fast_delete_qs(self):
+        """
+        Tests the performance of deleting a query set in the database, specifically verifying that it can be done efficiently in a single database query.
+
+        It creates two test users, then checks that deleting one of them results in 
+        only one database query being executed. Additionally, it confirms that 
+        the correct user was deleted by checking the remaining user count and 
+        verifying the existence of the second user.
+        """
         u1 = User.objects.create()
         u2 = User.objects.create()
         self.assertNumQueries(1, User.objects.filter(pk=u1.pk).delete)
@@ -715,6 +812,15 @@ class FastDeleteTests(TestCase):
         self.assertTrue(User.objects.filter(pk=u2.pk).exists())
 
     def test_fast_delete_instance_set_pk_none(self):
+        """
+
+        Tests the fast deletion of a model instance and verifies that its primary key is set to None after deletion.
+
+        This test case covers the scenario where an instance is deleted using the fast deletion method, 
+        which bypasses the normal delete hooks. It ensures that the instance's primary key is properly 
+        reset to None after the deletion operation, confirming that the instance has been successfully removed.
+
+        """
         u = User.objects.create()
         # User can be fast-deleted.
         collector = Collector(using="default")
@@ -749,6 +855,21 @@ class FastDeleteTests(TestCase):
         self.assertFalse(Child.objects.exists())
 
     def test_fast_delete_large_batch(self):
+        """
+
+        Tests the efficiency of deleting large batches of objects in the database.
+
+        This test case checks the query optimization when deleting a large number of User
+        objects in bulk, with and without associated Avatar objects. It verifies that
+        the deletion operations are performed in a minimal number of database queries,
+        ensuring efficient data removal.
+
+        The test covers two scenarios: deleting Users without associated Avatars and
+        deleting Users with associated Avatars. In both cases, it checks that the
+        expected number of database queries is executed and that all relevant objects
+        are successfully deleted.
+
+        """
         User.objects.bulk_create(User() for i in range(0, 2000))
         # No problems here - we aren't going to cascade, so we will fast
         # delete the objects in a single query.
@@ -774,6 +895,16 @@ class FastDeleteTests(TestCase):
     def test_fast_delete_combined_relationships(self):
         # The cascading fast-delete of SecondReferrer should be combined
         # in a single DELETE WHERE referrer_id OR unique_field.
+        """
+        Tests that deleting a referrer object with a combined relationship to an origin object
+        can be performed efficiently, minimizing the number of database queries.
+
+        This test case verifies that when a Referrer object is deleted, the associated Origin object
+        is properly handled, and the deletion process is executed within the expected number of queries.
+
+        The expected outcome is that the deletion operation completes in 2 database queries, 
+        demonstrating efficient handling of the relationship between Referrer and Origin objects.
+        """
         origin = Origin.objects.create()
         referer = Referrer.objects.create(origin=origin, unique_field=42)
         with self.assertNumQueries(2):

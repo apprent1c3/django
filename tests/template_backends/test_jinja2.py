@@ -87,6 +87,25 @@ class Jinja2Tests(TemplateStringsTests):
         self.assertEqual(content, "Static URL: /s/")
 
     def test_dirs_pathlib(self):
+        """
+        Tests the rendering of a template using the Jinja2 engine and the pathlib library.
+
+        The test case verifies that a template named 'hello.html' can be successfully rendered
+        with a given variable 'name', producing the expected output.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+
+        Notes
+        -----
+        This test ensures the Jinja2 engine is correctly configured to find and render templates
+        from the specified directory, using the pathlib library for path manipulation.
+        """
         engine = Jinja2(
             {
                 "DIRS": [Path(__file__).parent / "templates" / "template_backends"],

@@ -10,6 +10,13 @@ class ContainsTests(TestCase):
         cls.proxy_category = ProxyCategory.objects.create()
 
     def test_unsaved_obj(self):
+        """
+        Tests that an error is raised when trying to use QuerySet.contains() on an unsaved object.
+
+        Checks that a ValueError is raised with the expected error message, ensuring that 
+        QuerySet.contains() behaves correctly and provides informative feedback when 
+        attempting to contain objects that have not been saved to the database yet.
+        """
         msg = "QuerySet.contains() cannot be used on unsaved objects."
         with self.assertRaisesMessage(ValueError, msg):
             DumbCategory.objects.contains(DumbCategory())
@@ -27,6 +34,13 @@ class ContainsTests(TestCase):
             DumbCategory.objects.values("pk").contains(self.category)
 
     def test_basic(self):
+        """
+        Tests the efficient retrieval of a category object from the database.
+
+        Verifies that the category object is correctly identified as existing in the database, 
+        and that this check is performed in a single database query. The test repeats this 
+        check to ensure consistency and verify that subsequent queries are also optimized.
+        """
         with self.assertNumQueries(1):
             self.assertIs(DumbCategory.objects.contains(self.category), True)
         # QuerySet.contains() doesn't evaluate a queryset.
@@ -46,6 +60,15 @@ class ContainsTests(TestCase):
             self.assertIs(proxy_qs.contains(self.proxy_category), True)
 
     def test_proxy_model(self):
+        """
+        Tests the proxy model relationships.
+
+        This test case verifies that the proxy category is correctly associated with its 
+        underlying category, and that the reverse relationship is also maintained. It 
+        checks that the proxy category contains the expected category, and that the 
+        category is contained within the proxy category, with each test query 
+        optimized to use a single database query.
+        """
         with self.assertNumQueries(1):
             self.assertIs(DumbCategory.objects.contains(self.proxy_category), True)
         with self.assertNumQueries(1):

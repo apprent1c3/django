@@ -40,6 +40,14 @@ class SignalTestCase(TestCase):
 
     def test_login(self):
         # Only a successful login will trigger the success signal.
+        """
+        Tests the login functionality by attempting to log in with incorrect and correct credentials.
+
+            The test first attempts to log in with a valid username and an incorrect password, and verifies that the login fails as expected.
+            It checks that the login failed event is triggered, and that the event contains the incorrect credentials and the request object.
+
+            Then, it attempts to log in with the correct credentials and verifies that the login is successful. It checks that the logged in user is correct, and that the login failed event count remains unchanged.
+        """
         self.client.login(username="testclient", password="bad")
         self.assertEqual(len(self.logged_in), 0)
         self.assertEqual(len(self.login_failed), 1)
@@ -64,6 +72,11 @@ class SignalTestCase(TestCase):
         self.assertIsNone(self.logged_out[0])
 
     def test_logout(self):
+        """
+        Tests the logout functionality by simulating a user login, then logging out and verifying the result.
+
+        The test involves authenticating a test client, sending a logout request, and checking the logged out user list to ensure it contains the expected user.
+        """
         self.client.login(username="testclient", password="password")
         self.client.post("/logout/next_page/")
         self.assertEqual(len(self.logged_out), 1)

@@ -130,6 +130,29 @@ def get_branch(version, next_version):
 
 
 def github_linkcode_resolve(domain, info, *, version, next_version):
+    """
+    Resolve a GitHub link for a given object based on its module and fullname.
+
+    This function generates a URL to the GitHub repository containing the source code
+    for a specific object, such as a class or function. It takes into account the
+    current version and next version of the project to determine the correct branch.
+
+    The function returns a URL in the format of a GitHub link with a line number, or
+    None if the object cannot be found or is not part of the 'py' domain.
+
+    Parameters
+    ----------
+    version : str
+        The current version of the project.
+    next_version : str
+        The next version of the project.
+
+    Returns
+    -------
+    str or None
+        A GitHub link to the object's source code, or None if not found.
+
+    """
     if domain != "py":
         return None
 

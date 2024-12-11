@@ -205,6 +205,16 @@ class ModelFormCallableModelDefault(TestCase):
 
     @skipUnlessDBFeature("supports_json_field")
     def test_callable_default_hidden_widget_value_not_overridden(self):
+        """
+
+        Test that default values from callables are not overridden when using a ModelForm
+        with a hidden widget for the initial value.
+
+        This test checks the behavior of a ModelForm where the model has fields with
+        callable default values. It verifies that the initial value is correctly
+        rendered as a hidden field and is not overridden by the provided data.
+
+        """
         class FieldWithCallableDefaultsModel(models.Model):
             int_field = models.IntegerField(default=lambda: 1)
             json_field = models.JSONField(default=dict)
@@ -402,6 +412,15 @@ class ManyToManyExclusionTestCase(TestCase):
 
 class EmptyLabelTestCase(TestCase):
     def test_empty_field_char(self):
+        """
+
+        Tests the rendering of the EmptyCharLabelChoiceForm as HTML paragraphs.
+
+        This test case verifies that the form is rendered correctly with all required fields,
+        including a text input for the name and a select dropdown for the choice. It also checks
+        that the \"No Preference\" option is selected by default in the choice dropdown.
+
+        """
         f = EmptyCharLabelChoiceForm()
         self.assertHTMLEqual(
             f.as_p(),
@@ -469,6 +488,11 @@ class EmptyLabelTestCase(TestCase):
         )
 
     def test_get_display_value_on_none(self):
+        """
+        Tests the behavior of the get_choice_integer_display method when the choice_integer attribute is set to None. 
+
+         Verifies that the correct display value is returned when the underlying choice_integer value is None. The expected display value in this case is 'No Preference'.
+        """
         m = ChoiceModel.objects.create(name="test", choice="", choice_integer=None)
         self.assertIsNone(m.choice_integer)
         self.assertEqual("No Preference", m.get_choice_integer_display())

@@ -86,6 +86,18 @@ class DeconstructibleTests(SimpleTestCase):
             obj.deconstruct()
 
     def test_parent_invalid_path(self):
+        """
+        Tests that a child class with an invalid path can still be properly deconstructed.
+
+        This test case verifies the correct functionality of the deconstruct method when 
+        applied to a child class that does not have a valid path. It checks that the 
+        deconstruct method correctly identifies the class path, and separates the 
+        positional and keyword arguments.
+
+        The expected outcome is that the deconstruct method returns the correct class 
+        path, along with the provided positional and keyword arguments, regardless of 
+        the child class's invalid path.
+        """
         obj = DeconstructibleInvalidPathChildClass("arg", key="value")
         path, args, kwargs = obj.deconstruct()
         self.assertEqual(

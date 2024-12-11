@@ -149,6 +149,13 @@ class ContinuousRangeField(RangeField):
         super().__init__(*args, **kwargs)
 
     def get_prep_value(self, value):
+        """
+        Matches an input value against a specific data type, handling range values.
+
+        This method prepares the given value for storage, specifically supporting range types such as lists or tuples of two elements.
+        If a range value is provided, it constructs the corresponding range type object using the provided bounds and the default bounds defined in the class.
+        For non-range values, it delegates the preparation to the superclass implementation.
+        """
         if isinstance(value, (list, tuple)):
             return self.range_type(value[0], value[1], self.default_bounds)
         return super().get_prep_value(value)
@@ -280,6 +287,14 @@ class RangeContainedBy(PostgresOperatorLookup):
         return "%s::%s" % (rhs, cast_type), rhs_params
 
     def process_lhs(self, compiler, connection):
+        """
+        Process the left-hand side of a query expression, applying necessary data type casts.
+
+        This method overrides the parent class's implementation to handle specific database data types, 
+        ensuring compatibility with the relational database management system being used. It checks 
+        the output field type of the left-hand side expression and applies the appropriate type cast 
+        if necessary, returning the modified left-hand side expression and its parameters.
+        """
         lhs, lhs_params = super().process_lhs(compiler, connection)
         if isinstance(self.lhs.output_field, models.FloatField):
             lhs = "%s::numeric" % lhs

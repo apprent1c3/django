@@ -129,6 +129,38 @@ END;
         return f"{sign}{offset}" if offset else tzname
 
     def _convert_sql_to_tz(self, sql, params, tzname):
+        """
+
+        Converts a SQL query to a specified time zone.
+
+        Parameters
+        ----------
+        sql : str
+            The SQL query to be converted.
+        params : list
+            List of parameters for the SQL query.
+        tzname : str
+            The target time zone name.
+
+        Returns
+        -------
+        tuple
+            A tuple containing the converted SQL query and the parameters.
+            If time zone conversion is not necessary or the target time zone matches the connection's time zone, 
+            the original query and parameters are returned.
+
+        Notes
+        -----
+        This function checks if time zone conversion is enabled and if the target time zone name is valid.
+        If the target time zone is different from the connection's time zone, 
+        it uses the FROM_TZ and AT TIME ZONE functions to perform the conversion.
+
+        Raises
+        ------
+        ValueError
+            If the target time zone name is invalid.
+
+        """
         if not (settings.USE_TZ and tzname):
             return sql, params
         if not self._tzname_re.match(tzname):
@@ -153,6 +185,33 @@ END;
     def datetime_cast_time_sql(self, sql, params, tzname):
         # Since `TimeField` values are stored as TIMESTAMP change to the
         # default date and convert the field to the specified timezone.
+        """
+
+        Converts a SQL time value to a timestamp value in a specified time zone.
+
+        This function takes a SQL expression, parameters, and a time zone name as input. 
+        It first converts the SQL expression to the specified time zone, then transforms the 
+        time value into a timestamp by appending a fixed date. The result is a tuple containing 
+        the modified SQL expression and the combined parameters.
+
+        The output timestamp value is in the format 'YYYY-MM-DD HH24:MI:SS.FF' and is returned 
+        only if the input time value is not NULL. Otherwise, NULL is returned.
+
+        Parameters
+        ----------
+        sql : str
+            The SQL expression to be converted.
+        params : tuple
+            The parameters associated with the SQL expression.
+        tzname : str
+            The name of the target time zone.
+
+        Returns
+        -------
+        tuple
+            A tuple containing the modified SQL expression and the combined parameters.
+
+        """
         sql, params = self._convert_sql_to_tz(sql, params, tzname)
         convert_datetime_sql = (
             f"TO_TIMESTAMP(CONCAT('1900-01-01 ', TO_CHAR({sql}, 'HH24:MI:SS.FF')), "
@@ -192,6 +251,23 @@ END;
         return f"TRUNC({sql}, %s)", (*params, trunc_param)
 
     def time_extract_sql(self, lookup_type, sql, params):
+        """
+
+        Extract time information from a SQL query.
+
+        This function takes a lookup type, a SQL query string, and parameters, and 
+        returns a modified SQL query string that extracts the specified time component 
+        and the same parameters. 
+
+        The lookup type can be 'second' to extract seconds. For other time components, 
+        it delegates to the date_extract_sql function.
+
+        :param lookup_type: The type of time component to extract (e.g., 'second')
+        :param sql: The SQL query string from which to extract the time component
+        :param params: Parameters associated with the SQL query
+        :return: A tuple containing the modified SQL query string and the parameters
+
+        """
         if lookup_type == "second":
             # Truncate fractional seconds.
             return f"FLOOR(EXTRACT(SECOND FROM {sql}))", params
@@ -252,6 +328,17 @@ END;
         return value
 
     def convert_booleanfield_value(self, value, expression, connection):
+        """
+        Converts a boolean field value to its corresponding Python boolean representation.
+
+        Args:
+            value: The value to be converted.
+            expression: The expression related to the value conversion.
+            connection: The database connection used for the conversion.
+
+        Returns:
+            The converted boolean value. If the input value is numeric (0 or 1), it is converted to a Python bool; otherwise, the original value is returned.
+        """
         if value in (0, 1):
             value = bool(value)
         return value
@@ -261,11 +348,39 @@ END;
     # python datetime.date, .time, or .datetime.
 
     def convert_datetimefield_value(self, value, expression, connection):
+        """
+        Converts a datetime field value to a time zone-aware value.
+
+        This function takes a datetime value, checks if it's not None, and converts it to
+        the timezone of the connection if necessary. It ensures that datetime values are
+        always returned with timezone information, which is essential for proper date and
+        time handling in a database context.
+
+        :param value: The datetime value to convert.
+        :param expression: The expression that represents the datetime field.
+        :param connection: The database connection that contains the timezone information.
+        :returns: The time zone-aware datetime value or None if the input value was None.
+        :rtype: datetime.datetime
+        """
         if value is not None:
             value = timezone.make_aware(value, self.connection.timezone)
         return value
 
     def convert_datefield_value(self, value, expression, connection):
+        """
+        Converts a database timestamp value to a date-only value for use in a given SQL expression.
+
+        Args:
+            value: The value to be converted.
+            expression: The SQL expression that the converted value will be used in.
+            connection: The database connection being used.
+
+        Returns:
+            The converted value, either as a date or the original value if no conversion was necessary.
+
+        Note:
+            If the input value is a database timestamp, this function extracts and returns the date component of the timestamp. For other input types, the original value is returned unchanged.
+        """
         if isinstance(value, Database.Timestamp):
             value = value.date()
         return value
@@ -378,6 +493,18 @@ END;
         # not quoted, Oracle has case-insensitive behavior for identifiers, but
         # always defaults to uppercase.
         # We simplify things by making Oracle identifiers always uppercase.
+        """
+
+        Ensures a given name is properly formatted.
+
+        This function takes a name as input, truncates it to a maximum length if necessary, 
+        encloses it in double quotes, escapes any percent signs, and converts it to uppercase.
+        The resulting string is then returned, ready for use in a specific context where quoted names are required.
+
+        :param name: The name to be formatted
+        :return: The formatted name
+
+        """
         if not name.startswith('"') and not name.endswith('"'):
             name = '"%s"' % truncate_name(name, self.max_name_length())
         # Oracle puts the query text into a (query % args) construct, so % signs

@@ -53,6 +53,13 @@ class Aggregate(Func):
         return source_expressions + [self.filter]
 
     def set_source_expressions(self, exprs):
+        """
+        Sets the source expressions for this object, separating the last expression as a filter to be applied.
+
+        :param exprs: A sequence of expressions, where the last expression is treated as a filter
+        :return: The result of setting the source expressions on the parent object
+        :rtype: The return type of the parent object's set_source_expressions method
+        """
         *exprs, self.filter = exprs
         return super().set_source_expressions(exprs)
 
@@ -146,6 +153,15 @@ class Aggregate(Func):
         return super().as_sql(compiler, connection, **extra_context)
 
     def _get_repr_options(self):
+        """
+        Gets the representation options for this object, inheriting from the parent class.
+
+        The returned options dictionary includes any distinct and filter settings that are
+        configured for this object, in addition to the options inherited from the parent.
+
+        :return: A dictionary of representation options
+        :rtype: dict
+        """
         options = super()._get_repr_options()
         if self.distinct:
             options["distinct"] = self.distinct
@@ -189,6 +205,20 @@ class StdDev(NumericOutputFieldMixin, Aggregate):
     name = "StdDev"
 
     def __init__(self, expression, sample=False, **extra):
+        """
+
+        Initializes the standard deviation calculation.
+
+        This class represents a standard deviation aggregation function, which calculates the 
+        standard deviation of a given expression. It can calculate either the sample standard 
+        deviation or the population standard deviation, depending on the specified parameters.
+
+        :param expression: The expression for which to calculate the standard deviation.
+        :param sample: Whether to calculate the sample standard deviation (True) or the population 
+                       standard deviation (False). Defaults to False.
+        :param extra: Additional keyword arguments.
+
+        """
         self.function = "STDDEV_SAMP" if sample else "STDDEV_POP"
         super().__init__(expression, **extra)
 

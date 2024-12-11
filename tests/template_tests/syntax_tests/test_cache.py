@@ -37,6 +37,19 @@ class CacheTagTests(SimpleTestCase):
 
     @setup({"cache06": "{% load cache %}{% cache 2 test foo %}cache06{% endcache %}"})
     def test_cache06(self):
+        """
+
+        Tests the functionality of the cache template tag.
+
+        This test case verifies that the cache tag correctly caches the contents 
+        of a template fragment for a specified amount of time. It checks that 
+        the cached content is rendered correctly and that the cache expiration 
+        is respected.
+
+        It tests the cache duration by comparing the rendered output with 
+        the expected cached content, ensuring that the cache operates as intended.
+
+        """
         output = self.engine.render_to_string("cache06", {"foo": 2})
         self.assertEqual(output, "cache06")
 
@@ -47,6 +60,18 @@ class CacheTagTests(SimpleTestCase):
         }
     )
     def test_cache07(self):
+        """
+
+        Tests the consistency of caching across templates with shared cache keys.
+
+        This test verifies that when two templates have the same cache key but different content,
+        the caching mechanism correctly returns the cached content of the first template
+        instead of re-rendering the second template.
+
+        It ensures that the cache behaves as expected, even when multiple templates
+        share the same cache key, by comparing the rendered output of both templates.
+
+        """
         context = {"foo": 1}
         self.engine.render_to_string("cache05", context)
         output = self.engine.render_to_string("cache07", context)
@@ -75,6 +100,15 @@ class CacheTagTests(SimpleTestCase):
 
     @setup({"cache12": "{% load cache %}{% cache 1 %}{% endcache %}"})
     def test_cache12(self):
+        """
+        Tests that the template engine correctly raises a TemplateSyntaxError when the cache template tag is used with an invalid duration.
+
+        The test case verifies that a TemplateSyntaxError is raised when the cache duration is set to a value that cannot be parsed as a positive integer.
+
+        Raises:
+            TemplateSyntaxError: If the cache template tag is used with an invalid duration.
+
+        """
         with self.assertRaises(TemplateSyntaxError):
             self.engine.get_template("cache12")
 
@@ -90,6 +124,15 @@ class CacheTagTests(SimpleTestCase):
 
     @setup({"cache15": "{% load cache %}{% cache foo bar %}{% endcache %}"})
     def test_cache15(self):
+        """
+
+        Tests that rendering a template with a cache tag that has a variable as an argument
+        raises a TemplateSyntaxError when the variable is an empty list.
+
+        Checks that the template engine properly handles invalid cache tag arguments
+        and fails with an error when it encounters an unsupported argument type.
+
+        """
         with self.assertRaises(TemplateSyntaxError):
             self.engine.render_to_string("cache15", {"foo": []})
 

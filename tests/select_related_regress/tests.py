@@ -216,6 +216,12 @@ class SelectRelatedRegressTests(TestCase):
             self.assertIn("LEFT OUTER", str(qs.query))
 
     def test_regression_19870(self):
+        """
+        Tests the foreign key relationship between Chick and Hen models in a regression test for issue #19870.
+
+        Verifies that the mother of a Chick instance is correctly resolved and returns the expected name, 
+        both when using standard model retrieval and when utilizing the select_related method to fetch related objects.
+        """
         hen = Hen.objects.create(name="Hen")
         Chick.objects.create(name="Chick", mother=hen)
 
@@ -247,6 +253,14 @@ class SelectRelatedRegressTests(TestCase):
             self.assertEqual(qs_c.c_b.name, "b")
 
     def test_regression_22508(self):
+        """
+
+        Tests the optimization of database queries in the context of device and building relationships.
+
+        This test case creates a building, a device associated with that building, and a port associated with the device.
+        It then retrieves the port and checks that accessing the device and building associated with the port does not result in additional database queries, verifying that the select_related optimization is effective.
+
+        """
         building = Building.objects.create(name="101")
         device = Device.objects.create(name="router", building=building)
         Port.objects.create(port_number="1", device=device)

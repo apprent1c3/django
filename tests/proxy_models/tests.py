@@ -191,6 +191,13 @@ class ProxyModelTests(TestCase):
                     proxy = True
 
     def test_myperson_manager(self):
+        """
+
+        Tests the MyPerson manager to ensure it correctly filters and returns Person objects.
+        Verifies that the custom manager only includes instances of Person with names 'barney' and 'fred'.
+        Checks the consistency of results between using the manager directly and using the default manager.
+
+        """
         Person.objects.create(name="fred")
         Person.objects.create(name="wilma")
         Person.objects.create(name="barney")
@@ -216,6 +223,14 @@ class ProxyModelTests(TestCase):
         self.assertEqual(resp, ["barney", "wilma"])
 
     def test_permissions_created(self):
+        """
+
+        Tests that the 'May display users information' permission is successfully created.
+
+        This test case verifies the existence of a specific permission in the database,
+        ensuring that the necessary access control is in place for displaying user information.
+
+        """
         from django.contrib.auth.models import Permission
 
         Permission.objects.get(name="May display users information")
@@ -265,6 +280,19 @@ class ProxyModelTests(TestCase):
         signals.post_save.disconnect(h6, sender=MyPersonProxy)
 
     def test_content_type(self):
+        """
+        Tests the consistency of content types across different models.
+
+        Checks that the content type for the Person model is the same as the content type for the OtherPerson model, ensuring that both models are treated as the same type of content.
+
+        This test verifies the consistency of content type assignments, which is crucial for proper functioning of certain features, such as generic foreign keys and permissions.
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the content types for Person and OtherPerson models do not match
+        """
         ctype = ContentType.objects.get_for_model
         self.assertIs(ctype(Person), ctype(OtherPerson))
 
@@ -396,6 +424,13 @@ class ProxyModelTests(TestCase):
         self.assertEqual(p.name, "Elvis Presley")
 
     def test_select_related_only(self):
+        """
+        Tests that select_related and only methods can be used together to efficiently retrieve 
+        related objects and specific fields. 
+
+        Verifies that the Issue object can be fetched along with its related assignee 
+        and only specific fields of the assignee are retrieved, optimizing database queries.
+        """
         user = ProxyTrackerUser.objects.create(name="Joe Doe", status="test")
         issue = Issue.objects.create(summary="New issue", assignee=user)
         qs = Issue.objects.select_related("assignee").only("assignee__status")
@@ -409,6 +444,22 @@ class ProxyModelTests(TestCase):
 class ProxyModelAdminTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for the class.
+
+        This method creates a set of default objects used in testing, including a superuser
+        and a TrackerUser with a corresponding Issue. The created objects are stored as
+        class attributes, allowing them to be easily accessed and used in tests.
+
+        The following objects are created:
+
+        * A superuser with admin privileges
+        * A TrackerUser with the name 'Django Pony' and status 'emperor'
+        * An Issue assigned to the created TrackerUser
+
+        These objects can be used as a starting point for testing various scenarios,
+        reducing the need for repetitive setup code in individual tests.
+        """
         cls.superuser = AuthUser.objects.create(is_superuser=True, is_staff=True)
         cls.tu1 = ProxyTrackerUser.objects.create(name="Django Pony", status="emperor")
         cls.i1 = Issue.objects.create(summary="Pony's Issue", assignee=cls.tu1)

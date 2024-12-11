@@ -7,6 +7,14 @@ from django.test.utils import extend_sys_path
 
 class EggLoadingTest(SimpleTestCase):
     def setUp(self):
+        """
+        Sets up the test environment.
+
+        Initializes the egg directory path based on the current file location and
+        configures cleanup to clear the application cache after the test is completed.
+        This ensures a clean state for subsequent tests and prevents cache-related issues.
+
+        """
         self.egg_dir = "%s/eggs" % os.path.dirname(__file__)
         self.addCleanup(apps.clear_cache)
 
@@ -74,6 +82,13 @@ class GetModelsTest(SimpleTestCase):
         self.not_installed_module = models
 
     def test_get_model_only_returns_installed_models(self):
+        """
+        Tests that the get_model function only returns models from installed apps.
+
+        This test verifies that attempting to retrieve a model from an app that is not installed raises a LookupError.
+        The test case ensures the integrity of the get_model function by checking its behavior when given an invalid input.
+        It confirms that the function does not return arbitrary or undefined results, but instead provides a clear error indication when the requested model is not available.
+        """
         with self.assertRaises(LookupError):
             apps.get_model("not_installed", "NotInstalledModel")
 

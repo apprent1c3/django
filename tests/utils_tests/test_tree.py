@@ -7,6 +7,13 @@ from django.utils.tree import Node
 
 class NodeTests(unittest.TestCase):
     def setUp(self):
+        """
+        Sets up the test environment by creating two Node instances.
+
+        The first Node instance, node1, is initialized with a list of children, where each child is represented as a tuple containing a label and a value. The second Node instance, node2, is created without any initial children.
+
+        This setup is used as a foundation for subsequent tests, providing a basic structure for testing Node functionality.
+        """
         self.node1_children = [("a", 1), ("b", 2)]
         self.node1 = Node(self.node1_children)
         self.node2 = Node()
@@ -16,6 +23,13 @@ class NodeTests(unittest.TestCase):
         self.assertEqual(str(self.node2), "(DEFAULT: )")
 
     def test_repr(self):
+        """
+        Tests the string representation of Node objects.
+
+        Verifies that the repr() function returns the expected string format
+        for Node instances, including their default values and attributes.
+
+        """
         self.assertEqual(repr(self.node1), "<Node: (DEFAULT: ('a', 1), ('b', 2))>")
         self.assertEqual(repr(self.node2), "<Node: (DEFAULT: )>")
 
@@ -39,6 +53,14 @@ class NodeTests(unittest.TestCase):
         self.assertEqual(len(self.node2), 0)
 
     def test_bool(self):
+        """
+
+        Verifies the boolean values of node objects.
+
+        This test function checks if node1 is truthy and node2 is falsy, 
+        ensuring the expected boolean behavior of these objects.
+
+        """
         self.assertTrue(self.node1)
         self.assertFalse(self.node2)
 
@@ -48,6 +70,15 @@ class NodeTests(unittest.TestCase):
 
     def test_add(self):
         # start with the same children of node1 then add an item
+        """
+        Tests the addition of a child to a node.
+
+        Verifies that the add method correctly inserts a new child into the node, 
+        maintains the updated length of the node's children, and returns the added child.
+        The test also checks that the string representation of the node remains consistent 
+        after the addition of a new child, following the expected format.
+
+        """
         node3 = Node(self.node1_children)
         node3_added_child = ("c", 3)
         # add() returns the added data
@@ -63,6 +94,12 @@ class NodeTests(unittest.TestCase):
 
     def test_negate(self):
         # negated is False by default
+        """
+        ..:func:`test_negate` Tests the negate functionality of a node.
+
+            Verifies that a node can be successfully negated and un-negated, 
+            ensuring that the negation state is correctly toggled.
+        """
         self.assertFalse(self.node1.negated)
         self.node1.negate()
         self.assertTrue(self.node1.negated)
@@ -85,6 +122,13 @@ class NodeTests(unittest.TestCase):
             self.assertEqual(a_child, b_child)
 
     def test_copy(self):
+        """
+        Tests that the copy functionality correctly duplicates a Node object.
+
+        Checks that the original and copied nodes are equal, and that the children of the original and copied nodes are the same objects.
+        This ensures that the copy function performs a shallow copy, where child nodes are not recreated but instead referenced in the new node.
+        Verifies the correctness of this copying behavior for both leaf nodes and composite nodes with different logical operations (AND and OR).
+        """
         a = Node([Node(["a", "b"], OR), "c"], AND)
         b = copy.copy(a)
         self.assertEqual(a, b)
@@ -97,6 +141,17 @@ class NodeTests(unittest.TestCase):
             self.assertEqual(a_child, b_child)
 
     def test_deepcopy(self):
+        """
+        Tests the deepcopy functionality of the Node class.
+
+        Ensures that a deep copy of a Node object results in an independent object
+        with the same attributes, but not the same internal objects.
+
+        Specifically, verifies that the copied Node has the same value and operator
+        as the original, its children are different objects, but have the same values
+        and operators. This guarantees that changes to the original Node or its children
+        do not affect the copied Node or its children, and vice versa.
+        """
         a = Node([Node(["a", "b"], OR), "c"], AND)
         b = copy.deepcopy(a)
         self.assertEqual(a, b)
@@ -121,6 +176,11 @@ class NodeTests(unittest.TestCase):
         self.assertNotEqual(default_node, new_node)
 
     def test_eq_negated(self):
+        """
+        Tests that a negated Node is not equal to a non-negated Node.
+
+        Verifies that the equality check between two Node instances correctly accounts for the negated status, ensuring that a negated Node is distinct from its non-negated counterpart.
+        """
         node = Node(negated=False)
         negated = Node(negated=True)
         self.assertNotEqual(negated, node)

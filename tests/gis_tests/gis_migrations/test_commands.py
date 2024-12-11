@@ -11,6 +11,23 @@ class MigrateTests(TransactionTestCase):
     available_apps = ["gis_tests.gis_migrations"]
 
     def get_table_description(self, table):
+        """
+
+        Retrieves a description of the specified database table.
+
+        This function uses the database connection's introspection capabilities to
+        gather information about the table, including its columns and their respective
+        data types. The returned description can be used to understand the structure of
+        the table and its contents.
+
+         Args:
+             table (str): The name of the database table to describe.
+
+         Returns:
+             A description of the table, as provided by the database connection's
+             introspection API.
+
+        """
         with connection.cursor() as cursor:
             return connection.introspection.get_table_description(cursor, table)
 

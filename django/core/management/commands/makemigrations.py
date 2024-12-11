@@ -27,6 +27,22 @@ class Command(BaseCommand):
     help = "Creates new migration(s) for apps."
 
     def add_arguments(self, parser):
+        """
+        Adds command line arguments to the parser for creating and managing Django database migrations.
+
+        The following arguments can be specified to customize the migration creation process:
+        - App labels: one or more labels specifying the applications to create migrations for
+        - Optional flags to modify the migration creation behavior, including:
+          - dry-run: preview migrations without writing them
+          - merge: resolve migration conflicts
+          - empty: create an empty migration
+          - noinput: suppress interactive prompts
+          - name: specify a custom name for the migration file
+          - no-header: omit header comments from the migration file
+          - check: detect missing migrations and exit with a non-zero status
+          - scriptable: optimize output for scriptability
+          - update: merge model changes into the latest migration and optimize operations
+        """
         parser.add_argument(
             "args",
             metavar="app_label",

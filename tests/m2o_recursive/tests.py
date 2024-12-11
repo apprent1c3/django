@@ -31,6 +31,15 @@ class MultipleManyToOneRecursiveTests(TestCase):
         )
 
     def test_m2o_recursive2(self):
+        """
+
+        Tests the many-to-one (m2o) recursive relationships between family members.
+
+        This test case verifies that the relationships between a child, their mother, and their father are correctly established.
+        It checks that the child's mother and father are correctly assigned, and that the parents' child sets contain the expected child.
+        Additionally, it ensures that the child's own child sets for mothers and fathers are empty, as expected in a many-to-one recursive relationship.
+
+        """
         self.assertEqual(self.kid.mother.id, self.mom.id)
         self.assertEqual(self.kid.father.id, self.dad.id)
         self.assertSequenceEqual(self.dad.fathers_child_set.all(), [self.kid])

@@ -43,6 +43,12 @@ class TimeuntilTests(TimezoneTestCase):
 
     @setup({"timeuntil05": "{{ a|timeuntil:b }}"})
     def test_timeuntil05(self):
+        """
+
+        Tests the 'timeuntil' filter by rendering a template that calculates the time difference between two datetime objects.
+        The function verifies that the filter correctly returns the time until a specified point in the past, with the expected output being '1 minute' for a one-minute difference.
+
+        """
         output = self.engine.render_to_string(
             "timeuntil05",
             {
@@ -62,6 +68,14 @@ class TimeuntilTests(TimezoneTestCase):
 
     @setup({"timeuntil07": "{{ earlier|timeuntil:now }}"})
     def test_timeuntil07(self):
+        """
+
+        Test the timeuntil filter for calculating the time until a specific date.
+
+        This test case verifies that the timeuntil filter correctly calculates the time difference
+        between the current time and a time 7 days in the past, returning a result of 0 minutes.
+
+        """
         output = self.engine.render_to_string(
             "timeuntil07", {"now": self.now, "earlier": self.now - timedelta(days=7)}
         )
@@ -85,17 +99,34 @@ class TimeuntilTests(TimezoneTestCase):
     @requires_tz_support
     @setup({"timeuntil10": "{{ a|timeuntil }}"})
     def test_timeuntil10(self):
+        """
+        测试时间直到两位小数的功能和格式化。 
+        此测试用例验证模板引擎是否能够正确渲染“timeuntil”过滤器，当时间差为零时，返回“0分钟”。它检查输出结果是否与预期输出匹配，以确保时间直到过滤器的功能有效。
+        """
         output = self.engine.render_to_string("timeuntil10", {"a": self.now_tz})
         self.assertEqual(output, "0\xa0minutes")
 
     @requires_tz_support
     @setup({"timeuntil11": "{{ a|timeuntil }}"})
     def test_timeuntil11(self):
+        """
+        Tests the timeuntil filter by rendering a template with a current timestamp and verifying the output is '0 minutes', asserting that the filter correctly handles the \"now\" moment.
+        """
         output = self.engine.render_to_string("timeuntil11", {"a": self.now_tz_i})
         self.assertEqual(output, "0\xa0minutes")
 
     @setup({"timeuntil12": "{{ a|timeuntil:b }}"})
     def test_timeuntil12(self):
+        """
+
+        Finishes the setup and tests the timeuntil filter with end of day value.
+
+        This test case verifies the functionality of the timeuntil filter when the end time 
+        is set to 12:00 PM (noon) of the current day and the start time is the current time. 
+        It checks if the output of the filter is '0 minutes' when the start time is 
+        the current time and the end time is noon on the same day.
+
+        """
         output = self.engine.render_to_string(
             "timeuntil12", {"a": self.now_tz_i, "b": self.now_tz}
         )
@@ -118,6 +149,18 @@ class TimeuntilTests(TimezoneTestCase):
 
     @setup({"timeuntil15": "{{ a|timeuntil:b }}"})
     def test_naive_aware_type_error(self):
+        """
+
+        Tests the rendering of a string using the timeuntil filter, 
+        where it expects a TypeError when passing a naive datetime object and an aware datetime object.
+
+        This test case checks if the timeuntil filter correctly handles the case where 
+        the input datetime objects have different timezone awareness.
+
+        The expected output of this function is an empty string, indicating that 
+        the timeuntil filter did not produce any output due to the TypeError.
+
+        """
         output = self.engine.render_to_string(
             "timeuntil15", {"a": self.now, "b": self.now_tz_i}
         )

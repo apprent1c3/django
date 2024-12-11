@@ -35,6 +35,12 @@ class StartsWithRelation(models.ForeignObject):
     rel_class = CustomForeignObjectRel
 
     def __init__(self, *args, **kwargs):
+        """
+        Initializes the current object, overriding the default on_delete behavior to DO_NOTHING, 
+        ensuring that no cascading deletions occur when the referenced object is deleted. 
+        Any additional keyword arguments are passed to the superclass's constructor. 
+        This allows for more control over the object's lifecycle and relationships with other objects.
+        """
         kwargs["on_delete"] = models.DO_NOTHING
         super().__init__(*args, **kwargs)
 

@@ -46,6 +46,20 @@ class GetLanguageInfoListNode(Node):
             return translation.get_language_info(str(language))
 
     def render(self, context):
+        """
+        ..: 
+            Render the language variable into the given context.
+
+            This function retrieves a list of languages based on the provided context, 
+            processes each language to extract relevant information, and then adds 
+            this information to the context under a specific variable. The actual 
+            output of this function is an empty string, indicating that its primary 
+            purpose is to populate the context for further use in a template or 
+            other rendering process.
+
+            :param context: The context in which the languages will be rendered.
+            :return: An empty string, as the function's main effect is on the context.
+        """
         langs = self.languages.resolve(context)
         context[self.variable] = [self.get_language_info(lang) for lang in langs]
         return ""
@@ -114,6 +128,26 @@ class BlockTranslateNode(Node):
         asvar=None,
         tag_name="blocktranslate",
     ):
+        """
+        Initialize a translation block.
+
+        This class represents a block of text that needs to be translated, 
+        taking into account plural forms and counters. It provides the 
+        necessary context and settings for proper translation.
+
+        :param extra_context: Additional context for the translation.
+        :param singular: The singular form of the translation.
+        :param plural: The plural form of the translation.
+        :param countervar: The variable that holds the counter value.
+        :param counter: The counter value itself.
+        :param message_context: The context in which the message is being translated.
+        :param trimmed: Whether the translation should be trimmed of whitespace.
+        :param asvar: The variable name to store the translated text in.
+        :param tag_name: The name of the translation tag, defaults to 'blocktranslate'.
+
+        This object can be used to render translated text in templates, 
+        handling plural forms and counters as needed.
+        """
         self.extra_context = extra_context
         self.singular = singular
         self.plural = plural

@@ -11,6 +11,13 @@ class BaseAppConfig(AppConfig):
         self.query_results = []
 
     def ready(self):
+        """
+        Prepare the object for a new query execution.
+
+        Resets the query results and performs a query to retrieve new data. 
+        This method should be called before attempting to access the query results.
+        It ensures that the results are up-to-date and ready for further processing or analysis.
+        """
         self.query_results = []
         self._perform_query()
 
@@ -53,6 +60,19 @@ class QueryOtherDatabaseCursorAppConfig(CursorQueryAppConfig):
 
 class CursorQueryManyAppConfig(BaseAppConfig):
     def _perform_query(self):
+        """
+        Perform a database query to insert predefined data into the TotallyNormal table.
+
+        This method establishes a connection to the specified database, retrieves the table
+        metadata for TotallyNormal, and then uses the database cursor to execute a batch
+        insert query. The query inserts predefined name values into the 'name' column of
+        the table. After completing the query, this method initializes an empty list to
+        store query results.
+
+        Note: This method appears to be intended for internal use, as indicated by its
+        leading underscore. Its primary purpose is to execute the database query and
+        set up the query results container, rather than to return any specific data.
+        """
         from ..models import TotallyNormal
 
         connection = connections[self.database]

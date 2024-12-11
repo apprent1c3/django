@@ -42,6 +42,14 @@ class GenericForeignKey(FieldCacheMixin, Field):
     def __init__(
         self, ct_field="content_type", fk_field="object_id", for_concrete_model=True
     ):
+        """
+        Initializes a generic foreign key field, enabling relationships between models.
+
+        :param ct_field: The name of the field that stores the content type of the related object.
+        :param fk_field: The name of the field that stores the object id of the related object.
+        :param for_concrete_model: A boolean indicating whether this field is for a concrete model or not.
+        :note: This field is not editable by default.
+        """
         super().__init__(editable=False)
         self.ct_field = ct_field
         self.fk_field = fk_field
@@ -576,6 +584,20 @@ def create_generic_related_manager(superclass, rel):
 
     class GenericRelatedObjectManager(superclass, AltersData):
         def __init__(self, instance=None):
+            """
+            Initializes a relationship manager instance, setting up the content type and filters necessary for querying related objects.
+
+            The relationship manager is associated with a given instance, which can be optionally provided. If an instance is provided, its primary key and content type are determined and used to construct a set of core filters that will be used to query related objects.
+
+            The following attributes are established during initialization:
+            - `instance`: The instance associated with this relationship manager
+            - `model`: The model class of the related objects
+            - `content_type`: The content type of the related objects
+            - `content_type_field_name` and `object_id_field_name`: The field names used to store the content type and object ID of the related objects
+            - `prefetch_cache_name`: The cache name used for prefetching related objects
+            - `pk_val`: The primary key of the associated instance
+            - `core_filters`: A dictionary of filters used to query related objects, including the content type ID and object ID.
+            """
             super().__init__()
 
             self.instance = instance
@@ -638,6 +660,24 @@ def create_generic_related_manager(superclass, rel):
             return self.get_prefetch_querysets(instances, [queryset])
 
         def get_prefetch_querysets(self, instances, querysets=None):
+            """
+            ::
+
+                Returns a queryset and related functions for prefetching related objects.
+
+                This method generates a queryset that can be used to prefetch related objects 
+                for the given instances. It constructs a query that filters the related objects 
+                based on the content type and object IDs of the instances. The method also 
+                returns a function to convert the retrieved objects to the desired format and 
+                a function to generate the prefetch key for a given object.
+
+                :param instances: A list of instances for which to prefetch related objects
+                :param querysets: An optional list containing a single queryset to use for prefetching
+                :return: A tuple containing the constructed queryset, a function to convert 
+                         retrieved objects, a function to generate the prefetch key, and 
+                         other parameters for the prefetch operation
+                :raises ValueError: If the querysets parameter has a length other than 1
+            """
             if querysets and len(querysets) != 1:
                 raise ValueError(
                     "querysets argument of get_prefetch_querysets() should have a "

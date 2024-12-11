@@ -20,6 +20,16 @@ class SafeStringTest(SimpleTestCase):
         self.assertEqual(tpl.render(context), expected)
 
     def test_mark_safe(self):
+        """
+
+        Tests the functionality of the mark_safe feature, ensuring that marked strings are rendered without HTML escaping.
+
+        The test verifies two scenarios: 
+
+        1. Rendering a marked string directly, confirming that it is not escaped.
+        2. Rendering a marked string with forced escaping, confirming that special characters are properly escaped.
+
+        """
         s = mark_safe("a&b")
 
         self.assertRenderEqual("{{ s }}", "a&b", s=s)
@@ -33,6 +43,12 @@ class SafeStringTest(SimpleTestCase):
         self.assertIsInstance(str(s), type(s))
 
     def test_mark_safe_object_implementing_dunder_html(self):
+        """
+        Test that an object implementing the __html__ dunder method is properly marked as safe.
+        This test verifies that when an object with a custom HTML representation is wrapped in a mark_safe call, 
+        it can be safely rendered in a template without being auto-escaped, but will be escaped if the 
+        force_escape filter is applied.
+        """
         e = customescape("<a&b>")
         s = mark_safe(e)
         self.assertIs(s, e)
@@ -41,6 +57,16 @@ class SafeStringTest(SimpleTestCase):
         self.assertRenderEqual("{{ s|force_escape }}", "&lt;a&amp;b&gt;", s=s)
 
     def test_mark_safe_lazy(self):
+        """
+
+        Tests the rendering of a lazy string marked as safe.
+
+        Verifies that the marked string is correctly identified as a Promise object and
+        renders the expected output when used in a template. Additionally, checks that
+        converting the marked string to a regular string results in a SafeData object,
+        indicating that the string's safety is preserved.
+
+        """
         safe_s = mark_safe(lazystr("a&b"))
 
         self.assertIsInstance(safe_s, Promise)
@@ -54,6 +80,9 @@ class SafeStringTest(SimpleTestCase):
             self.assertEqual(tpl.render(Context({"s": s})), "nom")
 
     def test_mark_safe_object_implementing_dunder_str(self):
+        """
+        Tests that the mark_safe function correctly handles objects that implement the __str__ method, ensuring their string representation is rendered without HTML escaping.
+        """
         class Obj:
             def __str__(self):
                 return "<obj>"

@@ -45,6 +45,13 @@ class NullQueriesTests(TestCase):
             Choice.objects.filter(id__gt=None)
 
     def test_unsaved(self):
+        """
+
+        Tests that attempting to access the choices of a Poll instance that has not been saved to the database raises a ValueError.
+
+        The test verifies that a Poll instance needs to have a primary key value before its relationships can be used, by checking that a ValueError is raised with a specific message when trying to access the choice_set of an unsaved Poll instance.
+
+        """
         poll = Poll(question="How?")
         msg = (
             "'Poll' instance needs to have a primary key value before this "

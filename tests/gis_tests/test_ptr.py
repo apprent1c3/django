@@ -65,6 +65,15 @@ class CPointerBaseTests(SimpleTestCase):
         destructor_mock.assert_called_with(ptr)
 
     def test_destructor_catches_importerror(self):
+        """
+        Tests if the destructor of a class catches ImportErrors that occur during execution.
+
+        This test case creates a fake geometry object with a destructor that intentionally raises an ImportError.
+        It then verifies that the destructor correctly handles this exception when the object is deleted.
+
+        The goal of this test is to ensure that the class destructor is robust and can handle unexpected import-related errors,
+        preventing potential crashes or data corruption when objects are destroyed. 
+        """
         class FakeGeom(CPointerBase):
             destructor = mock.Mock(side_effect=ImportError)
 

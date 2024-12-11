@@ -11,6 +11,16 @@ class LocalizedTimeTests(SimpleTestCase):
     def setUpClass(cls):
         # nl/formats.py has customized TIME_INPUT_FORMATS:
         # ['%H:%M:%S', '%H.%M:%S', '%H.%M', '%H:%M']
+        """
+        ..:classgetMethod:: 
+            setUpClass
+
+            Sets up the class context for testing.
+
+            This class method initializes the testing environment by overriding the translation
+            to Dutch ('nl') and then calls the superclass's setUpClass method to perform any
+            additional setup. It is automatically invoked before running tests for the class.
+        """
         cls.enterClassContext(translation.override("nl"))
         super().setUpClass()
 

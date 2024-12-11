@@ -15,6 +15,22 @@ from django.test import RequestFactory, SimpleTestCase, override_settings
 
 class ContextTests(SimpleTestCase):
     def test_context(self):
+        """
+
+        Unit test for the Context class.
+
+        This test case verifies the basic functionality of the Context class, 
+        including initialization, accessing and modifying values, 
+        pushing and popping changes, and default value handling.
+
+        The following scenarios are covered:
+        - Initialization with a dictionary of key-value pairs.
+        - Retrieval of values using both dictionary-like access and the get method.
+        - Modification of values and pushing changes.
+        - Popping changes to restore previous values.
+        - Handling of missing keys with a default value.
+
+        """
         c = Context({"a": 1, "b": "xyzzy"})
         self.assertEqual(c["a"], 1)
         self.assertEqual(c.push(), {})
@@ -38,6 +54,15 @@ class ContextTests(SimpleTestCase):
         self.assertEqual(c["a"], 1)
 
     def test_update_context_manager(self):
+        """
+
+        Tests the functionality of the Context class's update context manager.
+
+        The update context manager allows for temporary modification of the Context's values within a defined scope. 
+        Upon exiting the scope, the original values are restored. This docstring covers the purpose of the test_update_context_manager function, 
+        which checks the behavior of the context manager in modifying and restoring Context values.
+
+        """
         c = Context({"a": 1})
         with c.update({}):
             c["a"] = 2
@@ -89,6 +114,16 @@ class ContextTests(SimpleTestCase):
         )
 
     def test_setdefault(self):
+        """
+        Tests the setdefault method of the Context class.
+
+        The setdefault method sets a key to a given value if the key does not exist in the context.
+        If the key already exists, it returns the existing value without modifying it.
+
+        This test case verifies that setdefault behaves as expected when the key is initially missing
+        and when the key already has a value. It checks that the returned value and the value stored
+        in the context are correct in both scenarios.
+        """
         c = Context()
 
         x = c.setdefault("x", 42)
@@ -159,6 +194,20 @@ class ContextTests(SimpleTestCase):
         )
 
     def test_flatten_context_with_context_copy(self):
+        """
+
+        Tests the flattening of a context object that is a copy of another context.
+
+        This function verifies that the context copy is correctly populated with dictionaries
+        from the original context and that the flatten method combines these dictionaries
+        into a single dictionary without losing any key-value pairs.
+
+        The test covers the following scenarios:
+        - Creating a new context that is a copy of an existing context
+        - Verifying the dictionaries in the copied context
+        - Checking the output of the flatten method for the copied context
+
+        """
         ctx1 = Context({"a": 2})
         ctx2 = ctx1.new(Context({"b": 4}))
         self.assertEqual(
@@ -202,11 +251,28 @@ class ContextTests(SimpleTestCase):
         RequestContext(HttpRequest()).new().new()
 
     def test_set_upward(self):
+        """
+
+        Tests the upward propagation functionality by setting a key 'a' to a new value and verifying its updated value.
+
+        This test case covers the scenario where a context's value is updated using the set_upward method and ensures that the updated value is correctly retrieved.
+
+        :raises AssertionError: If the updated value does not match the expected value.
+
+        """
         c = Context({"a": 1})
         c.set_upward("a", 2)
         self.assertEqual(c.get("a"), 2)
 
     def test_set_upward_empty_context(self):
+        """
+        Tests setting an upward reference in an empty Context object.
+
+        This test case verifies that the set_upward method correctly assigns a value 
+        to a key when the context is initially empty. It checks that the assigned 
+        value can be successfully retrieved using the get method, ensuring that 
+        the Context object behaves as expected when establishing upward references.
+        """
         empty_context = Context()
         empty_context.set_upward("a", 1)
         self.assertEqual(empty_context.get("a"), 1)
@@ -274,6 +340,14 @@ class RequestContextTests(SimpleTestCase):
 
     def test_context_comparable(self):
         # Create an engine without any context processors.
+        """
+
+        Checks if two RequestContext instances with the same request and data are comparable.
+
+        Tests whether the RequestContext class correctly implements comparison operations,
+        ensuring that two instances with identical requests and data are considered equal.
+
+        """
         test_data = {"x": "y", "v": "z", "d": {"o": object, "a": "b"}}
 
         # test comparing RequestContext to prevent problems if somebody

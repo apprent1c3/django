@@ -349,6 +349,20 @@ class GeoLookupTest(TestCase):
 
     @skipUnlessDBFeature("supports_isvalid_lookup")
     def test_isvalid_lookup(self):
+        """
+
+        Tests the usage of the 'isvalid' lookup type for geographic fields.
+
+        This test creates a State object with an invalid geometric polygon, then queries the
+        State objects using the 'isvalid' lookup to filter valid and invalid geometries.
+        The test verifies that the 'isvalid' lookup correctly identifies the invalid geometry
+        and that all other geometries are considered valid.
+
+        It also accounts for database-specific behavior, such as excluding certain states
+        when running on Oracle. The test ensures that the expected number of valid and
+        invalid geometries are returned when using the 'isvalid' lookup.
+
+        """
         invalid_geom = fromstr("POLYGON((0 0, 0 1, 1 1, 1 0, 1 1, 1 0, 0 0))")
         State.objects.create(name="invalid", poly=invalid_geom)
         qs = State.objects.all()
@@ -569,6 +583,18 @@ class GeoLookupTest(TestCase):
         )
 
     def test_gis_lookups_with_complex_expressions(self):
+        """
+
+        Tests the functionality of geographic information system (GIS) lookups with complex expressions.
+
+        This test case verifies that various GIS lookups can be used with complex expressions, 
+        such as the Union function. It checks for the existence of results when querying the 
+        City model using different lookups. The lookups tested include all available operators 
+        except for 'dwithin' and 'relate', which require multiple arguments. 
+
+        Each lookup is tested individually, with the results of each test case being reported separately.
+
+        """
         multiple_arg_lookups = {
             "dwithin",
             "relate",
@@ -582,6 +608,14 @@ class GeoLookupTest(TestCase):
                 ).exists()
 
     def test_subquery_annotation(self):
+        """
+
+        Tests the annotation of a subquery on a queryset to filter objects based on spatial relationships.
+
+        This test case verifies that the annotated subquery correctly retrieves related objects and applies a spatial filter.
+        It checks that a multifield object with a city and polygon is properly filtered when the city's point is within the polygon's bounds.
+
+        """
         multifields = MultiFields.objects.create(
             city=City.objects.create(point=Point(1, 1)),
             point=Point(2, 2),

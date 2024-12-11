@@ -11,8 +11,20 @@ class CallableVariablesTests(TestCase):
         super().setUpClass()
 
     def test_callable(self):
+        """
+        Tests the rendering of a callable object in a templating context to ensure its invocation and attribute access behave as expected. This includes verifying that the callable object's attributes are not directly rendered, the object is invoked when accessed via attribute in the template, and the invocation count is correctly updated.
+        """
         class Doodad:
             def __init__(self, value):
+                """
+
+                Initializes the object with a specified value.
+
+                The constructor sets the initial state of the object, storing the provided value and resetting the call counter to zero.
+
+                :param value: The initial value to be stored in the object.
+
+                """
                 self.num_calls = 0
                 self.value = value
 
@@ -65,6 +77,17 @@ class CallableVariablesTests(TestCase):
         self.assertEqual(my_doodad.num_calls, 0)
 
     def test_alters_data_propagation(self):
+        """
+        Test that the alters_data property is propagated correctly through inheritance and method overriding.
+
+        The function verifies that the alters_data attribute of methods in a class hierarchy is preserved when methods are overridden, and that it is correctly evaluated in a templating engine context.
+
+        It creates a class hierarchy with multiple inheritance and verifies the alters_data property for various methods and attributes.
+
+        The property alters_data is expected to be inherited and maintained through class hierarchy unless explicitly overridden.
+
+        This test case ensures the correct functionality of alters_data in different scenarios, including method overriding and non-callable attributes.
+        """
         class GrandParentLeft(AltersData):
             def my_method(self):
                 return 42

@@ -575,6 +575,14 @@ class FileUploadTests(TestCase):
                 self.client.post("/quota/broken/", {"f": file})
 
     def test_stop_upload_temporary_file_handler(self):
+        """
+        Tests that the stop upload temporary file handler correctly terminates the upload process.
+
+        The test creates a temporary file, writes data to it, and then sends a POST request to the stop upload endpoint.
+        It then verifies that the temporary file is no longer present on the system after the request is processed.
+
+        This test case ensures that the stop upload functionality properly cleans up temporary files, preventing unnecessary disk usage.
+        """
         with tempfile.NamedTemporaryFile() as temp_file:
             temp_file.write(b"a")
             temp_file.seek(0)
@@ -586,6 +594,18 @@ class FileUploadTests(TestCase):
         # Simulate an interrupted upload by omitting the closing boundary.
         class MockedParser(Parser):
             def __iter__(self):
+                """
+
+                Iterates over items in the collection.
+
+                Yields tuples containing the item type, meta data, and field stream. The 
+                iteration stops when a file item is encountered.
+
+                Returns:
+                    Iterator: An iterator over the items in the collection, where each item 
+                    is a tuple of (item_type, meta_data, field_stream)
+
+                """
                 for item in super().__iter__():
                     item_type, meta_data, field_stream = item
                     yield item_type, meta_data, field_stream
@@ -903,6 +923,15 @@ class MultiParserTests(SimpleTestCase):
         )
 
     def test_invalid_content_type(self):
+        """
+
+        Tests that the MultiPartParser raises an error when given an invalid Content-Type.
+
+        This test case checks that the parser correctly identifies and rejects a non-multipart 
+        Content-Type, in this case 'text/plain', and raises a MultiPartParserError with a 
+        descriptive error message.
+
+        """
         with self.assertRaisesMessage(
             MultiPartParserError, "Invalid Content-Type: text/plain"
         ):

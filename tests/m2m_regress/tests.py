@@ -20,6 +20,16 @@ class M2MRegressionTests(TestCase):
         # Multiple m2m references to model must be distinguished when
         # accessing the relations through an instance attribute.
 
+        """
+
+        Tests the functionality of multiple many-to-many relationships in different models.
+
+        Verifies that entities can be correctly associated with each other through multiple
+        many-to-many fields, including self-referential relationships and relationships
+        between different models. Ensures that the relationships are established and
+        retrieved correctly, and that the resulting sequences of related entities are as expected.
+
+        """
         s1 = SelfRefer.objects.create(name="s1")
         s2 = SelfRefer.objects.create(name="s2")
         s3 = SelfRefer.objects.create(name="s3")
@@ -42,6 +52,15 @@ class M2MRegressionTests(TestCase):
     def test_internal_related_name_not_in_error_msg(self):
         # The secret internal related names for self-referential many-to-many
         # fields shouldn't appear in the list when an error is made.
+        """
+        Tests that an internal, related field name is not included in the error message when a non-existent field is queried.
+
+        Verifies that attempting to filter a SelfRefer object by a non-existent field named 'porcupine' raises a FieldError with a specific message, 
+        indicating that the internal, related field name is properly hidden from the error output. 
+
+        The expected error message includes a list of valid field choices, demonstrating that the error handling correctly reports available options without 
+        exposing internal implementation details.
+        """
         msg = (
             "Choices are: id, name, references, related, selfreferchild, "
             "selfreferchildsibling"
@@ -53,6 +72,11 @@ class M2MRegressionTests(TestCase):
         # Test to ensure that the relationship between two inherited models
         # with a self-referential m2m field maintains symmetry
 
+        """
+        Tests the symmetry of many-to-many (m2m) relationships with inheritance in the SelfReferChild and SelfReferChildSibling models.
+
+        Verifies that when a relationship is established between a SelfReferChild instance and a SelfReferChildSibling instance, the relationship is correctly reflected on both sides, i.e., both the child and the sibling can retrieve the related instances of each other.
+        """
         sr_child = SelfReferChild(name="Hanna")
         sr_child.save()
 
@@ -89,6 +113,17 @@ class M2MRegressionTests(TestCase):
         # Regression for #11956 -- You can add an object to a m2m with the
         # base class without causing integrity errors
 
+        """
+
+        Tests the addition of many-to-many relationships between Tag and TagCollection models.
+
+        This test case verifies that tags can be successfully added to a tag collection and
+        that the relationship is correctly established in both directions, i.e., a tag can
+        be associated with multiple tag collections and a tag collection can have multiple
+        tags. The test ensures that the tags and collections are properly linked and that
+        the resulting sets of tags and collections can be accurately retrieved.
+
+        """
         t1 = Tag.objects.create(name="t1")
         t2 = Tag.objects.create(name="t2")
 
@@ -100,6 +135,20 @@ class M2MRegressionTests(TestCase):
         self.assertCountEqual(t1.tag_collections.all(), [c1])
 
     def test_manager_class_caching(self):
+        """
+
+        Tests the consistency of class caching for manager instances.
+
+        This test case verifies that the class of manager instances is consistent 
+        across different instances of models. Specifically, it checks that the 
+        classes of the manager instances for 'entry_set' and 'topics' are the 
+        same when accessed from different model instances.
+
+        The purpose of this test is to ensure that the caching mechanism for 
+        manager classes is working correctly, and that it does not introduce 
+        any inconsistencies in the behavior of the models.
+
+        """
         e1 = Entry.objects.create()
         e2 = Entry.objects.create()
         t1 = Tag.objects.create()
@@ -120,6 +169,16 @@ class M2MRegressionTests(TestCase):
         m1.save()
 
     def test_assigning_invalid_data_to_m2m_doesnt_clear_existing_relations(self):
+        """
+
+        Tests that assigning invalid data to a many-to-many field does not clear existing relations.
+
+        When attempting to set a non-iterable value to a many-to-many field, the function should raise a TypeError.
+        The existing relations should remain intact, and the initial state of the object should be preserved.
+
+        This test ensures that the data integrity is maintained in such scenarios, preventing unintended data loss.
+
+        """
         t1 = Tag.objects.create(name="t1")
         t2 = Tag.objects.create(name="t2")
         c1 = TagCollection.objects.create(name="c1")

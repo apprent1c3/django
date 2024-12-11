@@ -26,6 +26,15 @@ class ASinTests(TestCase):
         self.assertAlmostEqual(obj.n2_asin, Decimal(math.asin(obj.n2)))
 
     def test_float(self):
+        """
+
+        Tests the functionality of annotating float fields with the arcsine (asin) function.
+
+        Verifies that the arcsine of the annotated fields is calculated correctly and 
+        that the results are floats. The expected output is compared to the actual output
+        using the math.asin function from the standard library, allowing for a small margin of error.
+
+        """
         FloatModel.objects.create(f1=-0.5, f2=0.87)
         obj = FloatModel.objects.annotate(
             f1_asin=ASin("f1"), f2_asin=ASin("f2")

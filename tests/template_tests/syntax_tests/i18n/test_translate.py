@@ -31,6 +31,21 @@ def setup(templates, *args, **kwargs):
     def decorator(func):
         @wraps(func)
         def inner(self, *args):
+            """
+            Decorator function that wraps another function with additional setup functionality.
+
+            The wrapped function's signature is inspected to determine if a specific tag name
+            parameter is present. If it is, the function is set up using a partial function
+            application with the tag name. Otherwise, the function is set up directly.
+
+            This decorator is used to provide a flexible way to add setup functionality to
+            existing functions, allowing them to work with different tags or configurations.
+
+            Parameters are passed directly to the wrapped function.
+
+            Note: This function is intended to be used as a decorator, and its behavior is
+            dependent on the specific setup functions provided in the tags dictionary.
+            """
             signature = inspect.signature(func)
             for tag_name, setup_func in tags.items():
                 if "tag_name" in signature.parameters:
@@ -79,6 +94,10 @@ class I18nTransTagTests(SimpleTestCase):
 
     @setup({"i18n22": "{% load i18n %}{% translate andrew %}"})
     def test_i18n22(self):
+        """
+        Tests the i18n translation functionality when rendering a template with a variable that contains HTML entities. 
+        Verifies that the rendered output matches the expected string, ensuring that the HTML entities are preserved correctly.
+        """
         output = self.engine.render_to_string("i18n22", {"andrew": mark_safe("a & b")})
         self.assertEqual(output, "a & b")
 
@@ -103,6 +122,13 @@ class I18nTransTagTests(SimpleTestCase):
 
     @setup({"i18n25": "{% load i18n %}{% translate somevar|upper %}"})
     def test_i18n25(self):
+        """
+        Test case for internationalization (i18n) functionality, specifically verifying that translations are rendered correctly.
+
+        This test checks if the translation for a given variable is rendered in uppercase when the locale is set to German ('de'). The test input string is 'Page not found', which is expected to be translated to 'SEITE NICHT GEFUNDEN' when rendered with the correct translation settings.
+
+        The test validates the resulting output string against the expected translation, ensuring that the i18n functionality is working as intended in the given scenario.
+        """
         with translation.override("de"):
             output = self.engine.render_to_string(
                 "i18n25", {"somevar": "Page not found"}
@@ -132,6 +158,9 @@ class I18nTransTagTests(SimpleTestCase):
         }
     )
     def test_i18n36(self):
+        """
+        Tests the translation system by rendering a template string with a translation block, verifying that the translated string is not used when the active language is overridden with 'de'.
+        """
         with translation.override("de"):
             output = self.engine.render_to_string("i18n36")
         self.assertEqual(output, "Page not found")
@@ -164,6 +193,15 @@ class I18nTransTagTests(SimpleTestCase):
 
     @setup({"template": '{% load i18n %}{% translate "Yes" context as var %}'})
     def test_syntax_error_context_as(self, tag_name):
+        """
+        Test that a syntax error is raised when the 'as' argument is provided to a template tag for the context option.
+
+        This test ensures that the template engine correctly identifies and reports an invalid 'as' argument in the given template tag, providing a meaningful error message.
+
+        :param tag_name: The name of the template tag being tested.
+        :raises TemplateSyntaxError: If the 'as' argument is provided to the template tag for the context option.
+        :return: None
+        """
         msg = (
             f"Invalid argument 'as' provided to the '{tag_name}' tag for the context "
             f"option"
@@ -173,6 +211,14 @@ class I18nTransTagTests(SimpleTestCase):
 
     @setup({"template": '{% load i18n %}{% translate "Yes" context noop %}'})
     def test_syntax_error_context_noop(self, tag_name):
+        """
+        #: Tests the syntax error handling when an invalid 'noop' argument is provided to a template tag for the context option.
+        #: 
+        #: This test case verifies that the template engine raises a TemplateSyntaxError with a descriptive message when an invalid 'noop' argument is passed to the tag for the context option.
+        #: 
+        #: :param tag_name: The name of the template tag being tested.
+        #: :raises TemplateSyntaxError: If the template tag is rendered with an invalid 'noop' argument for the context option.
+        """
         msg = (
             f"Invalid argument 'noop' provided to the '{tag_name}' tag for the context "
             f"option"
@@ -312,5 +358,12 @@ class MultipleLocaleActivationTranslateTagTests(MultipleLocaleActivationTransTag
 
 class LocalizeNodeTests(SimpleTestCase):
     def test_repr(self):
+        """
+        Tests the string representation of a LocalizeNode instance.
+
+        Verifies that the repr() function returns a human-readable and concise string, 
+        which in this case is '<LocalizeNode>' for an instance with an empty nodelist and 
+        l10n usage enabled, confirming the proper implementation of the __repr__ method.
+        """
         node = LocalizeNode(nodelist=[], use_l10n=True)
         self.assertEqual(repr(node), "<LocalizeNode>")

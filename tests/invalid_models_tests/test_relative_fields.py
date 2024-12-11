@@ -10,6 +10,16 @@ from django.test.utils import isolate_apps, modify_settings, override_settings
 @isolate_apps("invalid_models_tests")
 class RelativeFieldTests(SimpleTestCase):
     def test_valid_foreign_key_without_accessor(self):
+        """
+
+        Tests the functionality of a valid foreign key without an accessor.
+
+        Verifies that a foreign key relationship can be successfully established between two models,
+        where the target model has a related name set to '+' (indicating that the relationship should
+        not be accessible from the target model). The test checks that the foreign key's validation
+        does not produce any errors.
+
+        """
         class Target(models.Model):
             # There would be a clash if Model.field installed an accessor.
             model = models.IntegerField()
@@ -138,6 +148,10 @@ class RelativeFieldTests(SimpleTestCase):
         )
 
     def test_many_to_many_with_useless_related_name(self):
+        """
+        Tests the behavior of a ManyToManyField with a 'related_name' argument when the relationship is symmetrical, such as when the field references the model itself ('self'). 
+        Verifies that a warning is raised when the 'related_name' has no effect on the ManyToManyField, as in the case of a symmetrical relationship to 'self', and that it is properly identified and reported as a DjangoWarning of type 'fields.W345'.
+        """
         class ModelM2M(models.Model):
             m2m = models.ManyToManyField("self", related_name="children")
 
@@ -302,6 +316,15 @@ class RelativeFieldTests(SimpleTestCase):
         )
 
     def test_missing_relationship_model_on_model_check(self):
+        """
+
+        Tests the validation of a model that defines a Many-to-Many relationship 
+        through a model that has not been installed.
+
+        Verifies that the model check correctly identifies and reports the missing 
+        relationship model, ensuring data integrity and preventing potential errors.
+
+        """
         class Person(models.Model):
             pass
 
@@ -341,6 +364,11 @@ class RelativeFieldTests(SimpleTestCase):
         self.assertEqual(field.check(from_model=Group), [])
 
     def test_too_many_foreign_keys_in_self_referential_model(self):
+        """
+        Tests that a ManyToManyField with a self-referential relationship raises an error when the intermediate model has more than two foreign keys to the model, making the relationship ambiguous. 
+
+        The test verifies that Django correctly identifies and reports this error, providing a hint to resolve the issue by specifying the correct foreign keys to use via the through_fields keyword argument.
+        """
         class Person(models.Model):
             friends = models.ManyToManyField(
                 "self", through="InvalidRelationship", symmetrical=False
@@ -576,6 +604,20 @@ class RelativeFieldTests(SimpleTestCase):
         )
 
     def test_foreign_object_to_partially_unique_field(self):
+        """
+
+        Tests the behavior of a foreign object referencing a partially unique field.
+
+        This test case verifies that a ForeignObject field defined on a model (MMembership)
+        with a reference to a model (Person) that has a unique constraint conditionally 
+        applied (i.e., for a subset of its instances) correctly raises an error when 
+        the referenced model does not meet Django's requirements for a ForeignObject field.
+
+        Specifically, it checks that an error is raised when no subset of the fields 
+        referenced by the ForeignObject is unique, either individually or together, 
+        or when the unique constraint has a condition.
+
+        """
         class Person(models.Model):
             country_id = models.IntegerField()
             city_id = models.IntegerField()
@@ -619,6 +661,13 @@ class RelativeFieldTests(SimpleTestCase):
         )
 
     def test_foreign_object_to_unique_field_with_meta_constraint(self):
+        """
+        Tests that a ForeignObject to a model with a unique constraint on multiple fields does not raise any errors.
+
+        This test case ensures that when a ForeignObject is created referencing a model with a Meta constraint that defines a unique index on multiple fields, the check method of the ForeignObject does not report any errors.
+
+        The test involves creating two models, one with a unique constraint on two fields and another with a ForeignObject referencing the first model. It then retrieves the ForeignObject field and checks that it passes validation without raising any errors.
+        """
         class Person(models.Model):
             country_id = models.IntegerField()
             city_id = models.IntegerField()
@@ -1015,6 +1064,23 @@ class AccessorClashTests(SimpleTestCase):
         )
 
     def _test_accessor_clash(self, target, relative):
+        """
+        Tests that a reverse accessor clash is correctly detected.
+
+        Check that when two models have a relationship, and the target model has a field
+        with the same name as the default reverse accessor, an error is raised. This
+        error is raised to prevent potential naming conflicts and to ensure that the
+        accessor can be used correctly.
+
+        The function tests that the `check()` method returns the expected error when
+        such a clash occurs, providing a hint for how to resolve the issue by either
+        renaming the clashing field or by specifying a `related_name` argument for the
+        field that causes the clash.
+
+        :param target: The target model for the relationship.
+        :param relative: The relative model for the relationship.
+
+        """
         class Another(models.Model):
             pass
 
@@ -1043,6 +1109,19 @@ class AccessorClashTests(SimpleTestCase):
         )
 
     def test_clash_between_accessors(self):
+        """
+
+        Tests that a clash between accessors is correctly detected and reported.
+
+        This function checks that when a model has both a foreign key and a many-to-many
+        field referencing the same target model, but without a related_name argument,
+        the model validation correctly identifies and reports this clash.
+        The test model contains two fields referencing the same target model, which
+        results in a naming conflict for the reverse accessor, and the validation
+        should return errors suggesting a correction by setting a related_name argument
+        on one of the fields.
+
+        """
         class Target(models.Model):
             pass
 
@@ -1169,6 +1248,17 @@ class ReverseQueryNameClashTests(SimpleTestCase):
         )
 
     def _test_reverse_query_name_clash(self, target, relative):
+        """
+        Tests whether a reverse query name clash is detected when a model field name conflicts with the related model's field name.
+
+        This test case covers the scenario where two models have fields with names that would cause a naming conflict in the reverse query.
+        It validates that the expected error is raised and provides a helpful error message with suggestions for resolution.
+
+        :raises Error: If a reverse query name clash is not correctly identified.
+        :param target: The target model for the conflicting field.
+        :param relative: The relative field that causes the naming conflict.
+
+        """
         class Another(models.Model):
             pass
 
@@ -1261,6 +1351,15 @@ class ExplicitRelatedNameClashTests(SimpleTestCase):
         )
 
     def _test_explicit_related_name_clash(self, target, relative):
+        """
+        Tests the scenario where an explicit related name clashes with an existing field name on the related model.
+
+        This test case creates a model with a field that has a related name that conflicts with a field on the target model.
+        The test verifies that the model's check method correctly identifies the related name clash and returns the corresponding errors.
+
+        The errors include a warning about the reverse accessor clash and a warning about the reverse query name clash, both providing hints for resolving the conflict by renaming the field or changing the related_name argument.
+
+        """
         class Another(models.Model):
             pass
 
@@ -1445,6 +1544,16 @@ class SelfReferentialM2MClashTests(SimpleTestCase):
         )
 
     def test_accessor_clash(self):
+        """
+        Tests the accessor clash detection in the Model class.
+
+        This function checks if the reverse accessor for a ManyToManyField with a self-referential relation clashes with the field name itself.
+        It verifies that the expected error is raised when the reverse accessor and field name are the same, providing a hint to resolve the issue by renaming the field or adding a related_name argument.
+
+        Returns:
+            An assertion that the Model.check() method returns the expected error list with a single Error object containing a descriptive message and hint for resolving the accessor clash issue.
+
+        """
         class Model(models.Model):
             model_set = models.ManyToManyField("self", symmetrical=False)
 
@@ -1488,6 +1597,19 @@ class SelfReferentialM2MClashTests(SimpleTestCase):
         )
 
     def test_clash_under_explicit_related_name(self):
+        """
+
+        Tests the case where a Many-To-Many field's reverse accessor 
+        clashes with an explicit field name on the model.
+
+        Checks that the expected errors are raised when validating a model 
+        that has a field named 'clash' and a Many-To-Many relationship 
+        defined with the same related name 'clash'. 
+        The test verifies the error messages and corresponding hints for 
+        resolving the conflicts by renaming the field or changing the 
+        related_name argument of the Many-To-Many field.
+
+        """
         class Model(models.Model):
             clash = models.IntegerField()
             m2m = models.ManyToManyField(
@@ -1524,6 +1646,13 @@ class SelfReferentialM2MClashTests(SimpleTestCase):
         )
 
     def test_valid_model(self):
+        """
+        Tests a model with multiple ManyToManyField instances defined on itself for validity.
+
+        The model being tested has two ManyToManyFields, \"first\" and \"second\", both of which are asymmetric and have distinct related names. 
+
+        This test case ensures that the model passes the validation checks, resulting in an empty list of errors, confirming that the model is correctly defined and valid according to Django's model validation rules.
+        """
         class Model(models.Model):
             first = models.ManyToManyField(
                 "self", symmetrical=False, related_name="first_accessor"
@@ -1560,6 +1689,11 @@ class SelfReferentialFKClashTests(SimpleTestCase):
         )
 
     def test_reverse_query_name_clash(self):
+        """
+        Tests if the model validation correctly identifies a reverse query name clash when a model has a foreign key to itself and does not specify a custom related name, which would conflict with the field name. 
+
+        The function creates a model with a self-referential foreign key and then checks if the expected error is raised, indicating that the validation has detected the name clash. The expected error suggests renaming the field or specifying a related name to resolve the conflict.
+        """
         class Model(models.Model):
             model = models.ForeignKey("Model", models.CASCADE)
 
@@ -1787,6 +1921,21 @@ class ComplexClashTests(SimpleTestCase):
         )
 
     def test_clash_parent_link(self):
+        """
+        Tests the collision of reverse relationships between two fields in a model.
+
+        This test case checks for an error condition where a parent model has multiple
+        relationships with its child models, causing a conflict in the reverse
+        relationship's accessor and query name. The test verifies that the correct
+        error message is raised when the model's check method is called, providing a
+        hint to resolve the clash by adding or changing the related_name argument
+        in the model definition.
+
+        The test covers the following error scenarios:
+        - Accessor clashes between reverse relationships
+        - Query name clashes between reverse relationships
+        - Raising informative error messages for clashes with hints to resolve the issue
+        """
         class Parent(models.Model):
             pass
 
@@ -2016,6 +2165,13 @@ class M2mThroughFieldsTests(SimpleTestCase):
         )
 
     def test_intersection_foreign_object(self):
+        """
+
+        Tests that a ForeignObject field in a model does not intersect with a unique constraint in a parent model if the from_fields do not form a subset of the unique constraint's fields in the parent model.
+
+        The test case verifies that attempting to create a ForeignObject field that references a parent model without a valid subset of unique fields raises the correct error.
+
+        """
         class Parent(models.Model):
             a = models.PositiveIntegerField()
             b = models.PositiveIntegerField()

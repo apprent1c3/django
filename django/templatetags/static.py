@@ -13,6 +13,14 @@ class PrefixNode(template.Node):
         return "<PrefixNode for %r>" % self.name
 
     def __init__(self, varname=None, name=None):
+        """
+        Initializes a prefix node object.
+
+        :param varname: Optional variable name associated with the node.
+        :param name: Name of the prefix node, required for returning values. If not provided, raises a TemplateSyntaxError.
+
+        :raises template.TemplateSyntaxError: If the prefix node is not given a name.
+        """
         if name is None:
             raise template.TemplateSyntaxError(
                 "Prefix nodes must be given a name to return."

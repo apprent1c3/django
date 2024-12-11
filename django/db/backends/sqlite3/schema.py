@@ -36,6 +36,21 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         return super().__enter__()
 
     def __exit__(self, exc_type, exc_value, traceback):
+        """
+
+        Exits the runtime context, ensuring database constraints are checked and enforced.
+
+        Upon exiting, this method verifies the integrity of the database by checking all
+        constraints. If any constraint violations are detected, an exception is raised.
+        After checking the constraints, it propagates the exit request to the parent
+        context and then re-enables constraint checking on the database connection.
+
+        This method is used to guarantee data consistency and prevent invalid data from
+        being committed to the database. It is especially useful in scenarios where
+        multiple operations need to be executed as a single, atomic unit, ensuring that
+        either all or none of the changes are persisted.
+
+        """
         self.connection.check_constraints()
         super().__exit__(exc_type, exc_value, traceback)
         self.connection.enable_constraint_checking()

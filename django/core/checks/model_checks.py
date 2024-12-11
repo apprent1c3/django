@@ -185,6 +185,15 @@ def _check_lazy_references(apps, ignore=None):
         return Error(error_msg % params, obj=receiver.__module__, id="signals.E001")
 
     def default_error(model_key, func, args, keywords):
+        """
+        .. function:: default_error(model_key, func, args, keywords)
+           :return: An Error object
+
+           Raise a default error when a lazy reference to a model is encountered.
+
+           This function generates an error message based on the provided model key, function, and application model error.
+           The error message is then returned as an Error object, which includes the error message, the object that triggered the error (in this case, the function), and a unique error identifier ('models.E022').
+        """
         error_msg = (
             "%(op)s contains a lazy reference to %(model)s, but %(model_error)s."
         )

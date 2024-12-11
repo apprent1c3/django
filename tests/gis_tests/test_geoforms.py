@@ -289,6 +289,18 @@ class SpecializedFieldTest(SimpleTestCase):
             self.assertFalse(PointForm(data={"p": invalid.wkt}).is_valid())
 
     def test_multipointfield(self):
+        """
+
+        Tests the functionality of a form with a MultiPointField.
+
+        This test case covers the following scenarios:
+            - A valid multipoint geometry is correctly rendered and validated in the form.
+            - An empty form is invalid.
+            - Invalid geometries (non-multipoint types) are not accepted by the form.
+
+        Verifies that the form's textarea and map widget are properly displayed and functional.
+
+        """
         class PointForm(forms.Form):
             p = forms.MultiPointField()
 
@@ -304,6 +316,15 @@ class SpecializedFieldTest(SimpleTestCase):
             self.assertFalse(PointForm(data={"p": invalid.wkt}).is_valid())
 
     def test_linestringfield(self):
+        """
+        Tests the functionality of the LineStringField form field.
+
+        This test case checks the rendering and validation of the LineStringField in a form.
+        It verifies that the field is properly rendered as a textarea and map widget, and that 
+        it correctly handles valid and invalid geometric inputs. The test includes checks for 
+        the field's behavior with valid and invalid data, including inputs of different geometric types.
+
+        """
         class LineStringForm(forms.Form):
             f = forms.LineStringField()
 
@@ -397,6 +418,15 @@ class OSMWidgetTest(SimpleTestCase):
         self.assertIn("id: 'id_p',", rendered)
 
     def test_default_lat_lon(self):
+        """
+
+        Tests the default latitude and longitude values of the OSMWidget.
+
+        Verifies that the default latitude, longitude, and zoom levels are correctly set 
+        to their expected values. Additionally, checks that these defaults can be 
+        overridden by passing custom values through the widget's attributes.
+
+        """
         self.assertEqual(forms.OSMWidget.default_lon, 5)
         self.assertEqual(forms.OSMWidget.default_lat, 47)
         self.assertEqual(forms.OSMWidget.default_zoom, 12)
@@ -436,6 +466,16 @@ class GeometryWidgetTests(SimpleTestCase):
         self.assertEqual(context["geom_type"], "Geometry")
 
     def test_subwidgets(self):
+        """
+
+        Tests the retrieval of subwidgets from the BaseGeometryWidget.
+
+        Verifies that the widget correctly returns a list of subwidget dictionaries,
+        each containing the subwidget's name, value, template name, and other relevant attributes.
+        In this case, it checks for a single subwidget with the specified name and value,
+        and ensures that its attributes match the expected values, such as the map SRID and geometry type.
+
+        """
         widget = forms.BaseGeometryWidget()
         self.assertEqual(
             list(widget.subwidgets("name", "value")),

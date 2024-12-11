@@ -43,6 +43,10 @@ class URLEncodeTests(SimpleTestCase):
         self.assertEqual(urlencode({"a": (1, 2)}, doseq=False), "a=%281%2C+2%29")
 
     def test_custom_iterable_not_doseq(self):
+        """
+        Tests the urlencode function's behavior when passed a custom iterable object with the doseq parameter set to False. 
+        The function verifies that in such a case, the object is converted to a string using its __str__ method, rather than being treated as an iterable.
+        """
         class IterableWithStr:
             def __str__(self):
                 return "custom"
@@ -59,6 +63,16 @@ class URLEncodeTests(SimpleTestCase):
         self.assertEqual(urlencode({"a": []}, doseq=True), "")
 
     def test_multivaluedict(self):
+        """
+
+        Tests the use of urlencode with a MultiValueDict to ensure correct encoding of multiple values.
+
+        Checks that the output of urlencode matches the expected result when handling
+        a dictionary with multiple values for a given key. This verifies that the
+        function correctly handles dictionaries with multiple values per key and
+        returns a properly formatted query string.
+
+        """
         result = urlencode(
             MultiValueDict(
                 {
@@ -83,6 +97,12 @@ class URLEncodeTests(SimpleTestCase):
         self.assertEqual(urlencode({"a": bytearray(range(2))}, doseq=True), "a=0&a=1")
 
     def test_generator(self):
+        """
+        Tests the functionality of the urlencode function in handling sequences and non-sequences.
+        It checks that when a sequence (like a range) is passed to the function with doseq=True, 
+        it correctly handles each value in the sequence as a separate key-value pair.
+        It also checks that when doseq=False, sequences are encoded as their string representation.
+        """
         self.assertEqual(urlencode({"a": range(2)}, doseq=True), "a=0&a=1")
         self.assertEqual(urlencode({"a": range(2)}, doseq=False), "a=range%280%2C+2%29")
 
@@ -91,6 +111,14 @@ class URLEncodeTests(SimpleTestCase):
             urlencode({"a": None})
 
     def test_none_in_sequence(self):
+        """
+        Tests that attempting to encode a sequence containing None values raises a TypeError.
+
+        This test case checks that the urlencode function correctly handles sequences with None
+        values and raises an informative error message. The error message should match the 
+        expected cannot_encode_none_msg. This ensures that the function behaves as expected 
+        when encountering invalid input data. 
+        """
         with self.assertRaisesMessage(TypeError, self.cannot_encode_none_msg):
             urlencode({"a": [None]}, doseq=True)
 
@@ -276,6 +304,18 @@ class URLHasAllowedHostAndSchemeTests(unittest.TestCase):
 
 class URLSafeBase64Tests(unittest.TestCase):
     def test_roundtrip(self):
+        """
+
+        Tests the roundtrip functionality of urlsafe base64 encoding and decoding.
+
+        This test ensures that a bytestring can be successfully encoded using urlsafe base64,
+        then decoded back to its original form, with the resulting bytestring being identical
+        to the original input.
+
+        The test case verifies the integrity of the encoding and decoding process,
+        providing confidence in the correctness of the urlsafe base64 implementation.
+
+        """
         bytestring = b"foo"
         encoded = urlsafe_base64_encode(bytestring)
         decoded = urlsafe_base64_decode(encoded)
@@ -323,6 +363,17 @@ class ETagProcessingTests(unittest.TestCase):
 
 class HttpDateProcessingTests(unittest.TestCase):
     def test_http_date(self):
+        """
+
+        Tests the conversion of a Unix timestamp to a HTTP date.
+
+        This function validates that the http_date function correctly formats a Unix timestamp into a string
+        representing the date and time in the HTTP format.
+
+        The test case uses a specific Unix timestamp and verifies that the resulting HTTP date string matches
+        the expected format and value.
+
+        """
         t = 1167616461.0
         self.assertEqual(http_date(t), "Mon, 01 Jan 2007 01:54:21 GMT")
 
@@ -412,6 +463,13 @@ class HttpDateProcessingTests(unittest.TestCase):
 
 class EscapeLeadingSlashesTests(unittest.TestCase):
     def test(self):
+        """
+        Tests the escape_leading_slashes function to ensure it correctly handles URLs with leading slashes.
+
+         The test cases cover different scenarios, including URLs with a domain and URLs with only leading slashes.
+
+         The expected behavior is that the function replaces leading slashes with their URL encoded equivalent (/ -> %2F).
+        """
         tests = (
             ("//example.com", "/%2Fexample.com"),
             ("//", "/%2F"),
@@ -423,6 +481,19 @@ class EscapeLeadingSlashesTests(unittest.TestCase):
 
 class ParseHeaderParameterTests(unittest.TestCase):
     def test_basic(self):
+        """
+        Tests the parsing of header parameters.
+
+        This test case checks the functionality of the parse_header_parameters function
+        by comparing its output with expected results for a variety of input headers.
+        The tests cover different scenarios, including handling of common mime types,
+        charset specifications, attachment filenames, and content disposition parameters.
+
+        The function's ability to correctly extract the mime type and parameters from
+        the input headers is verified, ensuring that the parse_header_parameters function
+        behaves as expected in various situations, including the presence of optional
+        parameters and special characters in the header values.\"
+        """
         tests = [
             ("text/plain", ("text/plain", {})),
             ("text/vnd.just.made.this.up ; ", ("text/vnd.just.made.this.up", {})),
@@ -497,6 +568,20 @@ class ParseHeaderParameterTests(unittest.TestCase):
 
 class ContentDispositionHeaderTests(unittest.TestCase):
     def test_basic(self):
+        """
+
+        Tests the content disposition header generation.
+
+        This test case checks the output of the content_disposition_header function
+        for various combinations of attachment status and filenames. It verifies that
+        the function correctly handles different scenarios, including inline and
+        attachment content types, filenames with special characters, and filenames
+        with non-ASCII characters that require UTF-8 encoding.
+
+        The test covers a range of edge cases, ensuring the function behaves as
+        expected in different situations.
+
+        """
         tests = (
             ((False, None), None),
             ((False, "example"), 'inline; filename="example"'),

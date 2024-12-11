@@ -36,12 +36,34 @@ class TestNoFilesCreated:
 class TestRunserver(StaticFilesTestCase):
     @override_settings(MIDDLEWARE=["django.middleware.common.CommonMiddleware"])
     def test_middleware_loaded_only_once(self):
+        """
+        Tests that the middleware is loaded only once when running the development server.
+
+        This test case verifies that the middleware is initialized and executed a single time
+        when the server is started. It ensures that the middleware is not loaded multiple times,
+        which could lead to unexpected behavior or performance issues.
+
+        The test uses mocking to track the number of times the middleware is loaded, and asserts
+        that the expected call count is met. This helps to guarantee that the middleware is
+        properly configured and loaded when running the development server.
+
+        :raises AssertionError: If the middleware is loaded more than once.
+
+        """
         command = runserver.Command()
         with mock.patch("django.middleware.common.CommonMiddleware") as mocked:
             command.get_handler(use_static_handler=True, insecure_serving=True)
             self.assertEqual(mocked.call_count, 1)
 
     def test_404_response(self):
+        """
+
+        Tests the response of the server when a static file is not found.
+
+        This test checks if the server correctly returns a 404 status code when a static file is requested but does not exist.
+        The test is performed under two different settings: with and without debug mode enabled.
+
+        """
         command = runserver.Command()
         handler = command.get_handler(use_static_handler=True, insecure_serving=True)
         missing_static_file = os.path.join(settings.STATIC_URL, "unknown.css")
@@ -60,6 +82,17 @@ class TestFindStatic(TestDefaults, CollectionTestCase):
     """
 
     def _get_file(self, filepath):
+        """
+        Retrieves the contents of a static file.
+
+        This method takes a filepath as input, uses the findstatic command to locate the file,
+        and returns its contents as a string. The file is read using UTF-8 encoding.
+
+        :param filepath: The path to the static file to retrieve.
+        :return: The contents of the static file as a string.
+        :raises: Any exceptions raised by the findstatic command or file I/O operations.
+
+        """
         path = call_command(
             "findstatic", filepath, all=False, verbosity=0, stdout=StringIO()
         )
@@ -137,6 +170,24 @@ class TestConfiguration(StaticFilesTestCase):
                     )
 
     def test_local_storage_detection_helper(self):
+        """
+        Tests the detection of local storage in the collectstatic command.
+
+        This test verifies that the collectstatic command can correctly identify whether its
+        storage backend is a local storage or not. It achieves this by running the command
+        with various storage configurations and asserting the result of the `is_local_storage`
+        method.
+
+        The test covers different scenarios, including:
+
+        * Using the built-in `StaticFilesStorage` backend
+        * Using a custom `DummyStorage` backend
+        * Configuring the `STATICFILES_STORAGE_ALIAS` setting to use different backends
+
+        The goal of this test is to ensure that the collectstatic command behaves correctly
+        regardless of the underlying storage configuration, and that it can accurately detect
+        whether the storage is local or not.
+        """
         staticfiles_storage = storage.staticfiles_storage
         try:
             storage.staticfiles_storage._wrapped = empty
@@ -232,6 +283,13 @@ class TestCollectionVerbosity(CollectionTestCase):
     staticfiles_copied_msg = "static files copied to"
 
     def test_verbosity_0(self):
+        """
+        Tests whether the collectstatic command produces no output when verbosity is set to 0.
+
+        Verifies that the command suppresses all output, including warnings and informational messages, when run with the minimum verbosity level.
+
+        The test checks that the command's output is empty, confirming that no messages are generated when verbosity is disabled.
+        """
         stdout = StringIO()
         self.run_collectstatic(verbosity=0, stdout=stdout)
         self.assertEqual(stdout.getvalue(), "")
@@ -244,6 +302,22 @@ class TestCollectionVerbosity(CollectionTestCase):
         self.assertNotIn(self.copying_msg, output)
 
     def test_verbosity_2(self):
+        """
+        Tests the verbosity level 2 of the collectstatic command.
+
+        This test case verifies that when verbosity is set to 2, the collectstatic command 
+        outputs both the 'static files copied' message and the 'copying' message. 
+
+        The test captures the command's output and checks for the presence of these messages, 
+        ensuring that the verbosity level is correctly set and the expected information is displayed.\"\"\"
+
+        or 
+
+        \"\"\"Checks the output of the collectstatic command with verbosity level 2.
+
+        Ensures that the command outputs informational messages about static files being copied,
+        including the number of files copied, when run with increased verbosity.
+        """
         stdout = StringIO()
         self.run_collectstatic(verbosity=2, stdout=stdout)
         output = stdout.getvalue()
@@ -345,6 +419,19 @@ class TestInteractiveMessages(CollectionTestCase):
         self.assertNotIn(self.delete_warning_msg, output)
 
     def test_no_warning_when_staticdir_does_not_exist(self):
+        """
+        Tests that no warnings are emitted when the static directory does not exist.
+
+        This test ensures that when the static directory has been removed, running the
+        collectstatic command does not produce overwrite or delete warnings. Instead,
+        it verifies that the command successfully collects the static files and
+        outputs a message indicating the number of files copied.
+
+        The test validates the following conditions:
+        - No overwrite warning is displayed
+        - No delete warning is displayed
+        - A message confirming the number of files copied is displayed
+        """
         stdout = StringIO()
         shutil.rmtree(settings.STATIC_ROOT)
         call_command("collectstatic", interactive=True, stdout=stdout)
@@ -560,6 +647,13 @@ class TestCollectionNonLocalStorage(TestNoFilesCreated, CollectionTestCase):
 
     def test_storage_properties(self):
         # Properties of the Storage as described in the ticket.
+        """
+        Tests the properties of a storage system.
+
+        This test case checks that the storage correctly reports the last modified time of an item, returning January 1, 1970, at 00:00:00 UTC, which is the epoch time in the Unix system.
+
+        Additionally, it verifies that the storage raises an appropriate error when attempting to retrieve the absolute path of an item, as the backend does not support this operation, providing a meaningful error message with \"This backend doesn't support absolute paths.\"
+        """
         storage = DummyStorage()
         self.assertEqual(
             storage.get_modified_time("name"),

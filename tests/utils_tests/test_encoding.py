@@ -44,6 +44,11 @@ class TestEncodingUtils(SimpleTestCase):
         self.assertIs(type(force_str(s)), str)
 
     def test_force_str_DjangoUnicodeDecodeError(self):
+        """
+        Test that the force_str function raises a DjangoUnicodeDecodeError when given a bytes object containing an invalid UTF-8 sequence.
+
+        This test checks for the specific error message produced when attempting to decode a bytes object containing an invalid start byte (on CPython) or an unexpected end of data (on PyPy), ensuring that the function handles decoding errors correctly.
+        """
         reason = "unexpected end of data" if PYPY else "invalid start byte"
         msg = (
             f"'utf-8' codec can't decode byte 0xff in position 0: {reason}. "
@@ -66,10 +71,27 @@ class TestEncodingUtils(SimpleTestCase):
         )
 
     def test_force_bytes_strings_only(self):
+        """
+        Tests the force_bytes function to ensure it doesn't convert non-string objects to bytes when strings_only is True.
+
+            Specifically, this test checks that a date object remains unchanged after passing through the force_bytes function with strings_only set to True.
+
+            :return: None
+        """
         today = datetime.date.today()
         self.assertEqual(force_bytes(today, strings_only=True), today)
 
     def test_force_bytes_encoding(self):
+        """
+        Tests the force_bytes function to ensure it correctly encodes bytes-like objects.
+
+        This test checks that the function can handle encoding errors by ignoring unencodable characters.
+        It verifies that the output is as expected when the input contains non-ASCII characters.
+
+        The test uses a sample error message containing a non-ASCII character (voilà) to demonstrate this functionality.
+        The expected output is the encoded message with the unencodable character (à) ignored and removed from the result.
+
+        """
         error_msg = "This is an exception, voilà".encode()
         result = force_bytes(error_msg, encoding="ascii", errors="ignore")
         self.assertEqual(result, b"This is an exception, voil")
@@ -109,6 +131,10 @@ class TestEncodingUtils(SimpleTestCase):
         self.assertEqual(smart_str("foo"), "foo")
 
     def test_get_default_encoding(self):
+        """
+        Tests that the get_system_encoding function returns 'ascii' when locale.getlocale raises an exception, 
+        indicating that the system's default encoding cannot be determined, and a fallback to a standard encoding is required.
+        """
         with mock.patch("locale.getlocale", side_effect=Exception):
             self.assertEqual(get_system_encoding(), "ascii")
 
@@ -124,6 +150,15 @@ class TestEncodingUtils(SimpleTestCase):
             self.fail("Unexpected RecursionError raised.")
 
     def test_repercent_broken_unicode_small_fragments(self):
+        """
+        Tests the repercent_broken_unicode function with small fragments of broken Unicode data.
+
+        This test case verifies that the function correctly repercentages broken Unicode characters in a given byte string.
+        It also checks that the quote function is called with the expected decoded paths during the repercentaging process.
+
+        The test uses a mock quote function to inspect the decoded paths and ensures they match the expected values.
+        The function's output is compared to the expected result to ensure correct repercentaging of the input data.
+        """
         data = b"test\xfctest\xfctest\xfc"
         decoded_paths = []
 
@@ -202,6 +237,20 @@ class TestRFC3987IEncodingUtils(unittest.TestCase):
                 self.assertEqual(uri_to_iri(uri_to_iri(uri)), iri)
 
     def test_complementarity(self):
+        """
+        Tests the complementarity of :func:`uri_to_iri` and :func:`iri_to_uri` functions.
+
+        This test ensures that the conversion between Uniform Resource Identifiers (URIs)
+        and Internationalized Resource Identifiers (IRIs) is reversible and does not
+        alter the original URI or IRI.
+
+        The test cases cover various scenarios, including URIs and IRIs with special
+        characters, non-ASCII characters, and percent-encoding.
+
+        It verifies that applying the :func:`uri_to_iri` and :func:`iri_to_uri` functions
+        sequentially to a URI or IRI results in the original input, demonstrating their
+        complementarity and ensuring correct conversion between the two identifier types.
+        """
         cases = [
             (
                 "/blog/for/J%C3%BCrgen%20M%C3%BCnster/",

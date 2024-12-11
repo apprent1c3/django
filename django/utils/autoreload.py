@@ -58,6 +58,17 @@ def is_django_path(path):
 
 def check_errors(fn):
     @wraps(fn)
+    """
+
+    Decorator to catch and track exceptions raised by a function.
+
+    This decorator wraps the given function, catches any exceptions that occur, and stores the filename where the exception occurred.
+    If the exception does not provide a filename, it will be extracted from the traceback.
+    The filename is then added to a list of error files if it is not already present.
+    The original exception is then re-raised.
+
+    The decorator is designed to be used to track and report errors that occur in a program, without interfering with the normal exception handling behavior. 
+    """
     def wrapper(*args, **kwargs):
         global _exception
         try:
@@ -193,6 +204,14 @@ def common_roots(paths):
 
     # Turn the tree into a list of Path instances.
     def _walk(node, path):
+        """
+        Recursively walks a nested dictionary tree, yielding Path objects representing the paths to all leaf nodes.
+
+        :param node: The current node in the dictionary tree
+        :param path: The current path being traversed
+
+        :yields: Path objects representing the paths to leaf nodes
+        """
         for prefix, child in node.items():
             yield from _walk(child, path + (prefix,))
         if not node:
@@ -263,6 +282,15 @@ def get_child_arguments():
 
 
 def trigger_reload(filename):
+    """
+    Trigger a reload of the application when a file change is detected.
+
+    This function is called when a file modification is detected, and it initiates a reload of the application.
+    It logs a message indicating the file that triggered the reload and exits the application with a status code.
+
+    :param filename: The name of the file that has changed, triggering the reload.
+
+    """
     logger.info("%s changed, reloading.", filename)
     sys.exit(3)
 
@@ -407,6 +435,15 @@ class StatReloader(BaseReloader):
 
     def snapshot_files(self):
         # watched_files may produce duplicate paths if globs overlap.
+        """
+        Generate a snapshot of watched files, yielding a tuple containing each file and its last modified time.
+
+        The function iterates over the watched files and checks if a file has been previously seen. If a file is encountered for the first time, its last modified time is retrieved and the file is added to the set of seen files. In case of an error accessing a file, it is silently skipped.
+
+        Yields:
+            tuple: A tuple containing a file object and its last modified time (in seconds since the Unix epoch).
+
+        """
         seen_files = set()
         for file in self.watched_files():
             if file in seen_files:
@@ -430,6 +467,12 @@ class WatchmanUnavailable(RuntimeError):
 
 class WatchmanReloader(BaseReloader):
     def __init__(self):
+        """
+        Initializes the watchman client instance.
+
+        This method sets up the internal state of the watchman client, including the data structures to store the roots of the watched directories and the threading event to track the status of client requests.
+        The client timeout is also configured based on the 'DJANGO_WATCHMAN_TIMEOUT' environment variable, defaulting to 5 seconds if not specified.
+        """
         self.roots = defaultdict(set)
         self.processed_request = threading.Event()
         self.client_timeout = int(os.environ.get("DJANGO_WATCHMAN_TIMEOUT", 5))
@@ -621,6 +664,21 @@ class WatchmanReloader(BaseReloader):
 
     @classmethod
     def check_availability(cls):
+        """
+
+        Check if Watchman is available and meets the minimum version requirement.
+
+        This class method verifies that the pywatchman library is installed and 
+        that a connection to the Watchman service can be established. It also 
+        checks if the Watchman version is 4.9 or later, raising an exception 
+        if any of these conditions are not met.
+
+        Raises:
+            WatchmanUnavailable: If pywatchman is not installed, if the Watchman 
+                service cannot be connected to, or if the Watchman version is 
+                earlier than 4.9.
+
+        """
         if not pywatchman:
             raise WatchmanUnavailable("pywatchman not installed.")
         client = pywatchman.client(timeout=0.1)

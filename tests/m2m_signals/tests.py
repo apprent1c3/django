@@ -11,6 +11,21 @@ from .models import Car, Part, Person, SportsCar
 class ManyToManySignalsTest(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Set up test data for the application, creating instances of Cars, Parts, and People.
+
+         This method initializes a set of predefined test data that can be used across multiple tests,
+         including various car models, car parts, and individuals. The created data includes:
+
+         - Car models: VW, BMW, Toyota
+         - Car parts: Wheelset, Doors, Engine, Airbag, Sunroof
+         - Individuals: Alice, Bob, Chuck, Daisy
+
+         The created instances are stored as class attributes, making them accessible throughout the test suite.
+
+         This setup is typically used for test-driven development, providing a consistent and predictable environment 
+         for testing the application's functionality and behavior.
+        """
         cls.vw = Car.objects.create(name="VW")
         cls.bmw = Car.objects.create(name="BMW")
         cls.toyota = Car.objects.create(name="Toyota")
@@ -44,6 +59,13 @@ class ManyToManySignalsTest(TestCase):
 
     def tearDown(self):
         # disconnect all signal handlers
+        """
+        Clean up signal connections after tests have finished.
+
+        Disconnects the m2m_changed_signal_receiver from several Many-To-Many relationships,
+        including default and optional car parts, as well as person fans and friends. This
+        ensures a clean slate for subsequent tests and prevents unintended side effects.
+        """
         models.signals.m2m_changed.disconnect(
             self.m2m_changed_signal_receiver, Car.default_parts.through
         )
@@ -81,6 +103,21 @@ class ManyToManySignalsTest(TestCase):
         pk_sets_sent = []
 
         def handler(signal, sender, **kwargs):
+            """
+
+            Handles signals emitted by a sender, specifically intercepting 'pre_add' and 'pre_remove' actions.
+
+            This function is designed to track primary key sets associated with the intercepted actions. 
+            It examines the action type within the signal and, if it matches 'pre_add' or 'pre_remove', 
+            the corresponding primary key set is appended to a tracking list (pk_sets_sent).
+
+            Args:
+                signal: The signal being handled.
+                sender: The object that emitted the signal.
+                **kwargs: Additional keyword arguments, including 'action' and 'pk_set', 
+                          which are used to determine the response to the signal.
+
+            """
             if kwargs["action"] in ["pre_add", "pre_remove"]:
                 pk_sets_sent.append(kwargs["pk_set"])
 
@@ -151,6 +188,20 @@ class ManyToManySignalsTest(TestCase):
         self.assertEqual(self.m2m_changed_messages, expected_messages)
 
     def test_m2m_relations_signals_remove_relation(self):
+        """
+
+        Tests the signals emitted when a many-to-many relationship is removed.
+
+        This test case verifies that the correct signals are sent before and after removing
+        a relation between a vehicle and its parts. The expected signals include 'pre_remove'
+        and 'post_remove' actions, which are triggered when the parts are removed from the
+        vehicle. The test checks that the signals are emitted with the correct instance,
+        action, model, and objects.
+
+        The test focuses on the removal of multiple parts (engine and airbag) from a vehicle,
+        ensuring that the signals are sent correctly for both parts.
+
+        """
         self._initialize_signal_car()
         # remove the engine from the self.vw and the airbag (which is not set
         # but is returned)
@@ -225,6 +276,17 @@ class ManyToManySignalsTest(TestCase):
         self.assertEqual(self.m2m_changed_messages, expected_messages)
 
     def test_m2m_relations_signals_reverse_relation_with_custom_related_name(self):
+        """
+        Tests the signals emitted when a many-to-many relation is removed in the reverse direction, 
+        using a custom related name. 
+
+        Verifies that the pre and post remove signals are sent with the correct parameters, 
+        including the instance, action, reverse flag, model and objects involved in the relation change. 
+
+        This test ensures that the signals are triggered correctly when an object is removed 
+        from a many-to-many relation that has a custom related name, allowing for proper handling 
+        of these events in the application.
+        """
         self._initialize_signal_car()
         # remove airbag from the self.vw (reverse relation with custom
         # related_name)
@@ -250,6 +312,13 @@ class ManyToManySignalsTest(TestCase):
         )
 
     def test_m2m_relations_signals_clear_all_parts_of_the_self_vw(self):
+        """
+        Tests that signals are emitted correctly when clearing all parts of the vehicle (vw) in a many-to-many relation. 
+
+        Verifies that both pre-clear and post-clear signals are sent, ensuring that the state of the vehicle and its parts is properly updated and notified. 
+
+        The test case confirms the emission of the m2m_changed signal with the expected actions and instance information, ensuring data consistency and proper notification of related model changes.
+        """
         self._initialize_signal_car()
         # clear all parts of the self.vw
         self.vw.default_parts.clear()
@@ -272,6 +341,15 @@ class ManyToManySignalsTest(TestCase):
         )
 
     def test_m2m_relations_signals_all_the_doors_off_of_cars(self):
+        """
+        Tests that Many-To-Many (M2M) relations signals are emitted correctly when clearing all the doors off of cars.
+
+        This test case verifies that the expected signals are sent when the doors-car relationship is cleared, specifically checking for 'pre_clear' and 'post_clear' actions.
+
+        The test checks the 'm2m_changed_messages' to ensure that the signals are emitted with the correct instance, action, reverse, and model information.
+
+        It validates the proper functioning of M2M relationship signal handling in the context of cars and their associated doors.
+        """
         self._initialize_signal_car()
         # take all the doors off of cars
         self.doors.car_set.clear()
@@ -294,6 +372,12 @@ class ManyToManySignalsTest(TestCase):
         )
 
     def test_m2m_relations_signals_reverse_relation(self):
+        """
+        Tests the Many-To-Many relation signals for the reverse relation in the Car model.
+        This function checks if the m2m_changed signal is correctly sent when clearing the cars_optional relation on the Airbag instance, 
+        ensuring that the pre_clear and post_clear actions are triggered as expected. The test verifies that the signal messages contain 
+        the correct instance, action, reverse relation, and model information.
+        """
         self._initialize_signal_car()
         # take all the airbags off of cars (clear reverse relation with custom
         # related_name)

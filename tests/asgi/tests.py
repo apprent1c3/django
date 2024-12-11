@@ -34,6 +34,10 @@ class SignalHandler:
     """Helper class to track threads and kwargs when signals are dispatched."""
 
     def __init__(self):
+        """
+        Initializes a new instance of the class, setting up the internal state and data structures. 
+        Specifically, this method calls the parent class's constructor and initializes an empty list to track function calls.
+        """
         super().__init__()
         self.calls = []
 
@@ -261,6 +265,21 @@ class ASGITest(SimpleTestCase):
         @csrf_exempt
         @sync_to_async
         def post_view(request):
+            """
+
+            Handles an asynchronous HTTP POST request.
+
+            This view function processes incoming POST requests, records the request body, 
+            and returns a successful response. It also triggers events to signal the start 
+            and end of the view processing, allowing for synchronization and monitoring.
+
+            The function operates in a non-blocking manner, allowing other tasks to run 
+            concurrently. It catches any exceptions that occur during processing and logs 
+            them for further analysis.
+
+            :return: An HTTP response indicating the outcome of the request.
+
+            """
             try:
                 loop.call_soon_threadsafe(view_started_event.set)
                 time.sleep(0.1)
@@ -375,6 +394,13 @@ class ASGITest(SimpleTestCase):
             await communicator.receive_output()
 
     async def test_assert_in_listen_for_disconnect(self):
+        """
+        Tests that listening for disconnection from an ASGI application raises an AssertionError 
+        when an invalid message is received after the request body.
+
+        This test simulates an ASGI request and then sends an unrecognized message type, 
+        verifying that an AssertionError is raised with a message indicating the invalid message type.
+        """
         application = get_asgi_application()
         scope = self.async_request_factory._base_scope(path="/")
         communicator = ApplicationCommunicator(application, scope)
@@ -394,6 +420,14 @@ class ASGITest(SimpleTestCase):
             await communicator.receive_output()
 
     async def test_wrong_connection_type(self):
+        """
+
+        Tests that an error is raised when an ASGI application receives a connection type other than HTTP.
+
+        Verifies that a :class:`ValueError` is raised with a specific error message when the application
+        receives an unsupported connection type, ensuring that only valid ASGI/HTTP connections are handled.
+
+        """
         application = get_asgi_application()
         scope = self.async_request_factory._base_scope(path="/", type="other")
         communicator = ApplicationCommunicator(application, scope)

@@ -28,6 +28,15 @@ class BinaryFieldTests(TestCase):
                 self.assertEqual(bytes(dm.short_data), b"\x08")
 
     def test_max_length(self):
+        """
+
+        Tests that a ValidationError is raised when the length of the binary data exceeds the maximum allowed length.
+
+        The test case verifies the validation mechanism for binary data by attempting to create a DataModel instance
+        with short data that exceeds the maximum length. It asserts that a ValidationError is thrown when the full_clean
+        method is called on the DataModel instance, ensuring that the validation rule is enforced correctly.
+
+        """
         dm = DataModel(short_data=self.binary_data * 4)
         with self.assertRaises(ValidationError):
             dm.full_clean()
@@ -41,6 +50,16 @@ class BinaryFieldTests(TestCase):
         self.assertIs(field.editable, False)
 
     def test_filter(self):
+        """
+        Tests the filter functionality of DataModel objects based on binary data.
+
+        This test ensures that the filter method correctly returns DataModel instances
+        that match the specified binary data, ignoring any non-matching instances.
+
+        It verifies that when multiple DataModel objects are created with different
+        binary data, the filter method accurately retrieves the desired object
+        based on its associated binary data.
+        """
         dm = DataModel.objects.create(data=self.binary_data)
         DataModel.objects.create(data=b"\xef\xbb\xbf")
         self.assertSequenceEqual(DataModel.objects.filter(data=self.binary_data), [dm])
@@ -53,6 +72,16 @@ class BinaryFieldTests(TestCase):
         )
 
     def test_filter_memoryview(self):
+        """
+
+        Tests filtering of DataModel instances using a memoryview object.
+
+        This test ensures that the :class:`~DataModel` manager's filter method can correctly
+        retrieve instances based on binary data stored in a memoryview object.
+        It verifies that a matching instance is returned when the memoryview object
+        is used as a filter criterion, while non-matching instances are excluded.
+
+        """
         dm = DataModel.objects.create(data=self.binary_data)
         DataModel.objects.create(data=b"\xef\xbb\xbf")
         self.assertSequenceEqual(

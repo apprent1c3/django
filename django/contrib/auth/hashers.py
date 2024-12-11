@@ -322,6 +322,25 @@ class PBKDF2PasswordHasher(BasePasswordHasher):
     digest = hashlib.sha256
 
     def encode(self, password, salt, iterations=None):
+        """
+
+        Encode a password string using a password-based key derivation function.
+
+        This function takes a password and a salt value as input, and returns an encoded string.
+        The encoded string is formatted as 'algorithm$iterations$salt$hashed_password'.
+        Optionally, the number of iterations can be specified, otherwise the default number of iterations is used.
+
+        The encoding process involves generating a key using the PBKDF2 algorithm with the given password, salt, and iterations.
+        The resulting key is then hashed using the specified digest algorithm and encoded in base64.
+
+        The encoded string can be used for secure password storage, allowing for efficient verification of the original password.
+
+        :param password: The password string to be encoded
+        :param salt: A random salt value to prevent rainbow table attacks
+        :param iterations: The number of iterations to use for key derivation (optional)
+        :return: The encoded password string
+
+        """
         self._check_encode_args(password, salt)
         iterations = iterations or self.iterations
         hash = pbkdf2(password, salt, iterations, digest=self.digest)
@@ -428,6 +447,23 @@ class Argon2PasswordHasher(BasePasswordHasher):
         }
 
     def verify(self, password, encoded):
+        """
+        Verifies a password against a previously encoded password string.
+
+        This function checks if a provided password matches the one that was used to generate the encoded password string.
+        It uses the argon2 password hashing library to perform the verification.
+
+         Args:
+            password (str): The password to verify.
+            encoded (str): The encoded password string.
+
+        Returns:
+            bool: True if the password matches the encoded string, False otherwise.
+
+        Note:
+            The function assumes that the encoded string was generated using the same password hashing algorithm (as specified by self.algorithm).
+            If the verification fails, it will return False. If an error occurs during verification, it will also return False.
+        """
         argon2 = self._load_library()
         algorithm, rest = encoded.split("$", 1)
         assert algorithm == self.algorithm
@@ -465,6 +501,16 @@ class Argon2PasswordHasher(BasePasswordHasher):
         pass
 
     def params(self):
+        """
+        Returns parameters for the Argon2 password hashing algorithm.
+
+        These parameters define the configuration used for password hashing, including the type and version of Argon2, salt length, hash length, time cost, memory cost, and parallelism.
+
+        The returned parameters object can be used to customize the password hashing process.
+
+        :rtype: argon2.Parameters
+        :returns: The parameters object containing the configuration for Argon2 password hashing
+        """
         argon2 = self._load_library()
         # salt_len is a noop, because we provide our own salt.
         return argon2.Parameters(
@@ -498,6 +544,24 @@ class BCryptSHA256PasswordHasher(BasePasswordHasher):
         return bcrypt.gensalt(self.rounds)
 
     def encode(self, password, salt):
+        """
+
+        Encode a password with a given salt using the bcrypt algorithm.
+
+        This function takes a password and a salt as input, hashes the password using bcrypt,
+        and returns the encoded password as a string. The encoded password is prefixed with the
+        algorithm used for hashing, which is bcrypt in this case.
+
+        The function also optionally digests the password before hashing if a digest function
+        is specified. The digested password is then hashed using bcrypt.
+
+        The function returns a string that can be stored for later authentication.
+
+        :param password: The password to encode
+        :param salt: The salt to use for encoding the password
+        :return: The encoded password as a string
+
+        """
         bcrypt = self._load_library()
         password = password.encode()
         # Hash the password prior to using bcrypt to prevent password
@@ -521,6 +585,21 @@ class BCryptSHA256PasswordHasher(BasePasswordHasher):
         }
 
     def verify(self, password, encoded):
+        """
+        Verifies a provided password against a given encoded password string.
+
+        Checks that the algorithm used to encode the password matches the expected algorithm, 
+        then generates a new encoded password string using the provided password and 
+        compares it to the given encoded string in a way that prevents timing attacks.
+
+        Args:
+            password (str): The password to verify.
+            encoded (str): The encoded password string to verify against.
+
+        Returns:
+            bool: Whether the provided password matches the encoded password string.
+
+        """
         algorithm, data = encoded.split("$", 1)
         assert algorithm == self.algorithm
         encoded_2 = self.encode(password, data.encode("ascii"))
@@ -540,6 +619,19 @@ class BCryptSHA256PasswordHasher(BasePasswordHasher):
         return decoded["work_factor"] != self.rounds
 
     def harden_runtime(self, password, encoded):
+        """
+
+
+
+        Harden the runtime of password encoding to match or exceed the system's configured minimum rounds.
+
+        This function takes an existing encoded password and reinforces its security by performing additional hashing rounds.
+        The number of additional rounds is calculated based on the difference between the system's configured rounds and the rounds used in the existing encoded password.
+
+        :param password: The password to be encoded
+        :param encoded: The existing encoded password
+
+        """
         _, data = encoded.split("$", 1)
         salt = data[:29]  # Length of the salt in bcrypt.
         rounds = data.split("$")[2]
@@ -673,6 +765,19 @@ class MD5PasswordHasher(BasePasswordHasher):
         return constant_time_compare(encoded, encoded_2)
 
     def safe_summary(self, encoded):
+        """
+        Provides a summary of the encoded data in a safe and readable format.
+
+        Returns a dictionary containing the algorithm, salt, and hash values of the encoded data.
+        The salt and hash values are masked to conceal sensitive information, with a limited number of characters displayed for security purposes.
+
+        The returned dictionary contains the following keys:
+            - algorithm: The algorithm used for encoding
+            - salt: The salt value used for encoding, partially masked for security
+            - hash: The hash value of the encoded data, partially masked for security
+
+        This method is useful for providing a high-level overview of the encoded data without exposing sensitive information.
+        """
         decoded = self.decode(encoded)
         return {
             _("algorithm"): decoded["algorithm"],

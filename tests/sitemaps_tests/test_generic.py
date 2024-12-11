@@ -10,6 +10,14 @@ from .models import TestModel
 @override_settings(ABSOLUTE_URL_OVERRIDES={})
 class GenericViewsSitemapTests(SitemapTestsBase):
     def test_generic_sitemap_attributes(self):
+        """
+        Tests that a GenericSitemap instance has the expected attributes.
+
+        Checks that the date_field, priority, changefreq, and protocol attributes are set correctly
+        based on the provided info_dict and other initialization parameters. Also verifies that
+        the queryset attribute matches the one passed during initialization. This ensures that
+        the GenericSitemap class properly handles its attributes and initialization data.
+        """
         datetime_value = datetime.now()
         queryset = TestModel.objects.all()
         generic_sitemap = GenericSitemap(
@@ -79,10 +87,25 @@ class GenericViewsSitemapTests(SitemapTestsBase):
                 self.assertEqual(sitemap.get_protocol(protocol), protocol)
 
     def test_get_protocol_default(self):
+        """
+        Tests the get_protocol method of the GenericSitemap class to ensure it returns 'https' as the default protocol when no other protocol is specified.
+        """
         sitemap = GenericSitemap({"queryset": None})
         self.assertEqual(sitemap.get_protocol(), "https")
 
     def test_generic_sitemap_index(self):
+        """
+
+        Tests the 'generic-lastmod' sitemap index by verifying its XML structure and content.
+
+        The test case updates the last modification date of a TestModel instance and then requests the 
+        sitemap index. It checks if the response matches the expected XML content, including the 
+        namespace, sitemap location, and last modification date.
+
+        This test ensures that the sitemap index is correctly generated and formatted according to 
+        the sitemap protocol specification.
+
+        """
         TestModel.objects.update(lastmod=datetime(2013, 3, 13, 10, 0, 0))
         response = self.client.get("/generic-lastmod/index.xml")
         expected_content = """<?xml version="1.0" encoding="UTF-8"?>

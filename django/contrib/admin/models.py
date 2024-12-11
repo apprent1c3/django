@@ -35,6 +35,37 @@ class LogEntryManager(models.Manager):
         action_flag,
         change_message="",
     ):
+        """
+
+        Logs an action performed by a user on an object.
+
+        This method records a log entry for the specified action, including information about the user, object, and any changes made.
+        It stores details such as the user who performed the action, the type and ID of the object, a short representation of the object, 
+        and a flag indicating the type of action (e.g., creation, update, deletion). Additionally, it can store a message describing the changes made.
+
+        Note: This method is deprecated since Django 3.x and will be removed in Django 6.0. It is recommended to use :meth:`log_actions()` instead.
+
+        Parameters
+        ----------
+        user_id : int
+            The ID of the user who performed the action.
+        content_type_id : int
+            The ID of the content type of the object.
+        object_id : str
+            The ID of the object.
+        object_repr : str
+            A short representation of the object.
+        action_flag : int
+            A flag indicating the type of action (e.g., creation, update, deletion).
+        change_message : str
+            A message describing the changes made.
+
+        Returns
+        -------
+        LogEntry
+            The newly created log entry instance.
+
+        """
         warnings.warn(
             "LogEntryManager.log_action() is deprecated. Use log_actions() instead.",
             RemovedInDjango60Warning,
@@ -55,6 +86,21 @@ class LogEntryManager(models.Manager):
         self, user_id, queryset, action_flag, change_message="", *, single_object=False
     ):
         # RemovedInDjango60Warning.
+        """
+        Logs actions performed by a user on a queryset of objects.
+
+        :param user_id: The ID of the user performing the action.
+        :param queryset: A queryset of objects that the action was performed on.
+        :param action_flag: A flag indicating the type of action performed.
+        :param change_message: An optional message describing the changes made.
+        :param single_object: If True, log a single action for the entire queryset.
+
+        :returns: The logged action instance if single_object is True, otherwise the result of bulk creating the log entries.
+
+        :note: This method is not compatible with the deprecated log_action() method. If log_action() is used, a warning will be raised and the method will fall back to the deprecated behavior.
+
+        Logs actions in bulk, allowing for efficient storage of user interactions with the system. The logged actions can be used for auditing, monitoring, or other purposes. If single_object is True, only one log entry will be created for the entire queryset, otherwise a log entry will be created for each object in the queryset.
+        """
         if type(self).log_action != LogEntryManager.log_action:
             warnings.warn(
                 "The usage of log_action() is deprecated. Implement log_actions() "

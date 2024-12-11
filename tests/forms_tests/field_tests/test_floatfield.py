@@ -42,6 +42,15 @@ class FloatFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
             f.clean("-Inf")
 
     def test_floatfield_2(self):
+        """
+
+        Tests the functionality of a FloatField instance.
+
+        This test case examines the cleaning functionality of a FloatField when it is not required.
+        It checks that empty strings and None values are cleaned to None, and that numeric strings are cleaned to their corresponding float values.
+        Additionally, it verifies that the max_value and min_value properties are not set by default.
+
+        """
         f = FloatField(required=False)
         self.assertIsNone(f.clean(""))
         self.assertIsNone(f.clean(None))
@@ -124,6 +133,16 @@ class FloatFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
 
     @override_settings(DECIMAL_SEPARATOR=",")
     def test_floatfield_support_decimal_separator(self):
+        """
+
+        Tests the support for decimal separators in FloatField.
+
+        This function verifies that the FloatField correctly handles decimal numbers 
+        with different separator formats, ensuring that the cleaned output is consistent 
+        regardless of the input format. It specifically checks the handling of comma (,) 
+        and dot (.) as decimal separators, validating that both are correctly interpreted.
+
+        """
         with translation.override(None):
             f = FloatField(localize=True)
             self.assertEqual(f.clean("1001,10"), 1001.10)

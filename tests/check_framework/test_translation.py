@@ -70,6 +70,25 @@ class TranslationCheckTests(SimpleTestCase):
                 )
 
     def test_valid_languages_bidi(self):
+        """
+        Tests that the check_setting_languages_bidi function correctly handles valid languages with bidirectional text support.
+
+        This test case iterates over a list of valid language tags and checks that the function returns an empty list when each tag is set as the only bidirectional language.
+
+        The test ensures that the function behaves as expected when given a single valid language tag, verifying that it does not incorrectly identify bidirectional languages.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+
+        Notes
+        -----
+        This test is run for each valid language tag, allowing for comprehensive coverage of the check_setting_languages_bidi function's behavior in different linguistic contexts.
+        """
         for tag in self.valid_tags:
             with self.subTest(tag), self.settings(LANGUAGES_BIDI=[tag]):
                 self.assertEqual(check_setting_languages_bidi(None), [])
@@ -113,6 +132,18 @@ class TranslationCheckTests(SimpleTestCase):
         ],
     )
     def test_valid_variant_consistent_language_settings(self):
+        """
+
+        Tests the consistency of language settings for various language variant codes.
+
+        Checks that the :func:`check_language_settings_consistent` function correctly validates
+        language settings for different language codes with region or dialect variants.
+
+        The function tests multiple language codes (e.g. French (Canada), Spanish (Latin America),
+        German (Austria), Catalan (Valencia)) to ensure that the language settings are consistently
+        applied.
+
+        """
         tests = [
             # language + region.
             "fr-CA",

@@ -137,6 +137,15 @@ class AsyncDummyCacheTests(SimpleTestCase):
         )
 
     async def test_aset_many_invalid_key(self):
+        """
+        Test aset_many with an invalid key containing spaces.
+
+        Verifies that setting multiple values in the cache using an invalid key raises a CacheKeyWarning,
+        providing a descriptive error message indicating the problem with the key.
+
+        :raises CacheKeyWarning: If the key contains spaces.
+
+        """
         msg = KEY_ERRORS_WITH_MEMCACHED_MSG % ":1:key with spaces"
         with self.assertWarnsMessage(CacheKeyWarning, msg):
             await cache.aset_many({"key with spaces": "foo"})
@@ -179,6 +188,14 @@ class AsyncDummyCacheTests(SimpleTestCase):
             await cache.adecr_version("does_not_exist")
 
     async def test_aget_or_set(self):
+        """
+        Tests the aget_or_set method of the cache.
+
+        This method checks the behavior of aget_or_set when given a key and a default value.
+        It verifies that when the key is not present in the cache, the default value is returned.
+        Additionally, it checks that when the default value is None, None is returned, 
+        even if the key is present in the cache, to ensure correct handling of null defaults.
+        """
         self.assertEqual(await cache.aget_or_set("key", "default"), "default")
         self.assertIsNone(await cache.aget_or_set("key", None))
 

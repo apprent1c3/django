@@ -222,6 +222,20 @@ class TestForm(Form):
     multi = fields.MultipleChoiceField(choices=TestChoices)
 
     def clean(self):
+        """
+        Cleans and validates the data.
+
+        This method checks the provided data for any potential issues and returns the 
+        cleaned data if no errors are found. If the 'text' field contains a specific 
+        value, it raises a ValidationError with a non-field error message.
+
+        Returns:
+            dict: The cleaned data.
+
+        Raises:
+            ValidationError: If the 'text' field contains a value that triggers a non-field error.
+
+        """
         cleaned_data = self.cleaned_data
         if cleaned_data.get("text") == "Raise non-field error":
             raise ValidationError("Non-field error.")

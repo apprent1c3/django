@@ -95,6 +95,14 @@ class BasicTests(PostgreSQLSimpleTestCase):
 
 class TestSaveLoad(PostgreSQLTestCase):
     def test_integer(self):
+        """
+        Tests the ability to save and retrieve an IntegerArrayModel instance with an integer array field, verifying that the data is correctly persisted and retrieved from the database.\"\"\"
+
+         \"\"\" 
+            This test checks the functionality of saving an instance of IntegerArrayModel and then retrieving the same instance from the database,
+            asserting that the original array and the retrieved array are identical. This validation ensures the model's field is properly stored and loaded.
+
+        """
         instance = IntegerArrayModel(field=[1, 2, 3])
         instance.save()
         loaded = IntegerArrayModel.objects.get()
@@ -149,12 +157,30 @@ class TestSaveLoad(PostgreSQLTestCase):
             instance.save()
 
     def test_nested(self):
+        """
+
+        Tests the functionality of the NestedIntegerArrayModel with regards to its ability to save and retrieve instances from the database.
+
+        Verifies that when an instance of NestedIntegerArrayModel with a nested integer array field is saved, its state is correctly preserved when reloaded from the database, ensuring data consistency and integrity.
+
+        """
         instance = NestedIntegerArrayModel(field=[[1, 2], [3, 4]])
         instance.save()
         loaded = NestedIntegerArrayModel.objects.get()
         self.assertEqual(instance.field, loaded.field)
 
     def test_other_array_types(self):
+        """
+        Test saving and loading of model with various array types.
+
+        This method tests the functionality of OtherTypesArrayModel by creating an instance,
+        populating its fields with different data types (IP addresses, UUIDs, decimal numbers,
+        tags, JSON objects, integer ranges, and big integer ranges), saving the instance,
+        and then loading it back to verify that all fields were persisted correctly.
+
+        The test ensures that the data is not corrupted or lost during the save and load process,
+        and that the loaded instance has the same values as the original instance for all fields.
+        """
         instance = OtherTypesArrayModel(
             ips=["192.168.0.1", "::1"],
             uuids=[uuid.uuid4()],
@@ -248,6 +274,13 @@ class TestQuerying(PostgreSQLTestCase):
         )
 
     def test_exact_null_only_nested_array(self):
+        """
+        Tests the exact filtering of nullable integer arrays that are nested within another array.
+
+        Filters objects based on the exact match of a nested array, ensuring that the entire nested array structure is matched, 
+        including the sequence and count of inner arrays. The function verifies that objects are correctly filtered when the 
+        nested array has one or multiple inner arrays.
+        """
         obj1 = NullableIntegerArrayModel.objects.create(field_nested=[[None, None]])
         obj2 = NullableIntegerArrayModel.objects.create(
             field_nested=[[None, None], [None, None]],
@@ -305,6 +338,14 @@ class TestQuerying(PostgreSQLTestCase):
         )
 
     def test_in_subquery(self):
+        """
+
+        Tests filtering of nullable integer array field using a subquery.
+
+        Checks that the :class:`NullableIntegerArrayModel` objects are correctly filtered
+        when using an :meth:`in` lookup with a subquery on the :class:`IntegerArrayModel`.
+
+        """
         IntegerArrayModel.objects.create(field=[2, 3])
         self.assertSequenceEqual(
             NullableIntegerArrayModel.objects.filter(
@@ -395,6 +436,15 @@ class TestQuerying(PostgreSQLTestCase):
         )
 
     def test_overlap_charfield_including_expression(self):
+        """
+
+        Tests the overlap lookup on a CharArrayField, including the use of database expressions.
+        The lookup should return objects where the specified value is present in the CharArrayField, 
+        regardless of case, and should also correctly handle multiple values in the field. 
+        The test verifies that the filter query correctly matches objects containing the given text 
+        in any case, while ignoring unrelated values.
+
+        """
         obj_1 = CharArrayModel.objects.create(field=["TEXT", "lower text"])
         obj_2 = CharArrayModel.objects.create(field=["lower text", "TEXT"])
         CharArrayModel.objects.create(field=["lower text", "text"])
@@ -424,6 +474,24 @@ class TestQuerying(PostgreSQLTestCase):
         )
 
     def test_lookups_autofield_array(self):
+        """
+        Test case for lookups on Autofield Array.
+
+            The test checks the functionality of lookups 'contained_by', 'contains', 'exact', and 'overlap' 
+            on an ArrayField with autofield containing nullable integers. It filters a queryset based on 
+            various conditions, annotates with aggregated ids, orders the results, and then applies 
+            different lookups on the annotated field. The expected results are verified by comparing with 
+            pre-defined expected values.
+
+            The following lookups are tested:
+                - 'contained_by': Tests if the array is contained by a given value.
+                - 'contains': Tests if the array contains a given value.
+                - 'exact': Tests if the array is exactly equal to a given value.
+                - 'overlap': Tests if the array overlaps with a given value.
+
+            This test case ensures that the specified lookups are working as expected on an array field 
+            with nullable integers and autofield.
+        """
         qs = (
             NullableIntegerArrayModel.objects.filter(
                 field__0__isnull=False,
@@ -515,6 +583,18 @@ class TestQuerying(PostgreSQLTestCase):
         )
 
     def test_index_annotation(self):
+        """
+        Tests the annotation of a nullable integer array field.
+
+        This test case verifies that the annotation of a nullable integer array field
+        returns the expected values. It checks if the annotated values match the
+        expected results, which include None values and specific integer values.
+
+        The test covers the scenario where the annotation is applied to a queryset of
+        objects, and the resulting annotated values are retrieved using the values_list
+        method. The test assertion ensures that the annotated values are correct and
+        consistent with the expected output.
+        """
         qs = NullableIntegerArrayModel.objects.annotate(second=models.F("field__1"))
         self.assertCountEqual(
             qs.values_list("second", flat=True),
@@ -548,6 +628,17 @@ class TestQuerying(PostgreSQLTestCase):
         )
 
     def test_order_by_slice(self):
+        """
+
+        Tests the ordering of NullableIntegerArrayModel objects by a specific slice of the 'field' array attribute.
+
+        The function creates additional instances of NullableIntegerArrayModel with varying 'field' values,
+        then asserts that the objects are ordered correctly when sorted by the second element (index 1) of the 'field' array.
+
+        The ordering is expected to be in ascending order, with negative values appearing before positive values.
+        The test verifies that the correct order is maintained when there are a mix of negative and positive values in the 'field' array.
+
+        """
         more_objs = (
             NullableIntegerArrayModel.objects.create(field=[1, 637]),
             NullableIntegerArrayModel.objects.create(field=[2, 1]),
@@ -717,6 +808,14 @@ class TestQuerying(PostgreSQLTestCase):
         )
 
     def test_annotated_ordered_array_subquery(self):
+        """
+        Tests the annotation of models with an ordered subquery using an array subquery.
+
+        Verifies that a subquery ordering nullable integer arrays in descending order can be correctly 
+        annotated onto a model instance, and that the annotated array attribute reflects the expected ordered values.
+
+        The test checks for the correct ordering of the array values, ensuring they match the expected descending order sequence of [5, 4, 3, 2, 1].
+        """
         inner_qs = NullableIntegerArrayModel.objects.order_by("-order").values("order")
         self.assertSequenceEqual(
             NullableIntegerArrayModel.objects.annotate(
@@ -728,6 +827,18 @@ class TestQuerying(PostgreSQLTestCase):
         )
 
     def test_annotated_array_subquery_with_json_objects(self):
+        """
+
+        Tests that a subquery using annotated arrays with JSON objects works as expected.
+
+        This test verifies that an array subquery can be used to fetch related JSON objects 
+        from a different row in the same table, excluding the current row. The results 
+        are then compared to an expected list of JSON objects.
+
+        The test case checks the correctness of the annotated array subquery by comparing 
+        the retrieved JSON objects with a predefined sequence of expected JSON objects.
+
+        """
         inner_qs = NullableIntegerArrayModel.objects.exclude(
             pk=models.OuterRef("pk")
         ).values(json=JSONObject(order="order", field="field"))
@@ -752,6 +863,17 @@ class TestQuerying(PostgreSQLTestCase):
 class TestDateTimeExactQuerying(PostgreSQLTestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for DateTimeArrayModel, creating objects with current date, time, and datetime values. 
+
+        This method is used to populate the test data for subsequent tests, providing a consistent base for testing DateTimeArrayModel instances. 
+
+        It prepares the following class attributes: 
+            - datetimes: a list containing the current datetime
+            - dates: a list containing the current date
+            - times: a list containing the current time
+            - objs: a list containing a DateTimeArrayModel instance created with the above values.
+        """
         now = timezone.now()
         cls.datetimes = [now]
         cls.dates = [now.date()]
@@ -781,6 +903,15 @@ class TestDateTimeExactQuerying(PostgreSQLTestCase):
 class TestOtherTypesExactQuerying(PostgreSQLTestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Sets up test data for the class.
+
+        This method is used to prepare a set of data that can be used throughout the tests.
+        It creates a collection of commonly used values, including IP addresses, UUIDs, decimal numbers, and tags.
+        An instance of OtherTypesArrayModel is then created with these values and stored for later use in the tests.
+
+        """
         cls.ips = ["192.168.0.1", "::1"]
         cls.uuids = [uuid.uuid4()]
         cls.decimals = [decimal.Decimal(1.25), 1.75]
@@ -890,6 +1021,22 @@ class TestChecks(PostgreSQLSimpleTestCase):
         self.assertIn("max_length", errors[0].msg)
 
     def test_choices_tuple_list(self):
+        """
+
+        Validate the definition of a field with choices in a model.
+
+        This function tests the proper setup of a field in a PostgreSQL model, specifically 
+        when the field utilizes an ArrayField with CharField restricts input based on given choices. 
+        It ensures that the defined choices are valid by checking for any errors during the field's 
+        validation process, verifying that no errors are raised.
+
+        The choices in this context are structured as a tuple containing a list of allowed values 
+        and their corresponding group labels, allowing for a hierarchical organization of options.
+
+        If the field's definition is correct, this test will pass, indicating that the model's 
+        validation is working as expected.
+
+        """
         class MyModel(PostgreSQLModel):
             field = ArrayField(
                 models.CharField(max_length=16),
@@ -910,6 +1057,9 @@ class TestMigrations(TransactionTestCase):
     available_apps = ["postgres_tests"]
 
     def test_deconstruct(self):
+        """
+        Tests the deconstruction and reconstruction of an ArrayField to ensure it produces a new instance with the same base field type but a distinct base field object.
+        """
         field = ArrayField(models.IntegerField())
         name, path, args, kwargs = field.deconstruct()
         new = ArrayField(*args, **kwargs)
@@ -1020,6 +1170,9 @@ class TestValidation(PostgreSQLSimpleTestCase):
         )
 
     def test_blank_true(self):
+        """
+        Tests that an ArrayField with blank=True allows empty values and None in its elements to be cleaned successfully, ensuring the field's validation and sanitization process handles such cases as expected.
+        """
         field = ArrayField(models.IntegerField(blank=True, null=True))
         # This should not raise a validation error
         field.clean([1, None], None)
@@ -1069,6 +1222,17 @@ class TestValidation(PostgreSQLSimpleTestCase):
         )
 
     def test_with_validators(self):
+        """
+        Tests the validation of ArrayField instances that are configured with validators.
+
+        Specifically, this test checks that the field's clean method raises a ValidationError
+        when the array contains invalid values, and that the error message and code are
+        correctly set. The validation is performed using a MinValueValidator,
+        which checks that all values in the array are greater than or equal to a specified
+        minimum value. The test verifies that the error is correctly reported, including
+        the position of the invalid value in the array and the specific validation error
+        that occurred.
+        """
         field = ArrayField(
             models.IntegerField(validators=[validators.MinValueValidator(1)])
         )
@@ -1095,6 +1259,15 @@ class TestSimpleFormField(PostgreSQLSimpleTestCase):
         self.assertEqual(value, ["a", "b", "c"])
 
     def test_to_python_fail(self):
+        """
+
+        Tests that the to_python method of a field fails validation when given invalid input.
+
+        Checks that a ValidationError is raised when attempting to clean an array of values
+        that contains non-numeric input. Verifies that the error message returned is correct,
+        specifically citing the position of the invalid item in the array and the type of error.
+
+        """
         field = SimpleArrayField(forms.IntegerField())
         with self.assertRaises(exceptions.ValidationError) as cm:
             field.clean("a,b,9")
@@ -1113,6 +1286,18 @@ class TestSimpleFormField(PostgreSQLSimpleTestCase):
         )
 
     def test_validate_fail_base_field_error_params(self):
+        """
+
+        Tests that validation fails when the base field of a SimpleArrayField encounters an error.
+
+        This test case creates a SimpleArrayField with a CharField that has a maximum length of 2 characters.
+        It then attempts to clean a string that contains items that exceed this maximum length, verifying that
+        a ValidationError is raised with the expected error messages and parameters.
+
+        The test checks that the ValidationError contains error details for each item in the array that failed
+        validation, including the item's position, value, and the specific validation error that occurred.
+
+        """
         field = SimpleArrayField(forms.CharField(max_length=2))
         with self.assertRaises(exceptions.ValidationError) as cm:
             field.clean("abc,c,defg")
@@ -1142,6 +1327,11 @@ class TestSimpleFormField(PostgreSQLSimpleTestCase):
         )
 
     def test_validators_fail(self):
+        """
+        Tests that validators in the SimpleArrayField fail as expected when provided with invalid input.
+        The function creates a SimpleArrayField with a RegexField validator that checks for strings of length 2, containing characters 'a' to 'e'.
+        It then attempts to clean an array where the second item does not match the validator's pattern, asserting that a ValidationError is raised and contains the expected error message.
+        """
         field = SimpleArrayField(forms.RegexField("[a-e]{2}"))
         with self.assertRaises(exceptions.ValidationError) as cm:
             field.clean("a,bc,de")
@@ -1161,6 +1351,15 @@ class TestSimpleFormField(PostgreSQLSimpleTestCase):
         self.assertEqual(value, [["a", "b"], ["c", "d"]])
 
     def test_prepare_value(self):
+        """
+
+        Tests the preparation of a value for a SimpleArrayField.
+
+        This test case verifies that the prepare_value method of the SimpleArrayField 
+        correctly converts a list of values into a comma-separated string, as 
+        expected by the underlying CharField.
+
+        """
         field = SimpleArrayField(forms.CharField())
         value = field.prepare_value(["a", "b", "c"])
         self.assertEqual(value, "a,b,c")
@@ -1184,6 +1383,15 @@ class TestSimpleFormField(PostgreSQLSimpleTestCase):
         )
 
     def test_min_length_singular(self):
+        """
+
+        Tests the validation of a SimpleArrayField to ensure it meets the minimum length requirement.
+
+        This test checks that a ValidationError is raised when the field contains fewer items than the specified minimum length.
+        In this case, the field is defined to require at least 2 items, and the test attempts to clean a list with only 1 item.
+        The expected error message is verified to ensure the field is correctly enforcing the minimum length constraint.
+
+        """
         field = SimpleArrayField(forms.IntegerField(), min_length=2)
         field.clean([1, 2])
         msg = "List contains 1 item, it should contain no fewer than 2."
@@ -1227,6 +1435,9 @@ class TestSimpleFormField(PostgreSQLSimpleTestCase):
         self.assertIs(field.has_changed([1, 2], "a,b"), True)
 
     def test_has_changed_empty(self):
+        """
+        Tests whether the has_changed method of an empty SimpleArrayField returns False for various combinations of initial and current values, including None, empty strings, and empty lists, indicating that the field has not changed in these scenarios.
+        """
         field = SimpleArrayField(forms.CharField())
         self.assertIs(field.has_changed(None, None), False)
         self.assertIs(field.has_changed(None, ""), False)
@@ -1310,6 +1521,9 @@ class TestSplitFormField(PostgreSQLSimpleTestCase):
             SplitArrayField(forms.IntegerField(max_value=100), size=2).clean([0, 101])
 
     def test_rendering(self):
+        """
+        Tests the rendering of a form field that allows for the input of an array of values, specifically a SplitArrayField within a Form, verifying it produces the expected HTML structure with multiple input fields.
+        """
         class SplitForm(forms.Form):
             array = SplitArrayField(forms.CharField(), size=3)
 
@@ -1353,6 +1567,19 @@ class TestSplitFormField(PostgreSQLSimpleTestCase):
         self.assertEqual(obj.field, [1, 2])
 
     def test_splitarrayfield_has_changed(self):
+        """
+        Tests whether the has_changed method of a form with a SplitArrayField correctly 
+        identifies changes to the field. 
+
+        The test covers various scenarios to verify the method's functionality, including:
+        - empty and null field values
+        - partially populated fields
+        - completely populated fields
+        - fields with invalid input
+
+        It checks if the has_changed method returns the expected result in each scenario, 
+        ensuring its accuracy in detecting changes to the SplitArrayField.
+        """
         class Form(forms.ModelForm):
             field = SplitArrayField(forms.IntegerField(), required=False, size=2)
 

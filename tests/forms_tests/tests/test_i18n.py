@@ -16,6 +16,17 @@ from . import jinja2_tests
 
 class FormsI18nTests(SimpleTestCase):
     def test_lazy_labels(self):
+        """
+        Tests the usage of lazy labels in form fields.
+
+        This test case verifies that the label for a form field is properly translated
+        when using the gettext_lazy function. It checks that the label is correctly
+        rendered in different languages, including English, German, and Polish.
+
+        The test creates a sample form with a single CharField and checks the HTML
+        output of the form in different languages, ensuring that the label is
+        translated as expected.
+        """
         class SomeForm(Form):
             username = CharField(max_length=10, label=gettext_lazy("username"))
 
@@ -45,6 +56,16 @@ class FormsI18nTests(SimpleTestCase):
             )
 
     def test_non_ascii_label(self):
+        """
+
+        Tests the rendering of form field labels containing non-ASCII characters.
+
+        Verifies that label tags for form fields are correctly generated with translated labels
+        and proper HTML attributes. This includes testing both default and custom widget IDs.
+        The test ensures that both label and legend tags are correctly rendered for fields with
+        and without custom widget attributes.
+
+        """
         class SomeForm(Form):
             field_1 = CharField(max_length=10, label=gettext_lazy("field_1"))
             field_2 = CharField(

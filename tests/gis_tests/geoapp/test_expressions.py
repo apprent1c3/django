@@ -24,6 +24,17 @@ class GeoExpressionsTests(TestCase):
 
     @skipUnlessDBFeature("supports_geography")
     def test_geography_value(self):
+        """
+
+        Tests the calculation of the area of a geographic polygon.
+
+        This test creates a sample polygon and uses the database's geographic functions
+        to calculate its area in square kilometers. The result is then verified to be
+        approximately equal to the expected value.
+
+        The test requires a database that supports geographic data types and functions.
+
+        """
         p = Polygon(((1, 1), (1, 2), (2, 2), (2, 1), (1, 1)))
         area = (
             City.objects.annotate(
@@ -55,6 +66,16 @@ class GeoExpressionsTests(TestCase):
             )
 
     def test_multiple_annotation(self):
+        """
+
+        Tests annotation of multiple fields in a query, including geographic distance calculations.
+
+        This function creates a test instance of a MultiFields object, containing a point, city, and polygon.
+        It then queries the City model, annotating each city with the minimum distance from its point
+        to the point of the test city in the MultiFields object, and a count of associated MultiFields instances.
+        The function verifies that at least one city is returned in the query results.
+
+        """
         multi_field = MultiFields.objects.create(
             point=Point(1, 1),
             city=City.objects.get(name="Houston"),

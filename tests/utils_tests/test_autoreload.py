@@ -160,6 +160,11 @@ class TestIterModulesAndFiles(SimpleTestCase):
         self.assertFileFound(Path(main_module.__file__))
 
     def test_main_module_without_file_is_not_resolved(self):
+        """
+        Tests that autoreload functionality correctly handles the main module when no file is associated with it.
+
+        This test case verifies that when the main module is encountered without a corresponding file, it is not resolved by the autoreload module. The expectation is that the autoreload functionality will return an empty set, indicating that no modules or files were found for the given main module without a file.
+        """
         fake_main = types.ModuleType("__main__")
         self.assertEqual(
             autoreload.iter_modules_and_files((fake_main,), frozenset()), frozenset()
@@ -292,6 +297,17 @@ class TestUtilities(SimpleTestCase):
                 self.assertIs(autoreload.is_django_module(module), expected)
 
     def test_is_django_path(self):
+        """
+
+        Test that the is_django_path function correctly identifies Django paths.
+
+        This test checks the function's behavior for different input modules, 
+        verifying that it correctly distinguishes between Django and non-Django paths.
+
+        The test covers various cases, including Django-related modules and 
+        standard library modules, to ensure the function's accuracy.
+
+        """
         for module, expected in (
             (zoneinfo.__file__, False),
             (contextlib.__file__, False),
@@ -338,6 +354,17 @@ class TestSysPathDirectories(SimpleTestCase):
         self.assertTrue(all(p.is_absolute() for p in paths))
 
     def test_sys_paths_directories(self):
+        """
+        Tests whether the directory is correctly added to sys.path directories.
+
+        This test case verifies that the specified directory is included in the list of
+        sys.path directories after extending the sys.path. It ensures that the
+        directory is properly registered and can be used for autoreloading purposes.
+
+        The test checks the contents of sys.path directories after temporarily extending
+        the sys.path with a specified directory, confirming that the added directory is
+        present in the resulting list of directories.
+        """
         with extend_sys_path(str(self.directory)):
             paths = list(autoreload.sys_path_directories())
         self.assertIn(self.directory, paths)
@@ -346,6 +373,16 @@ class TestSysPathDirectories(SimpleTestCase):
 class GetReloaderTests(SimpleTestCase):
     @mock.patch("django.utils.autoreload.WatchmanReloader")
     def test_watchman_unavailable(self, mocked_watchman):
+        """
+        Tests that the StatReloader is used when Watchman is unavailable.
+
+        This test case simulates a scenario where the WatchmanReloader is not available
+        and verifies that the autoreload module falls back to using the StatReloader
+        instead.
+
+        :raises: None
+        :returns: None
+        """
         mocked_watchman.check_availability.side_effect = WatchmanUnavailable
         self.assertIsInstance(autoreload.get_reloader(), autoreload.StatReloader)
 
@@ -361,6 +398,9 @@ class RunWithReloaderTests(SimpleTestCase):
     @mock.patch.dict(os.environ, {autoreload.DJANGO_AUTORELOAD_ENV: "true"})
     @mock.patch("django.utils.autoreload.get_reloader")
     def test_swallows_keyboard_interrupt(self, mocked_get_reloader):
+        """
+        Tests that the autoreload mechanism correctly handles a keyboard interrupt, ensuring that the autoreload process is able to recover and continue running as expected when the interrupt is triggered, specifically when the Django autoreload environment variable is set to true.
+        """
         mocked_get_reloader.side_effect = KeyboardInterrupt()
         autoreload.run_with_reloader(lambda: None)  # No exception
 
@@ -402,6 +442,19 @@ class StartDjangoTests(SimpleTestCase):
     @mock.patch("threading.Thread")
     @mock.patch("django.utils.autoreload.check_errors")
     def test_starts_thread_with_args(self, mocked_check_errors, mocked_thread):
+        """
+
+        Tests the start_django function to ensure it correctly starts a thread with the provided arguments.
+
+        The function is expected to create a new thread with the main function as its target,
+        passing in the provided arguments and keyword arguments. The test verifies that the
+        thread is started, is set as a daemon, and that the correct arguments are passed to
+        the thread constructor.
+
+        The test uses mocking to isolate the dependencies of the start_django function,
+        allowing it to test the function's behavior in isolation.
+
+        """
         fake_reloader = mock.MagicMock()
         fake_main_func = mock.MagicMock()
         fake_thread = mock.MagicMock()
@@ -509,6 +562,20 @@ class RestartWithReloaderTests(SimpleTestCase):
         return mock_call
 
     def test_manage_py(self):
+        """
+
+        Tests the functionality of manage.py with the autoreload reloader.
+
+        This test simulates running the 'runserver' command from manage.py while 
+        utilizing the autoreload reloader. It verifies that the autoreload reloader 
+        starts the command correctly and with the expected arguments.
+
+        The test creates a temporary directory, creates a minimal manage.py script, 
+        and then runs the 'runserver' command through the autoreload reloader. 
+        It checks that the autoreload reloader is called as expected, 
+        with the correct executable and command-line arguments.
+
+        """
         with tempfile.TemporaryDirectory() as temp_dir:
             script = Path(temp_dir) / "manage.py"
             script.touch()
@@ -564,6 +631,20 @@ class ReloaderTests(SimpleTestCase):
         os.utime(str(fp), (value, value))
 
     def increment_mtime(self, fp, by=1):
+        """
+        Increment the last modification time of a file.
+
+        Increment the last modification time of the file at path fp by the specified number of seconds.
+        The increment value defaults to 1 second if not provided.
+
+        Args:
+            fp (str): The path to the file.
+            by (int, optional): The number of seconds to increment the last modification time by. Defaults to 1.
+
+        Note:
+            The actual modification time is updated to the current time plus the specified increment value.
+
+        """
         current_time = time.time()
         self.set_mtime(fp, current_time + by)
 
@@ -581,6 +662,19 @@ class IntegrationTests:
         "django.utils.autoreload.iter_all_python_module_files", return_value=frozenset()
     )
     def test_glob(self, mocked_modules, notify_mock):
+        """
+        Tests that the Django autoreloader correctly notifies of changes to Python files.
+
+        This test case verifies that the autoreloader only triggers a notification when a
+        Python file's modification time is updated, while ignoring non-Python files.
+        Specifically, it checks that the `notify_file_changed` method is called once with
+        the path to the modified Python file when both a Python and a non-Python file have
+        their modification times updated.
+
+        The test ensures that the autoreloader is properly configured to watch for changes
+        to Python files in the specified directory, and that it correctly distinguishes
+        between Python and non-Python files when sending notifications.
+        """
         non_py_file = self.ensure_file(self.tempdir / "non_py_file")
         self.reloader.watch_dir(self.tempdir, "*.py")
         with self.tick_twice():
@@ -594,6 +688,19 @@ class IntegrationTests:
         "django.utils.autoreload.iter_all_python_module_files", return_value=frozenset()
     )
     def test_multiple_globs(self, mocked_modules, notify_mock):
+        """
+        Tests the autoreloader's behavior when multiple glob patterns are watched.
+
+        This test case verifies that the autoreloader correctly notifies of file changes
+        when multiple glob patterns are being watched in the same directory. It ensures
+        that only the file that actually changed is reported in the notification.
+
+        The test setup involves creating a temporary file, setting up the autoreloader to
+        watch for both Python files and test files in the same directory, and then
+        simulating a file modification to trigger the autoreloader. It then asserts that
+        the expected file is reported in the notification and that the notification is
+        only sent once.
+        """
         self.ensure_file(self.tempdir / "x.test")
         self.reloader.watch_dir(self.tempdir, "*.py")
         self.reloader.watch_dir(self.tempdir, "*.test")
@@ -607,6 +714,18 @@ class IntegrationTests:
         "django.utils.autoreload.iter_all_python_module_files", return_value=frozenset()
     )
     def test_overlapping_globs(self, mocked_modules, notify_mock):
+        """
+        Tests the handling of overlapping glob patterns by the autoreloader.
+
+        This test checks that when the autoreloader is watching a directory with
+        overlapping glob patterns (e.g., '*.py' and '*.p*'), it correctly notifies
+        only once when a file matching both patterns is modified.
+
+        The test verifies that the autoreloader's notification mechanism is not
+        triggered multiple times due to the overlapping patterns, ensuring that
+        the system only reacts once to a file change event. This guarantees
+        correct behavior when using multiple watch patterns in the same directory.
+        """
         self.reloader.watch_dir(self.tempdir, "*.py")
         self.reloader.watch_dir(self.tempdir, "*.p*")
         with self.tick_twice():
@@ -687,6 +806,13 @@ class BaseReloaderTests(ReloaderTests):
         self.assertIn(self.existing_file, watched_files)
 
     def test_watch_files_with_recursive_glob(self):
+        """
+        Tests the ability of the reloader to watch files using recursive glob patterns.
+
+        Verifies that the reloader correctly identifies and watches all files matching the specified pattern,
+        including those located within subdirectories. The test specifically checks that both existing files
+        and newly created files within the watched directory are properly included in the list of watched files.
+        """
         inner_file = self.ensure_file(self.tempdir / "test" / "test.py")
         self.reloader.watch_dir(self.tempdir, "**/*.py")
         watched_files = list(self.reloader.watched_files())
@@ -694,6 +820,18 @@ class BaseReloaderTests(ReloaderTests):
         self.assertIn(inner_file, watched_files)
 
     def test_run_loop_catches_stopiteration(self):
+        """
+
+        Tests if the run_loop method of the reloader catches the StopIteration exception.
+
+        The test simulates the tick method of the reloader by replacing it with a mocked 
+        version that yields once, which in turn will cause the run_loop method to 
+        encounter a StopIteration exception at the next iteration. 
+
+        The test verifies that the run_loop method correctly catches the exception and 
+        stops its execution, by checking that the tick method is called only once.
+
+        """
         def mocked_tick():
             yield
 
@@ -720,6 +858,18 @@ class BaseReloaderTests(ReloaderTests):
         self.assertFalse(self.reloader.wait_for_apps_ready(app_reg, dead_thread))
 
     def test_wait_for_apps_ready_without_exception(self):
+        """
+        Tests that the wait_for_apps_ready function successfully returns True 
+        when the apps are ready, without throwing any exceptions.
+
+        The function's behavior is verified by setting the ready_event of the Apps 
+        registry, and then checking if the wait_for_apps_ready function correctly 
+        detects this state and returns without error.
+
+        This test case covers a successful scenario where the apps are ready and 
+        the wait_for_apps_ready function can return immediately, confirming its 
+        correct operation under these conditions.
+        """
         app_reg = Apps()
         app_reg.ready_event.set()
         thread = mock.MagicMock()
@@ -740,6 +890,13 @@ class WatchmanReloaderTests(ReloaderTests, IntegrationTests):
     RELOADER_CLS = autoreload.WatchmanReloader
 
     def setUp(self):
+        """
+        Initializes the test setup, inheriting from the parent class and configuring the reloader client timeout.
+
+        The timeout value is retrieved from the DJANGO_WATCHMAN_TIMEOUT environment variable, defaulting to 2 seconds if not set. This allows for customization of the timeout duration based on specific testing requirements.
+
+        This method is typically called before executing test cases to ensure a properly configured environment. 
+        """
         super().setUp()
         # Shorten the timeout to speed up tests.
         self.reloader.client_timeout = int(os.environ.get("DJANGO_WATCHMAN_TIMEOUT", 2))
@@ -778,11 +935,41 @@ class WatchmanReloaderTests(ReloaderTests, IntegrationTests):
         self.assertIn(self.existing_file.parent, paths)
 
     def test_watched_roots_contains_directory_globs(self):
+        """
+        Tests that the watched roots contain directory globs.
+
+        Verifies that when a directory is set to be watched with a glob pattern,
+        the path of the directory itself is included in the list of watched roots.
+
+        This ensures that the reloader correctly handles directory level watching
+        with file pattern filters, allowing for proper automatic reloading of
+        modified files within the specified directories.
+        """
         self.reloader.watch_dir(self.tempdir, "*.py")
         paths = self.reloader.watched_roots([])
         self.assertIn(self.tempdir, paths)
 
     def test_watched_roots_contains_sys_path(self):
+        """
+        Tests whether the reloader's watched roots contain the system path.
+
+        This test checks if the reloader correctly includes the system path in its
+        watched roots. It temporarily extends the system path to include a test
+        directory and then verifies that the reloader's watched roots contain the
+        test directory.
+
+        The reloader's watched roots are the directories that it monitors for changes
+        to reload the application. This test ensures that the reloader is configured
+        correctly to watch the system path, which is essential for detecting changes
+        to application code and dependencies.
+
+        The test uses a temporary directory to avoid modifying the system path
+        permanently. The test directory is removed after the test is completed,
+        leaving the system path unchanged.
+
+        The test passes if the reloader's watched roots contain the test directory,
+        indicating that the reloader is correctly configured to watch the system path.
+        """
         with extend_sys_path(str(self.tempdir)):
             paths = self.reloader.watched_roots([])
         self.assertIn(self.tempdir, paths)
@@ -846,6 +1033,13 @@ class StatReloaderTests(ReloaderTests, IntegrationTests):
     RELOADER_CLS = autoreload.StatReloader
 
     def setUp(self):
+        """
+
+        Sets up the test environment, inheriting the setup from the parent class and
+        configuring the reloader to use a short sleep time of 10 milliseconds, which
+        allows for faster test execution.
+
+        """
         super().setUp()
         # Shorten the sleep time to speed up tests.
         self.reloader.SLEEP_TIME = 0.01
@@ -863,12 +1057,32 @@ class StatReloaderTests(ReloaderTests, IntegrationTests):
             self.assertEqual(mock_notify_file_changed.call_count, 1)
 
     def test_snapshot_files_ignores_missing_files(self):
+        """
+
+        Tests that the snapshot_files method ignores non-existent files.
+
+        When the reloader is configured to watch a file that does not exist, this test ensures 
+        that the snapshot_files method returns an empty dictionary, effectively ignoring the 
+        missing file and not raising any errors.
+
+        """
         with mock.patch.object(
             self.reloader, "watched_files", return_value=[self.nonexistent_file]
         ):
             self.assertEqual(dict(self.reloader.snapshot_files()), {})
 
     def test_snapshot_files_updates(self):
+        """
+        Verify that the snapshot files are updated correctly when a watched file is modified.
+
+        This test checks that the :meth:`snapshot_files` method returns a snapshot of the current
+        state of the watched files, including their last modification times. It then simulates a
+        change to one of the watched files and verifies that the snapshot is updated correctly
+        to reflect the new last modification time of the file. 
+
+        The test ensures that the reloader correctly captures changes to files and updates its 
+        internal state to reflect these changes, which is essential for its file watching functionality.
+        """
         with mock.patch.object(
             self.reloader, "watched_files", return_value=[self.existing_file]
         ):
@@ -881,6 +1095,17 @@ class StatReloaderTests(ReloaderTests, IntegrationTests):
             )
 
     def test_snapshot_files_with_duplicates(self):
+        """
+        Tests that the snapshot_files method correctly handles duplicate files.
+
+        Verifies that when the watched_files list contains duplicate entries, 
+        the resulting snapshot contains only unique files. The test checks 
+        that the length of the snapshot is reduced to a single entry and 
+        that the file path in the snapshot matches the original file path.
+
+        This ensures that duplicate file entries in the watched_files list 
+        do not result in multiple snapshot entries, maintaining data consistency.
+        """
         with mock.patch.object(
             self.reloader,
             "watched_files",

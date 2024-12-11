@@ -62,6 +62,20 @@ class DatabaseClient(BaseDatabaseClient):
         return args, env
 
     def runshell(self, parameters):
+        """
+        Run a shell with the given parameters while temporarily suppressing interrupt signals.
+
+        This function overrides the default interrupt signal handling to prevent the shell from being interrupted by Ctrl+C or other SIGINT signals. The original signal handler is restored after the shell has finished running, ensuring that the program's signal handling behavior is not altered permanently.
+
+        Parameters
+        ----------
+        parameters : 
+            The parameters to be used when running the shell.
+
+        Note
+        ----
+        This function does not affect the behavior of the shell itself, but rather how it interacts with the surrounding program's signal handling. The original signal handler is always restored, even if an exception occurs during the execution of the shell.
+        """
         sigint_handler = signal.getsignal(signal.SIGINT)
         try:
             # Allow SIGINT to pass to mysql to abort queries.

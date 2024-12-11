@@ -37,6 +37,17 @@ class ManyToManyFieldTests(SimpleTestCase):
                 abstract = True
 
         def assert_app_model_resolved(label):
+            """
+
+            Asserts that the application model 'Referent' has been correctly resolved.
+
+            This function checks the referential integrity of the models 'Referred' and 'ConcreteReferent'
+            by verifying that the 'reference' field in 'ConcreteReferent' points to the 'Referred' model
+            and that the through model for the many-to-many relationship is correctly set to 'Through'.
+
+            :param label: The application label where the models are defined.
+
+            """
             class Referred(models.Model):
                 class Meta:
                     app_label = label
@@ -95,6 +106,9 @@ class ManyToManyFieldTests(SimpleTestCase):
 
 class ManyToManyFieldDBTests(TestCase):
     def test_value_from_object_instance_without_pk(self):
+        """
+        Tests that the ManyToMany field's `value_from_object` method correctly returns an empty list when called on a database model instance that does not have a primary key set. This ensures that the method behaves as expected when dealing with unsaved model instances.
+        """
         obj = ManyToMany()
         self.assertEqual(obj._meta.get_field("m2m").value_from_object(obj), [])
 

@@ -24,6 +24,16 @@ class SinTests(TestCase):
         self.assertAlmostEqual(obj.n2_sin, Decimal(math.sin(obj.n2)))
 
     def test_float(self):
+        """
+        Tests the application of the sine function to float fields in the database.
+
+        This test creates a FloatModel instance with sample float values, applies the sine
+        function to these values using database annotations, and verifies the annotated
+        values are of the correct data type and match the expected mathematical results.
+
+        The test covers the usage of the Sin database function to calculate the sine of
+        float fields, ensuring the results are accurate and correctly typed as floats.
+        """
         FloatModel.objects.create(f1=-27.5, f2=0.33)
         obj = FloatModel.objects.annotate(f1_sin=Sin("f1"), f2_sin=Sin("f2")).first()
         self.assertIsInstance(obj.f1_sin, float)

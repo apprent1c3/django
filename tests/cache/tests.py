@@ -229,6 +229,15 @@ class DummyCacheTests(SimpleTestCase):
         cache.delete_many(["a", "b"])
 
     def test_delete_many_invalid_key(self):
+        """
+
+        Test that deleting multiple keys with an invalid key name triggers a CacheKeyWarning.
+
+        This test case checks the behavior of the delete_many method when attempting to delete keys with names that contain spaces, which are not valid cache key names.
+
+        :raises CacheKeyWarning: If an invalid key name is provided to the delete_many method.
+
+        """
         msg = KEY_ERRORS_WITH_MEMCACHED_MSG % ":1:key with spaces"
         with self.assertWarnsMessage(CacheKeyWarning, msg):
             cache.delete_many(["key with spaces"])
@@ -321,6 +330,15 @@ class BaseCacheTests:
 
     def test_add(self):
         # A key can be added to a cache
+        """
+
+        Tests the functionality of adding key-value pairs to the cache.
+
+        This test checks that adding a new key-value pair returns True, 
+        attempting to add a new value to an existing key returns False, 
+        and that the original value is retained in the cache.
+
+        """
         self.assertIs(cache.add("addkey1", "value"), True)
         self.assertIs(cache.add("addkey1", "newvalue"), False)
         self.assertEqual(cache.get("addkey1"), "value")
@@ -384,6 +402,26 @@ class BaseCacheTests:
 
     def test_incr(self):
         # Cache values can be incremented
+        """
+
+        Tests the increment functionality of the cache.
+
+        This function verifies the behavior of incrementing a value in the cache by 
+        a specified amount, including incrementing by a default amount (1), 
+        incrementing by a custom amount, and handling edge cases such as 
+        attempting to increment a non-existent key or a key with a non-numeric value.
+
+        The test checks that the cache correctly updates the value and returns the 
+        new value after incrementing, and that it raises the expected errors when 
+        given invalid input. 
+
+        Raises:
+            ValueError: If the key does not exist in the cache or if the key exists 
+                         but its value cannot be incremented.
+            TypeError: If the value associated with the key is of a type that cannot 
+                       be incremented.
+
+        """
         cache.set("answer", 41)
         self.assertEqual(cache.incr("answer"), 42)
         self.assertEqual(cache.get("answer"), 42)
@@ -450,6 +488,17 @@ class BaseCacheTests:
 
     def test_cache_write_for_model_instance_with_deferred(self):
         # Don't want fields with callable as default to be called on cache write
+        """
+
+        Tests the caching behavior for a model instance with deferred fields.
+
+        This test case verifies that when a queryset with deferred fields is cached, 
+        it does not cause the deferred fields to be loaded from the database. 
+        It checks the cache's behavior when storing and retrieving a queryset 
+        that defers the loading of certain fields, ensuring that the expensive 
+        calculation is only performed when necessary.
+
+        """
         expensive_calculation.num_runs = 0
         Poll.objects.all().delete()
         Poll.objects.create(question="What?")
@@ -463,6 +512,18 @@ class BaseCacheTests:
 
     def test_cache_read_for_model_instance_with_deferred(self):
         # Don't want fields with callable as default to be called on cache read
+        """
+        Tests the behavior of cache read operations for a model instance with deferred fields.
+
+        Verifies that when a queryset with deferred fields is stored in the cache and then retrieved,
+        the expensive calculation associated with the deferred fields is not executed again.
+
+        Ensures that the cache correctly stores and retrieves the deferred queryset, and that the
+        expensive calculation is only run when the queryset is initially created, not when it is
+        retrieved from the cache. This test case covers the scenario where a model instance has
+        deferred fields and is stored in the cache, and verifies that the cache read operation does
+        not trigger any additional calculations.
+        """
         expensive_calculation.num_runs = 0
         Poll.objects.all().delete()
         Poll.objects.create(question="What?")
@@ -657,6 +718,17 @@ class BaseCacheTests:
 
     def test_float_timeout(self):
         # Make sure a timeout given as a float doesn't crash anything.
+        """
+        Tests setting and retrieving a value from the cache with a floating point timeout.
+
+        Verifies that the cache correctly stores a value with a specified timeout, 
+        measured in seconds as a floating point number, and that the value can be 
+        successfully retrieved before the timeout has expired. 
+
+        The test checks that the cache's set and get operations function as expected 
+        with fractional timeouts, ensuring compatibility and accuracy in caching data 
+        for a specified duration with sub-second precision.
+        """
         cache.set("key1", "spam", 100.2)
         self.assertEqual(cache.get("key1"), "spam")
 
@@ -736,6 +808,12 @@ class BaseCacheTests:
 
     def test_invalid_key_characters(self):
         # memcached doesn't allow whitespace or control characters in keys.
+        """
+        Tests that invalid key characters are handled correctly by verifying that 
+        using a key with spaces and non-ASCII characters raises an error. The test 
+        checks for the proper error message when attempting to use such a key, 
+        specifically with memcached, to ensure consistent behavior and error reporting.
+        """
         key = "key with spaces and 清"
         self._perform_invalid_key_test(key, KEY_ERRORS_WITH_MEMCACHED_MSG % key)
 
@@ -763,6 +841,20 @@ class BaseCacheTests:
 
     def test_cache_versioning_get_set(self):
         # set, using default version = 1
+        """
+
+        Tests the functionality of setting and retrieving cache values with versioning.
+
+        This test case covers various scenarios, including:
+
+        * Setting and getting cache values without versioning
+        * Setting and getting cache values with versioning
+        * Retrieving cache values with a specific version
+        * Interoperability between different cache versions
+
+        Verifies that cache values are correctly stored and retrieved based on their version, and that versioning does not interfere with the standard cache functionality.
+
+        """
         cache.set("answer1", 42)
         self.assertEqual(cache.get("answer1"), 42)
         self.assertEqual(cache.get("answer1", version=1), 42)
@@ -1073,6 +1165,17 @@ class BaseCacheTests:
         content = "Testing cookie serialization."
 
         def get_response(req):
+            """
+
+            Return an HTTP response object with a set cookie.
+
+            This function generates an HTTP response with a specific content and sets a cookie named 'foo' with the value 'bar'. 
+            It can be used in HTTP request handlers to provide a response back to the client with the specified cookie.
+
+            :param req: The incoming HTTP request object
+            :rtype: HttpResponse
+
+            """
             response = HttpResponse(content)
             response.set_cookie("foo", "bar")
             return response
@@ -1093,6 +1196,11 @@ class BaseCacheTests:
 
     def test_add_fail_on_pickleerror(self):
         # Shouldn't fail silently if trying to cache an unpicklable type.
+        """
+        Tests that adding an object that cannot be serialized to the cache raises a PickleError. 
+
+        This test case verifies the cache's behavior when attempting to store an unpicklable object, ensuring that the expected exception is raised in such scenarios.
+        """
         with self.assertRaises(pickle.PickleError):
             cache.add("unpicklable", Unpicklable())
 
@@ -1207,11 +1315,30 @@ class DBCacheTests(BaseCacheTests, TransactionTestCase):
             is_closed = False
 
             def close(self):
+                """
+                Closes the current database connection.
+
+                Closes the cursor object and marks the connection as closed.
+                After calling this method, the connection is no longer usable and 
+                must be reopened to perform further operations.
+
+                :raises: None
+                :returns: None
+                """
                 self.cursor.close()
                 self.is_closed = True
 
             @property
             def rowcount(self):
+                """
+                Returns the number of rows affected by the last executed statement.
+
+                The row count is retrieved from the underlying cursor object. If the cursor is closed, an exception is raised, as the row count is no longer accessible.
+
+                :rtype: int
+                :raises Exception: If the cursor is closed.
+
+                """
                 if self.is_closed:
                     raise Exception("Cursor is closed.")
                 return self.cursor.rowcount
@@ -1239,6 +1366,18 @@ class DBCacheTests(BaseCacheTests, TransactionTestCase):
         )
     )
     def test_createcachetable_dry_run_mode(self):
+        """
+
+        Tests the 'createcachetable' management command in dry run mode.
+
+        Ensures that when run with the dry run option, the command outputs the SQL
+        statement required to create the cache table, but does not execute it.
+
+        Verifies the output starts with a 'CREATE TABLE' statement, indicating that
+        the command is preparing to create the table without actually modifying
+        the database.
+
+        """
         out = io.StringIO()
         management.call_command("createcachetable", dry_run=True, stdout=out)
         output = out.getvalue()
@@ -1539,6 +1678,13 @@ class BaseMemcachedTests(BaseCacheTests):
         # By default memcached allows objects up to 1MB. For the cache_db session
         # backend to always use the current session, memcached needs to delete
         # the old key if it fails to set.
+        """
+        Tests that memcached deletes a key when a set operation fails due to a value exceeding the maximum allowed length.
+
+        The test first sets a small value for a key and verifies that it can be retrieved. It then attempts to set a large value for the same key, which exceeds the maximum allowed length. The test checks that after the failed set operation, the key is either deleted or the large value is stored.
+
+        This test case ensures that memcached behaves correctly when handling value size limits and failed set operations, preventing potential data corruption or inconsistencies in the cache.
+        """
         max_value_length = 2**20
 
         cache.set("small_value", "a")
@@ -1571,6 +1717,23 @@ class BaseMemcachedTests(BaseCacheTests):
             signals.request_finished.connect(close_old_connections)
 
     def test_set_many_returns_failing_keys(self):
+        """
+        Tests that setting multiple cache values returns failing keys.
+
+        This test case verifies the behavior of the set_many function when the 
+        underlying set_multi operation fails. It checks that the function returns 
+        a list of keys for which the operation failed, allowing for error handling 
+        and retry mechanisms.
+
+        The test simulates a failure scenario by patching the set_multi method to 
+        always fail and return the input keys. The set_many function is then called 
+        with a sample cache entry, and the returned failing keys are asserted to 
+        match the expected output.
+
+        This test ensures that the set_many function provides useful feedback in 
+        case of errors, enabling more robust cache management and error handling 
+        strategies.
+        """
         def fail_set_multi(mapping, *args, **kwargs):
             return mapping.keys()
 
@@ -1642,6 +1805,15 @@ class PyMemcacheCacheTests(BaseMemcachedTests, TestCase):
         return cache._lib.exceptions.MemcacheClientError
 
     def test_pymemcache_highest_pickle_version(self):
+        """
+        Tests that the highest available pickle version is used in pymemcache for serialization.
+
+        This test checks that the default pickle version used by the cache is set to the highest available protocol.
+        It also verifies that this version is consistently applied across all cache clients and servers defined in the settings.
+
+        The purpose of this test is to ensure that cached data is serialized in a compatible and efficient manner, 
+        preventing potential issues with data corruption or compatibility problems when retrieving cached data.
+        """
         self.assertEqual(
             cache._cache.default_kwargs["serde"]._serialize_func.keywords[
                 "pickle_version"
@@ -1688,6 +1860,14 @@ class FileBasedCacheTests(BaseCacheTests, TestCase):
         setting_changed.send(self.__class__, setting="CACHES", enter=False)
 
     def tearDown(self):
+        """
+
+        Clean up after each test method.
+
+        This method is called after each test method to ensure a clean environment.
+        It removes the directory created during the test, regardless of whether the test passed or failed.
+
+        """
         super().tearDown()
         # Call parent first, as cache.clear() may recreate cache base directory
         shutil.rmtree(self.dirname)
@@ -1717,6 +1897,14 @@ class FileBasedCacheTests(BaseCacheTests, TestCase):
         self.assertTrue(os.path.exists(self.dirname))
 
     def test_get_ignores_enoent(self):
+        """
+
+        Tests that cache get operation ignores ENOENT (File Not Found) errors.
+
+        This test verifies that when a cached item is removed from the underlying storage,
+        the cache get operation returns the provided default value instead of raising an error.
+
+        """
         cache.set("foo", "bar")
         os.unlink(cache._key_to_file("foo"))
         # Returns the default instead of erroring.
@@ -1750,6 +1938,17 @@ class FileBasedCacheTests(BaseCacheTests, TestCase):
                 cache.get("foo")
 
     def test_empty_cache_file_considered_expired(self):
+        """
+        Checks that an empty cache file is considered expired.
+
+        This test confirms that the caching mechanism treats a cache file with no content as invalid, 
+        ensuring that the system does not consider it a valid cached result.
+
+        The test scenario specifically verifies the expiration status of a cache file 
+        created with an empty payload, mimicking a real-world scenario where a 
+        cache file might be empty due to various reasons such as a failed write operation.
+
+        """
         cache_file = cache._key_to_file("foo")
         with open(cache_file, "wb") as fh:
             fh.write(b"")
@@ -1829,6 +2028,14 @@ class RedisCacheTests(BaseCacheTests, TestCase):
         self.assertIsNone(none_backend_timeout)
 
     def test_get_connection_pool_index(self):
+        """
+        Tests the retrieval of connection pool index.
+
+        This function checks the _get_connection_pool_index method's behavior under different conditions.
+        It verifies that when the write operation is set to True, the index should be 0.
+        For read operations (write=False), it checks that the index is 0 if there's only one server,
+        and greater than 0 but less than the total number of servers if there are multiple servers.
+        """
         pool_index = cache._cache._get_connection_pool_index(write=True)
         self.assertEqual(pool_index, 0)
         pool_index = cache._cache._get_connection_pool_index(write=False)
@@ -1839,6 +2046,21 @@ class RedisCacheTests(BaseCacheTests, TestCase):
             self.assertLess(pool_index, len(cache._cache._servers))
 
     def test_get_connection_pool(self):
+        """
+
+        Tests the retrieval of a connection pool from the cache.
+
+        This test case verifies that the _get_connection_pool method returns an instance of ConnectionPool, 
+        regardless of whether the pool is intended for write or read operations. The test ensures that 
+        the connection pool is correctly obtained in both write and read modes.
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the retrieved pool is not an instance of ConnectionPool.
+
+        """
         pool = cache._cache._get_connection_pool(write=True)
         self.assertIsInstance(pool, self.lib.ConnectionPool)
 
@@ -1849,6 +2071,14 @@ class RedisCacheTests(BaseCacheTests, TestCase):
         self.assertIsInstance(cache._cache.get_client(), self.lib.Redis)
 
     def test_serializer_dumps(self):
+        """
+
+        Tests the serializer's dumps functionality.
+
+        Verifies that the serializer can successfully serialize different data types, including integers and strings, into their expected formats.
+        The test checks that integers are dumped as is, while strings and boolean values are dumped as bytes.
+
+        """
         self.assertEqual(cache._cache._serializer.dumps(123), 123)
         self.assertIsInstance(cache._cache._serializer.dumps(True), bytes)
         self.assertIsInstance(cache._cache._serializer.dumps("abc"), bytes)
@@ -1865,6 +2095,21 @@ class RedisCacheTests(BaseCacheTests, TestCase):
         )
     )
     def test_redis_pool_options(self):
+        """
+        Tests the Redis connection pool options.
+
+        Verifies that the cache connection pool is correctly configured with the specified Redis options,
+        including the database, socket timeout, and retry on timeout settings. Ensures that these options
+        are properly applied to the connection pool when a cache connection is established.
+
+        The test checks the following Redis options:
+            * Database (db): The Redis database to use for caching.
+            * Socket timeout (socket_timeout): The timeout for Redis socket connections.
+            * Retry on timeout (retry_on_timeout): Whether to retry failed Redis operations due to timeouts.
+
+        By validating these options, this test ensures that the cache is properly configured and functions
+        as expected with Redis as the backing store.
+        """
         pool = cache._cache._get_connection_pool(write=False)
         self.assertEqual(pool.connection_kwargs["db"], 5)
         self.assertEqual(pool.connection_kwargs["socket_timeout"], 0.1)
@@ -1893,6 +2138,15 @@ class CustomCacheKeyValidationTests(SimpleTestCase):
 
     def test_custom_key_validation(self):
         # this key is both longer than 250 characters, and has spaces
+        """
+        Tests the validation of custom keys in the cache.
+
+        This test case checks if keys with spaces and a certain length are properly handled by the cache system.
+        It verifies that a value can be successfully stored and retrieved using a custom key with spaces.
+
+        :raises AssertionError: If the value retrieved from the cache does not match the original value set.
+
+        """
         key = "some key with spaces" * 15
         val = "a value"
         cache.set(key, val)
@@ -2033,6 +2287,16 @@ class CacheUtils(SimpleTestCase):
         return request
 
     def test_patch_vary_headers(self):
+        """
+        Tests the patch_vary_headers function to ensure it correctly updates the 'Vary' header of an HttpResponse.
+
+        The function is tested with various combinations of initial 'Vary' headers and new headers to patch, covering cases such as:
+        - Adding new headers
+        - Updating existing headers (including case sensitivity and multiple headers)
+        - Removing headers
+
+        The test verifies that the resulting 'Vary' header matches the expected output for each scenario, ensuring the function behaves correctly in different situations.
+        """
         headers = (
             # Initial vary, new headers, resulting vary.
             (None, ("Accept-Encoding",), "Accept-Encoding"),
@@ -2118,6 +2382,18 @@ class CacheUtils(SimpleTestCase):
         self.assertNotEqual(get_cache_key(request1), get_cache_key(request2))
 
     def test_learn_cache_key(self):
+        """
+
+        Test the learn_cache_key function to ensure it correctly sets the cache key for a given request.
+
+        The test simulates a HEAD request to a path, creates a response with a 'Vary' header,
+        and then uses the learn_cache_key function to set the cache key for the request.
+        The function's correctness is verified by checking that the resulting cache key matches the expected value.
+
+        This test helps ensure that the cache key is properly generated based on the request and response,
+        which is crucial for effective caching in the application.
+
+        """
         request = self.factory.head(self.path)
         response = HttpResponse()
         response.headers["Vary"] = "Pony"
@@ -2131,6 +2407,12 @@ class CacheUtils(SimpleTestCase):
         )
 
     def test_patch_cache_control(self):
+        """
+        Tests the functionality of patching Cache-Control headers in HTTP responses.
+        The function `test_patch_cache_control` verifies that the `patch_cache_control` function correctly updates Cache-Control headers in HTTP responses based on provided new headers.
+        It covers various test cases, including setting Cache-Control headers to 'private', 'public', 'no-cache', and other directives, as well as merging and overriding existing headers.
+        Each test case checks if the resulting Cache-Control headers match the expected values.
+        """
         tests = (
             # Initial Cache-Control, kwargs to patch_cache_control, expected
             # Cache-Control parts.
@@ -2267,6 +2549,16 @@ class CacheI18nTest(SimpleTestCase):
 
     @override_settings(USE_I18N=True, USE_TZ=False)
     def test_cache_key_i18n_translation(self):
+        """
+
+        Tests the generation of cache keys when internationalization (i18n) translation is active.
+
+        This function verifies that the cache key includes the current language name, ensuring
+        that translations are correctly cached. It checks the cache key generated by the
+        ``learn_cache_key`` function and compares it with the key generated by the
+        ``get_cache_key`` function to ensure consistency.
+
+        """
         request = self.factory.get(self.path)
         lang = translation.get_language()
         response = HttpResponse()
@@ -2448,6 +2740,22 @@ class CacheI18nTest(SimpleTestCase):
         CACHE_MIDDLEWARE_SECONDS=60,
     )
     def test_middleware_doesnt_cache_streaming_response(self):
+        """
+
+         Tests the cache middleware to ensure it does not cache streaming responses.
+
+         This test verifies that the FetchFromCacheMiddleware does not attempt to fetch 
+         a cached version of the response when the request is for a streaming response.
+
+         Additionally, it checks that the UpdateCacheMiddleware does not update the cache 
+         with the streaming response. 
+
+         The test case sets the cache prefix and expiration time to test the caching 
+         behavior. It uses a custom get_stream_response function to simulate a 
+         streaming response and checks the cache data before and after the 
+         UpdateCacheMiddleware call to ensure that the cache remains unchanged.
+
+        """
         request = self.factory.get(self.path)
         get_cache_data = FetchFromCacheMiddleware(empty_response).process_request(
             request
@@ -2595,6 +2903,27 @@ class CacheMiddlewareTest(SimpleTestCase):
 
     def test_view_decorator(self):
         # decorate the same view with different cache decorators
+        """
+        Tests the functionality of the view decorator, specifically the cache_page decorator.
+
+        This test case checks how different views are cached based on their cache timeout,
+        cache name, and key prefix. It verifies that cache is applied correctly, and 
+        cache expiration works as expected.
+
+        The test creates several views with different cache settings, and checks that 
+        the cache is correctly applied to each view. It also checks that the cache 
+        expires after a certain time and that subsequent requests return the updated 
+        value.
+
+        The test scenarios cover caching with and without a prefix, with different cache 
+        timeout values, and with explicit and default cache names. It also tests that 
+        caching works correctly across multiple requests and that cache expiration 
+        triggers a refresh of the cache.
+
+        Parameters: None
+
+        Returns: None
+        """
         default_view = cache_page(3)(hello_world_view)
         default_with_prefix_view = cache_page(3, key_prefix="prefix1")(hello_world_view)
 
@@ -2899,10 +3228,20 @@ class TestMakeTemplateFragmentKey(SimpleTestCase):
         self.assertEqual(key, "template.cache.foo.493e283d571a73056196f1a68efd0f66")
 
     def test_with_many_vary_on(self):
+        """
+        Tests the creation of a template fragment cache key with multiple varying parts, verifying that the resulting key matches the expected format and value.
+        """
         key = make_template_fragment_key("bar", ["abc", "def"])
         self.assertEqual(key, "template.cache.bar.17c1a507a0cb58384f4c639067a93520")
 
     def test_proper_escaping(self):
+        """
+        Checks that template fragment keys are properly escaped to prevent potential security vulnerabilities.
+
+        This test verifies that special characters in the fragment name are correctly hashed, ensuring that the resulting key is safe for use in caching systems. 
+
+        It specifically checks the behavior when the fragment name contains a percent sign (%) and other special characters, validating that the output key matches the expected format.
+        """
         key = make_template_fragment_key("spam", ["abc:def%"])
         self.assertEqual(key, "template.cache.spam.06c8ae8e8c430b69fb0a6443504153dc")
 

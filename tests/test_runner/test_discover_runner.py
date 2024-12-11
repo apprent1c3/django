@@ -21,6 +21,13 @@ from django.utils.version import PY312
 
 @contextmanager
 def change_cwd(directory):
+    """
+    Changes the current working directory to the specified directory within a context, ensuring the original directory is restored upon exit.
+
+        :param directory: The path to the directory to change into, relative to the directory of the current file.
+        :yield: A context manager that allows execution of code within the changed directory.
+        :note: This context manager is used to temporarily change the working directory and then revert back to the original directory, which is useful for tasks that require changing the directory but need to ensure the original state is preserved afterwards.
+    """
     current_dir = os.path.abspath(os.path.dirname(__file__))
     new_dir = os.path.join(current_dir, directory)
     old_cwd = os.getcwd()
@@ -65,10 +72,29 @@ class DiscoverRunnerParallelArgumentTests(SimpleTestCase):
         self.assertEqual(result.parallel, "auto")
 
     def test_parallel_count(self, *mocked_objects):
+        """
+
+        Test the ability to specify the number of parallel processes.
+
+        This test verifies that the command line interface correctly accepts and parses
+        the --parallel option, resulting in the expected number of parallel processes
+        being set.
+
+        :raises AssertionError: If the parsed number of parallel processes does not match
+            the expected value.
+
+        """
         result = self.get_parser().parse_args(["--parallel", "17"])
         self.assertEqual(result.parallel, 17)
 
     def test_parallel_invalid(self, *mocked_objects):
+        """
+
+        Checks that an invalid value provided to the '--parallel' command line argument raises a SystemExit and displays an error message.
+
+        The test verifies that passing a non-integer and non-'auto' string to '--parallel' results in an error, ensuring the argument is validated correctly.
+
+        """
         with self.assertRaises(SystemExit), captured_stderr() as stderr:
             self.get_parser().parse_args(["--parallel", "unaccepted"])
         msg = "argument --parallel: 'unaccepted' is not an integer or the string 'auto'"
@@ -96,6 +122,19 @@ class DiscoverRunnerParallelArgumentTests(SimpleTestCase):
         mocked_get_start_method,
         mocked_cpu_count,
     ):
+        """
+
+        Tests the get_max_test_processes function when the start method is set to 'forkserver'.
+
+        This test case verifies that the function returns the correct maximum number of test processes
+        to run in parallel when the 'forkserver' start method is used. It checks the function's behavior
+        with and without the DJANGO_TEST_PROCESSES environment variable set.
+
+        The test ensures that the function adheres to the expected behavior of the 'forkserver' start method,
+        which requires a single test process to be run at a time, regardless of the number of available CPUs
+        or any override settings provided by the DJANGO_TEST_PROCESSES environment variable.
+
+        """
         mocked_get_start_method.return_value = "forkserver"
         self.assertEqual(get_max_test_processes(), 1)
         with mock.patch.dict(os.environ, {"DJANGO_TEST_PROCESSES": "7"}):
@@ -112,6 +151,12 @@ class DiscoverRunnerTests(SimpleTestCase):
         self.assertFalse(runner.debug_mode)
 
     def test_add_arguments_shuffle(self):
+        """
+        Subcommand to test the addition of arguments for shuffling to the ArgumentParser.
+
+        This test case verifies the correct functionality of adding the shuffle argument to the parser.
+        It checks the default value of the shuffle argument, as well as its value when the --shuffle flag is provided with and without a specified seed.
+        """
         parser = ArgumentParser()
         DiscoverRunner.add_arguments(parser)
         ns = parser.parse_args([])
@@ -137,6 +182,19 @@ class DiscoverRunnerTests(SimpleTestCase):
         self.assertIsNone(runner.shuffle_seed)
 
     def test_setup_shuffler_shuffle_none(self):
+        """
+
+        Tests the setup of a shuffler when no shuffle seed is provided.
+
+        Verifies that when the shuffle parameter is set to None, the shuffler is
+        initialized with a randomly generated seed. The test checks that the generated
+        seed is used and communicated to the user, and that the shuffle seed attribute
+        is correctly updated.
+
+        The test also ensures that the output message indicating the use of a generated
+        shuffle seed is correctly displayed.
+
+        """
         runner = DiscoverRunner(shuffle=None)
         self.assertIsNone(runner.shuffle)
         with mock.patch("random.randint", return_value=1):
@@ -146,6 +204,14 @@ class DiscoverRunnerTests(SimpleTestCase):
         self.assertEqual(runner.shuffle_seed, 1)
 
     def test_setup_shuffler_shuffle_int(self):
+        """
+
+        Tests the setup of a shuffler with a given integer shuffle seed.
+
+        Verifies that the shuffle seed is correctly set and used, and that the 
+        correct message is printed to the console indicating the shuffle seed in use.
+
+        """
         runner = DiscoverRunner(shuffle=2)
         self.assertEqual(runner.shuffle, 2)
         with captured_stdout() as stdout:
@@ -187,6 +253,15 @@ class DiscoverRunnerTests(SimpleTestCase):
         self.assertEqual(count, 1)
 
     def test_dotted_test_class_django_testcase(self):
+        """
+        Tests that a Django TestCase is discovered and counted correctly by the test runner.
+
+        This test case ensures that the test discovery process can identify and include
+        Django TestCases in the test suite, and that the count of test cases is accurate.
+
+        Verifies that the test runner can build a suite containing a single Django TestCase
+        and correctly reports the total number of test cases in the suite as 1.
+        """
         count = (
             DiscoverRunner(verbosity=0)
             .build_suite(
@@ -209,6 +284,21 @@ class DiscoverRunnerTests(SimpleTestCase):
         self.assertEqual(count, 1)
 
     def test_pattern(self):
+        """
+        Tests the pattern used to discover test cases.
+
+        Verifies that exactly one test case is discovered when using the specified pattern,
+        ensuring that the test suite is properly configured and test cases are correctly identified.
+
+        Returns:
+            None
+
+        Note:
+            This test is a sanity check to ensure that the test runner is correctly configured
+            to discover and run test cases. It does not verify the actual execution or outcome
+            of the test cases themselves.
+
+        """
         count = (
             DiscoverRunner(
                 pattern="*_tests.py",
@@ -255,6 +345,19 @@ class DiscoverRunnerTests(SimpleTestCase):
                 self.assertEqual(expected, self.get_test_methods_names(suite))
 
     def test_loader_patterns_not_mutated(self):
+        """
+        Verifies that test loader patterns are not modified during test discovery.
+
+        This test ensures that the test loader patterns are not mutated when discovering tests
+        using the DiscoverRunner. It checks the count of test cases for different test labels
+        with a custom test name pattern, and verifies that the test loader patterns remain
+        unchanged after test discovery.
+
+        The test covers various test labels, including test modules, test classes, and test
+        methods, to ensure that the test loader patterns are not accidentally modified in
+        different scenarios. This helps maintain the expected behavior of the test discovery
+        process and prevents unintended test loading or execution. 
+        """
         runner = DiscoverRunner(test_name_patterns=["test_sample"], verbosity=0)
         tests = [
             ("test_runner_apps.sample.tests", 1),
@@ -487,6 +590,19 @@ class DiscoverRunnerTests(SimpleTestCase):
 
     def test_tag_inheritance(self):
         def count_tests(**kwargs):
+            """
+
+            Counts the number of test cases in the test suite.
+
+            This function uses the DiscoverRunner to discover and build a test suite from the 'test_runner_apps.tagged.tests_inheritance' module.
+            The suite is then used to count the total number of test cases.
+
+            The function accepts keyword arguments that can be used to customize the discovery process, with 'verbosity' being a supported option.
+            The 'verbosity' argument controls the level of detail in the output, with 0 being the default.
+
+            :returns: The total number of test cases in the suite.
+
+            """
             kwargs.setdefault("verbosity", 0)
             suite = DiscoverRunner(**kwargs).build_suite(
                 ["test_runner_apps.tagged.tests_inheritance"]
@@ -523,12 +639,43 @@ class DiscoverRunnerTests(SimpleTestCase):
             self.assertIn("Including test tag(s): bar, foo.\n", stdout.getvalue())
 
     def test_excluded_tags_displayed(self):
+        """
+
+        Tests that the excluded tags are correctly displayed when running the test suite.
+
+        This function verifies that when tags are excluded from the test run, a message is printed to the console indicating which tags are being excluded. The purpose of this test is to ensure that the user is informed about the excluded tags, providing transparency and clarity during the testing process.
+
+        The test checks for the presence of a specific message in the console output, confirming that the excluded tags are properly processed and reported.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the expected message is not found in the console output.
+
+        """
         runner = DiscoverRunner(exclude_tags=["foo", "bar"], verbosity=3)
         with captured_stdout() as stdout:
             runner.build_suite(["test_runner_apps.tagged.tests"])
             self.assertIn("Excluding test tag(s): bar, foo.\n", stdout.getvalue())
 
     def test_number_of_tests_found_displayed(self):
+        """
+
+        Tests that the correct number of tests found is displayed when building a test suite.
+
+        Verifies that the test runner correctly counts and reports the total number of tests
+        found in the specified test modules and apps. The test checks the output of the test
+        runner for the expected message indicating the number of tests discovered.
+
+        The test case ensures that the test runner's output accurately reflects the number
+        of tests available for execution, which is crucial for users to understand the scope
+        of testing and for test automation workflows.
+
+        """
         runner = DiscoverRunner()
         with captured_stdout() as stdout:
             runner.build_suite(
@@ -540,6 +687,17 @@ class DiscoverRunnerTests(SimpleTestCase):
             self.assertIn("Found 14 test(s).\n", stdout.getvalue())
 
     def test_pdb_with_parallel(self):
+        """
+        Test that using --pdb with parallel tests raises a ValueError.
+
+        This test case checks that when attempting to run tests in parallel with the
+        pdb flag enabled, a ValueError is raised with a message indicating that --pdb
+        cannot be used with parallel tests, and suggesting a workaround by setting
+        --parallel=1. This ensures that the test runner behaves correctly when
+        encountering conflicting configuration options.
+
+        :raises: ValueError if --pdb is used with parallel tests
+        """
         msg = "You cannot use --pdb with parallel tests; pass --parallel=1 to use it."
         with self.assertRaisesMessage(ValueError, msg):
             DiscoverRunner(pdb=True, parallel=2)
@@ -571,6 +729,15 @@ class DiscoverRunnerTests(SimpleTestCase):
         self.assertIsInstance(suite, TestSuite)
 
     def test_buffer_mode_test_pass(self):
+        """
+
+        Tests that the buffer mode in the test runner correctly suppresses output to stdout and stderr.
+
+        This test case verifies that when the test runner is run with buffer mode enabled,
+        it prevents test cases from printing to the console, ensuring that the output
+        remains clean and only displays the test results.
+
+        """
         runner = DiscoverRunner(buffer=True, verbosity=0)
         with captured_stdout() as stdout, captured_stderr() as stderr:
             suite = runner.build_suite(
@@ -584,6 +751,11 @@ class DiscoverRunnerTests(SimpleTestCase):
         self.assertNotIn("Write to stdout.", stdout.getvalue())
 
     def test_buffer_mode_test_fail(self):
+        """
+        Tests the behavior of the test runner when running a test suite in buffer mode and a test fails.
+        The purpose of this test is to verify that output written to both stdout and stderr by a failing test is properly captured and available for inspection.
+        It checks that the test runner correctly buffers and provides access to the output of the test, even when the test fails.
+        """
         runner = DiscoverRunner(buffer=True, verbosity=0)
         with captured_stdout() as stdout, captured_stderr() as stderr:
             suite = runner.build_suite(
@@ -614,6 +786,16 @@ class DiscoverRunnerTests(SimpleTestCase):
         return result, output
 
     def test_run_suite_logs_seed(self):
+        """
+
+        Tests the behavior of running a test suite with logging of shuffle seed.
+
+        This function verifies that running a test suite without specifying a shuffle seed does not include the seed in the output.
+        It also checks that running the suite with a specified shuffle seed correctly logs the seed used.
+
+        The function uses a fake test runner to simulate the test suite execution and checks the result and output for the expected values.
+
+        """
         class TestRunner:
             def run(self, suite):
                 return "<fake-result>"
@@ -651,6 +833,16 @@ class DiscoverRunnerTests(SimpleTestCase):
 
     @mock.patch("faulthandler.enable")
     def test_faulthandler_already_enabled(self, mocked_enable):
+        """
+        Tests that the faulthandler is not enabled when it is already active.
+
+        This test case verifies the behavior of the DiscoverRunner class when the faulthandler is
+        previously enabled. It checks that the faulthandler.enable function is not called in this
+        scenario, ensuring that the DiscoverRunner class correctly handles the case where the
+        faulthandler is already enabled.
+
+        :raises: AssertionError if the faulthandler.enable function is called when it is already enabled
+        """
         with mock.patch("faulthandler.is_enabled", return_value=True):
             DiscoverRunner(enable_faulthandler=True)
             mocked_enable.assert_not_called()
@@ -658,6 +850,14 @@ class DiscoverRunnerTests(SimpleTestCase):
     @mock.patch("faulthandler.enable")
     def test_faulthandler_enabled_fileno(self, mocked_enable):
         # sys.stderr that is not an actual file.
+        """
+        Tests that faulthandler is enabled when DiscoverRunner is created with enable_faulthandler set to True.
+
+        Verifies that the faulthandler.enable function is called when the runner is initialized,
+        ensuring that faulthandler is properly set up to handle faults and errors during test execution.
+
+        The test checks the correct behavior by mocking the faulthandler functions and verifying the call to enable faulthandler.
+        """
         with (
             mock.patch("faulthandler.is_enabled", return_value=False),
             captured_stderr(),
@@ -681,6 +881,17 @@ class DiscoverRunnerTests(SimpleTestCase):
         self.assertNotIn("test", stderr.getvalue())
 
     def test_timings_captured(self):
+        """
+        .. method:: test_timings_captured(self)
+            Tests whether timings are captured and reported correctly by the test runner.
+
+            This test case verifies that the :class:`DiscoverRunner` can accurately measure 
+            and display the execution time of a test. It creates a test runner with timing 
+            enabled, runs a timed test, and checks that the timing results are printed to 
+            the standard error stream. Additionally, it ensures that the test runner's 
+            time keeper is an instance of :class:`TimeKeeper` and that the test name is 
+            included in the printed results.
+        """
         runner = DiscoverRunner(timing=True)
         with captured_stderr() as stderr:
             with runner.time_keeper.timed("test"):
@@ -727,6 +938,25 @@ class DiscoverRunnerTests(SimpleTestCase):
                     self.assertEqual(stdout.getvalue(), f"{msg}\n" if output else "")
 
     def test_log_logger(self):
+        """
+        Tests the functionality of the logger within the DiscoverRunner class.
+
+        This test case verifies that log messages are correctly logged at various levels, 
+        including custom levels and standard logging levels such as DEBUG, INFO, and WARNING.
+        It ensures that the log output matches the expected format for each log level.
+
+        The test covers both valid and invalid log levels, providing comprehensive coverage 
+        of the logging functionality.
+
+        Parameters are implicitly checked through the cases array which ensures that different 
+        log levels are tested.
+
+        The test utilizes Python's built-in logging module and the assertLogs context manager 
+        to capture and verify the log output.
+
+        Each test case is run as a subtest, allowing for detailed reporting of test results 
+        and easier identification of any issues that may arise during testing.
+        """
         logger = logging.getLogger("test.logging")
         cases = [
             (None, "INFO:test.logging:log message"),
@@ -843,6 +1073,20 @@ class DiscoverRunnerGetDatabasesTests(SimpleTestCase):
         )
 
     def test_serialize(self):
+        """
+
+        Tests the serialization of databases.
+
+        Verifies that the databases are correctly serialized by comparing the 
+        resulting dictionary with the expected output. The expected output in 
+        this case is a dictionary containing the 'default' key with a value of 
+        True, indicating that the 'default' database is properly serialized.
+
+        This test is specifically designed to validate the serialization 
+        process for the 'test_runner_apps.databases.tests.DefaultDatabaseSerializedTests' 
+        database configuration.
+
+        """
         databases, _ = self.get_databases(
             ["test_runner_apps.databases.tests.DefaultDatabaseSerializedTests"]
         )

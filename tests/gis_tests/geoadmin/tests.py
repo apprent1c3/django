@@ -59,6 +59,15 @@ class GISAdminTests(GeoAdminTest):
     admin_site = site_gis  # GISModelAdmin
 
     def test_default_gis_widget_kwargs(self):
+        """
+        Tests the default keyword arguments used for the GIS widget.
+
+        The test checks that the GIS widget for a City model has the correct default 
+        latitude, longitude, and zoom level settings. These settings are verified to 
+        be 47 for the latitude, 5 for the longitude, and 12 for the zoom level, 
+        respectively. This ensures that the GIS widget is properly configured with 
+        the expected default values.
+        """
         geoadmin = self.admin_site.get_model_admin(City)
         form = geoadmin.get_changelist_form(None)()
         widget = form["point"].field.widget

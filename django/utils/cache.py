@@ -163,6 +163,24 @@ def _not_modified(request, response=None):
 
 def get_conditional_response(request, etag=None, last_modified=None, response=None):
     # Only return conditional responses on successful requests.
+    """
+
+    Handles conditional HTTP requests based on provided etag, last modified date, and the request itself.
+
+    Evaluates the request headers (If-Match, If-None-Match, If-Modified-Since, If-Unmodified-Since) 
+    against the provided etag and last modified date to determine the appropriate response.
+
+    Returns the original response if no conditional headers are specified or all conditions are met.
+    Otherwise, returns a 304 Not Modified response if the request is a GET or HEAD and the conditions are not met,
+    or a 412 Precondition Failed response for other request methods.
+
+    :param request: The incoming HTTP request object.
+    :param etag: The entity tag to be evaluated against the If-Match and If-None-Match headers.
+    :param last_modified: The last modified date to be evaluated against the If-Modified-Since and If-Unmodified-Since headers.
+    :param response: The original response to be returned if all conditions are met.
+    :return: The response to be sent back to the client, which may be the original response or a conditional response.
+
+    """
     if response and not (200 <= response.status_code < 300):
         return response
 

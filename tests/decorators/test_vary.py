@@ -62,6 +62,17 @@ class VaryOnCookieTests(SimpleTestCase):
 
     async def test_vary_on_cookie_decorator_async_view(self):
         @vary_on_cookie
+        """
+        Tests the implementation of the vary_on_cookie decorator with an asynchronous view.
+
+        The vary_on_cookie decorator adds the 'Vary: Cookie' header to the response,
+        indicating to caching proxies and browsers that the response varies based on the
+        client's cookies. This test case verifies that the decorator correctly modifies
+        the response when applied to an asynchronous view function.
+
+        Confirming that the decorator sets the 'Vary' header to 'Cookie' ensures proper
+        functionality of the vary_on_cookie decorator in asynchronous scenarios.
+        """
         async def async_view(request):
             return HttpResponse()
 

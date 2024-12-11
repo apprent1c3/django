@@ -118,6 +118,14 @@ class CursorDebugWrapper(CursorWrapper):
     # XXX callproc isn't instrumented at this time.
 
     def execute(self, sql, params=None):
+        """
+        Execute a SQL query on the database.
+
+        :param sql: The SQL query string to be executed.
+        :param params: Optional parameters to be used in the SQL query.
+        :return: The result of the query execution.
+        :note: This method also enables debug logging for the SQL query, including any parameters used, and the last executed query.
+        """
         with self.debug_sql(sql, params, use_last_executed_query=True):
             return super().execute(sql, params)
 

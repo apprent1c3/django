@@ -22,6 +22,13 @@ class CapfirstTests(SimpleTestCase):
 
     @setup({"capfirst02": "{{ a|capfirst }} {{ b|capfirst }}"})
     def test_capfirst02(self):
+        """
+
+        Tests the capfirst filter by rendering a template with the filter applied to two input values.
+        The test verifies that the filter correctly capitalizes the first character of each value, 
+        while ensuring HTML-safe characters are handled properly.
+
+        """
         output = self.engine.render_to_string(
             "capfirst02", {"a": "fred>", "b": mark_safe("fred&gt;")}
         )

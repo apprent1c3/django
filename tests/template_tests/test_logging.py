@@ -62,5 +62,16 @@ class VariableResolveLoggingTests(SimpleTestCase):
         )
 
     def test_no_log_when_variable_exists(self):
+        """
+        Tests that no log message is generated when a variable exists.
+
+        This test case ensures that the resolve method of the Variable class does not
+        log any messages when the variable is found in the context. The test sets up a
+        context with an 'article' variable that has a 'section' attribute, and then
+        checks that no log messages are emitted at the specified log level when the
+        variable is resolved. The log level checked is specified by the loglevel
+        attribute of the test instance. The check is performed for log messages from
+        the 'django.template' module.
+        """
         with self.assertNoLogs("django.template", self.loglevel):
             Variable("article.section").resolve({"article": {"section": "News"}})

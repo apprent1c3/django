@@ -28,6 +28,14 @@ class PluralizeTests(SimpleTestCase):
 
 class FunctionTests(SimpleTestCase):
     def test_integers(self):
+        """
+        Tests the pluralize function with integer inputs to ensure correct pluralization.
+
+         The function is expected to append 's' to the input when it is zero or greater than one, 
+         and return an empty string when the input is exactly one. This test case verifies that 
+         the function behaves correctly for these edge cases, providing a basic level of assurance 
+         that the pluralization logic is implemented correctly.
+        """
         self.assertEqual(pluralize(1), "")
         self.assertEqual(pluralize(0), "s")
         self.assertEqual(pluralize(2), "s")
@@ -37,6 +45,13 @@ class FunctionTests(SimpleTestCase):
         self.assertEqual(pluralize(1.5), "s")
 
     def test_decimals(self):
+        """
+        Tests the pluralization of decimal numbers. 
+
+        This function checks that the pluralize function correctly handles decimal values. 
+        It verifies that a decimal value of 1 does not require an 's' suffix, 
+        while decimal values of 0 and greater than 1 do require an 's' suffix.
+        """
         self.assertEqual(pluralize(Decimal(1)), "")
         self.assertEqual(pluralize(Decimal(0)), "s")
         self.assertEqual(pluralize(Decimal(2)), "s")

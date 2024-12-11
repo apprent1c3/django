@@ -109,6 +109,26 @@ class Library:
         """
 
         def dec(func):
+            """
+
+            Decorator to compile a Python function into a templating engine tag.
+
+            This decorator takes a function and converts it into a tag that can be used in
+            templating engine templates. The function's parameters are automatically
+            parsed from the tag's syntax in the template.
+
+            The compiled tag will accept a variable number of arguments and keyword
+            arguments, which will be passed to the original function. The tag can also
+            optionally specify a target variable to store the result in.
+
+            The original function is returned unchanged, allowing it to be used as before.
+            However, it will now also be available as a tag in the templating engine,
+            accessible by its name.
+
+            :param func: The Python function to compile into a tag.
+            :returns: The original function, now decorated with tag compilation functionality.
+
+            """
             (
                 params,
                 varargs,
@@ -212,6 +232,19 @@ class TagHelperNode(Node):
     """
 
     def __init__(self, func, takes_context, args, kwargs):
+        """
+        Initializes a function wrapper object.
+
+        This initializer sets up the necessary components for the function wrapper, 
+        including the function to be wrapped, whether it takes context, and any 
+        positional and keyword arguments to be passed to the function.
+
+        :param func: The function to be wrapped.
+        :param takes_context: A boolean indicating whether the function takes context.
+        :param args: A collection of positional arguments to be passed to the function.
+        :param kwargs: A dictionary of keyword arguments to be passed to the function.\"\"\"
+        ```
+        """
         self.func = func
         self.takes_context = takes_context
         self.args = args

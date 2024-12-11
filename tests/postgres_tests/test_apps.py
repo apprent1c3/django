@@ -61,6 +61,16 @@ class PostgresConfigTests(TestCase):
         )
 
         def assertNotSerializable():
+            """
+            Tests that certain objects are not serializable.
+
+            This function iterates over a set of test cases and attempts to serialize each one using the MigrationWriter.
+            It checks that a ValueError is raised for each non-serializable object, with a message indicating the specific object type that cannot be serialized.
+
+            The test cases are expected to be provided in the 'tests' variable, where each case is a tuple containing a default value and a function that generates a test field based on the default value.
+
+            The function uses sub-tests to provide more detailed information about the test results, making it easier to identify which specific test cases failed or passed.
+            """
             for default, test_field in tests:
                 with self.subTest(default=default):
                     field = test_field(default=default)

@@ -391,6 +391,27 @@ class Command(BaseCommand):
         )
 
     def migration_progress_callback(self, action, migration=None, fake=False):
+        """
+
+        Provide progress updates during migration operations.
+
+        This callback function is used to report on the progress of various migration actions,
+        such as applying or unapplying migrations, and rendering model states. It takes into
+        account the verbosity level to determine the level of detail to be displayed.
+
+        The function supports the following migration actions:
+        - Applying a migration
+        - Unapplying a migration
+        - Rendering model states
+
+        It also handles fake migration operations, which do not modify the database.
+        The time taken to complete each action is displayed if the verbosity level is set to 2 or higher.
+
+        :param action: The migration action being performed (e.g. 'apply_start', 'unapply_success')
+        :param migration: The migration being applied or unapplied (optional)
+        :param fake: Whether the migration operation is a fake one (default: False)
+
+        """
         if self.verbosity >= 1:
             compute_time = self.verbosity > 1
             if action == "apply_start":

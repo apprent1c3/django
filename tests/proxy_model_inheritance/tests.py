@@ -46,6 +46,18 @@ class MultiTableInheritanceProxyTest(TestCase):
         self.assertEqual(0, ConcreteModel.objects.count())
 
     def test_deletion_through_intermediate_proxy(self):
+        """
+
+        Tests deletion of a model instance through an intermediate proxy model.
+
+        This test case verifies that deleting a model instance using a proxy model
+        to the intermediate model also removes the corresponding instance 
+        from the database for both the proxy model and its subclass.
+
+        It checks that the instance is properly deleted, by verifying its absence
+        in the database after deletion.
+
+        """
         child = ConcreteModelSubclass.objects.create()
         proxy = ProxyModel.objects.get(pk=child.pk)
         proxy.delete()

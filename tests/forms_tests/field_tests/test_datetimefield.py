@@ -8,6 +8,16 @@ from django.utils.timezone import get_fixed_timezone
 
 class DateTimeFieldTest(SimpleTestCase):
     def test_datetimefield_clean(self):
+        """
+
+        Tests the cleaning functionality of a DateTimeField.
+
+        This test case checks that the field correctly interprets and converts various date and time formats into a datetime object.
+        The formats tested include ISO 8601, American-style date formats with and without time, and formats with varying levels of precision (e.g., seconds, milliseconds).
+
+        The test iterates over a series of input values and expected output datetime objects, verifying that the DateTimeField's clean method produces the expected results.
+
+        """
         tests = [
             (date(2006, 10, 25), datetime(2006, 10, 25, 0, 0)),
             (datetime(2006, 10, 25, 14, 30), datetime(2006, 10, 25, 14, 30)),
@@ -116,6 +126,14 @@ class DateTimeFieldTest(SimpleTestCase):
                     self.assertEqual(f.clean(value), expected_datetime)
 
     def test_datetimefield_not_required(self):
+        """
+        Tests the behavior of a DateTimeField when it is not required.
+
+        Verifies that the field correctly handles None and empty string input, 
+        returning None in both cases and ensuring that the repr() method 
+        accurately reflects this. This check is essential to validate 
+        that the field behaves as expected when it is not mandatory.
+        """
         f = DateTimeField(required=False)
         self.assertIsNone(f.clean(None))
         self.assertEqual("None", repr(f.clean(None)))
@@ -123,6 +141,22 @@ class DateTimeFieldTest(SimpleTestCase):
         self.assertEqual("None", repr(f.clean("")))
 
     def test_datetimefield_changed(self):
+        """
+        Checks if a DateTimeField considers a datetime object and a string representation as unchanged.
+
+        This test method creates a DateTimeField with a specified format and uses it to compare a datetime object and its string representation.
+        It verifies that the field does not consider the two as having changed if the string can be parsed into the same datetime object.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Note:
+            The test method implicitly checks the string representation against the datetime object by using the field's has_changed method.
+
+        """
         f = DateTimeField(input_formats=["%Y %m %d %I:%M %p"])
         d = datetime(2006, 9, 17, 14, 30, 0)
         self.assertFalse(f.has_changed(d, "2006 09 17 2:30 PM"))

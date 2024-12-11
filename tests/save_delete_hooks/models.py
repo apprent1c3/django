@@ -26,6 +26,11 @@ class Person(models.Model):
         self.data.append("After save")
 
     def delete(self):
+        """
+        Deletes the object and logs the process by recording events before and after the deletion.
+
+        The deletion process involves calling the parent class's delete method, ensuring the object is properly removed. Additionally, it keeps track of the deletion sequence by appending relevant messages to the object's data, providing a record of the events that occur before and after the deletion.
+        """
         self.data.append("Before deletion")
         # Call the "real" delete() method
         super().delete()

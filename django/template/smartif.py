@@ -38,6 +38,9 @@ class TokenBase:
         return self.id
 
     def __repr__(self):
+        """
+        Returns a string representation of the object, including its id, first, and second attributes, if they are not None. The attributes are enclosed in parentheses and separated by spaces, providing a concise summary of the object's key properties.
+        """
         out = [str(x) for x in [self.id, self.first, self.second] if x is not None]
         return "(" + " ".join(out) + ")"
 

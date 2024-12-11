@@ -22,6 +22,11 @@ class AddslashesTests(SimpleTestCase):
 
     @setup({"addslashes02": "{{ a|addslashes }} {{ b|addslashes }}"})
     def test_addslashes02(self):
+        """
+        ंदरRender a template string using the addslashes filter to escape special characters.
+
+        The function tests the correct application of the addslashes filter on two input strings, one of which is marked as safe. It verifies that the output string has the expected special characters escaped, while the marked safe string is not modified.
+        """
         output = self.engine.render_to_string(
             "addslashes02", {"a": "<a>'", "b": mark_safe("<a>'")}
         )

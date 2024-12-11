@@ -137,9 +137,44 @@ class FileSystemLoaderTests(SimpleTestCase):
 
     @contextmanager
     def source_checker(self, dirs):
+        """
+        Context manager to check the sources of templates loaded by the template loader.
+
+        Within the context, it yields a function `check_sources` which compares the expected sources of a template with the actual sources obtained from the template loader.
+
+        The `check_sources` function takes two parameters: `path` (the template path to check) and `expected_sources` (a list of expected source paths).
+
+        It ensures that the actual sources match the expected sources, allowing for validation of template loading behavior.
+
+        Args:
+            path (str): The template path to check.
+            expected_sources (list): A list of expected source paths.
+
+        Example:
+            with source_checker(dirs=['/path/to/templates']):
+                check_sources('template.html', ['/path/to/templates/template.html'])
+
+        """
         loader = self.engine.template_loaders[0]
 
         def check_sources(path, expected_sources):
+            """
+
+            Verifies that the template sources for a given path match the expected sources.
+
+            Checks that the names of the template sources loaded from the specified path
+            are identical to the provided list of expected sources. The expected sources
+            are first converted to absolute paths to ensure accurate comparison.
+
+            Args:
+                path (str): The path to check for template sources.
+                expected_sources (list): A list of paths representing the expected template sources.
+
+            Returns:
+                None: This function does not return any value. It raises an AssertionError if the
+                actual template sources do not match the expected sources.
+
+            """
             expected_sources = [os.path.abspath(s) for s in expected_sources]
             self.assertEqual(
                 [origin.name for origin in loader.get_template_sources(path)],
@@ -150,6 +185,19 @@ class FileSystemLoaderTests(SimpleTestCase):
             yield check_sources
 
     def test_get_template(self):
+        """
+        Tests the retrieval of a template from the template engine.
+
+        Verifies that the correct template is loaded from the expected location and
+        that its origin attributes are correctly set. This includes checking the
+        template's name, loader, and loader name to ensure they match the expected
+        values.
+
+        The test case covers the basic functionality of the template engine's get
+        template method, providing assurance that templates are properly resolved and
+        loaded from the file system.
+
+        """
         template = self.engine.get_template("index.html")
         self.assertEqual(template.origin.name, os.path.join(TEMPLATE_DIR, "index.html"))
         self.assertEqual(template.origin.template_name, "index.html")
@@ -175,6 +223,30 @@ class FileSystemLoaderTests(SimpleTestCase):
             engine.get_template("index.html")
 
     def test_directory_security(self):
+        """
+
+        Tests the security of directory traversal functionality.
+
+        This function checks how the system handles various file paths to ensure that
+        it does not allow access to sensitive files or directories outside the intended
+        root directories.
+
+        It verifies that the system correctly handles absolute paths, relative paths,
+        and paths that attempt to traverse outside the root directories using \"..\" or
+        \"../\" notation.
+
+        The test cases cover a range of scenarios, including:
+
+        * Accessing files within the intended root directories
+        * Attempting to access sensitive system files (e.g. /etc/passwd)
+        * Using relative paths to access files within the root directories
+        * Trying to traverse outside the root directories using \"..\" or \"../\" notation
+        * Requesting non-existent files within and outside the root directories
+
+        By passing these test cases, the system demonstrates its ability to securely
+        handle directory traversal and prevent potential security vulnerabilities.
+
+        """
         with self.source_checker(["/dir1", "/dir2"]) as check_sources:
             check_sources("index.html", ["/dir1/index.html", "/dir2/index.html"])
             check_sources("/etc/passwd", [])
@@ -191,6 +263,17 @@ class FileSystemLoaderTests(SimpleTestCase):
             check_sources("Ångström", ["/dir1/Ångström", "/dir2/Ångström"])
 
     def test_bytestring(self):
+        """
+        Test that a TypeError is raised when a bytestring is passed as a path component to the template loader.
+
+        This test case verifies that the loader correctly handles bytestrings and raises an error when it encounters one,
+        preventing the mixing of strings and bytes in path components. The error message should match the expected message
+        \"Can't mix strings and bytes in path components\".
+
+        :param None:
+        :return: None
+        :raises TypeError: when a bytestring is passed as a path component to the template loader
+        """
         loader = self.engine.template_loaders[0]
         msg = "Can't mix strings and bytes in path components"
         with self.assertRaisesMessage(TypeError, msg):
@@ -210,6 +293,11 @@ class FileSystemLoaderTests(SimpleTestCase):
             check_sources("/DIR1/index.HTML", ["/DIR1/index.HTML"])
 
     def test_file_does_not_exist(self):
+        """
+        Tests that the template engine correctly raises an error when attempting to retrieve a template that does not exist.
+
+        This test verifies that the engine's get_template method behaves as expected when given a template name that is not found, ensuring that the TemplateDoesNotExist exception is properly raised in such cases.
+        """
         with self.assertRaises(TemplateDoesNotExist):
             self.engine.get_template("doesnotexist.html")
 
@@ -218,6 +306,14 @@ class FileSystemLoaderTests(SimpleTestCase):
         "Python on Windows doesn't have working os.chmod().",
     )
     def test_permissions_error(self):
+        """
+
+        Tests that the engine raises a PermissionError when attempting to access a template file with insufficient permissions.
+
+        This test case creates a temporary file with restricted permissions, then attempts to retrieve the template using the engine. 
+        It verifies that the expected PermissionError is raised with the correct error message.
+
+        """
         with tempfile.NamedTemporaryFile() as tmpfile:
             tmpdir = os.path.dirname(tmpfile.name)
             tmppath = os.path.join(tmpdir, tmpfile.name)
@@ -228,6 +324,13 @@ class FileSystemLoaderTests(SimpleTestCase):
 
     def test_notafile_error(self):
         # Windows raises PermissionError when trying to open a directory.
+        """
+        Raises an error when attempting to load a non-existent or inaccessible template.
+
+        Tests that a suitable exception is raised when the template 'first' cannot be loaded, 
+        detecting platform-specific differences between Windows and other operating systems. 
+        On Windows, a PermissionError is expected, whereas on other platforms, an IsADirectoryError is anticipated.
+        """
         with self.assertRaises(
             PermissionError if sys.platform == "win32" else IsADirectoryError
         ):

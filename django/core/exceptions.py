@@ -192,6 +192,13 @@ class ValidationError(Exception):
         return list(self)
 
     def update_error_dict(self, error_dict):
+        """
+        Update the provided error dictionary with error information from the current object.
+
+        The function merges error data from either the object's `error_dict` attribute or its `error_list` attribute into the given `error_dict`. If `error_dict` has existing error entries for the same fields, the new errors are appended to the existing lists. If the object does not have an `error_dict`, it defaults to using a special `NON_FIELD_ERRORS` key in the `error_dict` to store its error list.
+
+        Returns the updated error dictionary.
+        """
         if hasattr(self, "error_dict"):
             for field, error_list in self.error_dict.items():
                 error_dict.setdefault(field, []).extend(error_list)
@@ -224,6 +231,16 @@ class ValidationError(Exception):
         return hash(self) == hash(other)
 
     def __hash__(self):
+        """
+        Computes the hash value of the object based on its attributes.
+
+        The hash is calculated differently depending on the object's properties:
+        - If the object has a 'message', it uses a combination of the message, code, and parameters.
+        - If the object has an 'error_dict', it hashes the contents of this dictionary.
+        - If the object has an 'error_list', it hashes a sorted tuple of the list's elements, based on their 'message' attribute.
+
+        The resulting hash value allows for efficient comparison and storage of the object in data structures like sets and dictionaries.
+        """
         if hasattr(self, "message"):
             return hash(
                 (

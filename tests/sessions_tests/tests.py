@@ -48,6 +48,13 @@ class SessionTestsMixin:
     backend = None  # subclasses must specify
 
     def setUp(self):
+        """
+        Sets up the test environment by establishing a session with the backend.
+
+         The session is created by instantiating the backend and storing it in the `session` attribute. 
+         A cleanup function is also registered to ensure the session is deleted after the test, 
+         regardless of the test outcome, to maintain a clean state.
+        """
         self.session = self.backend()
         # NB: be careful to delete any sessions created; stale sessions fill up
         # the /tmp (with some backends) and eventually overwhelm it after lots
@@ -65,11 +72,32 @@ class SessionTestsMixin:
         self.assertIsNone(await self.session.aget("cat"))
 
     def test_store(self):
+        """
+        Tests the functionality of storing and retrieving data from a session.
+
+        This test case checks if data can be successfully stored in the session
+        and if the session is marked as modified after storing data.
+        It also verifies that the stored data can be correctly retrieved and removed
+        from the session using the pop method.
+
+        The test covers the following scenarios:
+        - Storing a value in the session
+        - Checking if the session is marked as modified after storing data
+        - Retrieving and removing the stored value from the session
+        """
         self.session["cat"] = "dog"
         self.assertIs(self.session.modified, True)
         self.assertEqual(self.session.pop("cat"), "dog")
 
     async def test_store_async(self):
+        """
+
+        Tests asynchronous storing and popping of key-value pairs in the session.
+
+        Verifies that setting a key-value pair using the :meth:`aset` method modifies the session,
+        and that the correct value is returned when popping the key using the :meth:`apop` method.
+
+        """
         await self.session.aset("cat", "dog")
         self.assertIs(self.session.modified, True)
         self.assertEqual(await self.session.apop("cat"), "dog")
@@ -104,6 +132,14 @@ class SessionTestsMixin:
         self.assertIs(self.session.modified, False)
 
     async def test_pop_default_async(self):
+        """
+
+        Tests the asynchronous pop operation with a default value when the key does not exist.
+
+        Verifies that the default value is returned when the key is not found, and checks the state of the session after the operation,
+        confirming that the session is marked as accessed but not modified.
+
+        """
         self.assertEqual(
             await self.session.apop("some key", "does not exist"), "does not exist"
         )
@@ -126,10 +162,16 @@ class SessionTestsMixin:
         self.assertIs(self.session.modified, False)
 
     def test_pop_no_default_keyerror_raised(self):
+        """
+        Tests that popping a key from the session raises a KeyError when the key does not exist and no default value is provided. Verifies that the session behaves as expected when attempting to remove a non-existent key, ensuring that the correct exception is raised in this scenario.
+        """
         with self.assertRaises(KeyError):
             self.session.pop("some key")
 
     async def test_pop_no_default_keyerror_raised_async(self):
+        """
+        Tests that a KeyError is raised when attempting to asynchronously pop a key from the session using apop, without providing a default value, and the key does not exist.
+        """
         with self.assertRaises(KeyError):
             await self.session.apop("some key")
 
@@ -152,12 +194,34 @@ class SessionTestsMixin:
         self.assertEqual(self.session.get("update key", None), 1)
 
     async def test_update_async(self):
+        """
+
+        Tests the asynchronous update functionality of a session.
+
+        Verifies that updating a value in the session successfully sets the 
+        'accessed' and 'modified' flags to True. Additionally, confirms that 
+        the updated value can be retrieved correctly using the asynchronous 
+        get method.
+
+        """
         await self.session.aupdate({"update key": 1})
         self.assertIs(self.session.accessed, True)
         self.assertIs(self.session.modified, True)
         self.assertEqual(await self.session.aget("update key", None), 1)
 
     def test_has_key(self):
+        """
+
+        Tests if a dictionary key is present in the session object and if accessing it updates the accessed flag correctly.
+
+        This test case checks that the session object contains a specific key and that when the key is accessed, the session's accessed flag is set to True, while the modified flag remains unchanged.
+
+        It verifies the following conditions:
+        - The session object contains the key 'some key'.
+        - Accessing the session object updates the accessed flag to True.
+        - The modified flag remains False after accessing the session object.
+
+        """
         self.session["some key"] = 1
         self.session.modified = False
         self.session.accessed = False
@@ -194,6 +258,18 @@ class SessionTestsMixin:
         self.assertIs(self.session.modified, False)
 
     def test_keys(self):
+        """
+
+        Tests the keys method of a session object.
+
+        This test case verifies that the keys method returns the correct list of keys
+        from the session object, and that accessing the keys updates the session's
+        accessed status but does not modify the session's modified status.
+
+        Ensures that the session object behaves correctly when its keys are accessed,
+        including the update of internal state variables.
+
+        """
         self.session["x"] = 1
         self.session.modified = False
         self.session.accessed = False
@@ -202,6 +278,16 @@ class SessionTestsMixin:
         self.assertIs(self.session.modified, False)
 
     async def test_keys_async(self):
+        """
+        Tests the asynchronous retrieval of keys from a session.
+
+        Verifies that the `akeys` method correctly returns a list of keys in the session.
+        Also checks that accessing the keys updates the session's `accessed` flag, while
+        the `modified` flag remains unchanged if no modifications were made.
+
+        This test ensures proper functionality of the asynchronous key retrieval
+        mechanism, providing a foundation for further session-related tests and operations.
+        """
         await self.session.aset("x", 1)
         self.session.modified = False
         self.session.accessed = False
@@ -210,6 +296,17 @@ class SessionTestsMixin:
         self.assertIs(self.session.modified, False)
 
     def test_items(self):
+        """
+
+        Tests the behavior of the session's items method, verifying that it returns 
+        the correct key-value pairs and updates the session's accessed status accordingly, 
+        without modifying the session. 
+
+        The function checks that accessing the session's items correctly returns the 
+        stored data, and that it sets the session's accessed status to True. Additionally, 
+        it confirms that the session's modified status remains unchanged (False).
+
+        """
         self.session["x"] = 1
         self.session.modified = False
         self.session.accessed = False
@@ -236,6 +333,15 @@ class SessionTestsMixin:
         self.assertIs(self.session.modified, True)
 
     def test_save(self):
+        """
+
+        Tests the functionality of saving a session.
+
+        Verifies that after saving a session, the session exists and can be successfully retrieved using its session key.
+
+        This test ensures the session persistence mechanism is working correctly, allowing for reliable storage and retrieval of session data.
+
+        """
         self.session.save()
         self.assertIs(self.session.exists(self.session.session_key), True)
 
@@ -265,6 +371,14 @@ class SessionTestsMixin:
         self.assertIs(self.session.accessed, True)
 
     async def test_flush_async(self):
+        """
+        Tests the asynchronous flush functionality of a session.
+
+        Verifies that after flushing the session, the previous session key no longer exists,
+        a new session key is generated, and the session's modified and accessed flags are correctly set.
+        The flush operation is expected to remove all data associated with the previous session key.
+        This test ensures that the session is properly reset and a new session key is assigned after flushing.
+        """
         await self.session.aset("foo", "bar")
         await self.session.asave()
         prev_key = self.session.session_key
@@ -276,6 +390,16 @@ class SessionTestsMixin:
         self.assertIs(self.session.accessed, True)
 
     def test_cycle(self):
+        """
+
+        Tests the cycling of a session key, ensuring that the old key is deleted, 
+        a new key is generated, and the session data remains intact.
+
+        This test verifies that after the key cycle operation, the previous session key 
+        no longer exists, the new session key is different from the previous one, and 
+        the session data has been successfully transferred to the new key.
+
+        """
         self.session["a"], self.session["b"] = "c", "d"
         self.session.save()
         prev_key = self.session.session_key
@@ -306,6 +430,15 @@ class SessionTestsMixin:
         self.assertCountEqual(self.session.items(), prev_data)
 
     async def test_cycle_with_no_session_cache_async(self):
+        """
+
+        Tests the functionality of cycling a session key without utilizing session cache.
+
+        This test case ensures that when a session key is cycled, the data associated with the previous session is preserved and accessible.
+        The session is initialized with some data, saved, and then the session key is cycled.
+        After cycling the key, the test asserts that the new session does not have a session cache and that the data from the previous session is still present.
+
+        """
         await self.session.aset("a", "c")
         await self.session.aset("b", "d")
         await self.session.asave()
@@ -369,6 +502,14 @@ class SessionTestsMixin:
         self.assertEqual(self.session.session_key, "12345678")
 
     def test_session_key_is_read_only(self):
+        """
+
+        Tests that the session key attribute of a session object is read-only.
+
+        Verifies that attempting to manually set or modify the session key raises an AttributeError, 
+        ensuring the session key can only be generated or updated through the intended methods.
+
+        """
         def set_session_key(session):
             session.session_key = session._get_new_session_key()
 
@@ -454,6 +595,13 @@ class SessionTestsMixin:
         self.assertEqual(age, 10)
 
     def test_custom_expiry_datetime(self):
+        """
+        Tests that a custom expiry datetime can be successfully set and retrieved for a session.
+
+        The session expiry is modified to a specific datetime, and then the expiry date and age are retrieved and verified to match the expected values.
+
+        Checks the correct functioning of the session's expiry date and age calculation when a custom expiry datetime is provided, ensuring that the session's expiry details are accurately updated and retrieved.
+        """
         modification = timezone.now()
 
         self.session.set_expiry(modification + timedelta(seconds=10))
@@ -492,6 +640,17 @@ class SessionTestsMixin:
     def test_get_expire_at_browser_close(self):
         # Tests get_expire_at_browser_close with different settings and different
         # set_expiry calls
+        """
+        Tests the functionality of the get_expire_at_browser_close method.
+
+        This method determines whether a session will expire when the user closes their browser.
+        It considers the SESSION_EXPIRE_AT_BROWSER_CLOSE setting and the session's expiry value.
+        The session will expire at browser close if the expiry value is 0 and the setting is True.
+        Otherwise, it will not expire at browser close unless the setting is True and the expiry value is None.
+
+        The method is tested under different conditions, including when SESSION_EXPIRE_AT_BROWSER_CLOSE is both True and False,
+        and when the session's expiry value is set to a positive number, 0, and None.
+        """
         with override_settings(SESSION_EXPIRE_AT_BROWSER_CLOSE=False):
             self.session.set_expiry(10)
             self.assertIs(self.session.get_expire_at_browser_close(), False)
@@ -515,6 +674,25 @@ class SessionTestsMixin:
     async def test_get_expire_at_browser_close_async(self):
         # Tests get_expire_at_browser_close with different settings and different
         # set_expiry calls
+        """
+
+        Tests the behavior of the session's expire_at_browser_close property.
+
+        This test case checks how the session's expire_at_browser_close property is 
+        affected by the session's expiry value and the SESSION_EXPIRE_AT_BROWSER_CLOSE 
+        setting. The expire_at_browser_close property indicates whether the session 
+        expires when the browser is closed.
+
+        The test covers two scenarios: when SESSION_EXPIRE_AT_BROWSER_CLOSE is set to 
+        False and when it is set to True. In each scenario, the test checks the 
+        expire_at_browser_close property after setting the session's expiry value to 
+        10 (a non-zero value), 0 (indicating expire at browser close), and None 
+        (indicating no expiry).
+
+        The test ensures that the expire_at_browser_close property behaves as expected 
+        in these different scenarios.
+
+        """
         with override_settings(SESSION_EXPIRE_AT_BROWSER_CLOSE=False):
             await self.session.aset_expiry(10)
             self.assertIs(await self.session.aget_expire_at_browser_close(), False)
@@ -542,6 +720,15 @@ class SessionTestsMixin:
         self.assertEqual(self.session.decode(encoded), data)
 
     def test_decode_failure_logged_to_security(self):
+        """
+        Tests that decode failures in session data are logged to the security system.
+
+        This test checks that when session data is corrupted or incorrectly encoded,
+        the decode failure is logged as a warning to the 'django.security.SuspiciousSession' logger.
+        The test uses a variety of malformed encoded session data to verify that the logging
+        mechanism is triggered correctly and that the logged message contains the expected error text.
+
+        """
         tests = [
             base64.b64encode(b"flaskdj:alkdjf").decode("ascii"),
             "bad:encoded:value",
@@ -730,6 +917,22 @@ class DatabaseSessionTests(SessionTestsMixin, TestCase):
         self.assertEqual(1, self.model.objects.count())
 
     async def test_aclear_expired(self):
+        """
+        Test the functionality of clearing expired sessions.
+
+        This test case verifies that the aclear_expired method correctly removes
+        expired sessions from the database. It first sets up two sessions with
+        different expiry times, then saves them. After calling aclear_expired on
+        both sessions, it checks that only the session with a positive expiry time
+        remains in the database.
+
+        The test covers the following scenarios:
+
+        * Setting up sessions with expiry times
+        * Saving sessions to the database
+        * Clearing expired sessions using the aclear_expired method
+        * Verifying the correct number of sessions remains in the database after clearing expired sessions
+        """
         self.assertEqual(await self.model.objects.acount(), 0)
 
         # Object in the future.
@@ -762,6 +965,23 @@ class CustomDatabaseSessionTests(DatabaseSessionTests):
     def test_extra_session_field(self):
         # Set the account ID to be picked up by a custom session storage
         # and saved to a custom session model database column.
+        """
+        Tests the inclusion of extra fields in the session model.
+
+        Verifies that arbitrary data stored in the session is correctly 
+        persisted to and retrieved from the session model. Specifically, 
+        it checks that a custom field ('account_id') is updated when 
+        a corresponding key ('_auth_user_id') is added to or removed from 
+        the session, and that the changes are correctly saved and 
+        retrieved from the session model instance.
+
+        The test covers the following scenarios:
+
+        * Adding a custom key to the session and verifying its presence 
+          in the session model
+        * Removing the custom key from the session and verifying its 
+          absence in the session model
+        """
         self.session["_auth_user_id"] = 42
         self.session.save()
 
@@ -778,6 +998,17 @@ class CustomDatabaseSessionTests(DatabaseSessionTests):
         self.assertIsNone(s.account_id)
 
     def test_custom_expiry_reset(self):
+        """
+
+        Tests the reset functionality of custom session expiry.
+
+        Verifies that setting a custom expiry age, then resetting it back to the default
+        (None), results in the session expiry age being reset to the custom session cookie age.
+
+        This test ensures that resetting the session expiry age correctly reverts to the
+        previously defined custom session cookie age, rather than a default or zero value.
+
+        """
         self.session.set_expiry(None)
         self.session.set_expiry(10)
         self.session.set_expiry(None)
@@ -810,6 +1041,15 @@ class CacheDBSessionTests(SessionTestsMixin, TestCase):
     backend = CacheDBSession
 
     def test_exists_searches_cache_first(self):
+        """
+        Verifies that the exists method checks the cache before performing a database query.
+
+        This test ensures that the exists method prioritizes searching the cache for the session 
+        instead of immediately querying the database. It confirms that the cache is utilized 
+        correctly to minimize unnecessary database queries and optimize performance.
+
+        :return: None
+        """
         self.session.save()
         with self.assertNumQueries(0):
             self.assertIs(self.session.exists(self.session.session_key), True)
@@ -823,6 +1063,9 @@ class CacheDBSessionTests(SessionTestsMixin, TestCase):
     @override_settings(SESSION_CACHE_ALIAS="sessions")
     def test_non_default_cache(self):
         # 21000 - CacheDB backend should respect SESSION_CACHE_ALIAS.
+        """
+        Raises an exception to verify that using a non-default cache alias raises an error, confirming the expected behavior when an invalid cache backend is utilized.
+        """
         with self.assertRaises(InvalidCacheBackendError):
             self.backend()
 
@@ -869,6 +1112,21 @@ class FileSessionTests(SessionTestsMixin, SimpleTestCase):
 
     def setUp(self):
         # Do file session tests in an isolated directory, and kill it after we're done.
+        """
+
+        Initializes the test environment by setting up a temporary session store.
+
+        This method overrides the default setUp behavior to ensure that each test runs
+        with a clean and isolated session store. It achieves this by temporarily
+        replacing the original session file path with a new, randomly generated
+        directory. After the test is completed, the temporary directory is removed.
+
+        The original session file path is preserved and restored after the test.
+        Additionally, any existing storage path associated with the backend is deleted
+        to prevent interference with the test's temporary storage. The parent class's
+        setUp method is then called to perform any remaining setup tasks.
+
+        """
         self.original_session_file_path = settings.SESSION_FILE_PATH
         self.temp_session_store = settings.SESSION_FILE_PATH = self.mkdtemp()
         self.addCleanup(shutil.rmtree, self.temp_session_store)
@@ -888,6 +1146,12 @@ class FileSessionTests(SessionTestsMixin, SimpleTestCase):
         SESSION_FILE_PATH="/if/this/directory/exists/you/have/a/weird/computer",
     )
     def test_configuration_check(self):
+        """
+
+        Tests the configuration check for the backend by simulating an improperly configured session file path.
+        Verifies that an ImproperlyConfigured exception is raised when the backend is initialized with an invalid configuration.
+
+        """
         del self.backend._storage_path
         # Make sure the file backend checks for a good storage dir
         with self.assertRaises(ImproperlyConfigured):
@@ -955,6 +1219,16 @@ class FileSessionTests(SessionTestsMixin, SimpleTestCase):
 
 class FileSessionPathLibTests(FileSessionTests):
     def mkdtemp(self):
+        """
+        Creates a temporary directory and returns its path as a Path object.
+
+        This method generates a unique, temporary directory and provides its path
+        in a convenient and Pythonic format. The directory is created in a location
+        suitable for temporary files and will be deleted when no longer needed.
+
+        :returns: Path object representing the temporary directory
+        :rtype: Path
+        """
         tmp_dir = super().mkdtemp()
         return Path(tmp_dir)
 
@@ -969,6 +1243,9 @@ class CacheSessionTests(SessionTestsMixin, SimpleTestCase):
         self.assertEqual(self.session.load(), {})
 
     def test_default_cache(self):
+        """
+        Tests the default cache behavior by verifying that a session's cache key is properly stored and retrievable after saving the session.
+        """
         self.session.save()
         self.assertIsNotNone(caches["default"].get(self.session.cache_key))
 
@@ -1024,6 +1301,13 @@ class SessionMiddlewareTests(TestCase):
 
     @override_settings(SESSION_COOKIE_HTTPONLY=True)
     def test_httponly_session_cookie(self):
+        """
+        Tests that the session cookie is set with the HttpOnly flag when the SESSION_COOKIE_HTTPONLY setting is enabled.
+
+        This test case verifies that the SessionMiddleware correctly sets the HttpOnly attribute on the session cookie 
+        in the response, preventing JavaScript from accessing the session cookie. The test checks both the presence of 
+        the HttpOnly flag in the cookie's attributes and its correct string representation in the cookie's value.
+        """
         request = self.request_factory.get("/")
         middleware = SessionMiddleware(self.get_response_touching_session)
 
@@ -1037,6 +1321,9 @@ class SessionMiddlewareTests(TestCase):
 
     @override_settings(SESSION_COOKIE_SAMESITE="Strict")
     def test_samesite_session_cookie(self):
+        """
+        ARGE Test that the session cookie's SameSite attribute is set to 'Strict' when the SESSION_COOKIE_SAMESITE setting is set to 'Strict'.
+        """
         request = self.request_factory.get("/")
         middleware = SessionMiddleware(self.get_response_touching_session)
         response = middleware(request)
@@ -1069,6 +1356,15 @@ class SessionMiddlewareTests(TestCase):
         self.assertNotIn("hello", request.session.load())
 
     def test_session_save_on_5xx(self):
+        """
+        Tests if session data is not saved when a 5xx HTTP error occurs.
+
+        This test simulates a scenario where the server returns a 503 Service Unavailable response,
+        sets a session variable, and then verifies that the session data is not persisted.
+
+        It covers the functionality of the SessionMiddleware to correctly handle session data
+        when an HTTP error occurs, ensuring that the session remains unchanged in such cases.
+        """
         def response_503(request):
             response = HttpResponse("Service Unavailable")
             response.status_code = 503
@@ -1083,6 +1379,12 @@ class SessionMiddlewareTests(TestCase):
 
     def test_session_update_error_redirect(self):
         def response_delete_session(request):
+            """
+            Deletes the current user session.
+
+            This function creates a new temporary database session, saves it to ensure its existence, 
+            and then immediately deletes it. It returns an empty HTTP response.
+            """
             request.session = DatabaseSession()
             request.session.save(must_create=True)
             request.session.delete()
@@ -1256,6 +1558,16 @@ class CookieSessionTests(SessionTestsMixin, SimpleTestCase):
     def test_unpickling_exception(self):
         # signed_cookies backend should handle unpickle exceptions gracefully
         # by creating a new session
+        """
+        Tests that an exception is correctly handled when unpickling a session.
+
+        Checks that the session's serializer is properly set and that saving the session
+        succeeds. Then, simulates an unpickling error by mocking the signing loads function
+        to raise a ValueError, and verifies the behavior when loading the session.
+
+        The test case ensures that the session loading process handles deserialization
+        exceptions as expected, providing a reliable session management mechanism.
+        """
         self.assertEqual(self.session.serializer, JSONSerializer)
         self.session.save()
         with mock.patch("django.core.signing.loads", side_effect=ValueError):
@@ -1336,16 +1648,42 @@ class SessionBaseTests(SimpleTestCase):
             await self.session.aexists(None)
 
     def test_load(self):
+        """
+
+        Tests the session's load functionality to ensure it raises a NotImplementedError.
+
+        This test case verifies that an attempt to load the session results in the
+        correct error message being raised, indicating that the load operation is not
+        implemented.
+
+        """
         msg = self.not_implemented_msg % "a load"
         with self.assertRaisesMessage(NotImplementedError, msg):
             self.session.load()
 
     async def test_aload(self):
+        """
+
+        Tests the asynchronous load functionality of the session.
+
+        This test case verifies that attempting to asynchronously load data using the aload method raises a NotImplementedError with a specific message, indicating that the implementation is not provided.
+
+        The test confirms the expected behavior when the aload method is not implemented, ensuring that the correct error message is propagated.
+
+        """
         msg = self.not_implemented_msg % "a load"
         with self.assertRaisesMessage(NotImplementedError, msg):
             await self.session.aload()
 
     def test_save(self):
+        """
+        Tests that a NotImplementedError is raised when attempting to save a session.
+
+        This test ensures that the session's save method is not implemented and produces the expected error message, 
+        indicating that the method needs to be implemented by subclasses or concrete implementations.
+
+        :raises: AssertionError if the session's save method does not raise a NotImplementedError with the expected message.
+        """
         msg = self.not_implemented_msg % "a save"
         with self.assertRaisesMessage(NotImplementedError, msg):
             self.session.save()
@@ -1356,6 +1694,13 @@ class SessionBaseTests(SimpleTestCase):
             await self.session.asave()
 
     def test_test_cookie(self):
+        """
+        Tests the functionality of setting, checking, and deleting a test cookie in a session.
+
+        This test case ensures that a test cookie is successfully set, verified, and then deleted from the session.
+        It covers the key aspects of test cookie management, including checking for the cookie's existence before and after setting and deleting it.
+        The purpose of this test is to guarantee that the session's test cookie functionality is working as expected, which is crucial for session management and related operations.
+        """
         self.assertIs(self.session.has_key(self.session.TEST_COOKIE_NAME), False)
         self.session.set_test_cookie()
         self.assertIs(self.session.test_cookie_worked(), True)

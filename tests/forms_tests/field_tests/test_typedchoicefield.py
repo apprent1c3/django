@@ -20,12 +20,40 @@ class TypedChoiceFieldTest(SimpleTestCase):
 
     def test_typedchoicefield_3(self):
         # This can also cause weirdness: be careful (bool(-1) == True, remember)
+        """
+
+        Tests the TypedChoiceField with boolean coercion.
+
+        This test case verifies that the TypedChoiceField correctly coerces the input to a boolean value
+        when the coerce parameter is set to bool. It checks if the clean method returns True for a valid
+        choice value of '-1', which is expected to be coerced to False.
+
+        The test uses a TypedChoiceField instance with choices of '+1' and '-1', mapped to integer values
+        1 and -1, respectively. The coerce parameter is set to bool, indicating that the input should be
+        coerced to a boolean value.
+
+        The expected outcome of this test is that the clean method returns a boolean value when given a
+        valid choice value, demonstrating the correct functionality of the TypedChoiceField with boolean
+        coercion.
+
+        """
         f = TypedChoiceField(choices=[(1, "+1"), (-1, "-1")], coerce=bool)
         self.assertTrue(f.clean("-1"))
 
     def test_typedchoicefield_4(self):
         # Even more weirdness: if you have a valid choice but your coercion function
         # can't coerce, you'll still get a validation error. Don't do this!
+        """
+
+        Tests the TypedChoiceField with coerce=int validation.
+
+        This test ensures that TypedChoiceField correctly validates user input against
+        the available choices and raises a ValidationError with a meaningful message when
+        an invalid choice is selected. It also checks for the case when the field is left
+        blank, in which case it should raise a ValidationError indicating that the field
+        is required.
+
+        """
         f = TypedChoiceField(choices=[("A", "A"), ("B", "B")], coerce=int)
         msg = "'Select a valid choice. B is not one of the available choices.'"
         with self.assertRaisesMessage(ValidationError, msg):
@@ -53,6 +81,20 @@ class TypedChoiceFieldTest(SimpleTestCase):
 
     def test_typedchoicefield_has_changed(self):
         # has_changed should not trigger required validation
+        """
+
+        Determines whether the value of a TypedChoiceField has changed.
+
+        This function checks the initial and current values of a TypedChoiceField to see if they differ.
+        It takes into account the field's choices, coercion, and required status to make this determination.
+
+        The following scenarios are considered:
+        - If the field's value is not required and is currently empty, it is considered unchanged if the new value is also empty.
+        - If the field's value is not required and is currently empty, it is considered changed if a new value is provided.
+        - If the field's value is required or currently has a value, it is considered unchanged if the new value is the same as the current value.
+        - If the field's value is required or currently has a value, it is considered changed if the new value is different from the current value.
+
+        """
         f = TypedChoiceField(choices=[(1, "+1"), (-1, "-1")], coerce=int, required=True)
         self.assertFalse(f.has_changed(None, ""))
         self.assertFalse(f.has_changed(1, "1"))

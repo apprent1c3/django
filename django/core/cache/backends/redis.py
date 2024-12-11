@@ -36,6 +36,25 @@ class RedisCacheClient:
         parser_class=None,
         **options,
     ):
+        """
+
+        Initializes the Redis client instance.
+
+        This constructor sets up the client with the given list of Redis servers,
+        serializer, and pool class. It also accepts additional options to be passed
+        to the connection pool.
+
+        :param servers: List of Redis server URLs or host/port pairs
+        :param serializer: Optional serializer instance or class name (as a string)
+        :param pool_class: Optional pool class instance or class name (as a string)
+        :param parser_class: Optional parser class instance or class name (as a string)
+        :param options: Additional keyword arguments to be passed to the connection pool
+
+        The client instance uses the provided serializer to encode and decode data,
+        and the pool class to manage connections to the Redis servers. If no
+        serializer or pool class is provided, default implementations are used.
+
+        """
         import redis
 
         self._lib = redis
@@ -119,6 +138,13 @@ class RedisCacheClient:
         return bool(client.delete(key))
 
     def get_many(self, keys):
+        """
+        Retrieve multiple values from storage by their keys.
+
+        :param keys: A sequence of keys to retrieve values for
+        :return: A dictionary mapping each key to its corresponding value, with keys that have no value in storage omitted
+        :note: Values are deserialized using the configured serializer before being returned
+        """
         client = self.get_client(None)
         ret = client.mget(keys)
         return {
@@ -199,6 +225,24 @@ class RedisCache(BaseCache):
         return self._cache.delete(key)
 
     def get_many(self, keys, version=None):
+        """
+
+        Retrieve multiple values from the cache by their keys.
+
+        This method allows you to fetch multiple values from the cache in a single operation.
+        It takes a list of keys and an optional version parameter, which can be used to specify
+        the version of the cached values to retrieve. The function returns a dictionary where
+        the keys are the original keys provided and the values are the corresponding cached values.
+
+        The keys provided are first validated and converted to a standard format, and then used
+        to retrieve the values from the cache. The retrieved values are then returned in a dictionary,
+        with the original keys mapped to their corresponding values.
+
+        :param keys: A list of keys to retrieve from the cache.
+        :param version: The version of the cached values to retrieve. If not specified, the latest version is used.
+        :returns: A dictionary of key-value pairs, where the keys are the original keys provided and the values are the corresponding cached values.
+
+        """
         key_map = {
             self.make_and_validate_key(key, version=version): key for key in keys
         }

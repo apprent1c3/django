@@ -40,6 +40,19 @@ class LimitedStream(IOBase):
         return data
 
     def readline(self, size=-1, /):
+        """
+
+        Reads a line of bytes from the current position in the file.
+
+        The number of bytes to read can be specified with the `size` parameter. If `size` is -1 or None, the function will read until the end of the file. If a positive integer is provided, it will attempt to read up to that many bytes.
+
+        The function returns the line of bytes as a bytes object. If the end of the file is reached, an empty bytes object is returned.
+
+        :param size: The maximum number of bytes to read from the file. Defaults to -1.
+        :returns: The line of bytes read from the file.
+        :rtype: bytes
+
+        """
         _pos = self._pos
         limit = self.limit
         if _pos >= limit:

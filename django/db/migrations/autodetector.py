@@ -1681,6 +1681,16 @@ class MigrationAutodetector:
         self._generate_altered_foo_together(operations.AlterUniqueTogether)
 
     def generate_altered_db_table(self):
+        """
+        Generates altered database table operations based on model changes.
+
+        This function iterates through models that have been retained, checking for changes 
+        to the database table name. If a change is detected, an operation to alter the 
+        model's table is added to the list of operations. The models checked include 
+        standard models, proxy models, and unmanaged models. The function handles model 
+        renames by checking for the old model name and using it to retrieve the original 
+        model state.
+        """
         models_to_check = self.kept_model_keys.union(
             self.kept_proxy_keys, self.kept_unmanaged_keys
         )

@@ -270,6 +270,16 @@ class ArticleAdmin(ArticleAdminWithExtraUrl):
         return super().delete_model(request, obj)
 
     def save_model(self, request, obj, form, change=True):
+        """
+        Saves the model instance and sends a notification email.
+
+            :param request: The current request object
+            :param obj: The model instance being saved
+            :param form: The form instance used to validate the model data
+            :param change: A flag indicating whether the model instance is being created or updated
+            :return: The result of the superclass's save_model method
+            :note: The notification email is sent with a fixed subject and body, to a predefined recipient.
+        """
         EmailMessage(
             "Greetings from a created object",
             "I hereby inform you that some user created me",
@@ -381,6 +391,15 @@ class SubscriberAdmin(admin.ModelAdmin):
     action_form = MediaActionForm
 
     def delete_queryset(self, request, queryset):
+        """
+        Deletes a set of objects from the queryset, overriding the default behavior to indicate that the deletion was intentional.
+
+        Notable change from the default behavior is that this method sets a flag indicating that the default deletion behavior has been overridden. 
+
+        :param request: The current request object.
+        :param queryset: The set of objects to be deleted. 
+        :note: This method is typically used within the context of an administrative interface, such as Django Admin.
+        """
         SubscriberAdmin.overridden = True
         super().delete_queryset(request, queryset)
 
@@ -413,6 +432,21 @@ def redirect_to(modeladmin, request, selected):
 
 @admin.action(description="Download subscription")
 def download(modeladmin, request, selected):
+    """
+
+    Downloads a subscription.
+
+    This action generates a downloadable file containing the subscription data.
+    When invoked from the admin interface, it triggers a file download with the
+    subscription content.
+
+    :param modeladmin: The admin interface model
+    :param request: The current HTTP request
+    :param selected: The selected subscription objects
+
+    :return: A streaming HTTP response with the downloadable file
+
+    """
     buf = StringIO("This is the content of the file")
     return StreamingHttpResponse(FileWrapper(buf))
 
@@ -1008,6 +1042,17 @@ class DependentChildAdminForm(forms.ModelForm):
     """
 
     def clean(self):
+        """
+
+        Checks the data for consistency, specifically ensuring that a child's family name matches their parent's family name.
+
+        Raises:
+            ValidationError: If the child's family name does not match the parent's family name.
+
+        Returns:
+            None: If the data is valid, the parent class's clean method is called.
+
+        """
         parent = self.cleaned_data.get("parent")
         if parent.family_name and parent.family_name != self.cleaned_data.get(
             "family_name"

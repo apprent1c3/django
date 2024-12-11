@@ -69,6 +69,23 @@ FLAG_PROPERTIES_FOR_RELATIONS = (
 class FieldFlagsTests(test.SimpleTestCase):
     @classmethod
     def setUpClass(cls):
+        """
+
+
+        Sets up the class level test data for the AllFieldsModel.
+
+        This method is used to initialize class-level attributes that will be used throughout the test suite. 
+        It establishes the fields and relationships of the AllFieldsModel, which includes all model fields, 
+        private fields, many-to-many fields, and related objects.
+
+        The following class attributes are populated:
+
+        - `fields`: A list of all model fields, including private fields.
+        - `all_fields`: A comprehensive list of all model fields, including private fields and many-to-many fields.
+        - `fields_and_reverse_objects`: An exhaustive list that includes all fields, many-to-many fields, private fields, and related objects.
+
+
+        """
         super().setUpClass()
         cls.fields = [
             *AllFieldsModel._meta.fields,
@@ -104,6 +121,15 @@ class FieldFlagsTests(test.SimpleTestCase):
         )
 
     def test_non_concrete_fields(self):
+        """
+
+        Tests that non-concrete fields in the class instance are correctly identified.
+
+        This test checks each field in the instance's fields collection and verifies that
+        non-concrete fields (as defined in NON_CONCRETE_FIELDS) are marked as not concrete,
+        while all other fields are marked as concrete.
+
+        """
         for field in self.fields:
             if type(field) in NON_CONCRETE_FIELDS:
                 self.assertFalse(field.concrete)
@@ -125,10 +151,27 @@ class FieldFlagsTests(test.SimpleTestCase):
                 self.assertFalse(field.is_relation)
 
     def test_field_names_should_always_be_available(self):
+        """
+        Tests that all field names in the fields_and_reverse_objects collection are set and available.
+
+        Verifies that each field in the collection has a non-empty name, ensuring consistency and accessibility throughout the application.
+
+        Raises:
+            AssertionError: If any field name is missing or empty.
+        """
         for field in self.fields_and_reverse_objects:
             self.assertTrue(field.name)
 
     def test_all_field_types_should_have_flags(self):
+        """
+
+        Tests that all field types have the required flags.
+
+        This test iterates over all fields and checks that each field has all the flags defined in FLAG_PROPERTIES.
+        Additionally, for fields that represent relationships, it verifies that exactly one cardinality flag is set to True,
+        ensuring a valid relationship configuration.
+
+        """
         for field in self.fields_and_reverse_objects:
             for flag in FLAG_PROPERTIES:
                 self.assertTrue(
@@ -217,5 +260,12 @@ class FieldFlagsTests(test.SimpleTestCase):
     def test_null(self):
         # null isn't well defined for a ManyToManyField, but changing it to
         # True causes backwards compatibility problems (#25320).
+        """
+        Tests the null constraints on model fields.
+
+        Checks if the 'm2m' field has a null constraint set to False and 
+        the 'reverse2' field has a null constraint set to True, 
+        verifying the expected behavior of these fields in the model.
+        """
         self.assertFalse(AllFieldsModel._meta.get_field("m2m").null)
         self.assertTrue(AllFieldsModel._meta.get_field("reverse2").null)

@@ -40,11 +40,28 @@ class FullMiddleware:
         request.process_view_reached = True
 
     def process_template_response(self, request, response):
+        """
+        Processes the template response by marking the request as having reached the template response stage and returns the response.
+
+        :param request: The current request object being processed.
+        :param response: The response object generated from the template.
+        :returns: The processed response object.
+        """
         request.process_template_response_reached = True
         return response
 
     def process_response(self, request, response):
         # This should never receive unrendered content.
+        """
+        Processes the HTTP response received for the given request.
+
+         Updates the request object to store the response content and marks it as reached.
+         The function then returns the original HTTP response.
+
+         :param request: The request object associated with the response
+         :param response: The HTTP response received
+         :return: The HTTP response object
+        """
         request.process_response_content = response.content
         request.process_response_reached = True
         return response

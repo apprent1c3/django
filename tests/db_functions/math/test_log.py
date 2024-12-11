@@ -9,6 +9,15 @@ from ..models import DecimalModel, FloatModel, IntegerModel
 
 class LogTests(TestCase):
     def test_null(self):
+        """
+
+        Tests the behavior of log annotations when input values are null.
+
+        Verifies that the Log annotation returns None when the input value is null,
+        regardless of the log type (small, normal, big). This ensures that the Log
+        annotation handles null inputs correctly and does not raise any errors.
+
+        """
         IntegerModel.objects.create(big=100)
         obj = IntegerModel.objects.annotate(
             null_log_small=Log("small", "normal"),
@@ -20,6 +29,11 @@ class LogTests(TestCase):
         self.assertIsNone(obj.null_log_big)
 
     def test_decimal(self):
+        """
+        Tests the calculation of the logarithm of one decimal number to the base of another decimal number using the database's mathematical functions. 
+
+        The test creates a decimal-based model instance, annotates it with the logarithm of one field to the base of another, and verifies that the result is a decimal instance and its value is approximately equal to the expected result calculated using the standard library's math functions.
+        """
         DecimalModel.objects.create(n1=Decimal("12.9"), n2=Decimal("3.6"))
         obj = DecimalModel.objects.annotate(n_log=Log("n1", "n2")).first()
         self.assertIsInstance(obj.n_log, Decimal)

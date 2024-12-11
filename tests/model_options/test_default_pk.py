@@ -47,6 +47,11 @@ class TestDefaultPK(SimpleTestCase):
 
     @isolate_apps("model_options.apps.ModelPKNonAutoConfig")
     def test_app_default_auto_field_non_auto(self):
+        """
+        Tests that setting a non-auto field as the default auto field for an app raises a ValueError.
+
+         The function verifies that attempting to use a non-AutoField (in this case, a TextField) as the default primary key type for a model in an app configuration results in an error with a specific message. This error occurs because the default auto field must be a subclass of AutoField, as required by Django's model configuration.
+        """
         msg = (
             "Primary key 'django.db.models.TextField' referred by "
             "model_options.apps.ModelPKNonAutoConfig.default_auto_field must "
@@ -79,6 +84,13 @@ class TestDefaultPK(SimpleTestCase):
     @isolate_apps("model_options.apps.ModelDefaultPKConfig")
     @override_settings(DEFAULT_AUTO_FIELD="django.db.models.SmallAutoField")
     def test_default_auto_field_setting(self):
+        """
+        Tests that the DEFAULT_AUTO_FIELD setting is applied correctly to models.
+
+        Verifies that when DEFAULT_AUTO_FIELD is set to 'django.db.models.SmallAutoField',
+        models without an explicit primary key field are automatically assigned a SmallAutoField.
+
+        """
         class Model(models.Model):
             pass
 

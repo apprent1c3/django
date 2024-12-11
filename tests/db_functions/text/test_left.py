@@ -12,6 +12,20 @@ class LeftTests(TestCase):
         Author.objects.create(name="Rhonda")
 
     def test_basic(self):
+        """
+
+        Tests the basic functionality of author data manipulation.
+
+        This test case checks the ability to annotate and order author objects based on partial names.
+        It also verifies the correct updating of author aliases for names without an existing alias.
+
+        The test performs the following checks:
+        - Annotates authors with the first 5 characters of their name.
+        - Orders authors by their full name and verifies the correctness of the annotated partial names.
+        - Updates the aliases of authors without an existing alias to the first 2 characters of their name in lowercase.
+        - Reorders authors by their full name and verifies the correctness of the updated aliases.
+
+        """
         authors = Author.objects.annotate(name_part=Left("name", 5))
         self.assertQuerySetEqual(
             authors.order_by("name"), ["John ", "Rhond"], lambda a: a.name_part

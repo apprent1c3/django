@@ -139,6 +139,21 @@ class AsyncQuerySetTest(TestCase):
             )
 
     async def test_abulk_update(self):
+        """
+
+        Test the bulk update functionality of the asynchronous model manager.
+
+        This test case verifies that multiple model instances can be updated in bulk
+        using the :meth:`abulk_update` method. It checks that the ``field`` attribute
+        of each instance is correctly updated and persists the changes to the database.
+
+        The test performs the following steps:
+            1. Retrieves all instances of the model.
+            2. Modifies the ``field`` attribute of each instance.
+            3. Updates the modified instances in bulk.
+            4. Verifies that the updated values are correctly stored in the database.
+
+        """
         instances = SimpleModel.objects.all()
         async for instance in instances:
             instance.field = instance.field * 10
@@ -172,6 +187,13 @@ class AsyncQuerySetTest(TestCase):
         self.assertEqual(instance, self.s1)
 
     async def test_aearliest(self):
+        """
+        Tests the functionality of retrieving the earliest or latest instance of a model based on a specified field.
+
+        This test case checks the correctness of the `aearliest` method by comparing the retrieved instances with the expected ones. It verifies that the method returns the correct instance when sorting by a field in ascending or descending order.
+
+        The test covers two scenarios: retrieving the earliest instance (based on the 'created' field) and retrieving the latest instance (based on the '-created' field), ensuring the method behaves as expected in both cases.
+        """
         instance = await SimpleModel.objects.aearliest("created")
         self.assertEqual(instance, self.s1)
 
@@ -197,6 +219,26 @@ class AsyncQuerySetTest(TestCase):
         self.assertEqual(total, {"total": 6})
 
     async def test_aexists(self):
+        """
+        Checks the existence of objects in the database that match a given filter.
+
+        This method uses an asynchronous query to determine if at least one object
+        exists in the database that satisfies the specified conditions. It returns
+        True if such an object exists, and False otherwise.
+
+        The result of this method can be used to verify the presence or absence of
+        specific data in the database, allowing for more informed decisions or
+        actions to be taken in the application.
+
+        Args:
+            None
+
+        Returns:
+            bool: True if at least one object matching the filter exists, False otherwise
+
+        Note:
+            This method is asynchronous and should be used within an async context.
+        """
         check = await SimpleModel.objects.filter(field=1).aexists()
         self.assertIs(check, True)
 
@@ -226,6 +268,16 @@ class AsyncQuerySetTest(TestCase):
     @skipUnlessDBFeature("supports_explaining_query_execution")
     @async_to_sync
     async def test_aexplain(self):
+        """
+        Tests the QuerySet.aexplain() method to ensure it returns a valid explanation of query execution.
+
+        The test checks the method's output in various formats, including the default format and all formats supported by the database.
+        It verifies that the result is a non-empty string and, when applicable, that it is valid XML or JSON.
+
+        :raises AssertionError: If the explanation result is invalid or empty, or if the result is not a string.
+        :raises SkipTest: If the database does not support explaining query execution.
+
+        """
         supported_formats = await sync_to_async(self._get_db_feature)(
             connection, "supported_explain_formats"
         )

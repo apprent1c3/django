@@ -20,6 +20,16 @@ class IntrospectionTests(TransactionTestCase):
     available_apps = ["introspection"]
 
     def test_table_names(self):
+        """
+
+        Verifies the correctness of the table names in the database schema.
+
+        This function checks that the list of table names returned by the database 
+        introspection is sorted and contains the expected table names for the Reporter 
+        and Article models. It ensures that the tables have been properly created in 
+        the database and are accessible through the models' metadata.
+
+        """
         tl = connection.introspection.table_names()
         self.assertEqual(tl, sorted(tl))
         self.assertIn(
@@ -46,6 +56,15 @@ class IntrospectionTests(TransactionTestCase):
 
     def test_django_table_names_retval_type(self):
         # Table name is a list #15216
+        """
+        Tests the return type of function django_table_names from the connection.introspection module.
+
+        This test case verifies that the function returns a list of Django table names, 
+        regardless of whether only existing tables are considered or not. The test covers 
+        two scenarios: when only existing tables are included and when all tables are 
+        considered. In both cases, the function's return value is checked to ensure it is 
+        of type list.
+        """
         tl = connection.introspection.django_table_names(only_existing=True)
         self.assertIs(type(tl), list)
         tl = connection.introspection.django_table_names(only_existing=False)
@@ -126,6 +145,12 @@ class IntrospectionTests(TransactionTestCase):
         )
 
     def test_get_table_description_col_lengths(self):
+        """
+        Test the lengths of character columns in the Reporter table. 
+
+        This test retrieves the table description for the Reporter model's database table, 
+        extracts the CharField column lengths, and asserts they match the expected lengths of 30, 30, and 254.
+        """
         with connection.cursor() as cursor:
             desc = connection.introspection.get_table_description(
                 cursor, Reporter._meta.db_table
@@ -202,6 +227,19 @@ class IntrospectionTests(TransactionTestCase):
     # Regression test for #9991 - 'real' types in postgres
     @skipUnlessDBFeature("has_real_datatype")
     def test_postgresql_real_type(self):
+        """
+
+        Tests the introspection of the PostgreSQL REAL type.
+
+        Verifies that the REAL type is correctly identified as a FloatField by Django's
+        database introspection API. This test is skipped if the database does not
+        support the REAL data type.
+
+        The test creates a temporary table with a REAL column, retrieves the table
+        description using the introspection API, and checks that the REAL type is
+        mapped to the correct Django field type.
+
+        """
         with connection.cursor() as cursor:
             cursor.execute("CREATE TABLE django_ixn_real_test_table (number REAL);")
             desc = connection.introspection.get_table_description(
@@ -309,6 +347,13 @@ class IntrospectionTests(TransactionTestCase):
         self.assertEqual(constraint["orders"], ["ASC"])
 
     def test_get_constraints(self):
+        """
+        Tests retrieval and accuracy of database constraints on the Comment and CheckConstraintModel tables.
+
+        The test uses the database connection's introspection capabilities to fetch constraints and then verifies their properties, such as primary key, unique, index, check, and foreign key constraints, against expected values.
+
+        It checks for custom constraints defined in the model, including unique and index constraints on specific columns, as well as check constraints on certain fields. Additionally, it verifies that all constraints are properly accounted for, with no unexpected constraints present.
+        """
         def assertDetails(
             details,
             cols,

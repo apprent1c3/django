@@ -61,6 +61,22 @@ class DjangoTemplatesTests(TemplateStringsTests):
 
     @override_settings(INSTALLED_APPS=["template_backends.apps.good"])
     def test_templatetag_discovery(self):
+        """
+
+        Tests the discovery of templatetags within the Django template engine.
+
+        This function verifies that the template engine correctly loads and resolves templatetags
+        from installed applications, including custom tags and overridden built-in tags.
+        It checks that the engine can find tags in the specified libraries, including those 
+        defined in subpackages and overridden by custom implementations.
+
+        The test covers various scenarios, including:
+        - Custom templatetags defined in an application
+        - Templatetags defined in a subpackage of an application
+        - Overridden built-in templatetags
+        - Custom templatetags with an alternate name
+
+        """
         engine = DjangoTemplates(
             {
                 "DIRS": [],
@@ -162,6 +178,15 @@ class DjangoTemplatesTests(TemplateStringsTests):
         )
 
     def test_autoescape_default(self):
+        """
+        :param self: reference to the instance of the class
+        :returns: None
+        :raises: AssertionError if the rendered template does not match the expected output
+
+        Tests whether the autoescape feature is enabled by default in Django templates.
+        The test checks if HTML special characters in template variables are properly escaped.
+        In this case, it verifies that an ampersand (&) in the 'name' variable is replaced with its corresponding HTML entity (&amp;).
+        """
         templates = [
             {
                 "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -196,6 +221,14 @@ class DjangoTemplatesTests(TemplateStringsTests):
                 )
 
     def test_dirs_pathlib(self):
+        """
+        Test rendering of templates using the Django template engine and pathlib.
+
+        This test verifies that the Django template engine can correctly render templates
+        from a specified directory using pathlib. It checks that the engine can locate the
+        template, render it with provided context, and return the expected output.
+
+        """
         engine = DjangoTemplates(
             {
                 "DIRS": [Path(__file__).parent / "templates" / "template_backends"],

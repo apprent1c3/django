@@ -43,6 +43,16 @@ class TimeTests(TimezoneTestCase):
 
     @setup({"time04": '{{ t|time:"P:e:O:T:Z" }}'})
     def test_time04(self):
+        """
+
+        Tests rendering of time using a specific format.
+
+        This test case checks if the time \"4:00\" is correctly formatted as \"4 a.m.::::/\". 
+        It verifies that the time is rendered according to the specified format string, 
+        which includes the hour in 12-hour format, designations for ante meridiem/post meridiem, 
+        offset, timezone, and other details.
+
+        """
         output = self.engine.render_to_string("time04", {"t": time(4, 0)})
         self.assertEqual(output, "4 a.m.::::")
 

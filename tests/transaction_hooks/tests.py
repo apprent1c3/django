@@ -40,6 +40,16 @@ class TestConnectionOnCommit(TransactionTestCase):
         self.assertEqual(self.notified, nums)
 
     def test_executes_immediately_if_no_transaction(self):
+        """
+        Tests that the execution is immediate if no transaction is present.
+
+        Verifies that when no transactional context is active, the operation is executed
+        immediately without any delays. The test case checks for the completion of the
+        operation and validates the expected outcome.
+
+        :raises AssertionError: If the operation is not completed immediately.
+
+        """
         self.do(1)
         self.assertDone([1])
 
@@ -109,6 +119,15 @@ class TestConnectionOnCommit(TransactionTestCase):
         self.assertDone([1])
 
     def test_discards_hooks_from_rolled_back_savepoint(self):
+        """
+        .. method:: test_discards_hooks_from_rolled_back_savepoint
+
+            Tests if hooks registered during a transaction are properly discarded when the transaction is rolled back.
+
+            This function specifically checks if a savepoint is correctly rolled back, removing any hooks registered after the savepoint, while maintaining any previously registered hooks.
+
+            It asserts that only hooks registered before the rolled-back savepoint and after the rollback are executed, ensuring the correct behavior in case of transaction failures.
+        """
         with transaction.atomic():
             # one successful savepoint
             with transaction.atomic():
@@ -165,6 +184,21 @@ class TestConnectionOnCommit(TransactionTestCase):
         self.assertDone([])
 
     def test_inner_savepoint_does_not_affect_outer(self):
+        """
+
+        Test that an inner savepoint does not interfere with the outer transaction.
+
+        This test case verifies that when an inner transaction is rolled back due to an exception,
+        the outer transaction remains unaffected and can still commit successfully.
+
+        The test scenario involves a nested transaction setup, where the innermost transaction
+        encounters an exception and is rolled back. The test then asserts that the outer transaction
+        can still complete and the expected outcome is achieved.
+
+        The purpose of this test is to ensure that the transactional behavior is correctly isolated,
+        preventing inner transaction failures from affecting the outer transaction's integrity.
+
+        """
         with transaction.atomic():
             with transaction.atomic():
                 self.do(1)
@@ -186,6 +220,20 @@ class TestConnectionOnCommit(TransactionTestCase):
         self.assertDone([1, 2, 3])
 
     def test_hooks_cleared_after_successful_commit(self):
+        """
+
+        Checks that hooks are properly reset after a successful commit operation.
+
+        This test ensures that the hooks are cleared after each transaction, allowing 
+        for a clean slate at the start of each new transaction. It verifies that the 
+        operations performed within the transactions are correctly executed and 
+        recorded.
+
+        The test performs two separate transactions, each executing a distinct 
+        operation, and then asserts that both operations have been successfully 
+        completed.
+
+        """
         with transaction.atomic():
             self.do(1)
         with transaction.atomic():
@@ -242,6 +290,16 @@ class TestConnectionOnCommit(TransactionTestCase):
 
     def test_transaction_in_hook(self):
         def on_commit():
+            """
+
+            Perform an action after a database commit.
+
+            This function creates a new instance of the Thing model with a specific attribute value,
+            then notifies other components of the created instance's attribute value.
+
+            The operation is wrapped in a database transaction to ensure data consistency.
+
+            """
             with transaction.atomic():
                 t = Thing.objects.create(num=1)
                 self.notify(t.num)
@@ -253,6 +311,25 @@ class TestConnectionOnCommit(TransactionTestCase):
 
     def test_hook_in_hook(self):
         def on_commit(i, add_hook):
+            """
+
+            Initialize a chained creation of 'Thing' objects with a specified interval.
+
+            This function creates a 'Thing' object with a unique identifier and notifies
+            about its creation. If the add_hook parameter is True, it sets up a hook to
+            recursively call itself after the current transaction is committed, with an
+            incremented identifier and the add_hook parameter set to False.
+
+            The purpose of this function is to generate a series of 'Thing' objects in a
+            transactional manner, ensuring atomicity and consistency of the creation
+            process. The identifier 'i' is incremented by 10 for each recursively called
+            function.
+
+            :param int i: The initial identifier for the 'Thing' object.
+            :param bool add_hook: A flag indicating whether to set up a hook for recursive
+                calls after the transaction is committed.
+
+            """
             with transaction.atomic():
                 if add_hook:
                     transaction.on_commit(lambda: on_commit(i + 10, False))
@@ -266,6 +343,13 @@ class TestConnectionOnCommit(TransactionTestCase):
         self.assertDone([1, 11, 2, 12])
 
     def test_raises_exception_non_autocommit_mode(self):
+        """
+        Tests that calling transaction.on_commit raises an exception when the database connection is in non-autocommit mode. 
+
+        This test ensures that on_commit, which is typically used to delay execution of a function until the current database transaction has committed, is not used with manual transaction management, where the application is responsible for committing or rolling back the transaction. 
+
+        The test verifies that a TransactionManagementError is raised with a message indicating that on_commit cannot be used in manual transaction management.
+        """
         def should_never_be_called():
             raise AssertionError("this function should never be called")
 

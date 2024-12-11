@@ -27,6 +27,9 @@ class StriptagsTests(SimpleTestCase):
         }
     )
     def test_striptags02(self):
+        """
+        Tests that the striptags template filter correctly removes HTML tags from input strings, and that it handles both regular strings and strings marked as safe with the mark_safe function. The test checks that the filter removes all HTML tags, regardless of whether they are nested or contain other tags, and that it does not perform any additional modifications to the input strings. It also verifies that the filter works correctly when autoescaping is disabled, as specified by the autoescape off directive in the template.
+        """
         output = self.engine.render_to_string(
             "striptags02",
             {

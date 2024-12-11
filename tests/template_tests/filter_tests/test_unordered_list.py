@@ -22,6 +22,18 @@ class UnorderedListTests(SimpleTestCase):
         }
     )
     def test_unordered_list02(self):
+        """
+
+        Tests rendering of nested unordered lists in the templating engine.
+
+        The test case verifies that a list containing a string and a nested list
+        is correctly rendered as an unordered list with a nested unordered list.
+        The expected output is an HTML unordered list with a list item containing
+        a string and a nested unordered list with a single list item.
+
+        :raises AssertionError: if the rendered output does not match the expected result.
+
+        """
         output = self.engine.render_to_string("unordered_list02", {"a": ["x>", ["<y"]]})
         self.assertEqual(output, "\t<li>x>\n\t<ul>\n\t\t<li><y</li>\n\t</ul>\n\t</li>")
 
@@ -120,6 +132,12 @@ class FunctionTests(SimpleTestCase):
         )
 
     def test_ulitem(self):
+        """
+        Tests the unordered_list function by creating instances of the ULItem class with varying titles, 
+         including one containing HTML tags, and verifies that the function correctly generates an unordered list 
+         with the expected items, properly escaping any HTML characters. The test covers both passing a list of items 
+         and using a generator to produce the items.
+        """
         class ULItem:
             def __init__(self, title):
                 self.title = title
@@ -146,6 +164,20 @@ class FunctionTests(SimpleTestCase):
         )
 
     def test_nested_generators(self):
+        """
+        Tests the functionality of converting nested generators into unordered HTML lists.
+
+        This test case verifies that the unordered_list function correctly handles generators 
+        that yield other generators, ensuring proper nesting of HTML list elements.
+
+        The test covers the following scenario:
+        - The outer generator yields a mix of simple items and inner generators.
+        - The inner generator yields a list of items to be nested under the corresponding 
+          outer list item.
+
+        It checks that the resulting HTML string has the correct indentation and 
+        nesting of list elements, according to the structure of the input generators.
+        """
         def inner_generator():
             yield from ("B", "C")
 

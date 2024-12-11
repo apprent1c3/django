@@ -39,6 +39,18 @@ class OneTimeReceiver:
     """
 
     def __init__(self, signal):
+        """
+        Initializes a signal handler instance.
+
+        This constructor sets up the instance with a given signal and establishes a connection
+        to it, listening for events sent from the application configuration (APP_CONFIG).
+
+        The handler tracks the number of times it is called and stores the arguments passed
+        to it during the last invocation.
+
+        :param signal: The signal to be handled by this instance.
+
+        """
         self.signal = signal
         self.call_counter = 0
         self.call_args = None
@@ -70,6 +82,16 @@ class MigrateSignalTests(TransactionTestCase):
     available_apps = ["migrate_signals"]
 
     def test_call_time(self):
+        """
+        Tests that pre and post migration receiver functions are called once during migration.
+
+        Verifies that the call counters for both pre_migrate_receiver and post_migrate_receiver 
+        are incremented to 1 after the migration process, ensuring that the receiver functions 
+        are executed as expected.
+
+        This test validates the integration of the receiver functions with the migration process, 
+        providing assurance that the migration hooks are triggered correctly.
+        """
         self.assertEqual(pre_migrate_receiver.call_counter, 1)
         self.assertEqual(post_migrate_receiver.call_counter, 1)
 

@@ -69,6 +69,22 @@ template_translatable = gettext_lazy("Index of %(directory)s")
 
 
 def directory_index(path, fullpath):
+    """
+
+    Render a directory index page for the given path.
+
+    Given a directory path, this function generates an HTML page listing the files and subdirectories within it.
+    The page is rendered using a template, which can be customized by providing a 'directory_index.html' file.
+    The function returns an HTTP response containing the rendered HTML page.
+
+    The index page displays the directory path and a list of files and subdirectories, with subdirectories indicated by a trailing slash.
+    Hidden files and directories (those whose names start with a dot) are excluded from the list.
+
+    :arg path: The path of the directory to index
+    :arg fullpath: The full path of the directory to index
+    :return: An HTTP response containing the rendered directory index page
+
+    """
     try:
         t = loader.select_template(
             [

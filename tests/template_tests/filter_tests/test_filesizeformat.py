@@ -5,6 +5,15 @@ from django.utils import translation
 
 class FunctionTests(SimpleTestCase):
     def test_formats(self):
+        """
+        Tests the filesizeformat function with various input values to ensure it correctly formats byte sizes into human-readable strings.
+
+        The function is tested with a range of inputs, including different byte values, to verify that it accurately converts them into the corresponding units (bytes, KB, MB, GB, TB, PB).
+
+        It also checks that the function handles invalid or edge-case inputs, such as complex numbers and strings, by returning a default value of '0 bytes'.
+
+        The test cases cover various scenarios, including single bytes, kilobytes, megabytes, gigabytes, terabytes, and petabytes, as well as boundary values and non-numeric inputs. The test results are verified using assertions to ensure the expected output is returned for each input value.
+        """
         tests = [
             (0, "0\xa0bytes"),
             (1, "1\xa0byte"),
@@ -28,6 +37,21 @@ class FunctionTests(SimpleTestCase):
                 self.assertEqual(filesizeformat(value), expected)
 
     def test_localized_formats(self):
+        """
+
+        Test the functionality of filesizeformat with various input values.
+
+        This test checks that the filesizeformat function correctly formats different sizes in bytes into human-readable strings, 
+        using localized formats. The test cases cover a range of input values, including edge cases such as zero, negative numbers, 
+        and non-integer values. The expected output for each test case is compared to the actual output of the filesizeformat function.
+
+        Specifically, this test verifies that the function:
+
+        * Handles different units (Bytes, KB, MB, GB, TB, PB) correctly
+        * Formats numbers according to the localized format settings (in this case, German)
+        * Returns the expected output for various input values, including boundary cases and invalid inputs
+
+        """
         tests = [
             (0, "0\xa0Bytes"),
             (1, "1\xa0Byte"),

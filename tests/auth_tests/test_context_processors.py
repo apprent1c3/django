@@ -62,6 +62,12 @@ class PermWrapperTests(SimpleTestCase):
             self.EQLimiterObject() in pldict
 
     def test_iter(self):
+        """
+        Tests that attempting to iterate over a PermWrapper instance raises a TypeError.
+
+        The purpose of this test is to ensure that the PermWrapper class does not support iteration,
+        and that it correctly raises an error with a meaningful message when iteration is attempted.
+        """
         with self.assertRaisesMessage(TypeError, "PermWrapper is not iterable."):
             iter(PermWrapper(MockUser()))
 
@@ -125,6 +131,15 @@ class AuthContextProcessorTests(TestCase):
         self.assertNotContains(response, "nonexistent")
 
     def test_message_attrs(self):
+        """
+
+        Test that the message attributes are correctly displayed.
+
+        This test checks if the '/auth_processor_messages/' endpoint returns a response 
+        containing the expected message content. It simulates a logged-in superuser and 
+        verifies that the message 'Message 1' is included in the response.
+
+        """
         self.client.force_login(self.superuser)
         response = self.client.get("/auth_processor_messages/")
         self.assertContains(response, "Message 1")

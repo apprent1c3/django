@@ -22,6 +22,15 @@ class GeometryFieldTests(SimpleTestCase):
         self.assertEqual(kwargs, {"srid": 4326})
 
     def test_deconstruct_values(self):
+        """
+
+        Tests the deconstruction of values for a GeometryField instance.
+
+        Verifies that the field's keyword arguments are correctly unpacked when the field is deconstructed.
+        The test checks that the resulting keyword arguments match the original values used to create the field,
+        including the spatial reference system identifier (SRID), dimension, geography flag, extent, and tolerance.
+
+        """
         field = GeometryField(
             srid=4067,
             dim=3,

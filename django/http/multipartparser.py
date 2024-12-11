@@ -121,6 +121,14 @@ class MultiPartParser:
         # resources would be kept alive. This is only needed for errors because
         # the Request object closes all uploaded files at the end of the
         # request.
+        """
+        Parses the data and returns the parsed result.
+
+        If an error occurs during parsing, this function will ensure that any open file objects are properly closed before re-raising the exception, to prevent resource leaks.
+
+        :raises Exception: If an error occurs during parsing, the original exception is re-raised after cleaning up any open files.
+        :returns: The parsed result
+        """
         try:
             return self._parse()
         except Exception:
@@ -441,6 +449,18 @@ class LazyStream:
         return self.position
 
     def read(self, size=None):
+        """
+        Reads data from the underlying source.
+
+        Args:
+            size (int, optional): The maximum number of bytes to read. If None, all available data will be read.
+
+        Returns:
+            bytes: The read data.
+
+        Note:
+            If the size is not specified, this function will consume all available data and return it as a single bytes object. If the size is specified, the function will return at most that many bytes, leaving any remaining data in the source for future reads.
+        """
         def parts():
             remaining = self._remaining if size is None else size
             # do the whole thing in one shot if no limit was provided.

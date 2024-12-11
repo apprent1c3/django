@@ -540,6 +540,9 @@ class BasePasswordHasherTests(SimpleTestCase):
         self.assertIsNone(self.hasher.library)
 
     def test_encode(self):
+        """
+        Tests that the encode method of the hasher raises a NotImplementedError when called with a password and salt.
+        """
         msg = self.not_implemented_msg % "an encode"
         with self.assertRaisesMessage(NotImplementedError, msg):
             self.hasher.encode("password", "salt")
@@ -550,6 +553,13 @@ class BasePasswordHasherTests(SimpleTestCase):
             self.hasher.decode("encoded")
 
     def test_harden_runtime(self):
+        """
+        Tests whether the `harden_runtime` method is properly implemented in subclasses of `BasePasswordHasher`.
+
+        This test case verifies that a warning is raised when the `harden_runtime` method is not provided by a subclass, ensuring that all password hashers implement this crucial method. 
+
+        The test evaluates the method's presence by attempting to call it with a password and an encoded value, and checks that the expected warning message is emitted.
+        """
         msg = (
             "subclasses of BasePasswordHasher should provide a harden_runtime() method"
         )
@@ -615,6 +625,18 @@ class TestUtilsHashPassArgon2(SimpleTestCase):
         self.assertEqual(decoded["time_cost"], hasher.time_cost)
 
     def test_argon2_upgrade(self):
+        """
+
+        Tests the upgrade process for Argon2 password hashing parameters.
+
+        This function verifies that the Argon2 upgrade process works as expected for different parameters,
+        including time cost, memory cost, and parallelism. It ensures that the upgrade happens smoothly
+        and that the new parameters are applied correctly.
+
+        The tests cover various aspects of the upgrade process, providing confidence that the Argon2
+        password hashing configuration can be updated reliably.
+
+        """
         self._test_argon2_upgrade("time_cost", "time cost", 1)
         self._test_argon2_upgrade("memory_cost", "memory cost", 64)
         self._test_argon2_upgrade("parallelism", "parallelism", 1)
@@ -698,6 +720,16 @@ class TestUtilsHashPassScrypt(SimpleTestCase):
         self.assertIs(check_password(" ", blank_encoded), False)
 
     def test_scrypt_decode(self):
+        """
+
+        Tests the decoding of a password that was encoded using the scrypt algorithm.
+
+        Verifies that the decoded password dictionary contains the correct values for
+        scrypt-specific parameters, including the block size, parallelism, salt, and
+        work factor. The test case ensures that the decoded values match the expected
+        values using a series of assertions.
+
+        """
         encoded = make_password("lètmein", "seasalt", "scrypt")
         hasher = get_hasher("scrypt")
         decoded = hasher.decode(encoded)

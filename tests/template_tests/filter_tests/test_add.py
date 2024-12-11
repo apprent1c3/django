@@ -34,6 +34,9 @@ class AddTests(SimpleTestCase):
 
     @setup({"add05": "{{ l1|add:l2 }}"})
     def test_add05(self):
+        """
+        Tests the concatenation of two lists using the 'add' filter in a templating engine. The function verifies that the lists are correctly merged into a single list. The input lists are passed as context variables 'l1' and 'l2' and the expected output is a string representation of the combined list.
+        """
         output = self.engine.render_to_string("add05", {"l1": [1, 2], "l2": [3, 4]})
         self.assertEqual(output, "[1, 2, 3, 4]")
 
@@ -51,6 +54,17 @@ class AddTests(SimpleTestCase):
 
     @setup({"add08": "{{ s1|add:lazy_s2 }}"})
     def test_add08(self):
+        """
+
+        Tests the add filter with a lazy translated string as the second argument.
+
+        This test ensures that the add filter correctly concatenates a string with a lazy translated string.
+        It verifies that the output of the filter is a string containing both the original string and the translated string.
+
+        The test covers a scenario where the add filter is used in a template with a lazy translated string,
+        allowing for proper rendering of dynamic content.
+
+        """
         output = self.engine.render_to_string(
             "add08",
             {"s1": "string", "lazy_s2": gettext_lazy("lazy")},
@@ -59,6 +73,12 @@ class AddTests(SimpleTestCase):
 
     @setup({"add09": "{{ lazy_s1|add:lazy_s2 }}"})
     def test_add09(self):
+        """
+        Test the functionality of adding two lazy translated strings together.
+        The test verifies that when two lazy strings are passed to the add filter, 
+        the resulting output is a concatenated string of the two input strings. 
+        The test case checks the rendered string against the expected output.
+        """
         output = self.engine.render_to_string(
             "add09",
             {"lazy_s1": gettext_lazy("string"), "lazy_s2": gettext_lazy("lazy")},

@@ -74,6 +74,12 @@ class BasicTestCase(TestCase):
         self.assertTrue(super.is_staff)
 
     def test_superuser_no_email_or_password(self):
+        """
+        Test that creating a superuser with missing or empty email and password results in an expected superuser object state.
+
+            The test cases cover various scenarios where email and/or password are not provided or are empty.
+            It verifies that the resulting superuser object has an empty email and no usable password.
+        """
         cases = [
             {},
             {"email": ""},
@@ -172,6 +178,15 @@ class TestGetUser(TestCase):
             self.assertEqual(user.username, created_user.username)
 
     async def test_aget_user(self):
+        """
+        Test case for asynchronous retrieval of a user object.
+
+        Verifies that the aget_user function correctly fetches a user instance from the current request session.
+        The test creates a new user, logs in with the test credentials, and then retrieves the user object using the aget_user function.
+        It checks that the retrieved user is an instance of the User class and matches the originally created user.
+
+        This test ensures that aget_user works as expected in an asynchronous context, providing a robust way to access user data in asynchronous views and functions.
+        """
         created_user = await sync_to_async(User.objects.create_user)(
             "testuser", "test@example.com", "testpw"
         )

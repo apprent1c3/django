@@ -12,6 +12,9 @@ class NamedEndblockTests(SimpleTestCase):
         }
     )
     def test_namedendblocks01(self):
+        """
+        Checks the rendering of a template containing named endblocks, verifying that the engine correctly interprets and replaces the blocks with empty content, resulting in the expected output string.
+        """
         output = self.engine.render_to_string("namedendblocks01")
         self.assertEqual(output, "1_2_3")
 
@@ -23,6 +26,11 @@ class NamedEndblockTests(SimpleTestCase):
         }
     )
     def test_namedendblocks02(self):
+        """
+        Tests that the template engine raises a TemplateSyntaxError when a named endblock directive does not match the corresponding block directive in the template. 
+
+        This test case checks the engine's handling of improperly nested or mismatched named block and endblock tags.
+        """
         with self.assertRaises(TemplateSyntaxError):
             self.engine.get_template("namedendblocks02")
 
@@ -43,6 +51,13 @@ class NamedEndblockTests(SimpleTestCase):
         }
     )
     def test_namedendblocks04(self):
+        """
+        Tests that a TemplateSyntaxError is raised when an endblock tag does not match the outermost block tag it is nested within.
+
+        This test case checks that the templating engine correctly enforces the matching of block and endblock tags, even when the tags are named. It verifies that an error is raised when a mismatch occurs, ensuring that the templating engine maintains a correct and consistent state.
+
+        The test is focused on the specific scenario where an endblock tag is used without a corresponding block tag, demonstrating the importance of proper block nesting in template syntax.
+        """
         with self.assertRaises(TemplateSyntaxError):
             self.engine.get_template("namedendblocks04")
 
@@ -54,6 +69,16 @@ class NamedEndblockTests(SimpleTestCase):
         }
     )
     def test_namedendblocks05(self):
+        """
+        Test that the template engine raises a TemplateSyntaxError when named endblocks are not properly matched.
+
+        This test case checks if the engine correctly identifies and reports a syntax error
+        when a named endblock does not have a corresponding start block with the same name.
+
+        Raises:
+            TemplateSyntaxError: If the engine fails to raise an exception for mismatched named endblocks.
+
+        """
         with self.assertRaises(TemplateSyntaxError):
             self.engine.get_template("namedendblocks05")
 

@@ -127,6 +127,11 @@ class DynamicListDisplayChildAdmin(admin.ModelAdmin):
     list_display = ("parent", "name", "age")
 
     def get_list_display(self, request):
+        """
+        Get the list of fields to be displayed in the admin list view, with a customization for a specific user.
+
+        The fields displayed in the list view are determined by the parent class, but if the current user has the username 'noparents', the 'parent' field is excluded from the list. This allows for a tailored view for this particular user.
+        """
         my_list_display = super().get_list_display(request)
         if request.user.username == "noparents":
             my_list_display = list(my_list_display)
@@ -202,6 +207,18 @@ class UnescapedTitleFilter(admin.SimpleListFilter):
         return [("yes", "yes"), ("no", "no")]
 
     def queryset(self, request, queryset):
+        """
+        Filter a queryset based on the 'is_active' flag.
+
+        This function takes a queryset and a request object as input and returns a filtered queryset.
+        The filtering is determined by the value of the object, which can be either 'yes' or 'no'.
+        If the value is 'yes', the function returns a queryset where all objects have 'is_active' set to True.
+        If the value is not 'yes', the function returns a queryset where all objects have 'is_active' set to False.
+
+        Returns:
+            QuerySet: The filtered queryset.
+
+        """
         if self.value() == "yes":
             return queryset.filter(is_active=True)
         else:

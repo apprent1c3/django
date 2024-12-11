@@ -40,6 +40,16 @@ class DateTimeFieldTests(TestCase):
 
     @override_settings(USE_TZ=False)
     def test_lookup_date_without_use_tz(self):
+        """
+
+        Tests the lookup of a date from a datetime field without timezone support.
+
+        This test case creates two DateTimeModel instances with different datetime values 
+        but the same date, and then verifies that a date-based lookup correctly returns 
+        the instance with the matching date. The test is performed with timezone support 
+        disabled to ensure the lookup behaves as expected in this configuration.
+
+        """
         d = datetime.date(2014, 3, 12)
         dt1 = datetime.datetime(2014, 3, 12, 21, 22, 23, 240000)
         dt2 = datetime.datetime(2014, 3, 11, 21, 22, 23, 240000)

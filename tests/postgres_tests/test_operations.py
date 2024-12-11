@@ -51,6 +51,20 @@ class AddIndexConcurrentlyTests(OperationTestBase):
                 )
 
     def test_add(self):
+        """
+        Tests the AddIndexConcurrently operation, which concurrently adds an index to a model.
+
+        This test case verifies that the operation correctly describes and formats its description,
+        applies the index to the model state, and creates and drops the index in the database.
+        It ensures that the index is created and dropped correctly, both in the model state and in the database.
+
+        It checks that the operation's describe and formatted_description methods return the correct strings,
+        and that the state_forwards method updates the model state with the new index.
+        The test also verifies that the database_forwards method creates the index in the database,
+        and that the database_backwards method drops the index.
+
+        Additionally, it tests the deconstruct method to ensure it returns the correct name, arguments, and keyword arguments for the operation.
+        """
         project_state = self.set_up_test_model(self.app_label, index=False)
         table_name = "%s_pony" % self.app_label
         index = Index(fields=["pink"], name="pony_pink_idx")
@@ -244,6 +258,20 @@ class CreateExtensionTests(PostgreSQLTestCase):
         self.assertIn("DROP EXTENSION IF EXISTS", captured_queries[1]["sql"])
 
     def test_create_existing_extension(self):
+        """
+
+        Tests the creation of an existing database extension.
+
+        This test case verifies that the :class:`BloomExtension` operation correctly
+        creates the extension in the database. It checks the migration name fragment, 
+        clones the project state, and applies the operation to the database. The test 
+        also captures the SQL queries executed during the operation and verifies that 
+        the correct number and type of queries are executed.
+
+        The test ensures that the extension is created as expected, without any errors, 
+        and that the database state is updated correctly.
+
+        """
         operation = BloomExtension()
         self.assertEqual(operation.migration_name_fragment, "create_extension_bloom")
         project_state = ProjectState()
@@ -296,6 +324,17 @@ class CreateCollationTests(PostgreSQLTestCase):
         self.assertEqual(len(captured_queries), 0)
 
     def test_create(self):
+        """
+
+        Tests the creation of a database collation.
+
+        This test case verifies that the CreateCollation operation correctly generates the 
+        migration name fragment, description, and formatted description. It also checks that 
+        the operation applies the necessary database queries to create and drop the collation, 
+        and that it correctly handles cases where the collation already exists or does not exist. 
+        Additionally, it validates the deconstruction of the operation into its constituent parts.
+
+        """
         operation = CreateCollation("C_test", locale="C")
         self.assertEqual(operation.migration_name_fragment, "create_collation_c_test")
         self.assertEqual(operation.describe(), "Create collation C_test")
@@ -370,6 +409,17 @@ class CreateCollationTests(PostgreSQLTestCase):
         )
 
     def test_create_collation_alternate_provider(self):
+        """
+        Tests the creation of a collation with an alternate provider.
+
+        This tests the CreateCollation operation with the ICU provider and a specific locale.
+        It verifies that the collation is created and dropped correctly on the database,
+        and that the expected SQL queries are generated.
+
+        The test covers the forward and backward operations of the CreateCollation
+        operation, ensuring that the collation is successfully created and then dropped
+        from the database, and that the correct SQL queries are executed in both cases.
+        """
         operation = CreateCollation(
             "german_phonebook_test",
             provider="icu",
@@ -420,6 +470,22 @@ class RemoveCollationTests(PostgreSQLTestCase):
 
     @override_settings(DATABASE_ROUTERS=[NoMigrationRouter()])
     def test_no_allow_migrate(self):
+        """
+        Tests that the RemoveCollation operation does not execute any database queries.
+
+        This test covers both the forward and backward operations of removing a collation.
+        It verifies that no queries are executed on the database during these operations,
+        ensuring that the operation is effectively a no-op from a database perspective.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If any database queries are executed during the operation.
+        """
         operation = RemoveCollation("C_test", locale="C")
         project_state = ProjectState()
         new_state = project_state.clone()
@@ -439,6 +505,21 @@ class RemoveCollationTests(PostgreSQLTestCase):
         self.assertEqual(len(captured_queries), 0)
 
     def test_remove(self):
+        """
+
+        Test the RemoveCollation operation to ensure it correctly removes a collation from a database.
+
+        This test checks the following functionality:
+        - The migration name fragment generated by the operation
+        - The description and formatted description of the operation
+        - The database operation itself, including the SQL query generated
+        - The behavior when attempting to remove a non-existent collation
+        - The reversal of the operation, including the SQL query generated for re-creating the collation
+        - The deconstruction of the operation into its constituent parts
+
+        The test uses a test collation 'C_test' with locale 'C' to verify the expected behavior.
+
+        """
         operation = CreateCollation("C_test", locale="C")
         project_state = ProjectState()
         new_state = project_state.clone()
@@ -548,6 +629,22 @@ class ValidateConstraintTests(OperationTestBase):
     app_label = "test_validate_constraint"
 
     def test_validate(self):
+        """
+
+        Tests the validation of a database constraint.
+
+        This method creates a test state with a Pony model, adds a CheckConstraint
+        to the model, and then attempts to validate the constraint. It checks that
+        the constraint validation fails when the constraint is not met, and passes
+        when the constraint is met.
+
+        The test covers both forward and backward operations, ensuring that the
+        constraint validation behaves as expected in both directions.
+
+        It also verifies the operation's description, formatted description, and
+        migration name fragment.
+
+        """
         constraint_name = "pony_pink_gte_check"
         constraint = CheckConstraint(condition=Q(pink__gte=4), name=constraint_name)
         operation = AddConstraintNotValid("Pony", constraint=constraint)

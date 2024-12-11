@@ -138,6 +138,38 @@ class GeneratedField(Field):
         return errors
 
     def _check_persistence(self, databases):
+        """
+        Checks the persistence of GeneratedFields across multiple databases.
+
+        This function iterates over a list of databases and verifies that the persistence
+        of a GeneratedField is supported by each database. It checks for both persisted
+        and non-persisted columns, and raises errors if a database does not support
+        the specified persistence level.
+
+        The function returns a list of errors that occurred during the check. Each error
+        contains information about the database that failed the check, along with a hint
+        on how to resolve the issue.
+
+        The checks are performed based on the database vendor and the features supported
+        by the database connection. If a database does not meet the required conditions,
+        an error is raised to indicate that the persistence level is not supported.
+
+        Parameters
+        ----------
+        databases : list
+            A list of database names to check for persistence support.
+
+        Returns
+        -------
+        list
+            A list of errors that occurred during the check.
+
+        Notes
+        -----
+        This function is used internally to ensure that GeneratedFields are properly
+        configured for each database. It provides a way to catch and handle persistence
+        errors before they cause issues during data migration or other database operations.
+        """
         errors = []
         for db in databases:
             if not router.allow_migrate_model(db, self.model):

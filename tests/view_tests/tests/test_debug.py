@@ -98,12 +98,32 @@ class DebugViewTests(SimpleTestCase):
 
     def test_400(self):
         # When DEBUG=True, technical_500_template() is called.
+        """
+
+        Tests that a 400 bad request is handled correctly.
+
+        Verifies that a warning is logged when a 400 response is generated, and that the 
+        response contains the expected HTML elements and has a status code of 400.
+
+        """
         with self.assertLogs("django.security", "WARNING"):
             response = self.client.get("/raises400/")
         self.assertContains(response, '<div class="context" id="', status_code=400)
 
     def test_400_bad_request(self):
         # When DEBUG=True, technical_500_template() is called.
+        """
+
+        Tests that a 400 Bad Request response is returned when a malformed request is made.
+
+        This test case verifies that the application correctly handles invalid requests and returns
+        a 400 status code with an informative error message. The test also checks that the error
+        is logged with a warning level and that the response contains the expected error context.
+
+        It covers the scenario where a request is made to a URL that is designed to raise a 400
+        Bad Request error, ensuring that the application behaves as expected in this situation.
+
+        """
         with self.assertLogs("django.request", "WARNING") as cm:
             response = self.client.get("/raises400_bad_request/")
         self.assertContains(response, '<div class="context" id="', status_code=400)
@@ -166,6 +186,18 @@ class DebugViewTests(SimpleTestCase):
         )
 
     def test_404_not_in_urls(self):
+        """
+
+        Tests the HTTP 404 response when accessing a non-existent URL.
+
+        Verifies that the 404 response does not contain certain exception-related HTML
+        elements and instead provides helpful information about the attempted URL and
+        the URL patterns that Django tried to match.
+
+        Specifically, checks that the response contains a list of attempted URL patterns
+        and an indication that the current path did not match any of them.
+
+        """
         response = self.client.get("/not-in-urls")
         self.assertNotContains(response, "Raised by:", status_code=404)
         self.assertNotContains(
@@ -200,6 +232,9 @@ class DebugViewTests(SimpleTestCase):
 
     @override_settings(ROOT_URLCONF=WithoutEmptyPathUrls)
     def test_404_empty_path_not_in_urls(self):
+        """
+        Tests the handling of an empty path in URL resolution, verifying that a 404 error is raised and the correct error message is displayed when the empty path does not match any defined URL patterns.
+        """
         response = self.client.get("/")
         self.assertContains(
             response,
@@ -209,6 +244,16 @@ class DebugViewTests(SimpleTestCase):
         )
 
     def test_technical_404(self):
+        """
+
+        Tests the rendering of a technical 404 error page.
+
+        This test case simulates a GET request to a URL that triggers a 404 error and verifies that the response
+        contains the expected elements, including header, main content, footer, and exception details.
+        It also checks that the correct view function is identified as the source of the error and that the
+        error message includes information about the unmatched URL path.
+
+        """
         response = self.client.get("/technical404/")
         self.assertContains(response, '<header id="summary">', status_code=404)
         self.assertContains(response, '<main id="info">', status_code=404)
@@ -234,6 +279,9 @@ class DebugViewTests(SimpleTestCase):
         )
 
     def test_classbased_technical_404(self):
+        """
+        Tests that a class-based view correctly raises a 404 Not Found error and includes the expected information in the HTML response, specifically the name of the view that raised the exception.
+        """
         response = self.client.get("/classbased404/")
         self.assertContains(
             response,
@@ -263,6 +311,16 @@ class DebugViewTests(SimpleTestCase):
         )
 
     def test_classbased_technical_500(self):
+        """
+        Tests that a class-based view correctly raises a 500 Internal Server Error.
+
+        Verifies that the error is logged and that the response contains the expected error message,
+        both when the client accepts HTML and when it accepts plain text. Ensures that the view's
+        name is correctly reported in the error message.
+
+        The test covers the case where the client requests HTML and the case where it requests plain text,
+        confirming that the error response is correctly formatted in both scenarios.
+        """
         with self.assertLogs("django.request", "ERROR"):
             response = self.client.get("/classbased500/")
         self.assertContains(
@@ -427,11 +485,34 @@ class DebugViewTests(SimpleTestCase):
             m.assert_called_once_with(encoding="utf-8")
 
     def test_technical_404_converter_raise_404(self):
+        """
+        Tests that the technical 404 converter correctly raises a 404 status code.
+
+        This test case simulates a scenario where the IntConverter's to_python method
+        raises an Http404 exception. It verifies that the HTTP response contains the
+        'Page not found' message and has a status code of 404, as expected in such cases.
+
+        The test focuses on ensuring that the converter properly handles the error and
+        returns the expected HTTP response, providing a solid foundation for error handling
+        in the application.\"\"\"
+         desetños
+        """
         with mock.patch.object(IntConverter, "to_python", side_effect=Http404):
             response = self.client.get("/path-post/1/")
             self.assertContains(response, "Page not found", status_code=404)
 
     def test_exception_reporter_from_request(self):
+        """
+
+        Tests the custom exception reporter by simulating a GET request to a view 
+        that triggers an error and verifying the response contains the expected 
+        custom traceback text and returns a 500 status code. 
+
+        The test confirms that the exception is properly logged as an ERROR in 
+        the django.request logger and that the custom reporter class correctly 
+        includes the desired text in the error response.
+
+        """
         with self.assertLogs("django.request", "ERROR"):
             response = self.client.get("/custom_reporter_class_view/")
         self.assertContains(response, "custom traceback text", status_code=500)
@@ -510,6 +591,14 @@ class NonDjangoTemplatesDebugViewTests(SimpleTestCase):
         )
 
     def test_403(self):
+        """
+
+        Tests that a 403 Forbidden response is correctly returned when accessing the '/raises403/' URL.
+
+        Verifies that the response contains the expected HTML header and status code, ensuring that the
+        forbidden access is properly handled and communicated to the client.
+
+        """
         response = self.client.get("/raises403/")
         self.assertContains(response, "<h1>403 Forbidden</h1>", status_code=403)
 
@@ -577,6 +666,17 @@ class ExceptionReporterTests(SimpleTestCase):
         self.assertIn("<p>Request data not supplied</p>", html)
 
     def test_sharing_traceback(self):
+        """
+
+        Tests the sharing of a traceback by generating an exception, creating an ExceptionReporter, 
+        and verifying that the generated HTML traceback contains a form for sharing the exception on dpaste.com.
+
+        The test simulates a ValueError, captures the exception information, and uses the ExceptionReporter 
+        to generate an HTML representation of the traceback. It then asserts that the resulting HTML 
+        includes a form for submitting the traceback to dpaste.com, ensuring that the sharing functionality 
+        is correctly implemented.
+
+        """
         try:
             raise ValueError("Oops")
         except ValueError:
@@ -625,6 +725,20 @@ class ExceptionReporterTests(SimpleTestCase):
         self.assertNotIn("<p>Request data not supplied</p>", html)
 
     def test_suppressed_context(self):
+        """
+        Tests that suppressed exception context is correctly handled by the ExceptionReporter.
+
+        This function simulates a situation where an exception is raised within another exception,
+        with the inner exception's context suppressed. It then uses an ExceptionReporter to generate
+        an HTML representation of the exception traceback and verifies that the resulting HTML meets
+        expected criteria, including the presence of key exception information and the absence of
+        suppressed context details.
+
+        The test checks for the inclusion of the exception type, value, and traceback in the HTML,
+        as well as the presence of a request information section (even if no request data is provided).
+        It also verifies that the 'During handling of the above exception' message, which indicates
+        suppressed context, is not present in the HTML output.
+        """
         try:
             try:
                 raise RuntimeError("Can't find my keys")
@@ -721,6 +835,21 @@ class ExceptionReporterTests(SimpleTestCase):
         )
 
     def test_mid_stack_exception_without_traceback(self):
+        """
+        Tests the handling of a RuntimeError exception without a traceback in the mid-stack.
+
+        Verifies that the ExceptionReporter correctly generates HTML and text representations of the exception, 
+        including the exception type, value, and traceback information. 
+
+        Specifically, checks for the presence of key elements such as exception type, value, and traceback headers 
+        in the generated HTML and text, and ensures that the context of the original exception is properly included 
+        in the exception message.
+
+        The test simulates a nested exception scenario where an inner exception ('Inner Oops') is raised and 
+        handled, but in the process of handling it, another exception ('Oops') is raised, creating a mid-stack 
+        exception without a traceback. The resulting exception report is then verified to contain the expected 
+        information in the correct format.
+        """
         try:
             try:
                 raise RuntimeError("Inner Oops")
@@ -866,6 +995,15 @@ class ExceptionReporterTests(SimpleTestCase):
         )
 
     def test_reporting_frames_without_source(self):
+        """
+        Tests the reporting of frames in the exception handler when source code is not available.
+
+        This test case simulates an exception occurrence and verifies that the exception reporter 
+        correctly handles frames when the source code is not provided. It checks that the reporter 
+        sets the 'context_line' to a default value, correctly identifies the filename, function 
+        name, and line number, and that these values are correctly displayed in both HTML and text 
+        representations of the traceback.
+        """
         try:
             source = "def funcName():\n    raise Error('Whoops')\nfuncName()"
             namespace = {}
@@ -901,6 +1039,17 @@ class ExceptionReporterTests(SimpleTestCase):
         )
 
     def test_reporting_frames_source_not_match(self):
+        """
+        Tests the exception reporter's handling of traceback frames when the source code does not match the expected source.
+
+        Verifies that the reporter correctly generates the traceback frames and HTML/text representations when the source code is not available.
+        The test scenario simulates an exception being raised in a dynamically compiled code block and checks the following:
+
+        * The last frame in the traceback has the correct filename, function name, and line number.
+        * The context line is marked as '<source code not available>'.
+        * The HTML and text representations of the traceback contain the correct information, including the filename, line number, and function name.
+        The test ensures that the exception reporter behaves correctly when the source code is not available, providing a useful error message instead of attempting to display the non-existent source code.
+        """
         try:
             source = "def funcName():\n    raise Error('Whoops')\nfuncName()"
             namespace = {}
@@ -956,6 +1105,24 @@ class ExceptionReporterTests(SimpleTestCase):
         reporter = ExceptionReporter(request, exc_type, exc_value, tb)
 
         def generate_traceback_frames(*args, **kwargs):
+            """
+            Generates traceback frames using the reporter module.
+
+            This function utilizes the reporter's capabilities to retrieve traceback frames, 
+            which can be useful for error handling, debugging, and logging purposes.
+
+            The generated frames are stored in the tb_frames variable for further use.
+
+            The function accepts variable arguments (*args) and keyword arguments (**kwargs) 
+            to provide flexibility in handling different scenarios or configurations. 
+
+            Returns:
+                None
+
+            Note:
+                The tb_frames variable is updated in-place, and its new value can be accessed 
+                after calling this function.
+            """
             nonlocal tb_frames
             tb_frames = reporter.get_traceback_frames()
 
@@ -1589,6 +1756,18 @@ class ExceptionReporterFilterTests(
             self.verify_safe_email(async_sensitive_view)
 
     def test_async_sensitive_nested_request(self):
+        """
+
+        Tests the async sensitive nested request functionality under different settings.
+
+        This test case checks the behavior of the async sensitive view when nested requests 
+        are made, verifying that the response and email sent are handled correctly. 
+
+        The test covers two scenarios:
+            - When DEBUG mode is enabled, it verifies that the response and email are marked as unsafe.
+            - When DEBUG mode is disabled, it verifies that the response and email are marked as safe.
+
+        """
         with self.settings(DEBUG=True):
             self.verify_unsafe_response(async_sensitive_view_nested)
             self.verify_unsafe_email(async_sensitive_view_nested)
@@ -1848,6 +2027,17 @@ class ExceptionReporterFilterTests(
         )
 
     def test_cleanse_setting_recurses_in_list_tuples(self):
+        """
+
+        Tests that the :meth:`~SafeExceptionReporterFilter.cleanse_setting` method correctly 
+        removes sensitive information from a setting when the setting value is a list or tuple 
+        that contains nested lists, tuples, and dictionaries.
+
+        This test ensures that the method can handle nested data structures, replacing 
+        sensitive information such as passwords, API keys, and tokens with a cleansed 
+        substitute, regardless of whether the input is a list or a tuple.
+
+        """
         reporter_filter = SafeExceptionReporterFilter()
         initial = [
             {
@@ -1883,6 +2073,15 @@ class ExceptionReporterFilterTests(
         )
 
     def test_request_meta_filtering(self):
+        """
+        Tests the filtering of sensitive information in request metadata.
+
+        This function verifies that the SafeExceptionReporterFilter correctly removes
+        sensitive headers from a request's metadata, replacing them with a cleansed
+        substitute. The test simulates a request with a secret header and checks that
+        the filtered metadata contains the expected substitute value instead of the
+        original sensitive information.
+        """
         request = self.rf.get("/", headers={"secret-header": "super_secret"})
         reporter_filter = SafeExceptionReporterFilter()
         self.assertEqual(
@@ -1891,6 +2090,15 @@ class ExceptionReporterFilterTests(
         )
 
     def test_exception_report_uses_meta_filtering(self):
+        """
+
+        Tests the exception report functionality to ensure it correctly applies meta filtering.
+
+        This test case verifies that sensitive information, such as secret headers, is not included in the exception report.
+        It covers two scenarios: when the response content type is not specified and when it is set to JSON.
+        The test passes if the secret header value is not present in the response content in both cases.
+
+        """
         response = self.client.get(
             "/raises500/", headers={"secret-header": "super_secret"}
         )
@@ -1931,6 +2139,13 @@ class CustomExceptionReporterFilterTests(SimpleTestCase):
         )
 
     def test_cleansed_substitute_override(self):
+        """
+        Tests that the cleanse_setting function correctly substitutes sensitive information.
+
+        This test case verifies that the default exception reporter filter replaces a sensitive value, 
+        such as a password, with a cleansed substitute to prevent it from being exposed.
+        The test ensures that the substitution occurs as expected, maintaining the confidentiality of sensitive data.
+        """
         reporter_filter = get_default_exception_reporter_filter()
         self.assertEqual(
             reporter_filter.cleanse_setting("password", "super_secret"),

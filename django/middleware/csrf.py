@@ -412,6 +412,27 @@ class CsrfViewMiddleware(MiddlewareMixin):
                 request.META["CSRF_COOKIE"] = csrf_secret
 
     def process_view(self, request, callback, callback_args, callback_kwargs):
+        """
+
+        Processes a view to ensure it conforms to CSRF protection standards.
+
+        This function checks a request to ensure it meets certain security criteria,
+        including verification of the request's origin and token. If the request passes
+        these checks, it is accepted; otherwise, it is rejected with a corresponding
+        reason.
+
+        The checks performed include:
+
+        * Verification of the request's origin, either through the HTTP Origin header
+          or the referer header
+        * Validation of the request's CSRF token
+        * Ensuring the request method is not exempt from CSRF checks
+        * Checking if CSRF processing has already been done for the request
+
+        If any of these checks fail, the function returns a rejection response with a
+        relevant reason. Otherwise, it returns an acceptance response.
+
+        """
         if getattr(request, "csrf_processing_done", False):
             return None
 

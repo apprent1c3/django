@@ -13,6 +13,11 @@ class WSGITest(SimpleTestCase):
     request_factory = RequestFactory()
 
     def setUp(self):
+        """
+        Sets up the test environment by temporarily disconnecting the request_started signal from the close_old_connections function, 
+        and schedules the original connection to be re-established after the test has finished, ensuring that the test does not interfere 
+        with the normal operation of the request_started signal.
+        """
         request_started.disconnect(close_old_connections)
         self.addCleanup(request_started.connect, close_old_connections)
 
@@ -29,6 +34,17 @@ class WSGITest(SimpleTestCase):
         response_data = {}
 
         def start_response(status, headers):
+            """
+
+            Initialize the HTTP response with a status code and headers.
+
+            :param status: The HTTP status code to set for the response.
+            :param headers: A collection of HTTP headers to include in the response.
+
+            This function sets the foundation for the HTTP response by specifying the status code and any relevant headers.
+            The response data is stored internally, allowing for further modification or retrieval as needed.
+
+            """
             response_data["status"] = status
             response_data["headers"] = headers
 
@@ -56,6 +72,20 @@ class WSGITest(SimpleTestCase):
 
         class FileWrapper:
             def __init__(self, filelike, block_size=None):
+                """
+                Initializes a file-like object handler.
+
+                Parameters
+                ----------
+                filelike : file-like object
+                    The file-like object to be handled.
+                block_size : int, optional
+                    The block size for reading or writing the file, defaults to None.
+
+                Notes
+                -----
+                The file-like object is immediately closed upon initialization. This suggests that the object's primary purpose is not to manage the file's lifecycle, but rather to perform some setup or preparation step before further processing. The block size parameter hints at potential use in buffered I/O operations, although the specifics depend on the context in which this class is used.
+                """
                 self.block_size = block_size
                 filelike.close()
 
@@ -68,6 +98,20 @@ class WSGITest(SimpleTestCase):
         response_data = {}
 
         def start_response(status, headers):
+            """
+
+            Initiates an HTTP response by setting its status code and headers.
+
+            :param status: The HTTP status code of the response (e.g., 200, 404, 500)
+            :param headers: A collection of HTTP response headers
+
+            Returns:
+                None
+
+            Notes:
+                This function updates the response data structure, which can be accessed later for further processing or transmission.
+
+            """
             response_data["status"] = status
             response_data["headers"] = headers
 

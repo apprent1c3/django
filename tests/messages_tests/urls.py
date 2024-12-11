@@ -37,6 +37,26 @@ def add(request, message_type):
 
 @never_cache
 def add_template_response(request, message_type):
+    """
+
+    Adds a template response to the system based on the provided message type.
+
+    This function processes a list of messages from the request, adding each one as a 
+    template response of the specified type. The messages are added using the Django 
+    messages framework.
+
+    The function takes the current HTTP request and a message type as input. It 
+    returns a redirect to the template response show page after all messages have been 
+    processed.
+
+    Parameters:
+        request (HttpRequest): The current HTTP request.
+        message_type (str): The type of message to add (e.g. 'success', 'error', etc.).
+
+    Returns:
+        HttpResponseRedirect: A redirect to the template response show page.
+
+    """
     for msg in request.POST.getlist("messages"):
         getattr(messages, message_type)(request, msg)
     return HttpResponseRedirect(reverse("show_template_response"))

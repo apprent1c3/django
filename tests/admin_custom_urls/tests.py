@@ -21,6 +21,14 @@ class AdminCustomUrlsTest(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        Setup test data for the class.
+
+        This method creates a set of common test data that can be used across all test methods in the class. 
+        It includes a superuser and a predefined set of actions, each with a unique name and description. 
+        These actions cover various scenarios, including actions with names that resemble file paths or potential security threats, such as a XSS attempt. 
+        The created test data is stored as class attributes, making it easily accessible to all test methods.
+        """
         cls.superuser = User.objects.create_superuser(
             username="super", password="secret", email="super@example.com"
         )

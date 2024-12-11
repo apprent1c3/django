@@ -66,6 +66,23 @@ def i18n(request):
 
 
 def tz(request):
+    """
+
+    Returns a dictionary containing the name of the current time zone.
+
+    This function provides a convenient way to retrieve the current time zone
+    name, which can be useful in various applications such as date and time
+    formatting, scheduling, and logging.
+
+    The dictionary returned by this function contains a single key-value pair,
+    where the key is 'TIME_ZONE' and the value is the name of the current time
+    zone as a string.
+
+    The time zone name is determined by the Django framework's timezone
+    settings, which can be configured globally or overridden for specific
+    requests.
+
+    """
     from django.utils import timezone
 
     return {"TIME_ZONE": timezone.get_current_timezone_name()}

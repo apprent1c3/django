@@ -18,12 +18,24 @@ class MultipleLocaleActivationTests(MultipleLocaleActivationTestCase):
     # Literal marked up with _() in a filter expression
 
     def test_multiple_locale_filter(self):
+        """
+
+        Test the functionality of translating a template with multiple locale filters.
+
+        This test checks if the yesno template filter works correctly with translations
+        when the locale is changed. It specifically verifies that the filter outputs the
+        correct translation for a given boolean value when using the i18n library.
+
+        """
         with translation.override("de"):
             t = Template("{% load i18n %}{{ 0|yesno:_('yes,no,maybe') }}")
         with translation.override(self._old_language), translation.override("nl"):
             self.assertEqual(t.render(Context({})), "nee")
 
     def test_multiple_locale_filter_deactivate(self):
+        """
+        Tests the deactivation of the locale filter in a template when the locale is set to German ('de') and then overridden to Dutch ('nl'), verifying that the yesno filter correctly renders the 'no' translation for the Dutch locale.
+        """
         with translation.override("de", deactivate=True):
             t = Template("{% load i18n %}{{ 0|yesno:_('yes,no,maybe') }}")
         with translation.override("nl"):
@@ -58,6 +70,14 @@ class MultipleLocaleActivationTests(MultipleLocaleActivationTestCase):
     # Literal marked up with _(), loading the i18n template tag library
 
     def test_multiple_locale_loadi18n(self):
+        """
+        Tests the loading of locale translations using the i18n template tag.
+
+        Verifies that the translation system correctly switches between languages and 
+        renders the expected localized string. In this case, it checks that the string 
+        'No' is translated to 'Nee' when the locale is set to Dutch ('nl') after 
+        initially being set to German ('de').
+        """
         with translation.override("de"):
             t = Template("{% load i18n %}{{ _('No') }}")
         with translation.override(self._old_language), translation.override("nl"):
@@ -83,6 +103,14 @@ class I18nStringLiteralTests(SimpleTestCase):
 
     @setup({"i18n13": '{{ _("Password") }}'})
     def test_i18n13(self):
+        """
+        Test that translation override works correctly for a specific template string.
+
+        This test case verifies that the engine renders the correct translated string 
+        when the locale is set to German ('de'). It checks that the output of the 
+        rendered template matches the expected translated string 'Passwort' for the 
+        original string 'Password'.
+        """
         with translation.override("de"):
             output = self.engine.render_to_string("i18n13")
         self.assertEqual(output, "Passwort")

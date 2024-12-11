@@ -118,6 +118,14 @@ class TestInline(TestDataMixin, TestCase):
         self.assertContains(response, "<label>Inner readonly label:</label>")
 
     def test_excluded_id_for_inlines_uses_hidden_field(self):
+        """
+        Tests that the excluded id for inlines uses a hidden field in the admin interface.
+
+        Verifies that when an inline model is rendered in the admin interface, the ID of each
+        inline instance is stored in a hidden form field, ensuring it is preserved during form
+        submission and subsequent editing operations. This test case covers the scenario where
+        the inline model (UUIDChild) is associated with a parent model (UUIDParent).
+        """
         parent = UUIDParent.objects.create()
         child = UUIDChild.objects.create(title="foo", parent=parent)
         response = self.client.get(
@@ -553,6 +561,14 @@ class TestInline(TestDataMixin, TestCase):
         self.assertEqual(Sighting.objects.filter(et__name="Martian").count(), 1)
 
     def test_custom_get_extra_form(self):
+        """
+        .\"\"\"
+        Tests the functionality of the custom view for getting extra form sets in the admin interface.
+        Specifically, it verifies that the number of extra forms is correctly set when adding a new object and when changing an existing object.
+        The test checks that the 'TOTAL_FORMS' and 'MAX_NUM_FORMS' hidden input fields are present in the HTML response and contain the expected values.
+        The behavior is tested in the context of the BinaryTree model, with the test creating a sample binary tree and checking the response for both the add and change views.
+
+        """
         bt_head = BinaryTree.objects.create(name="Tree Head")
         BinaryTree.objects.create(name="First Child", parent=bt_head)
         # The maximum number of forms should respect 'get_max_num' on the
@@ -603,6 +619,19 @@ class TestInline(TestDataMixin, TestCase):
         self.assertInHTML(total_forms, response.rendered_content)
 
     def test_custom_min_num(self):
+        """
+
+        Tests the custom min_num functionality in the MinNumInline class.
+
+        This function verifies that the get_min_num method in MinNumInline returns the correct minimum number of forms
+        when an object is or is not provided. It checks that when no object is provided, 2 forms are displayed, and 
+        when an object is provided, 5 forms are displayed. Additionally, it checks the total number of forms available 
+        when adding or changing a BinaryTree object in the admin interface.
+
+        This test covers the case when there are inlines with dynamic minimum form counts, and ensures that the 
+        administration interface correctly handles these cases.
+
+        """
         bt_head = BinaryTree.objects.create(name="Tree Head")
         BinaryTree.objects.create(name="First Child", parent=bt_head)
 
@@ -655,6 +684,15 @@ class TestInline(TestDataMixin, TestCase):
         )
 
     def test_inline_nonauto_noneditable_inherited_pk(self):
+        """
+
+        Tests the rendering of non-auto, non-editable, inherited primary keys in the admin interface.
+
+        Verifies that the admin view for adding authors includes hidden input fields for the
+        non-auto primary key fields of the non-auto PK book child set, ensuring that they are
+        properly inherited and displayed in the interface.
+
+        """
         response = self.client.get(reverse("admin:admin_inlines_author_add"))
         self.assertContains(
             response,
@@ -687,6 +725,15 @@ class TestInline(TestDataMixin, TestCase):
         )
 
     def test_stacked_inline_edit_form_contains_has_original_class(self):
+        """
+
+        Tests that an inline edit form with stacked layout contains an element with the class 'has_original'.
+
+        Verifies that when rendering the admin change form for a Holder object with an associated inner set, 
+        the resulting HTML contains a div with class 'inline-related has_original' for the original inner object 
+        and another div with class 'inline-related' for the new empty form.
+
+        """
         holder = Holder.objects.create(dummy=1)
         holder.inner_set.create(dummy=1)
         response = self.client.get(
@@ -760,6 +807,15 @@ class TestInline(TestDataMixin, TestCase):
         )
 
     def test_inlines_plural_heading_foreign_key(self):
+        """
+
+        Tests the rendering of plural headings for foreign key inlines in the admin interface.
+
+        Verifies that the expected HTML structure is present in the response, specifically
+        the inline headings for 'Inner4 stackeds' and 'Inner4 tabulars', to ensure proper
+        display of plural headings for foreign key inlines.
+
+        """
         response = self.client.get(reverse("admin:admin_inlines_holder4_add"))
         self.assertContains(
             response,
@@ -779,6 +835,17 @@ class TestInline(TestDataMixin, TestCase):
         )
 
     def test_inlines_singular_heading_one_to_one(self):
+        """
+        Tests that a page with a singular inline heading displays correctly.
+
+        Verifies that the page contains the expected HTML structure for the 
+        inline headings of 'Author' and 'Fashionista', confirming that the 
+        page is rendering the data as expected for a one-to-one relationship.
+
+        The test checks for the presence of specific HTML elements in the page 
+        response, ensuring that the headings are correctly labeled and styled 
+        with the 'inline-heading' class.
+        """
         response = self.client.get(reverse("admin:admin_inlines_person_add"))
         self.assertContains(
             response,
@@ -958,6 +1025,11 @@ class TestInlinePermissions(TestCase):
         self.client.force_login(self.user)
 
     def test_inline_add_m2m_noperm(self):
+        """
+        Tests the behavior of adding an inline many-to-many relationship when the user does not have the necessary permission.
+
+        This test case verifies that when a user attempts to add a new object to a model with an inline many-to-many relationship via the admin interface, the necessary fields and controls for managing the relationship are not displayed if the user lacks the required permissions.
+        """
         response = self.client.get(reverse("admin:admin_inlines_author_add"))
         # No change permission on books, so no inline
         self.assertNotContains(
@@ -972,6 +1044,11 @@ class TestInlinePermissions(TestCase):
         self.assertNotContains(response, 'id="id_Author_books-TOTAL_FORMS"')
 
     def test_inline_add_fk_noperm(self):
+        """
+        Tests that the 'Add Inner2' inline form is not displayed on the admin 'Add Holder2' page when the user does not have permission.
+
+        Verifies that the response does not contain the inline heading, 'Add another' link, or the total forms input field for Inner2 instances, confirming that the inline form is not rendered due to lack of permissions.
+        """
         response = self.client.get(reverse("admin:admin_inlines_holder2_add"))
         # No permissions on Inner2s, so no inline
         self.assertNotContains(
@@ -997,6 +1074,14 @@ class TestInlinePermissions(TestCase):
         self.assertNotContains(response, 'id="id_Author_books-TOTAL_FORMS"')
 
     def test_inline_change_fk_noperm(self):
+        """
+
+        Test that the inline foreign key field does not appear when user lacks permission.
+
+        Verifies that the page does not contain the inline heading, link to add another instance,
+        or hidden input fields for the foreign key when the user does not have the necessary permissions.
+
+        """
         response = self.client.get(self.holder_change_url)
         # No permissions on Inner2s, so no inline
         self.assertNotContains(
@@ -1258,6 +1343,17 @@ class TestInlinePermissions(TestCase):
         )
 
     def test_inline_change_fk_add_change_perm(self):
+        """
+
+        Tests the addition of foreign key changes and verification of permissions.
+
+        This test case ensures that a user with 'add' and 'change' permissions 
+        for a specific model ('inner2') can access the change page and 
+        perform inline changes. The test verifies the presence of the 
+        inline formset and the correct count of total forms, as well 
+        as the inclusion of the existing instance in the formset.
+
+        """
         permission = Permission.objects.get(
             codename="add_inner2", content_type=self.inner_ct
         )
@@ -1373,6 +1469,17 @@ class TestInlinePermissions(TestCase):
 class TestReadOnlyChangeViewInlinePermissions(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Sets up test data for the class.
+
+        This method creates a test user with staff privileges and assigns the necessary permissions
+        to view polls, questions, and other relevant models. It then creates a sample poll instance
+        and generates URLs for adding and changing poll instances in the admin interface.
+
+        The resulting test data is stored as class attributes, making it accessible to other test methods.
+
+        """
         cls.user = User.objects.create_user(
             "testing", password="password", is_staff=True
         )
@@ -1397,6 +1504,11 @@ class TestReadOnlyChangeViewInlinePermissions(TestCase):
         self.client.force_login(self.user)
 
     def test_add_url_not_allowed(self):
+        """
+        Tests that the URL for adding a new resource is not accessible via GET or POST requests, ensuring that only authorized actions can be performed. 
+
+        The test verifies that both HTTP GET and POST requests to the specified URL return a 403 status code, indicating that the request is forbidden.
+        """
         response = self.client.get(self.add_url)
         self.assertEqual(response.status_code, 403)
 
@@ -1404,14 +1516,39 @@ class TestReadOnlyChangeViewInlinePermissions(TestCase):
         self.assertEqual(response.status_code, 403)
 
     def test_post_to_change_url_not_allowed(self):
+        """
+
+        Tests that posting to the change URL is not allowed.
+
+        Verifies that a POST request to the change URL returns a 403 Forbidden status code,
+        indicating that this operation is not permitted.
+
+        """
         response = self.client.post(self.change_url, {})
         self.assertEqual(response.status_code, 403)
 
     def test_get_to_change_url_is_allowed(self):
+        """
+
+        Verifies that a GET request to the change URL is successful and allowed.
+
+        This test checks if the application properly handles a GET request to the 
+        change URL by asserting that the HTTP response status code is 200 (OK), 
+        indicating that the request was successfully processed.
+
+        """
         response = self.client.get(self.change_url)
         self.assertEqual(response.status_code, 200)
 
     def test_main_model_is_rendered_as_read_only(self):
+        """
+
+        Tests that the main model is rendered as read-only on the change page.
+
+        Verifies that the model's name is displayed in a read-only format and that the
+        field is not editable, i.e., no input field for the name is present in the page.
+
+        """
         response = self.client.get(self.change_url)
         self.assertContains(
             response, '<div class="readonly">%s</div>' % self.poll.name, html=True
@@ -1455,6 +1592,17 @@ class TestReadOnlyChangeViewInlinePermissions(TestCase):
         )
 
     def test_inline_delete_buttons_are_not_shown(self):
+        """
+
+        Verifies that inline delete buttons are not displayed in the change view for question instances associated with a poll.
+
+        This test case confirms the expected behavior where delete buttons are not shown 
+        for questions in the change form, ensuring that inline deletions are not possible 
+        in this context. The functionality is verified by creating a new question instance 
+        and then checking the HTML response of the change view for the presence of the 
+        delete button, expecting it not to be found.
+
+        """
         Question.objects.create(text="How will this be rendered?", poll=self.poll)
         response = self.client.get(self.change_url)
         self.assertNotContains(
@@ -1465,6 +1613,13 @@ class TestReadOnlyChangeViewInlinePermissions(TestCase):
         )
 
     def test_extra_inlines_are_not_shown(self):
+        """
+        Tests that extra inline form fields are not displayed in the change view.
+
+        Verifies that the rendered HTML does not contain the specified inline form field
+        id when it is not expected to be shown, ensuring that the view correctly handles
+        extra inline instances and prevents them from being displayed to the user.
+        """
         response = self.client.get(self.change_url)
         self.assertNotContains(response, 'id="id_question_set-0-text"')
 
@@ -1474,6 +1629,14 @@ class TestVerboseNameInlineForms(TestDataMixin, TestCase):
     factory = RequestFactory()
 
     def test_verbose_name_inline(self):
+        """
+        Tests that the verbose name setting in a TabularInline is properly displayed in the admin interface.
+
+        This test creates a model admin with four different inlines, each with a unique combination of verbose name settings.
+        It then simulates a request to the change form view for an instance of the model and verifies that the expected verbose names are displayed in the inline headings and \"Add another\" links.
+        The test covers cases where the verbose name is set explicitly, as well as cases where it is not set and the default model name is used instead.
+        It ensures that the admin interface correctly handles both singular and plural forms of the verbose name.
+        """
         class NonVerboseProfileInline(TabularInline):
             model = Profile
             verbose_name = "Non-verbose childs"
@@ -1570,6 +1733,17 @@ class TestVerboseNameInlineForms(TestDataMixin, TestCase):
         self.assertNotContains(response, "Add another Model with both - name")
 
     def test_verbose_name_plural_inline(self):
+        """
+        Tests the display of verbose name plural for inlines on the ProfileCollection admin change form page.
+
+        The test checks that the inlines with various combinations of model verbose name and verbose name plural display correctly.
+
+        *   Specifically, it verifies:
+            *   The displayed heading and \"Add another\" link text are correct for each inline.
+            *   The displayed heading text does not default to the model name if a verbose name or verbose name plural is provided.
+
+        This test ensures that the admin interface correctly handles model and verbose name plural configuration for TabularInline instances.
+        """
         class NonVerboseProfileInline(TabularInline):
             model = Profile
             verbose_name_plural = "Non-verbose childs"
@@ -1909,6 +2083,23 @@ class SeleniumTests(AdminSeleniumTestCase):
             self.assertCountSeleniumElements(rows_selector, 0)
 
     def test_delete_invalid_stacked_inlines(self):
+        """
+
+        Test that deleting an invalid stacked inline via the admin interface correctly removes the related object.
+
+        This test covers the scenario where an admin user attempts to add a new inline object with a duplicate value,
+        which raises an error. The test then verifies that deleting the invalid inline object resolves the error and
+        updates the database accordingly.
+
+        The test checks the following conditions:
+        - The initial page loads with the expected number of inline objects.
+        - Adding new inline objects and submitting the form with duplicate values raises an error.
+        - Deleting the invalid inline object removes the error message and updates the database.
+        - The database is updated correctly after saving the changes.
+
+        The test uses Selenium to interact with the admin interface and verify the expected behavior.
+
+        """
         from selenium.common.exceptions import NoSuchElementException
         from selenium.webdriver.common.by import By
 
@@ -1975,6 +2166,18 @@ class SeleniumTests(AdminSeleniumTestCase):
         self.assertEqual(Inner4Stacked.objects.count(), 4)
 
     def test_delete_invalid_tabular_inlines(self):
+        """
+        Tests the behavior of the admin interface when deleting an invalid tabular inline.
+
+        This test case covers the following scenario: 
+        1. Logs in as an admin user and navigates to the add view for an 'Inlines Holder 4' model instance.
+        2. Verifies the initial number of inline rows and adds two new rows.
+        3. Enters values into the form fields, intentionally introducing a duplicate value.
+        4. Saves the form and verifies that an error message is displayed due to the duplicate value.
+        5. Deletes the last inline row, which contains the duplicate value.
+        6. Verifies that the error message is removed after deletion and that the form can be successfully saved.
+        7. Asserts that the correct number of 'Inner4Tabular' model instances are saved to the database.
+        """
         from selenium.common.exceptions import NoSuchElementException
         from selenium.webdriver.common.by import By
 
@@ -2424,6 +2627,15 @@ class SeleniumTests(AdminSeleniumTestCase):
                 self.assertEqual(chosen.text, "CHOSEN ATTENDANT")
 
     def test_tabular_inline_layout(self):
+        """
+        Tests the tabular inline layout in the admin interface.
+
+        Verifies that the tabular inline layout is correctly displayed, with the expected column headers and no extra information.
+        Checks that the headers contain the correct labels, in the correct order, and that certain text is not present in the layout.
+        Also ensures that there are no collapsible elements within the tabular inline layout.
+
+        This test checks the display and structure of the tabular inline layout, but does not test its functionality or interactive elements.
+        """
         from selenium.webdriver.common.by import By
 
         self.admin_login(username="super", password="secret")

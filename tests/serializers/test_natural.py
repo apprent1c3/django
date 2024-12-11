@@ -52,6 +52,21 @@ def natural_key_serializer_test(self, format):
 
 
 def natural_key_test(self, format):
+    """
+
+    Tests the natural key functionality for serializing and deserializing model instances.
+
+    This test creates two book objects with unique identifiers, serializes them to a specified format, 
+    and then deserializes the data back into Python objects. It verifies that the deserialized objects 
+    retain their natural primary keys and natural foreign keys, even after one of the original objects 
+    has been deleted from the database.
+
+    The test checks if the deserialized objects have the correct titles and primary keys, taking into 
+    account that one of the objects has been deleted and should have a primary key of None.
+
+    :param format: The serialization format to use for the test (e.g. 'json', 'xml', etc.)
+
+    """
     book1 = {
         "data": "978-1590597255",
         "title": "The Definitive Guide to Django: Web Development Done Right",

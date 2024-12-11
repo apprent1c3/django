@@ -23,6 +23,16 @@ class BaseStaticFilesMixin:
         )
 
     def assertFileNotFound(self, filepath):
+        """
+        Asserts that a file at the specified filepath does not exist.
+
+        This method checks if attempting to access a file at the given filepath raises an 
+        OSError, which indicates that the file was not found. It is useful for testing 
+        scenarios where the absence of a file is expected.
+
+        :param filepath: The path to the file to check for non-existence.
+        :raises AssertionError: If the file at the specified filepath exists.
+        """
         with self.assertRaises(OSError):
             self._get_file(filepath)
 
@@ -32,6 +42,17 @@ class BaseStaticFilesMixin:
         return template.render(Context(**kwargs)).strip()
 
     def static_template_snippet(self, path, asvar=False):
+        """
+        Returns a template snippet for loading a static file.
+
+        The snippet can be used in a Django template to load a static file. If asvar is True,
+        the snippet assigns the static URL to a template variable. Otherwise, it outputs the
+        static URL directly.
+
+        :param path: The path to the static file.
+        :param asvar: Whether to assign the static URL to a template variable. Defaults to False.
+        :rtype: str
+        """
         if asvar:
             return (
                 "{%% load static from static %%}{%% static '%s' as var %%}{{ var }}"
@@ -44,6 +65,22 @@ class BaseStaticFilesMixin:
         self.assertEqual(self.render_template(template, **kwargs), result)
 
     def assertStaticRaises(self, exc, path, result, asvar=False, **kwargs):
+        """
+
+        Asserts that rendering a static template at the specified path raises the given exception.
+
+        This method checks that the rendering of a static template results in the specified exception being thrown.
+        It is useful for testing error handling scenarios in template rendering.
+
+        :param exc: The exception that is expected to be raised.
+        :param path: The path to the static template to render.
+        :param result: The expected result if the rendering were to succeed.
+        :param asvar: Whether to pass the rendered template as a variable.
+        :param kwargs: Additional keyword arguments to pass to the rendering method.
+
+        :raises AssertionError: If the rendering does not raise the expected exception.
+
+        """
         with self.assertRaises(exc):
             self.assertStaticRenders(path, result, **kwargs)
 
@@ -92,6 +129,22 @@ class CollectionTestCase(BaseStaticFilesMixin, SimpleTestCase):
         )
 
     def _get_file(self, filepath):
+        """
+        Retrieve the contents of a file from the static root directory.
+
+        Args:
+            filepath (str): The path to the file relative to the static root directory.
+
+        Returns:
+            str: The contents of the file as a string.
+
+        Raises:
+            AssertionError: If the filepath is empty.
+
+        Note:
+            The file is assumed to be encoded in UTF-8. The file path is joined with the static root directory to form the full path to the file.
+
+        """
         assert filepath, "filepath is empty."
         filepath = os.path.join(settings.STATIC_ROOT, filepath)
         with open(filepath, encoding="utf-8") as f:

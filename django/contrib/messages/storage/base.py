@@ -34,6 +34,9 @@ class Message:
         return str(self.message)
 
     def __repr__(self):
+        """
+        Returns a string representation of the Message object, providing a human-readable summary of its properties, including the log level, message content, and any additional tags.
+        """
         extra_tags = f", extra_tags={self.extra_tags!r}" if self.extra_tags else ""
         return f"Message(level={self.level}, message={self.message!r}{extra_tags})"
 
@@ -55,6 +58,15 @@ class BaseStorage:
     """
 
     def __init__(self, request, *args, **kwargs):
+        """
+        Initializes the object, setting its initial state and preparing it for use in handling messages.
+
+        :param request: The request object associated with this instance.
+        :param args: Variable length argument list.
+        :param kwargs: Arbitrary keyword arguments.
+
+        This initialization method sets up the object's attributes, including the request, a queue for messages, and flags to track usage and addition of new messages. It also calls the parent class's initialization method to ensure proper setup of inherited attributes.
+        """
         self.request = request
         self._queued_messages = []
         self.used = False

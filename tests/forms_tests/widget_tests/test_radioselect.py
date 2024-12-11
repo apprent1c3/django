@@ -233,6 +233,15 @@ class RadioSelectTest(ChoiceWidgetTest):
         """
 
         def get_choices():
+            """
+            Generate a sequence of tuples, where each tuple contains a value and its duplicate.
+
+            This function produces a series of pairs, with the first pair being (0, 0), the second being (1, 1), and so on, up to a total of 4 pairs.
+
+            Returns:
+                An iterable yielding tuples, each containing a duplicated value from 0 to 3.
+
+            """
             for i in range(4):
                 yield (i, i)
 
@@ -256,6 +265,15 @@ class RadioSelectTest(ChoiceWidgetTest):
         self.check_html(widget, "num", 3, html=html)
 
     def test_choices_escaping(self):
+        """
+        Tests the escaping of special characters in radio button choices.
+
+        This test verifies that special characters, such as ampersands (&), are properly escaped
+        in the HTML output of the widget when rendering radio button choices.
+
+        The test checks two scenarios: a choice with an unescaped ampersand and a choice with
+        an ampersand that is marked as safe, ensuring both are rendered correctly in the HTML output.
+        """
         choices = (("bad", "you & me"), ("good", mark_safe("you &gt; me")))
         html = """
         <div>
@@ -270,6 +288,15 @@ class RadioSelectTest(ChoiceWidgetTest):
         self.check_html(self.widget(choices=choices), "escape", None, html=html)
 
     def test_choices_unicode(self):
+        """
+
+        Tests that the choices in a widget correctly handle Unicode characters.
+
+        This function verifies that the widget can properly display and process choices
+        that include non-ASCII characters, ensuring that the correct choice is selected
+        and rendered in the HTML output.
+
+        """
         html = """
         <div>
           <div>

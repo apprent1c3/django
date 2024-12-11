@@ -79,6 +79,19 @@ def get_paths_from_expression(expr):
 
 
 def get_children_from_q(q):
+    """
+
+    Retrieves children from a given query object.
+
+    This function recursively traverses the children of a query object, yielding
+    each child that is a valid node or path. It handles different types of child
+    objects, including nodes, tuples, and objects with a resolve_expression method.
+
+    The function yields an iterable sequence of child paths, allowing for efficient
+    processing of large query objects. It is intended to be used in scenarios where
+    a query object's child paths need to be extracted and processed recursively.
+
+    """
     for child in q.children:
         if isinstance(child, Node):
             yield from get_children_from_q(child)
@@ -291,6 +304,12 @@ class Query(BaseExpression):
     explain_info = None
 
     def __init__(self, model, alias_cols=True):
+        """
+        Initializes a query builder object, setting up the underlying data model and configuration for resolving column aliases.
+
+         :param model: The data model to be used by the query builder
+         :param alias_cols: Whether to automatically generate aliases for columns (default: True)
+        """
         self.model = model
         self.alias_refcount = {}
         # alias_map is the most important data structure regarding joins.
@@ -320,6 +339,16 @@ class Query(BaseExpression):
 
     @property
     def output_field(self):
+        """
+        .. property:: output_field
+
+            Retrieves the output field of the object.
+
+            If there is only one field selected, it returns the target of that field if available, 
+            otherwise it returns the field itself. If no fields are selected but there are annotations, 
+            it returns the output field of the first annotation. The output field is typically the 
+            resulting field after processing or transformation of the original data.
+        """
         if len(self.select) == 1:
             select = self.select[0]
             return getattr(select, "target", None) or select.field
@@ -439,6 +468,19 @@ class Query(BaseExpression):
         return clone
 
     def _get_col(self, target, field, alias):
+        """
+        Retrieve a column from a target object.
+
+        This method returns a column from the target object based on the provided field name.
+        If aliasing is disabled (i.e., :attr:`alias_cols` is False), it will ignore any specified alias and retrieve the column directly.
+        Otherwise, it will attempt to retrieve the column using the provided alias.
+
+        :param target: The target object to retrieve the column from
+        :param field: The name of the field to retrieve
+        :param alias: The alias to use when retrieving the column (optional)
+        :returns: The retrieved column
+
+        """
         if not self.alias_cols:
             alias = None
         return target.get_col(alias, field)
@@ -1202,6 +1244,23 @@ class Query(BaseExpression):
             self.selected[alias] = alias
 
     def resolve_expression(self, query, *args, **kwargs):
+        """
+
+        Resolve an expression within the context of a query.
+
+        This method takes a query and additional arguments, processes the where clause of the query,
+        and recursively resolves any combined queries and annotations. It also updates the external
+        aliases and returns a clone of the object with the resolved expression.
+
+        The result is a modified clone with resolved expressions, updated combined queries, and
+        reconciled external aliases.
+
+        :param query: The query to resolve the expression against.
+        :param args: Additional positional arguments to pass to the resolver.
+        :param kwargs: Additional keyword arguments to pass to the resolver.
+        :return: A clone of the object with the resolved expression.
+
+        """
         clone = self.clone()
         # Subqueries need to use a different set of aliases than the outer query.
         clone.bump_prefix(query)
@@ -1961,6 +2020,15 @@ class Query(BaseExpression):
 
     @classmethod
     def _gen_cols(cls, exprs, include_external=False, resolve_refs=True):
+        """
+        Generates a sequence of column expressions from the provided input expressions.
+
+        :param exprs: A collection of expressions to generate columns from.
+        :param include_external: If True, external columns will be included in the generated sequence. Defaults to False.
+        :param resolve_refs: If True, reference expressions will be resolved to their source expressions. Defaults to True.
+        :yield: A sequence of column expressions (:class:`Col` objects) or external columns if :paramref:`include_external` is True.
+        :note: This method is a generator and will yield columns recursively from nested expressions.
+        """
         for expr in exprs:
             if isinstance(expr, Col):
                 yield expr
@@ -1982,6 +2050,36 @@ class Query(BaseExpression):
         yield from (expr.alias for expr in cls._gen_cols(exprs))
 
     def resolve_ref(self, name, allow_joins=True, reuse=None, summarize=False):
+        """
+
+        Resolve a reference to a field or annotation by name.
+
+        This method retrieves the annotation for the given name from the current
+        query's annotations, or constructs it by walking the lookup path and
+        applying transformations. It also manages joins and aliasing as needed.
+
+        Parameters
+        ----------
+        name : str
+            The name of the field or annotation to resolve.
+        allow_joins : bool, optional
+            Whether to permit joined field references (default: True).
+        reuse : dict, optional
+            A dictionary to store reusable join information.
+        summarize : bool, optional
+            Whether to summarize the reference by using the annotated value (default: False).
+
+        Returns
+        -------
+        Ref or Annotation
+            The resolved reference to the field or annotation.
+
+        Raises
+        ------
+        FieldError
+            If the reference is not found, or if joined field references are not permitted.
+
+        """
         annotation = self.annotations.get(name)
         if annotation is not None:
             if not allow_joins:

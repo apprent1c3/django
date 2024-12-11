@@ -26,6 +26,25 @@ class TestNumberFormat(SimpleTestCase):
             )
 
     def test_format_string(self):
+        """
+
+        Formats a string as a numeric string with optional decimal and thousands separators.
+
+        The function takes a numeric string and formats it according to the specified decimal
+        and thousands separators. It also allows for the specification of the number of decimal
+        places to round to and whether to force the use of thousands separators.
+
+        Parameters can be used to control the behavior of the function, such as the decimal
+        separator, thousands separator, number of decimal places, and whether to force the
+        use of thousands separators.
+
+        Returns the formatted string.
+
+        Examples of use cases include formatting numbers with specific decimal and thousands
+        separators, rounding numbers to a certain number of decimal places, and forcing the
+        use of thousands separators for readability.
+
+        """
         self.assertEqual(nformat("1234", "."), "1234")
         self.assertEqual(nformat("1234.2", "."), "1234.2")
         self.assertEqual(nformat("1234", ".", decimal_pos=2), "1234.00")

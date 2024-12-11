@@ -105,6 +105,20 @@ class MinimumLengthValidator:
         self.min_length = min_length
 
     def validate(self, password, user=None):
+        """
+        Validate a password against the minimum length requirement.
+
+        Args:
+            password (str): The password to be validated.
+            user (object, optional): The user object associated with the password. Defaults to None.
+
+        Raises:
+            ValidationError: If the password length is less than the minimum allowed length.
+
+        Note:
+            The minimum allowed length is defined by the instance's `min_length` attribute.
+            The error message includes the minimum length requirement and is properly pluralized.
+        """
         if len(password) < self.min_length:
             raise ValidationError(
                 ngettext(

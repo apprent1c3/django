@@ -174,6 +174,32 @@ class ChangeList:
         return lookup_params
 
     def get_filters(self, request):
+        """
+
+        Get the filter specifications and parameters for the admin change list view.
+
+        This function processes the list_filter attribute of the model admin and
+        returns a tuple containing the filter specifications, a flag indicating
+        whether there are any filters, the lookup parameters, a flag indicating
+        whether the filter may spawn duplicates, and a flag indicating whether
+        there are any active filters.
+
+        The function also checks that the lookup parameters are valid and allowed
+        by the model admin, and raises an exception if any are disallowed.
+
+        The returned filter specifications are instances of ``FieldListFilter``
+        or other custom filter classes, and can be used to render the filter
+        widgets in the change list view.
+
+        The function also handles date hierarchy filtering, where the filter
+        parameters are used to construct a date range filter.
+
+        :returns: A tuple containing the filter specifications, a flag indicating
+            whether there are any filters, the lookup parameters, a flag indicating
+            whether the filter may spawn duplicates, and a flag indicating whether
+            there are any active filters.
+
+        """
         lookup_params = self.get_filters_params()
         may_have_duplicates = False
         has_active_filters = False
@@ -306,6 +332,20 @@ class ChangeList:
         return "?%s" % urlencode(sorted(p.items()), doseq=True)
 
     def get_results(self, request):
+        """
+
+        Retrieve and process the results of a query, handling pagination and result counts.
+
+        This function prepares data for display, taking into account the number of results to show per page,
+        whether to display the full result count, and whether to show all results or paginate them.
+        It determines if the results can be shown on a single page and if multiple pages are needed.
+        The function returns a list of results, either by retrieving a specific page or by getting all results
+        if the total number of results does not exceed the threshold for showing all results.
+
+        It also calculates and stores various flags and counts, including the total result count, the full
+        result count (if shown), and whether admin actions can be displayed.
+
+        """
         paginator = self.model_admin.get_paginator(
             request, self.queryset, self.list_per_page
         )
@@ -346,6 +386,13 @@ class ChangeList:
         self.paginator = paginator
 
     def _get_default_ordering(self):
+        """
+        ..: Returns the default ordering for the model admin.
+            This ordering is used when displaying data in the admin interface.
+            It first checks if a custom ordering is defined in the model admin, 
+            otherwise it falls back to the ordering defined in the model's metadata.
+            :return: A list of field names that define the default ordering.
+        """
         ordering = []
         if self.model_admin.ordering:
             ordering = self.model_admin.ordering

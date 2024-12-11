@@ -10,6 +10,11 @@ class SimpleDatabaseClientTests(SimpleTestCase):
         self.client = BaseDatabaseClient(connection=connection)
 
     def test_settings_to_cmd_args_env(self):
+        """
+        Tests that the settings_to_cmd_args_env method is implemented by subclasses of BaseDatabaseClient, 
+        unless the runshell method is overridden. Verifies that a NotImplementedError is raised with a specific 
+        error message if this method is not provided, ensuring that subclasses adhere to the required interface.
+        """
         msg = (
             "subclasses of BaseDatabaseClient must provide a "
             "settings_to_cmd_args_env() method or override a runshell()."

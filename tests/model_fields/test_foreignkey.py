@@ -104,6 +104,9 @@ class ForeignKeyTests(TestCase):
 
     @isolate_apps("model_fields")
     def test_to_python(self):
+        """
+        Tests the to_python method of a ForeignKey field in a model instance, ensuring it correctly converts a string representation of a primary key to a numeric value.
+        """
         class Foo(models.Model):
             pass
 
@@ -114,6 +117,16 @@ class ForeignKeyTests(TestCase):
 
     @isolate_apps("model_fields")
     def test_fk_to_fk_get_col_output_field(self):
+        """
+
+        Tests that the output field for a foreign key to a foreign key in a model 
+        is correctly resolved to the primary key of the original model.
+
+        Verifies that when a model has a foreign key that references another model's 
+        foreign key, which in turn is its primary key, the output field for the 
+        column is correctly determined as the primary key of the original model.
+
+        """
         class Foo(models.Model):
             pass
 
@@ -128,6 +141,14 @@ class ForeignKeyTests(TestCase):
 
     @isolate_apps("model_fields")
     def test_recursive_fks_get_col(self):
+        """
+        Tests that getting a column from a model field using recursive foreign keys raises an error.
+
+        This test covers a scenario where two models have foreign key relationships with each other,
+        creating a recursive loop. It verifies that attempting to retrieve a column using the 
+        get_col method on a field involved in such a recursive relationship results in a ValueError,
+        indicating that the output field cannot be resolved.
+        """
         class Foo(models.Model):
             bar = models.ForeignKey("Bar", models.CASCADE, primary_key=True)
 
@@ -156,6 +177,15 @@ class ForeignKeyTests(TestCase):
             Related._meta.get_field("child").related_fields
 
     def test_invalid_to_parameter(self):
+        """
+        Tests that a ForeignKey field raises a TypeError when the 'to' parameter is invalid.
+
+        Checks that an exception is thrown when the first parameter to ForeignKey is not a model, 
+        a model name, or the string 'self', ensuring proper usage of the ForeignKey field.
+
+        The test verifies that the error message correctly identifies the invalid input, 
+        providing a clear indication of the required parameter type for the ForeignKey field.
+        """
         msg = (
             "ForeignKey(1) is invalid. First parameter to ForeignKey must be "
             "either a model, a model name, or the string 'self'"

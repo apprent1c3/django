@@ -232,6 +232,22 @@ class DatabaseCache(BaseDatabaseCache):
             return bool(cursor.rowcount)
 
     def has_key(self, key, version=None):
+        """
+        Check if a specific cache key exists in the cache.
+
+        Args:
+            key (str): The cache key to look for.
+            version (str, optional): The version of the cache key. Defaults to None.
+
+        Returns:
+            bool: True if the cache key exists and has not expired, False otherwise.
+
+        This method checks the cache for a given key and returns True if it exists and
+        has not expired, and False otherwise. It is used to determine whether a cache
+        entry is valid and available for use. The key is validated and formatted before
+        being used in the cache lookup. The method also takes into account the version
+        of the cache key, if provided.
+        """
         key = self.make_and_validate_key(key, version=version)
 
         db = router.db_for_read(self.cache_model_class)
@@ -254,6 +270,24 @@ class DatabaseCache(BaseDatabaseCache):
             return cursor.fetchone() is not None
 
     def _cull(self, db, cursor, now, num):
+        """
+        Remove expired and excessive cache entries from a database table.
+
+        This function is responsible for managing the cache by deleting expired entries and limiting the total number of entries to prevent excessive growth. 
+
+        It first checks if the cull frequency is disabled, in which case all cache entries are cleared. Otherwise, it deletes expired cache entries based on their expiration time. If the number of remaining entries exceeds the maximum allowed, it calculates the number of entries to remove and deletes the oldest ones based on their cache key. 
+
+        The function uses the provided database connection and cursor to execute the necessary SQL queries, taking into account the database-specific quoting and datetime field adaptation rules. 
+
+        The parameters are:
+
+        * `db`: the database to operate on
+        * `cursor`: the database cursor to use for SQL queries
+        * `now`: the current time to determine expired entries
+        * `num`: the current number of cache entries 
+
+        The function maintains the cache size within the configured limits and ensures that only valid cache entries are retained.
+        """
         if self._cull_frequency == 0:
             self.clear()
         else:

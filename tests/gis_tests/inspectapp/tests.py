@@ -239,6 +239,16 @@ def get_ogr_db_string():
     params = [db_str % {"db_name": db["NAME"]}]
 
     def add(key, template):
+        """
+
+        Appends a formatted template string to a list of parameters if a corresponding key exists in the database.
+
+        The function retrieves a value associated with the given key from the database. If a value is found, it is used to format the provided template string, which is then added to the params list.
+
+        :param key: The key to look up in the database
+        :param template: A string template that will be formatted with the retrieved value
+
+        """
         value = db.get(key, None)
         # Don't add the parameter if it is not in django's settings
         if value:

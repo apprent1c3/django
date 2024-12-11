@@ -61,6 +61,14 @@ class MediaOrderConflictWarning(RuntimeWarning):
 @html_safe
 class Media:
     def __init__(self, media=None, css=None, js=None):
+        """
+        Initializes the object with media, CSS, and JavaScript resources.
+
+        The function accepts optional parameters for media, CSS, and JavaScript resources. 
+        If media is provided, it retrieves the CSS and JavaScript resources from it. 
+        Otherwise, it uses the provided CSS and JavaScript resources, defaulting to an empty dictionary for CSS and an empty list for JavaScript if they are not specified. 
+        The resources are then stored in internal lists for later use.
+        """
         if media is not None:
             css = getattr(media, "css", {})
             js = getattr(media, "js", [])
@@ -80,6 +88,14 @@ class Media:
 
     @property
     def _css(self):
+        """
+        Returns a compiled CSS dictionary with media queries merged.
+
+        This property aggregates CSS rules from multiple lists, grouping them by media query.
+        Each media query's rules are then merged into a single list, allowing for easy access to the
+        compiled CSS data. The resulting dictionary is keyed by media query, with values being
+        the merged lists of CSS rules for each query.
+        """
         css = defaultdict(list)
         for css_list in self._css_lists:
             for medium, sublist in css_list.items():
@@ -112,6 +128,15 @@ class Media:
     def render_css(self):
         # To keep rendering order consistent, we can't just iterate over items().
         # We need to sort the keys, and iterate over the sorted list.
+        """
+        Renders CSS links for the current object, sorting media types and generating HTML tags.
+
+        The function generates a sequence of HTML link tags, one for each CSS path, with the 'media' attribute set to the corresponding media type.
+        It iterates over the sorted media types and, for each type, iterates over the associated CSS paths.
+        For each path, it generates an HTML link tag with the 'href' attribute set to the absolute path of the CSS file and the 'rel' attribute set to 'stylesheet'.
+        If a path object has an '__html__' method, it is used to generate the HTML tag; otherwise, a default format is used.
+        The resulting sequence of HTML tags is returned, allowing for easy inclusion in a larger HTML document.
+        """
         media = sorted(self._css)
         return chain.from_iterable(
             [
@@ -174,6 +199,11 @@ class Media:
             return list(dict.fromkeys(chain.from_iterable(filter(None, lists))))
 
     def __add__(self, other):
+        """
+        Combine two Media objects by merging their CSS and JavaScript lists.
+
+        This operation returns a new Media object that contains all unique CSS and JavaScript items from both the current object and the object being added. Duplicate items are automatically removed from the resulting object, ensuring a concise and efficient representation of the combined media resources.
+        """
         combined = Media()
         combined._css_lists = self._css_lists[:]
         combined._js_lists = self._js_lists[:]
@@ -187,8 +217,45 @@ class Media:
 
 
 def media_property(cls):
+    """
+    Property decorator to manage media properties for a class.
+
+    This property provides a convenient way to define and extend media definitions
+    for a class. It allows subclasses to add or override media definitions while
+    still inheriting the media definitions from their parent classes.
+
+    The property returns a Media object that represents the combined media definitions
+    of the class and its parent classes. If the class defines a Media class attribute,
+    it will be used to extend or override the parent class's media definitions.
+
+    The extend behavior can be controlled by setting the `extend` attribute on the
+    Media class attribute. If `extend` is True, the class's media definitions will
+    be added to the parent class's media definitions. If `extend` is a list of medium
+    names, only those mediums will be inherited from the parent class.
+
+    This property is designed to be used as a decorator for a class, allowing the
+    class to easily manage its media properties and inherit media definitions from
+    its parent classes.
+    """
     def _media(self):
         # Get the media property of the superclass, if it exists
+        """
+        Returns the media definition for the current class, extending the media 
+        from its superclass if applicable.
+
+        The method checks if the current class has a Media definition. If it does, 
+        it returns the Media definition, possibly extended with the superclass's 
+        media, depending on the `extend` attribute of the Media definition.
+
+        If the `extend` attribute is True, the superclass's media is fully included.
+        If `extend` is a list of medium types, only those medium types from the 
+        superclass's media are included. If `extend` is not provided or is False, 
+        only the current class's media definition is returned.
+
+        If the current class does not have a Media definition, the method returns 
+        the media from its superclass, or an empty Media object if the superclass 
+        does not have a media definition either.
+        """
         sup_cls = super(cls, self)
         try:
             base = sup_cls.media
@@ -219,6 +286,18 @@ class MediaDefiningClass(type):
     """
 
     def __new__(mcs, name, bases, attrs):
+        """
+
+        Metaclass constructor to create a new class instance.
+
+        Automatically adds a 'media' property to the class if it does not already exist.
+        The 'media' property is generated using the media_property function, which is
+        applied to the newly created class.
+
+        This allows subclasses to use the 'media' property without having to define it
+        explicitly, simplifying the process of creating classes that require media handling.
+
+        """
         new_class = super().__new__(mcs, name, bases, attrs)
 
         if "media" not in attrs:
@@ -238,6 +317,17 @@ class Widget(metaclass=MediaDefiningClass):
         self.attrs = {} if attrs is None else attrs.copy()
 
     def __deepcopy__(self, memo):
+        """
+        Override of the __deepcopy__ method to create a deep copy of the current object.
+
+        This method ensures that a new, independent copy of the object is created, including its attributes. The memo dictionary is used to keep track of objects that have already been copied, to avoid infinite recursion and improve performance.
+
+        The resulting copy has the same attributes and values as the original object, but is a separate entity that can be modified without affecting the original.
+
+        :param memo: A dictionary that maps the ids of objects to their copies, used to optimize the copying process.
+        :return: A deep copy of the current object.
+
+        """
         obj = copy.copy(self)
         obj.attrs = self.attrs.copy()
         memo[id(self)] = obj
@@ -248,6 +338,19 @@ class Widget(metaclass=MediaDefiningClass):
         return self.input_type == "hidden" if hasattr(self, "input_type") else False
 
     def subwidgets(self, name, value, attrs=None):
+        """
+        Renders a subwidget for the given name and value.
+
+        :name: The name of the subwidget to be rendered.
+        :value: The value associated with the subwidget.
+        :attrs: Optional attributes to customize the subwidget. Defaults to None.
+
+        Yields the rendered subwidget context, providing access to the widget object.
+        This allows for further customization or extension of the subwidget's behavior.
+
+        Note: This method relies on the `get_context` method to prepare the subwidget context.
+
+        """
         context = self.get_context(name, value, attrs)
         yield context["widget"]
 
@@ -279,6 +382,17 @@ class Widget(metaclass=MediaDefiningClass):
         return self._render(self.template_name, context, renderer)
 
     def _render(self, template_name, context, renderer=None):
+        """
+
+        Renders a template with the provided context.
+
+        :param template_name: The name of the template to render.
+        :param context: The context data to be used during rendering.
+        :param renderer: The renderer to use for rendering the template. If not provided, the default renderer is used.
+
+        :returns: The rendered template content, marked as safe HTML.
+
+        """
         if renderer is None:
             renderer = get_default_renderer()
         return mark_safe(renderer.render(template_name, context))
@@ -580,6 +694,16 @@ class CheckboxInput(Input):
     template_name = "django/forms/widgets/checkbox.html"
 
     def __init__(self, attrs=None, check_test=None):
+        """
+        Initialize a class instance with optional attributes and test checking configuration.
+
+        :param attrs: Optional attributes to initialize the instance with
+        :param check_test: Optional test checking function, defaults to boolean_check if not provided
+        :type attrs: dict or None
+        :type check_test: callable or None
+        :returns: None
+        :note: The check_test function is used to validate test conditions, the default boolean_check function is used if not specified.
+        """
         super().__init__(attrs)
         # check_test is a callable that takes a value and returns True
         # if the checkbox should be checked for that value.
@@ -836,6 +960,16 @@ class SelectMultiple(Select):
     allow_multiple_selected = True
 
     def value_from_datadict(self, data, files, name):
+        """
+        Retrieves a value from a dictionary-like object, falling back to a single value retrieval if the object does not support multiple values.
+
+        :param data: Dictionary-like object containing the data to retrieve from.
+        :param files: Not used in this implementation.
+        :param name: Name of the value to retrieve from the data object.
+        :return: The retrieved value or values associated with the given name.
+
+        Note: This function adapts its retrieval method based on the capabilities of the provided data object, allowing it to work with both single and multi-value data structures.
+        """
         try:
             getter = data.getlist
         except AttributeError:
@@ -1005,6 +1139,15 @@ class SplitDateTimeWidget(MultiWidget):
         date_attrs=None,
         time_attrs=None,
     ):
+        """
+        Initializes a date and time input widget composite.
+
+        This initializer allows for customization of the date and time input fields through various optional parameters.
+        The attrs parameter sets common attributes for both date and time inputs, while date_attrs and time_attrs allow for specific overrides.
+        The date_format and time_format parameters control the display and parsing format of the date and time inputs, respectively. 
+
+        The widget composite is constructed by combining a DateInput and a TimeInput, using the specified formats and attributes.
+        """
         widgets = (
             DateInput(
                 attrs=attrs if date_attrs is None else date_attrs,
@@ -1039,6 +1182,19 @@ class SplitHiddenDateTimeWidget(SplitDateTimeWidget):
         date_attrs=None,
         time_attrs=None,
     ):
+        """
+        Initialize a custom form widget.
+
+        This widget extends the base form widget by setting the input type of all its child widgets to 'hidden'.
+
+        It accepts several optional parameters to customize its behavior:
+
+        * attrs: additional HTML attributes for the widget
+        * date_format and time_format: formats for date and time fields
+        * date_attrs and time_attrs: additional attributes for date and time fields
+
+        These parameters allow for flexible customization of the widget's appearance and functionality. Upon initialization, all child widgets are configured to be hidden input fields.
+        """
         super().__init__(attrs, date_format, time_format, date_attrs, time_attrs)
         for widget in self.widgets:
             widget.input_type = "hidden"
@@ -1179,6 +1335,18 @@ class SelectDateWidget(Widget):
                 yield "day"
 
     def id_for_label(self, id_):
+        """
+
+        Generate an identifier based on a given label.
+
+        This method takes an identifier :param:`id_` and attempts to append a date-based string.
+        It iterates over the parsed date format and returns the concatenated string if successful.
+        If no date format is found, it appends '_month' to the identifier.
+
+        :param id_: The base identifier to be used in the concatenated string
+        :return: The generated identifier string
+
+        """
         for first_select in self._parse_date_fmt():
             return "%s_%s" % (id_, first_select)
         return "%s_month" % id_

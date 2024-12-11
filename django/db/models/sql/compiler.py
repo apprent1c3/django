@@ -1614,6 +1614,15 @@ class SQLCompiler:
         return result
 
     def as_subquery_condition(self, alias, columns, compiler):
+        """
+        .CreateIndex a subquery condition to be used in a larger query.
+
+        This method constructs an EXISTS subquery clause from the current query, 
+        aliasing it with the given alias and restricting it to the specified columns.
+        It can be used to check for the existence of rows in the table that match 
+        a certain condition. The generated subquery is then returned as a string 
+        along with its associated parameters.
+        """
         qn = compiler.quote_name_unless_alias
         qn2 = self.connection.ops.quote_name
         query = self.query.clone()
@@ -1830,6 +1839,28 @@ class SQLInsertCompiler(SQLCompiler):
             ]
 
     def execute_sql(self, returning_fields=None):
+        """
+
+        Execute the SQL query associated with this object, optionally retrieving specified fields from the inserted rows.
+
+        Parameters
+        ----------
+        returning_fields : list, optional
+            A list of fields to retrieve from the inserted rows. If not specified, an empty list is returned.
+
+        Returns
+        -------
+        list
+            A list of tuples, where each tuple represents a row and contains the values of the requested fields.
+
+        Notes
+        -----
+        The behavior of this function depends on the capabilities of the underlying database connection.
+        If the connection supports returning rows from bulk inserts, the function will retrieve the specified fields from all inserted rows.
+        If the connection does not support bulk inserts, but supports returning columns from inserts, the function will retrieve the specified fields from the single inserted row.
+        If neither of these capabilities is supported, the function will only retrieve the primary key of the inserted row.
+
+        """
         assert not (
             returning_fields
             and len(self.query.objs) != 1

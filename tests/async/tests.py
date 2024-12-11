@@ -17,6 +17,11 @@ from .models import SimpleModel
 class CacheTest(SimpleTestCase):
     def test_caches_local(self):
         @async_to_sync
+        """
+        Tests that caching is handled locally, ensuring that the same cache instance is reused when accessed multiple times.
+
+        The test verifies that the cache instance returned is the same object, confirming that the caching mechanism is properly utilizing local storage.
+        """
         async def async_cache():
             return caches[DEFAULT_CACHE_ALIAS]
 
@@ -76,6 +81,19 @@ class AsyncView(View):
 
 class ViewTests(SimpleTestCase):
     def test_views_are_correctly_marked(self):
+        """
+
+        Checks that view classes are correctly marked as asynchronous or synchronous.
+
+        This test iterates over a series of view classes and verifies that their 
+        'view_is_async' attribute and the result of their 'as_view' method match the 
+        expected asynchronous behavior.
+
+        :param None
+        :raises AssertionError: If a view class is not correctly marked as async or sync.
+        :returns: None
+
+        """
         tests = [
             (SyncView, False),
             (AsyncView, True),
@@ -120,6 +138,15 @@ class ViewTests(SimpleTestCase):
                 self.assertIsInstance(response, HttpResponse)
 
     def test_http_method_not_allowed_responds_correctly(self):
+        """
+        Tests that HTTP request methods that are not allowed by the view respond correctly.
+
+        This test covers both synchronous and asynchronous views, verifying that:
+        - The response is a coroutine if the view is asynchronous, and not a coroutine if the view is synchronous.
+        - The response is an instance of HttpResponseNotAllowed in both cases.
+
+        Ensures that views properly handle requests with disallowed HTTP methods, providing the correct response type based on the view's asynchronous nature.
+        """
         request_factory = RequestFactory()
         tests = [
             (SyncView, False),

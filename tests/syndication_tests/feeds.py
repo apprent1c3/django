@@ -9,7 +9,25 @@ from .models import Article, Entry
 
 def wraps_decorator(f):
     @wraps(f)
+    """
+    A decorator factory function that generates a wrapper to decorate other functions.
+    The generated wrapper calls the original function with the provided arguments, 
+    then appends a string indicating that the result was decorated by this function.
+
+    This decorator preserves the metadata of the original function, such as its name and docstring, 
+    using the :func:`functools.wraps` decorator from the functools module.
+
+    :return: A decorator that can be used to wrap other functions.
+
+    """
     def wrapper(*args, **kwargs):
+        """
+
+        This function acts as a decorator wrapper, preserving the original function's metadata while modifying its return value.
+        It takes in any number of positional and keyword arguments, passes them to the wrapped function, and then appends a suffix to the result.
+        The purpose is to enhance the original function's output with a specific message, indicating that it has been decorated.
+
+        """
         value = f(*args, **kwargs)
         return f"{value} -- decorated by @wraps."
 
@@ -279,10 +297,41 @@ class MyCustomAtom1Feed(feedgenerator.Atom1Feed):
         return attrs
 
     def add_root_elements(self, handler):
+        """
+
+        Extends the base class functionality to add root elements to the handler.
+
+        This method overrides the parent class's implementation to include additional
+        elements specific to this class. It first calls the parent class's method to
+        perform the standard root element additions, then appends a 'spam' quick element
+        with the value 'eggs' to the handler.
+
+        Parameters
+        ----------
+        handler : object
+            The handler object to which the root elements are added.
+
+        See Also
+        --------
+        The parent class's :meth:`add_root_elements` method for a description of the
+        base functionality.
+
+        """
         super().add_root_elements(handler)
         handler.addQuickElement("spam", "eggs")
 
     def item_attributes(self, item):
+        """
+        Extend the default item attributes with additional metadata.
+
+        This method builds upon the parent class's implementation of item attributes
+        by adding a custom 'bacon' key with a value of 'yum'. The resulting dictionary
+        contains all the original attributes, plus the added 'bacon' attribute.
+
+        _Returns:_
+            dict: The extended item attributes.
+
+        """
         attrs = super().item_attributes(item)
         attrs["bacon"] = "yum"
         return attrs

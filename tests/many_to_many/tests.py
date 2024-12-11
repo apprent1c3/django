@@ -19,6 +19,19 @@ class ManyToManyTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         # Create a couple of Publications.
+        """
+        Sets up test data for the application, creating a set of publications and articles with associated relationships.
+
+         The test data includes four publications and four articles, with each article assigned to one or more publications.
+
+         This class method is used to establish a consistent set of test data for subsequent tests, ensuring that the tests are run in a predictable environment.
+
+         The resulting test data includes multiple many-to-many relationships between articles and publications, allowing for the testing of complex queries and data manipulation scenarios.
+
+         Attributes:
+             p1, p2, p3, p4: Publication objects
+             a1, a2, a3, a4: Article objects
+        """
         cls.p1 = Publication.objects.create(title="The Python Journal")
         cls.p2 = Publication.objects.create(title="Science News")
         cls.p3 = Publication.objects.create(title="Science Weekly")
@@ -40,6 +53,18 @@ class ManyToManyTests(TestCase):
 
     def test_add(self):
         # Create an Article.
+        """
+
+        Tests the creation and association of articles with publications.
+
+        This test case covers several scenarios, including:
+            * Attempting to access the publications of an unsaved article, which raises a ValueError.
+            * Saving an article and then adding a publication to it, verifying that the publication is correctly associated.
+            * Adding multiple publications to an article, ensuring that the publications are stored in the order they were added.
+            * Attempting to add an invalid object (in this case, an Article instance) to the publications of an article, which raises a TypeError.
+            * Creating a new publication directly through the publications of an article, verifying that the new publication is correctly added to the article's publications.
+
+        """
         a5 = Article(headline="Django lets you create web apps easily")
         # You can't associate it with a Publication until it's been saved.
         msg = (
@@ -326,6 +351,19 @@ class ManyToManyTests(TestCase):
 
     def test_bulk_delete(self):
         # Bulk delete some Publications - references to deleted publications should go
+        """
+        Tests the bulk deletion of model instances.
+
+        Verifies that when objects are deleted using the ORM, the expected instances are removed and the remaining instances are correctly updated.
+        Specifically, this test checks the deletion of publications and articles, ensuring that cascade effects on related models are handled correctly.
+
+        The test scenarios cover:
+
+        * Deletion of publications by filter
+        * Verification of remaining publications and articles
+        * Deletion of articles by filter
+        * Verification of updated relationships between articles and publications
+        """
         Publication.objects.filter(title__startswith="Science").delete()
         self.assertSequenceEqual(
             Publication.objects.all(),
@@ -367,6 +405,19 @@ class ManyToManyTests(TestCase):
         self.assertSequenceEqual(self.a3.publications.all(), [])
 
     def test_set(self):
+        """
+        Tests the functionality of setting articles for a publication.
+
+        This test case covers various scenarios, including setting multiple articles, 
+        replacing existing articles, and clearing all articles. It verifies that the 
+        changes are correctly reflected in both the publication's article set and the 
+        articles' publication sets. The test also checks the `clear=True` parameter to 
+        ensure that any existing relationships are properly removed when setting new articles.
+
+        The test asserts the expected behavior of the `set` method, including replacing 
+        existing articles, adding new ones, and clearing all articles, and ensures that 
+        the relationships are updated correctly in both directions.
+        """
         self.p2.article_set.set([self.a4, self.a3])
         self.assertSequenceEqual(
             self.p2.article_set.all(),
@@ -488,6 +539,17 @@ class ManyToManyTests(TestCase):
 
     def test_clear(self):
         # Relation sets can be cleared:
+        """
+        Tests the clear functionality of many-to-many relationships between publications and articles.
+
+        The test case verifies that clearing a publication's article set removes all associated articles, 
+        and also updates the corresponding publications list on each article. 
+        It also checks that articles can be added back to the publication after clearing and 
+        that an article's publications list is updated when its relationship with a publication is cleared.
+
+        Validates the correct state of publications and articles at each step, ensuring data consistency 
+        and the expected behavior of many-to-many relationships in the model.
+        """
         self.p2.article_set.clear()
         self.assertSequenceEqual(self.p2.article_set.all(), [])
         self.assertSequenceEqual(self.a4.publications.all(), [])

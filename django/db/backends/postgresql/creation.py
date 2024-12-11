@@ -19,6 +19,17 @@ class DatabaseCreation(BaseDatabaseCreation):
         return suffix and "WITH" + suffix
 
     def sql_table_creation_suffix(self):
+        """
+        Returns the suffix for SQL table creation based on test settings.
+
+        This method generates the SQL suffix for creating a database table, taking into account the character encoding and template database settings. It checks for the presence of a collation setting, which is not supported by PostgreSQL at database creation time, and raises an error if found.
+
+        The generated suffix includes the character encoding specified in the test settings and the template database if provided.
+
+        :raises ImproperlyConfigured: If a collation setting is found in the test settings.
+        :return: The SQL suffix for creating a database table.
+
+        """
         test_settings = self.connection.settings_dict["TEST"]
         if test_settings.get("COLLATION") is not None:
             raise ImproperlyConfigured(

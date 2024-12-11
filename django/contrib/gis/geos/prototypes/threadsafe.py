@@ -34,6 +34,19 @@ class GEOSFunc:
     def __init__(self, func_name):
         # GEOS thread-safe function signatures end with '_r' and take an
         # additional context handle parameter.
+        """
+
+        Initialize a geometry function wrapper.
+
+        This constructor sets up a wrapper object for a GEOS geometry function, 
+        identified by the given function name. The actual GEOS function is 
+        loaded dynamically and stored as an instance variable, along with a 
+        thread context. This allows for thread-safe execution of the wrapped 
+        function.
+
+        :param func_name: The name of the GEOS geometry function to wrap.
+
+        """
         self.cfunc = getattr(lgeos, func_name + "_r")
         # Create a reference to thread_context so it's not garbage-collected
         # before an attempt to call this object.

@@ -8,6 +8,14 @@ from ..utils import setup
 class SliceTests(SimpleTestCase):
     @setup({"slice01": '{{ a|slice:"1:3" }} {{ b|slice:"1:3" }}'})
     def test_slice01(self):
+        """
+        .. function:: test_slice01
+
+           Tests the slice filter functionality when applied to strings 
+           containing special characters. Verifies that the filter correctly 
+           slices the input strings and handles HTML special characters 
+           (e.g. ampersand) and markdown-safe content.
+        """
         output = self.engine.render_to_string(
             "slice01", {"a": "a&b", "b": mark_safe("a&b")}
         )
@@ -51,6 +59,10 @@ class FunctionTests(SimpleTestCase):
         self.assertEqual(slice_filter("abcdefg", "0::2"), "aceg")
 
     def test_fail_silently(self):
+        """
+        Tests whether the slice_filter function silently fails when provided with an object that does not support slicing, 
+        returning the original object intact without raising any exceptions or modifying its state.
+        """
         obj = object()
         self.assertEqual(slice_filter(obj, "0::2"), obj)
 

@@ -439,6 +439,15 @@ action)</option>
         self.assertTemplateUsed(response, "admin/popup_response.html")
 
     def test_popup_template_response_on_change(self):
+        """
+
+        Tests the popup template response when changes are made to an actor instance.
+
+        This test case verifies that when an actor's details are updated via a popup,
+        the response is rendered with the correct template. It checks for a successful
+        HTTP response (200 status code) and ensures that the popup response template is used.
+
+        """
         instance = Actor.objects.create(name="David Tennant", age=45)
         response = self.client.post(
             reverse("admin:admin_views_actor_change", args=(instance.pk,))
@@ -475,6 +484,15 @@ action)</option>
         self.assertTemplateUsed(response, "admin/popup_response.html")
 
     def test_popup_template_escaping(self):
+        """
+
+        Tests the proper escaping of values in a popup template.
+
+        This test ensures that values containing backslashes are correctly escaped when rendered in an HTML template.
+        It verifies that the escaping process produces the expected output, specifically that backslashes are doubled and values are wrapped in HTML entities.
+        The goal of this test is to guarantee the security and correctness of template rendering in the application's admin interface.
+
+        """
         popup_response_data = json.dumps(
             {
                 "new_value": "new_value\\",
@@ -495,6 +513,14 @@ action)</option>
 class AdminActionsPermissionTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        ..: 
+            Set up test data for the class, creating instances of ExternalSubscriber, Subscriber, and a User with specific permissions.
+
+            This method creates two subscribers, an external subscriber named 'John Doe' and a subscriber named 'Max Mustermann', 
+            as well as a staff user named 'user' with the permission to change subscribers. 
+            The created test data is stored as class attributes for use in subsequent tests.
+        """
         cls.s1 = ExternalSubscriber.objects.create(
             name="John Doe", email="john@example.org"
         )

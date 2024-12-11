@@ -19,6 +19,23 @@ searched_locations = []
 
 # RemovedInDjango61Warning: When the deprecation ends, remove completely.
 def _check_deprecated_find_param(class_name="", find_all=False, **kwargs):
+    """
+    Checks for deprecated usage of the 'find' method parameter.
+
+    This function verifies whether the 'all' parameter, which is deprecated, is passed to the 'find' method.
+    It raises a warning if the 'all' parameter is used and suggests using 'find_all' instead.
+    Additionally, it checks for any unexpected keyword arguments and raises a TypeError if any are found.
+
+    :param class_name: Optional class name for generating a descriptive method name.
+    :param find_all: Flag to use the find_all behavior.
+    :param kwargs: Additional keyword arguments (not recommended, will raise an error).
+
+    :returns: The value of the find_all flag, updated based on the presence of the 'all' parameter.
+
+    :raises TypeError: If multiple values are provided for 'find_all' or if unexpected keyword arguments are passed.
+    :raises RemovedInDjango61Warning: If the deprecated 'all' parameter is used.
+
+    """
     method_name = "find" if not class_name else f"{class_name}.find"
     if "all" in kwargs:
         legacy_all = kwargs.pop("all")
@@ -91,6 +108,15 @@ class FileSystemFinder(BaseFinder):
 
     def __init__(self, app_names=None, *args, **kwargs):
         # List of locations with static files
+        """
+        Initializes the class instance, preparing it for managing static file locations and their corresponding storage objects.
+
+        The initialization process involves setting up a list of unique static file locations, where each location may be accompanied by a prefix. These locations are derived from the settings defined in `settings.STATICFILES_DIRS`. 
+
+        For each unique location, a `FileSystemStorage` object is created, configured with the location's path and prefix. These storage objects are then stored in a dictionary for easy access by their root path.
+
+        The class also accepts optional parameters `app_names`, as well as variable arguments `*args` and keyword arguments `**kwargs`, which are passed to the superclass's initializer.
+        """
         self.locations = []
         # Maps dir paths to an appropriate storage instance
         self.storages = {}

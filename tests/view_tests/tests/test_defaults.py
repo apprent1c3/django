@@ -193,6 +193,23 @@ class DefaultsTests(TestCase):
             server_error(request, template_name="nonexistent")
 
     def test_error_pages(self):
+        """
+        Tests the rendering of error pages.
+
+        This test checks that the correct error pages are returned for different types of errors, 
+        including bad requests, permission denied, page not found, and server errors. It verifies 
+        that each error page contains the expected HTML structure, including a doctype declaration, 
+        html, head, and body tags, as well as a title tag with the correct error message.
+
+        The following error pages are tested:
+
+        * Bad Request (400)
+        * Permission Denied (403)
+        * Not Found (404)
+        * Server Error (500)
+
+        The test ensures that each error page is properly formatted and contains the expected content.
+        """
         request = self.request_factory.get("/")
         for response, title in (
             (bad_request(request, Exception()), b"Bad Request (400)"),

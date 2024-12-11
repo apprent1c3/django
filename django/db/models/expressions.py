@@ -444,6 +444,17 @@ class BaseExpression:
         return clone
 
     def get_group_by_cols(self):
+        """
+        Returns a list of columns to be used for grouping by.
+
+        This method is used when the object contains aggregate values and
+        determines the columns that should be used for grouping the data.
+        It recursively collects the group by columns from its source expressions.
+
+        Returns:
+            list: A list of columns to be used for grouping by.
+
+        """
         if not self.contains_aggregate:
             return [self]
         cols = []
@@ -1030,6 +1041,15 @@ class Func(SQLiteNumericMixin, Expression):
     arity = None  # The number of arguments the function accepts.
 
     def __init__(self, *expressions, output_field=None, **extra):
+        """
+        Initializes a new instance of the class, representing a database operation or expression.
+
+        The instance is created with a variable number of expressions, which are validated to match the expected arity of the operation. If the number of expressions does not match the expected arity, a TypeError is raised.
+
+        The output field of the operation can be specified optionally, and any additional keyword arguments are stored for later use.
+
+        The expressions are parsed and stored for later evaluation, allowing the class to represent a complex operation or expression in a database query.
+        """
         if self.arity is not None and len(expressions) != self.arity:
             raise TypeError(
                 "'%s' takes exactly %s %s (%s given)"
@@ -1228,6 +1248,20 @@ class RawSQL(Expression):
         self, query=None, allow_joins=True, reuse=None, summarize=False, for_save=False
     ):
         # Resolve parents fields used in raw SQL.
+        """
+        Resolve an expression by checking for reference fields in parent models and resolving them if necessary.
+
+        The function takes several parameters to control its behavior:
+            :param query: the query to resolve the expression for
+            :param allow_joins: whether to allow joins when resolving the expression
+            :param reuse: an optional reuse parameter
+            :param summarize: whether to summarize the resolved expression
+            :param for_save: whether the expression is being resolved for saving
+
+        It checks the parent models of the query's model for fields that match the column names in the expression's SQL, and resolves any matching reference fields. The function then calls the superclass's resolve_expression method to continue resolving the expression. 
+
+        The function returns the resolved expression.
+        """
         if query.model:
             for parent in query.model._meta.all_parents:
                 for parent_field in parent._meta.local_fields:
@@ -1346,6 +1380,17 @@ class ExpressionList(Func):
     template = "%(expressions)s"
 
     def __init__(self, *expressions, **extra):
+        """
+
+        Initialize an instance of the class.
+
+        This constructor requires at least one expression to be provided, raising a ValueError if none are given.
+        The expressions and any additional keyword arguments are then passed to the parent class's initializer.
+
+        :param expressions: one or more expressions required by the class
+        :param extra: any additional keyword arguments to be passed to the parent class
+
+        """
         if not expressions:
             raise ValueError(
                 "%s requires at least one expression." % self.__class__.__name__
@@ -1371,6 +1416,12 @@ class OrderByList(ExpressionList):
     template = "ORDER BY %(expressions)s"
 
     def __init__(self, *expressions, **extra):
+        """
+        Initializes the instance with the given expressions, processing any string expressions that start with a minus sign as descending order by clauses. 
+
+        :param \*expressions: Variable number of expressions to initialize with.
+        :param \*\*extra: Additional keyword arguments to pass to the parent class constructor.
+        """
         expressions = (
             (
                 OrderBy(F(expr[1:]), descending=True)
@@ -1447,6 +1498,31 @@ class NegatedExpression(ExpressionWrapper):
     def resolve_expression(
         self, query=None, allow_joins=True, reuse=None, summarize=False, for_save=False
     ):
+        """
+        Resolves an expression, checking if it's conditional and suitable for negation.
+
+        Parameters
+        ----------
+        query : optional
+            The query to resolve, defaults to `None`.
+        allow_joins : bool, optional
+            Whether to allow joins in the query, defaults to `True`.
+        reuse : optional
+            Parameter to control reuse, defaults to `None`.
+        summarize : bool, optional
+            Whether to summarize the query, defaults to `False`.
+        for_save : bool, optional
+            Whether the resolution is for saving, defaults to `False`.
+
+        Returns
+        -------
+        The resolved expression, or raises a `TypeError` if the expression is not conditional. 
+
+        Raises
+        ------
+        TypeError
+            If the expression does not have a conditional property.
+        """
         resolved = super().resolve_expression(
             query, allow_joins, reuse, summarize, for_save
         )
@@ -1524,6 +1600,20 @@ class When(Expression):
         return c
 
     def as_sql(self, compiler, connection, template=None, **extra_context):
+        """
+        Generate SQL for the given expression.
+
+        This method compiles the condition and result expressions using the provided compiler,
+        then formats them into a SQL string according to the specified template. The resulting
+        SQL string and parameters are returned as a tuple.
+
+        :param compiler: The compiler to use for compiling the expressions.
+        :param connection: The database connection to use for checking expression support.
+        :param template: The optional SQL template to use for formatting the expressions. If not provided, the default template will be used.
+        :param extra_context: Additional context parameters to include in the SQL template.
+        :return: A tuple containing the generated SQL string and parameters.
+
+        """
         connection.ops.check_expression_support(self)
         template_params = extra_context
         sql_params = []
@@ -1540,6 +1630,14 @@ class When(Expression):
 
     def get_group_by_cols(self):
         # This is not a complete expression and cannot be used in GROUP BY.
+        """
+        Retrieves a list of columns used for grouping operations.
+
+        This function aggregates the group-by columns from all source expressions associated with the current object, effectively providing a comprehensive overview of the columns involved in grouping operations.
+
+        Returns:
+            list: A list of column names used for grouping.
+        """
         cols = []
         for source in self.get_source_expressions():
             cols.extend(source.get_group_by_cols())
@@ -1643,6 +1741,15 @@ class Case(SQLiteNumericMixin, Expression):
         return sql, sql_params
 
     def get_group_by_cols(self):
+        """
+        Returns a list of columns to group by.
+
+        If no cases are defined, it returns the default group by columns.
+        Otherwise, it delegates to the parent class to determine the group by columns.
+
+        :return: List of column names
+        :rtype: list
+        """
         if not self.cases:
             return self.default.get_group_by_cols()
         return super().get_group_by_cols()
@@ -1764,6 +1871,37 @@ class OrderBy(Expression):
         return [self.expression]
 
     def as_sql(self, compiler, connection, template=None, **extra_context):
+        """
+        Generate SQL for an ordering expression.
+
+        This method produces a SQL string for ordering the result set of a query, 
+        taking into account the null ordering behavior specified by the instance.
+
+        Parameters
+        ----------
+        compiler : Compiler
+            The compiler to use for generating the SQL.
+        connection : Connection
+            The database connection to generate the SQL for.
+        template : str, optional
+            The template to use for formatting the ordering expression; 
+            if not provided, the instance's default template will be used.
+        **extra_context : dict
+            Additional context to use when formatting the template.
+
+        Returns
+        -------
+        tuple
+            A tuple containing the generated SQL string and a list of parameters. 
+
+        Note
+        ----
+        The generated SQL will take into account the database connection's 
+        support for null ordering modifiers and the instance's null ordering behavior. 
+        The `nulls_last` and `nulls_first` properties of the instance will be honored 
+        if the database connection supports null ordering modifiers. 
+        If not, a fallback expression will be used to mimic the desired null ordering behavior. 
+        """
         template = template or self.template
         if connection.features.supports_order_by_nulls_modifier:
             if self.nulls_last:
@@ -1883,6 +2021,26 @@ class Window(SQLiteNumericMixin, Expression):
         self.source_expression, self.partition_by, self.order_by, self.frame = exprs
 
     def as_sql(self, compiler, connection, template=None):
+        """
+        Generates the SQL representation of a window expression.
+
+        This function takes the given window expression and constructs a SQL string 
+        that can be used to query the database. It first checks if the database 
+        connection supports window expressions, and raises an error if it does not.
+
+        The generated SQL string includes the source expression, as well as any 
+        optional partitioning, ordering, or framing clauses if they are specified.
+
+        The function returns a tuple containing the generated SQL string and a 
+        list of parameters to be used with the query.
+
+        :param compiler: The compiler to use for generating the SQL.
+        :param connection: The database connection to use.
+        :param template: The template to use for constructing the SQL string. 
+                         If not provided, the default template will be used.
+        :return: A tuple containing the generated SQL string and a list of parameters.
+        :raises NotSupportedError: If the database connection does not support window expressions.
+        """
         connection.ops.check_expression_support(self)
         if not connection.features.supports_over_clause:
             raise NotSupportedError("This backend does not support window expressions.")

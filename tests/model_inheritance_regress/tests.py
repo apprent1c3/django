@@ -203,6 +203,16 @@ class ModelInheritanceTest(TestCase):
         # Regression test for #7276: calling delete() on a model with
         # multi-table inheritance should delete the associated rows from any
         # ancestor tables, as well as any descendent objects.
+        """
+
+        Tests the behavior of object deletion in a multi-table inheritance scenario.
+
+        This test creates a hierarchy of objects, from a base Place to a specialized ItalianRestaurant,
+        and verifies that deletion of the intermediate Restaurant object correctly cascades to the
+         Place object, resulting in its deletion. It also checks that attempting to retrieve the
+         deleted Place and ItalianRestaurant objects raises the expected DoesNotExist exceptions.
+
+        """
         place1 = Place(name="Guido's House of Pasta", address="944 W. Fullerton")
         place1.save_base(raw=True)
         restaurant = Restaurant(
@@ -429,6 +439,20 @@ class ModelInheritanceTest(TestCase):
         self.assertEqual(InternalCertificationAudit._meta.verbose_name_plural, "Audits")
 
     def test_inherited_nullable_exclude(self):
+        """
+        Tests the exclusion of null values in inherited models.
+
+        Verifies that excluding a null value (self_data=72) from a queryset
+        correctly returns instances where self_data is not null. The test checks
+        this behavior for both the parent and child models in a self-referential
+        relationship.
+
+        The test case creates an instance of the child model with specific
+        child and parent data, then asserts that this instance is returned
+        when querying both the parent and child models with the exclude
+        condition applied. This ensures that the exclude method works as
+        expected across inherited models in the self-referential hierarchy.
+        """
         obj = SelfRefChild.objects.create(child_data=37, parent_data=42)
         self.assertQuerySetEqual(
             SelfRefParent.objects.exclude(self_data=72), [obj.pk], attrgetter("pk")
@@ -505,6 +529,20 @@ class ModelInheritanceTest(TestCase):
         self.assertEqual(senator.state, "Y")
 
     def test_inheritance_resolve_columns(self):
+        """
+        Tests resolution of columns inherited from a related model.
+
+        This test case verifies that the attributes of a model inherited from a related
+        model (in this case, Restaurant) can be properly resolved and their values 
+        retrieved. It specifically checks the data type of a boolean attribute 
+        ('serves_pizza') to ensure it is correctly interpreted as a boolean value.
+
+        The test involves creating a Restaurant instance and then querying the related 
+        Place model using select_related to fetch the related Restaurant instance in 
+        the same database query. It asserts that the serves_pizza attribute of the 
+        fetched Restaurant instance is indeed a boolean value, demonstrating the 
+        correct inheritance and resolution of columns from the related model.
+        """
         Restaurant.objects.create(
             name="Bobs Cafe",
             address="Somewhere",
@@ -546,11 +584,30 @@ class ModelInheritanceTest(TestCase):
         )
 
     def test_ptr_accessor_assigns_state(self):
+        """
+
+        Tests the functionality of the pointer accessor ('place_ptr') in a Restaurant object.
+
+        Verifies that after creating a new Restaurant instance, the pointer accessor
+        correctly reflects the state of the underlying Place object. Specifically, it checks
+        that the object is not in the \"adding\" state and that it is assigned to the 'default' database.
+
+        """
         r = Restaurant.objects.create()
         self.assertIs(r.place_ptr._state.adding, False)
         self.assertEqual(r.place_ptr._state.db, "default")
 
     def test_related_filtering_query_efficiency_ticket_15844(self):
+        """
+
+        Tests the efficiency of a query that filters related objects, specifically verifying 
+        that it results in a single database query.
+
+        Checks that retrieving a supplier by filtering on its related restaurant and 
+        accessing the supplier set of a restaurant both use a single query, as expected 
+        for efficient related object filtering.
+
+        """
         r = Restaurant.objects.create(
             name="Guido's House of Pasta",
             address="944 W. Fullerton",
@@ -564,6 +621,13 @@ class ModelInheritanceTest(TestCase):
             self.assertSequenceEqual(r.supplier_set.all(), [s])
 
     def test_queries_on_parent_access(self):
+        """
+        Test the access to parent objects from an instance of ItalianRestaurant.
+
+        This test case verifies that the relationship between ItalianRestaurant and its parent objects (Place and Restaurant)
+        is correctly established, regardless of the fields that are selected or deferred when retrieving the ItalianRestaurant instance.
+        It checks that the relationship is correctly traversed and that the expected queries are executed when accessing the parent objects.
+        """
         italian_restaurant = ItalianRestaurant.objects.create(
             name="Guido's House of Pasta",
             address="944 W. Fullerton",

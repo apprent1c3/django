@@ -187,6 +187,13 @@ class PaginationTests(SimpleTestCase):
         self.assertEqual([1, 2, 3, 4, 5], list(paginator.page_range))
 
     def test_count_does_not_silence_attribute_error(self):
+        """
+        Test that the Paginator class does not silence an AttributeError when calling the count method on its container.
+
+        Verifies that if the container's count method raises an AttributeError, this exception is correctly propagated and not suppressed by the Paginator class. This ensures that any errors occurring within the container are visible and can be handled by the application.
+
+        The test checks that an AttributeError is raised with the expected error message when Paginator's count method is called on a container that raises an AttributeError when its own count method is invoked.
+        """
         class AttributeErrorContainer:
             def count(self):
                 raise AttributeError("abc")
@@ -355,6 +362,24 @@ class PaginationTests(SimpleTestCase):
 
     def test_get_elided_page_range(self):
         # Paginator.validate_number() must be called:
+        """
+        .. method:: test_get_elided_page_range(self)
+
+            Tests the :meth:`get_elided_page_range` method of the Paginator class.
+
+            This method checks various scenarios to ensure the :meth:`get_elided_page_range`
+            method behaves correctly, including:
+
+            * The type of the result being a generator.
+            * The presence or absence of the elliptical marker (ELLIPSIS) in the result,
+              depending on the total number of pages.
+            * The correct ordering and content of the page range when using different
+              settings for the number of pages to display on either side of the current
+              page and the number of pages to display at the ends of the range.
+
+            The test cases cover a wide range of input values to ensure the method works
+            correctly in different situations.
+        """
         paginator = Paginator([1, 2, 3], 2)
         with unittest.mock.patch.object(paginator, "validate_number") as mock:
             mock.assert_not_called()
@@ -493,6 +518,15 @@ class ModelPaginationTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         # Prepare a list of objects for pagination.
+        """
+        Sets up test data for the test class by creating a list of Article instances.
+
+        This class method initializes a list of 9 Article objects with unique headlines and a
+        fixed publication date of July 29, 2005. The articles are created using the Article model's
+        objects.create method and stored in the class attribute 'articles'. This data is intended
+        to be used throughout the test class, providing a consistent set of test data for various
+        test scenarios.
+        """
         pub_date = datetime(2005, 7, 29)
         cls.articles = [
             Article.objects.create(headline=f"Article {x}", pub_date=pub_date)
@@ -500,6 +534,14 @@ class ModelPaginationTests(TestCase):
         ]
 
     def test_first_page(self):
+        """
+        Tests the first page of a paginator object.
+
+        This test verifies that the paginator object behaves correctly when set to the first page.
+        It checks that the page object's string representation is correct, and that it contains the expected articles.
+        Additionally, it tests the pagination metadata, such as the presence of a next page, the absence of a previous page, and the correct page numbering.
+        The test also ensures that attempting to access the previous page number raises an InvalidPage exception, and that the start and end indices of the page are calculated correctly.
+        """
         paginator = Paginator(Article.objects.order_by("id"), 5)
         p = paginator.page(1)
         self.assertEqual("<Page 1 of 2>", str(p))

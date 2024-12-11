@@ -83,6 +83,11 @@ class FunctionTests(SimpleTestCase):
         self.assertEqual(date(datetime(2005, 12, 29), "d F Y"), "29 December 2005")
 
     def test_no_args(self):
+        """
+        Tests the date function with no arguments.
+
+        Verifies that the function returns an empty string when given either no input or a None value, confirming its expected behavior in the absence of input data.
+        """
         self.assertEqual(date(""), "")
         self.assertEqual(date(None), "")
 

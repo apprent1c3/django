@@ -453,6 +453,23 @@ class Length(DistanceResultMixin, OracleToleranceMixin, GeoFunc):
         return super().as_sql(compiler, connection, **extra_context)
 
     def as_postgresql(self, compiler, connection, **extra_context):
+        """
+        Returns the SQL for the Length operation optimized for PostgreSQL.
+
+        This method generates the SQL string for calculating the length of a geographic
+        object, taking into account the spatial reference system and geometry type.
+
+        It handles different cases, including geodetic and Cartesian coordinates, 
+        as well as 2D and 3D geometries, to produce the correct SQL expression.
+
+        The resulting SQL can be used directly with a PostgreSQL database connection.
+
+        :param compiler: The SQL compiler to use for generating the SQL string.
+        :param connection: The database connection to use for determining the spatial
+            reference system and geometry type.
+        :param extra_context: Additional context parameters to pass to the SQL compiler.
+        :returns: The SQL string for the Length operation, optimized for PostgreSQL.
+        """
         clone = self.copy()
         function = None
         if self.source_is_geography():
@@ -567,6 +584,22 @@ class SymDifference(OracleToleranceMixin, GeomOutputGeoFunc):
 
 class Transform(GeomOutputGeoFunc):
     def __init__(self, expression, srid, **extra):
+        """
+
+        Initialize a geometric operation with a given spatial reference system.
+
+        This method sets up the initial state for a geometric operation, specifying 
+        the expression to be evaluated and the spatial reference system identifier (SRID) 
+        that defines the coordinate system used by the geometry. 
+
+        Additionally, it configures an output field for storing the result of the operation, 
+        which defaults to a GeometryField with the specified SRID if not explicitly provided.
+
+        :param expression: The geometric expression to be evaluated.
+        :param srid: The spatial reference system identifier.
+        :param extra: Additional keyword arguments to customize the operation.
+
+        """
         expressions = [
             expression,
             self._handle_param(srid, "srid", int),

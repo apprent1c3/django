@@ -27,6 +27,11 @@ class FullyDecoratedTranTestCase(TransactionTestCase):
     available_apps = []
 
     def test_override(self):
+        """
+        Tests that specific setting overrides have been successfully applied. 
+
+        This test case verifies the correctness of ITEMs, ITEMS_OUTER, TEST, and TEST_OUTER settings by comparing their values to the expected ones, ensuring that the override functionality works as expected.
+        """
         self.assertEqual(settings.ITEMS, ["b", "c", "d"])
         self.assertEqual(settings.ITEMS_OUTER, [1, 2, 3])
         self.assertEqual(settings.TEST, "override")
@@ -40,6 +45,16 @@ class FullyDecoratedTranTestCase(TransactionTestCase):
         }
     )
     def test_method_list_override(self):
+        """
+        Tests the modification of settings by overriding the ITEMS list.
+
+        Verifies that the ITEMS list can be modified by appending, prepending, and removing elements.
+        The test checks that the modified list is correctly updated, while other settings remain unchanged.
+
+        The expected outcome is that the ITEMS list is updated to include the new elements 'a', 'b', 'e', 'f',
+        and that the ITEMS_OUTER list remains unchanged as [1, 2, 3].
+
+        """
         self.assertEqual(settings.ITEMS, ["a", "b", "e", "f"])
         self.assertEqual(settings.ITEMS_OUTER, [1, 2, 3])
 
@@ -70,6 +85,18 @@ class FullyDecoratedTranTestCase(TransactionTestCase):
 
     @override_settings(TEST="override2")
     def test_method_override(self):
+        """
+
+        Tests that the override_settings decorator correctly overrides test settings.
+
+        Verifies that the specified settings are overridden to the provided values, while
+        leaving other settings unchanged. This ensures that test settings can be isolated
+        and modified without affecting the entire application configuration.
+
+        The test checks the override of both the directly modified setting and an outer
+        setting to confirm the decorator's functionality.
+
+        """
         self.assertEqual(settings.TEST, "override2")
         self.assertEqual(settings.TEST_OUTER, "outer")
 
@@ -86,6 +113,19 @@ class FullyDecoratedTranTestCase(TransactionTestCase):
 @override_settings(ITEMS=["a", "c", "e"], TEST="override")
 class FullyDecoratedTestCase(TestCase):
     def test_override(self):
+        """
+        Tests to ensure that settings have been successfully overridden.
+
+        This test checks that the ITEMS setting has been updated to contain the expected list of items and that the TEST setting has been overridden to the expected value.
+
+        The test verifies that the changes to the settings have taken effect, ensuring that the application is using the correct configurations.
+
+        It covers two key settings:
+            ITEMS: a list of items expected to have been updated to ['b', 'c', 'd']
+            TEST: a string setting expected to have been overridden to 'override'
+
+        By passing this test, it confirms that the override functionality is working as expected, allowing for customizable configurations in the application.
+        """
         self.assertEqual(settings.ITEMS, ["b", "c", "d"])
         self.assertEqual(settings.TEST, "override")
 
@@ -148,6 +188,15 @@ class ParentDecoratedTestCase(TestCase):
 @override_settings(TEST="override-child")
 class ChildDecoratedTestCase(ParentDecoratedTestCase):
     def test_override_settings_inheritance(self):
+        """
+
+        Tests the inheritance and overriding of settings.
+
+        This test case checks that the settings are correctly inherited from parent settings and 
+        properly overridden by child settings. It verifies that the ITEMS setting is correctly 
+        inherited and the TEST setting is overridden with the expected value.
+
+        """
         self.assertEqual(settings.ITEMS, ["father", "mother", "child"])
         self.assertEqual(settings.TEST, "override-child")
 
@@ -163,6 +212,17 @@ class SettingsTests(SimpleTestCase):
             self.testvalue = value
 
     def test_override(self):
+        """
+        ..: Tests the override functionality of settings by checking if a setting can be temporarily changed and then reverted back to its original value after the override context is closed. 
+
+            This test case covers the following scenarios:
+                - sets a setting to a default test value
+                - verifies the setting has been updated correctly
+                - overrides the setting with a new value within a context
+                - checks the new value is applied during the override
+                - confirms the original value is restored after the override context is exited
+                - deletes the setting after testing to clean up the environment.
+        """
         settings.TEST = "test"
         self.assertEqual("test", settings.TEST)
         with self.settings(TEST="override"):
@@ -180,6 +240,14 @@ class SettingsTests(SimpleTestCase):
         del settings.TEST
 
     def test_override_doesnt_leak(self):
+        """
+        Tests that overriding a setting does not persist after the override context is exited.
+
+        Verifies that attempting to access a non-existent setting raises an AttributeError,
+        and that a setting can be successfully overridden within a limited scope.
+        Additionally, confirms that the original setting is restored after the override
+        context has ended, and attempting to access the setting again raises an AttributeError.
+        """
         with self.assertRaises(AttributeError):
             getattr(settings, "TEST")
         with self.settings(TEST="override"):
@@ -222,6 +290,16 @@ class SettingsTests(SimpleTestCase):
             decorated = override_settings(TEST="override")(UnittestTestCaseSubclass)
 
     def test_signal_callback_context_manager(self):
+        """
+        Tests the use of a signal callback context manager to temporarily override settings.
+
+        This test verifies that attempting to access a non-existent setting raises an AttributeError.
+        It then checks that the setting can be successfully overridden within a context manager block,
+        and that the original setting is restored after exiting the block.
+
+        The test case also ensures that the overridden setting value is correctly reflected in the test object,
+        and that it is reset to None after the override is removed.
+        """
         with self.assertRaises(AttributeError):
             getattr(settings, "TEST")
         with self.settings(TEST="override"):
@@ -345,6 +423,16 @@ class TestComplexSettingOverride(SimpleTestCase):
         signals.COMPLEX_OVERRIDE_SETTINGS.add("TEST_WARN")
 
     def tearDown(self):
+        """
+        Resets the COMPLEX_OVERRIDE_SETTINGS signal to its original value after a test.
+
+        Restores the settings to what they were before the test began, and verifies
+        that the 'TEST_WARN' setting is no longer present in the override settings.
+
+        This method is used to clean up after a test and ensure that subsequent tests
+        start with the default settings, preventing any side effects from the test
+        that called this method.
+        """
         signals.COMPLEX_OVERRIDE_SETTINGS = self.old_warn_override_settings
         self.assertNotIn("TEST_WARN", signals.COMPLEX_OVERRIDE_SETTINGS)
 
@@ -365,23 +453,55 @@ class SecureProxySslHeaderTest(SimpleTestCase):
 
     @override_settings(SECURE_PROXY_SSL_HEADER=("HTTP_X_FORWARDED_PROTO", "https"))
     def test_set_without_xheader(self):
+        """
+
+        Tests the HttpRequest is_secure method when the SECURE_PROXY_SSL_HEADER setting is enabled
+        but no HTTP_X_FORWARDED_PROTO header is present in the request.
+
+        Verifies that the method returns False, indicating the request is not secure.
+
+        """
         req = HttpRequest()
         self.assertIs(req.is_secure(), False)
 
     @override_settings(SECURE_PROXY_SSL_HEADER=("HTTP_X_FORWARDED_PROTO", "https"))
     def test_set_with_xheader_wrong(self):
+        """
+        Tests that an HttpRequest is deemed insecure when a proxy's X-Forwarded-Proto header contains an incorrect value.
+
+        This test ensures that the is_secure method correctly handles cases where the proxy's header does not match the expected secure protocol (https), indicating that the request was not transmitted securely.
+
+        The test verifies that when the HTTP_X_FORWARDED_PROTO header holds an unexpected value, the is_secure method returns False, correctly identifying the request as insecure.
+        """
         req = HttpRequest()
         req.META["HTTP_X_FORWARDED_PROTO"] = "wrongvalue"
         self.assertIs(req.is_secure(), False)
 
     @override_settings(SECURE_PROXY_SSL_HEADER=("HTTP_X_FORWARDED_PROTO", "https"))
     def test_set_with_xheader_right(self):
+        """
+
+        Tests the functionality of determining if an HTTP request is secure based on the 'HTTP_X_FORWARDED_PROTO' header.
+
+        This test case verifies that when the 'HTTP_X_FORWARDED_PROTO' header is set to 'https', the request is correctly identified as secure.
+
+        """
         req = HttpRequest()
         req.META["HTTP_X_FORWARDED_PROTO"] = "https"
         self.assertIs(req.is_secure(), True)
 
     @override_settings(SECURE_PROXY_SSL_HEADER=("HTTP_X_FORWARDED_PROTO", "https"))
     def test_set_with_xheader_leftmost_right(self):
+        """
+
+        Tests that an HttpRequest is marked as secure if the 'HTTP_X_FORWARDED_PROTO' 
+        header contains 'https' in the leftmost position, even if it is followed by 
+        other values.
+
+        The test covers cases where 'https' is followed by other protocol values, 
+        including cases where there are extra spaces between the values.
+
+        """
         req = HttpRequest()
         req.META["HTTP_X_FORWARDED_PROTO"] = "https, http"
         self.assertIs(req.is_secure(), True)
@@ -396,12 +516,24 @@ class SecureProxySslHeaderTest(SimpleTestCase):
 
     @override_settings(SECURE_PROXY_SSL_HEADER=("HTTP_X_FORWARDED_PROTO", "https"))
     def test_set_with_xheader_multiple_not_secure(self):
+        """
+        Tests that the HttpRequest is_secure method returns False when the HTTP_X_FORWARDED_PROTO header contains multiple values, none of which indicate a secure connection.
+
+        This test case simulates a scenario where the proxy server sets the HTTP_X_FORWARDED_PROTO header with multiple values, including 'http' and an invalid value. It verifies that the HttpRequest object correctly determines the request is not secure in this case.
+
+        The test is performed with the SECURE_PROXY_SSL_HEADER setting overridden to prioritize the 'HTTP_X_FORWARDED_PROTO' header for determining the request's security status.
+        """
         req = HttpRequest()
         req.META["HTTP_X_FORWARDED_PROTO"] = "http ,wrongvalue,http,http"
         self.assertIs(req.is_secure(), False)
 
     @override_settings(SECURE_PROXY_SSL_HEADER=("HTTP_X_FORWARDED_PROTO", "https"))
     def test_xheader_preferred_to_underlying_request(self):
+        """
+        Tests that the 'X-Forwarded-Proto' header is prioritized over the underlying request scheme when determining the security status of a proxy request.
+
+        The test case verifies that even if a proxy request is made via HTTPS, if the 'X-Forwarded-Proto' header specifies 'http', the request is considered insecure. This ensures proper handling of requests proxied through an SSL termination point, allowing the application to accurately determine the security status of incoming requests.
+        """
         class ProxyRequest(HttpRequest):
             def _get_scheme(self):
                 """Proxy always connecting via HTTPS"""
@@ -452,12 +584,30 @@ class IsOverriddenTest(SimpleTestCase):
         self.assertEqual(repr(lazy_settings), expected)
 
     def test_usersettingsholder_repr(self):
+        """
+        Tests the string representation of the UserSettingsHolder object.
+
+        Verifies that the repr method of the _wrapped attribute of LazySettings returns 
+        the expected string '<UserSettingsHolder>' after configuring the LazySettings 
+        instance with the specified settings. This ensures that the object can be 
+        meaningfully represented as a string for debugging and logging purposes.
+        """
         lazy_settings = LazySettings()
         lazy_settings.configure(APPEND_SLASH=False)
         expected = "<UserSettingsHolder>"
         self.assertEqual(repr(lazy_settings._wrapped), expected)
 
     def test_settings_repr(self):
+        """
+        \\":\"\"\"
+        Tests that the string representation of the Settings object is correctly formatted.
+
+        The function verifies that the repr() method returns a string in the format
+         `<Settings \"module_name\">`, where `module_name` is the name of the module specified
+         by the environment variable. This test ensures that the Settings object can be
+         properly represented as a string for logging or debugging purposes.
+
+        """
         module = os.environ.get(ENVIRONMENT_VARIABLE)
         lazy_settings = Settings(module)
         expected = '<Settings "%s">' % module
@@ -627,6 +777,15 @@ class MediaURLStaticURLPrefixTest(SimpleTestCase):
                                 clear_script_prefix()
 
     def test_add_script_name_prefix(self):
+        """
+        Tests the addition of a script name prefix to media and static URLs.
+
+        This test exercises the logic for combining the `script_name` with `MEDIA_URL` and `STATIC_URL` settings.
+        It checks various combinations of `script_name` and URL settings to ensure the resulting URLs are constructed correctly.
+
+        The test covers different scenarios, including absolute and relative URLs, and URL paths with and without a trailing slash.
+        It verifies that the resulting URL is correctly prefixed with the `script_name` in each case.
+        """
         tests = (
             # Relative paths.
             ("/somesubpath", "path/", "/somesubpath/path/"),

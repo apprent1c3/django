@@ -20,6 +20,23 @@ class CoalesceTests(TestCase):
         )
 
     def test_gt_two_expressions(self):
+        """
+
+        Tests that an error is raised when the Coalesce function is used with less than two expressions.
+
+        This test case verifies that a ValueError is raised with a specific error message when the Coalesce function
+        is called with only one expression. The expected error message is 'Coalesce must take at least two expressions'.
+
+        Args:
+            None
+
+        Raises:
+            ValueError: If Coalesce is called with less than two expressions.
+
+        Returns:
+            None
+
+        """
         with self.assertRaisesMessage(
             ValueError, "Coalesce must take at least two expressions"
         ):

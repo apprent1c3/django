@@ -101,6 +101,15 @@ class TestQuery(SimpleTestCase):
         self.assertEqual(lookup.lhs.target, Item._meta.get_field("modified"))
 
     def test_foreign_key(self):
+        """
+        Tests that attempting to use a joined field reference in a query raises a FieldError.
+
+        This test ensures that the query builder correctly identifies and rejects queries that
+        attempt to access fields from related objects using a joined field reference, which is not
+        permitted in this context.
+
+        :raises: FieldError if the query is successfully built with a joined field reference
+        """
         query = Query(Item)
         msg = "Joined field references are not permitted in this query"
         with self.assertRaisesMessage(FieldError, msg):
@@ -155,6 +164,16 @@ class TestQuery(SimpleTestCase):
             query.build_where(filter_expr)
 
     def test_filter_non_conditional(self):
+        """
+        Tests that filtering against a non-conditional expression raises a TypeError.
+
+        Verifies that attempting to build a WHERE clause using a non-conditional function 
+        raises an exception with a clear error message, indicating that this operation 
+        is not supported.
+
+        :raises TypeError: With the message \"Cannot filter against a non-conditional expression.\"
+
+        """
         query = Query(Item)
         msg = "Cannot filter against a non-conditional expression."
         with self.assertRaisesMessage(TypeError, msg):
@@ -181,6 +200,19 @@ class TestQueryNoModel(TestCase):
 
     @skipUnlessDBFeature("supports_boolean_expr_in_select_clause")
     def test_q_annotation(self):
+        """
+
+        Test annotation of a query with a boolean expression.
+
+        This test checks that a query can be annotated with a boolean expression and 
+        that the result of the annotation is correctly evaluated. The test uses a 
+        sample query with a raw SQL expression and an Exists clause to verify the 
+        correctness of the annotation.
+
+        The annotation is added to the query using the add_annotation method, and 
+        the result is retrieved using the execute_sql method of the query compiler.
+
+        """
         query = Query(None)
         check = ExpressionWrapper(
             Q(RawSQL("%s = 1", (1,), BooleanField())) | Q(Exists(Item.objects.all())),

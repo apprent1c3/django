@@ -72,6 +72,12 @@ class CheckTemplateStringIfInvalidTest(SimpleTestCase):
         self.assertEqual(self._check_engines(_engines), errors)
 
     def test_string_if_invalid_first_is_string(self):
+        """
+        Checks the functionality of the string_if_invalid option in template configuration when the first template engine returns an invalid result and the subsequent engine is a string. 
+
+        It tests the scenario where the string_if_invalid option of the first template engine is set to a specific string, 
+        verifies that the expected error is raised and that the error handling behavior is correct.
+        """
         TEMPLATES = deepcopy(self.TEMPLATES_STRING_IF_INVALID)
         TEMPLATES[0]["OPTIONS"]["string_if_invalid"] = "test"
         with self.settings(TEMPLATES=TEMPLATES):
@@ -139,6 +145,15 @@ class CheckTemplateTagLibrariesWithSameName(SimpleTestCase):
 
     def test_template_tags_for_separate_backends(self):
         # The "libraries" names are the same, but the backends are different.
+        """
+
+        Test template tags functionality across separate backends.
+
+        This test case verifies that template tags work as expected when using multiple template engines. It sets up two template backends with the same tags and checks that there are no errors when all engines are run.
+
+        The test ensures that the template tags do not cause conflicts or issues when used with different backends, confirming proper isolation and functionality of the template tags across multiple engines.
+
+        """
         with self.settings(
             TEMPLATES=[
                 self.get_settings(

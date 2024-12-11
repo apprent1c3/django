@@ -86,6 +86,17 @@ def add_truncation_text(text, truncate=None):
 
 
 def calculate_truncate_chars_length(length, replacement):
+    """
+    Calculate the maximum number of characters that can fit within a specified length, 
+    considering the replacement text to be added for truncation.
+
+    The function takes into account the width of each character in the replacement text, 
+    excluding combining characters, to determine the effective truncate length.
+
+    :param length: The desired total length of the string.
+    :param replacement: The text to be appended when truncating the original string.
+    :return: The maximum number of characters that can fit before truncation.
+    """
     truncate_len = length
     for char in add_truncation_text("", replacement):
         if not unicodedata.combining(char):
@@ -163,6 +174,16 @@ class TruncateCharsHTMLParser(TruncateHTMLParser):
         )
 
     def process(self, data):
+        """
+        Process a chunk of data and handle truncation completion.
+
+        This method takes in a chunk of data, updates the total count of processed characters, and checks if the truncation is complete.
+        If the truncation is complete, it appends the remaining data to the output and raises a TruncationCompleted exception.
+        Otherwise, it escapes the remaining allowed characters in the data and returns the original data along with the escaped output.
+
+        :raises: TruncationCompleted if the truncation is complete
+        :returns: A tuple containing the original data and the escaped output.
+        """
         self.processed_chars += len(data)
         if (self.processed_chars == self.length) and (
             len(self.output) + len(data) == len(self.rawdata)

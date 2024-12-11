@@ -67,6 +67,14 @@ class GreatestTests(TestCase):
         self.assertEqual(articles.first().last_updated, now)
 
     def test_all_null(self):
+        """
+
+        Tests that the last_updated field is null when both published and updated fields are null.
+
+        This test case creates a new Article instance without setting the published or updated fields,
+        then checks that the annotated last_updated field is None.
+
+        """
         Article.objects.create(title="Testing with Django", written=timezone.now())
         articles = Article.objects.annotate(
             last_updated=Greatest("published", "updated")
@@ -74,12 +82,29 @@ class GreatestTests(TestCase):
         self.assertIsNone(articles.first().last_updated)
 
     def test_one_expressions(self):
+        """
+        Tests that a ValueError is raised with a specific error message when the Greatest function is called with a single expression. This ensures that the function enforces its requirement of being given at least two expressions to operate on.
+        """
         with self.assertRaisesMessage(
             ValueError, "Greatest must take at least two expressions"
         ):
             Greatest("written")
 
     def test_related_field(self):
+        """
+
+        Tests the annotation of a related field to retrieve the highest age 
+        between the author's age and their fan's age.
+
+        This test case creates an author and a fan, then annotates the author 
+        objects with a greatest age field. The greatest age field compares the 
+        author's age with the age of their fans and returns the highest value.
+
+        The test asserts that the highest age of the author, which is annotated 
+        from the ages of the author and their fans, is correctly calculated and 
+        matches the age of the fan.
+
+        """
         author = Author.objects.create(name="John Smith", age=45)
         Fan.objects.create(name="Margaret", age=50, author=author)
         authors = Author.objects.annotate(highest_age=Greatest("age", "fans__age"))

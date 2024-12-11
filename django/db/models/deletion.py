@@ -158,6 +158,15 @@ class Collector:
             self.restricted_objects[model][field].update(objs)
 
     def clear_restricted_objects_from_set(self, model, objs):
+        """
+        Remove specified objects from the set of restricted objects for a given model.
+
+        This method updates the internal state of the object by removing the provided
+        objects from the restricted objects associated with the specified model.
+
+        :param model: The model for which to remove restricted objects
+        :param objs: The objects to remove from the set of restricted objects
+        """
         if model in self.restricted_objects:
             self.restricted_objects[model] = {
                 field: items - objs
@@ -165,6 +174,18 @@ class Collector:
             }
 
     def clear_restricted_objects_from_queryset(self, model, qs):
+        """
+        Clears the specified model's restricted objects from the given queryset.
+
+        This function takes a model and a queryset as input, checks if the model has restricted objects, 
+        and removes them from the queryset if they exist. The function uses the `clear_restricted_objects_from_set` 
+        method to handle the actual removal of objects from the set of restricted objects for the specified model.
+
+        :param model: The model for which to clear restricted objects
+        :param qs: The queryset from which to remove restricted objects
+        :type model: class
+        :type qs: QuerySet
+        """
         if model in self.restricted_objects:
             objs = set(
                 qs.filter(
@@ -407,6 +428,9 @@ class Collector:
         return related_model._base_manager.using(self.using).filter(predicate)
 
     def instances_with_model(self):
+        """
+        Generates an iterator over all instances within the data, yielding tuples containing the model and instance. This allows for easy iteration over all instances without having to manually iterate over the models. The returned tuples contain the model name as the first element and the corresponding instance as the second element.
+        """
         for model, instances in self.data.items():
             for obj in instances:
                 yield model, obj

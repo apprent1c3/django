@@ -412,6 +412,12 @@ class BaseDatabaseFeatures:
         return count == 0
 
     def allows_group_by_selected_pks_on_model(self, model):
+        """
+        ..: Returns whether group by selected primary keys operation is allowed on the given model.
+
+            This function first checks if group by selected primary keys is globally allowed. If not, it immediately returns False.
+            Otherwise, it checks if the provided model is managed, i.e., its table is created and managed by Django itself, and returns the result of this check.
+        """
         if not self.allows_group_by_selected_pks:
             return False
         return model._meta.managed

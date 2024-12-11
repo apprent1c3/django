@@ -35,6 +35,22 @@ class ComplexMultiWidget(MultiWidget):
         super().__init__(widgets, attrs)
 
     def decompress(self, value):
+        """
+        ..: decompress:
+            Decompresses a compressed string value into its individual components.
+
+            The input string is expected to contain three comma-separated values: 
+            a primary identifier, a list of secondary identifiers, and a timestamp.
+
+            The function splits the input string, then processes each part: 
+            the first part is returned as-is, the second part is converted into a list, 
+            and the third part is converted into a datetime object.
+
+            If the input string is empty or None, the function returns a list of None values.
+
+            :return: A list containing the decompressed primary identifier, 
+                     a list of secondary identifiers, and a datetime object.
+        """
         if value:
             data = value.split(",")
             return [
@@ -205,6 +221,22 @@ class MultiWidgetTest(WidgetTest):
         )
 
     def test_value_omitted_from_data(self):
+        """
+        Checks if the value for a given field has been omitted from the provided data.
+
+        This method inspects the data dictionary for the presence of values related to the specified field,
+        taking into account the widget's multi-field structure. It returns True if the value for the field
+        is missing from the data, and False otherwise. The field name and the data dictionary are used to
+        determine if any of the sub-field values are present, in which case the function will return False.
+
+        Parameters:
+            data (dict): The dictionary to check for the field's value.
+            initial (dict): The initial data dictionary (current implementation does not use this parameter).
+            field (str): The name of the field to check for omission.
+
+        Returns:
+            bool: True if the value for the field has been omitted from the data, False otherwise.
+        """
         widget = MyMultiWidget(widgets=(TextInput(), TextInput()))
         self.assertIs(widget.value_omitted_from_data({}, {}, "field"), True)
         self.assertIs(
@@ -221,6 +253,18 @@ class MultiWidgetTest(WidgetTest):
         )
 
     def test_value_from_datadict_subwidgets_name(self):
+        """
+
+        Tests the value_from_datadict method of a MultiWidget form field.
+
+        This test case verifies that the method correctly retrieves values from a data dictionary
+        and populates the subwidgets with the corresponding values.
+
+        The test checks various scenarios, including when the data dictionary contains keys that
+        match the subwidget names, and when it contains a key that matches the field name.
+        It ensures that the method returns a list of values, one for each subwidget, in the correct order.
+
+        """
         widget = MultiWidget(widgets={"x": TextInput(), "": TextInput()})
         tests = [
             ({}, [None, None]),

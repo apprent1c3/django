@@ -41,6 +41,15 @@ class NestedForeignKeysTests(TestCase):
     # This test failed in #16715 because in some cases INNER JOIN was selected
     # for the second foreign key relation instead of LEFT OUTER JOIN.
     def test_inheritance(self):
+        """
+
+        Test the inheritance behavior of the Event model.
+
+        Verify that the Event model properly inherits and relates to the Screening and Movie models.
+        This includes testing various query methods such as select_related, values, filter, and exclude,
+        to ensure that the model's relationships are correctly established and queried.
+
+        """
         Event.objects.create()
         Screening.objects.create(movie=self.movie)
 
@@ -96,6 +105,13 @@ class NestedForeignKeysTests(TestCase):
         )
 
     def test_null_exclude(self):
+        """
+        Test that the exclude method correctly filters out objects based on the 'movie' foreign key.
+
+        This test verifies that when excluding objects with a specific 'movie' id, it returns the correct ScreeningNullFK instance where the 'movie' is null, while excluding the instance where the 'movie' matches the specified id.
+
+        Checks the behavior of the exclude method on the 'movie' foreign key field, ensuring it properly handles null values and distinct object filtering.
+        """
         screening = ScreeningNullFK.objects.create(movie=None)
         ScreeningNullFK.objects.create(movie=self.movie)
         self.assertEqual(
@@ -105,6 +121,20 @@ class NestedForeignKeysTests(TestCase):
     # This test failed in #16715 because in some cases INNER JOIN was selected
     # for the second foreign key relation instead of LEFT OUTER JOIN.
     def test_explicit_ForeignKey(self):
+        """
+
+        Tests the usage of explicit ForeignKey relationships in Package objects.
+
+        This test case verifies the correct functioning of ForeignKey fields in Package objects, specifically when related to Screening and Movie objects.
+        It covers various scenarios, including:
+        - Creating Package objects with and without a Screening relationship
+        - Using select_related to fetch related objects in a single query
+        - Using values and values_list to retrieve specific fields from related objects
+        - Filtering and excluding Package objects based on conditions applied to related Screening and Movie objects
+
+        The test ensures that the expected number of Package objects is returned in each scenario, validating the integrity of the ForeignKey relationships.
+
+        """
         Package.objects.create()
         screening = Screening.objects.create(movie=self.movie)
         Package.objects.create(screening=screening)
@@ -175,12 +205,33 @@ class NestedForeignKeysTests(TestCase):
 class DeeplyNestedForeignKeysTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for the class, creating a basic movie object with a director.
+
+         This method creates a single Person object representing the movie director and a Movie object referencing this director.
+
+         :return: None
+         :rtype: None
+        """
         cls.director = Person.objects.create(name="Terry Gilliam / Terry Jones")
         cls.movie = Movie.objects.create(
             title="Monty Python and the Holy Grail", director=cls.director
         )
 
     def test_inheritance(self):
+        """
+
+        Tests the proper inheritance and relationship queries between Events, Screenings, Movies, and Directors.
+
+        This function creates an Event and a Screening instance related to a Movie, 
+        then asserts that various database queries using Django's ORM correctly 
+        retrieves or filters related objects through foreign key relationships. 
+        It checks for correct counts of objects retrieved using select_related, 
+        values, filter, and exclude queries. 
+        The test ensures that the relationships between models are properly established 
+        and that queries can traverse these relationships to retrieve related data.
+
+        """
         Event.objects.create()
         Screening.objects.create(movie=self.movie)
 

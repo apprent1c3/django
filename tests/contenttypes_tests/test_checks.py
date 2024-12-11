@@ -30,6 +30,13 @@ class GenericForeignKeyTests(SimpleTestCase):
         self.assertEqual(TaggedItem.content_object.check(), expected)
 
     def test_invalid_content_type_field(self):
+        """
+        Tests that a GenericForeignKey with an invalid content type field raises the correct system check error.
+
+        The function verifies that using a non-ForeignKey field, such as an IntegerField, for the 'content_type' in a GenericForeignKey results in a specific error. The error should indicate that GenericForeignKeys require a ForeignKey to 'contenttypes.ContentType' as the 'content_type' field, providing a hint for correction.
+
+        The test case covers the validation of GenericForeignKey fields to ensure they adhere to the required structure, helping to prevent potential runtime errors due to misconfigured models.
+        """
         class Model(models.Model):
             content_type = models.IntegerField()  # should be ForeignKey
             object_id = models.PositiveIntegerField()
@@ -93,6 +100,14 @@ class GenericForeignKeyTests(SimpleTestCase):
         )
 
     def test_field_name_ending_with_underscore(self):
+        """
+
+        Test that a field name ending with an underscore raises an error.
+
+        This test case checks that a GenericForeignKey field named with a trailing underscore
+        returns a specific error, as field names should not end with an underscore according to Django's naming conventions.
+
+        """
         class Model(models.Model):
             content_type = models.ForeignKey(ContentType, models.CASCADE)
             object_id = models.PositiveIntegerField()
@@ -156,6 +171,11 @@ class GenericRelationTests(SimpleTestCase):
         self.assertEqual(Bookmark.tags.field.check(), [])
 
     def test_pointing_to_missing_model(self):
+        """
+        .Tests that a foreign key field referencing a model that does not exist raises the correct error.
+
+        The function creates a test model with a generic relation to a model named 'MissingModel' and checks that the correct error is returned when the field is validated, indicating that 'MissingModel' is not installed or is an abstract model.
+        """
         class Model(models.Model):
             rel = GenericRelation("MissingModel")
 

@@ -155,6 +155,16 @@ class OptimizerTests(SimpleTestCase):
         )
 
     def test_create_model_and_remove_model_options(self):
+        """
+        Tests the optimization of model creation and removal of model options in migrations.
+
+        This test case checks that when a model is created with options and then an alter model options operation is applied to remove those options, 
+        the resulting optimized migration only includes the model creation without the initial options.
+
+        It covers scenarios where the model options include verbose name and verbose name plural, ensuring that the optimization correctly handles 
+        the removal of these options in the alter model options operation, resulting in a simplified migration that only includes the necessary 
+        model creation operation with the remaining options.
+        """
         self.assertOptimizesTo(
             [
                 migrations.CreateModel(
@@ -1207,6 +1217,21 @@ class OptimizerTests(SimpleTestCase):
         )
 
     def test_add_remove_constraint(self):
+        """
+
+        Tests the optimization of adding and removing a check constraint.
+
+        This function verifies that adding a constraint and then immediately removing
+        it results in an empty list of operations, as the two actions cancel each other out.
+        It also checks that removing a constraint with a different name than the one
+        that was added does not result in optimization.
+
+        The test uses a specific check constraint that checks if the 'pink' field is
+        greater than 2, but the specific condition is not the focus of the test.
+        The goal is to ensure that the optimization logic correctly handles the
+        addition and removal of constraints.
+
+        """
         gt_constraint = models.CheckConstraint(
             condition=models.Q(pink__gt=2), name="constraint_pony_pink_gt_2"
         )
@@ -1328,6 +1353,16 @@ class OptimizerTests(SimpleTestCase):
         )
 
     def test_create_model_add_constraint(self):
+        """
+        Tests the optimization of creating a model and adding a constraint.
+
+        Checks that the creation of a model followed by adding a constraint can be optimized into a single operation.
+
+        The test case verifies that when a model is created with a field and then a check constraint is added to that field, 
+        the operations are correctly combined into a single create model operation that includes the constraint in its options.
+
+        This ensures that the generated migration is optimized and only contains the necessary operations to achieve the desired model state.
+        """
         gt_constraint = models.CheckConstraint(
             condition=models.Q(weight__gt=0), name="pony_weight_gt_0"
         )

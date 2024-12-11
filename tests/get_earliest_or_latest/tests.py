@@ -102,6 +102,24 @@ class EarliestOrLatestTests(TestCase):
 
     def test_latest(self):
         # Because no Articles exist yet, latest() raises ArticleDoesNotExist.
+        """
+
+        Tests the functionality of retrieving the latest Article object from the database.
+
+        The test first checks that calling `latest()` without any objects raises a `DoesNotExist` exception. 
+        Then, it creates multiple Article objects with different publication and expiration dates.
+
+        It tests various scenarios, including:
+        - Retrieving the latest Article based on the default ordering (publication date).
+        - Retrieving the latest Article based on a specified field (expiration date).
+        - Retrieving the latest Article after filtering by a specific condition (publication date).
+        - Retrieving the latest Article with a custom ordering.
+        - Handling the case where the model's Meta does not specify a `get_latest_by` field, which raises a `ValueError`.
+        - Handling the case where multiple fields are specified for `latest()`, including using negative field names to reverse the ordering.
+
+        The test ensures that the `latest()` method returns the expected Article object in each scenario.
+
+        """
         with self.assertRaises(Article.DoesNotExist):
             Article.objects.latest()
 
@@ -230,6 +248,17 @@ class TestFirstLast(TestCase):
         def check():
             # We know that we've broken the __iter__ method, so the queryset
             # should always raise an exception.
+            """
+            ..: Checks that attempting to access or manipulate :class:`IndexErrorArticle` objects raises the expected :class:`IndexError` exceptions.
+
+                This function verifies that the following operations result in an :class:`IndexError`:
+
+                * Slicing :class:`IndexErrorArticle` querysets with a step value
+                * Retrieving the first :class:`IndexErrorArticle` object
+                * Retrieving the last :class:`IndexErrorArticle` object
+
+                The function uses the :meth:`assertRaises` context manager to check that the correct exceptions are raised in each of these scenarios.
+            """
             with self.assertRaises(IndexError):
                 IndexErrorArticle.objects.all()[:10:2]
             with self.assertRaises(IndexError):
@@ -248,6 +277,15 @@ class TestFirstLast(TestCase):
         check()
 
     def test_first_last_unordered_qs_aggregation_error(self):
+        """
+
+        Tests that attempting to retrieve the first or last element from an unordered queryset 
+        performing aggregation raises a TypeError. This ensures that QuerySet.first() and 
+        QuerySet.last() cannot be used on unordered querysets that are performing aggregation 
+        operations, such as calculating averages. A queryset must be ordered using order_by() 
+        before attempting to access its first or last elements when aggregations are involved.
+
+        """
         a1 = Article.objects.create(
             headline="Article 1",
             pub_date=datetime(2005, 7, 26),

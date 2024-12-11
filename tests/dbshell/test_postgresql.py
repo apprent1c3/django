@@ -134,6 +134,15 @@ class PostgreSqlDbshellCommandTestCase(SimpleTestCase):
         )
 
     def test_accent(self):
+        """
+
+        Test the creation of command arguments and environment variables for a PostgreSQL connection with accentuated credentials.
+
+        This test case verifies that the function correctly handles usernames and passwords containing special characters, such as accents, when generating the command line arguments and environment variables for a PostgreSQL connection.
+
+        The test checks that the returned command arguments include the username, hostname, port, and database name, and that the environment variables include the password.
+
+        """
         username = "rôle"
         password = "sésame"
         self.assertEqual(

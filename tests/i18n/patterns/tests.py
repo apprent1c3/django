@@ -51,6 +51,13 @@ class URLTestCaseBase(SimpleTestCase):
 
     def setUp(self):
         # Make sure the cache is empty before we are doing our tests.
+        """
+
+        Sets up the test environment by clearing URL caches and schedules a cleanup to clear caches again after the test is completed.
+
+        This ensures that each test starts with a clean slate, unaffected by any cached URLs from previous tests, and leaves the environment in the same clean state after completion.
+
+        """
         clear_url_caches()
         # Make sure we will leave an empty cache for other testcases.
         self.addCleanup(clear_url_caches)
@@ -74,6 +81,15 @@ class URLPrefixTests(URLTestCaseBase):
             )
 
     def test_prefixed(self):
+        """
+        Tests that URL reversing for a prefixed route works correctly with language prefixes.
+
+        Verifies that the reversed URL includes the language prefix for the given language,
+        defaulting to the LANGUAGE_CODE setting when no language is specified.
+
+        Checks the reversing process for a variety of language configurations, including English ('en') and Dutch ('nl').
+
+        """
         with translation.override("en"):
             self.assertEqual(reverse("prefixed"), "/en/prefixed/")
         with translation.override("nl"):
@@ -103,6 +119,9 @@ class URLDisabledTests(URLTestCaseBase):
 class RequestURLConfTests(SimpleTestCase):
     @override_settings(ROOT_URLCONF="i18n.patterns.urls.path_unused")
     def test_request_urlconf_considered(self):
+        """
+        Tests the LocaleMiddleware's handling of a request when the URL configuration is explicitly set, verifying that the middleware correctly determines the language code based on the URL path and overrides the default language with the one specified in the URL.
+        """
         request = RequestFactory().get("/nl/")
         request.urlconf = "i18n.patterns.urls.default"
         middleware = LocaleMiddleware(lambda req: HttpResponse())
@@ -161,6 +180,15 @@ class URLTranslationTests(URLTestCaseBase):
             )
 
     def test_users_url(self):
+        """
+        Test the URL reversal for the users view, ensuring it correctly handles language prefixes.
+
+        This test checks that the URL for the users view is correctly generated in different languages,
+        including English, Dutch, and Portuguese (Brazil), and that it correctly handles URL prefixes.
+
+        The test case verifies that the URL reversal is correct for both simple views (e.g. 'users') and
+        views with additional prefixes (e.g. 'prefixed_xml').
+        """
         with translation.override("en"):
             self.assertEqual(reverse("users"), "/en/users/")
 
@@ -262,6 +290,15 @@ class URLRedirectTests(URLTestCaseBase):
         self.assertEqual(response.status_code, 200)
 
     def test_en_redirect(self):
+        """
+
+        Tests that a request to the account registration page without a specified language
+        redirects to the English version of the page.
+
+        Verifies that the initial request redirects to the English URL and then checks
+        that the subsequent request to the redirected URL returns a successful response.
+
+        """
         response = self.client.get(
             "/account/register/", headers={"accept-language": "en"}
         )
@@ -317,6 +354,15 @@ class URLRedirectTests(URLTestCaseBase):
         ],
     )
     def test_custom_redirect_class(self):
+        """
+        Tests the permanent redirect for locale middle ware with a custom redirect class.
+
+        This test simulates a GET request to the account registration page with English as the accepted language.
+        It then verifies that the response is a permanent redirect (HTTP status code 301) to the same page with the locale '/en/' prepended to the URL. 
+
+        The test ensures that the locale middleware correctly redirects the user to the URL with the language code.
+
+        """
         response = self.client.get(
             "/account/register/", headers={"accept-language": "en"}
         )
@@ -381,6 +427,15 @@ class URLRedirectWithoutTrailingSlashSettingTests(URLTestCaseBase):
 
     @override_settings(APPEND_SLASH=False)
     def test_not_prefixed_redirect(self):
+        """
+        Tests that a non-prefixed URL does not result in a redirect when APPEND_SLASH is set to False.
+
+        Verifies that a HTTP GET request to a URL without a prefix returns a 404 status code,
+        indicating that the URL is not found, rather than being redirected to a different URL.
+
+        This test ensures that the application behaves correctly when the APPEND_SLASH setting is disabled,
+        and that non-prefixed URLs are handled as expected in this configuration.
+        """
         response = self.client.get("/not-prefixed", headers={"accept-language": "en"})
         self.assertEqual(response.status_code, 404)
 
@@ -399,6 +454,15 @@ class URLResponseTests(URLTestCaseBase):
     """Tests if the response has the correct language code."""
 
     def test_not_prefixed_with_prefix(self):
+        """
+
+        Tests that a URL not prefixed with a language code returns a 404 status code.
+
+        This test case verifies that the application correctly handles requests for URLs 
+        that do not have a language prefix, ensuring that a Not Found response is returned 
+        as expected.
+
+        """
         response = self.client.get("/en/not-prefixed/")
         self.assertEqual(response.status_code, 404)
 
@@ -429,12 +493,31 @@ class URLResponseTests(URLTestCaseBase):
         self.assertEqual(response.context["LANGUAGE_CODE"], "pt-br")
 
     def test_en_path(self):
+        """
+        Test that the English path for account registration returns a successful response.
+
+        Verifies that a GET request to the English path for account registration 
+        results in a 200 status code, with the correct content language and 
+        LANGUAGE_CODE set to 'en', ensuring proper internationalization support.
+
+        Returns:
+            None
+
+        """
         response = self.client.get("/en/account/register-as-path/")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.headers["content-language"], "en")
         self.assertEqual(response.context["LANGUAGE_CODE"], "en")
 
     def test_nl_path(self):
+        """
+
+        Tests the registration path for the Dutch (nl) language.
+
+        Verifies that the HTTP request to the registration path returns a successful response (200 status code)
+        and that the response is correctly localized for the Dutch language.
+
+        """
         response = self.client.get("/nl/profiel/registreren-als-pad/")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.headers["content-language"], "nl")
@@ -444,19 +527,45 @@ class URLResponseTests(URLTestCaseBase):
 @override_settings(ROOT_URLCONF="i18n.urls_default_unprefixed", LANGUAGE_CODE="nl")
 class URLPrefixedFalseTranslatedTests(URLTestCaseBase):
     def test_translated_path_unprefixed_language_other_than_accepted_header(self):
+        """
+        Tests that a translated path without a prefixed language returns a successful response (200 OK) when the Accept-Language header is set to a non-default language that is accepted by the system, in this case English.
+        """
         response = self.client.get("/gebruikers/", headers={"accept-language": "en"})
         self.assertEqual(response.status_code, 200)
 
     def test_translated_path_unprefixed_language_other_than_cookie_language(self):
+        """
+
+        Tests that a translated path without a language prefix returns a successful response
+        when the language in the URL does not match the language set in the cookie.
+
+        In this scenario, the test client's language cookie is set to English ('en'), but
+        the URL being requested is for a page with a URL that is translated for a different
+        language. The test verifies that the server responds with a 200 status code,
+        indicating a successful request.
+
+        """
         self.client.cookies.load({settings.LANGUAGE_COOKIE_NAME: "en"})
         response = self.client.get("/gebruikers/")
         self.assertEqual(response.status_code, 200)
 
     def test_translated_path_prefixed_language_other_than_accepted_header(self):
+        """
+        Checks that a URL with a language prefix can be accessed when the Accept-Language header is set to a language that is not the same as the prefix, but is still accepted by the application. Verifies that the server returns a successful response (200 OK) in this scenario.
+        """
         response = self.client.get("/en/users/", headers={"accept-language": "nl"})
         self.assertEqual(response.status_code, 200)
 
     def test_translated_path_prefixed_language_other_than_cookie_language(self):
+        """
+
+        Tests that a translated path with a prefixed language other than the language set in the cookie is handled correctly.
+
+        This test checks that when the language is set in the URL path and it does not match the language set in the cookie, 
+        the server still returns a successful response (200 OK). 
+        The test is performed by setting the language cookie to 'nl' (Dutch) and then requesting a URL with the prefix '/en' (English).
+
+        """
         self.client.cookies.load({settings.LANGUAGE_COOKIE_NAME: "nl"})
         response = self.client.get("/en/users/")
         self.assertEqual(response.status_code, 200)
@@ -484,6 +593,14 @@ class URLTagTests(URLTestCaseBase):
     """
 
     def test_strings_only(self):
+        """
+        \"testing template with language blocks for url rendering.
+
+        Tests if the template can correctly render urls within language blocks, 
+        specifically testing the 'nl' (Dutch) and 'pt-br' (Brazilian Portuguese) 
+        languages. It checks if the rendered urls are correctly translated as 
+        expected, i.e., '/vertaald/' for Dutch and '/traduzidos/' for Brazilian Portuguese.\"
+        """
         t = Template(
             """{% load i18n %}
             {% language 'nl' %}{% url 'no-prefix-translated' %}{% endlanguage %}

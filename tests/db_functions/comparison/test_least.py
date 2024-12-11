@@ -23,6 +23,12 @@ class LeastTests(TestCase):
 
     @skipUnlessDBFeature("greatest_least_ignores_nulls")
     def test_ignores_null(self):
+        """
+        :param self: Test case instance
+        :raises AssertionError: If the test fails
+        :test: This test checks the functionality of the LEAST function in Django's ORM 
+               when one of the fields is null, ensuring it ignores the null value and returns the other value.
+        """
         now = timezone.now()
         Article.objects.create(title="Testing with Django", written=now)
         articles = Article.objects.annotate(
@@ -50,6 +56,19 @@ class LeastTests(TestCase):
 
     @skipUnless(connection.vendor == "mysql", "MySQL-specific workaround")
     def test_coalesce_workaround_mysql(self):
+        """
+        Tests a workaround for a MySQL-specific issue with the Coalesce function.
+
+        This test case verifies that the least of two dates, 'written' and 'published', 
+        is correctly determined when using the Coalesce function in conjunction with 
+        Django's ORM on a MySQL database. 
+
+        It creates an Article instance with a 'written' date and no 'published' date, 
+        then annotates the instance with the least of the 'written' and 'published' 
+        dates, defaulting to a future date if either is null.
+
+        The test passes if the annotated 'last_updated' date matches the 'written' date. 
+        """
         future = datetime(2100, 1, 1)
         now = timezone.now()
         Article.objects.create(title="Testing with Django", written=now)
@@ -63,6 +82,17 @@ class LeastTests(TestCase):
         self.assertEqual(articles.first().last_updated, now)
 
     def test_all_null(self):
+        """
+        Tests the scenario where both published and updated dates are null.
+
+        Verifies that when an Article instance is created without published and updated dates,
+        the `first_updated` attribute, which represents the earliest of these two dates,
+        is correctly identified as None.
+
+        This test ensures that the `Least` annotation function behaves as expected
+        when dealing with null values, providing a robust check for this edge case.
+
+        """
         Article.objects.create(title="Testing with Django", written=timezone.now())
         articles = Article.objects.annotate(first_updated=Least("published", "updated"))
         self.assertIsNone(articles.first().first_updated)

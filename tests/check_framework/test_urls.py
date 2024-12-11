@@ -32,6 +32,17 @@ class CheckUrlConfigTests(SimpleTestCase):
 
     @override_settings(ROOT_URLCONF="check_framework.urls.include_with_dollar")
     def test_include_with_dollar(self):
+        """
+
+        Tests the check_url_config function with a URL pattern that includes a dollar sign at the end of the route.
+
+        The function verifies that the check_url_config function correctly identifies and reports a warning for a URL pattern
+        that could cause issues with including URLs. The warning should have an id of 'urls.W001' and a message that advises removing
+        the dollar sign from the route.
+
+        The test checks that the check_url_config function returns a list of one warning, and that the warning has the expected id and message.
+
+        """
         result = check_url_config(None)
         self.assertEqual(len(result), 1)
         warning = result[0]
@@ -75,6 +86,20 @@ class CheckUrlConfigTests(SimpleTestCase):
 
     @override_settings(ROOT_URLCONF="check_framework.urls.beginning_with_slash")
     def test_beginning_with_slash(self):
+        """
+
+        Tests that URL patterns beginning with a slash raise the correct warning.
+
+        The function checks the URL configuration for patterns that start with an
+        unnecessary slash. It verifies that the expected warning message is generated,
+        including the specific URL pattern that triggered the warning. The test also
+        confirms that the warning ID is correctly identified as 'urls.W002'.
+
+        This check is performed in the context of an overridden URL configuration,
+        defined in 'check_framework.urls.beginning_with_slash', to isolate the testing
+        of this specific condition.
+
+        """
         msg = (
             "Your URL pattern '%s' has a route beginning with a '/'. Remove "
             "this slash as it is unnecessary. If this pattern is targeted in "
@@ -114,6 +139,11 @@ class CheckUrlConfigTests(SimpleTestCase):
         self.assertEqual(result, [])
 
     def test_get_warning_for_invalid_pattern_string(self):
+        """
+        Tests that the get_warning_for_invalid_pattern function correctly returns a warning when given an invalid pattern string.
+        The warning should provide a hint to the user on how to resolve the issue, specifically by removing the prefix string from the list of urlpatterns.
+        The expected hint message is \"Try removing the string ''. The list of urlpatterns should not have a prefix string as the first element.\"
+        """
         warning = get_warning_for_invalid_pattern("")[0]
         self.assertEqual(
             warning.hint,
@@ -131,6 +161,20 @@ class CheckUrlConfigTests(SimpleTestCase):
 
     @override_settings(ROOT_URLCONF="check_framework.urls.non_unique_namespaces")
     def test_check_non_unique_namespaces(self):
+        """
+
+        Checks if URL namespaces are unique.
+
+        This function verifies that all URL namespaces in the project are unique, 
+        ensuring that URL reversing works correctly. If any non-unique namespaces 
+        are found, it returns a list of warnings, each containing the namespace 
+        that is not unique and a message explaining the potential issue.
+
+        Returns:
+            list: A list of warnings for non-unique URL namespaces, each with a 
+                  code 'urls.W005' and a message describing the problem.
+
+        """
         result = check_url_namespaces_unique(None)
         self.assertEqual(len(result), 2)
         non_unique_namespaces = ["app-ns1", "app-1"]

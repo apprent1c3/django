@@ -16,6 +16,20 @@ EXPIRED_ETAG = '"7fae4cd4b0f81e7d2914700043aa8ed6"'
 @override_settings(ROOT_URLCONF="conditional_processing.urls")
 class ConditionalGet(SimpleTestCase):
     def assertFullResponse(self, response, check_last_modified=True, check_etag=True):
+        """
+        Verifies that the given HTTP response contains the expected full response content and appropriate headers.
+
+        This function checks that the response status code is 200, and that the response content matches the expected full response.
+        Additionally, it checks for the presence and correctness of 'Last-Modified' and 'ETag' headers in the response, 
+        although these checks can be disabled by passing `check_last_modified=False` or `check_etag=False` respectively.
+
+        The function handles different types of HTTP requests, and will not expect 'Last-Modified' and 'ETag' headers 
+        to be present in responses to requests other than GET or HEAD.
+
+        :param response: The HTTP response to be verified.
+        :param check_last_modified: Whether to check the 'Last-Modified' header in the response. Defaults to True.
+        :param check_etag: Whether to check the 'ETag' header in the response. Defaults to True.
+        """
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, FULL_RESPONSE.encode())
         if response.request["REQUEST_METHOD"] in ("GET", "HEAD"):
@@ -32,10 +46,40 @@ class ConditionalGet(SimpleTestCase):
         self.assertEqual(response.content, b"")
 
     def test_without_conditions(self):
+        """
+        Tests the retrieval of conditions without any filters or conditions.
+
+        This test case sends a GET request to the '/condition/' endpoint and verifies that the response is complete and valid.
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the response is not complete or valid.
+        """
         response = self.client.get("/condition/")
         self.assertFullResponse(response)
 
     def test_if_modified_since(self):
+        """
+
+        Test the conditional GET behavior of the API endpoint '/condition/' when the 
+        'If-Modified-Since' header is provided.
+
+        The test checks the following scenarios:
+        - When the 'If-Modified-Since' header is set to a date that is the same as the 
+          last modified date of the resource, the response should return a 304 Not Modified status.
+        - When the 'If-Modified-Since' header is set to a date that is newer than the 
+          last modified date of the resource, the response should return a 304 Not Modified status.
+        - When the 'If-Modified-Since' header is set to an invalid date, the response 
+          should return a full response.
+        - When the 'If-Modified-Since' header is set to an expired date, the response 
+          should return a full response.
+
+        Verifies that the API correctly handles conditional GET requests based on the 
+        'If-Modified-Since' header.
+
+        """
         self.client.defaults["HTTP_IF_MODIFIED_SINCE"] = LAST_MODIFIED_STR
         response = self.client.get("/condition/")
         self.assertNotModified(response)
@@ -68,6 +112,19 @@ class ConditionalGet(SimpleTestCase):
         self.assertEqual(response.status_code, 412)
 
     def test_if_none_match(self):
+        """
+        Tests the HTTP If-None-Match header functionality.
+
+        This test case verifies the behavior of the server when the client sends an If-None-Match header with different ETAG values.
+        It checks the server's response in three scenarios: 
+            when the ETAG matches the current resource version, 
+            when the ETAG is expired, and 
+            when multiple ETAGs are provided, including both matching and expired ones.
+
+        The test ensures that the server returns the expected responses, including a 304 Not Modified status code when the ETAG matches, 
+        a 412 Precondition Failed status code when the ETAG is expired, and a full response when the ETAG is invalid or expired.
+
+        """
         self.client.defaults["HTTP_IF_NONE_MATCH"] = ETAG
         response = self.client.get("/condition/")
         self.assertNotModified(response)
@@ -104,6 +161,15 @@ class ConditionalGet(SimpleTestCase):
         self.assertEqual(response.status_code, 412)
 
     def test_all_if_none_match(self):
+        """
+
+        Tests the behavior of the server when handling If-None-Match headers.
+
+        Verifies that the server responds correctly when the If-None-Match header is set to '*',
+        which should result in a 304 Not Modified response for a GET request, a 412 Precondition Failed
+        response for a PUT request, and a normal response for a resource that does not support etags.
+
+        """
         self.client.defaults["HTTP_IF_NONE_MATCH"] = "*"
         response = self.client.get("/condition/")
         self.assertNotModified(response)
@@ -113,6 +179,18 @@ class ConditionalGet(SimpleTestCase):
         self.assertFullResponse(response, check_last_modified=False, check_etag=False)
 
     def test_if_match(self):
+        """
+
+        Tests the functionality of If-Match header in HTTP requests.
+
+        Verifies that the API endpoint correctly handles the If-Match header by checking 
+        the ETag of the requested resource. If the ETag matches, the request is successful.
+        If the ETag does not match or is expired, the request returns a 412 Precondition Failed status code.
+
+        This test case ensures that the API behaves as expected when handling concurrent 
+        modifications to a resource, preventing data corruption or overwriting changes made by other users.
+
+        """
         self.client.defaults["HTTP_IF_MATCH"] = ETAG
         response = self.client.put("/condition/")
         self.assertFullResponse(response)
@@ -136,6 +214,16 @@ class ConditionalGet(SimpleTestCase):
         self.assertEqual(response.status_code, 412)
 
     def test_all_if_match(self):
+        """
+
+        Tests the HTTP If-Match header functionality.
+
+        This test checks that a GET request to a resource with an ETag returns a full response
+        when the If-Match header is set to '*'. It also verifies that a request to a resource
+        without an ETag returns a 412 Precondition Failed status code when the If-Match header
+        is set to '*'.
+
+        """
         self.client.defaults["HTTP_IF_MATCH"] = "*"
         response = self.client.get("/condition/")
         self.assertFullResponse(response)
@@ -193,6 +281,15 @@ class ConditionalGet(SimpleTestCase):
         self.assertFullResponse(response, check_last_modified=False)
 
     def test_single_condition_2(self):
+        """
+        Tests the behavior of the client when making GET requests with a single condition specified via the If-None-Match header.
+
+        The function verifies that the client correctly handles the response when the requested resource has not been modified, 
+        by checking that a 304 Not Modified status is returned when the If-None-Match header matches the ETag of the resource.
+
+        Additionally, it tests that the client can successfully retrieve a resource when the condition is not met, 
+        by making a subsequent GET request to a different endpoint and verifying that a full response is returned.
+        """
         self.client.defaults["HTTP_IF_NONE_MATCH"] = ETAG
         response = self.client.get("/condition/etag/")
         self.assertNotModified(response)
@@ -270,6 +367,10 @@ class ConditionalGet(SimpleTestCase):
         self.assertFullResponse(response, check_last_modified=False)
 
     def test_invalid_etag(self):
+        """
+        Tests the response of a GET request to the '/condition/etag/' endpoint when an invalid ETag is provided in the 'If-None-Match' header.
+        The function verifies that the server responds correctly to an invalid ETag by comparing the full response, excluding the last modified date.
+        """
         self.client.defaults["HTTP_IF_NONE_MATCH"] = '"""'
         response = self.client.get("/condition/etag/")
         self.assertFullResponse(response, check_last_modified=False)

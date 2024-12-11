@@ -19,6 +19,15 @@ class Serializer(base.Serializer):
     """Serialize a QuerySet to XML."""
 
     def indent(self, level):
+        """
+
+        Adds an indentation to the XML output.
+
+        The number of spaces added for indentation is determined by the 'indent' option
+        multiplied by the specified level. This indentation is added as ignorable
+        whitespace to the XML, and is only applied if the 'indent' option has been set.
+
+        """
         if self.options.get("indent") is not None:
             self.xml.ignorableWhitespace(
                 "\n" + " " * self.options.get("indent") * level
@@ -496,5 +505,9 @@ class ExternalReferenceForbidden(DefusedXmlException):
         self.pubid = pubid
 
     def __str__(self):
+        """
+        Returns a string representation of the ExternalReferenceForbidden object, 
+        including its system ID and public ID, in a format suitable for debugging and logging.
+        """
         tpl = "ExternalReferenceForbidden(system_id='{}', public_id={})"
         return tpl.format(self.sysid, self.pubid)

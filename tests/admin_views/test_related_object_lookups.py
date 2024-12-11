@@ -11,6 +11,18 @@ class SeleniumTests(AdminSeleniumTestCase):
     available_apps = ["admin_views"] + AdminSeleniumTestCase.available_apps
 
     def setUp(self):
+        """
+
+        Sets up the test environment by creating a superuser with default credentials and logs them in to the admin interface.
+
+        The superuser is created with the following details:
+            - Username: 'super'
+            - Password: 'secret'
+            - Email: 'super@example.com'
+
+        After creation, the superuser is logged in to the admin interface, allowing subsequent tests to be run with elevated privileges.
+
+        """
         self.superuser = User.objects.create_superuser(
             username="super", password="secret", email="super@example.com"
         )

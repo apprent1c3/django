@@ -66,6 +66,12 @@ class EmailFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
             f.clean("alf123456788@foo.com")
 
     def test_emailfield_strip_on_none_value(self):
+        """
+        Tests the behavior of the EmailField when the input value is None or an empty string.
+
+        Verifies that the field correctly strips the input value and returns None when the input is empty or None, 
+        provided that the field is not required and its empty value is set to None.
+        """
         f = EmailField(required=False, empty_value=None)
         self.assertIsNone(f.clean(""))
         self.assertIsNone(f.clean(None))

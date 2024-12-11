@@ -8,6 +8,15 @@ class InvalidStringTests(SimpleTestCase):
 
     @setup({"invalidstr01": '{{ var|default:"Foo" }}'})
     def test_invalidstr01(self):
+        """
+
+        Tests the behavior of the template engine when rendering a string with an invalid variable.
+
+        This test case checks how the engine handles a template containing a variable that
+        is not defined. It verifies that the output is either the default value specified
+        in the template or the engine's configured string to display when a variable is invalid.
+
+        """
         output = self.engine.render_to_string("invalidstr01")
         if self.engine.string_if_invalid:
             self.assertEqual(output, "INVALID")
@@ -39,6 +48,17 @@ class InvalidStringTests(SimpleTestCase):
 
     @setup({"invalidstr05": "{{ var }}"})
     def test_invalidstr05(self):
+        """
+
+        Tests the rendering of a template containing an invalid string.
+
+        When the template engine encounters an invalid string, this test checks two possible outcomes:
+        - If the engine is configured to render an error message when encountering an invalid string, the test verifies that the rendered output contains the error message.
+        - If the engine is configured to render an empty string when encountering an invalid string, the test verifies that the rendered output is indeed empty.
+
+        The test covers the behavior of the template engine in handling invalid strings, ensuring that it behaves as expected based on its configuration.
+
+        """
         output = self.engine.render_to_string("invalidstr05")
         if self.engine.string_if_invalid:
             self.assertEqual(output, "INVALID")

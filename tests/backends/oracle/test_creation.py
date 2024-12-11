@@ -16,6 +16,15 @@ class DatabaseCreationTests(TestCase):
         self, cursor, statements, parameters, verbosity, allow_quiet_fail=False
     ):
         # Raise "user already exists" only in test user creation
+        """
+        Raises an exception when attempting to create a user that already exists in the database.
+
+        This function checks if the provided SQL statements are related to creating a user. If so, it simulates a user already exists error by raising a DatabaseError with an ORA-01920 error code, indicating a conflict with another user or role name.
+
+        The function accepts several parameters, including a database cursor, SQL statements, parameters, verbosity level, and an optional flag to allow quiet failure. However, the actual creation of the user is not performed; instead, the function immediately raises an exception to handle the potential conflict.
+
+        This behavior is useful for testing and simulation purposes, allowing developers to anticipate and handle user creation errors in a controlled environment. The raised exception includes a standard Oracle error code, making it easier to recognize and respond to the error in a realistic way.
+        """
         if statements and statements[0].startswith("CREATE USER"):
             raise DatabaseError(
                 "ORA-01920: user name 'string' conflicts with another user or role name"
@@ -42,6 +51,20 @@ class DatabaseCreationTests(TestCase):
 
     @mock.patch.object(DatabaseCreation, "_test_user_create", return_value=False)
     def test_create_test_db(self, *mocked_objects):
+        """
+
+        Tests the creation of a test database.
+
+        This test case verifies the behavior of the _create_test_db method in different scenarios.
+        It checks that the method handles the following situations:
+        - The test user cannot be created.
+        - The 'keepdb' option is set to False, and the method is expected to exit when a tablespace already exists.
+        - The 'keepdb' option is set to True, and the method is expected to continue when a tablespace already exists.
+        - The method is expected to exit due to insufficient database privileges.
+
+        The test uses mock objects to simulate these scenarios, ensuring that the method behaves correctly under various conditions.
+
+        """
         creation = DatabaseCreation(connection)
         # Simulate test database creation raising "tablespace already exists"
         with self.patch_execute_statements(
@@ -86,6 +109,16 @@ class DatabaseCreationTests(TestCase):
                     creation._create_test_db(verbosity=0, keepdb=True)
 
     def test_oracle_managed_files(self, *mocked_objects):
+        """
+
+        Tests the database creation process to ensure that Oracle managed files are properly created.
+
+        This test covers the execution of the database creation process, specifically verifying that the 
+        database's tablespace SQL and tempfile SQL are generated with the correct parameters. The test 
+        checks for the presence of 'DATAFILE SIZE' and 'TEMPFILE SIZE' in the generated SQL, and ensures 
+        that the 'REUSE' clause is not included.
+
+        """
         def _execute_capture_statements(
             self, cursor, statements, parameters, verbosity, allow_quiet_fail=False
         ):

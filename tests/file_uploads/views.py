@@ -63,6 +63,19 @@ def file_upload_view_verify(request):
 
 def file_upload_unicode_name(request):
     # Check to see if Unicode name came through properly.
+    """
+
+    Checks if the uploaded file has a valid Unicode name and saves it to the database.
+
+    This function handles file uploads where the filename must end with a specific Unicode filename suffix.
+    It verifies the filename, creates a new file model instance, and saves the uploaded file to storage.
+    If the file upload is successful, it returns an HTTP response indicating success.
+    If the filename is invalid or the file does not exist in storage after upload, it returns an HTTP server error response.
+
+    :param request: The HTTP request containing the uploaded file.
+    :returns: An HTTP response indicating success or an HTTP server error response.
+
+    """
     if not request.FILES["file_unicode"].name.endswith(UNICODE_FILENAME):
         return HttpResponseServerError()
     # Check to make sure the exotic characters are preserved even
@@ -172,12 +185,37 @@ def file_upload_content_type_extra(request):
 
 
 def file_upload_fd_closing(request, access):
+    """
+    Handles file uploads and optionally allows access to the uploaded files based on the provided access level.
+
+    Args:
+        request: The HTTP request containing the file upload.
+        access (str): The access level, with 't' indicating access to the uploaded files should be granted.
+
+    Returns:
+        HttpResponse: An HTTP response object indicating the outcome of the file upload operation.
+
+    Note:
+        Currently, only access level 't' is handled, which allows access to the uploaded files through the request.FILES attribute.
+    """
     if access == "t":
         request.FILES  # Trigger file parsing.
     return HttpResponse()
 
 
 def file_upload_traversal_view(request):
+    """
+    Handles file uploads by modifying the request's upload handlers and responds with the name of the uploaded file.
+
+    This view inserts a custom upload handler at the beginning of the request's upload handlers to facilitate file traversal.
+    It then returns a JSON response containing the name of the file that was uploaded.
+
+    The primary purpose of this view is to enable the traversal of uploaded files and provide feedback to the client about the uploaded file's name.
+
+    :param request: The HTTP request object containing the uploaded file.
+    :return: A JsonResponse object with a dictionary containing the 'file_name' key.
+
+    """
     request.upload_handlers.insert(0, TraversalUploadHandler())
     request.FILES  # Trigger file parsing.
     return JsonResponse(

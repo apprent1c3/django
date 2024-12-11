@@ -52,6 +52,19 @@ class DurationFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
             f.clean("-1000000000 00:00:00")
 
     def test_overflow_translation(self):
+        """
+
+        Tests if the duration translation functionality correctly handles overflow values.
+
+        This test case checks that when the input duration exceeds the maximum allowed value,
+        the function raises a ValidationError with a translated error message, specifically
+        in French ('fr' locale), stating that the number of days must be between the minimum
+        and maximum allowed values.
+
+        The test ensures that the error message is properly formatted with the correct
+        minimum and maximum duration values and is raised with the expected translation.
+
+        """
         msg = "Le nombre de jours doit être entre {min_days} et {max_days}.".format(
             min_days=datetime.timedelta.min.days,
             max_days=datetime.timedelta.max.days,

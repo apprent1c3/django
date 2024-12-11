@@ -6,6 +6,15 @@ from django.test import SimpleTestCase
 
 class TestTemplates(SimpleTestCase):
     def test_javascript_escaping(self):
+        """
+
+        Tests that JavaScript data contained within the inline admin formset template context is properly escaped.
+
+        Checks that JSON data, specifically the 'prefix' and 'verbose_name' fields, is rendered correctly in both stacked and tabular inline formset templates.
+
+        Verifies that double quotes and backslashes within the data are correctly escaped to prevent JavaScript errors.
+
+        """
         context = {
             "inline_admin_formset": {
                 "inline_formset_data": json.dumps(

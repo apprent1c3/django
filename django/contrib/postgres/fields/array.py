@@ -124,6 +124,22 @@ class ArrayField(CheckFieldDefaultMixin, Field):
         return "%s::{}".format(self.db_type(connection))
 
     def get_db_prep_value(self, value, connection, prepared=False):
+        """
+        Prepares a value for use in a database query.
+
+        This method takes a value and prepares it for database operations, applying any
+        necessary transformations or conversions. If the input value is a list or tuple,
+        each element is recursively prepared using the base field's preparation method.
+
+        Args:
+            value: The value to be prepared for database use.
+            connection: The database connection being used.
+            prepared (bool): Whether the value has already been prepared (default: False).
+
+        Returns:
+            The prepared value, which may be a transformed or converted version of the input value.
+
+        """
         if isinstance(value, (list, tuple)):
             return [
                 self.base_field.get_db_prep_value(i, connection, prepared=False)
@@ -132,6 +148,13 @@ class ArrayField(CheckFieldDefaultMixin, Field):
         return value
 
     def deconstruct(self):
+        """
+        Deconstructs the current object into its constituent parts for serialization or other purposes.
+
+        This method overrides the default deconstruction behavior to accommodate the specific needs of the object, including modifying the path for compatibility and adding base field and size information to the keyword arguments.
+
+        It returns a tuple containing the name, path, arguments, and keyword arguments necessary to reconstruct the object.
+        """
         name, path, args, kwargs = super().deconstruct()
         if path == "django.contrib.postgres.fields.array.ArrayField":
             path = "django.contrib.postgres.fields.ArrayField"
@@ -265,6 +288,9 @@ class ArrayRHSMixin:
         return "%s::%s" % (rhs, cast_type), rhs_params
 
     def _rhs_not_none_values(self, rhs):
+        """
+        Yield True for each non-None value in the given right-hand side (rhs) structure, traversing nested lists and tuples recursively. This generator function helps to filter out None values from complex, nested data structures.
+        """
         for x in rhs:
             if isinstance(x, (list, tuple)):
                 yield from self._rhs_not_none_values(x)

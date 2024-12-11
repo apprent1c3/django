@@ -77,6 +77,25 @@ class LocMemCache(BaseCache):
         return new_value
 
     def has_key(self, key, version=None):
+        """
+        Checks if a key exists in the data store.
+
+        This method first constructs and validates a key based on the provided input.
+        It then checks if the key has expired. If it has, the key is deleted and the method returns False.
+        Otherwise, it returns True, indicating that the key is present and has not expired.
+
+        Parameters
+        ----------
+        key : str
+            The key to check for existence.
+        version : optional
+            The version of the key. Defaults to None.
+
+        Returns
+        -------
+        bool
+            True if the key exists and has not expired, False otherwise.
+        """
         key = self.make_and_validate_key(key, version=version)
         with self._lock:
             if self._has_expired(key):
@@ -89,6 +108,18 @@ class LocMemCache(BaseCache):
         return exp is not None and exp <= time.time()
 
     def _cull(self):
+        """
+        Removes items from the cache to manage its size.
+
+        This method reduces the number of items in the cache based on a specified frequency.
+        If the frequency is set to 0, the cache is completely cleared.
+        Otherwise, it removes a number of items equal to the cache size divided by the frequency,
+        helping to maintain a manageable cache size and prevent excessive memory usage.
+
+        Note:
+            This method is intended for internal use and should not be called directly.
+
+        """
         if self._cull_frequency == 0:
             self._cache.clear()
             self._expire_info.clear()
@@ -112,6 +143,14 @@ class LocMemCache(BaseCache):
             return self._delete(key)
 
     def clear(self):
+        """
+        Clears the cache, removing all stored items and their associated expiration information.
+
+        This method ensures thread safety by acquiring a lock before clearing the cache.
+        It is typically used when the cache needs to be reset or when the cached data is no longer valid.
+
+        Note: This operation does not affect any external data sources, it only removes data stored within the cache itself.
+        """
         with self._lock:
             self._cache.clear()
             self._expire_info.clear()

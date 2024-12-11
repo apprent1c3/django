@@ -49,6 +49,17 @@ class SHA512Tests(TestCase):
         )
 
     def test_transform(self):
+        """
+
+        Tests the transformation of a character field using the SHA512 hashing algorithm.
+
+        This test case verifies that the lookup functionality is correctly implemented,
+        allowing for efficient filtering of objects based on hashed values.
+
+        Specifically, it checks that an author object with a matching alias can be
+        successfully retrieved using its hashed value.
+
+        """
         with register_lookup(CharField, SHA512):
             authors = Author.objects.filter(
                 alias__sha512=(

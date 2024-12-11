@@ -223,6 +223,17 @@ class WhereNode(tree.Node):
         return clone
 
     def relabeled_clone(self, change_map):
+        """
+        Create a relabeled copy of the current object.
+
+        This method generates a clone of the current instance and applies a set of label changes defined in the provided change map.
+        The change map is used to update the aliases in the cloned object, resulting in a new object with the modified labels.
+        The original object remains unchanged.
+
+        :param change_map: A mapping of original labels to their new labels.
+        :return: A cloned object with updated aliases based on the change map.
+
+        """
         clone = self.clone()
         clone.relabel_aliases(change_map)
         return clone
@@ -255,6 +266,16 @@ class WhereNode(tree.Node):
 
     @classmethod
     def _contains_over_clause(cls, obj):
+        """
+        Determines whether an object or its children contain an OVER clause.
+
+        This method is used to recursively traverse an object's children and check if any of them contain an OVER clause.
+        If the object is a Node, it checks its children. Otherwise, it delegates the check to the object itself.
+
+        :param obj: The object to check for an OVER clause.
+        :returns: True if the object or any of its children contain an OVER clause, False otherwise.
+        :rtype: bool
+        """
         if isinstance(obj, tree.Node):
             return any(cls._contains_over_clause(c) for c in obj.children)
         return obj.contains_over_clause
@@ -275,6 +296,23 @@ class WhereNode(tree.Node):
 
     @classmethod
     def _resolve_node(cls, node, query, *args, **kwargs):
+        """
+
+        Resolves a node in the tree-like structure, traversing its children and replacing leaf nodes 
+        with the results of a given query.
+
+        This method recursively visits each node's children, then updates the node's 'lhs' and 'rhs' 
+        attributes if they exist, effectively resolving the tree structure in place.
+
+        The actual resolution of leaf nodes is handled by the :meth:`_resolve_leaf` method, which 
+        is called with the provided query and additional arguments.
+
+        :param node: The node to resolve
+        :param query: The query to use for resolving leaf nodes
+        :param args: Additional positional arguments to pass to :meth:`_resolve_leaf`
+        :param kwargs: Additional keyword arguments to pass to :meth:`_resolve_leaf`
+
+        """
         if hasattr(node, "children"):
             for child in node.children:
                 cls._resolve_node(child, query, *args, **kwargs)
@@ -284,6 +322,18 @@ class WhereNode(tree.Node):
             node.rhs = cls._resolve_leaf(node.rhs, query, *args, **kwargs)
 
     def resolve_expression(self, *args, **kwargs):
+        """
+        Resolve an expression by creating a clone of the current object and applying 
+        the provided arguments and keyword arguments to resolve any dependent nodes.
+
+        The resolution process involves recursively traversing the object's internal 
+        structure, replacing any unresolved elements with their resolved counterparts.
+
+        Returns a new object with the expression fully resolved, leaving the original 
+        object unchanged. The resolved object is marked with the 'resolved' attribute 
+        set to True, indicating that its internal expression has been successfully 
+        evaluated.
+        """
         clone = self.clone()
         clone._resolve_node(clone, *args, **kwargs)
         clone.resolved = True

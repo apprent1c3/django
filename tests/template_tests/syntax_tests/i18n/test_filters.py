@@ -18,6 +18,16 @@ class I18nFiltersTests(SimpleTestCase):
         }
     )
     def test_i18n32(self):
+        """
+        ..: 
+            Tests the rendering of internationalization (i18n) tags in a template.
+
+            This function checks that language names, local names, directionality, and translated names are correctly rendered.
+            It verifies the output for the Hungarian language code 'hu' in the default locale and then in the Czech locale.
+
+            :return: None
+            :raises AssertionError: If the rendered output does not match the expected strings.
+        """
         output = self.engine.render_to_string("i18n32")
         self.assertEqual(output, "Hungarian Magyar False Hungarian")
 

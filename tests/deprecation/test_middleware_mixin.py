@@ -57,6 +57,21 @@ class MiddlewareMixinTests(SimpleTestCase):
     ]
 
     def test_repr(self):
+        """
+        Test the representation of MiddlewareMixin and CsrfViewMiddleware instances.
+
+        This test case verifies that the repr function correctly represents instances of
+        MiddlewareMixin and CsrfViewMiddleware, including their get_response attributes.
+        The test covers both callable classes and regular functions as get_response attributes.
+
+        The expected output of the repr function is a string in the format
+        '<MiddlewareName get_response=get_response_name>', where MiddlewareName is the name
+        of the middleware class and get_response_name is the name of the get_response attribute.
+
+        The test ensures that the repr function correctly handles different types of
+        get_response attributes and provides a human-readable representation of the
+        middleware instances.
+        """
         class GetResponse:
             def __call__(self):
                 return HttpResponse()

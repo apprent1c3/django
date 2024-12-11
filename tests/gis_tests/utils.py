@@ -15,6 +15,16 @@ def skipUnlessGISLookup(*gis_lookups):
 
     def decorator(test_func):
         @wraps(test_func)
+        """
+        A decorator to skip a test if the database does not support certain GIS lookups.
+
+        This decorator checks if the database supports all GIS lookups required by the test.
+        If any of the required lookups are not supported, it raises a :class:`~unittest.SkipTest`
+        exception and skips the test. Otherwise, it calls the original test function with the provided arguments.
+
+        :param test_func: The test function to be decorated
+        :raises: :class:`~unittest.SkipTest` if the database does not support the required GIS lookups
+        """
         def skip_wrapper(*args, **kwargs):
             if any(key not in connection.ops.gis_operators for key in gis_lookups):
                 raise unittest.SkipTest(

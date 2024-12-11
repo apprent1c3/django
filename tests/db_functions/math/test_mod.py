@@ -18,6 +18,14 @@ class ModTests(TestCase):
         self.assertIsNone(obj.null_mod_normal)
 
     def test_decimal(self):
+        """
+        Tests the application of the modulo operation to decimal fields.
+
+        This test creates instances of DecimalModel with decimal values, then applies the modulo operation
+        to these values using the database's annotation functionality. It verifies that the result of the
+        modulo operation is also a decimal value and that it matches the expected result calculated using
+        the math library's fmod function.
+        """
         DecimalModel.objects.create(n1=Decimal("-9.9"), n2=Decimal("4.6"))
         obj = DecimalModel.objects.annotate(n_mod=Mod("n1", "n2")).first()
         self.assertIsInstance(obj.n_mod, Decimal)

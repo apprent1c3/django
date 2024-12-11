@@ -24,6 +24,23 @@ class CustomFilterTests(SimpleTestCase):
         )
 
     def test_decorated_filter(self):
+        """
+        Tests the behavior of the make_data_div filter when used within a template.
+
+        This test case verifies that the filter correctly generates a div element with
+        a data-name attribute based on the input provided to it. It checks that the
+        filter is loaded correctly and applied to the template variable, producing the
+        expected HTML output.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the rendered template output does not match the expected result.
+        """
         engine = Engine(libraries=LIBRARIES)
         t = engine.from_string("{% load custom %}{{ name|make_data_div }}")
         self.assertEqual(
@@ -45,6 +62,22 @@ class TagTestCase(SimpleTestCase):
 
 class SimpleTagTests(TagTestCase):
     def test_simple_tags(self):
+        """
+        Tests rendering of simple custom template tags with various parameters.
+
+        This test function covers a range of scenarios, including:
+        - Tags with no parameters
+        - Tags with a single positional parameter
+        - Tags with an explicit 'no context' flag
+        - Tags with a combination of parameters and context values
+        - Tags with simple keyword-only parameters
+        - Tags with positional and keyword parameters, including default values
+        - Tags with unlimited positional arguments
+        - Tags with unlimited keyword arguments
+
+        Each test case checks that the rendered template output matches the expected result.
+        Additionally, the test function checks that assigning the result of a tag to a variable using the 'as' keyword produces the expected output.
+        """
         c = Context({"value": 42})
 
         templates = [
@@ -130,6 +163,20 @@ class SimpleTagTests(TagTestCase):
             self.assertEqual(t.render(c), "Result: %s" % entry[1])
 
     def test_simple_tag_errors(self):
+        """
+        Tests various simple tag error cases to ensure correct TemplateSyntaxError handling.
+
+        This test suite covers a range of errors including unexpected keyword arguments, 
+        too many positional arguments, missing required keyword-only arguments, 
+        duplicate keyword arguments, and invalid argument ordering.
+
+        Each test case checks that the expected error message is raised when parsing 
+        a template string containing an invalid simple tag usage.
+
+        The test also verifies that the same error messages are produced when the 
+        invalid tag is used in an assignment context.
+
+        """
         errors = [
             (
                 "'simple_one_default' received unexpected keyword argument 'three'",
@@ -184,11 +231,34 @@ class SimpleTagTests(TagTestCase):
                 self.engine.from_string("%s as var %%}" % entry[1][0:-2])
 
     def test_simple_tag_escaping_autoescape_off(self):
+        """
+        Tests the rendering of a simple template with tag escaping disabled.
+
+        This test verifies that when autoescaping is turned off, the template engine renders
+        the content correctly without converting special characters to their HTML entity
+        equivalents. The test case includes a string with an ampersand (&) character, which
+        is not escaped in the rendered output.
+
+        The expected result is a plain text string with the user's name, including any special
+        characters, rendered as is. This ensures that the template engine behaves as expected
+        when autoescaping is disabled, providing a way to include unescaped content in the
+        template output when necessary. 
+        """
         c = Context({"name": "Jack & Jill"}, autoescape=False)
         t = self.engine.from_string("{% load custom %}{% escape_naive %}")
         self.assertEqual(t.render(c), "Hello Jack & Jill!")
 
     def test_simple_tag_naive_escaping(self):
+        """
+
+        Tests the naive escaping functionality of a simple template tag.
+
+        This test case verifies that the escape_naive template tag correctly escapes special characters in a given context.
+        It checks if the ampersand (&) character is properly replaced with its HTML entity (&amp;) during the rendering process.
+
+        The expected output is a string where the name from the context is properly escaped and prefixed with a greeting message.
+
+        """
         c = Context({"name": "Jack & Jill"})
         t = self.engine.from_string("{% load custom %}{% escape_naive %}")
         self.assertEqual(t.render(c), "Hello Jack &amp; Jill!")
@@ -201,6 +271,16 @@ class SimpleTagTests(TagTestCase):
 
     def test_simple_tag_format_html_escaping(self):
         # Check we don't double escape
+        """
+
+        Tests the functionality of applying HTML escaping to a simple tag format using the custom template engine.
+
+        This test case verifies that the template engine correctly escapes special characters in the input data, 
+        preventing potential XSS attacks and ensuring the output is safe to be rendered as HTML.
+
+        The expected output is a string with ampersands (&) replaced with their corresponding HTML entities (&amp;).
+
+        """
         c = Context({"name": "Jack & Jill"})
         t = self.engine.from_string("{% load custom %}{% escape_format_html %}")
         self.assertEqual(t.render(c), "Hello Jack &amp; Jill!")
@@ -376,6 +456,18 @@ class InclusionTagTests(TagTestCase):
 
     def test_include_tag_missing_context(self):
         # The 'context' parameter must be present when takes_context is True
+        """
+        Tests that using an inclusion tag without a context parameter raises an error when the tag is decorated with takes_context=True.
+
+        This test case verifies that a TemplateSyntaxError is raised when an inclusion tag
+        that requires context is used without providing the context as the first argument.
+        The error message checks for the correct message indicating that the inclusion tag
+        is missing the required context parameter.
+
+        The test ensures that the templating engine properly enforces the context requirement
+        for inclusion tags and provides a clear error message to the user when the requirement
+        is not met.
+        """
         msg = (
             "'inclusion_tag_without_context_parameter' is decorated with "
             "takes_context=True so it must have a first argument of 'context'"
@@ -530,6 +622,13 @@ class InclusionTagTests(TagTestCase):
 class TemplateTagLoadingTests(SimpleTestCase):
     @classmethod
     def setUpClass(cls):
+        """
+        ..:classmeth:: setUpClass
+            Performs class-level setup for testing purposes.
+
+            This method is called before running any tests in the class and is responsible for initializing the eggs directory path.
+            It also calls the superclass' setUpClass method to ensure any necessary parent class setup is performed.
+        """
         cls.egg_dir = os.path.join(ROOT, "eggs")
         super().setUpClass()
 

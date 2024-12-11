@@ -47,6 +47,21 @@ class TestDataMixin:
 @override_settings(ROOT_URLCONF="generic_views.urls")
 class ArchiveIndexViewTests(TestDataMixin, TestCase):
     def test_archive_view(self):
+        """
+
+        Tests the archive view for books.
+
+        Verifies that the view returns a successful HTTP response, and that the
+        context contains the correct list of dates and the latest books. Also checks
+        that the correct template is used to render the response.
+
+        The test covers the following scenarios:
+        - A successful HTTP GET request to the archive view
+        - The presence of a date list in the response context
+        - The presence of the latest books in the response context
+        - The use of the correct template to render the response
+
+        """
         res = self.client.get("/dates/books/")
         self.assertEqual(res.status_code, 200)
         self.assertEqual(
@@ -108,6 +123,14 @@ class ArchiveIndexViewTests(TestDataMixin, TestCase):
             self.client.get("/dates/books/invalid/")
 
     def test_archive_view_by_month(self):
+        """
+
+        Tests the archive view functionality for retrieving a list of book publication dates grouped by month.
+
+        This view is expected to return a successful HTTP response (200 OK) and a list of dates in descending order, 
+        corresponding to the publication dates of all books in the database.
+
+        """
         res = self.client.get("/dates/books/by_month/")
         self.assertEqual(res.status_code, 200)
         self.assertEqual(
@@ -143,10 +166,26 @@ class ArchiveIndexViewTests(TestDataMixin, TestCase):
 
     def test_no_duplicate_query(self):
         # Regression test for #18354
+        """
+        ).. 
+                Tests that the view for reverse ordering of book dates by publication 
+                date does not execute more than the expected number of database queries. 
+                The expected number of queries is 2. This test case ensures that the 
+                database operations are optimized and no unnecessary queries are made.
+        """
         with self.assertNumQueries(2):
             self.client.get("/dates/books/reverse/")
 
     def test_datetime_archive_view(self):
+        """
+
+        Tests the datetime archive view by creating a BookSigning object with a specific event date 
+        and verifying that a GET request to the '/dates/booksignings/' endpoint returns a successful response.
+
+        The purpose of this test is to ensure that the datetime archive view is functioning correctly 
+        and returning the expected HTTP status code (200) when a valid request is made.
+
+        """
         BookSigning.objects.create(event_date=datetime.datetime(2008, 4, 2, 12, 0))
         res = self.client.get("/dates/booksignings/")
         self.assertEqual(res.status_code, 200)
@@ -155,6 +194,19 @@ class ArchiveIndexViewTests(TestDataMixin, TestCase):
     @skipUnlessDBFeature("has_zoneinfo_database")
     @override_settings(USE_TZ=True, TIME_ZONE="Africa/Nairobi")
     def test_aware_datetime_archive_view(self):
+        """
+
+        Tests the aware datetime archive view for book signings.
+
+        This test case ensures that the archive view correctly handles datetime objects 
+        with time zone information. It creates a book signing event with a datetime in 
+        UTC and then makes a GET request to the archive view. The test asserts that the 
+        view returns a successful response (200 status code).
+
+        The test is skipped if the database does not support time zones and requires 
+        time zone support to be enabled.
+
+        """
         BookSigning.objects.create(
             event_date=datetime.datetime(
                 2008, 4, 2, 12, 0, tzinfo=datetime.timezone.utc
@@ -204,6 +256,14 @@ class ArchiveIndexViewTests(TestDataMixin, TestCase):
         self.assertTemplateUsed(res, "generic_views/book_archive.html")
 
     def test_archive_view_without_date_field(self):
+        """
+        Tests that attempting to access the book archive view without a date field raises an ImproperlyConfigured exception.
+
+        The test verifies that a specific error message is displayed when the date_field attribute is missing, ensuring that the view is properly configured to handle date-based queries.
+
+        :raises: ImproperlyConfigured
+        :note: This test case covers a specific edge case where the date field is not provided, ensuring the robustness of the archive view functionality.
+        """
         msg = "BookArchiveWithoutDateField.date_field is required."
         with self.assertRaisesMessage(ImproperlyConfigured, msg):
             self.client.get("/dates/books/without_date_field/")
@@ -212,6 +272,18 @@ class ArchiveIndexViewTests(TestDataMixin, TestCase):
 @override_settings(ROOT_URLCONF="generic_views.urls")
 class YearArchiveViewTests(TestDataMixin, TestCase):
     def test_year_view(self):
+        """
+        Tests the year view functionality for book archives.
+
+        Verifies that a GET request to the year view endpoint returns a successful response,
+        renders the correct template, and includes the expected context variables, including
+        a list of dates, the current year, and navigation links to previous and next years.
+
+        Specifically, it checks that the response status code is 200, the date list contains
+        the expected dates, the year is correctly set, and the previous and next year links
+        are correctly determined. The test also ensures that the correct template is used to
+        render the year view page.
+        """
         res = self.client.get("/dates/books/2008/")
         self.assertEqual(res.status_code, 200)
         self.assertEqual(list(res.context["date_list"]), [datetime.date(2008, 10, 1)])
@@ -328,11 +400,25 @@ class YearArchiveViewTests(TestDataMixin, TestCase):
         self.assertTemplateUsed(res, "generic_views/book_archive_year.html")
 
     def test_year_view_invalid_pattern(self):
+        """
+        Tests the year view endpoint when an invalid pattern is used.
+
+        The function sends a GET request to the '/dates/books/no_year/' endpoint and checks if the server returns a 404 status code, indicating that the requested resource cannot be found due to an invalid year pattern. This test ensures that the application handles invalid year patterns correctly and returns an appropriate error response.
+        """
         res = self.client.get("/dates/books/no_year/")
         self.assertEqual(res.status_code, 404)
 
     def test_no_duplicate_query(self):
         # Regression test for #18354
+        """
+
+        Tests that the 'reverse' view for books by date does not execute duplicate database queries.
+
+        The test simulates a GET request to the '/dates/books/2008/reverse/' endpoint and verifies that the database is queried exactly 4 times.
+
+        It ensures that the view is optimized to minimize database queries, preventing potential performance issues.
+
+        """
         with self.assertNumQueries(4):
             self.client.get("/dates/books/2008/reverse/")
 
@@ -403,6 +489,16 @@ class MonthArchiveViewTests(TestDataMixin, TestCase):
 
     def test_month_view_allow_empty(self):
         # allow_empty = False, empty month
+        """
+
+        Tests the month view functionality when allowing empty results.
+
+        This test checks that the month view returns a 404 status code when no 'allow_empty' parameter is provided and the view would otherwise be empty.
+        It then tests that when the 'allow_empty' parameter is provided, the view returns a 200 status code and an empty list of dates and books.
+        Additionally, it verifies that the correct month, next month, and previous month are displayed in the view context.
+        The test also checks that when the current month is requested with the 'allow_empty' parameter, the view returns a 200 status code and the next month is None.
+
+        """
         res = self.client.get("/dates/books/2000/jan/")
         self.assertEqual(res.status_code, 404)
 
@@ -424,6 +520,17 @@ class MonthArchiveViewTests(TestDataMixin, TestCase):
         self.assertIsNone(res.context["next_month"])
 
     def test_month_view_allow_future(self):
+        """
+
+        Tests the month view functionality when allowing future dates.
+
+        This test case ensures that the month view returns a 404 status code when
+        trying to access a future month without allowing future dates. It also
+        verifies that when allowing future dates, the view returns a 200 status
+        code and correctly populates the context with the expected data, including
+        the list of dates, books, and navigation links to next and previous months.
+
+        """
         future = (datetime.date.today() + datetime.timedelta(days=60)).replace(day=1)
         urlbit = future.strftime("%Y/%b").lower()
         b = Book.objects.create(name="The New New Testement", pages=600, pubdate=future)
@@ -465,6 +572,13 @@ class MonthArchiveViewTests(TestDataMixin, TestCase):
         self.assertTemplateUsed(res, "generic_views/book_archive_month.html")
 
     def test_custom_month_format(self):
+        """
+        .\"\"\"
+        Tests the API endpoint for retrieving book data by custom month format.
+
+        Verifies that a GET request to the '/dates/books/year/month/' endpoint returns a successful response (200 status code) when given a valid year and month.
+
+        """
         res = self.client.get("/dates/books/2008/10/")
         self.assertEqual(res.status_code, 200)
 
@@ -494,6 +608,15 @@ class MonthArchiveViewTests(TestDataMixin, TestCase):
         self.assertEqual(res.context["previous_month"], datetime.date(2010, 9, 1))
 
     def test_datetime_month_view(self):
+        """
+
+        Tests the date view functionality for retrieving book signings by month.
+
+        Verifies that a successful HTTP request (200 status code) is returned when
+        retrieving book signings for a specific month (e.g., April 2008), even if
+        there are book signings in other months.
+
+        """
         BookSigning.objects.create(event_date=datetime.datetime(2008, 2, 1, 12, 0))
         BookSigning.objects.create(event_date=datetime.datetime(2008, 4, 2, 12, 0))
         BookSigning.objects.create(event_date=datetime.datetime(2008, 6, 3, 12, 0))
@@ -549,6 +672,17 @@ class MonthArchiveViewTests(TestDataMixin, TestCase):
 @override_settings(ROOT_URLCONF="generic_views.urls")
 class WeekArchiveViewTests(TestDataMixin, TestCase):
     def test_week_view(self):
+        """
+
+        Tests the week view of the book archive.
+
+        This test case retrieves the week view for the year 2008, specifically week 39, 
+        and verifies that the HTTP response status code is 200. It also checks that 
+        the correct template is used to render the page and that the book list, week 
+        and navigation links (previous and next week) are correctly populated in the 
+        response context.
+
+        """
         res = self.client.get("/dates/books/2008/week/39/")
         self.assertEqual(res.status_code, 200)
         self.assertTemplateUsed(res, "generic_views/book_archive_week.html")
@@ -589,6 +723,18 @@ class WeekArchiveViewTests(TestDataMixin, TestCase):
 
     def test_week_view_allow_future(self):
         # January 7th always falls in week 1, given Python's definition of week numbers
+        """
+
+        Tests the week view functionality when allowing future dates.
+
+        This test case ensures that the week view returns a 404 status code when future dates are not allowed.
+        It also verifies that when future dates are allowed, the view returns a 200 status code and the expected book list.
+        Additionally, it checks the context variables 'book_list', 'week', 'next_week', and 'previous_week' for correctness.
+
+        The test creates a book with a future publication date and then makes GET requests to the week view URL with and without the 'allow_future' parameter.
+        It asserts that the response status codes and context variables match the expected values.
+
+        """
         future = datetime.date(datetime.date.today().year + 1, 1, 7)
         future_sunday = future - datetime.timedelta(days=(future.weekday() + 1) % 7)
         b = Book.objects.create(name="The New New Testement", pages=600, pubdate=future)
@@ -614,6 +760,19 @@ class WeekArchiveViewTests(TestDataMixin, TestCase):
         self.assertEqual(res.context["previous_week"], datetime.date(2006, 4, 30))
 
     def test_week_view_paginated(self):
+        """
+        Tests the week view with pagination for books.
+
+        This test case verifies that the week view page for books is correctly rendered
+        and that the book list is properly filtered based on the specified week.
+
+        It checks the following:
+            * The HTTP response status code is 200 (OK)
+            * The book list in the response context matches the expected list of books
+              published during the specified week
+            * The object list in the response context matches the book list
+            * The correct template (book_archive_week.html) is used to render the page
+        """
         week_start = datetime.date(2008, 9, 28)
         week_end = week_start + datetime.timedelta(days=7)
         res = self.client.get("/dates/books/2008/week/39/")
@@ -634,6 +793,15 @@ class WeekArchiveViewTests(TestDataMixin, TestCase):
 
     def test_week_start_Monday(self):
         # Regression for #14752
+        """
+        Tests that the week start date is correctly determined as Monday for the given year and week number.
+
+            Checks the HTTP response status code and the week start date in the response context for two scenarios:
+            - when the week number is provided without specifying the day of the week
+            - when 'monday' is explicitly specified as the day of the week
+
+            Verifies that the response status code is 200 (OK) and the week start date is correctly set to a Monday in both cases.
+        """
         res = self.client.get("/dates/books/2008/week/39/")
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.context["week"], datetime.date(2008, 9, 28))
@@ -643,6 +811,15 @@ class WeekArchiveViewTests(TestDataMixin, TestCase):
         self.assertEqual(res.context["week"], datetime.date(2008, 9, 29))
 
     def test_week_iso_format(self):
+        """
+        Tests the week ISO format view for books.
+
+        Verifies that the view returns a successful response, uses the correct template,
+        and includes the expected book and week information in the response context.
+
+        The view is expected to filter books by a specific week of the year in ISO format,
+        and return a list of books published during that week, along with the start date of the week.
+        """
         res = self.client.get("/dates/books/2008/week/40/iso_format/")
         self.assertEqual(res.status_code, 200)
         self.assertTemplateUsed(res, "generic_views/book_archive_week.html")
@@ -658,6 +835,25 @@ class WeekArchiveViewTests(TestDataMixin, TestCase):
             self.client.get("/dates/books/2008/week/39/unknown_week_format/")
 
     def test_incompatible_iso_week_format_view(self):
+        """
+        Tests the handling of incompatible ISO week format in the view.
+
+        Verifies that attempting to access a date with an ISO week format that includes 
+        the year directive '%Y' raises a ValueError, as this is incompatible with the 
+        ISO week directive '%V'. The correct usage should involve the ISO year '%G' 
+        instead, to avoid ambiguity and ensure proper date interpretation.
+
+        Args: 
+            None
+
+        Returns: 
+            None
+
+        Raises: 
+            ValueError: With a message indicating the incompatibility of the ISO week 
+            directive with the year directive, suggesting the use of the ISO year 
+            directive instead.
+        """
         msg = (
             "ISO week directive '%V' is incompatible with the year directive "
             "'%Y'. Use the ISO year '%G' instead."
@@ -699,6 +895,18 @@ class DayArchiveViewTests(TestDataMixin, TestCase):
 
     def test_day_view_allow_empty(self):
         # allow_empty = False, empty month
+        """
+
+        Tests the day view functionality, specifically the behavior when allowing empty results.
+
+        The test case covers two scenarios:
+        - When the day view is accessed without allowing empty results, it should return a 404 status code.
+        - When the day view is accessed with the 'allow_empty' parameter, it should return a 200 status code and an empty book list.
+
+        Additionally, the test verifies that the response context contains the correct day, next day, and previous day information.
+        The test also checks the behavior when accessing the day view for the current date, ensuring that the 'next_day' parameter is None.
+
+        """
         res = self.client.get("/dates/books/2000/jan/1/")
         self.assertEqual(res.status_code, 404)
 
@@ -755,6 +963,16 @@ class DayArchiveViewTests(TestDataMixin, TestCase):
         self.assertEqual(res.context["next_day"], today)
 
     def test_day_view_paginated(self):
+        """
+
+        Checks the day view page with pagination for correctness.
+
+        Verifies that a GET request to the day view page returns a successful status code (200),
+        and that the correct book objects are displayed based on the date specified in the URL.
+        The view's context is inspected to ensure it contains the expected list of books,
+        and that the correct template ('book_archive_day.html') is used to render the page.
+
+        """
         res = self.client.get("/dates/books/2008/oct/1/")
         self.assertEqual(res.status_code, 200)
         self.assertEqual(
@@ -776,12 +994,34 @@ class DayArchiveViewTests(TestDataMixin, TestCase):
         self.assertTemplateUsed(res, "generic_views/book_archive_day.html")
 
     def test_next_prev_context(self):
+        """
+        Tests the next and previous context functionality for archive dates.
+
+        This test case asserts that when retrieving an archive date, the correct
+        previous day is returned. The test uses a specific date (October 1, 2008)
+        and verifies that the previous day is correctly identified as May 1, 2006.
+
+        The test checks the HTTP response content from the client to ensure it
+        matches the expected output, indicating that the next and previous context
+        functionality is working as expected.
+
+        :param None
+        :returns: None
+        :raises: AssertionError if the response content does not match the expected output
+        """
         res = self.client.get("/dates/books/2008/oct/01/")
         self.assertEqual(
             res.content, b"Archive for Oct. 1, 2008. Previous day is May 1, 2006\n"
         )
 
     def test_custom_month_format(self):
+        """
+
+        Tests the custom month format functionality by sending a GET request to the '/dates/books/yyyy/mm/dd/' endpoint.
+        The request includes a specific date, and the function checks if the server returns a successful response (status code 200).
+        This test case ensures that the custom month format is properly handled and the application behaves as expected when receiving requests with date parameters in the specified format.
+
+        """
         res = self.client.get("/dates/books/2008/10/01/")
         self.assertEqual(res.status_code, 200)
 
@@ -832,6 +1072,16 @@ class DayArchiveViewTests(TestDataMixin, TestCase):
 @override_settings(ROOT_URLCONF="generic_views.urls")
 class DateDetailViewTests(TestDataMixin, TestCase):
     def test_date_detail_by_pk(self):
+        """
+
+        Tests that the date detail view by primary key returns a successful response 
+        and renders the correct template with the expected book object.
+
+        Checks that the view returns a 200 status code, and that the book object 
+        retrieved from the database matches the expected book object. 
+        Also verifies that the correct template is used to render the response.
+
+        """
         res = self.client.get("/dates/books/2008/oct/01/%s/" % self.book1.pk)
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.context["object"], self.book1)
@@ -844,11 +1094,23 @@ class DateDetailViewTests(TestDataMixin, TestCase):
         self.assertEqual(res.context["book"], Book.objects.get(slug="dreaming-in-code"))
 
     def test_date_detail_custom_month_format(self):
+        """
+        Tests that a date detail view for a custom month format returns a successful response and includes the expected book object in the context. 
+
+        The view is tested for a specific date (October 1, 2008) and verifies that the HTTP status code is 200 (OK) and that the book object retrieved from the database matches the one used in the test.
+        """
         res = self.client.get("/dates/books/2008/10/01/%s/" % self.book1.pk)
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.context["book"], self.book1)
 
     def test_date_detail_allow_future(self):
+        """
+        Tests the date detail view for books, specifically when a future publication date is allowed.
+
+        Verifies that when a book has a future publication date, its detail page is not accessible by default, 
+        returning a 404 status code. However, when the 'allow_future' parameter is included in the URL, 
+        the detail page becomes accessible, returning a 200 status code, and rendering the expected template with the book object.
+        """
         future = datetime.date.today() + datetime.timedelta(days=60)
         urlbit = future.strftime("%Y/%b/%d").lower()
         b = Book.objects.create(
@@ -902,10 +1164,35 @@ class DateDetailViewTests(TestDataMixin, TestCase):
         self.assertEqual(res.status_code, 404)
 
     def test_get_object_custom_queryset_numqueries(self):
+        """
+
+        Tests the number of database queries made when retrieving an object using a custom queryset.
+
+        Verifies that a single GET request to the specified URL results in only one database query.
+        The test case ensures that the queryset is optimized to minimize database interactions.
+
+        """
         with self.assertNumQueries(1):
             self.client.get("/dates/books/get_object_custom_queryset/2006/may/01/2/")
 
     def test_datetime_date_detail(self):
+        """
+        Tests the retrieval of a book signing event's date details.
+
+        This test case verifies that a GET request to the book signing event date detail
+        page returns a successful response (200 status code). The test creates a sample
+        book signing event with a specific date and time, and then checks if the event's
+        date details can be accessed through the API endpoint.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the response status code is not 200
+        """
         bs = BookSigning.objects.create(event_date=datetime.datetime(2008, 4, 2, 12, 0))
         res = self.client.get("/dates/booksignings/2008/apr/2/%d/" % bs.pk)
         self.assertEqual(res.status_code, 200)

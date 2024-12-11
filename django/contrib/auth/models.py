@@ -157,6 +157,18 @@ class UserManager(BaseUserManager):
         return user
 
     def create_user(self, username, email=None, password=None, **extra_fields):
+        """
+        Creates a new user with the specified username and optional parameters.
+
+        :param username: The username for the new user, which must be unique.
+        :param email: The email address for the new user, defaults to None.
+        :param password: The password for the new user, defaults to None.
+        :param extra_fields: Additional fields to set for the new user.
+
+        :returns: The newly created user instance.
+
+        :note: Unless explicitly set, the new user will not have staff or superuser privileges by default.
+        """
         extra_fields.setdefault("is_staff", False)
         extra_fields.setdefault("is_superuser", False)
         return self._create_user(username, email, password, **extra_fields)

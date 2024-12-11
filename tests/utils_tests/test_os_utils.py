@@ -8,6 +8,20 @@ from django.utils._os import safe_join, to_path
 
 class SafeJoinTests(unittest.TestCase):
     def test_base_path_ends_with_sep(self):
+        """
+        Determines if the base path ends with a separator as expected.
+
+        This test case checks if the joining of paths using a safe method results in a base path that correctly terminates with a path separator, ensuring consistency and accuracy in path construction. 
+
+        Args:
+            None
+
+        Returns:
+            None 
+
+        Raises:
+            AssertionError: If the base path does not end with the expected path separator.
+        """
         drive, path = os.path.splitdrive(safe_join("/abc/", "abc"))
         self.assertEqual(path, "{0}abc{0}abc".format(os.path.sep))
 
@@ -36,5 +50,12 @@ class ToPathTests(unittest.TestCase):
                 self.assertEqual(to_path(path), Path("/tmp/some_file.txt"))
 
     def test_to_path_invalid_value(self):
+        """
+        Tests that the to_path function raises a TypeError when given an invalid value.
+
+        This test case checks that the function behaves correctly when passed an argument of the wrong type, specifically an integer.
+
+        :raises TypeError: if the input value is not a valid path
+        """
         with self.assertRaises(TypeError):
             to_path(42)

@@ -156,6 +156,14 @@ class NullBooleanSelectTest(WidgetTest):
             )
 
     def test_fieldset(self):
+        """
+
+        Tests the rendering of a form field using a NullBooleanField widget.
+
+        This test case verifies that the widget does not use a fieldset by default and
+        that the field is rendered correctly, including the label and select options.
+
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = NullBooleanField(widget=self.widget)

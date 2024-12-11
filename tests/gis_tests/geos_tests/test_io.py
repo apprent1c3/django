@@ -35,6 +35,16 @@ class GEOSIOTest(SimpleTestCase):
 
     def test02_wktwriter(self):
         # Creating a WKTWriter instance, testing its ptr property.
+        """
+
+        Tests the WKTWriter class to ensure it correctly converts GEOSGeometry objects to WKT format.
+
+        The test verifies that assigning a WKTReader pointer to the WKTWriter instance raises a TypeError.
+        It then checks the successful conversion of a GEOSGeometry object representing a point to its equivalent WKT string.
+
+        The test case uses a point with coordinates (5, 23) and verifies that the resulting WKT string matches the expected output.
+
+        """
         wkt_w = WKTWriter()
         with self.assertRaises(TypeError):
             wkt_w.ptr = WKTReader.ptr_type()
@@ -75,6 +85,21 @@ class GEOSIOTest(SimpleTestCase):
                 wkb_r.read(bad_wkb)
 
     def test04_wkbwriter(self):
+        """
+        Test the WKBWriter class functionality.
+
+        The WKBWriter is responsible for serializing geometric objects into the Well Known Binary (WKB) format.
+        This test case checks the correctness of the write_hex and write methods, byte order, 
+        output dimension, and SRID inclusion settings. 
+
+        It verifies that:
+        - Geometric objects are correctly serialized into WKB format with different byte orders.
+        - Invalid byte orders raise a ValueError.
+        - The output dimension setting only allows values of 2 or 3.
+        - Invalid output dimensions raise a ValueError with a descriptive message.
+        - SRID inclusion setting correctly includes or excludes the spatial reference system identifier in the WKB output.
+
+        """
         wkb_w = WKBWriter()
 
         # Representations of 'POINT (5 23)' in hex -- one normal and
@@ -132,6 +157,22 @@ class GEOSIOTest(SimpleTestCase):
         self.assertEqual(wkb3d_srid, wkb_w.write(g))
 
     def test_wkt_writer_trim(self):
+        """
+
+        Test the functionality of the WKTWriter's trim feature.
+
+        This test case verifies the WKTWriter's ability to write Well-Known Text (WKT) 
+        representations of geographic points with and without trimming decimal values. 
+
+        When the trim feature is disabled, the WKTWriter writes coordinates with a full 
+        precision of decimal places. When the trim feature is enabled, the WKTWriter 
+        writes coordinates with decimal places removed if the value is a whole number, 
+        otherwise it writes with a full precision of decimal places. 
+
+        The test covers scenarios where the trim feature is both enabled and disabled, 
+        ensuring correct WKT output in each case.
+
+        """
         wkt_w = WKTWriter()
         self.assertFalse(wkt_w.trim)
         self.assertEqual(
@@ -208,6 +249,15 @@ class GEOSIOTest(SimpleTestCase):
             self.assertEqual(GEOSGeometry(wkb_w.write(p)), p)
 
     def test_empty_polygon_wkb(self):
+        """
+        horrors test_empty_polygon_wkb Tests the WKB (Well-Known Binary) writer for an empty polygon geometry.
+
+         The function verifies that the writer correctly handles empty polygons with and without a spatial reference system (SRS) identifier.
+
+         It checks the output in both hexadecimal and binary formats, ensuring that the written WKB is correct and that it can be properly read back into a GEOS geometry object.
+
+         The test covers different byte orders and SRS identifier settings to ensure the writer behaves correctly in various scenarios.
+        """
         p = Polygon(srid=4326)
         p_no_srid = Polygon()
         wkb_w = WKBWriter()

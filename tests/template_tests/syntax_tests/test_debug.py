@@ -39,6 +39,11 @@ class DebugTests(SimpleTestCase):
 
     @setup({"script": "{% debug %}"})
     def test_script(self):
+        """
+        檢查模板渲染的安全性和行為，透過測試對具有危險內容的輸入的轉義，確保輸出結果正確且安全。 
+
+        本函数測試模板引擎是否正確地轉義特殊字符，預防潛在的XSS攻擊。返回的輸出被驗證是否以預期的字串開頭，這表明引擎成功地把輸入的内容轉換成安全的形式。
+        """
         output = self.engine.render_to_string("script", {"frag": "<script>"})
         self.assertTrue(
             output.startswith("{&#x27;frag&#x27;: &#x27;&lt;script&gt;&#x27;}")

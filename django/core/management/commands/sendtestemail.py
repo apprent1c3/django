@@ -13,6 +13,12 @@ class Command(BaseCommand):
     )
 
     def add_arguments(self, parser):
+        """
+        Add email addresses to be used for sending test emails.
+
+        This function populates the argument parser with options to specify recipients for test emails.
+        It accepts one or more email addresses, and provides flags to include managers and admins from the application settings.
+        """
         parser.add_argument(
             "email",
             nargs="*",

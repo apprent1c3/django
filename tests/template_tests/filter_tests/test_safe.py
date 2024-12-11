@@ -11,5 +11,8 @@ class SafeTests(SimpleTestCase):
 
     @setup({"safe02": "{% autoescape off %}{{ a }} -- {{ a|safe }}{% endautoescape %}"})
     def test_safe02(self):
+        """
+        Tests the 'safe' filter functionality within a Jinja template, verifying that it correctly disables HTML escaping for a given variable.
+        """
         output = self.engine.render_to_string("safe02", {"a": "<b>hello</b>"})
         self.assertEqual(output, "<b>hello</b> -- <b>hello</b>")

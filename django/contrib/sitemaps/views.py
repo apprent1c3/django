@@ -20,6 +20,16 @@ class SitemapIndexItem:
 def x_robots_tag(func):
     @wraps(func)
     def inner(request, *args, **kwargs):
+        """
+
+        Decorator function to modify HTTP responses by adding a 'X-Robots-Tag' header.
+
+        This function wraps an existing view function, calling it with the provided request and arguments,
+        then appends a 'X-Robots-Tag' header to the response before returning it. The header is set to
+        'noindex, noodp, noarchive', instructing search engines not to index the page, not to use the
+        Open Directory Project (ODP) description, and not to archive the page.
+
+        """
         response = func(request, *args, **kwargs)
         response.headers["X-Robots-Tag"] = "noindex, noodp, noarchive"
         return response

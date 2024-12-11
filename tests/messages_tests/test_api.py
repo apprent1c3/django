@@ -8,10 +8,26 @@ class ApiTests(SimpleTestCase):
     rf = RequestFactory()
 
     def setUp(self):
+        """
+
+        Initializes the test setup by creating a new test request and a dummy storage instance.
+
+        This method is used to prepare the environment for subsequent tests, providing a clean request object and a storage instance for testing purposes.
+
+        """
         self.request = self.rf.request()
         self.storage = DummyStorage()
 
     def test_ok(self):
+        """
+
+        Tests that a debug message can be successfully added to the request and stored.
+
+        This test case verifies that the message is correctly added with the DEBUG level
+        and that it can be retrieved from the storage, ensuring that the message content
+        remains intact throughout the process.
+
+        """
         msg = "some message"
         self.request._messages = self.storage
         messages.add_message(self.request, messages.DEBUG, msg)
@@ -26,6 +42,16 @@ class ApiTests(SimpleTestCase):
         self.assertEqual(self.storage.store, [])
 
     def test_middleware_missing(self):
+        """
+
+        Tests that adding a message without installing the required middleware raises an exception.
+
+        This test case verifies that the `messages.add_message` function correctly fails when
+        django.contrib.messages.middleware.MessageMiddleware is not installed. It checks that a
+        `messages.MessageFailure` exception is raised with a specific error message and that
+        no messages are stored.
+
+        """
         msg = (
             "You cannot add messages without installing "
             "django.contrib.messages.middleware.MessageMiddleware"

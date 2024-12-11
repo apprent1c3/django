@@ -33,11 +33,25 @@ class TestSaveLoad(TestCase):
         self.assertEqual(loaded.field, uuid.UUID("550e8400e29b41d4a716446655440000"))
 
     def test_str_instance_hyphens(self):
+        """
+        Tests the handling of string instances with hyphens.
+
+        Verifies that a UUID string containing hyphens is correctly stored, retrieved, and 
+        normalized to a UUID object without hyphens, ensuring data consistency and integrity.
+
+        The test creates a UUIDModel instance with a string field containing a hyphenated UUID,
+        then retrieves and compares the loaded value to the expected UUID object without hyphens,
+        confirming that the conversion and storage processes function as intended.
+        """
         UUIDModel.objects.create(field="550e8400-e29b-41d4-a716-446655440000")
         loaded = UUIDModel.objects.get()
         self.assertEqual(loaded.field, uuid.UUID("550e8400e29b41d4a716446655440000"))
 
     def test_str_instance_bad_hyphens(self):
+        """
+        Tests the behavior of the UUIDModel class when a string instance with bad hyphens is saved and then retrieved. 
+        This test case checks that the retrieved UUID value has the hyphens removed and is correctly formatted as a valid UUID.
+        """
         UUIDModel.objects.create(field="550e84-00-e29b-41d4-a716-4-466-55440000")
         loaded = UUIDModel.objects.get()
         self.assertEqual(loaded.field, uuid.UUID("550e8400e29b41d4a716446655440000"))
@@ -132,6 +146,14 @@ class TestQuerying(TestCase):
         )
 
     def test_iexact(self):
+        """
+        Tests the case-insensitive exact lookup for NullableUUIDModel instances.
+
+        Verifies that the :meth:`filter` method with the ``iexact`` lookup type correctly
+        retrieves objects with a matching UUID field value, ignoring case and hyphen 
+        formatting differences. The test covers both hyphenated and unhyphenated UUID 
+        string representations. 
+        """
         self.assertSequenceEqualWithoutHyphens(
             NullableUUIDModel.objects.filter(
                 field__iexact="550E8400E29B41D4A716446655440000"
@@ -151,6 +173,17 @@ class TestQuerying(TestCase):
         )
 
     def test_contains(self):
+        """
+        Test that the contains filter for NullableUUIDModel works as expected.
+
+        The test checks that filtering on a UUID field using the contains lookup
+        correctly returns objects where the field contains the specified UUID value.
+        This is tested with both hyphenated and unhyphenated UUID formats.
+
+        The test verifies that the correct object is returned when using the contains
+        filter, ensuring that the lookup is correctly implemented and functional.
+
+        """
         self.assertSequenceEqualWithoutHyphens(
             NullableUUIDModel.objects.filter(field__contains="8400e29b"),
             [self.objs[1]],
@@ -171,6 +204,13 @@ class TestQuerying(TestCase):
         )
 
     def test_startswith(self):
+        """
+
+        Tests the functionality of filtering NullableUUIDModel instances where the 'field' attribute starts with a specific UUID prefix.
+
+        Verifies that the filter correctly returns the expected instance when the prefix is provided with and without hyphens.
+
+        """
         self.assertSequenceEqualWithoutHyphens(
             NullableUUIDModel.objects.filter(field__startswith="550e8400e29b4"),
             [self.objs[1]],
@@ -263,6 +303,17 @@ class TestSerialization(SimpleTestCase):
 
 class TestValidation(SimpleTestCase):
     def test_invalid_uuid(self):
+        """
+        Tests that a validation error is raised when an invalid UUID is provided to a UUIDField.
+
+        The function verifies that the clean method of the UUIDField class raises a ValidationError
+        with the correct error code and message when given a string that does not represent a valid UUID.
+        This ensures that the field correctly enforces UUID format validation on user input.
+
+        Raises:
+            AssertionError: if the expected validation error is not raised or has incorrect details.
+
+        """
         field = models.UUIDField()
         with self.assertRaises(exceptions.ValidationError) as cm:
             field.clean("550e8400", None)
@@ -273,6 +324,9 @@ class TestValidation(SimpleTestCase):
         )
 
     def test_uuid_instance_ok(self):
+        """
+        Tests that a valid UUID instance can be successfully cleaned by a UUIDField, ensuring that the field's validation logic allows for proper initialization with a generic UUID value.
+        """
         field = models.UUIDField()
         field.clean(uuid.uuid4(), None)  # no error
 
@@ -290,6 +344,18 @@ class TestAsPrimaryKey(TestCase):
         self.assertEqual(loaded.id, saved.id)
 
     def test_uuid_pk_on_bulk_create(self):
+        """
+        Tests the creation of multiple PrimaryKeyUUIDModel instances in bulk, 
+         verifying that each instance receives a unique UUID primary key and 
+         is successfully saved to the database. 
+
+         The test creates two model instances, one with an implicitly generated 
+         UUID primary key and another with an explicitly unset primary key, 
+         then uses the bulk_create method to save both instances to the database. 
+         It checks that both instances can be retrieved from the database by 
+         their primary keys and that the total count of model instances in the 
+         database is correctly updated.
+        """
         u1 = PrimaryKeyUUIDModel()
         u2 = PrimaryKeyUUIDModel(id=None)
         PrimaryKeyUUIDModel.objects.bulk_create([u1, u2])
@@ -316,6 +382,16 @@ class TestAsPrimaryKey(TestCase):
         self.assertEqual(r.uuid_fk, u2)
 
     def test_update_with_related_model_id(self):
+        """
+
+        Tests the update functionality of a related model with a foreign key to a UUID-based primary key model.
+
+        Verifies that updating the foreign key reference of a related model instance to a new UUID-based primary key model
+        instance correctly updates the reference, by comparing the updated instance with the newly assigned instance.
+
+        This test ensures data integrity and correct behavior of the update operation when dealing with related models and UUID primary keys.
+
+        """
         u1 = PrimaryKeyUUIDModel.objects.create()
         u2 = PrimaryKeyUUIDModel.objects.create()
         r = RelatedToUUIDModel.objects.create(uuid_fk=u1)
@@ -338,6 +414,15 @@ class TestAsPrimaryKeyTransactionTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_foreign_keys")
     def test_unsaved_fk(self):
+        """
+
+        Tests the behavior of creating a RelatedToUUIDModel instance with a foreign key to an unsaved PrimaryKeyUUIDModel instance.
+
+        Ensures that attempting to create a RelatedToUUIDModel object that references an unsaved PrimaryKeyUUIDModel raises an IntegrityError, as the referenced instance does not exist in the database yet.
+
+        This test case verifies the proper enforcement of foreign key constraints when working with unsaved model instances.
+
+        """
         u1 = PrimaryKeyUUIDModel()
         with self.assertRaises(IntegrityError):
             RelatedToUUIDModel.objects.create(uuid_fk=u1)

@@ -61,6 +61,14 @@ class MySQLOperations(BaseSpatialOperations, DatabaseOperations):
 
     @cached_property
     def disallowed_aggregates(self):
+        """
+        Returns a tuple of disallowed aggregate models for the database connection.
+
+        This method determines which aggregate models are not supported by the current database connection.
+        The disallowed aggregates are based on the database vendor and version, with some aggregates being
+        restricted due to compatibility issues with specific MySQL or MariaDB versions. The result can be used
+        to prevent the use of unsupported aggregate functions in database queries.
+        """
         disallowed_aggregates = [
             models.Extent,
             models.Extent3D,

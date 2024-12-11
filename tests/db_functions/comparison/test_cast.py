@@ -42,6 +42,17 @@ class CastTests(TestCase):
 
     @skipUnlessDBFeature("supports_cast_with_precision")
     def test_cast_to_decimal_field(self):
+        """
+
+        Test the functionality of casting floating point numbers to DecimalField.
+
+        This test case verifies that the Cast database function correctly converts
+        floating point numbers to DecimalField with specified precision. It checks
+        the casting of negative and positive numbers, as well as the rounding
+        behavior when the specified decimal places are fewer than the number of
+        decimal places in the floating point number.
+
+        """
         FloatModel.objects.create(f1=-1.934, f2=3.467)
         float_obj = FloatModel.objects.annotate(
             cast_f1_decimal=Cast(

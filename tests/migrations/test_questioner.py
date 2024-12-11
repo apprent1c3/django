@@ -18,10 +18,31 @@ class QuestionerTests(SimpleTestCase):
         MIGRATION_MODULES={"migrations": None},
     )
     def test_ask_initial_with_disabled_migrations(self):
+        """
+        Tests MigrationQuestioner's ask_initial method when migrations are disabled, verifying it returns False.
+        """
         questioner = MigrationQuestioner()
         self.assertIs(False, questioner.ask_initial("migrations"))
 
     def test_ask_not_null_alteration(self):
+        """
+        Tests the functionality of asking for a not null alteration in a migration.
+
+        This test case verifies that the MigrationQuestioner instance returns None 
+        when prompted to ask for a not null alteration, given a field name and a model name.
+
+        The purpose of this test is to ensure that the MigrationQuestioner behaves as expected 
+        when handling not null alterations, particularly when the user is not required to input 
+        any information. 
+
+        Args:
+            None (tested through instance methods)
+
+        Returns:
+            Asserts that None is returned, confirming expected behavior.
+
+
+        """
         questioner = MigrationQuestioner()
         self.assertIsNone(
             questioner.ask_not_null_alteration("field_name", "model_name")
@@ -43,6 +64,17 @@ class QuestionerHelperMethodsTests(SimpleTestCase):
 
     @mock.patch("builtins.input", return_value="datetime.timedelta(days=1)")
     def test_questioner_default_timedelta(self, mock_input):
+        """
+        .. method:: _ask_default()
+           :noindex:
+
+           Retrieves the default time delta value.
+
+           Returns the default time delta based on user input, simulated to be one day.
+
+           :return: datetime.timedelta object representing the default time delta.
+           :rtype: datetime.timedelta
+        """
         value = self.questioner._ask_default()
         self.assertEqual(value, datetime.timedelta(days=1))
 

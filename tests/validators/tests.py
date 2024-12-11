@@ -686,6 +686,16 @@ class TestValidators(SimpleTestCase):
                     self.assertEqual(expected, validator(value))
 
     def test_single_message(self):
+        """
+        Tests the string representation of a single ValidationError.
+
+        Verifies that the string and representation of a ValidationError instance
+        with a single error message are correctly formatted.
+
+        The expected output for the string representation is a list containing
+        the error message, while the representation should include the class name
+        and the list of error messages. 
+        """
         v = ValidationError("Not Valid")
         self.assertEqual(str(v), "['Not Valid']")
         self.assertEqual(repr(v), "ValidationError(['Not Valid'])")
@@ -723,6 +733,13 @@ class TestValidatorEquality(TestCase):
     """
 
     def test_regex_equality(self):
+        """
+        Tests the equality of RegexValidator instances.
+
+        This test case checks the equality of RegexValidator instances based on their regular expression patterns, error messages, and flags. 
+        It verifies that instances with the same pattern, error messages, and flags are considered equal, 
+        while instances with different patterns, error messages, or flags are not equal.
+        """
         self.assertEqual(
             RegexValidator(r"^(?:[a-z0-9.-]*)://"),
             RegexValidator(r"^(?:[a-z0-9.-]*)://"),
@@ -813,6 +830,15 @@ class TestValidatorEquality(TestCase):
         )
 
     def test_decimal_equality(self):
+        """
+
+        Tests the equality of DecimalValidator instances.
+
+        This test case checks if DecimalValidator instances are correctly compared for equality.
+        It verifies that instances with the same minimum and maximum decimal places are considered equal,
+        while instances with different minimum or maximum decimal places, or instances of different validator classes, are considered unequal.
+
+        """
         self.assertEqual(
             DecimalValidator(1, 2),
             DecimalValidator(1, 2),

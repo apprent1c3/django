@@ -28,6 +28,18 @@ class ListFilter:
     template = "admin/filter.html"
 
     def __init__(self, request, params, model, model_admin):
+        """
+        Initializes a new instance of the list filter.
+
+        :param request: The current HTTP request.
+        :param params: The parameters to be used for filtering.
+        :param model: The model being filtered.
+        :param model_admin: The model admin instance.
+
+        :raises ImproperlyConfigured: If the 'title' attribute is not specified for the list filter.
+
+        :note: This method is a special method in Python classes, known as a constructor, and is automatically called when an object of the class is instantiated. It sets up the initial state of the filter by storing the request, parameters, model, and model admin, and checks if a title has been specified for the filter.
+        """
         self.request = request
         # This dictionary will eventually contain the request's query string
         # parameters actually used by this filter.
@@ -189,6 +201,20 @@ class FieldListFilter(FacetsMixin, ListFilter):
         return True
 
     def queryset(self, request, queryset):
+        """
+
+        Filter a queryset based on used lookup parameters.
+
+        Applies a filter to the provided queryset using a query object built from the lookup parameters
+        defined by the class instance. If the lookup parameters are invalid, raises an IncorrectLookupParameters
+        exception with the underlying error.
+
+        :param request: The current request
+        :param queryset: The queryset to be filtered
+        :return: The filtered queryset
+        :raises IncorrectLookupParameters: If the lookup parameters are invalid
+
+        """
         try:
             q_object = build_q_object_from_lookup_parameters(self.used_parameters)
             return queryset.filter(q_object)
@@ -327,6 +353,22 @@ FieldListFilter.register(lambda f: f.remote_field, RelatedFieldListFilter)
 
 class BooleanFieldListFilter(FieldListFilter):
     def __init__(self, field, request, params, model, model_admin, field_path):
+        """
+
+        Initialize a filter class for handling exact and null lookups on a model field.
+
+        This class takes in several parameters: the model field to filter, the current request,
+        query parameters, the model being filtered, the model admin interface, and the field path.
+        It constructs lookup keywords for exact and null value filtering, retrieves the last values
+        from the query parameters, and initializes the filter using these values.
+
+        The class also handles boolean lookup values, converting '1' or '0' to their corresponding
+        boolean values of True or False.
+
+        The constructed lookup keywords are in the format 'field_path__exact' and 'field_path__isnull',
+        and are used to filter the model based on the provided query parameters.
+
+        """
         self.lookup_kwarg = "%s__exact" % field_path
         self.lookup_kwarg2 = "%s__isnull" % field_path
         self.lookup_val = get_last_value_from_parameters(params, self.lookup_kwarg)
@@ -423,6 +465,23 @@ class ChoicesFieldListFilter(FieldListFilter):
         }
 
     def choices(self, changelist):
+        """
+
+        Generates a list of choices for a given changelist, including an \"All\" option and 
+        individual choices based on the field's flat choices.
+
+        Each choice is represented as a dictionary containing the following keys:
+            - 'selected': A boolean indicating whether the choice is currently selected.
+            - 'query_string': The query string to use when selecting this choice.
+            - 'display': The display text for this choice.
+
+        If add_facets is True, the choices will also include facet counts, which are
+        displayed in parentheses next to the choice title.
+
+        A special case is made for the \"None\" value, which is displayed separately from
+        the other choices.
+
+        """
         add_facets = changelist.add_facets
         facet_counts = self.get_facet_queryset(changelist) if add_facets else None
         yield {
@@ -653,6 +712,27 @@ class RelatedOnlyFieldListFilter(RelatedFieldListFilter):
 
 class EmptyFieldListFilter(FieldListFilter):
     def __init__(self, field, request, params, model, model_admin, field_path):
+        """
+        Initializes the list filter instance.
+
+        The filter checks if the specified field allows empty strings and null values.
+        If the field does not allow either empty strings or null values, it raises an
+        :exc:`ImproperlyConfigured` exception to prevent usage with incompatible fields.
+
+        The filter uses a lookup keyword argument to track whether an \"is empty\" query
+        should be applied to the specified field. The lookup value is retrieved from the
+        request parameters.
+
+        :param field: The field to apply the list filter to.
+        :param request: The current request object.
+        :param params: The request parameters.
+        :param model: The model associated with the field.
+        :param model_admin: The model admin instance.
+        :param field_path: The path to the field in the model.
+
+        :raises ImproperlyConfigured: If the field does not allow empty strings and null values.
+
+        """
         if not field.empty_strings_allowed and not field.null:
             raise ImproperlyConfigured(
                 "The list filter '%s' cannot be used with field '%s' which "
@@ -667,6 +747,19 @@ class EmptyFieldListFilter(FieldListFilter):
         super().__init__(field, request, params, model, model_admin, field_path)
 
     def get_lookup_condition(self):
+        """
+
+        Generates a lookup condition for the given field.
+
+        The lookup condition includes checks for empty strings and null values, 
+        depending on the field's configuration. The condition is constructed as a 
+        logical OR of these checks, using Django's Q objects.
+
+        Returns:
+            A Django Q object that can be used to filter models based on the field's 
+            configured lookup conditions.
+
+        """
         lookup_conditions = []
         if self.field.empty_strings_allowed:
             lookup_conditions.append((self.field_path, ""))

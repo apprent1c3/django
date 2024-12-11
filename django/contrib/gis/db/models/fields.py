@@ -110,6 +110,13 @@ class BaseSpatialField(Field):
         super().__init__(**kwargs)
 
     def deconstruct(self):
+        """
+        Deconstructs the current object into its constituent parts, allowing it to be reconstructed later.
+
+        This method extends the standard deconstruction process by including spatial reference system identifier (SRID) and spatial index settings.
+
+        Returns a tuple containing the name, path, positional arguments, and keyword arguments necessary to reconstruct the object. The keyword arguments include 'srid' and optionally 'spatial_index' if it is not set to True.
+        """
         name, path, args, kwargs = super().deconstruct()
         # Always include SRID for less fragility; include spatial index if it's
         # not the default value.
@@ -422,6 +429,25 @@ class RasterField(BaseSpatialField):
         setattr(cls, self.attname, SpatialProxy(gdal.GDALRaster, self))
 
     def get_transform(self, name):
+        """
+
+        Returns a transform object for the specified raster band.
+
+        The transform can be retrieved by name, which can be either an integer
+        representing the band index or another type of name that will be passed
+        to the parent class's get_transform method.
+
+        For integer names, a new SpecificRasterBandTransform instance is created
+        with the provided band index. For non-integer names, the parent class's
+        get_transform method is called to handle the lookup.
+
+        Args:
+            name: The name of the transform to retrieve.
+
+        Returns:
+            A transform object for the specified raster band.
+
+        """
         from django.contrib.gis.db.models.lookups import RasterBandTransform
 
         try:

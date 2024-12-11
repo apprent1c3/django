@@ -136,6 +136,17 @@ class CsrfViewTests(SimpleTestCase):
     @override_settings(DEBUG=True)
     @mock.patch("django.views.csrf.get_docs_version", return_value="4.2")
     def test_doc_links(self, mocked_get_complete_version):
+        """
+        Tests that the documentation links are correctly generated in error pages.
+
+        The test case verifies that when a forbidden request is made, the error page
+        contains links to the correct version of the Django documentation. It checks
+        that the link to the development version of the documentation is not included,
+        and that the link to the specified version (4.2) is present.
+
+        This test ensures that the get_docs_version function is correctly mocked and
+        that the resulting documentation links are correctly rendered in the error page.
+        """
         response = self.client.post("/")
         self.assertContains(response, "Forbidden", status_code=403)
         self.assertNotContains(

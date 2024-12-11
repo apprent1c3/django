@@ -62,6 +62,17 @@ class ImageFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
             Image.register_mime(BmpImageFile.format, "image/bmp")
 
     def test_file_extension_validation(self):
+        """
+
+        Tests that the ImageField correctly validates file extensions.
+
+        This test checks that a ValidationError is raised when an image file with an
+        unsupported extension is passed to the field's clean method. The test uses a
+        png image file (1x1.png) and rewrites its extension as '.txt' to simulate an
+        invalid file type. The expected error message confirms that the field enforces
+        its file extension restrictions.
+
+        """
         f = ImageField()
         img_path = get_img_path("filepath_test_files/1x1.png")
         with open(img_path, "rb") as img_file:
@@ -73,6 +84,12 @@ class ImageFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
             f.clean(img_file)
 
     def test_corrupted_image(self):
+        """
+        Tests that a ValidationError is raised when attempting to clean a corrupted image file.
+
+        Checks that the ImageField validation correctly identifies and rejects uploaded files that are either not valid images or are corrupted, including temporary uploaded files.
+
+        """
         f = ImageField()
         img_file = SimpleUploadedFile("not_an_image.jpg", b"not an image")
         msg = (
@@ -88,6 +105,16 @@ class ImageFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
                 f.clean(tmp_file)
 
     def test_widget_attrs_default_accept(self):
+        """
+
+        Tests if the widget attributes are correctly set for an ImageField.
+
+        This test case verifies that the ImageField sets the 'accept' attribute to 
+        'image/*' for file input widgets (FileInput and ClearableFileInput) by default, 
+        but leaves it empty for other types of widgets (Widget). The test also checks 
+        that the widget is rendered with the 'accept' attribute set as expected.
+
+        """
         f = ImageField()
         # Nothing added for non-FileInput widgets.
         self.assertEqual(f.widget_attrs(Widget()), {})

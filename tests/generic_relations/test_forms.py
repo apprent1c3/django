@@ -28,6 +28,17 @@ class TaggedItemForm(forms.ModelForm):
 
 class GenericInlineFormsetTests(TestCase):
     def test_output(self):
+        """
+        Tests the output of a formset created using the generic_inlineformset_factory.
+
+        This test case covers various scenarios, including:
+        - Creating a formset without an instance, resulting in an empty form.
+        - Creating a formset with an instance that has no associated items, resulting in a form with an empty field.
+        - Creating a formset with an instance that has associated items, resulting in a form with populated fields.
+        - Creating a formset with a prefix, resulting in a form with correctly prefixed field names.
+
+        The test asserts that the HTML output of the formset matches the expected output in each scenario, ensuring that the formset is rendered correctly in different situations.
+        """
         GenericFormSet = generic_inlineformset_factory(TaggedItem, extra=1)
         formset = GenericFormSet()
         self.assertHTMLEqual(
@@ -325,6 +336,18 @@ class GenericInlineFormsetTests(TestCase):
         )
 
     def test_absolute_max_with_max_num(self):
+        """
+
+        Tests the validation of a GenericFormSet with a maximum and absolute maximum number of forms.
+
+        Verifies that the formset is invalid when the total number of forms exceeds the absolute maximum,
+        while the maximum number of forms is not exceeded. Also checks that the number of forms in the
+        formset is capped at the absolute maximum and an error message is displayed.
+
+        This test case ensures that the formset validation correctly enforces the absolute maximum
+        constraint, preventing excessive forms from being submitted.
+
+        """
         GenericFormSet = generic_inlineformset_factory(
             TaggedItem,
             max_num=20,
@@ -344,6 +367,18 @@ class GenericInlineFormsetTests(TestCase):
         )
 
     def test_can_delete_extra(self):
+        """
+
+        Tests that a formset with can_delete_extra=True includes 'DELETE' fields.
+
+        This test verifies that a formset generated with the generic_inlineformset_factory 
+        function includes 'DELETE' fields for extra forms when both can_delete and 
+        can_delete_extra are set to True.
+
+        It checks that the formset contains the expected number of forms and that each form 
+        includes a 'DELETE' field, allowing the user to delete extra forms.
+
+        """
         GenericFormSet = generic_inlineformset_factory(
             TaggedItem,
             can_delete=True,

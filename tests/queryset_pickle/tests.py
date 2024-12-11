@@ -31,6 +31,13 @@ class PickleabilityTestCase(TestCase):
         self.assert_pickles(BinaryFieldModel.objects.all())
 
     def test_related_field(self):
+        """
+
+        Tests that the related field 'group' in the Event model correctly filters events by group ID and that the result can be pickled.
+
+        This test case creates a new group, retrieves events related to that group, and verifies that the resulting queryset can be successfully pickled, ensuring data integrity and consistency.
+
+        """
         g = Group.objects.create(name="Ponies Who Own Maybachs")
         self.assert_pickles(Event.objects.filter(group=g.id))
 
@@ -72,6 +79,9 @@ class PickleabilityTestCase(TestCase):
 
     def test_forward_relatedobjectdoesnotexist_class(self):
         # ForwardManyToOneDescriptor
+        """
+        Tests that instances of RelatedObjectDoesNotExist exception classes can be successfully pickled and unpickled without losing their identity, ensuring they remain equivalent to their original classes after serialization and deserialization. This validation is performed for both Event and Happening contexts.
+        """
         klass = Event.group.RelatedObjectDoesNotExist
         self.assertIs(pickle.loads(pickle.dumps(klass)), klass)
         # ForwardOneToOneDescriptor
@@ -79,6 +89,15 @@ class PickleabilityTestCase(TestCase):
         self.assertIs(pickle.loads(pickle.dumps(klass)), klass)
 
     def test_reverse_one_to_one_relatedobjectdoesnotexist_class(self):
+        """
+
+        Tests that a specific exception class, :class:`Event.happening.RelatedObjectDoesNotExist`, 
+        can be pickled and unpickled without losing its identity.
+
+        Verifies that after serializing and deserializing the class using :mod:`pickle`, 
+        it remains the same class object.
+
+        """
         klass = Event.happening.RelatedObjectDoesNotExist
         self.assertIs(pickle.loads(pickle.dumps(klass)), klass)
 
@@ -130,6 +149,19 @@ class PickleabilityTestCase(TestCase):
         self.assertIs(reloaded.__class__, dynclass)
 
     def test_specialized_queryset(self):
+        """
+        Tests the pickling of specialized querysets.
+
+        Verifies that various queryset methods, such as values, dates, select_related, 
+        order_by, and values_list, produce results that can be successfully pickled.
+
+        The test includes checks for querysets with aggregated values, date-based 
+        aggregations, and querysets that utilize related models through select_related.
+
+        It ensures that the resulting querysets are serializable, which is essential 
+        for certain operations like caching or storing the results in a file.
+
+        """
         self.assert_pickles(Happening.objects.values("name"))
         self.assert_pickles(Happening.objects.values("name").dates("when", "year"))
         # With related field (#14515)
@@ -140,6 +172,17 @@ class PickleabilityTestCase(TestCase):
         )
 
     def test_pickle_prefetch_related_idempotence(self):
+        """
+        Test that prefetching related objects is idempotent under pickling.
+
+        Verifies that when a queryset with prefetch_related is serialized and deserialized,
+        the resulting objects are the same as the original queryset, and that this process
+        can be repeated without affecting the results.
+
+        Checks that the sequence of objects in the queryset matches the expected sequence
+        after a round trip through pickling and unpickling, ensuring that related objects
+        are preserved correctly.
+        """
         g = Group.objects.create(name="foo")
         groups = Group.objects.prefetch_related("event_set")
 
@@ -171,6 +214,11 @@ class PickleabilityTestCase(TestCase):
         self.assertSequenceEqual(groups2.filter(id__gte=0), [g])
 
     def test_pickle_prefetch_queryset_not_evaluated(self):
+        """
+        Tests that a prefetch-related queryset is properly pickled and doesn't trigger additional database queries when unpickled and its items are not evaluated. 
+
+        This test case verifies that a queryset of Groups with prefetched related Event objects can be successfully serialized and deserialized using pickle, without resulting in any additional database queries after deserialization.
+        """
         Group.objects.create(name="foo")
         groups = Group.objects.prefetch_related(
             models.Prefetch("event_set", queryset=Event.objects.order_by("id"))
@@ -230,6 +278,13 @@ class PickleabilityTestCase(TestCase):
             self.assert_pickles(groups)
 
     def test_pickle_exists_kwargs_queryset_not_evaluated(self):
+        """
+        Tests that a queryset with Exists annotation, created with keyword arguments, pickles successfully without evaluating the queryset.
+
+        This function verifies that using keyword arguments to create an Exists annotation in a queryset does not trigger the evaluation of the queryset unnecessarily. It checks if the annotated queryset can be successfully pickled, ensuring that the annotation is correctly serialized and can be reconstructed later.
+
+        The test case involves creating a group with an associated event, annotating the group queryset with an Exists clause that checks for the presence of events, and then checking if the annotated queryset can be pickled without triggering any additional database queries.
+        """
         group = Group.objects.create(name="group")
         Event.objects.create(title="event", group=group)
         groups = Group.objects.annotate(
@@ -242,6 +297,17 @@ class PickleabilityTestCase(TestCase):
             self.assert_pickles(groups)
 
     def test_pickle_subquery_queryset_not_evaluated(self):
+        """
+
+        Tests that a queryset with a subquery annotation is not evaluated when pickled.
+
+        The test scenario involves creating a group and an associated event, then creating
+        a queryset of groups annotated with the title of their associated event. The
+        queryset is first evaluated by converting it to a list, and then the test checks
+        that pickling and unpickling the queryset does not result in any additional
+        database queries.
+
+        """
         group = Group.objects.create(name="group")
         Event.objects.create(title="event", group=group)
         groups = Group.objects.annotate(
@@ -254,6 +320,21 @@ class PickleabilityTestCase(TestCase):
             self.assert_pickles(groups)
 
     def test_pickle_filteredrelation(self):
+        """
+
+        Tests the pickle-ability of a FilteredRelation query on the Group model.
+
+        Verifies that a Group's annotation, which is based on a filtered relation to 
+        its associated Events, can be successfully pickled and reused in a new query.
+
+        Specifically, this test case checks that the filtered relation can correctly 
+        calculate the sum of a specific field ('number1') from related Happenings that 
+        meet a given condition (i.e., their associated Event title starts with 'Big').
+
+        The test confirms that after pickling and reloading the query, the correct sum 
+        is still returned for the Group in question.
+
+        """
         group = Group.objects.create(name="group")
         event_1 = Event.objects.create(title="Big event", group=group)
         event_2 = Event.objects.create(title="Small event", group=group)
@@ -305,6 +386,11 @@ class PickleabilityTestCase(TestCase):
 
     def test_annotation_values_list(self):
         # values_list() is reloaded to values() when using a pickled query.
+        """
+        Tests the annotation values list functionality of Happening objects by verifying that the resulting querysets can be pickled and unpickled without losing their original values.
+
+        The function checks three different scenarios: retrieving values as lists, flat values, and named values. It ensures that the reloaded query with the pickled and unpickled query object returns the expected result, which is a dictionary with the 'name' key and 'test' value.
+        """
         tests = [
             Happening.objects.values_list("name"),
             Happening.objects.values_list("name", flat=True),
@@ -317,6 +403,13 @@ class PickleabilityTestCase(TestCase):
                 self.assertEqual(reloaded.get(), {"name": "test"})
 
     def test_filter_deferred(self):
+        """
+        Tests the filtering functionality on a deferred QuerySet, ensuring it can be pickled successfully.
+
+        This test case verifies that a QuerySet with deferred filtering can be properly filtered and then pickled, which is essential for maintaining data consistency and integrity across different execution contexts. 
+
+        It specifically checks the case where the filter is applied to an attribute that does not exist in the database (id=0), which should result in an empty QuerySet. The pickling process ensures that the QuerySet's state, including its filters, is preserved when serialized and deserialized.
+        """
         qs = Happening.objects.all()
         qs._defer_next_filter = True
         qs = qs.filter(id=0)
@@ -355,6 +448,15 @@ class PickleabilityTestCase(TestCase):
 class InLookupTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up initial test data for the class.
+
+        This method creates a fixed set of groups and an event associated with a group,
+        providing a consistent starting point for tests. Specifically, it creates two groups
+        (named 'Group 1' and 'Group 2') and one event named 'Event 1' associated with one
+        of the created groups. The created event is stored as a class attribute for easy
+        access in subsequent tests.
+        """
         for i in range(1, 3):
             group = Group.objects.create(name="Group {}".format(i))
         cls.e1 = Event.objects.create(title="Event 1", group=group)

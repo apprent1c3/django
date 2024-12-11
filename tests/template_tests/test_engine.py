@@ -12,6 +12,14 @@ OTHER_DIR = os.path.join(ROOT, "other_templates")
 
 class EngineTest(SimpleTestCase):
     def test_repr_empty(self):
+        """
+        Tests the string representation of an empty Engine instance.
+
+        Verifies that the repr function returns a string that accurately reflects the default state of an Engine object, including its attributes such as app_dirs, debug, loaders, and others.
+
+        This test ensures that the Engine instance's string representation is correctly formatted and includes all relevant information, allowing for easy inspection and debugging of the object's state.\"\"\"
+        ```
+        """
         engine = Engine()
         self.assertEqual(
             repr(engine),

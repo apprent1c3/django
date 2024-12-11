@@ -55,6 +55,14 @@ class ModelTests(TestCase):
     def test_empty_choice(self):
         # NOTE: Part of the regression test here is merely parsing the model
         # declaration. The verbose_name, in particular, did not always work.
+        """
+
+        Tests the behavior of an Article instance with an empty choice.
+
+        Verifies that the status display is correctly set to None and that the misc_data attribute 
+        is empty when the instance is first created and then retrieved from the database.
+
+        """
         a = Article.objects.create(
             headline="Look at me!", pub_date=datetime.datetime.now()
         )
@@ -161,6 +169,17 @@ class ModelTests(TestCase):
     def test_date_filter_null(self):
         # Date filtering was failing with NULL date values in SQLite
         # (regression test for #3501, among other things).
+        """
+
+        Tests the date filter when the date is not null.
+
+        Verifies that the filter correctly retrieves objects with a specified month from the database.
+        It also checks that the resulting object has the expected date value and that the dates method 
+        correctly retrieves the month from the date field.
+
+        The test covers the case where the date field is populated and creates a Party object without 
+        a specified date to ensure the filter only returns objects with a valid date.
+        """
         Party.objects.create(when=datetime.datetime(1999, 1, 1))
         Party.objects.create()
         p = Party.objects.filter(when__month=1)[0]
@@ -174,6 +193,17 @@ class ModelTests(TestCase):
     def test_get_next_prev_by_field(self):
         # get_next_by_FIELD() and get_previous_by_FIELD() don't crash when
         # microseconds values are stored in the database.
+        """
+
+        Tests the get_next_by_field and get_previous_by_field methods of the Event model.
+
+        This test case creates multiple events with different datetime values and checks 
+        that the methods correctly retrieve the next and previous events in the sequence 
+        based on the 'when' field. The test verifies that the next event is the one with 
+        the immediately following datetime and the previous event is the one with the 
+        immediately preceding datetime.
+
+        """
         Event.objects.create(when=datetime.datetime(2000, 1, 1, 16, 0, 0))
         Event.objects.create(when=datetime.datetime(2000, 1, 1, 6, 1, 1))
         Event.objects.create(when=datetime.datetime(2000, 1, 1, 13, 1, 1))
@@ -194,6 +224,15 @@ class ModelTests(TestCase):
 
     def test_primary_key_foreign_key_types(self):
         # Check Department and Worker (non-default PK type)
+        """
+
+        Tests the primary key and foreign key types in the Department and Worker models.
+
+        Verifies that the models are correctly set up to handle relationships between departments and workers.
+
+        Ensures that a worker object can be correctly created with a foreign key to a department and that its string representation is as expected.
+
+        """
         d = Department.objects.create(id=10, name="IT")
         w = Worker.objects.create(department=d, name="Full-time")
         self.assertEqual(str(w), "Full-time")

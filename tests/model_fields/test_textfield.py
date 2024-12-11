@@ -37,6 +37,20 @@ class TextFieldTests(TestCase):
 
 class TestMethods(SimpleTestCase):
     def test_deconstruct(self):
+        """
+
+        Tests the deconstruction of a TextField model field.
+
+        Ensures that when a TextField is deconstructed, any additional keyword arguments
+        passed during its creation are properly captured and stored in the resulting
+        keyword arguments dictionary. This test covers the cases where a TextField
+        is created with and without custom database collation.
+
+        Verifies that a TextField with default settings returns an empty dictionary,
+        while a TextField with custom collation settings returns a dictionary containing
+        the custom database collation parameter.
+
+        """
         field = models.TextField()
         *_, kwargs = field.deconstruct()
         self.assertEqual(kwargs, {})

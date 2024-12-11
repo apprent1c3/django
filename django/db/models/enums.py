@@ -30,6 +30,22 @@ class ChoicesType(EnumType):
     """A metaclass for creating a enum choices."""
 
     def __new__(metacls, classname, bases, classdict, **kwds):
+        """
+
+        Meta class to create an enumeration class where each member is automatically assigned a label.
+        The label is determined by either a provided string or tuple at the end of the member's value,
+        or the member's name with underscores replaced by spaces and title-cased. This allows for easy
+        and consistent naming conventions for enumeration members. The created class is also ensured to
+        have unique members, preventing duplicates. The labels are stored as an attribute `_label_` on each
+        member and can be accessed programmatically. 
+
+        :param classname: The name of the class being created
+        :param bases: The base classes of the class being created
+        :param classdict: The namespace dictionary of the class being created
+        :param kwds: Additional keyword arguments for the class creation
+        :return: The newly created enumeration class with labelled members
+
+        """
         labels = []
         for key in classdict._member_names:
             value = classdict[key]
@@ -113,6 +129,18 @@ class TextChoices(Choices, StrEnum):
 
 
 def __getattr__(name):
+    """
+    Handle attribute access on the module.
+
+    This method is invoked when an attribute access fails. It checks if the requested attribute is 'ChoicesMeta' and returns 'ChoicesType' instead, emitting a deprecation warning. For any other attribute, it raises an AttributeError.
+
+    .. note::
+       Accessing 'ChoicesMeta' is deprecated since it will be removed in Django 6.0. Use 'ChoicesType' instead.
+
+    .. warning::
+       Attempting to access any other attribute on the module will result in an AttributeError being raised.
+
+    """
     if name == "ChoicesMeta":
         warnings.warn(
             "ChoicesMeta is deprecated in favor of ChoicesType.",

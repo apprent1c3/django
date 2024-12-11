@@ -29,12 +29,26 @@ class ExistingRelatedInstancesTests(TestCase):
         )
 
     def test_foreign_key(self):
+        """
+        Tests the foreign key relationship between a Tournament and its corresponding Pool instance.
+
+        Verifies that the Pool instance associated with a Tournament is correctly linked back to its parent Tournament, ensuring data consistency and integrity.
+
+        This test case checks the foreign key relation by retrieving a Tournament, then accessing its Pool instance and asserting that the Pool's tournament attribute matches the original Tournament instance.
+        """
         with self.assertNumQueries(2):
             tournament = Tournament.objects.get(pk=self.t1.pk)
             pool = tournament.pool_set.all()[0]
             self.assertIs(tournament, pool.tournament)
 
     def test_foreign_key_prefetch_related(self):
+        """
+        Tests the behavior of prefetching related objects for a foreign key relationship.
+
+        This test checks that when a Tournament object is retrieved with its related Pool objects prefetched,
+        the relationship between the Tournament and its Pool objects is correctly established, and
+        the expected number of database queries is executed.
+        """
         with self.assertNumQueries(2):
             tournament = Tournament.objects.prefetch_related("pool_set").get(
                 pk=self.t1.pk
@@ -43,6 +57,12 @@ class ExistingRelatedInstancesTests(TestCase):
             self.assertIs(tournament, pool.tournament)
 
     def test_foreign_key_multiple_prefetch(self):
+        """
+        Tests the functionality of prefetching multiple related objects for Tournament instances, 
+        specifically focusing on the foreign key relationship between Tournament and Pool.
+        Verifies that the prefetched related objects are correctly associated with their parent Tournament instances, 
+        and that the query count remains within the expected limit.
+        """
         with self.assertNumQueries(2):
             tournaments = list(
                 Tournament.objects.prefetch_related("pool_set").order_by("pk")
@@ -117,6 +137,13 @@ class ExistingRelatedInstancesTests(TestCase):
             self.assertIs(style, pool.poolstyle)
 
     def test_one_to_one_multi_prefetch_related(self):
+        """
+        Tests the one-to-one relationship between PoolStyle and Pool models using prefetch related query.
+
+        This test verifies that the `prefetch_related` method correctly fetches the related `pool` objects for a list of `PoolStyle` objects.
+        It checks that the resulting `pool` objects have the correct `poolstyle` attribute set, ensuring the one-to-one relationship is properly established.
+        The test also asserts that the total number of database queries is 2, optimizing the database interactions for this use case.
+        """
         with self.assertNumQueries(2):
             poolstyles = list(PoolStyle.objects.prefetch_related("pool").order_by("pk"))
             self.assertIs(poolstyles[0], poolstyles[0].pool.poolstyle)
@@ -147,12 +174,36 @@ class ExistingRelatedInstancesTests(TestCase):
             self.assertIs(pools[2], pools[2].poolstyle.pool)
 
     def test_reverse_one_to_one_multi_prefetch_related(self):
+        """
+
+        Tests that a one-to-one relationship with prefetch_related works correctly.
+
+        This test case verifies that when using prefetch_related to fetch related objects,
+        the resulting objects are correctly linked. Specifically, it checks that the 
+        Pool objects retrieved are properly linked to their corresponding PoolStyle objects.
+
+        The test ensures that the query is executed efficiently, using only two database queries.
+
+        """
         with self.assertNumQueries(2):
             pools = list(Pool.objects.prefetch_related("poolstyle").order_by("pk"))
             self.assertIs(pools[1], pools[1].poolstyle.pool)
             self.assertIs(pools[2], pools[2].poolstyle.pool)
 
     def test_reverse_fk_select_related_multiple(self):
+        """
+
+        Tests the reverse foreign key select related functionality with multiple annotated relations.
+
+        This function verifies that we can efficiently retrieve related objects from a PoolStyle instance
+        using select_related with annotated relations. It annotates the 'pool' and 'another_pool' relations,
+        retrieves the PoolStyle objects, and checks that the retrieved objects are correctly linked to their
+        related instances.
+
+        The test also ensures that the query is executed within a single database query, as expected
+        when using select_related with annotated relations.
+
+        """
         with self.assertNumQueries(1):
             ps = list(
                 PoolStyle.objects.annotate(
@@ -166,6 +217,19 @@ class ExistingRelatedInstancesTests(TestCase):
             self.assertIs(ps[0], ps[0].pool_2.another_style)
 
     def test_multilevel_reverse_fk_cyclic_select_related(self):
+        """
+
+        Tests the ability to perform a multilevel reverse foreign key cyclic select related query.
+
+        This function checks that the select_related method correctly fetches related objects 
+        across multiple levels of relationships, in a cyclic manner, and verifies the coherence 
+        of the retrieved data.
+
+        It asserts that the number of queries executed to fetch the data does not exceed a certain limit,
+        and checks for data consistency by comparing the tournament objects retrieved through 
+        different relationships.
+
+        """
         with self.assertNumQueries(3):
             p = list(
                 PoolStyle.objects.annotate(
@@ -175,6 +239,21 @@ class ExistingRelatedInstancesTests(TestCase):
             self.assertEqual(p[0].tournament_pool.tournament, p[0].pool.tournament)
 
     def test_multilevel_reverse_fk_select_related(self):
+        """
+
+        Tests the efficient retrieval of related objects through a multilevel reverse foreign key 
+        relationship using the select_related method. 
+
+        This method verifies that the Django ORM can correctly annotate and select related objects 
+        in a single database query, ensuring that the filtered relation 'style' is properly 
+        associated with the Tournament object. The test case ensures that the related 'style' 
+        object's attributes, such as 'another_pool', are correctly retrieved and matched with 
+        the expected result.
+
+        The expected database query count is 2, confirming that the ORM is able to optimize 
+        the retrieval of related objects using the select_related method.
+
+        """
         with self.assertNumQueries(2):
             p = list(
                 Tournament.objects.filter(id=self.t2.id)

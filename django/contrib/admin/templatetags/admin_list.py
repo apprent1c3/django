@@ -314,6 +314,18 @@ class ResultList(list):
 
 
 def results(cl):
+    """
+
+    Generate a sequence of ResultList objects, each representing a result item.
+
+    If a formset is associated with the change list, then each result is linked to its
+    corresponding form. Otherwise, the results are yielded without any form
+    association.
+
+    Yields:
+        ResultList: A ResultList object containing the result items.
+
+    """
     if cl.formset:
         for res, form in zip(cl.result_list, cl.formset.forms):
             yield ResultList(form, items_for_result(cl, res, form))

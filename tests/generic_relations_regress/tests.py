@@ -230,6 +230,15 @@ class GenericRelationTests(TestCase):
     def test_extra_join_condition(self):
         # A crude check that content_type_id is taken in account in the
         # join/subquery condition.
+        """
+
+        Tests the extra join condition applied when excluding objects based on a related field.
+
+        The function verifies that the join is correctly included in the query when excluding objects 
+        with a related field that has a value of None, and that the join is also correctly included 
+        when excluding objects with a related field that has a specific value (in this case, True).
+
+        """
         self.assertIn(
             "content_type_id", str(B.objects.exclude(a__flag=None).query).lower()
         )
@@ -270,6 +279,14 @@ class GenericRelationTests(TestCase):
     def test_filter_targets_related_pk(self):
         # Use hardcoded PKs to ensure different PKs for "link" and "hs2"
         # objects.
+        """
+
+        Tests that filtering HasLinkThing objects by a link's primary key returns the correct related object.
+
+        The test case verifies that a HasLinkThing object is correctly associated with a Link object
+        based on the link's primary key, and that the object_id of the link does not match its primary key.
+
+        """
         HasLinkThing.objects.create(pk=1)
         hs2 = HasLinkThing.objects.create(pk=2)
         link = Link.objects.create(content_object=hs2, pk=1)
@@ -277,6 +294,16 @@ class GenericRelationTests(TestCase):
         self.assertSequenceEqual(HasLinkThing.objects.filter(links=link.pk), [hs2])
 
     def test_editable_generic_rel(self):
+        """
+
+        Tests the editing functionality of generic relations in forms.
+
+        This test ensures that a generic relation field is properly included in a form
+        and that it can be successfully validated and saved. It verifies that the form
+        includes the expected field, that the form is valid even when the field is empty,
+        and that the relation's save method is called correctly when the form is saved.
+
+        """
         GenericRelationForm = modelform_factory(HasLinkThing, fields="__all__")
         form = GenericRelationForm()
         self.assertIn("links", form.fields)
@@ -325,6 +352,18 @@ class GenericRelationTests(TestCase):
         self.assertCountEqual(link.targets.all(), [thing])
 
     def test_generic_reverse_relation_exclude_filter(self):
+        """
+
+        Tests the reverse relation filtering for Link objects using the exclude method.
+
+        This test case verifies that it's possible to exclude Link objects 
+        based on a specific condition applied to a related Place object.
+
+        The test creates two Place objects and their corresponding Link objects, 
+        then checks that the exclude method correctly filters out the Link 
+        object associated with the Place object that matches the specified name.
+
+        """
         place1 = Place.objects.create(name="Test Place 1")
         place2 = Place.objects.create(name="Test Place 2")
         Link.objects.create(content_object=place1)

@@ -11,10 +11,28 @@ def test_mutation(raises=True):
                 output_field = models.IntegerField()
 
                 def __init__(self):
+                    """
+                    Initialize the object.
+
+                    Initializes the object's attributes to their default values. This includes setting 
+                    the attribute to 'initial' and invoking the parent class's constructor with 
+                    'initial' as the primary value and a list containing 'initial' as secondary values.
+
+                    This method is typically called automatically when an instance of the class is created.
+                    """
                     self.attribute = "initial"
                     super().__init__("initial", ["initial"])
 
                 def as_sql(self, *args, **kwargs):
+                    """
+                    Generates SQL for the current object instance.
+
+                    The function prepares the object for SQL generation by applying a mutation function to it, 
+                    then returns a tuple containing an empty SQL string and an empty parameter tuple.
+
+                    The mutation function ``mutation_func`` modifies the object in-place, ensuring it is in a valid state for SQL generation.
+                    The returned SQL string and parameters are empty, indicating that this object does not directly contribute to the SQL query.
+                    """
                     mutation_func(self)
                     return "", ()
 

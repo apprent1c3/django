@@ -186,6 +186,17 @@ class PermissionsRequiredDecoratorTest(TestCase):
         @permission_required(
             ["auth_tests.add_customuser", "auth_tests.change_customuser"]
         )
+        """
+        Tests if a view function with multiple required permissions returns a successful response.
+
+            This function creates a test view that requires 'add_customuser' and 'change_customuser' permissions.
+            It then simulates a GET request to this view as a user and checks if the response status code is 200,
+            indicating that the user has the necessary permissions to access the view.
+
+            The purpose of this test is to ensure that multiple permissions can be correctly checked and that
+            authorized users can access views with multiple required permissions without receiving an error or
+            unauthorized response.
+        """
         def a_view(request):
             return HttpResponse()
 
@@ -275,6 +286,14 @@ class PermissionsRequiredDecoratorTest(TestCase):
 
     async def test_single_permission_pass_async_view(self):
         @permission_required("auth_tests.add_customuser")
+        """
+
+        Tests that an asynchronous view decorated with permission_required allows access when the user has the required permission.
+
+        This test case verifies that a user with the 'auth_tests.add_customuser' permission can successfully access an asynchronous view.
+        The view returns an HttpResponse with a status code of 200, indicating a successful request.
+
+        """
         async def async_view(request):
             return HttpResponse()
 
@@ -390,6 +409,18 @@ class UserPassesTestDecoratorTest(TestCase):
         self.assertEqual(response.status_code, 302)
 
     async def test_decorator_async_view(self):
+        """
+
+        Tests the functionality of using a decorator with an asynchronous view.
+
+        This test case checks if a user with specific group permissions can access an 
+        asynchronous view. The test uses a synchronous test function to validate 
+        the user's group membership and applies it as a decorator to the asynchronous 
+        view. It then simulates a GET request with different user credentials to verify 
+        the view's behavior, expecting a 200 status code for an authorized user and 
+        a 302 status code for an unauthorized user.
+
+        """
         def sync_test_func(user):
             return bool(
                 models.Group.objects.filter(name__istartswith=user.username).exists()

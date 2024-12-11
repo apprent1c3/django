@@ -83,6 +83,17 @@ class BaseGeneratedFieldTests(SimpleTestCase):
             )
 
     def test_database_default_unsupported(self):
+        """
+
+        Tests that a GeneratedField raises a ValueError when a database default is provided.
+
+        The GeneratedField class does not support database defaults, as its purpose is to
+        generate values in the application layer rather than relying on the database to
+        provide a default value. This test ensures that attempting to create a
+        GeneratedField with a database default results in a ValueError with a clear error
+        message.
+
+        """
         msg = "GeneratedField cannot have a database default."
         with self.assertRaisesMessage(ValueError, msg):
             GeneratedField(
@@ -93,6 +104,16 @@ class BaseGeneratedFieldTests(SimpleTestCase):
             )
 
     def test_db_persist_required(self):
+        """
+        Tests that the db_persist parameter of GeneratedField is properly validated.
+
+        This test case ensures that the db_persist attribute is either True or False, 
+        raising a ValueError if it is not explicitly set to one of these values. 
+
+        It verifies that attempting to create a GeneratedField with db_persist set to 
+        None or not specified at all results in an error with a meaningful message, 
+        helping to prevent potential issues with database persistence in GeneratedField instances.
+        """
         msg = "GeneratedField.db_persist must be True or False."
         with self.assertRaisesMessage(ValueError, msg):
             GeneratedField(
@@ -106,6 +127,16 @@ class BaseGeneratedFieldTests(SimpleTestCase):
             )
 
     def test_deconstruct(self):
+        """
+        Tests the deconstruction of a GeneratedField instance.
+
+        Verifies that the deconstruct method returns the correct path, arguments, and keyword arguments
+        for the field, including the expression, output field, and database persistence setting.
+
+        This test ensures that the GeneratedField can be properly serialized and reconstructed,
+        which is essential for its usage in Django model definitions.
+
+        """
         field = GeneratedField(
             expression=F("a") + F("b"), output_field=IntegerField(), db_persist=True
         )
@@ -120,6 +151,27 @@ class BaseGeneratedFieldTests(SimpleTestCase):
 
     @isolate_apps("model_fields")
     def test_get_col(self):
+        """
+
+        Retrieve a column object for a model field.
+
+        This method is used to get a column object for a given model field, which can be used to
+        access the field's value in a query. The column object is typically used in conjunction
+        with a database query to specify the columns to be retrieved.
+
+        The column object returned by this method will have an output field that matches the type
+        of the model field. For example, if the model field is an IntegerField, the output field
+        of the column object will also be an IntegerField.
+
+        The method takes two parameters: an alias for the column, and an optional field parameter.
+        The field parameter is used to specify the field for which to retrieve the column object.
+        If the field parameter is not provided, the method will use the field that the method is
+        called on.
+
+        Returns:
+            A column object with an output field that matches the type of the model field.
+
+        """
         class Square(Model):
             side = IntegerField()
             area = GeneratedField(
@@ -154,6 +206,20 @@ class BaseGeneratedFieldTests(SimpleTestCase):
 
     @isolate_apps("model_fields")
     def test_cached_col(self):
+        """
+
+        Tests the functionality of cached columns for generated fields in models.
+
+        This test case verifies that the `cached_col` property of a generated field
+        returns the correct column instance based on the provided table and field.
+        It also checks that the cached column is correctly associated with the field
+        and has the expected output field type.
+
+        The test covers various scenarios, including retrieving the cached column
+        for the model's table, retrieving it with and without specifying the field,
+        and checking that it is not retrieved for a different table or field type.
+
+        """
         class Sum(Model):
             a = IntegerField()
             b = IntegerField()
@@ -178,6 +244,13 @@ class GeneratedFieldTestMixin:
         return m
 
     def test_unsaved_error(self):
+        """
+        Test that an AttributeError is raised when attempting to access a generated field from an unsaved model instance.
+
+        This test case verifies that the expected error message is raised when trying to read a generated field before the model instance has been saved. The test covers a critical edge case to ensure data integrity and prevent potential issues with unsaved models.
+
+        :raises AttributeError: If a generated field is accessed from an unsaved model instance.
+        """
         m = self.base_model(a=1, b=2)
         msg = "Cannot read a generated field from an unsaved model."
         with self.assertRaisesMessage(AttributeError, msg):
@@ -228,6 +301,13 @@ class GeneratedFieldTestMixin:
         )
 
     def test_create(self):
+        """
+
+        Tests the creation of a new model instance.
+
+        This test case verifies that a model can be successfully created with specified attributes and that the resulting instance has the expected field values. Specifically, it checks that the calculated field value is correctly computed based on the provided attributes.
+
+        """
         m = self.base_model.objects.create(a=1, b=2)
         m = self._refresh_if_needed(m)
         self.assertEqual(m.field, 3)
@@ -238,6 +318,20 @@ class GeneratedFieldTestMixin:
 
     def test_save(self):
         # Insert.
+        """
+
+        Tests the functionality of saving model instances to the database.
+
+        This test case covers creating a new model instance, saving it to the database,
+        retrieving the saved instance, and verifying its fields. It also tests updating
+        an existing instance's fields, saving the changes, and refreshing the instance
+        from the database to confirm the changes took effect.
+
+        The test case specifically checks the calculation of the 'field' attribute,
+        which is expected to be the sum of 'a' and 'b' attributes. It verifies this
+        calculation for both the initial save and a subsequent update to the instance.
+
+        """
         m = self.base_model(a=2, b=4)
         m.save()
         m = self._refresh_if_needed(m)
@@ -262,6 +356,13 @@ class GeneratedFieldTestMixin:
         self.assertEqual(m.field, 3)
 
     def test_generated_fields_can_be_deferred(self):
+        """
+        Defers the loading of specific fields in a model instance, allowing for lazy loading of certain fields.
+
+        This test case verifies that generated fields can be deferred, which helps to improve database query performance by only loading the necessary fields. 
+
+        It checks that after deferring a specific field, the instance correctly identifies the deferred fields.
+        """
         fk_object = Foo.objects.create(a="abc", d=Decimal("12.34"))
         m = self.base_model.objects.create(a=1, b=2, fk=fk_object)
         m = self.base_model.objects.defer("field").get(id=m.id)
@@ -281,6 +382,15 @@ class GeneratedFieldTestMixin:
         self.assertEqual(m.field, 7)
 
     def test_bulk_update(self):
+        """
+
+        Tests the bulk update functionality of the base model.
+
+        Verifies that updating multiple instances of the model in a single database query
+        correctly modifies the specified fields. In this case, it checks if updating the 
+        field 'a' of an instance results in the expected changes to the related field.
+
+        """
         m = self.base_model.objects.create(a=1, b=2)
         m.a = 3
         self.base_model.objects.bulk_update([m], fields=["a"])
@@ -322,6 +432,13 @@ class GeneratedFieldTestMixin:
         self.assertEqual(db_parameters["type"], field.output_field.db_type(connection))
 
     def test_db_type_parameters(self):
+        """
+        Tests the database type parameters for a specific model field.
+
+         This function checks if the database type parameters for the 'lower_name' field of the output field database collation model are correctly configured.
+
+         It verifies that the 'max_length' parameter of the 'lower_name' field is set to 11, ensuring consistency between the model definition and the actual database schema.
+        """
         db_type_parameters = self.output_field_db_collation_model._meta.get_field(
             "lower_name"
         ).db_type_parameters(connection)

@@ -23,6 +23,23 @@ class FunctionTests(SimpleTestCase):
         )
 
     def test_sort_list_of_tuples(self):
+        """
+        Tests the sorting of a list of tuples in reverse order based on the first element of each tuple.
+
+        The function verifies that the dictsortreversed function correctly rearranges the tuples in descending order, 
+        with the tuple containing the highest value in the specified position coming first.
+
+        Args:
+            None (test data is predefined within the function)
+
+        Returns:
+            None (the function asserts that the sorted result matches the expected output)
+
+        Note:
+            This test case covers a specific scenario, checking the sorting of tuples with mixed data types and 
+            ensuring the correct order is maintained when sorting in reverse.
+
+        """
         data = [("a", "42"), ("c", "string"), ("b", "foo")]
         expected = [("c", "string"), ("b", "foo"), ("a", "42")]
         self.assertEqual(dictsortreversed(data, 0), expected)

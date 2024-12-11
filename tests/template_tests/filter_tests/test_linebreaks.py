@@ -28,6 +28,16 @@ class LinebreaksTests(SimpleTestCase):
         }
     )
     def test_linebreaks02(self):
+        """
+
+        Tests the linebreaks template filter with auto-escaping disabled.
+
+        The test checks the rendering of two template variables 'a' and 'b' that contain newline characters
+        and an ampersand. Variable 'a' is not marked as safe, while variable 'b' is marked as safe using
+        the mark_safe function. The test verifies that both variables are rendered with line breaks and 
+        HTML entities escaped correctly, resulting in the expected HTML output.
+
+        """
         output = self.engine.render_to_string(
             "linebreaks02", {"a": "x&\ny", "b": mark_safe("x&\ny")}
         )

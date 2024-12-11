@@ -8,6 +8,18 @@ from . import FormFieldAssertionsMixin
 
 class ChoiceFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
     def test_choicefield_1(self):
+        """
+        Tests the validation behavior of a ChoiceField instance.
+
+        This test case verifies that the field raises a ValidationError when given an empty or null value, 
+        and when given an invalid choice. It also checks that the field correctly selects a valid choice 
+        from the provided options, regardless of whether the input is a string or an integer.
+
+        Validations tested include:
+        - Required field validation
+        - Invalid choice validation
+        - Input type flexibility (string or integer)
+        """
         f = ChoiceField(choices=[("1", "One"), ("2", "Two")])
         with self.assertRaisesMessage(ValidationError, "'This field is required.'"):
             f.clean("")
@@ -37,6 +49,15 @@ class ChoiceFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
             f.clean("John")
 
     def test_choicefield_4(self):
+        """
+        Tests the functionality of the ChoiceField when given a choice with nested options.
+
+        The ChoiceField is initialized with a subset of choices, divided into groups ('Numbers', 'Letters') and a standalone option. 
+
+        The function then checks that valid input (both string and integer representations) is cleaned and returned correctly. 
+
+        It also verifies that attempting to clean an invalid choice raises a ValidationError with the expected message, indicating that the provided choice is not one of the available options.
+        """
         f = ChoiceField(
             choices=[
                 ("Numbers", (("1", "One"), ("2", "Two"))),
@@ -111,6 +132,18 @@ class ChoiceFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
                 self.assertEqual(i, f.clean(i))
 
     def test_choicefield_callable_may_evaluate_to_different_values(self):
+        """
+        def test_choicefield_callable_may_evaluate_to_different_values(self):
+            \"\"\"
+            Tests that a ChoiceField's choices can be defined by a callable that may return different values each time it is evaluated.
+
+            This test checks that the choices returned by the callable are correctly used by the ChoiceField and its associated widget, 
+            even when the callable's return value changes between different instances of the form.
+
+            It verifies that the choices are correctly initialized and updated when the form is instantiated with different return values 
+            from the callable, ensuring that the form's fields and widget are properly synchronized with the dynamic choices.
+
+        """
         choices = []
 
         def choices_as_callable():
@@ -130,6 +163,18 @@ class ChoiceFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertEqual(choices, list(form.fields["choicefield"].widget.choices))
 
     def test_choicefield_disabled(self):
+        """
+
+        Tests the rendering of a disabled ChoiceField widget.
+
+        This method verifies that a ChoiceField with the 'disabled' attribute set to True
+        is rendered as a disabled HTML select element. The choices provided to the field
+        are correctly translated into HTML option elements within the select element.
+
+        The test case checks that the expected HTML output matches the actual output of
+        the widget.
+
+        """
         f = ChoiceField(choices=[("J", "John"), ("P", "Paul")], disabled=True)
         self.assertWidgetRendersTo(
             f,
@@ -138,6 +183,20 @@ class ChoiceFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         )
 
     def test_choicefield_enumeration(self):
+        """
+        Tests the functionality of ChoiceField with TextChoices enumeration.
+
+        This test case verifies that the ChoiceField correctly populates its choices
+        from the provided TextChoices enumeration. It also checks that the clean method
+        properly validates user input, allowing valid choices and raising a ValidationError
+        for invalid choices.
+
+        The test uses a simple TextChoices enumeration, FirstNames, with two options:
+        JOHN and PAUL. It creates a ChoiceField instance with this enumeration and then
+        asserts that the field's choices match the enumeration's choices. The test also
+        verifies that the clean method returns the expected value for a valid choice and
+        raises a ValidationError with the correct message for an invalid choice.
+        """
         class FirstNames(models.TextChoices):
             JOHN = "J", "John"
             PAUL = "P", "Paul"

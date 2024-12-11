@@ -57,6 +57,20 @@ class DatabaseCreationTests(SimpleTestCase):
                 _clone_db.assert_not_called()
 
     def test_clone_test_db_options_ordering(self):
+        """
+        Tests the ordering of database options when cloning a test database.
+
+        This function verifies that the OPTIONS from the database settings are correctly
+        ordered and passed to the 'mysqldump' command when cloning a database. Specifically,
+        it checks that the 'read_default_file' option is used with the '--defaults-file' flag.
+
+        The test creates a mock subprocess call, clones the database, and asserts that the
+        expected call to 'mysqldump' is made with the correct options.
+
+        The purpose of this test is to ensure that the database cloning process correctly
+        handles database options and maintains the expected order of operations.
+
+        """
         creation = DatabaseCreation(connection)
         try:
             saved_settings = connection.settings_dict

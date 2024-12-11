@@ -112,6 +112,14 @@ class ClearableFileInputTest(WidgetTest):
         )
 
     def test_render_checked(self):
+        """
+
+        Tests the rendering of the widget when it is in a checked state.
+
+        Verifies that the HTML produced matches the expected output, which includes a link,
+        a checkbox with the 'checked' attribute, a clear label, and a file input field.
+
+        """
         self.widget.checked = True
         self.check_html(
             self.widget,

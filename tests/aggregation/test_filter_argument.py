@@ -69,6 +69,15 @@ class FilteredAggregateTests(TestCase):
         cls.b3.authors.add(cls.a3)
 
     def test_filtered_aggregates(self):
+        """
+
+        Tests the functionality of filtered aggregates in queries.
+
+        Verifies that the Sum aggregation function correctly filters data based on the 
+        specified condition, in this case, filtering authors by names that start with 'test'.
+        The test checks if the aggregated sum of ages of matching authors matches the expected value.
+
+        """
         agg = Sum("age", filter=Q(name__startswith="test"))
         self.assertEqual(Author.objects.aggregate(age=agg)["age"], 200)
 
@@ -99,6 +108,16 @@ class FilteredAggregateTests(TestCase):
         )
 
     def test_related_aggregates_m2m_and_fk(self):
+        """
+
+        Tests the aggregation of related objects through Many-To-Many and Foreign Key relationships.
+
+        This test case verifies that the aggregate sum of pages from books published by
+        'Apress' and excluding a specific friend ('test3') is correctly calculated for
+        an author named 'test'. It ensures that the filtering and aggregation operations
+        are properly applied across multiple related models.
+
+        """
         q = Q(friends__book__publisher__name="Apress") & ~Q(friends__name="test3")
         agg = Sum("friends__book__pages", filter=q)
         self.assertEqual(
@@ -126,6 +145,9 @@ class FilteredAggregateTests(TestCase):
         self.assertEqual(Author.objects.aggregate(age=agg)["age"], 80)
 
     def test_sum_star_exception(self):
+        """
+        Tests that using '*' with a filter in the Count function raises a ValueError with a specific error message, ensuring that users are required to specify a field when applying a filter.
+        """
         msg = "Star cannot be used with filter. Please specify a field."
         with self.assertRaisesMessage(ValueError, msg):
             Count("*", filter=Q(age=40))
@@ -145,6 +167,10 @@ class FilteredAggregateTests(TestCase):
         self.assertEqual(aggs["cnt"], 2)
 
     def test_filtered_aggregate_ref_subquery_annotation(self):
+        """
+        Checks the functionality of aggregate queries with filtered annotations, specifically when referencing subqueries.
+        The test case verifies that the correct count of authors is returned who have published their earliest book in a specific year, by annotating each author with their earliest book publication year and then applying a filter to this annotated value for aggregation purposes.
+        """
         aggs = Author.objects.annotate(
             earliest_book_year=Subquery(
                 Book.objects.filter(
@@ -207,6 +233,18 @@ class FilteredAggregateTests(TestCase):
         self.assertEqual(aggregate, {"max_rating": None})
 
     def test_filtered_aggregate_full_condition(self):
+        """
+        Tests the filtered aggregate functionality with a full condition.
+
+        Verifies that the aggregate function correctly calculates the maximum rating
+        of a set of books and the count of authors for a specific book, both using a 
+        full condition that filters out empty queries.
+
+        This test case covers the usage of the Max and Count aggregate functions in 
+        conjunction with filtering using the Q expression, ensuring that the expected 
+        results are returned when applying the filter to annotated and aggregated 
+        queries.
+        """
         book = Book.objects.annotate(
             authors_count=Count(
                 "authors",

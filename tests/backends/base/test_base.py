@@ -15,6 +15,18 @@ from ..models import Person, Square
 
 class DatabaseWrapperTests(SimpleTestCase):
     def test_repr(self):
+        """
+
+        Tests the string representation of a database connection.
+
+        Verifies that the repr() function returns a string that accurately reflects the
+        database connection's vendor and alias.
+
+        The expected output format is `<DatabaseWrapper vendor=<vendor> alias='default'>`, 
+        where `<vendor>` is the actual database vendor. This test ensures that the connection 
+        object's string representation is correctly formatted and contains the expected information.
+
+        """
         conn = connections[DEFAULT_DB_ALIAS]
         self.assertEqual(
             repr(conn),
@@ -66,6 +78,16 @@ class DatabaseWrapperLoggingTests(TransactionTestCase):
 
     @override_settings(DEBUG=True)
     def test_commit_debug_log(self):
+        """
+
+        Tests the behavior of the database commit operation when debug logging is enabled.
+
+        This test case verifies that the necessary database queries are executed and logged at the DEBUG level.
+        It ensures that the transaction is properly started and committed, and that the corresponding SQL statements
+        are recorded in the query log. Additionally, it checks that the log output matches the expected format for
+        BEGIN and COMMIT statements.
+
+        """
         conn = connections[DEFAULT_DB_ALIAS]
         with CaptureQueriesContext(conn):
             with self.assertLogs("django.db.backends", "DEBUG") as cm:
@@ -88,6 +110,18 @@ class DatabaseWrapperLoggingTests(TransactionTestCase):
 
     @override_settings(DEBUG=True)
     def test_rollback_debug_log(self):
+        """
+
+        Tests the behavior of a database transaction when an exception is raised and 
+        the DEBUG logging setting is enabled.
+
+        Verifies that the transaction is properly rolled back and that a DEBUG-level 
+        log message is generated to indicate the rollback.
+
+        This test ensures that the database connection correctly handles the rollback 
+        operation and that the logging mechanism accurately reports the event.
+
+        """
         conn = connections[DEFAULT_DB_ALIAS]
         with CaptureQueriesContext(conn):
             with self.assertLogs("django.db.backends", "DEBUG") as cm:
@@ -103,6 +137,15 @@ class DatabaseWrapperLoggingTests(TransactionTestCase):
                 )
 
     def test_no_logs_without_debug(self):
+        """
+        #: Test that no database logs are generated when an operation fails without debug mode enabled.
+        #: 
+        #: This function simulates a failed database transaction and verifies that no log messages are 
+        #: recorded at the DEBUG level for the 'django.db.backends' logger. It also checks that no 
+        #: queries are logged in the database connection. The test case ensures that the database 
+        #: operations are properly rolled back when an exception occurs, and no unnecessary log 
+        #: entries are created.
+        """
         with self.assertNoLogs("django.db.backends", "DEBUG"):
             with self.assertRaises(Exception), transaction.atomic():
                 Person.objects.create(first_name="first", last_name="last")
@@ -123,6 +166,18 @@ class ExecuteWrapperTests(TestCase):
     def call_executemany(self, connection, params=None):
         # executemany() must use an update query. Make sure it does nothing
         # by putting a false condition in the WHERE clause.
+        """
+
+        Execute a SQL query with multiple parameters to test database connection.
+
+        This method sends a dummy DELETE query to the database. The query always evaluates to false,
+        so no actual data is deleted. It is designed to test the connection to the database.
+
+        :param connection: A database connection object.
+        :param params: Optional list of tuples, where each tuple contains a single parameter.
+                       If not provided, default parameters will be used.
+
+        """
         sql = "DELETE FROM {} WHERE 0=1 AND 0=%s".format(Square._meta.db_table)
         if params is None:
             params = [(i,) for i in range(3)]
@@ -134,6 +189,18 @@ class ExecuteWrapperTests(TestCase):
         return MagicMock(side_effect=lambda execute, *args: execute(*args))
 
     def test_wrapper_invoked(self):
+        """
+        Verifies that a database query execution wrapper is properly invoked.
+
+        This test checks that a wrapper function is called when executing a database query,
+        and that the wrapper receives the correct arguments, including the SQL query string,
+        parameters, and execution context. The test asserts that the wrapper is invoked with
+        a SELECT query, no query parameters, and a single execution (not multiple executions).
+        The test also verifies that the wrapper has access to the underlying database connection.
+
+        The test covers the basic functionality of a query execution wrapper, ensuring that it
+        is correctly integrated with the database query execution mechanism.
+        """
         wrapper = self.mock_wrapper()
         with connection.execute_wrapper(wrapper):
             self.call_execute(connection)
@@ -195,6 +262,15 @@ class ExecuteWrapperTests(TestCase):
                 self.assertEqual(wrapper.call_count, 2)
 
     def test_wrapper_gets_sql(self):
+        """
+
+        Tests that the wrapper correctly captures and reports the SQL query executed.
+
+        This test verifies that when a SQL query is executed within the context of the wrapper,
+        the wrapper accurately records and reports the SQL query as executed, including any
+        necessary suffixes required by the database connection features.
+
+        """
         wrapper = self.mock_wrapper()
         sql = "SELECT 'aloha'" + connection.features.bare_select_suffix
         with connection.execute_wrapper(wrapper), connection.cursor() as cursor:
@@ -203,6 +279,24 @@ class ExecuteWrapperTests(TestCase):
         self.assertEqual(reported_sql, sql)
 
     def test_wrapper_connection_specific(self):
+        """
+
+        Tests the usage of an execute wrapper within a specific database connection.
+
+        This function verifies that the execute wrapper is properly set and called 
+        for a specific database connection, and checks the expected behavior when 
+        the connection is closed. It ensures that the wrapper is only associated 
+        with the connection it was set for, and that it is properly reset once 
+        the connection is closed.
+
+        The test covers the following scenarios:
+        - The execute wrapper is correctly assigned to the connection.
+        - The execute wrapper is not called within the scope of the connection.
+        - The execute wrapper is properly removed from the connection once the 
+          connection is closed.
+        - The execute wrapper is not associated with other connections.
+
+        """
         wrapper = self.mock_wrapper()
         with connections["other"].execute_wrapper(wrapper):
             self.assertEqual(connections["other"].execute_wrappers, [wrapper])
@@ -212,6 +306,14 @@ class ExecuteWrapperTests(TestCase):
         self.assertEqual(connections["other"].execute_wrappers, [])
 
     def test_wrapper_debug(self):
+        """
+
+        Tests that a custom SQL comment is successfully prepended to the query when using the execute wrapper.
+
+        This test case verifies that the provided wrapper function correctly modifies the SQL query by adding a comment before execution.
+        The comment is then checked to be present in the captured query, ensuring the wrapper's functionality.
+
+        """
         def wrap_with_comment(execute, sql, params, many, context):
             return execute(f"/* My comment */ {sql}", params, many, context)
 
@@ -228,10 +330,21 @@ class ConnectionHealthChecksTests(SimpleTestCase):
     def setUp(self):
         # All test cases here need newly configured and created connections.
         # Use the default db connection for convenience.
+        """
+        Sets up the test environment by closing the existing database connection and ensuring it is closed after the test is completed, regardless of the test outcome, to prevent resource leaks and ensure a clean state for subsequent tests.
+        """
         connection.close()
         self.addCleanup(connection.close)
 
     def patch_settings_dict(self, conn_health_checks):
+        """
+        Patches the database connection settings dictionary with specified health check settings.
+
+        Temporarily modifies the connection settings to disable connection aging and set the specified health checks. The original settings are restored when the patch is stopped, which is automatically done during cleanup.
+
+        :param conn_health_checks: Dictionary of health check settings to apply to the connection.
+
+        """
         self.settings_dict_patcher = patch.dict(
             connection.settings_dict,
             {
@@ -309,6 +422,19 @@ class ConnectionHealthChecksTests(SimpleTestCase):
 
     @skipUnlessDBFeature("test_db_allows_multiple_connections")
     def test_health_checks_disabled(self):
+        """
+        Tests the behavior of the database connection when health checks are disabled.
+
+            This test case verifies that when health checks are turned off, the connection
+            is not replaced even if it is unusable. It checks that the connection remains
+            the same after attempting to run queries, closing the connection if it's
+            unusable or obsolete, and after multiple query executions.
+
+            The test emulates a scenario where the connection's usability check raises an
+            exception, ensuring that the connection is not replaced in such cases when
+            health checks are disabled. The goal is to confirm that the connection
+            persistence behavior is correct under these specific conditions.
+        """
         self.patch_settings_dict(conn_health_checks=False)
         self.assertIsNone(connection.connection)
         # Newly created connections are considered healthy without performing

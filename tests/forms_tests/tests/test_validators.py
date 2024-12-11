@@ -10,6 +10,14 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 
 class TestFieldWithValidators(TestCase):
     def test_all_errors_get_reported(self):
+        """
+
+        Tests that all validation errors are properly reported when a form is submitted with multiple invalid fields.
+
+        This test case covers scenarios where a form has multiple fields with different validation rules,
+        and ensures that all validation errors are caught and reported correctly.
+
+        """
         class UserForm(forms.Form):
             full_name = forms.CharField(
                 max_length=50,
@@ -54,6 +62,17 @@ class TestFieldWithValidators(TestCase):
         self.assertEqual(form.errors["string"], ["Letters only."])
 
     def test_field_validators_can_be_any_iterable(self):
+        """
+        Tests that field validators in a form can be any iterable.
+
+        This test case checks the functionality of applying multiple validators to a form field.
+        It verifies that when a field's value fails to pass all the validators, the form will not be considered valid,
+        and that error messages from all failed validators are collected and reported.
+
+        The test demonstrates that the validators can be passed as an iterable (such as a tuple) to the field constructor,
+        and that the form's validation process will check the field's value against all validators in the iterable,
+        displaying all the error messages if the value is invalid according to any of the validators.
+        """
         class UserForm(forms.Form):
             full_name = forms.CharField(
                 max_length=50,
@@ -115,6 +134,11 @@ class ValidatorCustomMessageTests(TestCase):
                 self.assertEqual(form.errors, {"field": [value]})
 
     def test_value_placeholder_with_null_character(self):
+        """
+        králTests the handling of null characters in a form field value. 
+        Verifies that a form with a CharField rejects input containing null characters and raises a corresponding error message. 
+        The error message includes the invalid value that triggered the error.
+        """
         class MyForm(forms.Form):
             field = forms.CharField(
                 error_messages={"null_characters_not_allowed": "%(value)s"},

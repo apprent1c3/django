@@ -75,6 +75,11 @@ class HttpRequest:
         self.content_params = None
 
     def __repr__(self):
+        """
+        Returns a string representation of the object, providing a concise summary of its state.
+
+        The representation includes the object's class name and, if applicable, its HTTP method and full path. If the object's method or full path is not set, a simplified representation is returned, containing only the class name.
+        """
         if self.method is None or not self.get_full_path():
             return "<%s>" % self.__class__.__name__
         return "<%s: %s %r>" % (
@@ -302,6 +307,14 @@ class HttpRequest:
 
     @upload_handlers.setter
     def upload_handlers(self, upload_handlers):
+        """
+        Sets the upload handlers for this instance.
+
+        The upload handlers are responsible for processing uploaded files. This attribute can only be set before any upload processing has occurred. Attempting to set this attribute after upload processing has started will result in an AttributeError.
+
+        :param upload_handlers: The upload handlers to use for this instance
+        :raises AttributeError: If the upload handlers are set after upload processing has started
+        """
         if hasattr(self, "_files"):
             raise AttributeError(
                 "You cannot set the upload handlers after the upload has been "
@@ -555,6 +568,13 @@ class QueryDict(MultiValueDict):
         self._encoding = value
 
     def _assert_mutable(self):
+        """
+        Asserts that the QueryDict instance is mutable.
+
+             Raises an AttributeError if the instance is immutable, indicating that it 
+             cannot be modified. This method acts as a safeguard to prevent unintended 
+             modifications to immutable QueryDict instances.
+        """
         if not self._mutable:
             raise AttributeError("This QueryDict instance is immutable")
 
@@ -610,6 +630,16 @@ class QueryDict(MultiValueDict):
         super().clear()
 
     def setdefault(self, key, default=None):
+        """
+
+        Sets a default value for a given key in the object if the key does not exist.
+
+        :param key: The key to set the default value for.
+        :param default: The default value to set for the key if it does not exist. Defaults to None.
+        :return: The value for the given key, either the existing value or the newly set default value.
+        :note: The key and default values are converted to text using the object's encoding before being set.
+
+        """
         self._assert_mutable()
         key = bytes_to_text(key, self.encoding)
         default = bytes_to_text(default, self.encoding)

@@ -29,6 +29,28 @@ class FieldOperation(Operation):
         )
 
     def references_model(self, name, app_label):
+        """
+
+        Checks if the current model is referenced by another model.
+
+        Parameters
+        ----------
+        name : str
+            The name of the model to check.
+        app_label : str
+            The application label of the model to check.
+
+        Returns
+        -------
+        bool
+            True if the current model is referenced by the given model, False otherwise.
+
+        Notes
+        -----
+        This function checks for direct references between models. It returns True if the given model name matches the current model name.
+        If the current model has a field, it checks if the given model is referenced by that field.
+
+        """
         name_lower = name.lower()
         if name_lower == self.model_name_lower:
             return True
@@ -129,6 +151,22 @@ class AddField(FieldOperation):
         return "%s_%s" % (self.model_name_lower, self.name_lower)
 
     def reduce(self, operation, app_label):
+        """
+        Reduces a given field operation into a simpler operation or a list of operations.
+
+        This method takes in a field operation and an application label, and returns a list of operations that can be applied to a model field.
+        If the operation is a FieldOperation that can be reduced, it simplifies the operation into a more basic form, such as adding or removing a field.
+        For example, if the operation is an AlterField, it is reduced to an AddField operation with the updated field.
+        If the operation is a RenameField, it is reduced to an AddField operation with the new field name.
+        If the operation cannot be reduced, it delegates to the parent class to handle the reduction.
+
+         ACCEPTS:
+            operation (FieldOperation): The field operation to be reduced
+            app_label (str): The label of the application
+
+         RETURNS:
+            list: A list of reduced operations
+        """
         if isinstance(operation, FieldOperation) and self.is_same_field_operation(
             operation
         ):
@@ -315,6 +353,24 @@ class RenameField(FieldOperation):
             )
 
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
+        """
+
+        Reverses a database migration operation that involves renaming a field.
+
+        This function is used to revert a migration that changes the name of a field
+        in a model. It takes into account the state of the model at the start and end
+        of the migration, and uses this information to correctly reverse the change.
+
+        The function first checks if the migration is allowed for the given model and
+        database connection. If the migration is allowed, it then proceeds to alter
+        the field in the model, effectively renaming it back to its original name.
+
+        :param app_label: The label of the application that owns the model.
+        :param schema_editor: The schema editor object used to perform the database operation.
+        :param from_state: The state of the model before the migration.
+        :param to_state: The state of the model after the migration.
+
+        """
         to_model = to_state.apps.get_model(app_label, self.model_name)
         if self.allow_migrate_model(schema_editor.connection.alias, to_model):
             from_model = from_state.apps.get_model(app_label, self.model_name)

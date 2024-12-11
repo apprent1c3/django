@@ -45,6 +45,13 @@ class PrefetchRelatedObjectsTests(TestCase):
         cls.house2.save()
 
     def test_unknown(self):
+        """
+        Tests that prefetching related objects with an unknown attribute raises an AttributeError.
+
+        This test case ensures that attempting to prefetch related objects using an attribute
+        that does not exist on the model results in an appropriate error being raised.
+
+        """
         book1 = Book.objects.get(id=self.book1.id)
         with self.assertRaises(AttributeError):
             prefetch_related_objects([book1], "unknown_attribute")
@@ -85,6 +92,18 @@ class PrefetchRelatedObjectsTests(TestCase):
         self.assertNotIn("ORDER BY", ctx.captured_queries[0]["sql"])
 
     def test_foreignkey_reverse(self):
+        """
+        Tests the functionality of prefetching related objects through a foreign key reverse relationship.
+
+        This test ensures that related objects can be prefetched in a single database query,
+        and that the prefetched objects can be accessed without triggering additional queries.
+        It also verifies that the prefetched objects are ordered according to the specified queryset.
+
+        The test covers two scenarios: 
+        1. Prefetching related objects using a string lookup, 
+        2. Prefetching related objects using a Prefetch object with a custom queryset.
+
+        """
         books = list(Book.objects.all())
         with self.assertNumQueries(1) as ctx:
             prefetch_related_objects(books, "first_time_authors")
@@ -105,6 +124,21 @@ class PrefetchRelatedObjectsTests(TestCase):
         self.assertIn("ORDER BY", ctx.captured_queries[0]["sql"])
 
     def test_one_to_one_forward(self):
+        """
+
+        Test that one-to-one relationships are correctly prefetched.
+
+        This test verifies the functionality of prefetching one-to-one relationships using 
+        :func:`~django.db.models.prefetch_related_objects`. It checks that the relationship 
+        is fetched in a single database query and that subsequent accesses to the 
+        relationship do not result in additional queries. The test also confirms that any 
+        order specified on the related model's queryset does not affect the prefetch 
+        query.
+
+        The test uses the :class:`~House` model and its one-to-one relationship with 
+        :class:`~Room`, defined as :attr:`~House.main_room`.
+
+        """
         houses = list(House.objects.all())
         with self.assertNumQueries(1) as ctx:
             prefetch_related_objects(houses, "main_room")
@@ -122,6 +156,16 @@ class PrefetchRelatedObjectsTests(TestCase):
         self.assertNotIn("ORDER BY", ctx.captured_queries[0]["sql"])
 
     def test_one_to_one_reverse(self):
+        """
+        Tests the one-to-one reverse prefetching functionality.
+
+        This test case verifies that Django's prefetch_related_objects function 
+        correctly prefetches one-to-one reverse relationships in a single database query.
+        It checks that no ORDER BY statement is included in the query when prefetching 
+        without a specified queryset, and also when prefetching with a queryset 
+        that includes an order_by statement. Additionally, it ensures that accessing 
+        the prefetched objects does not trigger any additional database queries.
+        """
         rooms = list(Room.objects.all())
         with self.assertNumQueries(1) as ctx:
             prefetch_related_objects(rooms, "main_room_of")
@@ -169,6 +213,20 @@ class PrefetchRelatedObjectsTests(TestCase):
             )
 
     def test_prefetch_object_twice(self):
+        """
+
+        Tests the prefetching of related objects to ensure it is only executed when necessary.
+
+        Verifies that the database query count remains optimal when fetching related objects
+        multiple times, including during prefetching of objects individually or in batches.
+
+        In particular, this test case confirms that:
+
+        - Prefetching a single object does not trigger unnecessary database queries.
+        - Prefetching multiple objects at once also maintains optimal query count.
+        - Repeatedly accessing the prefetched related objects does not result in additional queries.
+
+        """
         book1 = Book.objects.get(id=self.book1.id)
         book2 = Book.objects.get(id=self.book2.id)
         with self.assertNumQueries(1):

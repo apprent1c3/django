@@ -417,6 +417,19 @@ class HashedFilesMixin:
         # Normalize the path to avoid multiple names for the same file like
         # ../foo/bar.css and ../foo/../foo/bar.css which normalize to the same
         # path.
+        """
+        Return a cleaned and possibly hashed version of a file name, 
+            looking up the hash in a provided cache of hashed files.
+
+            The function takes a name and a dictionary of hashed files as input, 
+            normalizes the name, cleans it, and then checks if a hashed version 
+            of the cleaned name exists in the cache. If it does, the cached name 
+            is returned; otherwise, a new hashed name is generated and returned.
+
+            :param name: The original file name to be processed
+            :param hashed_files: A dictionary of hashed file names
+            :return: The cleaned and possibly hashed file name
+        """
         name = posixpath.normpath(name)
         cleaned_name = self.clean_name(name)
         hash_key = self.hash_key(cleaned_name)
@@ -507,6 +520,23 @@ class ManifestFilesMixin(HashedFilesMixin):
         self.manifest_storage._save(self.manifest_name, ContentFile(contents))
 
     def stored_name(self, name):
+        """
+        Resolves a stored name to its hashed version, handling situations where the hashed name may or may not be present in the cache.
+
+        Args:
+            name (str): The name of the file to resolve.
+
+        Returns:
+            str: The resolved name of the file, with its path updated to point to the hashed version if available.
+
+        Raises:
+            ValueError: If the manifest is set to strict mode and a manifest entry for the given name is not found.
+
+        Notes:
+            The function first cleans and hashes the input name, then checks if a hashed version is available in the cache.
+            If the hashed version is found, it is used; otherwise, the function generates a new hashed name.
+            The function also handles query strings and fragments in the original name, preserving them in the output.
+        """
         parsed_name = urlsplit(unquote(name))
         clean_name = parsed_name.path.strip()
         hash_key = self.hash_key(clean_name)

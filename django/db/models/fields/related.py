@@ -773,6 +773,14 @@ class ForeignObject(RelatedField):
         return tuple(ret)
 
     def get_attname_column(self):
+        """
+        Override the default retrieval of attribute name and column.
+
+        This method returns a tuple containing the attribute name and a column value.
+        The attribute name is obtained from the parent class, while the column value is
+        always set to None. This allows for customized attribute name handling while
+        ignoring the associated column information.
+        """
         attname, column = super().get_attname_column()
         return attname, None
 
@@ -1196,12 +1204,39 @@ class ForeignKey(ForeignObject):
         return value
 
     def get_db_converters(self, connection):
+        """
+        Returns a list of database converters for the given connection.
+
+        This method extends the converters provided by the parent class and adds an
+        additional converter to handle empty strings if the connection treats them as
+        null values.
+
+        The returned converters can be used to modify the behavior of database queries,
+        enabling proper handling of empty strings and null values.
+
+        :param connection: The database connection to retrieve converters for
+        :return: A list of database converters
+        """
         converters = super().get_db_converters(connection)
         if connection.features.interprets_empty_strings_as_nulls:
             converters += [self.convert_empty_strings]
         return converters
 
     def get_col(self, alias, output_field=None):
+        """
+
+        Get a database column based on a given alias, handling foreign key relationships.
+
+        The column is resolved by following foreign key relationships if necessary. If an
+        output field is not provided, the function will attempt to determine it
+        automatically by traversing the foreign key chain. If a cycle is detected in the
+        foreign key chain, a ValueError is raised.
+
+        :param alias: The alias of the column to retrieve
+        :param output_field: The output field of the column (optional)
+        :returns: The resolved database column
+
+        """
         if output_field is None:
             output_field = self.target_field
             while isinstance(output_field, ForeignKey):
@@ -1407,6 +1442,17 @@ class ManyToManyField(RelatedField):
         ]
 
     def _check_unique(self, **kwargs):
+        """
+        Checks if a ManyToManyField can be unique.
+
+            This function verifies whether a ManyToManyField has been set as unique. 
+            ManyToManyFields, by definition, allow multiple relationships and therefore cannot be unique.
+            If the field is set as unique, an error is returned; otherwise, an empty list is returned. 
+            The check is based on the field's unique attribute.
+
+            Returns:
+                list: A list of errors (if any) or an empty list if the field is valid.
+        """
         if self.unique:
             return [
                 checks.Error(
@@ -1895,6 +1941,15 @@ class ManyToManyField(RelatedField):
         # specify *what* on my non-reversible relation?!"), so we set it up
         # automatically. The funky name reduces the chance of an accidental
         # clash.
+        """
+        Contribute this Many-To-Many field to the given class.
+
+        This method is responsible for setting up the Many-To-Many relationship on the model. It checks for the type of relationship and sets the related name accordingly. If the relationship is not abstract, it resolves the through model or creates a new intermediary model if necessary. Finally, it sets the Many-To-Many descriptor on the class and prepares the database table name for the relationship.
+
+        :param cls: The model class that this field is being added to.
+        :param name: The name of this field on the model.
+        :param kwargs: Additional keyword arguments.
+        """
         if self.remote_field.symmetrical and (
             self.remote_field.model == RECURSIVE_RELATIONSHIP_CONSTANT
             or self.remote_field.model == cls._meta.object_name
@@ -1973,6 +2028,22 @@ class ManyToManyField(RelatedField):
         getattr(instance, self.attname).set(data)
 
     def formfield(self, *, using=None, **kwargs):
+        """
+        Returns a form field for the relationship between the model and the related object.
+
+        The form field can be customized by passing additional keyword arguments. The form class used is :class:`~django.forms.ModelMultipleChoiceField` by default, but this can be overridden by passing a different ``form_class``.
+
+        The ``queryset`` used to populate the form field can be controlled by using the ``queryset`` argument. If the model has a custom manager, it can be specified using the ``queryset`` argument.
+
+        The ``initial`` value of the form field can be set using the ``initial`` argument. If a callable is passed, it will be called to determine the initial value. The initial value should be a list of objects, but if a list of objects is passed, their primary keys will be extracted and used instead.
+
+        The form field is constructed using the provided arguments and then returned. Additional arguments can be passed to customize the form field further, such as ``label``, ``help_text``, etc.
+
+        :param using: The database alias to use for the query. Defaults to ``None``.
+        :param kwargs: Additional keyword arguments to customize the form field.
+        :return: A form field instance for the relationship.
+
+        """
         defaults = {
             "form_class": forms.ModelMultipleChoiceField,
             "queryset": self.remote_field.model._default_manager.using(using),

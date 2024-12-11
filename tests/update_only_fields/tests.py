@@ -12,6 +12,18 @@ class UpdateOnlyFieldsTests(TestCase):
     )
 
     def test_update_fields_basic(self):
+        """
+
+        Tests the update_fields parameter of the save method on a model instance.
+
+        This test case verifies that when only certain fields are specified for update,
+        only those fields are actually updated in the database, while other fields remain unchanged.
+
+        The test creates a Person instance, modifies its name and gender, saves it with only the name
+        field updated, and then checks that the name has been updated correctly and the gender remains
+        the same as its original value.
+
+        """
         s = Person.objects.create(name="Sara", gender="F")
         self.assertEqual(s.gender, "F")
 
@@ -93,6 +105,19 @@ class UpdateOnlyFieldsTests(TestCase):
         self.assertEqual(Employee.objects.get(pk=e1.pk).name, "Linda")
 
     def test_update_fields_fk_defer(self):
+        """
+
+        Tests the update of fields with foreign key defer.
+
+        This test creates employee profiles and tests the foreign key assignment 
+        with deferred loading, ensuring that the updates are performed efficiently 
+        with a minimal number of database queries. The test case verifies that 
+        the employee's profile can be updated successfully and that the changes 
+        are persisted in the database. It also checks that the foreign key 
+        assignment and the subsequent save operation are performed within a 
+        single database query, optimizing performance.
+
+        """
         profile_boss = Profile.objects.create(name="Boss", salary=3000)
         profile_receptionist = Profile.objects.create(name="Receptionist", salary=1000)
         e1 = Employee.objects.create(
@@ -109,6 +134,17 @@ class UpdateOnlyFieldsTests(TestCase):
         self.assertEqual(Employee.objects.get(pk=e1.pk).profile, profile_boss)
 
     def test_select_related_only_interaction(self):
+        """
+
+        Tests the behavior of Django's select_related method when used with only method.
+        Verifies that when a model instance is retrieved with select_related and only,
+        any subsequent modifications to the related model instance are not reflected
+        in the originally retrieved instance, even if the related instance is saved.
+        This ensures that the select_related method does indeed retrieve a snapshot
+        of the related instance at the time of the original query, rather than a live
+        reference to the related instance.
+
+        """
         profile_boss = Profile.objects.create(name="Boss", salary=3000)
         e1 = Employee.objects.create(
             name="Sara", gender="F", employee_num=1, profile=profile_boss
@@ -130,6 +166,29 @@ class UpdateOnlyFieldsTests(TestCase):
         self.assertEqual(reloaded_profile.salary, 3000)
 
     def test_update_fields_m2m(self):
+        """
+        Tests that attempting to save a model instance with a many-to-many field 
+        update raises a ValueError.
+
+        Verifies that an error is correctly raised when trying to update a many-to-many 
+        field using the `update_fields` argument, as this operation is not supported 
+        and can lead to data inconsistencies.
+
+        It checks the case when an employee instance has multiple accounts assigned, 
+        and then an attempt is made to save the instance with the `update_fields` 
+        parameter set to the many-to-many field 'accounts', expecting a ValueError 
+        with a specific message to be raised. 
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            ValueError: If a many-to-many field is included in the `update_fields` 
+                         argument when saving the instance
+        """
         profile_boss = Profile.objects.create(name="Boss", salary=3000)
         e1 = Employee.objects.create(
             name="Sara", gender="F", employee_num=1, profile=profile_boss
@@ -234,6 +293,14 @@ class UpdateOnlyFieldsTests(TestCase):
             s.save(update_fields="name")
 
     def test_empty_update_fields(self):
+        """
+        ..:param: 
+        Test that an empty list passed to update_fields results in no database query and no signal receivers being called when a model instance is saved. 
+
+        This test function creates a new instance of the Person model, then connects signal receivers to the pre_save and post_save signals. 
+        It then attempts to save the instance with an empty update_fields list and checks that no database queries were made and that neither signal receiver was called. 
+        Finally, it disconnects the signal receivers.
+        """
         s = Person.objects.create(name="Sara", gender="F")
         pre_save_data = []
 
@@ -258,6 +325,23 @@ class UpdateOnlyFieldsTests(TestCase):
         post_save.disconnect(post_save_receiver)
 
     def test_empty_update_fields_positional_save(self):
+        """
+        Tests deprecation warning for passing positional arguments to the save method.
+
+        This test case checks that a warning is emitted when positional arguments are used
+        to call the save method on a model instance, which is deprecated and scheduled for
+        removal in Django 6.0. The test also verifies that no database queries are executed
+        in this scenario, as no update operation is performed.
+
+        It creates a Person instance, then attempts to save it with positional arguments,
+        asserting that the expected deprecation warning is raised and no database queries
+        are executed. The test uses a specific message to identify the warning, ensuring
+        that the correct deprecation warning is triggered by the deprecated positional
+        argument usage. 
+
+        The return value of this function is the assertion result which indicates whether 
+        the test was successful or not.
+        """
         s = Person.objects.create(name="Sara", gender="F")
 
         msg = "Passing positional arguments to save() is deprecated"
@@ -281,6 +365,16 @@ class UpdateOnlyFieldsTests(TestCase):
         self.assertEqual(s.name, "Sara")
 
     def test_num_queries_inheritance(self):
+        """
+
+        Test that the number of database queries is correctly optimized when updating 
+        fields on a model instance that uses multi-table inheritance.
+
+        Verifies that updating a single field on the child model or the parent model 
+        triggers only one database query, and that updating fields on both the child 
+        and parent models triggers the expected number of queries.
+
+        """
         s = Employee.objects.create(name="Sara", gender="F")
         s.employee_num = 1
         s.name = "Emily"

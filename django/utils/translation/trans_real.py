@@ -77,6 +77,13 @@ class TranslationCatalog:
     """
 
     def __init__(self, trans=None):
+        """
+        Initialize a translation object.
+
+        This constructor sets up the internal catalogs and pluralization functions.
+        It optionally takes a translation object to inherit catalogs and pluralization rules from.
+        If no translation object is provided, the object starts with an empty catalog and a default pluralization function that follows the basic English rules (one item is singular, multiple items are plural).
+        """
         self._catalogs = [trans._catalog.copy()] if trans else [{}]
         self._plurals = [trans.plural] if trans else [lambda n: int(n != 1)]
 
@@ -121,6 +128,14 @@ class TranslationCatalog:
         return default
 
     def plural(self, msgid, num):
+        """
+        Returns the pluralized translation message for the given msgid based on the provided number. 
+
+        The function iterates over the available translation catalogs and plural rules, 
+        attempting to retrieve the most suitable translation. If a matching translation is found, 
+        it is returned immediately. If no matching translation is found after checking all catalogs, 
+        a KeyError is raised, indicating that no translation was available for the given msgid and number.
+        """
         for cat, plural in zip(self._catalogs, self._plurals):
             tmsg = cat.get((msgid, plural(num)))
             if tmsg is not None:

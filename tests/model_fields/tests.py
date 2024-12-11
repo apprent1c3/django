@@ -139,6 +139,20 @@ class BasicFieldTests(SimpleTestCase):
         self.assertLess(inherit1_model_field, inherit2_model_field)
 
     def test_hash_immutability(self):
+        """
+
+        Tests the immutability of the hash value for a field instance.
+
+        Verifies that the hash value of a field remains the same even when the field
+        is used as an attribute of a model class. This ensures that the field's hash
+        value does not change when it is associated with a model, which is important
+        for ensuring the consistency and reliability of the model's behavior.
+
+        The test checks that the hash value of the field before and after it is added
+        to a model class are the same, confirming the immutability of the field's
+        hash value.
+
+        """
         field = models.IntegerField()
         field_hash = hash(field)
 
@@ -184,6 +198,12 @@ class ChoicesTests(SimpleTestCase):
         )
 
     def test_flatchoices(self):
+        """
+        Tests the flatchoices attribute of an object, ensuring it correctly returns a list of flattened choices.
+        The attribute is expected to return an empty list when the object has no choices, empty choices, empty boolean choices, or empty text choices.
+        For objects with choices defined as lists, dictionaries, or nested dictionaries, the flatchoices attribute should return a list of tuples containing the choice value and human-readable name.
+        Additionally, the test checks that the flatchoices attribute correctly handles choices generated from iterators or callable functions, returning a list of tuples with the expected values and names.
+        """
         self.assertEqual(self.no_choices.flatchoices, [])
         self.assertEqual(self.empty_choices.flatchoices, [])
         self.assertEqual(self.empty_choices_bool.flatchoices, [])
@@ -211,6 +231,15 @@ class ChoicesTests(SimpleTestCase):
             self.with_choices.validate(99, model_instance)
 
     def test_formfield(self):
+        """
+        Tests the formfield method of various field instances.
+
+        This test case verifies that the formfield method returns the expected form field type for different scenarios. 
+        It checks if a field without choices returns an IntegerField and if fields with choices return a ChoiceField. 
+        The test covers various types of choices, including empty choices, choices from enumerations, and choices from callables or iterators.
+
+        The test case ensures that the formfield method behaves correctly for different types of fields, providing confidence in the functionality of the formfield method.
+        """
         no_choices_formfield = self.no_choices.formfield()
         self.assertIsInstance(no_choices_formfield, forms.IntegerField)
         fields = (
@@ -254,6 +283,20 @@ class GetFieldDisplayTests(SimpleTestCase):
         self.assertEqual(val, "translated")
 
     def test_overriding_FIELD_display(self):
+        """
+
+        Tests the overriding of field display values in model instances.
+
+        This test case creates a model with a choice field and a custom method
+        get_foo_bar_display to override the default display value. It then
+        verifies that the custom method returns the expected display value
+        when called on a model instance.
+
+        The purpose of this test is to ensure that model instances can provide
+        custom display values for choice fields, allowing for more flexibility
+        and control over how field values are presented to users.
+
+        """
         class FooBar(models.Model):
             foo_bar = models.IntegerField(choices=[(1, "foo"), (2, "bar")])
 
@@ -264,6 +307,16 @@ class GetFieldDisplayTests(SimpleTestCase):
         self.assertEqual(f.get_foo_bar_display(), "something")
 
     def test_overriding_inherited_FIELD_display(self):
+        """
+
+        Tests that the display value of an overridden model field in a child class
+        takes precedence over the display value defined in the parent class.
+
+        Verifies that when a child class overrides an inherited field and defines
+        its own choices, the get_FOO_display method returns the correct display
+        value as defined in the child class, rather than the parent class.
+
+        """
         class Base(models.Model):
             foo = models.CharField(max_length=254, choices=[("A", "Base A")])
 
@@ -299,11 +352,28 @@ class GetFieldDisplayTests(SimpleTestCase):
 
 class GetChoicesTests(SimpleTestCase):
     def test_empty_choices(self):
+        """
+
+        Tests the behavior of CharField's get_choices method when the choices list is empty.
+
+        Verifies that the get_choices method returns the original empty list when 
+        include_blank is set to False, ensuring that the field correctly handles the 
+        absence of any predefined choices.
+
+        """
         choices = []
         f = models.CharField(choices=choices)
         self.assertEqual(f.get_choices(include_blank=False), choices)
 
     def test_blank_in_choices(self):
+        """
+        Tests that a CharField correctly includes a blank choice when generating choices.
+
+        The function verifies that when 'include_blank' is True, the get_choices method 
+        returns the original list of choices, including any blank options. This ensures 
+        that the field behaves as expected when a blank choice is present in the 
+        provided options.
+        """
         choices = [("", "<><>"), ("a", "A")]
         f = models.CharField(choices=choices)
         self.assertEqual(f.get_choices(include_blank=True), choices)
@@ -370,6 +440,20 @@ class GetChoicesOrderingTests(TestCase):
         )
 
     def test_get_choices_reverse_related_field_default_ordering(self):
+        """
+
+        Tests the ordering of choices for a reverse related field.
+
+        This test checks that when the default ordering of the related model (Bar) is 
+        changed, the choices for a reverse related field are ordered accordingly.
+
+        In particular, it verifies that when the ordering is set to ('b',), the choices 
+        are returned in the correct order, which is descending based on the given field. 
+
+        This ensures that the ordering of the choices is correctly managed when the 
+        default ordering of the related model is modified. 
+
+        """
         self.addCleanup(setattr, Bar._meta, "ordering", Bar._meta.ordering)
         Bar._meta.ordering = ("b",)
         self.assertChoicesEqual(
@@ -381,6 +465,15 @@ class GetChoicesOrderingTests(TestCase):
 class GetChoicesLimitChoicesToTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for the application, creating instances of Foo and Bar models.
+
+        This method creates two Foo instances and two corresponding Bar instances, 
+        linking each Bar instance to a Foo instance, allowing for testing of relationships 
+        between the Foo and Bar models. The test data includes fields with specific values 
+        to facilitate various test scenarios. A field object for the 'a' field of the Bar 
+        model is also retrieved for further testing purposes.
+        """
         cls.foo1 = Foo.objects.create(a="a", d="12.34")
         cls.foo2 = Foo.objects.create(a="b", d="12.34")
         cls.bar1 = Bar.objects.create(a=cls.foo1, b="b")
@@ -391,6 +484,15 @@ class GetChoicesLimitChoicesToTests(TestCase):
         self.assertCountEqual(choices, [(obj.pk, str(obj)) for obj in objs])
 
     def test_get_choices(self):
+        """
+        Tests that the get_choices method of the field returns the correct choices based on the provided parameters.
+
+        The test checks two scenarios:
+        - When `limit_choices_to` is specified, it verifies that only the choices matching the filter are returned.
+        - When `limit_choices_to` is empty, it verifies that all choices are returned. 
+
+        In both cases, the test ensures that the `include_blank=False` parameter correctly excludes blank choices from the result.
+        """
         self.assertChoicesEqual(
             self.field.get_choices(include_blank=False, limit_choices_to={"a": "a"}),
             [self.foo1],

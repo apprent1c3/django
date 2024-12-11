@@ -99,6 +99,18 @@ class Options:
     default_apps = apps
 
     def __init__(self, meta, app_label=None):
+        """
+
+        Initializes the metadata for a model.
+
+        This constructor sets up the internal state of a model, including its basic
+        information, relationship fields, management options, and database settings.
+
+        Parameters:
+            meta: The metadata configuration for the model.
+            app_label (optional): The label of the application that this model belongs to.
+
+        """
         self._get_fields_cache = {}
         self.local_fields = []
         self.local_many_to_many = []
@@ -169,6 +181,32 @@ class Options:
         return self.apps.app_configs.get(self.app_label)
 
     def contribute_to_class(self, cls, name):
+        """
+        Initialize the meta attributes for a Django model class.
+
+        This method is called when a model class is being created, and it sets up the
+        necessary metadata for the class, such as its verbose name, database table name,
+        and other attributes. It also checks for any invalid attributes in the model's
+        Meta class and raises an error if any are found.
+
+        The method sets the model's metadata attributes, including its name, verbose name,
+        and database table name. It also handles the initialization of the model's
+        constraints, indexes, and ordering. If the model is not abstract, it formats the
+        constraints and indexes. If the model's verbose name plural is not set, it is
+        automatically generated.
+
+        The method raises a TypeError if the model's Meta class contains any invalid
+        attributes.
+
+        After initialization, the meta attributes are available on the model class,
+        providing information about the model's structure and behavior. The method also
+        sets up event handling for swappable models, connecting to the setting_changed
+        signal.
+
+        :param cls: The model class being initialized
+        :param name: The name of the model class
+
+        """
         from django.db import connection
         from django.db.backends.utils import truncate_name
 

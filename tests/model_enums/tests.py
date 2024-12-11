@@ -75,6 +75,11 @@ class ChoicesTests(SimpleTestCase):
         self.assertEqual(Vehicle.names[0], "__empty__")
 
     def test_integerchoices_functional_api(self):
+        """
+        Tests the functional API of integer choices by creating a choice model called Place, 
+        verifying that it correctly generates human-readable labels, internal values, and 
+        choice names from a single string of space-separated choice names.
+        """
         Place = models.IntegerChoices("Place", "FIRST SECOND THIRD")
         self.assertEqual(Place.labels, ["First", "Second", "Third"])
         self.assertEqual(Place.values, [1, 2, 3])
@@ -86,6 +91,16 @@ class ChoicesTests(SimpleTestCase):
         self.assertNotIn(0, Suit)
 
     def test_textchoices(self):
+        """
+        #: Tests the YearInSchool choices class.
+        #: 
+        #: Verifies that the choices class has the correct set of choices, 
+        #: including the value, label, and name for each choice. 
+        #: 
+        #: It also checks the accessibility of the choices by value and name, 
+        #: ensures the correct representation of the class and its instances, 
+        #: and confirms the types of the class and its instances and attributes.
+        """
         self.assertEqual(
             YearInSchool.choices,
             [
@@ -118,6 +133,14 @@ class ChoicesTests(SimpleTestCase):
         self.assertIsInstance(YearInSchool.FRESHMAN.value, str)
 
     def test_textchoices_auto_label(self):
+        """
+
+        Tests that the label attribute of the Gender choices is automatically set correctly.
+
+        Verifies that the labels for each choice in the Gender enumeration match the expected values.
+        The test checks that the labels for male, female, and not specified choices are accurate.
+
+        """
         self.assertEqual(Gender.MALE.label, "Male")
         self.assertEqual(Gender.FEMALE.label, "Female")
         self.assertEqual(Gender.NOT_SPECIFIED.label, "Not Specified")
@@ -129,6 +152,9 @@ class ChoicesTests(SimpleTestCase):
         self.assertEqual(Gender.names[0], "__empty__")
 
     def test_textchoices_functional_api(self):
+        """
+        Tests the functional API of the TextChoices class, specifically the Medal text choices, verifying that the labels, values, and names are correctly generated from the provided choices. The test checks that the labels are human-readable names, the values are the original choices, and the names are the original choices, ensuring consistency in the text choices representation.
+        """
         Medal = models.TextChoices("Medal", "GOLD SILVER BRONZE")
         self.assertEqual(Medal.labels, ["Gold", "Silver", "Bronze"])
         self.assertEqual(Medal.values, ["GOLD", "SILVER", "BRONZE"])
@@ -164,6 +190,14 @@ class ChoicesTests(SimpleTestCase):
                 PINEAPPLE = 1, "Pineapple"
 
     def test_str(self):
+        """
+        Tests the string representation of enumeration members.
+
+        This function verifies that the string representation of each enumeration member
+        in the specified enumeration types matches its expected value. The test covers
+        enumerations for Gender, Suit, YearInSchool, and Vehicle.
+
+        """
         for test in [Gender, Suit, YearInSchool, Vehicle]:
             for member in test:
                 with self.subTest(member=member):
@@ -175,11 +209,23 @@ class ChoicesTests(SimpleTestCase):
         self.assertEqual(output, "Diamond|1")
 
     def test_property_names_conflict_with_member_names(self):
+        """
+        Tests that choosing property names for a TextChoices that conflict with existing member names raises an AttributeError, ensuring that TextChoices can be safely used without unintended attribute overriding.
+        """
         with self.assertRaises(AttributeError):
             models.TextChoices("Properties", "choices labels names values")
 
     def test_label_member(self):
         # label can be used as a member.
+        """
+
+        Tests the properties of a label member in the Stationery text choices.
+
+        This test case verifies that the 'label' member of the Stationery text choices
+        has the expected label, value, and name. It ensures that the label is correctly
+        capitalized, and that the value and name match the expected lowercase value.
+
+        """
         Stationery = models.TextChoices("Stationery", "label stamp sticker")
         self.assertEqual(Stationery.label.label, "Label")
         self.assertEqual(Stationery.label.value, "label")
@@ -187,6 +233,14 @@ class ChoicesTests(SimpleTestCase):
 
     def test_do_not_call_in_templates_member(self):
         # do_not_call_in_templates is not implicitly treated as a member.
+        """
+
+        Tests the 'do_not_call_in_templates' member of an IntegerChoices model field.
+
+        This test case checks if the member exists, and if its label, value, and name are correctly set.
+        It verifies the expected behavior of the 'do_not_call_in_templates' choice in the model field.
+
+        """
         Special = models.IntegerChoices("Special", "do_not_call_in_templates")
         self.assertIn("do_not_call_in_templates", Special.__members__)
         self.assertEqual(
@@ -291,6 +345,15 @@ class IPv6Network(ipaddress.IPv6Network, models.Choices):
 
 class CustomChoicesTests(SimpleTestCase):
     def test_labels_valid(self):
+        """
+        ..: method:: test_labels_valid
+
+            Verifies that all labels for predefined enumeration choices are valid.
+
+            This function checks the labels of various enumeration types to ensure none of them are :obj:`None`. It covers a range of enumerations, including those for separators, constants, and network addresses, as well as labels for specific sets like moon landings and meal times.
+
+            The test is run for each enumeration type, allowing for clear identification of any issues. If any :obj:`None` values are found in the labels, the test will fail, indicating a potential problem with the data.
+        """
         enums = (
             Separator,
             Constants,
@@ -325,6 +388,15 @@ class CustomChoicesTests(SimpleTestCase):
 
 class ChoicesMetaDeprecationTests(SimpleTestCase):
     def test_deprecation_warning(self):
+        """
+        Tests that using ChoicesMeta raises a deprecation warning.
+
+        The deprecation warning is raised because ChoicesMeta is no longer recommended
+        for use and will be removed in Django 6.0. It is advised to use ChoicesType
+        instead. This test ensures that the correct warning message is issued when
+        ChoicesMeta is used, indicating the preferred alternative and the planned
+        removal version of Django.
+        """
         from django.db.models import enums
 
         msg = "ChoicesMeta is deprecated in favor of ChoicesType."

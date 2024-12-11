@@ -20,6 +20,19 @@ class RegroupTagTests(SimpleTestCase):
         }
     )
     def test_regroup01(self):
+        """
+        Tests the 'regroup' functionality in template rendering.
+
+        The 'regroup' functionality allows data to be grouped by a common attribute.
+        This test ensures that a list of items can be successfully grouped by the 'bar' attribute,
+        and then iterated over to produce a string output. The expected output is a comma-separated string
+        where each group is represented by its grouper value followed by a colon and the values of the 'foo' attribute
+        of each item in the group, separated by commas.
+
+        The test data consists of a list of dictionaries with 'foo' and 'bar' keys, and the test checks
+        that the rendered output matches the expected string after grouping and iteration.
+
+        """
         output = self.engine.render_to_string(
             "regroup01",
             {
@@ -113,6 +126,14 @@ class RegroupTagTests(SimpleTestCase):
     # Test syntax errors
     @setup({"regroup05": "{% regroup data by bar as %}"})
     def test_regroup05(self):
+        """
+        Tests that a TemplateSyntaxError is raised when using the regroup template tag 
+        without specifying the variable to regroup the data into. 
+
+        This test case verifies that the template engine correctly handles invalid 
+        template syntax by raising an exception when the 'as' keyword is missing 
+        in the regroup template tag.
+        """
         with self.assertRaises(TemplateSyntaxError):
             self.engine.get_template("regroup05")
 
@@ -128,6 +149,15 @@ class RegroupTagTests(SimpleTestCase):
 
     @setup({"regroup08": "{% regroup data by bar as grouped toomanyargs %}"})
     def test_regroup08(self):
+        """
+
+        Tests that the regroup template tag raises a TemplateSyntaxError when given too many arguments.
+
+        The test case verifies that the template engine correctly handles an invalid regroup tag by
+        raising an exception. Specifically, it checks that the error is triggered when more than the
+        expected number of arguments are provided to the regroup tag.
+
+        """
         with self.assertRaises(TemplateSyntaxError):
             self.engine.get_template("regroup08")
 

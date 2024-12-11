@@ -58,6 +58,13 @@ class SHA224Tests(TestCase):
         connection.vendor == "oracle", "Oracle doesn't support SHA224."
     )
     def test_unsupported(self):
+        """
+        Tests that attempting to use the SHA224 hash function with an Oracle database raises a NotSupportedError.
+
+        This test case is skipped unless the database vendor is Oracle, as Oracle does not support the SHA224 hash function.
+
+        The test verifies that when SHA224 is used in a query, a NotSupportedError is raised with a specific error message indicating that SHA224 is not supported on Oracle.
+        """
         msg = "SHA224 is not supported on Oracle."
         with self.assertRaisesMessage(NotSupportedError, msg):
             Author.objects.annotate(sha224_alias=SHA224("alias")).first()

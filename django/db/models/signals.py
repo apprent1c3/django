@@ -13,6 +13,19 @@ class ModelSignal(Signal):
     """
 
     def _lazy_method(self, method, apps, receiver, sender, **kwargs):
+        """
+        Defers the execution of a given method until the model is fully loaded, allowing for lazy model operations.
+
+        :param method: The method to be executed.
+        :param apps: Django application registry.
+        :param receiver: The receiver object for the method call.
+        :param sender: The model instance or name that triggers the operation.
+        :param kwargs: Additional keyword arguments to be passed to the method.
+
+        :note: If the sender is a string, the operation is deferred until the model is loaded.
+                If the sender is an instance, the method is executed immediately.
+        :returns: The result of the method execution if the sender is an instance, otherwise None.
+        """
         from django.db.models.options import Options
 
         # This partial takes a single optional argument named "sender".

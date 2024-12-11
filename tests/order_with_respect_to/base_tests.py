@@ -16,6 +16,15 @@ class BaseOrderWithRespectToTests:
 
     @classmethod
     def setUpTestData(cls):
+        """
+        Set up test data for the class, creating a question and associated answers.
+
+        This class method is used to establish a baseline for testing, populating the
+        database with a specific question and its corresponding answer options. The
+        question created is \"Which Beatle starts with the letter 'R'?\" with four possible
+        answers: John, Paul, George, and Ringo. This setup allows for more efficient and
+        consistent testing of the class's functionality with a predefined set of data.
+        """
         cls.q1 = cls.Question.objects.create(
             text="Which Beatle starts with the letter 'R'?"
         )
@@ -40,6 +49,17 @@ class BaseOrderWithRespectToTests:
     def test_previous_and_next_in_order(self):
         # We can retrieve the answers related to a particular object, in the
         # order they were created, once we have a particular object.
+        """
+
+        Tests the correct ordering and navigation of answers within a question.
+
+        This test case verifies that answers are properly ordered and that the 
+        get_next_in_order and get_previous_in_order methods correctly return the 
+        adjacent answers in the sequence. Specifically, it checks that the first 
+        answer's next answer is correctly identified, and the last answer's previous 
+        answer is correctly identified.
+
+        """
         a1 = self.q1.answer_set.all()[0]
         self.assertEqual(a1.text, "John")
         self.assertEqual(a1.get_next_in_order().text, "Paul")
@@ -70,6 +90,21 @@ class BaseOrderWithRespectToTests:
 
     def test_change_ordering(self):
         # The ordering can be altered
+        """
+        Tests the functionality of changing the ordering of answers for a given question.
+
+        This test case covers the creation of an answer, adjustment of the answer order, 
+        and verification that the updated order is correctly reflected in the answer set. 
+
+        It checks for the correct implementation of the `set_answer_order` method and 
+        the `get_answer_order` method, ensuring that the answer order is updated as expected. 
+
+        The test scenario involves moving an answer to a different position in the order, 
+        then asserting that the resulting answer set matches the expected order. 
+
+        This test is crucial for ensuring the correct functionality of the answer ordering 
+        mechanism in the application.
+        """
         a = self.Answer.objects.create(text="Number five", question=self.q1)
 
         # Swap the last two items in the order list

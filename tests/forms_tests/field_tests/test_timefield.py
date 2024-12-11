@@ -20,6 +20,15 @@ class TimeFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
             f.clean("1:24 p.m.")
 
     def test_timefield_2(self):
+        """
+        .. method:: test_timefield_2
+
+           Tests the functionality of a TimeField instance with a specific input format.
+
+           This test case verifies that the TimeField can correctly parse and clean various time inputs, 
+           including datetime.time objects with seconds and without, as well as string inputs in 12-hour format.
+           It also checks that the field raises a ValidationError when an invalid time string is provided.
+        """
         f = TimeField(input_formats=["%I:%M %p"])
         self.assertEqual(datetime.time(14, 25), f.clean(datetime.time(14, 25)))
         self.assertEqual(datetime.time(14, 25, 59), f.clean(datetime.time(14, 25, 59)))

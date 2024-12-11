@@ -90,6 +90,14 @@ def lazy(func, *resultclasses):
         """
 
         def __init__(self, args, kw):
+            """
+            Initializes a class instance with provided arguments.
+
+            :param args: Positional arguments to be stored in the instance
+            :param kw: Keyword arguments to be stored in the instance
+            :returns: None
+            :rtype: None
+            """
             self._args = args
             self._kw = kw
 
@@ -119,6 +127,14 @@ def lazy(func, *resultclasses):
             return str(self.__cast())
 
         def __eq__(self, other):
+            """
+            Checks if the current object is equal to another object.
+
+            The comparison is performed after casting both objects to their actual values, 
+            allowing for the comparison of objects that may be represented as promises or 
+            deferred values. This ensures that the equality check is done on the resolved 
+            values, rather than their promise wrappers.
+            """
             if isinstance(other, Promise):
                 other = other.__cast()
             return self.__cast() == other
@@ -129,6 +145,18 @@ def lazy(func, *resultclasses):
             return self.__cast() != other
 
         def __lt__(self, other):
+            """
+            Compares the current object with another object for ordering.
+
+            This method overloads the less-than operator (<) to compare the current object with another object.
+            If the other object is a Promise, it is first resolved to its underlying value.
+            The comparison is then performed between the resolved value of the current object and the resolved value of the other object.
+            The result is True if the current object's value is less than the other object's value, and False otherwise.
+
+            :raises: TypeError if the comparison is not supported between the resolved values of the objects.
+            :returns: bool indicating whether the current object's value is less than the other object's value.
+
+            """
             if isinstance(other, Promise):
                 other = other.__cast()
             return self.__cast() < other
@@ -287,6 +315,19 @@ class LazyObject:
     __getattr__ = new_method_proxy(getattr)
 
     def __setattr__(self, name, value):
+        """
+
+        Sets an attribute on the wrapped object or this object itself.
+
+        If the attribute name is '_wrapped', it sets the wrapped object directly.
+        Otherwise, it sets the attribute on the wrapped object, ensuring it is properly
+        initialized first. If the wrapped object is empty, it is initialized via the 
+        _setup method before setting the attribute.
+
+        This method allows for transparent attribute access and modification of the 
+        wrapped object, while providing a way to set internal state of this object.
+
+        """
         if name == "_wrapped":
             # Assign to __dict__ to avoid infinite __setattr__ loops.
             self.__dict__["_wrapped"] = value
@@ -325,6 +366,16 @@ class LazyObject:
     # will pickle it normally, and then the unpickler simply returns its
     # argument.
     def __reduce__(self):
+        """
+        Custom implementation of the __reduce__ magic method to support pickling of lazy objects.
+
+        This method is used by the pickle module to serialize the object's state. It ensures that the object's internal state is properly set up before serializing it.
+
+        When called, this method checks if the object's internal state is empty. If so, it sets up the object's internal state by calling the _setup method. Then, it returns a tuple containing the unpickle_lazyobject function and the object's internal state, which can be used to reconstruct the object during deserialization.
+
+        Returns:
+            tuple: A tuple containing the unpickle_lazyobject function and the object's internal state.
+        """
         if self._wrapped is empty:
             self._setup()
         return (unpickle_lazyobject, (self._wrapped,))

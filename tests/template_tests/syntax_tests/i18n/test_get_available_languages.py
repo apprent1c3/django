@@ -20,6 +20,16 @@ class GetAvailableLanguagesTagTests(SimpleTestCase):
 
     @setup({"syntax_i18n": "{% load i18n %}{% get_available_languages a langs %}"})
     def test_no_as_var(self):
+        """
+        Tests that the 'get_available_languages' template tag requires the 'as variable' syntax.
+
+        This test case verifies that when 'get_available_languages' is used without specifying
+        an 'as variable' clause, a TemplateSyntaxError is raised with an informative error message.
+
+        The expected error message indicates that 'get_available_languages' must be used with the
+        'as variable' syntax to assign the available languages to a variable for use in the template.
+
+        """
         msg = (
             "'get_available_languages' requires 'as variable' (got "
             "['get_available_languages', 'a', 'langs'])"

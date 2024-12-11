@@ -24,6 +24,18 @@ from .models import (
 class OneToOneTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for testing purposes.
+
+        This method creates several test objects, including places and their associated
+        businesses, such as restaurants and bars. The created objects are stored as class
+        attributes for use in subsequent tests.
+
+        The following test data is created:
+        - Two places with specific names and addresses
+        - A restaurant associated with one of the places, with specified menu options
+        - A bar associated with one of the places, with specified drink options
+        """
         cls.p1 = Place.objects.create(name="Demon Dogs", address="944 W. Fullerton")
         cls.p2 = Place.objects.create(name="Ace Hardware", address="1013 N. Ashland")
         cls.r1 = Restaurant.objects.create(
@@ -33,6 +45,15 @@ class OneToOneTests(TestCase):
 
     def test_getter(self):
         # A Restaurant can access its place.
+        """
+        Tests the functionality of the getter methods for Place and Restaurant objects.
+
+        Verifies that the repr method returns a human-readable string representation 
+        of the Place and Restaurant objects. Additionally, it checks that attempting 
+        to access a non-existent restaurant from a Place object raises a 
+        DoesNotExist exception with a descriptive message, and confirms that the 
+        Place object does not have a 'restaurant' attribute in such cases.
+        """
         self.assertEqual(repr(self.r1.place), "<Place: Demon Dogs the place>")
         # A Place can access its restaurant, if available.
         self.assertEqual(
@@ -135,6 +156,19 @@ class OneToOneTests(TestCase):
 
     def test_multiple_o2o(self):
         # One-to-one fields still work if you create your own primary key
+        """
+        Tests the one-to-one relationship between ManualPrimaryKey, RelatedModel, and MultiModel.
+
+        Verifies that the repr of a ManualPrimaryKey instance returns a string representation
+        of the related MultiModel instance. Additionally, tests that creating a duplicate
+        MultiModel instance with the same link to a ManualPrimaryKey instance raises an
+        IntegrityError, ensuring data consistency and uniqueness of the one-to-one relationship.
+
+        The test case creates and saves instances of ManualPrimaryKey and RelatedModel, then
+        uses these instances to create a MultiModel instance. It checks the string representation
+        of the related MultiModel instance and attempts to create a duplicate instance to
+        verify the integrity of the relationship.
+        """
         o1 = ManualPrimaryKey(primary_key="abc123", name="primary")
         o1.save()
         o2 = RelatedModel(link=o1, name="secondary")
@@ -207,6 +241,14 @@ class OneToOneTests(TestCase):
         self.assertEqual(self.p1.bar, self.b1)
 
     def test_assign_none_reverse_relation(self):
+        """
+        Tests the reverse relation assignment of a Place instance to None for an UndergroundBar instance.
+
+        Verifies that when a Place instance is set to None, the corresponding UndergroundBar instance 
+        has its place attribute set to None as well, both before and after saving the UndergroundBar instance.
+
+        Ensures data consistency and correct behavior of the reverse relationship between Place and UndergroundBar models.
+        """
         p = Place.objects.get(name="Demon Dogs")
         # Assigning None succeeds if field is null=True.
         ug_bar = UndergroundBar.objects.create(place=p, serves_cocktails=False)
@@ -321,6 +363,9 @@ class OneToOneTests(TestCase):
         self.assertSequenceEqual(Target.objects.exclude(second_pointer=None), [])
 
     def test_o2o_primary_key_delete(self):
+        """
+        Tests that deleting a target instance also properly deletes the associated one-to-one pointer instance, verifying that the correct number and type of objects are removed.
+        """
         t = Target.objects.create(name="name")
         Pointer.objects.create(other=t)
         num_deleted, objs = Pointer.objects.filter(other__name="name").delete()
@@ -554,6 +599,18 @@ class OneToOneTests(TestCase):
         self.assertFalse(hasattr(School(), "school"))
 
     def test_update_one_to_one_pk(self):
+        """
+        Tests the update of a Waiter object's restaurant association in a one-to-one primary key relationship.
+
+        Verifies that updating the restaurant of a Waiter object correctly changes the associated Restaurant object and that the change is persisted to the database.
+
+        This test covers the following scenarios:
+
+        * Creating multiple Place and Restaurant objects
+        * Creating a Waiter object associated with a Restaurant
+        * Updating the Waiter object's restaurant association to a different Restaurant
+        * Verifying that the update is successful and the Waiter object's restaurant association is correctly updated
+        """
         p1 = Place.objects.create()
         p2 = Place.objects.create()
         r1 = Restaurant.objects.create(place=p1)
@@ -565,6 +622,19 @@ class OneToOneTests(TestCase):
         self.assertEqual(w.restaurant, r2)
 
     def test_rel_pk_subquery(self):
+        """
+
+         Tests the correctness of using related primary keys in subqueries for querying Restaurant objects.
+
+         This test case covers various scenarios to ensure that the correct Restaurant objects are returned 
+         when using subqueries with related primary keys. It checks for equality of results in different 
+         query constructions, including filtering by place id, place id in a subquery, primary key in a 
+         subquery, and place in a subquery.
+
+         The test exercises the Django ORM's ability to handle subqueries with related fields, which is 
+         crucial for writing complex database queries.
+
+        """
         r = Restaurant.objects.first()
         q1 = Restaurant.objects.filter(place_id=r.pk)
         # Subquery using primary key and a query against the
@@ -582,11 +652,32 @@ class OneToOneTests(TestCase):
         self.assertSequenceEqual(q4, [r])
 
     def test_rel_pk_exact(self):
+        """
+        Tests that retrieving a Restaurant object by its exact primary key matches 
+        the original object. 
+
+        Verifies that the exact lookup type for primary keys is functioning 
+        correctly by comparing an original Restaurant object with one retrieved 
+        using the 'exact' lookup type. 
+
+        This test case is crucial for ensuring data consistency and integrity 
+        in the database, as it guarantees that objects can be uniquely identified 
+        and retrieved based on their primary key.
+        """
         r = Restaurant.objects.first()
         r2 = Restaurant.objects.filter(pk__exact=r).first()
         self.assertEqual(r, r2)
 
     def test_primary_key_to_field_filter(self):
+        """
+        Tests the filtering of ToFieldPointer objects by primary key and target field.
+
+        Verifies that ToFieldPointer objects can be successfully filtered by their primary key
+        and by a foreign key relationship to a Target object, ensuring that the correct objects
+        are retrieved in both cases. The test covers two filtering scenarios, demonstrating the
+        correctness of object retrieval based on both exact primary key match and target field
+        association.
+        """
         target = Target.objects.create(name="foo")
         pointer = ToFieldPointer.objects.create(target=target)
         self.assertSequenceEqual(

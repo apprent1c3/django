@@ -15,6 +15,14 @@ class SeparateDatabaseAndState(Operation):
     serialization_expand_args = ["database_operations", "state_operations"]
 
     def __init__(self, database_operations=None, state_operations=None):
+        """
+        Initializes the class instance with database and state operations.
+
+        :param database_operations: Optional list of database operations to be performed.
+        :param state_operations: Optional list of state operations to be performed.
+        :note: If either parameter is not provided, it defaults to an empty list.
+
+        """
         self.database_operations = database_operations or []
         self.state_operations = state_operations or []
 
@@ -42,6 +50,25 @@ class SeparateDatabaseAndState(Operation):
 
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
         # We calculate state separately in here since our state functions aren't useful
+        """
+
+        Reverse a database migration by applying a series of database operations in reverse order.
+
+        This function takes the app label, schema editor, and the states to migrate from and to.
+        It iterates over the database operations, applying each operation in reverse order,
+        using the cloned state for each operation to ensure correct reversal of changes.
+
+        The reversal process involves two main steps:
+
+        1.  Clone the target state and apply each operation in the forward direction,
+            storing the resulting states for later use.
+        2.  Iterate over the operations in reverse order and apply the reverse operation
+            using the stored states to ensure correct reversal of changes.
+
+        This approach ensures that the migration is reversible and that the database state
+        is correctly restored to its previous state.
+
+        """
         to_states = {}
         for dbop in self.database_operations:
             to_states[dbop] = to_state
@@ -75,6 +102,17 @@ class RunSQL(Operation):
     def __init__(
         self, sql, reverse_sql=None, state_operations=None, hints=None, elidable=False
     ):
+        """
+        Initializes an operation with SQL commands and additional metadata.
+
+        :param sql: The SQL command to execute.
+        :param reverse_sql: The SQL command to execute when reversing the operation, defaults to None.
+        :param state_operations: A list of state operations to perform, defaults to an empty list.
+        :param hints: A dictionary of hints to influence the operation, defaults to an empty dictionary.
+        :param elidable: A flag indicating whether the operation can be elided, defaults to False.
+
+        This operation can be used to define a set of SQL commands and associated metadata, such as state operations and hints, which can be used to customize the behavior of the operation. The reverse_sql parameter allows for specifying a SQL command to execute when reversing the operation, which can be useful for rolling back changes.
+        """
         self.sql = sql
         self.reverse_sql = reverse_sql
         self.state_operations = state_operations or []
@@ -98,10 +136,34 @@ class RunSQL(Operation):
         return self.reverse_sql is not None
 
     def state_forwards(self, app_label, state):
+        """
+        Apply state operations to move the state forward for a given app label.
+
+        This method iterates through a series of state operations and applies each one
+        to the current state, advancing it forward for the specified application label.
+
+        :param app_label: The label of the application to move the state forward for
+        :param state: The current state to be moved forward
+
+        """
         for state_operation in self.state_operations:
             state_operation.state_forwards(app_label, state)
 
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
+        """
+
+        Apply a database migration forwards.
+
+        This method is responsible for executing a database migration from a previous state (from_state) to a new state (to_state).
+        It checks if the migration is allowed to proceed based on the database router's permission.
+        If the migration is allowed, it runs the necessary SQL commands to update the database schema.
+
+        :param app_label: The label of the application performing the migration.
+        :param schema_editor: The schema editor object responsible for executing the migration.
+        :param from_state: The previous state of the database schema.
+        :param to_state: The new state of the database schema.
+
+        """
         if router.allow_migrate(
             schema_editor.connection.alias, app_label, **self.hints
         ):

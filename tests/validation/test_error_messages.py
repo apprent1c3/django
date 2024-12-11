@@ -35,6 +35,13 @@ class ValidationMessagesTest(TestCase):
         self._test_validation_messages(f, "fõo", ["“fõo” value must be a float."])
 
     def test_decimal_field_raises_error_message(self):
+        """
+        Tests that a DecimalField raises an appropriate error message when a non-decimal value is provided. 
+
+        The test case checks that the field correctly identifies and reports invalid input, 
+        specifically when a string containing non-numeric characters is passed, 
+        ensuring that the expected validation error message is generated.
+        """
         f = models.DecimalField()
         self._test_validation_messages(
             f, "fõo", ["“fõo” value must be a decimal number."]
@@ -112,6 +119,15 @@ class ValidationMessagesTest(TestCase):
         )
 
     def test_time_field_raises_error_message(self):
+        """
+        Tests that the TimeField raises an error message with invalid input values.
+
+            The function checks two scenarios: 
+            1. When the input value has an incorrect format, it verifies that the error message indicates the required format (HH:MM[:ss[.uuuuuu]]).
+            2. When the input value has the correct format but represents an invalid time, it checks that the error message reports the time as invalid. 
+
+            This ensures that the TimeField validation provides informative and accurate feedback for different types of invalid input.
+        """
         f = models.TimeField()
         # Wrong format
         self._test_validation_messages(

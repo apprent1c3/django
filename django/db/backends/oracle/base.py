@@ -312,6 +312,23 @@ class DatabaseWrapper(BaseDatabaseWrapper):
     # Oracle doesn't support releasing savepoints. But we fake them when query
     # logging is enabled to keep query counts consistent with other backends.
     def _savepoint_commit(self, sid):
+        """
+
+        Commit a savepoint.
+
+        This method simulates the release of a savepoint by logging a fake RELEASE SAVEPOINT statement.
+        It does not actually interact with the database.
+
+        Parameters
+        ----------
+        sid : str
+            The identifier of the savepoint to be committed.
+
+        Notes
+        -----
+        This method is primarily used for logging purposes and does not affect the actual database state.
+
+        """
         if self.queries_logged:
             self.queries_log.append(
                 {
@@ -439,6 +456,16 @@ class FormatStylePlaceholderCursor:
     charset = "utf-8"
 
     def __init__(self, connection, database):
+        """
+        Initializes a database interface object.
+
+        :param connection: A database connection object used to interact with the database.
+        :param database: The name of the database to be used.
+
+        This method sets up the necessary attributes for interacting with the database, 
+        including a cursor object and the database name. It also configures the output 
+        type handler for the cursor to ensure proper data type conversion.
+        """
         self.cursor = connection.cursor()
         self.cursor.outputtypehandler = self._output_type_handler
         self.database = database
@@ -495,6 +522,13 @@ class FormatStylePlaceholderCursor:
             return cursor.var(Database.DB_TYPE_NCLOB, arraysize=cursor.arraysize)
 
     def _format_params(self, params):
+        """
+        Formats the given parameters into a standard format for use with Oracle database operations.
+
+        params can be either a dictionary of key-value pairs or an iterable of values. If a dictionary is provided, each key-value pair is formatted and returned as a dictionary. If an iterable is provided, each value is formatted and returned as a tuple.
+
+        The formatted parameters are wrapped in OracleParam instances, which provide additional functionality for interacting with the Oracle database. This function is an internal helper method and should not be called directly.
+        """
         try:
             return {k: OracleParam(v, self, True) for k, v in params.items()}
         except AttributeError:
@@ -502,6 +536,19 @@ class FormatStylePlaceholderCursor:
 
     def _guess_input_sizes(self, params_list):
         # Try dict handling; if that fails, treat as sequence
+        """
+
+        Guess and set input sizes based on the provided parameters list.
+
+        This function iterates over the list of parameters to determine the input sizes for each parameter.
+        If the parameters are provided as dictionaries, it looks for 'input_size' attributes in the dictionary values.
+        If the parameters are provided as lists, it looks for 'input_size' attributes in the list elements.
+
+        Once the input sizes are determined, it sets the input sizes on the object using the 'setinputsizes' method.
+
+        :param params_list: A list of parameters, where each parameter can be either a dictionary or a list.
+
+        """
         if hasattr(params_list[0], "keys"):
             sizes = {}
             for params in params_list:

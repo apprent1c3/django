@@ -19,6 +19,14 @@ class HandlerTests(SimpleTestCase):
         self.addCleanup(request_started.connect, close_old_connections)
 
     def test_middleware_initialized(self):
+        """
+
+        Checks that the middleware chain for the WSGIHandler is properly initialized.
+
+        Verifies that the _middleware_chain attribute of the WSGIHandler instance is not None after initialization, 
+        indicating that the middleware setup is ready for use.
+
+        """
         handler = WSGIHandler()
         self.assertIsNotNone(handler._middleware_chain)
 
@@ -97,10 +105,25 @@ class TransactionsPerRequestTests(TransactionTestCase):
     available_apps = []
 
     def test_no_transaction(self):
+        """
+        Tests that the '/in_transaction/' endpoint correctly reports when no transaction is in progress.
+
+        The test sends a GET request to the endpoint and verifies that the response contains 'False', indicating that no transaction is currently being processed.
+        """
         response = self.client.get("/in_transaction/")
         self.assertContains(response, "False")
 
     def test_auto_transaction(self):
+        """
+
+        Tests that the auto transaction feature is functioning as expected.
+
+        This test case checks the behavior of a view when atomic requests are enabled.
+        It sets atomic requests to True, makes a GET request to a specific view, 
+        and then verifies that the response contains an indication that the 
+        request was indeed handled within a transaction.
+
+        """
         old_atomic_requests = connection.settings_dict["ATOMIC_REQUESTS"]
         try:
             connection.settings_dict["ATOMIC_REQUESTS"] = True
@@ -120,6 +143,20 @@ class TransactionsPerRequestTests(TransactionTestCase):
             connection.settings_dict["ATOMIC_REQUESTS"] = old_atomic_requests
 
     def test_no_auto_transaction(self):
+        """
+        ..: 
+            Tests whether automatic transaction handling works as expected.
+
+            This test case checks the behavior of views that are not using transactions
+            when atomic requests are enabled. It tests three different scenarios:
+            - A view that does not use transactions and returns a boolean value.
+            - A view that does not use transactions and returns None.
+            - A view that does not use transactions and returns a text value.
+
+            In each case, the test enables atomic requests, sends a GET request to the view,
+            and then checks the response to ensure that it matches the expected output.
+            The atomic requests setting is restored to its original value after each test.
+        """
         old_atomic_requests = connection.settings_dict["ATOMIC_REQUESTS"]
         try:
             connection.settings_dict["ATOMIC_REQUESTS"] = True
@@ -190,6 +227,10 @@ class HandlerRequestTests(SimpleTestCase):
         self.assertEqual(response.status_code, 400)
 
     def test_bad_request_in_view_returns_400(self):
+        """
+        Tests that a HTTP request to the '/bad_request/' view endpoint returns a 400 status code, 
+        indicating a Bad Request response, to verify proper error handling.
+        """
         response = self.client.get("/bad_request/")
         self.assertEqual(response.status_code, 400)
 
@@ -226,6 +267,14 @@ class HandlerRequestTests(SimpleTestCase):
 
     @override_settings(MIDDLEWARE=["handlers.tests.empty_middleware"])
     def test_middleware_returns_none(self):
+        """
+        Tests that an ImproperlyConfigured exception is raised when a middleware factory returns None.
+
+        This test case verifies the behavior of the system when a middleware factory fails to return a valid middleware instance.
+        It checks that the expected error message is raised, ensuring that the system correctly handles invalid middleware configurations.
+
+        :raises: ImproperlyConfigured
+        """
         msg = "Middleware factory handlers.tests.empty_middleware returned None."
         with self.assertRaisesMessage(ImproperlyConfigured, msg):
             self.client.get("/")
@@ -317,6 +366,11 @@ class AsyncHandlerRequestTests(SimpleTestCase):
             await self.async_client.get("/no_response_fbv/")
 
     async def test_unawaited_response(self):
+        """
+        Checks if an unawaited coroutine in a view handler correctly raises a ValueError.
+
+        This test case verifies that the framework properly handles the situation when a view returns an unawaited coroutine instead of an expected HttpResponse object. It ensures that the correct error message is raised when this occurs, providing a clear indication of the issue to the developer.
+        """
         msg = (
             "The view handlers.views.CoroutineClearingView.__call__ didn't"
             " return an HttpResponse object. It returned an unawaited"
@@ -327,6 +381,16 @@ class AsyncHandlerRequestTests(SimpleTestCase):
             await self.async_client.get("/unawaited/")
 
     def test_root_path(self):
+        """
+
+        Tests that the root path of an asynchronous request is correctly handled.
+
+        Verifies that the request path, script name, and path info are properly set when
+        a request is made with a root path. The test checks that the absolute path
+        of the request, the root path prefix, and the relative path after the root
+        are accurately extracted and stored in the request object.
+
+        """
         async_request_factory = AsyncRequestFactory()
         request = async_request_factory.request(
             **{"path": "/root/somepath/", "root_path": "/root"}
@@ -344,6 +408,18 @@ class AsyncHandlerRequestTests(SimpleTestCase):
         self.assertEqual(request.path_info, "/somepath/")
 
     async def test_sync_streaming(self):
+        """
+        Tests the synchronous streaming functionality of the async client.
+
+        Verifies that a GET request to the '/streaming/' endpoint returns a 200 status code and
+        that the response content is correctly streamed. Also checks that a warning is raised
+        when attempting to consume a synchronous iterator in an asynchronous context, as this
+        can cause performance issues.
+
+        The test validates that the async client can handle streaming responses and that the
+        Warning message is properly raised when using a synchronous iterator, ensuring that
+        users are notified to use asynchronous iterators instead for optimal performance.
+        """
         response = await self.async_client.get("/streaming/")
         self.assertEqual(response.status_code, 200)
         msg = (
@@ -356,6 +432,15 @@ class AsyncHandlerRequestTests(SimpleTestCase):
             )
 
     async def test_async_streaming(self):
+        """
+        Tests asynchronous streaming functionality by sending a GET request to the '/async_streaming/' endpoint.
+
+        This test case verifies that the response status code is 200 (OK) and that the streamed content is correctly received and decoded.
+
+        The test uses the async_client to send the request and then joins the streamed chunks into a single bytes object for comparison with the expected content.
+
+        Successful execution of this test indicates that the asynchronous streaming functionality is working as expected, allowing for efficient handling of large or continuous data streams.
+        """
         response = await self.async_client.get("/async_streaming/")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(

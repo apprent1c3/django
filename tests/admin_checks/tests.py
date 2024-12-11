@@ -212,6 +212,9 @@ class SystemChecksTestCase(SimpleTestCase):
 
     @override_settings(MIDDLEWARE=[])
     def test_middleware_dependencies(self):
+        """
+        Checks the dependencies required by the admin application to function correctly, specifically the presence of necessary middleware classes in the MIDDLEWARE settings. The test verifies that the expected errors are raised when these dependencies are not met, ensuring the admin application is properly configured. The expected errors include the absence of AuthenticationMiddleware, MessageMiddleware, and SessionMiddleware, with specific hints for resolving the SessionMiddleware issue.
+        """
         errors = admin.checks.check_dependencies()
         expected = [
             checks.Error(
@@ -839,6 +842,15 @@ class SystemChecksTestCase(SimpleTestCase):
         )
 
     def test_extra(self):
+        """
+
+        Tests the functionality of a custom admin interface for songs.
+
+        This test case verifies that a custom admin class for songs does not introduce any errors.
+        It creates a custom admin class with a display method that checks if a song is considered 'awesome' based on its title.
+        The test then checks the admin class for any errors and ensures that none are found.
+
+        """
         class SongAdmin(admin.ModelAdmin):
             @admin.display
             def awesome_song(self, instance):
@@ -878,6 +890,11 @@ class SystemChecksTestCase(SimpleTestCase):
         self.assertEqual(errors, expected)
 
     def test_cannot_include_through(self):
+        """
+        Tests the FieldsetAdmin class to ensure it prevents the inclusion of ManyToManyFields that manually specify a relationship model in the 'fields' attribute of a fieldset.
+
+        This test checks for the 'admin.E013' error, which occurs when a ManyToManyField with a manually specified 'through' model is included in a fieldset. The test verifies that the check correctly identifies and reports this error, ensuring that the FieldsetAdmin class behaves as expected and provides informative error messages to users.
+        """
         class FieldsetBookAdmin(admin.ModelAdmin):
             fieldsets = (
                 ("Header 1", {"fields": ("name",)}),

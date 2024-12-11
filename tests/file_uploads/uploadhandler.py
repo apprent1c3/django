@@ -25,6 +25,21 @@ class QuotaUploadHandler(FileUploadHandler):
         self.total_upload = 0
 
     def receive_data_chunk(self, raw_data, start):
+        """
+
+        Receives a chunk of raw data and updates the total upload size.
+
+        Args:
+            raw_data (bytes): The chunk of data being received.
+            start (int): The starting position of the data chunk.
+
+        Returns:
+            bytes: The received raw data if the quota has not been exceeded.
+
+        Raises:
+            StopUpload: If the total upload size exceeds the quota, with the connection reset.
+
+        """
         self.total_upload += len(raw_data)
         if self.total_upload >= self.QUOTA:
             raise StopUpload(connection_reset=True)
@@ -77,6 +92,18 @@ class TraversalUploadHandler(FileUploadHandler):
         charset=None,
         content_type_extra=None,
     ):
+        """
+
+        Creates a new temporary file for uploading.
+
+        :param field_name: The name of the form field associated with the file
+        :param file_name: The name of the file being uploaded
+        :param content_type: The MIME type of the file
+        :param content_length: The size of the file in bytes
+        :param charset: The character encoding of the file (optional)
+        :param content_type_extra: Additional information about the content type (optional)
+
+        """
         super().new_file(
             file_name,
             file_name,

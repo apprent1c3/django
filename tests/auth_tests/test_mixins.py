@@ -115,6 +115,11 @@ class AccessMixinTests(TestCase):
 
     @mock.patch.object(models.User, "is_authenticated", False)
     def test_stacked_mixins_not_logged_in(self):
+        """
+        Tests the behavior of StackedMixinsView1 and StackedMixinsView2 when an unauthenticated user attempts to access them.
+
+        The test case simulates an unauthenticated user with specific permissions, creates a request with this user, and then checks if the views raise a PermissionDenied exception as expected.
+        """
         user = models.User.objects.create(username="joe", password="qwerty")
         perms = models.Permission.objects.filter(
             codename__in=("add_customuser", "change_customuser")
@@ -263,6 +268,15 @@ class PermissionsRequiredMixinTests(TestCase):
         self.assertEqual(resp.status_code, 200)
 
     def test_single_permission_pass(self):
+        """
+
+        Test that a view with a single permission passes when the user has the required permission.
+
+        This test case checks that a view decorated with PermissionRequiredMixin returns a successful response (200 status code)
+        when the user has the necessary permission to access the view. The test creates a mock request and sets the user attribute
+        to a test user, then asserts that the view returns a successful response.
+
+        """
         class AView(PermissionRequiredMixin, EmptyResponseView):
             permission_required = "auth_tests.add_customuser"
 

@@ -50,6 +50,20 @@ class CeilTests(TestCase):
         self.assertEqual(obj.big_ceil, math.ceil(obj.big))
 
     def test_transform(self):
+        """
+
+        Tests the transformation of Decimal fields using the Ceil lookup function.
+
+        The test creates two DecimalModel instances with different decimal values,
+        then filters the instances using the Ceil lookup function to retrieve
+        objects with a ceiling value greater than 3. It asserts that the
+        retrieved object has the expected decimal value.
+
+        This test verifies that the Ceil lookup function correctly applies the
+        ceiling transformation to Decimal fields, enabling accurate filtering
+        of decimal values based on their ceiling values.
+
+        """
         with register_lookup(DecimalField, Ceil):
             DecimalModel.objects.create(n1=Decimal("3.12"), n2=Decimal("0"))
             DecimalModel.objects.create(n1=Decimal("1.25"), n2=Decimal("0"))

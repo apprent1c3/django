@@ -272,6 +272,33 @@ def url_has_allowed_host_and_scheme(url, allowed_hosts, require_https=False):
 def _url_has_allowed_host_and_scheme(url, allowed_hosts, require_https=False):
     # Chrome considers any URL with more than two slashes to be absolute, but
     # urlsplit is not so flexible. Treat any url with three slashes as unsafe.
+    """
+    Validate a URL against a set of allowed hosts and schemes.
+
+    Determine if a given URL is valid based on the presence of an allowed host
+    and scheme. The function checks if the URL's host is in the list of allowed
+    hosts and if the scheme is either HTTP or HTTPS, depending on the
+    require_https parameter.
+
+    Parameters
+    ----------
+    url : str
+        The URL to be validated.
+    allowed_hosts : list
+        A list of allowed host names.
+    require_https : bool, optional
+        If True, only HTTPS URLs are considered valid. Defaults to False.
+
+    Returns
+    -------
+    bool
+        True if the URL has an allowed host and scheme, False otherwise.
+
+    Note
+    ----
+    The function also performs basic URL syntax checks and rejects any URL that
+    is malformed or contains invalid characters.
+    """
     if url.startswith("///"):
         return False
     try:

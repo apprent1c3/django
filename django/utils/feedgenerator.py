@@ -347,6 +347,16 @@ class RssUserland091Feed(RssFeed):
     _version = "0.91"
 
     def add_item_elements(self, handler, item):
+        """
+        Adds key elements of an item to an XML handler.
+
+        This method takes an item, represented as a dictionary, and adds its title, link, and 
+        description (if available) to the provided handler using quick elements.
+
+        :param handler: The XML handler to add elements to.
+        :param item: A dictionary containing the item's title, link, and optional description.
+
+        """
         handler.addQuickElement("title", item["title"])
         handler.addQuickElement("link", item["link"])
         if item["description"] is not None:
@@ -358,6 +368,19 @@ class Rss201rev2Feed(RssFeed):
     _version = "2.0"
 
     def add_item_elements(self, handler, item):
+        """
+
+        Add elements for a single RSS feed item to the provided handler.
+
+        This function populates the handler with the essential details of an RSS feed item,
+        including its title, link, description, author, publication date, comments, unique ID,
+        time to live, and any applicable enclosures or categories.
+
+        Parameters:
+            handler (object): The handler to which the RSS feed item elements will be added.
+            item (dict): A dictionary containing the details of the RSS feed item to be added.
+
+        """
         handler.addQuickElement("title", item["title"])
         handler.addQuickElement("link", item["link"])
         if item["description"] is not None:
@@ -433,6 +456,29 @@ class Atom1Feed(SyndicationFeed):
             return {"xmlns": self.ns}
 
     def add_root_elements(self, handler):
+        """
+
+        Add root elements to the feed being built.
+
+        This function populates the feed with essential metadata, including the title,
+        link, id, update date, author information, and categories. It utilizes the
+        provided handler to construct the feed structure.
+
+        The added elements include:
+
+        * Title of the feed
+        * Links, including alternate, self, and possibly author links
+        * Unique identifier of the feed
+        * Timestamp of the most recent update
+        * Author details, such as name, email, and link
+        * Optional subtitle
+        * Categories associated with the feed
+        * Copyright information, if available
+
+        These elements are constructed based on the data provided in the feed
+        dictionary, ensuring that the generated feed is comprehensive and well-structured.
+
+        """
         handler.addQuickElement("title", self.feed["title"])
         handler.addQuickElement(
             "link", "", {"rel": "alternate", "href": self.feed["link"]}

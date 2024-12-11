@@ -33,6 +33,15 @@ class PartiallyRequiredForm(Form):
 
 class ComplexMultiWidget(MultiWidget):
     def __init__(self, attrs=None):
+        """
+
+        Initializes a form widget with a set of predefined input fields.
+
+        The form includes a text input field, a multiple selection field with predefined choices,
+        and a split date and time input field. The initialization process also accepts an optional
+        dictionary of attributes that can be used to customize the form's appearance and behavior.
+
+        """
         widgets = (
             TextInput(),
             SelectMultiple(choices=beatles),
@@ -61,6 +70,11 @@ class ComplexField(MultiValueField):
         super().__init__(fields, **kwargs)
 
     def compress(self, data_list):
+        """
+        Compresses a list of data into a compact string format.
+
+        This function takes a list of data as input and returns a string where the first and last elements of the list are separated by a comma and the middle elements (if any) are concatenated without any separators. If the input list is empty, the function returns None. The resulting string is formatted as 'first_element,middle_elements,last_element'.
+        """
         if data_list:
             return "%s,%s,%s" % (data_list[0], "".join(data_list[1]), data_list[2])
         return None
@@ -98,6 +112,18 @@ class MultiValueFieldTest(SimpleTestCase):
                 self.assertEqual(form.cleaned_data, {"f": inputs[0]})
 
     def test_bad_choice(self):
+        """
+
+        Tests the behavior of the field when an invalid choice is selected.
+
+        Verifies that a ValidationError is raised when the clean method is called with
+        a choice that is not among the available options.
+
+        The test checks for a specific error message indicating that the selected choice
+        is not valid. The expected error message is: 'Select a valid choice. X is not one
+        of the available choices.'
+
+        """
         msg = "'Select a valid choice. X is not one of the available choices.'"
         with self.assertRaisesMessage(ValidationError, msg):
             self.field.clean(["some text", ["X"], ["2007-04-25", "6:24:00"]])
@@ -171,6 +197,13 @@ class MultiValueFieldTest(SimpleTestCase):
         )
 
     def test_form_as_table_data(self):
+        """
+        Tests that the ComplexFieldForm is rendered as a table with the correct HTML structure and field values.
+
+        The test form is expected to contain a text input, a multiple select field, and two date/time fields. 
+        The rendered table should include a header cell containing the label for the field and a data cell containing the form fields.
+        This test ensures that the form's as_table() method returns the expected HTML output for the given input data.
+        """
         form = ComplexFieldForm(
             {
                 "field1_0": "some text",
@@ -199,6 +232,15 @@ class MultiValueFieldTest(SimpleTestCase):
         )
 
     def test_form_cleaned_data(self):
+        """
+        Tests the cleaned data of the ComplexFieldForm.
+
+        Verifies that the form's cleaned_data attribute correctly combines and formats the input data from multiple fields into a single string.
+
+        The test case covers a scenario where the form receives data for a complex field consisting of a text field, multiple choice field, and a datetime field. It checks if the cleaned data is properly concatenated and formatted as expected.
+
+        The expected output is a string in the format 'text,multi_choice_values,datetime', where datetime is in the format 'YYYY-MM-DD HH:MM:SS'.
+        """
         form = ComplexFieldForm(
             {
                 "field1_0": "some text",

@@ -16,6 +16,13 @@ class MaxLengthArgumentsTests(unittest.TestCase):
         self.verify_max_length(PersonWithDefaultMaxLengths, "avatar", 100)
 
     def test_custom_max_lengths(self):
+        """
+        Test that the custom max lengths for specific fields in the PersonWithCustomMaxLengths model are correctly enforced.
+
+        This test case validates the maximum allowed lengths for the 'email', 'vcard', 'homepage', and 'avatar' fields, ensuring they match the expected limits of 250 characters. 
+
+        It leverages the verify_max_length method to perform these checks, providing a comprehensive verification of the custom maximum lengths defined for these fields in the PersonWithCustomMaxLengths model.
+        """
         self.verify_max_length(PersonWithCustomMaxLengths, "email", 250)
         self.verify_max_length(PersonWithCustomMaxLengths, "vcard", 250)
         self.verify_max_length(PersonWithCustomMaxLengths, "homepage", 250)
@@ -24,6 +31,12 @@ class MaxLengthArgumentsTests(unittest.TestCase):
 
 class MaxLengthORMTests(TestCase):
     def test_custom_max_lengths(self):
+        """
+        Tests the customization of maximum lengths for various profile fields.
+
+        This function verifies that the email, vcard, homepage, and avatar fields can store values up to their customized maximum lengths.
+        It creates a new profile instance with each field length set to its maximum allowed value and checks that the values are successfully saved and retrieved.
+        """
         args = {
             "email": "someone@example.com",
             "vcard": "vcard",

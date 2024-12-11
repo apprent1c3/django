@@ -121,6 +121,15 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
 
     @skipUnlessDBFeature("has_AsGeoJSON_function")
     def test_asgeojson_option_0(self):
+        """
+
+        Tests the usage of the AsGeoJSON database function with the geojson option set to 0.
+        The test creates a model instance with multiple geographic points, 
+        annotates the instance with the AsGeoJSON function, and verifies that the resulting GeoJSON 
+        output matches the expected format and coordinates. The test covers point transformation 
+        between different spatial reference systems (SRS).
+
+        """
         p1 = Point(1, 1, srid=4326)
         p2 = Point(-87.65018, 41.85039, srid=4326)
         obj = ManyPointModel.objects.create(
@@ -254,6 +263,24 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
 
     @skipUnlessDBFeature("has_BoundingCircle_function")
     def test_bounding_circle(self):
+        """
+
+        Test the BoundingCircle database function for geographic operations.
+
+        This test case verifies the functionality of the BoundingCircle function in
+        annotating geographic models with their bounding circle, checking for
+        correct area calculation and number of points in the resulting circle.
+
+        It tests the function using different database backends, including PostGIS and
+        Spatialite, and ensures compatibility across various segment counts.
+
+        Specifically, it checks that:
+
+        * The area of the bounding circle is calculated accurately
+        * The number of points in the circle matches the expected value
+        * The circle's area and point count are consistent across different segment counts
+
+        """
         def circle_num_points(num_seg):
             # num_seg is the number of segments per quarter circle.
             return (4 * num_seg) + 1
@@ -384,6 +411,21 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
 
     @skipUnlessDBFeature("has_GeometryDistance_function")
     def test_geometry_distance(self):
+        """
+
+        Tests the functionality of the GeometryDistance SQL function.
+
+        This test case checks whether the GeometryDistance function correctly calculates
+        the distance between two geographic points. It creates a query set of cities and
+        annotates it with the distance from a specific point, then orders the results by
+        distance. The function verifies that the calculated distances match the expected
+        values.
+
+        The test uses a specific set of cities and a predefined point in the WGS84
+        coordinate reference system (SRID 4326). The expected distances are hard-coded
+        for comparison purposes.
+
+        """
         point = Point(-90, 40, srid=4326)
         qs = City.objects.annotate(
             distance=functions.GeometryDistance("point", point)
@@ -545,6 +587,18 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
     def test_make_valid_output_field(self):
         # output_field is GeometryField instance because different geometry
         # types can be returned.
+        """
+        Tests the output field of the MakeValid database function.
+
+        This test case validates that the output field of the MakeValid function is 
+        correctly identified as a GeometryField with the specified Spatial Reference 
+        System Identifier (SRID). It ensures that the MakeValid function produces a 
+        valid output field that matches the expected geometry type and SRID.
+
+        The test is only executed if the database feature 'has_MakeValid_function' is 
+        supported, ensuring that the test is relevant and applicable to the underlying 
+        database system.
+        """
         output_field = functions.MakeValid(
             Value(Polygon(), PolygonField(srid=42)),
         ).output_field
@@ -578,6 +632,22 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
 
     @skipUnlessDBFeature("has_NumPoint_function")
     def test_num_points(self):
+        """
+
+        Tests the functionality of the NumPoints database function.
+
+        The NumPoints function is used to count the number of points in a given geometry.
+        This test ensures that the function works correctly for LineString, MultiPolygon, 
+        and Point geometries. It verifies that the function returns the expected number 
+        of points for each geometry type, and handles cases where the NumPoints function 
+        is not supported for certain geometry types.
+
+        It checks the following scenarios:
+        - Counting points in a LineString geometry.
+        - Counting points in a MultiPolygon geometry (if supported).
+        - Counting points in a Point geometry.
+
+        """
         coords = [(-95.363151, 29.763374), (-95.448601, 29.713803)]
         Track.objects.create(name="Foo", line=LineString(coords))
         qs = Track.objects.annotate(num_points=functions.NumPoints("line"))
@@ -604,6 +674,16 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
 
     @skipUnlessDBFeature("has_Reverse_function")
     def test_reverse_geom(self):
+        """
+
+        Tests the reverse geometry functionality on a LineString object.
+
+        This test creates a LineString object with a set of coordinates, 
+        adds it to a Track object, and then reverses the geometry using the 
+        Reverse database function. It verifies that the reversed coordinates 
+        match the original coordinates in reverse order.
+
+        """
         coords = [(-95.363151, 29.763374), (-95.448601, 29.713803)]
         Track.objects.create(name="Foo", line=LineString(coords))
         track = Track.objects.annotate(reverse_geom=functions.Reverse("line")).get(
@@ -720,6 +800,15 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
     @skipUnlessDBFeature("has_Transform_function")
     def test_transform(self):
         # Pre-transformed points for Houston and Pueblo.
+        """
+
+        Tests the database Transform function by transforming a point to a different spatial reference system.
+
+        This test annotates a City object with a transformed point and verifies that the transformation is correct.
+        It checks that the spatial reference system identifier (SRID) of the transformed point matches the target SRID
+        and that the coordinates of the transformed point are close to the expected values.
+
+        """
         ptown = fromstr("POINT(992363.390841912 481455.395105533)", srid=2774)
 
         # Asserting the result of the transform operation with the values in
