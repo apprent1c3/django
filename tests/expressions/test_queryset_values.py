@@ -35,6 +35,16 @@ class ValuesExpressionsTests(TestCase):
         )
 
     def test_values_expression_alias_sql_injection(self):
+        """
+
+        Tests the protection against SQL injection attacks in the values expression alias.
+
+        Verifies that providing a crafted alias that attempts to execute a SQL query raises a ValueError.
+        The test checks that the error message correctly indicates that column aliases cannot contain
+        whitespace characters, quotation marks, semicolons, or SQL comments, ensuring the security of the
+        function against SQL injection attacks.
+
+        """
         crafted_alias = """injected_name" from "expressions_company"; --"""
         msg = (
             "Column aliases cannot contain whitespace characters, quotation marks, "
@@ -46,6 +56,20 @@ class ValuesExpressionsTests(TestCase):
     def test_values_expression_group_by(self):
         # values() applies annotate() first, so values selected are grouped by
         # id, not firstname.
+        """
+        Tests the values and expression grouping of employee querysets.
+
+        This function creates an employee instance, filters employees by a specific 
+        firstname, and then applies aggregation to the filtered querysets. It checks 
+        the expected output when using expressions with values() and annotate() 
+        methods. The test verifies that the grouping by values and annotation with 
+        sum expression works correctly, returning the expected aggregated results.
+
+        The test covers two scenarios:
+        - Using the values() method with an expression to order the results.
+        - Using the annotate() method to aggregate values and then retrieving the results.
+
+        """
         Employee.objects.create(firstname="Joe", lastname="Jones", salary=2)
         joes = Employee.objects.filter(firstname="Joe")
         self.assertSequenceEqual(
@@ -72,6 +96,16 @@ class ValuesExpressionsTests(TestCase):
         )
 
     def test_values_list_expression(self):
+        """
+
+        Tests the values_list expression for retrieving company names and CEO salaries.
+
+        This test case verifies that the values_list method correctly fetches the 
+        expected data from the database, which includes company names and their 
+        corresponding CEO salaries. The result is compared to a predefined list of 
+        expected values to ensure data consistency and accuracy.
+
+        """
         companies = Company.objects.values_list("name", F("ceo__salary"))
         self.assertCountEqual(
             companies, [("Example Inc.", 10), ("Foobar Ltd.", 20), ("Test GmbH", 30)]

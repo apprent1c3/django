@@ -51,6 +51,23 @@ class SessionStore(DBStore):
         return data
 
     async def aload(self):
+        """
+
+        Loads data from the cache, or if not available, fetches it from the database, decodes it, 
+        and stores it in the cache for future use. 
+
+        If data is not found in either the cache or the database, an empty dictionary is returned.
+
+        The data is stored in the cache with an expiration age that is calculated based on the 
+        expiry date of the session retrieved from the database.
+
+        This method provides a way to lazily load and cache data, reducing the need for repeated 
+        database queries and improving performance. 
+
+        :return: The loaded data, or an empty dictionary if no data is found.
+        :rtype: dict
+
+        """
         try:
             data = await self._cache.aget(await self.acache_key())
         except Exception:
@@ -86,6 +103,15 @@ class SessionStore(DBStore):
         )
 
     def save(self, must_create=False):
+        """
+        Saves the current object instance and caches it for future reference.
+
+        The caching operation is conditional on the successful save of the object. If the save operation fails, the caching will not be attempted.
+
+        :param bool must_create: Specifies whether the object must be created as a new record if it does not already exist.
+        :raises Exception: If an error occurs during the caching process, an exception is logged with details about the caching backend.
+        :return: None
+        """
         super().save(must_create)
         try:
             self._cache.set(self.cache_key, self._session, self.get_expiry_age())

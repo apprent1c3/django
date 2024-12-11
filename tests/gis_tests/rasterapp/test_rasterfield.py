@@ -385,6 +385,18 @@ class RasterFieldTest(TransactionTestCase):
         self.assertEqual(qs.count(), 1)
 
     def test_lookup_with_raster_bbox(self):
+        """
+
+        Tests the lookup functionality for raster objects with a bounding box.
+
+        This test verifies that the 'strictly_below' lookup is correctly implemented for
+        raster objects by checking the results of a filter operation on a queryset of
+        RasterModel objects. It tests two scenarios: one where no raster objects are
+        below the given raster and another where one raster object is below the given
+        raster. The test ensures that the count of results matches the expected output
+        in both cases, validating the correctness of the lookup operation.
+
+        """
         rast = GDALRaster(json.loads(JSON_RASTER))
         # Shift raster upward
         rast.origin.y = 2
@@ -447,6 +459,9 @@ class RasterFieldTest(TransactionTestCase):
             ).count()
 
     def test_lhs_with_index_rhs_without_index(self):
+        """
+        Tests a Left-Hand Side (LHS) raster operation with an indexed raster field against a Right-Hand Side (RHS) raster without an index, verifying that the database query uses the correct spatial function, specifically ST_Contains. The test case checks for the existence of rows in the RasterModel table where the raster field intersects with a predefined JSON raster. The resulting SQL query is then validated to ensure it uses the expected spatial function with the correct parameters.
+        """
         with CaptureQueriesContext(connection) as queries:
             RasterModel.objects.filter(
                 rast__0__contains=json.loads(JSON_RASTER)

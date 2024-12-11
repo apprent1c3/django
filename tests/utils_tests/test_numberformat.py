@@ -161,6 +161,9 @@ class TestNumberFormat(SimpleTestCase):
                 )
 
     def test_decimal_subclass(self):
+        """
+        Tests the formatting of a Decimal subclass, specifically designed to represent euros, ensuring it correctly prefixes the amount with the € symbol and applies the specified formatting. The test case verifies that the euro symbol is added to the amount and that the decimal value is formatted according to the provided specifier, such as using commas for thousand separators.
+        """
         class EuroDecimal(Decimal):
             """
             Wrapper for Decimal which prefixes each amount with the € symbol.

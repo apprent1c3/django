@@ -72,6 +72,13 @@ class BloomIndex(PostgresIndex):
         return path, args, kwargs
 
     def get_with_params(self):
+        """
+        Returns a list of string representations of the object's parameters, as if they were being passed to a constructor or function.
+
+        The returned list includes string representations of 'length' if it is not None, and 'colX' for each column, where X is the column's 1-based index. The format of each string is 'parameter_name = value'. 
+
+        The returned list can be used to generate a human-readable description of the object's parameters, for example, for logging or debugging purposes.
+        """
         with_params = []
         if self.length is not None:
             with_params.append("length = %d" % self.length)
@@ -103,6 +110,12 @@ class BrinIndex(PostgresIndex):
         return path, args, kwargs
 
     def get_with_params(self):
+        """
+        Returns a list of string parameters that are set for the current object, 
+        including 'autosummarize' and 'pages_per_range' if their respective values are not None. 
+        Each parameter is represented as a string in the format 'parameter = value'. 
+        The returned list can be used to construct a string representation of the object's settings.
+        """
         with_params = []
         if self.autosummarize is not None:
             with_params.append(
@@ -122,6 +135,15 @@ class BTreeIndex(PostgresIndex):
         super().__init__(*expressions, **kwargs)
 
     def deconstruct(self):
+        """
+        Deconstructs the object into its constituent parts for serialization purposes.
+
+        This method extends the default deconstruction behavior by including any specified fill factor and deduplicate items settings, allowing for accurate recreation of the object during deserialization. 
+
+        The deconstructed parts include the object's path, positional arguments, and keyword arguments. 
+
+        :returns: A tuple containing the object's path, arguments, and keyword arguments.
+        """
         path, args, kwargs = super().deconstruct()
         if self.fillfactor is not None:
             kwargs["fillfactor"] = self.fillfactor
@@ -178,6 +200,20 @@ class GistIndex(PostgresIndex):
         super().__init__(*expressions, **kwargs)
 
     def deconstruct(self):
+        """
+
+        Deconstructs the object into its constituent parts for serialization or other purposes.
+
+        This method extends the deconstruction behavior of its parent class by including
+        any specified buffering and fill factor settings. The resulting deconstructed
+        representation is suitable for use in database migration or other serialization
+        scenarios.
+
+        Returns:
+            tuple: A tuple containing the path, positional arguments, and keyword arguments
+                representing the deconstructed object.
+
+        """
         path, args, kwargs = super().deconstruct()
         if self.buffering is not None:
             kwargs["buffering"] = self.buffering
@@ -208,6 +244,14 @@ class HashIndex(PostgresIndex):
         return path, args, kwargs
 
     def get_with_params(self):
+        """
+        #: Returns a list of parameters for a SQL WITH clause.
+        #: 
+        #: The parameters in the list are determined by the properties of the current object,
+        #: specifically the fill factor value. If the fill factor is set, it is included in the list.
+        #: 
+        #: :return: A list of strings representing the parameters for the SQL WITH clause.
+        """
         with_params = []
         if self.fillfactor is not None:
             with_params.append("fillfactor = %d" % self.fillfactor)

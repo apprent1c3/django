@@ -56,6 +56,12 @@ class NonAutoPKBook(models.Model):
     title = models.CharField(max_length=50)
 
     def save(self, *args, **kwargs):
+        """
+        Overridden save method to automatically generate a unique random primary key (rand_pk) 
+        if one is not already assigned. The generated key is a random integer between 1 and 99999, 
+        ensuring it does not conflict with any existing keys in the database. Once a unique key is found, 
+        the object is saved using the parent class's save method, passing on any additional arguments and keyword arguments.
+        """
         while not self.rand_pk:
             test_pk = random.randint(1, 99999)
             if not NonAutoPKBook.objects.filter(rand_pk=test_pk).exists():

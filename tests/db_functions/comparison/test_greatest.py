@@ -25,6 +25,16 @@ class GreatestTests(TestCase):
 
     @skipUnlessDBFeature("greatest_least_ignores_nulls")
     def test_ignores_null(self):
+        """
+        Tests the Greatest database function's behavior when ignoring null values.
+
+        Verifies that the Greatest function returns the non-null value when one of the
+        specified fields is null. In this case, it checks that the 'last_updated' annotation
+        is correctly set to the 'written' field's value when the 'published' field is null.
+
+        The test ensures that the database properly handles null values when using the
+        Greatest function, providing expected results in such scenarios.
+        """
         now = timezone.now()
         Article.objects.create(title="Testing with Django", written=now)
         articles = Article.objects.annotate(

@@ -74,6 +74,13 @@ class GenericRelationTests(TestCase):
         oddrel.delete()
 
     def test_charlink_filter(self):
+        """
+        Tests the filtering of OddRelation1 instances based on their associated CharLink values.
+
+        Verifies that the correct OddRelation1 instance is retrieved when filtered by a specific CharLink value.
+
+        The test case creates an OddRelation1 instance and associates it with a CharLink, and then checks that filtering by the CharLink value returns the expected OddRelation1 instance.
+        """
         oddrel = OddRelation1.objects.create(name="clink")
         CharLink.objects.create(content_object=oddrel, value="value")
         self.assertSequenceEqual(
@@ -81,6 +88,10 @@ class GenericRelationTests(TestCase):
         )
 
     def test_textlink_filter(self):
+        """
+        Tests the TextLink filter functionality by creating an OddRelation2 instance and an associated TextLink, 
+        then verifies that the filter correctly retrieves the related OddRelation2 instance based on the TextLink value.
+        """
         oddrel = OddRelation2.objects.create(name="clink")
         TextLink.objects.create(content_object=oddrel, value="value")
         self.assertSequenceEqual(
@@ -88,6 +99,17 @@ class GenericRelationTests(TestCase):
         )
 
     def test_coerce_object_id_remote_field_cache_persistence(self):
+        """
+        Tests the persistence of the remote field cache for the object_id when coercing.
+
+         Verifies that the content object retrieval is consistent and accurate by comparing 
+         the content object of a CharLink instance with itself after creation. The test 
+         covers different types of content objects (Restaurant and Cafe) to ensure the 
+         coercion and caching mechanism works correctly across various models.
+
+         :raises AssertionError: If the content object coercion and caching fails 
+                                 and the content object is not equal to itself.
+        """
         restaurant = Restaurant.objects.create()
         CharLink.objects.create(content_object=restaurant)
         charlink = CharLink.objects.latest("pk")

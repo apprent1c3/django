@@ -20,6 +20,20 @@ class AutoescapeTagTests(SimpleTestCase):
 
     @setup({"autoescape-tag03": "{% autoescape on %}{{ first }}{% endautoescape %}"})
     def test_autoescape_tag03(self):
+        """
+        Tests that autoescaping is correctly applied to template variables when the autoescape tag is used.
+
+        The function verifies that HTML characters in template variables are properly escaped, ensuring that the output does not contain executable HTML code.
+
+        Parameters:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the autoescape functionality does not correctly escape HTML characters.
+        """
         output = self.engine.render_to_string(
             "autoescape-tag03", {"first": "<b>hello</b>"}
         )
@@ -40,6 +54,16 @@ class AutoescapeTagTests(SimpleTestCase):
 
     @setup({"autoescape-tag05": "{% autoescape on %}{{ first }}{% endautoescape %}"})
     def test_autoescape_tag05(self):
+        """
+
+        Tests the autoescape functionality in templating.
+
+        This test verifies that when autoescape is enabled, template variables 
+        are properly escaped to prevent XSS vulnerabilities. In this case, 
+        it ensures that HTML special characters in the 'first' variable are 
+        converted to their corresponding HTML entities.
+
+        """
         output = self.engine.render_to_string(
             "autoescape-tag05", {"first": "<b>first</b>"}
         )
@@ -49,6 +73,15 @@ class AutoescapeTagTests(SimpleTestCase):
     # auto-escaped
     @setup({"autoescape-tag06": "{{ first }}"})
     def test_autoescape_tag06(self):
+        """
+        Tests the autoescape functionality for a template tag with a custom autoescape setting.
+
+        This test ensures that when autoescape is disabled for a specific template tag, 
+        the output is not escaped and HTML content is rendered as expected.
+
+        The test verifies that the rendered output matches the expected result, 
+        demonstrating the correct application of the autoescape setting for the template tag.
+        """
         output = self.engine.render_to_string(
             "autoescape-tag06", {"first": mark_safe("<b>first</b>")}
         )
@@ -56,6 +89,13 @@ class AutoescapeTagTests(SimpleTestCase):
 
     @setup({"autoescape-tag07": "{% autoescape on %}{{ first }}{% endautoescape %}"})
     def test_autoescape_tag07(self):
+        """
+        Tests the behavior of the autoescape tag when rendering a template string with a mark_safe value.
+
+        The function verifies that when the autoescape tag is enabled and a mark_safe value is passed to the template, the value is not escaped and is rendered as is, preserving any HTML markup.
+
+        This test ensures that the mark_safe function correctly bypasses auto-escaping, allowing for the safe rendering of HTML content in templates.
+        """
         output = self.engine.render_to_string(
             "autoescape-tag07", {"first": mark_safe("<b>Apple</b>")}
         )
@@ -80,6 +120,13 @@ class AutoescapeTagTests(SimpleTestCase):
     # won't get double-escaped.
     @setup({"autoescape-tag09": r"{{ unsafe }}"})
     def test_autoescape_tag09(self):
+        """
+        Tests the autoescaping functionality when using a custom template tag.
+
+         The function verifies that the ``autoescape-tag09`` template is rendered correctly 
+         when provided with an instance of ``UnsafeClass``, ensuring that any unsafe 
+         content is properly escaped in the output.
+        """
         output = self.engine.render_to_string(
             "autoescape-tag09", {"unsafe": UnsafeClass()}
         )
@@ -109,6 +156,17 @@ class AutoescapeTagTests(SimpleTestCase):
     # Arguments to filters are 'safe' and manipulate their input unescaped.
     @setup({"autoescape-filters01": '{{ var|cut:"&" }}'})
     def test_autoescape_filters01(self):
+        """
+
+        Tests the autoescaping filters functionality.
+
+        Verifies that the 'cut' filter correctly removes specified characters from a variable, 
+        in this case, removing ampersands (&) from the input string.
+
+        Ensures the template engine properly renders the output as expected, replacing 
+        the ampersands with spaces, resulting in a safe and formatted string.
+
+        """
         output = self.engine.render_to_string(
             "autoescape-filters01", {"var": "this & that"}
         )

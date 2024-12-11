@@ -38,6 +38,20 @@ class Command(BaseCommand):
     server_cls = WSGIServer
 
     def add_arguments(self, parser):
+        """
+
+        Add command line arguments to the parser for controlling the behavior of the Django development server.
+
+        The supported arguments include:
+            - Address and port number for the server
+            - Support for IPv6 addresses
+            - Threading configuration
+            - Auto-reloader configuration
+            - Option to skip system checks
+
+        These arguments allow for customization of the development server's behavior to suit specific needs.
+
+        """
         parser.add_argument(
             "addrport", nargs="?", help="Optional port number, or ipaddr:port"
         )
@@ -123,6 +137,22 @@ class Command(BaseCommand):
     def inner_run(self, *args, **options):
         # If an exception was silenced in ManagementUtility.execute in order
         # to be raised in the child process, raise it now.
+        """
+
+        Runs the server in a way that prepares for and handles potential exceptions and errors.
+
+        This function checks if autoreload has raised any last exceptions, performs system checks,
+        ensures the database is migrated, and then proceeds to run the server with the provided handler.
+
+        It optionally uses threading for server operation and closes all database connections.
+
+        If any issues occur while running the server, such as permission or address errors, it catches these
+        exceptions, displays an informative error message to the user, and exits the process accordingly.
+
+        The function also handles the case where the user interrupts the server operation with a keyboard interrupt,
+        allowing for an optional custom shutdown message to be displayed before exiting cleanly.
+
+        """
         autoreload.raise_last_exception()
 
         threading = options["use_threading"]

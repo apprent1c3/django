@@ -80,6 +80,21 @@ class Media:
 
     @property
     def _css(self):
+        """
+        Returns a dictionary of merged CSS rules for different media types.
+
+        The returned dictionary has media types as keys (e.g., 'screen', 'print') and 
+        merged CSS rules as values. The merging process combines CSS rules from multiple 
+        lists, ensuring that rules from different sources are properly integrated.
+
+        This property provides a consolidated view of CSS rules, making it easier to 
+        manage and apply styles to different media types. The resulting dictionary can 
+        be used to generate CSS output or further processed as needed.
+
+        The merge process is applied to the internal lists of CSS rules, which are 
+        iterated over and combined based on their corresponding media types.
+
+        """
         css = defaultdict(list)
         for css_list in self._css_lists:
             for medium, sublist in css_list.items():
@@ -189,6 +204,25 @@ class Media:
 def media_property(cls):
     def _media(self):
         # Get the media property of the superclass, if it exists
+        """
+        Returns the media definition for the class.
+
+        This method extends the media definition from the parent class, if applicable, and 
+        combines it with the media definition of the current class. If the current class 
+        does not define any media, the parent class's media definition is returned.
+
+        The `Media` definition of the current class can be defined using a `Media` class 
+        attribute. This `Media` class can optionally have an `extend` attribute which 
+        specifies how the parent class's media should be combined with the current class's 
+        media.
+
+        The `extend` attribute can be either `True` (which means the parent class's media 
+        is used as a base and extended with the current class's media) or a list of media 
+        types to include from the parent class.
+
+        If neither the current class nor its parent classes define any media, an empty 
+        `Media` object is returned.
+        """
         sup_cls = super(cls, self)
         try:
             base = sup_cls.media
@@ -219,6 +253,17 @@ class MediaDefiningClass(type):
     """
 
     def __new__(mcs, name, bases, attrs):
+        """
+
+        Metaclass method to create a new class instance.
+
+        This method is called when a new class is defined that uses this metaclass.
+        It generates a new class and automatically adds a 'media' property to it if one is not already defined.
+        The 'media' property is created using the :func:`media_property` function, passing the new class as an argument.
+
+        This ensures that all classes created with this metaclass have a 'media' property, simplifying their definition and usage.
+
+        """
         new_class = super().__new__(mcs, name, bases, attrs)
 
         if "media" not in attrs:
@@ -248,6 +293,18 @@ class Widget(metaclass=MediaDefiningClass):
         return self.input_type == "hidden" if hasattr(self, "input_type") else False
 
     def subwidgets(self, name, value, attrs=None):
+        """
+
+        Returns a subwidget with the given name and value, optionally customizing its attributes.
+
+        The subwidget is generated based on the provided context, which takes into account the name, value, and any additional attributes specified.
+
+        :param str name: The name of the subwidget to generate.
+        :param value: The value associated with the subwidget.
+        :param dict attrs: Optional attributes to customize the subwidget (default is None).
+        :yield: The generated subwidget.
+
+        """
         context = self.get_context(name, value, attrs)
         yield context["widget"]
 
@@ -381,6 +438,25 @@ class MultipleHiddenInput(HiddenInput):
     template_name = "django/forms/widgets/multiple_hidden.html"
 
     def get_context(self, name, value, attrs):
+        """
+
+        Generates the context for rendering a widget with multiple hidden input fields.
+
+        This method extends the parent class's get_context method to create a list of
+        subwidgets, each representing a hidden input field. The attributes of the
+        original widget are copied and modified for each subwidget, with the 'id'
+        attribute updated to include an index suffix.
+
+        The resulting context contains a list of subwidgets, which can be used to render
+        the multiple hidden input fields. The is_required property of each subwidget is
+        inherited from the parent widget.
+
+        :param name: The name of the widget.
+        :param value: The value of the widget.
+        :param attrs: The attributes of the widget.
+        :returns: The updated context with the list of subwidgets.
+
+        """
         context = super().get_context(name, value, attrs)
         final_attrs = context["widget"]["attrs"]
         id_ = context["widget"]["attrs"].get("id")
@@ -509,6 +585,20 @@ class ClearableFileInput(FileInput):
         return context
 
     def value_from_datadict(self, data, files, name):
+        """
+        Overrides the method to handle file uploads and checkbox values.
+
+         Retrieves the value from the given data dictionary, considering both file uploads and checkbox states.
+         If the field is not required and the clear checkbox is checked, returns False unless a file is being uploaded and the upload is valid.
+         If a file is being uploaded but the clear checkbox functionality contradicts this, raises a FILE_INPUT_CONTRADICTION.
+         Otherwise, returns the result of the upload operation, which can be a file or other data depending on the upload's success.
+
+         :param data: A dictionary containing the data to be processed.
+         :param files: A dictionary containing the uploaded files.
+         :param name: The name of the field being processed.
+         :return: The result of the upload operation or False if the clear checkbox is checked and the field is not required.
+
+        """
         upload = super().value_from_datadict(data, files, name)
         self.checked = self.clear_checkbox_name(name) in data
         if not self.is_required and CheckboxInput().value_from_datadict(
@@ -580,6 +670,13 @@ class CheckboxInput(Input):
     template_name = "django/forms/widgets/checkbox.html"
 
     def __init__(self, attrs=None, check_test=None):
+        """
+        Initializes a new instance of the class, inheriting attributes from the parent class.
+
+        :param attrs: Optional attributes to be passed to the parent class for initialization.
+        :param check_test: An optional function to use for checking test results. If not provided, the default boolean_check function will be used.
+        :note: This is an internal class initialization method, typically not called directly by users.
+        """
         super().__init__(attrs)
         # check_test is a callable that takes a value and returns True
         # if the checkbox should be checked for that value.
@@ -597,6 +694,19 @@ class CheckboxInput(Input):
         return super().get_context(name, value, attrs)
 
     def value_from_datadict(self, data, files, name):
+        """
+        Retrieve a boolean value from a data dictionary.
+
+        This method checks if a given name exists in the data dictionary and returns the corresponding boolean value.
+        If the value is a string, it is converted to a boolean based on the strings 'true' or 'false' (case-insensitive).
+        If the value cannot be converted to a boolean or if the name is not found in the data dictionary, the method returns False.
+
+        :param data: The dictionary containing the data to retrieve from.
+        :param files: Not used in this method.
+        :param name: The name of the value to retrieve from the data dictionary.
+        :rtype: bool
+        :return: The boolean value associated with the given name, or False if not found or cannot be converted.
+        """
         if name not in data:
             # A missing value means False because HTML form submission does not
             # send results for unselected checkboxes.
@@ -624,6 +734,14 @@ class ChoiceWidget(Widget):
     option_inherits_attrs = True
 
     def __init__(self, attrs=None, choices=()):
+        """
+        Initializes the instance, setting up its attributes and choices.
+
+        :param attrs: Optional attributes to be inherited from the parent class.
+        :param choices: A tuple of choices to be associated with the instance.
+        :note: The choices parameter is expected to be an iterable, where each item represents a distinct option. 
+               The attrs parameter is used to initialize the parent class.
+        """
         super().__init__(attrs)
         self.choices = choices
 
@@ -711,6 +829,21 @@ class ChoiceWidget(Widget):
         }
 
     def get_context(self, name, value, attrs):
+        """
+        Return the template context for this widget, including its optgroups.
+
+        The context is constructed by calling the parent class's get_context method
+        and then updating it with the optgroups for the given name, value, and attributes.
+
+        The resulting context includes a 'widget' dictionary with an 'optgroups' key,
+        which contains the optgroups for the widget.
+
+        :param name: The name of the widget.
+        :param value: The value of the widget.
+        :param attrs: The attributes of the widget.
+        :return: The updated template context.
+
+        """
         context = super().get_context(name, value, attrs)
         context["widget"]["optgroups"] = self.optgroups(
             name, context["widget"]["value"], attrs
@@ -761,6 +894,19 @@ class Select(ChoiceWidget):
     option_inherits_attrs = False
 
     def get_context(self, name, value, attrs):
+        """
+        Returns the context for the widget.
+
+        This method extends the parent's :meth:`get_context` method by adding support for multiple selections 
+        when :attr:`allow_multiple_selected` is set to ``True``. The context includes the widget's attributes, 
+        which are updated to include the ``multiple`` attribute if multiple selections are allowed.
+
+        :param name: The name of the widget.
+        :param value: The value of the widget.
+        :param attrs: The attributes of the widget.
+        :returns: The context for the widget.
+
+        """
         context = super().get_context(name, value, attrs)
         if self.allow_multiple_selected:
             context["widget"]["attrs"]["multiple"] = True
@@ -796,6 +942,16 @@ class NullBooleanSelect(Select):
     """
 
     def __init__(self, attrs=None):
+        """
+
+        Initializes a choice field for boolean values with internationalized options.
+
+        The field presents the user with three choices: \"Unknown\", \"Yes\", and \"No\".
+        These choices are translated to support multiple languages.
+
+        :param attrs: Optional attributes to customize the field's behavior.
+
+        """
         choices = (
             ("unknown", _("Unknown")),
             ("true", _("Yes")),
@@ -818,6 +974,21 @@ class NullBooleanSelect(Select):
             return "unknown"
 
     def value_from_datadict(self, data, files, name):
+        """
+        Extracts a boolean-like value from a data dictionary and returns a normalized boolean value.
+
+        This function takes in a data dictionary, a files object, and a name to look up in the data dictionary. It retrieves the value associated with the given name and maps it to a standardized boolean value.
+
+        The function recognizes various boolean-like values, including string representations of 'True' and 'False' (ignoring case), integer values '2' and '3', and actual boolean values True and False. It returns True for values that represent True and False for values that represent False.
+
+        Args:
+            data (dict): The data dictionary to extract the value from.
+            files (object): The files object (not used in this function).
+            name (str): The name to look up in the data dictionary.
+
+        Returns:
+            bool: The normalized boolean value extracted from the data dictionary.
+        """
         value = data.get(name)
         return {
             True: True,
@@ -980,6 +1151,14 @@ class MultiWidget(Widget):
     media = property(_get_media)
 
     def __deepcopy__(self, memo):
+        """
+        Creates a deep copy of the object, ensuring that all attributes, including nested widgets, are recursively copied to create an independent duplicate.
+
+        The copied object will have its own set of widget instances, which are completely independent from the original object's widgets.
+
+        :param memo: a dictionary to store the objects that have already been copied to avoid infinite recursion
+        :return: a deep copy of the object
+        """
         obj = super().__deepcopy__(memo)
         obj.widgets = copy.deepcopy(self.widgets)
         return obj
@@ -1063,6 +1242,18 @@ class SelectDateWidget(Widget):
     use_fieldset = True
 
     def __init__(self, attrs=None, years=None, months=None, empty_label=None):
+        """
+        Initializes a date widget with customizable attributes and date range.
+
+        The function takes in several parameters to configure the date widget, including 
+        `attrs` for additional HTML attributes, `years` and `months` to specify the date 
+        range, and `empty_label` to define the display text for empty or null date values.
+
+        If not provided, the date range defaults to the current year and the next 9 years, 
+        and the months default to a full list of 12 months. The `empty_label` parameter 
+        can be a string or a list/tuple of three strings to customize the display text 
+        for year, month, and day fields separately.
+        """
         self.attrs = attrs or {}
 
         # Optional list or tuple of years to use in the "year" select box.
@@ -1179,6 +1370,16 @@ class SelectDateWidget(Widget):
                 yield "day"
 
     def id_for_label(self, id_):
+        """
+        Generate an identifier based on a given label.
+
+        This function takes an id as input and appends a date-related string to create a unique identifier.
+        The date string is derived from the first available date format, or defaults to 'month' if none are found.
+
+        :param id_: The base identifier to be modified.
+        :returns: A modified identifier with a date-related suffix, e.g. 'my_id_2022' or 'my_id_month'.
+
+        """
         for first_select in self._parse_date_fmt():
             return "%s_%s" % (id_, first_select)
         return "%s_month" % id_

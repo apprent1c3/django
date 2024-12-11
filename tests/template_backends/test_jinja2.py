@@ -32,6 +32,12 @@ class Jinja2Tests(TemplateStringsTests):
         self.assertEqual(template.origin.template_name, "template_backends/hello.html")
 
     def test_origin_from_string(self):
+        """
+        Tests that a template's origin information is correctly set when created from a string.
+
+        The origin information includes the name of the template file and the name of the template itself.
+        In the case of a string-based template, the origin name should be '<template>' and the template name should be None.
+        """
         template = self.engine.from_string("Hello!\n")
         self.assertEqual(template.origin.name, "<template>")
         self.assertIsNone(template.origin.template_name)
@@ -63,6 +69,16 @@ class Jinja2Tests(TemplateStringsTests):
         self.assertIn("message", debug)
 
     def test_exception_debug_info_max_context(self):
+        """
+        Tests that debug information for template syntax errors contains the correct context.
+
+        This function verifies that when a TemplateSyntaxError occurs, the debug data 
+        associated with the exception provides the expected information, including the 
+        template source lines, error message, and line numbers. The test case checks 
+        that the debug information includes the correct snippets of template code 
+        before, during, and after the error, as well as the accurate line numbers 
+        and source lines, to ensure useful debugging context is provided to users.
+        """
         with self.assertRaises(TemplateSyntaxError) as e:
             self.engine.get_template("template_backends/syntax_error2.html")
         debug = e.exception.template_debug
@@ -117,6 +133,15 @@ class Jinja2Tests(TemplateStringsTests):
         self.assertIn("message", debug)
 
     def test_template_render_error_nonexistent_source(self):
+        """
+        Tests that rendering a template results in the correct error handling when a TemplateSyntaxError occurs due to a nonexistent source file.
+
+        The test simulates a Jinja2 TemplateSyntaxError exception being raised during template rendering, and then verifies that the resulting TemplateSyntaxError contains the expected debug information, including the source line, column, and error message.
+
+        The test ensures that the debug information is correctly populated, even when the source file is nonexistent, and that the error message and file name are properly reported.
+
+        Note that this test is specifically designed to test the error handling behavior of the template rendering engine when a nonexistent source file is encountered, and does not test the successful rendering of templates.
+        """
         template = self.engine.get_template("template_backends/hello.html")
         with mock.patch(
             "jinja2.environment.Template.render",

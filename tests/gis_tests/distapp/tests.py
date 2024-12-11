@@ -42,6 +42,13 @@ class DistanceTest(TestCase):
         # coordinate that'll be implicitly transformed to that to
         # the coordinate system of the field, EPSG:32140 (Texas South Central
         # w/units in meters)
+        """
+        Sets up geospatial reference points for testing.
+
+        Initializes two instance variables, stx_pnt and au_pnt, representing geographic points in Texas, USA, and Australia, respectively.
+        These points are defined using the WGS 84 geographic coordinate reference system (CRS ID: 4326).
+        They can be used as reference points for subsequent geospatial operations and assertions.
+        """
         self.stx_pnt = GEOSGeometry(
             "POINT (-95.370401017314293 29.704867409475465)", 4326
         )
@@ -49,6 +56,21 @@ class DistanceTest(TestCase):
         self.au_pnt = GEOSGeometry("POINT (150.791 -34.4919)", 4326)
 
     def get_names(self, qs):
+        """
+
+        Retrieve a list of city names from a given query set, sorted alphabetically.
+
+         Parameters
+         ----------
+         qs : QuerySet
+             A query set containing city objects.
+
+         Returns
+         -------
+         list
+             A list of city names, in sorted order.
+
+        """
         cities = [c.name for c in qs]
         cities.sort()
         return cities
@@ -643,6 +665,19 @@ class DistanceFunctionsTests(FuncTestMixin, TestCase):
     @skipIfDBFeature("supports_distance_geodetic")
     @skipUnlessDBFeature("has_Distance_function")
     def test_distance_function_raw_result_d_lookup(self):
+        """
+
+        Tests the behavior of the Distance function when used in a query with a unit specification.
+
+        This test ensures that the database backend correctly handles the Distance function
+        when it is used with a unit specification in the query filter, and that it raises
+        a ValueError when the units of the result are unknown.
+
+        The test case checks that the error is raised when trying to retrieve the raw result
+        of the distance calculation, specifically when looking up the result using the 'd'
+        annotation.
+
+        """
         qs = Interstate.objects.annotate(
             d=Distance(Point(0, 0, srid=4326), Point(0, 1, srid=4326)),
         ).filter(d=D(m=1))

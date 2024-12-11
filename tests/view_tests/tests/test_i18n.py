@@ -395,6 +395,16 @@ class I18NViewTests(SimpleTestCase):
             )
 
     def test_i18n_english_variant(self):
+        """
+
+        Tests translation catalog output for English variant (en-gb).
+
+        Verifies that the translation catalog includes the expected translation
+        for a specific string when using the en-gb locale. This ensures that the
+        correct spelling variations are used for the English language in the
+        United Kingdom.
+
+        """
         with override("en-gb"):
             response = self.client.get("/jsi18n/")
             self.assertIn(
@@ -486,6 +496,26 @@ class I18NViewTests(SimpleTestCase):
             self.assertContains(response, "este texto de app3 debe ser traducido")
 
     def test_i18n_with_locale_paths(self):
+        """
+
+        Test internationalization (i18n) functionality with custom locale paths.
+
+        This test case verifies that the application correctly handles translations
+        when using a combination of default and custom locale paths. It sets the
+        language code to Spanish (Argentina) and extends the locale paths to include
+        a custom directory. The test then checks if the expected translated text is
+        present in the response from the '/jsi18n/' URL.
+
+        The test covers the following scenarios:
+
+        * Language code override to 'es-ar'
+        * Extension of default locale paths with a custom directory
+        * Verification of translated text in the response
+
+        This test ensures that the application's i18n functionality works as expected
+        with custom locale paths and language code overrides.
+
+        """
         extended_locale_paths = settings.LOCALE_PATHS + [
             path.join(
                 path.dirname(path.dirname(path.abspath(__file__))),

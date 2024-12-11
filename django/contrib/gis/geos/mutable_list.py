@@ -60,6 +60,15 @@ class ListMixin:
     # ### Python initialization and special list interface methods ###
 
     def __init__(self, *args, **kwargs):
+        """
+
+        Initializes the object, setting up internal methods for getting and setting single values and handling extended slice assignments.
+
+        This initialization process ensures that the object has the necessary methods to function correctly, 
+        either by using existing methods or by assigning default implementations if they are not already defined. 
+        The default implementations are used for getting a single value, setting a single value, and assigning to an extended slice.
+
+        """
         if not hasattr(self, "_get_single_internal"):
             self._get_single_internal = self._get_single_external
 
@@ -141,6 +150,21 @@ class ListMixin:
         return self
 
     def __eq__(self, other):
+        """
+
+        Checks for equality between this object and another.
+
+        This method compares the current object with the provided 'other' object, 
+        element-wise, and returns True if all elements are equal and both objects have the same length.
+        Otherwise, it returns False.
+
+        Args:
+            other: The object to compare with.
+
+        Returns:
+            bool: True if this object is equal to 'other', False otherwise.
+
+        """
         olen = len(other)
         for i in range(olen):
             try:
@@ -237,6 +261,16 @@ class ListMixin:
         raise IndexError("invalid index: %s" % index)
 
     def _check_allowed(self, items):
+        """
+        Checks if all items in the provided list are of an allowed type.
+
+        This method verifies that each item in the given list is an instance of a type
+         specified in the :attr:`_allowed` attribute. If any item has an invalid type,
+         a :exc:`TypeError` is raised with a corresponding error message.
+
+        :param items: A list of items to be checked for their type
+        :raises TypeError: If any item in the list has an invalid type
+        """
         if hasattr(self, "_allowed"):
             if False in [isinstance(val, self._allowed) for val in items]:
                 raise TypeError("Invalid type encountered in the arguments.")
@@ -303,6 +337,12 @@ class ListMixin:
         newLen = origLen - stop + start + len(valueList)
 
         def newItems():
+            """
+            Generates new items by iterating over a range of indices, 
+            	yielding values from a specified list at a particular index, 
+            	and yielding internal values at other indices, 
+            		except for those within a specified stop range.
+            """
             for i in range(origLen + 1):
                 if i == start:
                     yield from valueList

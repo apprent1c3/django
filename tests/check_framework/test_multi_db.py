@@ -21,6 +21,19 @@ class TestMultiDBChecks(SimpleTestCase):
         return mock.patch.object(connections[db].validation, "check_field")
 
     def test_checks_called_on_the_default_database(self):
+        """
+        .\"\"\"
+        Verifies that model checks are performed on the default database.
+
+        This test case ensures that when a model instance's check method is called,
+        it invokes the check_field_on method specifically for the default database,
+        leaving other databases unaffected.
+
+        :param None:
+        :returns: None
+        :raises: AssertionError if the check_field_on method is not called on the default database
+
+        """
         class Model(models.Model):
             field = models.CharField(max_length=100)
 
@@ -32,6 +45,21 @@ class TestMultiDBChecks(SimpleTestCase):
                 self.assertFalse(mock_check_field_other.called)
 
     def test_checks_called_on_the_other_database(self):
+        """
+
+        Tests that model checks are called on the other database.
+
+        This test case verifies that when a model instance is checked, the checks are
+        performed on the specified database ('other' in this case), rather than the
+        default database. It ensures that the check_field method is called on the
+        'other' database and not on the 'default' database.
+
+        The test creates a model instance and patches the check_field method on both
+        'default' and 'other' databases. It then calls the check method on the model
+        instance, specifying both databases, and asserts that the check_field method
+        was called on the 'other' database and not on the 'default' database.
+
+        """
         class OtherModel(models.Model):
             field = models.CharField(max_length=100)
 

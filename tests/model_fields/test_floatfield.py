@@ -32,6 +32,14 @@ class TestFloatField(TestCase):
             obj.save()
 
     def test_invalid_value(self):
+        """
+
+        Tests that creating a FloatModel instance with an invalid value for the 'size' field raises the expected exception.
+
+        The test covers a variety of invalid input types, including non-numeric strings, empty collections, and non-numeric objects.
+        It verifies that the correct exception is raised with a descriptive error message, indicating that the 'size' field expects a number.
+
+        """
         tests = [
             (TypeError, ()),
             (TypeError, []),

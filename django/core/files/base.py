@@ -106,6 +106,28 @@ class File(FileProxyMixin):
         self.close()
 
     def open(self, mode=None, *args, **kwargs):
+        """
+
+        Opens the associated file, or reopens it if it was previously closed.
+
+        If the file is already open, it resets the file pointer to the beginning.
+        If the file was previously closed and a file name is available, it reopens the file
+        in the specified mode. If no mode is provided, it uses the mode from the previous
+        opening.
+
+        Args:
+            mode (str, optional): The mode to open the file in. Defaults to the previous mode.
+            *args: Additional positional arguments to pass to the open function.
+            **kwargs: Additional keyword arguments to pass to the open function.
+
+        Returns:
+            self: The file object itself, allowing for method chaining.
+
+        Raises:
+            ValueError: If the file cannot be reopened, for example if it was previously
+                closed and no file name is available.
+
+        """
         if not self.closed:
             self.seek(0)
         elif self.name and os.path.exists(self.name):

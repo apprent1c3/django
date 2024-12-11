@@ -67,6 +67,18 @@ class M2MRegressionTests(TestCase):
         # Regression for #11311 - The primary key for models in a m2m relation
         # doesn't have to be an AutoField
 
+        """
+
+        Tests the many-to-many field's primary key field type by verifying the successful creation, saving, and deletion of a Worksheet instance.
+
+        The test case covers the following scenarios:
+            * Creating a new Worksheet instance with a specified id.
+            * Saving the Worksheet instance to the database.
+            * Deleting the saved Worksheet instance from the database.
+
+        The purpose of this test is to ensure that the primary key field type of the many-to-many field functions correctly, allowing for the basic CRUD operations on a Worksheet instance.
+
+        """
         w = Worksheet(id="abc")
         w.save()
         w.delete()
@@ -89,6 +101,19 @@ class M2MRegressionTests(TestCase):
         # Regression for #11956 -- You can add an object to a m2m with the
         # base class without causing integrity errors
 
+        """
+        Tests adding many-to-many relationships with a base class.
+
+        This test case verifies that tags can be successfully added to a tag collection, 
+        and that the collection accurately reflects the tags that have been added. 
+        Additionally, it checks that tags maintain a reference to their associated collections.
+
+        The test includes the following key assertions:
+        - Tags are created and added to a tag collection.
+        - The tag collection contains the expected tags after addition.
+        - Each tag maintains a correct list of its associated tag collections.
+
+        """
         t1 = Tag.objects.create(name="t1")
         t2 = Tag.objects.create(name="t2")
 

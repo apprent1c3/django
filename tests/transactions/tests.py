@@ -132,6 +132,14 @@ class AtomicTests(TransactionTestCase):
         self.assertSequenceEqual(Reporter.objects.all(), [reporter2, reporter1])
 
     def test_merged_commit_rollback(self):
+        """
+
+        Tests the behavior of a database transaction when an exception occurs and the transaction is rolled back.
+
+        This test case verifies that all changes made within a transaction are reverted when an exception is raised, ensuring data consistency.
+        It simulates the creation of a new reporter, followed by an attempt to create another reporter with an exception, and checks that neither reporter is committed to the database.
+
+        """
         with transaction.atomic():
             Reporter.objects.create(first_name="Tintin")
             with self.assertRaisesMessage(Exception, "Oops"):
@@ -331,6 +339,15 @@ class AtomicErrorsTests(TransactionTestCase):
         self.assertEqual(connection.autocommit, autocommit)
 
     def test_atomic_prevents_calling_transaction_methods(self):
+        """
+
+        Tests that attempting to call transaction management methods (e.g. commit, rollback) 
+        inside an atomic transaction block raises a TransactionManagementError.
+
+        The purpose of this test is to ensure that atomic transactions enforce their 
+        atomicity by preventing manual transaction control within the block.
+
+        """
         with transaction.atomic():
             with self.assertRaisesMessage(
                 transaction.TransactionManagementError, self.forbidden_atomic_msg
@@ -373,6 +390,19 @@ class AtomicErrorsTests(TransactionTestCase):
 
     @skipUnlessDBFeature("test_db_allows_multiple_connections")
     def test_atomic_prevents_queries_in_broken_transaction_after_client_close(self):
+        """
+        Tests that atomic transactions prevent queries from being executed after a client connection is closed.
+
+        This test verifies the behavior of atomic transactions in the event of a broken transaction
+        due to a closed client connection. It checks that no partial changes are committed to the
+        database and ensures data consistency by rolling back the entire transaction.
+
+        The test scenario involves creating a model instance within an atomic transaction, closing
+        the database connection, and then attempting to execute another query. The test expects an
+        Error to be raised when trying to execute the second query, indicating that the transaction
+        is no longer valid. Finally, it asserts that no changes were committed to the database by
+        verifying that the model instance count remains unchanged.
+        """
         with transaction.atomic():
             Reporter.objects.create(first_name="Archibald", last_name="Haddock")
             connection.close()
@@ -509,6 +539,10 @@ class NonAutocommitTests(TransactionTestCase):
     available_apps = []
 
     def setUp(self):
+        """
+        Sets up the database transaction environment for a test by disabling autocommit.
+        This allows for control over transaction management during the test, ensuring that any changes made are properly rolled back after the test is completed, maintaining a clean state for subsequent tests.
+        """
         transaction.set_autocommit(False)
         self.addCleanup(transaction.set_autocommit, True)
         self.addCleanup(transaction.rollback)
@@ -563,6 +597,20 @@ class DurableTestsBase:
                     pass
 
     def test_sequence_of_durables(self):
+        """
+
+        Tests the creation of a sequence of durable objects within atomic transactions.
+
+        This test case verifies that objects are properly persisted and retrieved when 
+        created within the context of a durable atomic transaction. It ensures that each 
+        object is correctly stored in the database and can be successfully retrieved by 
+        its attributes.
+
+        The test sequence involves creating multiple objects, each within its own durable 
+        transaction, and then verifying that each object can be correctly retrieved and 
+        matches the originally created instance.
+
+        """
         with transaction.atomic(durable=True):
             reporter = Reporter.objects.create(first_name="Tintin 1")
         self.assertEqual(Reporter.objects.get(first_name="Tintin 1"), reporter)

@@ -18,6 +18,28 @@ from django.utils.version import get_version_tuple
 
 class SpatialiteNullCheckOperator(SpatialOperator):
     def as_sql(self, connection, lookup, template_params, sql_params):
+        """
+        Returns a SQL query string and parameters list for the current lookup.
+
+        This method generates SQL for determining if the result of a query is greater than 0.
+
+        Parameters
+        ----------
+        connection : object
+            The database connection object.
+        lookup : object
+            The lookup object used to generate the SQL query.
+        template_params : object
+            The template parameters used in the SQL query.
+        sql_params : object
+            The SQL parameters used in the SQL query.
+
+        Returns
+        -------
+        tuple
+            A tuple containing the generated SQL query string and its parameters list.
+
+        """
         sql, params = super().as_sql(connection, lookup, template_params, sql_params)
         return "%s > 0" % sql, params
 
@@ -82,6 +104,20 @@ class SpatiaLiteOperations(BaseSpatialOperations, DatabaseOperations):
 
     @cached_property
     def unsupported_functions(self):
+        """
+        Returns a set of unsupported function names for the current geometry library version.
+
+        This property considers various factors, including the geometry library version and spatial version,
+        to determine which functions are not supported. The returned set includes function names that are
+        known to be incompatible with the current setup.
+
+        The list of unsupported functions is dynamic and may change based on the version of the geometry library.
+        It includes functions such as geometry distance calculations, spatial validity checks, and geometric transformations.
+        The returned set can be used to check for unsupported functions before attempting to use them, helping to prevent errors and exceptions.
+
+        :return: A set of unsupported function names as strings.
+        :rtype: set[str]
+        """
         unsupported = {"GeometryDistance", "IsEmpty", "MemSize"}
         if not self.geom_lib_version():
             unsupported |= {"Azimuth", "GeoHash", "MakeValid"}

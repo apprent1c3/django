@@ -186,6 +186,19 @@ class AsyncQuerySetTest(TestCase):
         self.assertIsNone(instance)
 
     async def test_alast(self):
+        """
+        Asynchronously retrieves the last instance of SimpleModel from the database.
+
+        This function tests the functionality of the asynchronous last (`alast`) method.
+        It first fetches the last SimpleModel instance and verifies it matches the expected instance.
+        Then, it filters the instances based on a specific condition (`field=4`) and checks that no instance is returned, as expected.
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the retrieved instance does not match the expected instance or if an instance is found when none is expected.
+        """
         instance = await SimpleModel.objects.alast()
         self.assertEqual(instance, self.s3)
 
@@ -213,6 +226,17 @@ class AsyncQuerySetTest(TestCase):
         self.assertIs(check, False)
 
     async def test_aupdate(self):
+        """
+
+        Tests that the asynchronous update method 'aupdate' correctly updates 
+        all existing model instances in the database.
+
+        The test ensures that after calling 'aupdate' on a query set, all 
+        instances of the model have their specified field updated to the 
+        new value. This is verified by querying the database for all 
+        instances and checking their field values.
+
+        """
         await SimpleModel.objects.aupdate(field=99)
         qs = [o async for o in SimpleModel.objects.all()]
         values = [instance.field for instance in qs]
@@ -226,6 +250,24 @@ class AsyncQuerySetTest(TestCase):
     @skipUnlessDBFeature("supports_explaining_query_execution")
     @async_to_sync
     async def test_aexplain(self):
+        """
+
+        Test the ability to explain the execution of a query using different formats.
+
+        This test checks that the :meth:`aexplain` method of a QuerySet returns a string
+        result in various formats, including XML and JSON. It verifies that the result is
+        valid according to the chosen format.
+
+        The test iterates over all supported formats, including the default format (None),
+        and checks the following conditions:
+        - The result is a non-empty string.
+        - For XML format, the result is parseable as valid XML.
+        - For JSON format, the result is parseable as valid JSON.
+
+        This test requires the database feature 'supports_explaining_query_execution' to be
+        supported.
+
+        """
         supported_formats = await sync_to_async(self._get_db_feature)(
             connection, "supported_explain_formats"
         )

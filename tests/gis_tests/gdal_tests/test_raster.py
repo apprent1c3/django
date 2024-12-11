@@ -28,6 +28,19 @@ class GDALRasterTests(SimpleTestCase):
         self.rs = GDALRaster(self.rs_path)
 
     def test_gdalraster_input_as_path(self):
+        """
+        Tests that a GDALRaster object can be initialized from a file path.
+
+        Verifies that the name attribute of the GDALRaster object matches the file path used to create it.
+
+        Ensures correct functionality when working with raster data stored in files, by checking that the object accurately reflects the source file's location.
+
+        Args: None
+
+        Returns: None
+
+        Raises: AssertionError if the name attribute does not match the file path used to create the GDALRaster object.
+        """
         rs_path = Path(__file__).parent.parent / "data" / "rasters" / "raster.tif"
         rs = GDALRaster(rs_path)
         self.assertEqual(str(rs_path), rs.name)
@@ -40,14 +53,40 @@ class GDALRasterTests(SimpleTestCase):
         self.assertEqual(self.rs.driver.name, "GTiff")
 
     def test_rs_size(self):
+        """
+        Verifies the size of the raster (rs) object.
+
+        Checks that the width and height of the rs object match the expected values.
+        The test ensures that the rs object has been correctly initialized or updated with the correct dimensions.
+
+        Expected dimensions:
+            - Width: 163
+            - Height: 174
+
+        Raises an AssertionError if the dimensions do not match the expected values.
+        """
         self.assertEqual(self.rs.width, 163)
         self.assertEqual(self.rs.height, 174)
 
     def test_rs_srs(self):
+        """
+
+        Tests the Spatial Reference System (SRS) of the RasterSource object.
+
+        Verifies that the SRS has the expected Spatial Reference System Identifier (SRID) and units.
+
+        """
         self.assertEqual(self.rs.srs.srid, 3086)
         self.assertEqual(self.rs.srs.units, (1.0, "metre"))
 
     def test_rs_srid(self):
+        """
+        Tests the Spatial Reference System Identifier (SRID) of a raster object.
+
+        The function creates a GDAL raster object with a predefined width, height, and SRID, 
+        then verifies that the SRID is correctly set and can be updated. This ensures that 
+        the raster object's spatial reference system is properly handled.
+        """
         rast = GDALRaster(
             {
                 "width": 16,
@@ -120,11 +159,30 @@ class GDALRasterTests(SimpleTestCase):
         )
 
     def test_rs_bands(self):
+        """
+
+        Tests the number and type of bands in the raster source.
+
+        Checks that the raster source contains exactly one band and verifies that the band is an instance of GDALBand, ensuring compatibility with the Geospatial Data Abstraction Library (GDAL) standards.
+
+        """
         self.assertEqual(len(self.rs.bands), 1)
         self.assertIsInstance(self.rs.bands[0], GDALBand)
 
     def test_memory_based_raster_creation(self):
         # Create uint8 raster with full pixel data range (0-255)
+        """
+
+        Tests the creation of a memory-based raster.
+
+        This test verifies that a raster object can be successfully created in memory
+        and that its data can be correctly retrieved. The raster is created with a
+        specific set of parameters, including a single band with a range of values from
+        0 to 255, and a nodata value of 255. The test then checks that the retrieved
+        data matches the expected values, ensuring that the raster creation process is
+        working as expected.
+
+        """
         rast = GDALRaster(
             {
                 "datatype": 1,
@@ -150,6 +208,18 @@ class GDALRasterTests(SimpleTestCase):
 
     def test_file_based_raster_creation(self):
         # Prepare tempfile
+        """
+
+        Tests the creation of a raster from a file.
+
+        This test creates a temporary GeoTIFF file containing a single band of raster data,
+        writes it to disk using the GDALRaster class, and then reads it back to verify that
+        the data and spatial reference system (SRS) are correctly preserved.
+
+        The test checks that the restored raster has the same spatial reference system,
+        geotransform, and band data as the original raster.
+
+        """
         rstfile = NamedTemporaryFile(suffix=".tif")
 
         # Create file-based raster from scratch
@@ -196,6 +266,27 @@ class GDALRasterTests(SimpleTestCase):
 
     def test_vsi_raster_creation(self):
         # Open a raster as a file object.
+        """
+        Tests the creation of a VSI raster by comparing its data with a target raster.
+
+            This test case reads the data from a raster file, creates a VSI raster from it,
+            and then compares the data of the VSI raster with the data of a target raster.
+            The test passes if the data of the two rasters are equal.
+
+            The test utilizes the GDAL library to create the VSI raster and the numpy library
+            to flatten the data for comparison. If numpy is available, the test flattens the
+            data into a list before comparison; otherwise, it compares the data in its original form.
+
+            Args:
+                None
+
+            Returns:
+                None
+
+            Raises:
+                AssertionError: If the data of the VSI raster and the target raster do not match.
+
+        """
         with open(self.rs_path, "rb") as dat:
             # Instantiate a raster from the file binary buffer.
             vsimem = GDALRaster(dat.read())
@@ -208,6 +299,20 @@ class GDALRasterTests(SimpleTestCase):
         self.assertEqual(result, target)
 
     def test_vsi_raster_deletion(self):
+        """
+
+        Tests the deletion of a raster from /vsimem by creating a temporary raster,
+        verifying its properties, deleting the raster, and then attempting to reopen
+        it to confirm that it has been successfully removed.
+
+        This test case covers the following scenarios:
+
+        * Creating a new raster in /vsimem
+        * Verifying the properties of the created raster
+        * Deleting the raster
+        * Verifying that the raster can no longer be opened after deletion
+
+        """
         path = "/vsimem/raster.tif"
         # Create a vsi-based raster from scratch.
         vsimem = GDALRaster(
@@ -242,6 +347,19 @@ class GDALRasterTests(SimpleTestCase):
 
     def test_vsi_buffer_property(self):
         # Create a vsi-based raster from scratch.
+        """
+
+        Tests the VSI buffer property of a GDALRaster object.
+
+        This test case verifies that the VSI buffer property correctly returns the binary data of a raster object.
+        It also checks that an empty VSI buffer is returned for a raster object that does not have a VSI buffer.
+
+        The test creates a temporary in-memory raster object, retrieves its VSI buffer, and compares the resulting data with the original data.
+        It ensures that the data is correctly retrieved and that an empty VSI buffer is returned when expected.
+
+        The test is performed using the GDALRaster class and utilizes the numpy library for data manipulation, if available.
+
+        """
         rast = GDALRaster(
             {
                 "name": "/vsimem/raster.tif",
@@ -266,6 +384,9 @@ class GDALRasterTests(SimpleTestCase):
         self.assertIsNone(self.rs.vsi_buffer)
 
     def test_vsi_vsizip_filesystem(self):
+        """
+        Tests the handling of a VSI-based vsizip filesystem by creating a temporary zip file containing a raster TIFF image, then opening it through the VSI interface and verifying its properties, including the driver name, raster name, and the fact that it is VSI-based with no VSI buffer.
+        """
         rst_zipfile = NamedTemporaryFile(suffix=".zip")
         with zipfile.ZipFile(rst_zipfile, mode="w") as zf:
             zf.write(self.rs_path, "raster.tif")
@@ -303,6 +424,15 @@ class GDALRasterTests(SimpleTestCase):
 
     def test_set_nodata_value_on_raster_creation(self):
         # Create raster filled with nodata values.
+        """
+
+        Tests the setting of a no-data value when creating a GDAL raster.
+
+        This function verifies that a raster is initialized correctly with a specified no-data value.
+        It creates a sample raster with a defined no-data value and checks that the resulting raster data matches the expected no-data value.
+        The test ensures that the no-data value is correctly applied to all pixels in the raster.
+
+        """
         rast = GDALRaster(
             {
                 "datatype": 1,
@@ -374,6 +504,24 @@ class GDALRasterTests(SimpleTestCase):
         self.assertNotIn("OWNER", source.metadata["DEFAULT"])
 
     def test_raster_info_accessor(self):
+        """
+        Tests the raster info accessor to ensure it provides accurate and complete metadata.
+
+        This test checks that the info attribute contains the expected lines, including
+        the driver, file path, size, origin, and pixel size. It also verifies that the
+        metadata, image structure metadata, and band information are as expected.
+
+        Additionally, this test checks for specific lines containing the upper left, lower
+        left, upper right, lower right, and center coordinates, as well as the spatial
+        reference system (SRS) using regular expressions to account for formatting
+        variations.
+
+        The expected output includes lines indicating the area or point, interleave, band
+        type, color interpretation, and no data value, as well as the SRS name, which
+        should be 'NAD83 / Florida GDL Albers' in this case. The goal of this test is to
+        ensure that the raster info accessor provides a reliable and comprehensive view
+        of the underlying raster data.
+        """
         infos = self.rs.info
         # Data
         info_lines = [line.strip() for line in infos.split("\n") if line.strip() != ""]
@@ -538,6 +686,18 @@ class GDALRasterTests(SimpleTestCase):
 
     def test_raster_warp_nodata_zone(self):
         # Create in memory raster.
+        """
+
+        Tests the warping of a raster with a nodata zone.
+
+        This test creates a sample raster with a specified data type, size, spatial reference system,
+        and nodata value, then warps it to a new origin. The resulting raster data is compared
+        to the expected output, which should be filled with the nodata value due to the warp operation.
+
+        The test verifies that the warping process correctly handles nodata zones and produces
+        the expected output, which is a raster filled with the specified nodata value.
+
+        """
         source = GDALRaster(
             {
                 "datatype": 1,
@@ -564,6 +724,16 @@ class GDALRasterTests(SimpleTestCase):
         self.assertEqual(result, [23] * 16)
 
     def test_raster_clone(self):
+        """
+
+        Test the ability to clone a raster object.
+
+        This function creates test cases with different drivers and raster data, 
+        then clones the raster and verifies that the cloned object has the same 
+        metadata as the original, such as SRID, width, height, origin, scale, and skew.
+        It also checks that the cloned object has a different name and is not the same object as the original.
+
+        """
         rstfile = NamedTemporaryFile(suffix=".tif")
         tests = [
             ("MEM", "", 23),  # In memory raster.
@@ -739,6 +909,23 @@ class GDALRasterTests(SimpleTestCase):
 
     def test_raster_transform_clone_name(self):
         # Create in file based raster.
+        """
+
+        Translates the test for cloning a raster with a specific name post transformation.
+
+        This function tests if a raster object can be transformed into the same projection (in this case, SRID 4326) 
+        and saved with a specified name. The new name must include the specified name suffix. 
+
+        The transformation is performed with a GDAL Raster object, and the test checks if the resulting 
+        transformed raster object's name matches the specified clone name.
+
+        Parameters: None
+
+        Returns: None
+
+        Raises: AssertionError if the transformed raster's name does not match the specified clone name.
+
+        """
         rstfile = NamedTemporaryFile(suffix=".tif")
         source = GDALRaster(
             {
@@ -769,6 +956,16 @@ class GDALBandTests(SimpleTestCase):
     rs_path = os.path.join(os.path.dirname(__file__), "../data/rasters/raster.tif")
 
     def test_band_data(self):
+        """
+
+        Test the properties and data of a raster band.
+
+        This test case verifies that the band's width, height, description, data type,
+        color interpretation, and no-data value match the expected values. If numpy is
+        available, it also checks that the band's data matches a reference array loaded
+        from a file and that the data shape corresponds to the band's dimensions.
+
+        """
         rs = GDALRaster(self.rs_path)
         band = rs.bands[0]
         self.assertEqual(band.width, 163)
@@ -923,6 +1120,23 @@ class GDALBandTests(SimpleTestCase):
             self.assertEqual(bandmemjson.data(), list(range(25)))
 
     def test_band_statistics_automatic_refresh(self):
+        """
+
+        Tests the automatic refresh of band statistics in a GDALRaster object.
+
+        This test case verifies that the statistics of a raster band are correctly updated when 
+        the band's data or nodata value is changed. The band's statistics include the minimum, 
+        maximum, mean, and standard deviation of the band's data.
+
+        The test starts with a raster band containing all zeros and no nodata value, then updates 
+        the data to include non-zero values and checks that the statistics are correctly updated. 
+        Finally, it sets the nodata value to zero and verifies that the statistics are recalculated 
+        without including the nodata value.
+
+        The expected results are verified using assertions, ensuring that the band statistics are 
+        accurate after each change.
+
+        """
         rsmem = GDALRaster(
             {
                 "srid": 4326,
@@ -967,6 +1181,20 @@ class GDALBandTests(SimpleTestCase):
         self.assertIsNone(rsmem.bands[0].nodata_value)
 
     def test_band_data_replication(self):
+        """
+
+        Tests the replication of band data in a raster object.
+
+        This function checks that the data in a raster band can be correctly replicated when
+        accessed with different block sizes and buffer lengths. It uses a sample raster band
+        with a 3x3 grid of data and tests various combinations of block sizes and buffer
+        sizes to ensure that the data is correctly replicated.
+
+        The test checks that the data in the band can be read back correctly after replication,
+        either using NumPy arrays if available or as a list. The test covers different cases
+        of data replication, including replication with varying block sizes and buffer lengths.
+
+        """
         band = GDALRaster(
             {
                 "srid": 4326,

@@ -113,6 +113,25 @@ class StaticNode(template.Node):
         return self.handle_simple(path)
 
     def render(self, context):
+        """
+        Renders a URL within a given context.
+
+        This function takes a context object and generates a URL based on it. The URL 
+        is then processed based on the autoescape setting in the context. If autoescape 
+        is enabled, the URL is escaped to prevent any potential security vulnerabilities.
+
+        The function can also store the generated URL in the context under a specified 
+        variable name, if provided. If no variable name is specified, the function 
+        returns the generated URL directly. Otherwise, it returns an empty string.
+
+        Args:
+            context: The context object used to generate the URL.
+
+        Returns:
+            str: The generated URL or an empty string, depending on the variable name 
+            setting.
+
+        """
         url = self.url(context)
         if context.autoescape:
             url = conditional_escape(url)
@@ -123,6 +142,16 @@ class StaticNode(template.Node):
 
     @classmethod
     def handle_simple(cls, path):
+        """
+
+            Handles static file URLs for a given path.
+
+            This method checks if the 'django.contrib.staticfiles' app is installed.
+            If installed, it uses Django's staticfiles storage to generate the URL.
+            Otherwise, it joins the static URL prefix with the given path, properly quoting it.
+            The resulting URL can be used to serve static files in a Django application.
+
+        """
         if apps.is_installed("django.contrib.staticfiles"):
             from django.contrib.staticfiles.storage import staticfiles_storage
 

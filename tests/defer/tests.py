@@ -27,6 +27,15 @@ class AssertionMixin:
 class DeferTests(AssertionMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for the class.
+
+        This method creates and stores instances of Primary and Secondary objects, 
+        establishing a relationship between them, to be used in subsequent tests. 
+        It creates a Secondary object with first and second attributes and a Primary 
+        object with a name, value, and a relationship to the Secondary object, 
+        allowing for robust testing of their interactions and properties.
+        """
         cls.s1 = Secondary.objects.create(first="x1", second="y1")
         cls.p1 = Primary.objects.create(name="p1", value="xx", related=cls.s1)
 

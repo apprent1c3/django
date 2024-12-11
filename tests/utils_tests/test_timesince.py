@@ -177,6 +177,11 @@ class TimesinceTests(TestCase):
         self.assertEqual(timeuntil(self.t, t), "1000\xa0years")
 
     def test_depth(self):
+        """
+        Tests the functionality of calculating the time delta between two dates, 'time since' and 'time until', at various depths. 
+         The function checks for different combinations of years, months, weeks, days, and hours, ensuring that the time delta is correctly calculated and displayed. 
+         It uses a series of test cases to validate the output of the `timesince` and `timeuntil` functions at different depths, confirming that the results match the expected formatted strings.
+        """
         t = (
             self.t
             + self.oneyear

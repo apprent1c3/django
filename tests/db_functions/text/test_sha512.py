@@ -21,6 +21,22 @@ class SHA512Tests(TestCase):
         )
 
     def test_basic(self):
+        """
+        Tests basic annotation and ordering functionality.
+
+        This test annotates a queryset of Author objects with their alias hashed using SHA512,
+        then orders the results by primary key and verifies that the resulting sequence of hashes
+        matches the expected values.
+
+        The test case covers the following scenarios:
+        - Annotation of a queryset with a hashed field
+        - Ordering of the annotated queryset
+        - Verification of the resulting hashed values
+
+        The expected output depends on the database connection's behavior regarding empty strings,
+        which may be interpreted as null values in certain databases. The test adapts to this difference
+        by including an alternative expected value for databases that treat empty strings as null.
+        """
         authors = (
             Author.objects.annotate(
                 sha512_alias=SHA512("alias"),

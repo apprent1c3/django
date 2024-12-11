@@ -176,6 +176,14 @@ class TestingSessionStore(SessionStore):
         self._cookies_set = []
 
     def __setitem__(self, key, value):
+        """
+        Sets the value for a given key in the object, storing the value in the cookies set for tracking purposes.
+
+        :param key: The key to be used for storing the value.
+        :param value: The value to be stored.
+
+        This method extends the default behavior of setting an item by also adding the value to an internal list of cookies, allowing for tracking of cookies set by this object.
+        """
         super().__setitem__(key, value)
         self._cookies_set.append(value)
 
@@ -634,6 +642,11 @@ class CsrfViewMiddlewareTestMixin(CsrfFunctionTestMixin):
         )
 
     def _check_referer_rejects(self, mw, req):
+        """
+        Checks if the MediaWiki instance correctly rejects a request when the referer does not match expectations, raising a RejectRequest exception in the process. 
+
+        This method is used to verify the referer checking functionality of the MediaWiki instance, ensuring it correctly handles potentially malicious requests.
+        """
         with self.assertRaises(RejectRequest):
             mw._check_referer(req)
 
@@ -672,6 +685,20 @@ class CsrfViewMiddlewareTestMixin(CsrfFunctionTestMixin):
         self.assertEqual(response.status_code, 403)
 
     def test_origin_malformed_host(self):
+        """
+        Tests that CsrfViewMiddleware correctly handles a malformed Host header.
+
+        This test case verifies that when a POST request is made with a malformed Host
+        header and a potentially malicious Origin header, the middleware rejects the
+        request and returns a 403 Forbidden response, indicating that the request was
+        blocked due to a security issue.
+
+        The test simulates an attack where an evil origin attempts to submit a request
+        to the server with an invalid Host header, which could potentially bypass
+        security checks. The test ensures that the middleware correctly identifies and
+        blocks this type of malicious request, protecting the server from potential
+        CSRF attacks.
+        """
         req = self._get_request(method="POST")
         req._is_secure_override = True
         req.META["HTTP_HOST"] = "@malformed"

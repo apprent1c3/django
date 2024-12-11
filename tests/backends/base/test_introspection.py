@@ -12,6 +12,15 @@ class SimpleDatabaseIntrospectionTests(SimpleTestCase):
         self.introspection = BaseDatabaseIntrospection(connection=connection)
 
     def test_get_table_list(self):
+        """
+        Tests the get_table_list method of the introspection object to ensure it raises a NotImplementedError when called with None.
+
+        This test case verifies that the get_table_list method behaves as expected when provided with no database connection, 
+        confirming that an appropriate error is generated with a specific error message when this method is not implemented.
+
+        The test checks for the presence of a NotImplementedError with a message indicating that the method should be implemented 
+        to handle the requested operation, thus ensuring the proper handling of unimplemented functionality in the introspection object.
+        """
         msg = self.may_require_msg % "get_table_list"
         with self.assertRaisesMessage(NotImplementedError, msg):
             self.introspection.get_table_list(None)

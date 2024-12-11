@@ -25,6 +25,14 @@ class SafeJoinTests(unittest.TestCase):
         )
 
     def test_parent_path(self):
+        """
+        Tests that joining a path with a parent directory reference ('..') raises a SuspiciousFileOperation exception.
+
+        This test case verifies that the safe_join function correctly identifies and prevents
+        potential directory traversal attacks by checking for parent directory references in the path.
+
+        :raises: SuspiciousFileOperation
+        """
         with self.assertRaises(SuspiciousFileOperation):
             safe_join("/abc/", "../def")
 
@@ -36,5 +44,12 @@ class ToPathTests(unittest.TestCase):
                 self.assertEqual(to_path(path), Path("/tmp/some_file.txt"))
 
     def test_to_path_invalid_value(self):
+        """
+
+        Tests that the to_path function raises a TypeError when given an invalid value.
+
+        This test case verifies that the function behaves correctly when provided with input that cannot be converted to a path.
+
+        """
         with self.assertRaises(TypeError):
             to_path(42)

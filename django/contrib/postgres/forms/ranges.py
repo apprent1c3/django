@@ -21,6 +21,12 @@ __all__ = [
 
 class RangeWidget(MultiWidget):
     def __init__(self, base_widget, attrs=None):
+        """
+        Initializes the object with a base widget, creating a paired set of identical widgets.
+
+        :param base_widget: The base widget to be used for both paired widgets.
+        :param attrs: Optional attributes to be applied to the paired widgets.
+        """
         widgets = (base_widget, base_widget)
         super().__init__(widgets, attrs)
 
@@ -47,6 +53,18 @@ class BaseRangeField(forms.MultiValueField):
     hidden_widget = HiddenRangeWidget
 
     def __init__(self, **kwargs):
+        """
+
+        Initializes a RangeField object.
+
+        This initializer sets up a range field with optional custom widget and fields.
+        The widget defaults to a RangeWidget if not provided, and the fields default to two instances of the base field, both optional.
+        The required and require_all_fields properties are set to False by default.
+
+        Additionally, this initializer accepts a 'default_bounds' parameter to set the initial bounds of the range field.
+        If 'default_bounds' is provided, it is used to set the 'bounds' property of the range field.
+
+        """
         if "widget" not in kwargs:
             kwargs["widget"] = RangeWidget(self.base_field.widget)
         if "fields" not in kwargs:

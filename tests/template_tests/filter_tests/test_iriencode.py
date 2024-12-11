@@ -12,6 +12,14 @@ class IriencodeTests(SimpleTestCase):
 
     @setup({"iriencode01": "{{ url|iriencode }}"})
     def test_iriencode01(self):
+        """
+        Tests that the iriencode template filter correctly encodes special characters in URLs.
+
+        The filter is expected to replace special characters with their corresponding escape sequences, 
+        resulting in a valid IRI (Internationalized Resource Identifier). 
+
+        In this test case, the filter should replace '&' with '&amp;'.
+        """
         output = self.engine.render_to_string("iriencode01", {"url": "?test=1&me=2"})
         self.assertEqual(output, "?test=1&amp;me=2")
 
@@ -24,6 +32,11 @@ class IriencodeTests(SimpleTestCase):
 
     @setup({"iriencode03": "{{ url|iriencode }}"})
     def test_iriencode03(self):
+        """
+        Tests the IRI encoding functionality for a URL containing query parameters.
+        Verifies that the URL is rendered correctly without any modifications, ensuring query parameters are preserved.
+        The input URL is checked against the expected output to confirm proper rendering, specifically when the URL contains special characters or reserved characters.
+        """
         output = self.engine.render_to_string(
             "iriencode03", {"url": mark_safe("?test=1&me=2")}
         )

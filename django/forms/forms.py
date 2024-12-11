@@ -327,6 +327,18 @@ class BaseForm(RenderableFormMixin):
         self._post_clean()
 
     def _clean_fields(self):
+        """
+        Cleans and validates form fields.
+
+        This method iterates through each field in the form, cleaning and validating the input data.
+        For each field, it attempts to clean the bound field using the field's own cleaning method.
+        If a custom cleaning method is defined for the field (e.g. `clean_<field_name>`), it is called
+        after the initial cleaning and its return value is used as the cleaned value.
+        If any validation errors occur during the cleaning process, they are stored in the form's error dictionary.
+
+        The cleaned and validated data is stored in the `cleaned_data` attribute of the form instance.
+
+        """
         for name, bf in self._bound_items():
             field = bf.field
             try:

@@ -140,6 +140,20 @@ class ModelInheritanceTests(TestCase):
         self.assertEqual(Restaurant._meta.ordering, ["-rating"])
 
     def test_custompk_m2m(self):
+        """
+
+        Tests the custom primary key functionality in a many-to-many relationship.
+
+        Verifies that the primary keys of the Base and SubBase instances do not match,
+        even when the SubBase instance is created with a reference to the Base instance.
+        Additionally, checks that the titles attribute of the SubBase instance is correctly
+        initialized with a value related to the SubBase instance, and that the titles
+        many-to-many relationship is empty.
+
+        This test case ensures correct behavior when using custom primary keys
+        in conjunction with many-to-many relationships in the model.
+
+        """
         b = Base.objects.create()
         b.titles.add(Title.objects.create(title="foof"))
         s = SubBase.objects.create(sub_id=b.id)
@@ -160,6 +174,16 @@ class ModelInheritanceTests(TestCase):
             common_child.save()
 
     def test_create_diamond_mti_common_parent(self):
+        """
+        ..: 
+            Test the creation of a diamond multi-table inheritance (MTI) model instance with a common parent.
+
+            This test creates an instance of the ItalianRestaurantCommonParent model and verifies that the 
+            expected relationships between the model's pointers are established correctly. It also checks 
+            that the instance's attributes, such as name and address, are set as expected. The test ensures 
+            that the database queries required for this operation are executed within the expected number 
+            of queries, providing a performance check.
+        """
         with self.assertNumQueries(4):
             italian_restaurant_child = ItalianRestaurantCommonParent.objects.create(
                 name="Ristorante Miron",
@@ -248,6 +272,14 @@ class ModelInheritanceTests(TestCase):
         self.assertNotEqual(Restaurant(id=1), Place(id=1))
 
     def test_mixin_init(self):
+        """
+
+        Tests the initialization of the MixinModel class.
+
+        Verifies that upon creation of a MixinModel instance, the 'other_attr' attribute is
+        correctly set to its expected initial value.
+
+        """
         m = MixinModel()
         self.assertEqual(m.other_attr, 1)
 
@@ -273,6 +305,25 @@ class ModelInheritanceTests(TestCase):
 
         class A(models.Model):
             def __init_subclass__(cls, **kwargs):
+                """
+                Initializes a subclass, inheriting behavior from the parent class.
+
+                This method is called when a subclass is created, allowing the parent class to 
+                perform any necessary setup or initialization. It updates the saved keyword 
+                arguments with any additional keyword arguments provided during subclass creation.
+
+                Parameters
+                ----------
+                **kwargs : dict
+                    Additional keyword arguments to update the saved keyword arguments with.
+
+                Notes
+                -----
+                This method is intended to be used internally by the class and should not be 
+                called directly by users. It provides a way for the class to customize the 
+                behavior of its subclasses.
+
+                """
                 super().__init_subclass__()
                 saved_kwargs.update(kwargs)
 
@@ -376,6 +427,16 @@ class ModelInheritanceDataTests(TestCase):
         )
 
     def test_update_inherited_model(self):
+        """
+        Tests the update functionality for an inherited model.
+
+        Verifies that updating a field on an instance of a subclassed model
+        successfully saves the new value and that the updated instance can be
+        retrieved with the correct query.
+
+        Checks for the correct update of the address field and ensures that
+        the instance is correctly retrieved by its updated attributes.
+        """
         self.italian_restaurant.address = "1234 W. Elm"
         self.italian_restaurant.save()
         self.assertQuerySetEqual(
@@ -388,6 +449,15 @@ class ModelInheritanceDataTests(TestCase):
 
     def test_parent_fields_available_for_filtering_in_child_model(self):
         # Parent fields can be used directly in filters on the child model.
+        """
+        Tests that parent fields are available for filtering in a child model.
+
+        This test case verifies the ability to filter child model instances based on fields inherited from their parent models. It checks that the filtering works correctly for both direct and indirect inheritance, ensuring that the expected results are returned when filtering by parent fields.
+
+        It covers the following scenarios: filtering by a field defined in the parent model from a direct child model and filtering by a field defined in the parent of a parent model from a grandchild model.
+
+        The test validates the correctness of the filtering process by comparing the results to the expected outcomes, thus providing assurance that the filtering functionality works as intended in a multi-level inheritance hierarchy.
+        """
         self.assertQuerySetEqual(
             Restaurant.objects.filter(name="Demon Dogs"),
             [
@@ -439,6 +509,9 @@ class ModelInheritanceDataTests(TestCase):
 
     def test_inherited_multiple_objects_returned_exception(self):
         # MultipleObjectsReturned is also inherited.
+        """
+        Tests that a MultipleObjectsReturned exception is raised when attempting to retrieve a Restaurant object using the get method, due to Restaurant inheriting from Place and multiple objects being returned.
+        """
         with self.assertRaises(Place.MultipleObjectsReturned):
             Restaurant.objects.get()
 
@@ -489,6 +562,13 @@ class ModelInheritanceDataTests(TestCase):
     def test_update_works_on_parent_and_child_models_at_once(self):
         # The update() command can update fields in parent and child classes at
         # once (although it executed multiple SQL queries to do so).
+        """
+        Tests the update functionality on parent and child models simultaneously, verifying that changes are applied correctly to both. 
+
+        This test checks the behavior of updating multiple fields in a single operation, including updating a boolean field and a character field. 
+
+        The test asserts that exactly one row is updated and that the updated values are correctly retrieved from the database, confirming that the update operation was successful.
+        """
         rows = Restaurant.objects.filter(
             serves_hot_dogs=True, name__contains="D"
         ).update(name="Demon Puppies", serves_hot_dogs=False)
@@ -538,6 +618,23 @@ class ModelInheritanceDataTests(TestCase):
         self.assertEqual(qs[1].italianrestaurant.rating, 4)
 
     def test_parent_cache_reuse(self):
+        """
+        Test that the parent cache is reused when accessing related objects.
+
+        This test ensures that when we access a related object, Django's ORM 
+        caching mechanism is utilized to minimize database queries. We create 
+        a hierarchy of objects and verify that after the initial query, 
+        subsequent accesses to related objects do not incur additional database 
+        queries.
+
+        The test covers the following relationships: GrandParent -> Parent, 
+        Parent -> Child, and Child -> GrandChild, ensuring that the cache is 
+        properly reused in each case.
+
+        The expected outcome is that only a single database query is executed 
+        when initially accessing the related object, with all subsequent 
+        accesses being served from the cache.
+        """
         place = Place.objects.create()
         GrandChild.objects.create(place=place)
         grand_parent = GrandParent.objects.latest("pk")
@@ -584,6 +681,21 @@ class ModelInheritanceDataTests(TestCase):
 
     def test_exclude_inherited_on_null(self):
         # Refs #12567
+        """
+
+        Tests the exclusion of objects based on inherited attributes, specifically 
+        null values in the supplier relationship.
+
+        Verifies that the exclude method correctly filters out objects where the 
+        supplier is not null, and where the supplier is null. 
+
+        The test case covers two scenarios: 
+        - excluding places with non-null suppliers, which should only return places 
+          without suppliers assigned.
+        - excluding places with null suppliers, which should return places with 
+          suppliers assigned.
+
+        """
         Supplier.objects.create(
             name="Central market",
             address="610 some street",

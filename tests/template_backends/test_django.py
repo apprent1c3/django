@@ -61,6 +61,17 @@ class DjangoTemplatesTests(TemplateStringsTests):
 
     @override_settings(INSTALLED_APPS=["template_backends.apps.good"])
     def test_templatetag_discovery(self):
+        """
+        Tests the discovery of template tags within a Django template engine.
+
+        This test case verifies that the template engine correctly loads and identifies 
+        template tags from various sources, including custom and built-in libraries, 
+        when specific options are provided. It checks the engine's ability to find tags 
+        in custom libraries defined in the OPTIONS dictionary, and compares the 
+        expected library paths with the actual paths found by the engine. The test 
+        ensures that both custom and built-in tags are properly loaded, including 
+        those defined in an alternate library and those overriding existing ones.
+        """
         engine = DjangoTemplates(
             {
                 "DIRS": [],
@@ -125,6 +136,21 @@ class DjangoTemplatesTests(TemplateStringsTests):
         self.assertIsInstance(cm.exception.__cause__, ImportError)
 
     def test_builtins_discovery(self):
+        """
+
+        Tests the discovery of built-in template tags in Django's templating engine.
+
+        This test case verifies that the engine correctly incorporates both the default
+        built-in template tags and any custom tags specified in the template engine's
+        configuration. It checks that the built-in tags from Django's core, as well as
+        the custom 'good_tags' from the 'template_backends.apps.good.templatetags' module,
+        are properly registered and available for use in templates.
+
+        The test configuration intentionally disables app directories to isolate the
+        test to the explicitly configured built-in tags, ensuring that only the specified
+        tags are loaded and recognized by the engine.
+
+        """
         engine = DjangoTemplates(
             {
                 "DIRS": [],
@@ -162,6 +188,12 @@ class DjangoTemplatesTests(TemplateStringsTests):
         )
 
     def test_autoescape_default(self):
+        """
+        -tests the auto-escaping behavior of the template engine when rendering a template string with HTML special characters.
+
+         The function verifies that the default auto-escape functionality correctly escapes special characters, 
+         replacing '&' with '&amp;' to prevent potential HTML injection attacks and ensure safe output.
+        """
         templates = [
             {
                 "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -196,6 +228,14 @@ class DjangoTemplatesTests(TemplateStringsTests):
                 )
 
     def test_dirs_pathlib(self):
+        """
+        Tests the rendering of a Django template using the DIRS setting to specify a template location, verifying that the rendered output matches the expected result.
+
+        The test case uses the DjangoTemplates engine to load a template named 'hello.html' from a specific directory, and then checks if the rendered template with the given context produces the expected string.
+
+        This test ensures that the template engine is correctly configured to use the DIRS setting to find templates, and that the rendering process works as expected with the provided context.
+
+        """
         engine = DjangoTemplates(
             {
                 "DIRS": [Path(__file__).parent / "templates" / "template_backends"],

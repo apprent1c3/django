@@ -140,6 +140,15 @@ class DuplicateDBTableTests(SimpleTestCase):
         self.assertEqual(checks.run_checks(app_configs=self.apps.get_app_configs()), [])
 
     def test_no_collision_for_proxy_models(self):
+        """
+
+        Tests that proxy models share the same database table as their parent model.
+
+        Verifies that a proxy model, defined as a subclass of another model, 
+        inherits the database table name from its parent model without any modifications.
+        Additionally, checks that no validation errors occur when running system checks on the application.
+
+        """
         class Model(models.Model):
             class Meta:
                 db_table = "test_table"
@@ -350,6 +359,17 @@ class ConstraintNameTests(TestCase):
         )
 
     def test_no_collision_abstract_model_interpolation(self):
+        """
+
+        Tests that there are no collisions between abstract model interpolation and the checks framework.
+
+        This test ensures that the checks framework can handle inherited constraints from an abstract model
+        without raising any errors or collisions, specifically when multiple concrete models inherit from the same abstract model.
+
+        The test case covers the scenario where multiple concrete models (Model1 and Model2) inherit from an abstract model (AbstractModel)
+        that defines a check constraint, and verifies that the checks framework can run without reporting any issues.
+
+        """
         class AbstractModel(models.Model):
             class Meta:
                 constraints = [
@@ -510,6 +530,11 @@ class ModelDefaultAutoFieldTests(SimpleTestCase):
         )
 
     def test_auto_created_pk_inherited_abstract_parent(self):
+        """
+        Tests that a warning is raised when an auto-created primary key is inherited from an abstract parent model. 
+
+        This test ensures that the system properly detects and reports when a child model inherits an auto-created primary key from its abstract parent, which can lead to ambiguity in the database schema. The expected warning is checked to confirm that the system behaves as expected in this scenario.
+        """
         class Parent(models.Model):
             class Meta:
                 abstract = True

@@ -55,6 +55,22 @@ from .widgetadmin import site as widget_admin_site
 class TestDataMixin:
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Set up test data for the application.
+
+        This method creates a set of initial data that can be used across multiple tests.
+        It establishes two users: a superuser and a regular user, and assigns each a car.
+        The superuser owns a Volkswagen Passat and the regular user owns a BMW M3.
+
+        The created data includes:
+            - A superuser with username 'super' and password 'secret'
+            - A regular user with username 'testser' and password 'secret'
+            - Two cars, one for each user, with their respective makes and models
+
+        This setup provides a basic scenario for testing application functionality.
+
+        """
         cls.superuser = User.objects.create_superuser(
             username="super", password="secret", email=None
         )
@@ -276,6 +292,16 @@ class AdminFormfieldForDBFieldTests(SimpleTestCase):
         )
 
     def test_m2m_widgets_no_allow_multiple_selected(self):
+        """
+
+        Tests the rendering of a Many-To-Many (M2M) field in the admin interface 
+        when the 'allow_multiple_selected' attribute is set to False on a custom 
+        SelectMultiple widget.
+
+        Verifies that the M2M field is rendered as a FilteredSelectMultiple widget 
+        with a filter_vertical layout and that the help text is empty.
+
+        """
         class NoAllowMultipleSelectedWidget(forms.SelectMultiple):
             allow_multiple_selected = False
 
@@ -314,6 +340,15 @@ class AdminForeignKeyWidgetChangeList(TestDataMixin, TestCase):
         self.client.force_login(self.superuser)
 
     def test_changelist_ForeignKey(self):
+        """
+
+        Tests the changelist view for the ForeignKey field in the admin interface.
+
+        Verifies that the changelist page for a model with a ForeignKey field contains
+        a link to add a new related object, ensuring that the interface provides the
+        expected functionality for editing relationships between models.
+
+        """
         response = self.client.get(reverse("admin:admin_widgets_car_changelist"))
         self.assertContains(response, "/auth/user/add/")
 
@@ -354,6 +389,17 @@ class AdminForeignKeyRawIdWidget(TestDataMixin, TestCase):
             )
 
     def test_url_params_from_lookup_dict_any_iterable(self):
+        """
+        Tests the conversion of lookup dictionaries to URL parameters for any iterable values.
+
+        Verifies that the :func:`~widgets.url_params_from_lookup_dict` function correctly handles different types of iterable values,
+        such as tuples and lists, and produces a consistent output format.
+
+        Specifically, this test checks that the function:
+        * Converts iterable values to comma-separated strings
+        * Produces the same output for different types of iterable values (e.g. tuple, list)
+
+        """
         lookup1 = widgets.url_params_from_lookup_dict({"color__in": ("red", "blue")})
         lookup2 = widgets.url_params_from_lookup_dict({"color__in": ["red", "blue"]})
         self.assertEqual(lookup1, {"color__in": "red,blue"})
@@ -722,6 +768,13 @@ class ForeignKeyRawIdWidgetTest(TestCase):
     def test_fk_related_model_not_in_admin(self):
         # FK to a model not registered with admin site. Raw ID widget should
         # have no magnifying glass link. See #16542
+        """
+        Tests the rendering of a ForeignKeyRawIdWidget for a related model that is not in the admin interface.
+
+        This test case verifies that the widget correctly displays the primary key and object representation of the related model.
+        The test creates a Honeycomb object, associates it with a Bee object, and then renders the widget using the created objects.
+        The resulting HTML is then compared to the expected output to ensure that the widget is functioning as expected.
+        """
         big_honeycomb = Honeycomb.objects.create(location="Old tree")
         big_honeycomb.bee_set.create()
         rel = Bee._meta.get_field("honeycomb").remote_field
@@ -780,6 +833,19 @@ class ForeignKeyRawIdWidgetTest(TestCase):
         )
 
     def test_render_fk_as_pk_model(self):
+        """
+
+        Test the rendering of a foreign key field as a primary key field.
+
+        This method verifies that a foreign key field is correctly rendered as a
+        primary key field using the `ForeignKeyRawIdWidget`. It checks that the
+        rendered HTML matches the expected output, including the input field and
+        the related lookup link.
+
+        The test covers the case where the foreign key field is rendered without
+        an instance, and ensures that the resulting HTML is as expected.
+
+        """
         rel = VideoStream._meta.get_field("release_event").remote_field
         w = widgets.ForeignKeyRawIdWidget(rel, widget_admin_site)
         self.assertHTMLEqual(
@@ -826,6 +892,13 @@ class ManyToManyRawIdWidgetTest(TestCase):
     def test_m2m_related_model_not_in_admin(self):
         # M2M relationship with model not registered with admin site. Raw ID
         # widget should have no magnifying glass link. See #16542
+        """
+        Tests the rendering of ManyToManyRawIdWidget for related models in the admin interface.
+
+        Verifies that the widget correctly displays primary keys of related objects as comma-separated values.
+        The test case checks the widget's behavior in the context of an Advisor model with multiple related Company instances.
+
+        """
         consultor1 = Advisor.objects.create(name="Rockstar Techie")
 
         c1 = Company.objects.create(name="Doodle")
@@ -887,6 +960,16 @@ class RelatedFieldWidgetWrapperTests(SimpleTestCase):
         self.assertFalse(wrapper.can_delete_related)
 
     def test_custom_widget_render(self):
+        """
+        Tests the rendering of a custom widget for a related field.
+
+        Verifies that a custom widget's render method is called and its output is correctly
+        included in the HTML generated by the RelatedFieldWidgetWrapper.
+
+        This test case ensures that custom widgets can be used to modify the rendering of
+        related fields in the admin interface, allowing for flexibility and customization
+        in the display of related objects.
+        """
         class CustomWidget(forms.Select):
             def render(self, *args, **kwargs):
                 return "custom render output"
@@ -1251,6 +1334,21 @@ class HorizontalVerticalFilterSeleniumTests(AdminWidgetSeleniumTestCase):
     def assertActiveButtons(
         self, mode, field_name, choose, remove, choose_all=None, remove_all=None
     ):
+        """
+
+        Asserts the active state of action buttons for a given field in a specific mode.
+
+        :param mode: The layout mode, which can affect the availability of certain action buttons.
+        :param field_name: The name of the field for which the action buttons are being checked.
+        :param choose: A boolean indicating whether the \"choose\" button should be active.
+        :param remove: A boolean indicating whether the \"remove\" button should be active.
+        :param choose_all: Optional; a boolean indicating whether the \"choose all\" button should be active. Defaults to None.
+        :param remove_all: Optional; a boolean indicating whether the \"remove all\" button should be active. Defaults to None.
+
+        This function checks the CSS class of the action buttons to determine their active state, 
+        ensuring that they match the expected state based on the provided parameters.
+
+        """
         choose_link = "#id_%s_add_link" % field_name
         choose_all_link = "#id_%s_add_all_link" % field_name
         remove_link = "#id_%s_remove_link" % field_name
@@ -1845,6 +1943,15 @@ class ImageFieldWidgetsSeleniumTests(AdminWidgetSeleniumTestCase):
     clear_checkbox_id = "photo-clear_id"
 
     def _submit_and_wait(self):
+        """
+
+        Submits the current form and waits for the page to load after submission.
+
+        This method simulates a click on the \"Save and continue editing\" button, allowing the form to be saved while still 
+        remaining in edit mode. The function then waits for the page to finish loading before proceeding, ensuring that 
+        any subsequent actions are executed on a fully loaded page.
+
+        """
         from selenium.webdriver.common.by import By
 
         with self.wait_page_loaded():
@@ -1853,6 +1960,17 @@ class ImageFieldWidgetsSeleniumTests(AdminWidgetSeleniumTestCase):
             ).click()
 
     def _run_image_upload_path(self):
+        """
+
+        Simulates the process of uploading a student's image through the admin interface.
+
+        This function logs in as a super admin, navigates to the student add page, 
+        fills in the required name field, selects an image file for upload, 
+        and submits the form. It then verifies that the student was created 
+        successfully with the correct name and that the uploaded image is stored 
+        in the expected location with a filename matching a specific pattern.
+
+        """
         from selenium.webdriver.common.by import By
 
         self.admin_login(username="super", password="secret", login_url="/")
@@ -1905,6 +2023,13 @@ class ImageFieldWidgetsSeleniumTests(AdminWidgetSeleniumTestCase):
         self.assertIn("Change", photo_field_row.text)
 
     def test_clearablefileinput_widget_preserve_clear_checkbox(self):
+        """
+        Tests that the clear checkbox for a ClearableFileInput widget preserves its state after a failed form submission.
+
+         Checks that the clear checkbox is initially deselected, and after clearing the associated input field and selecting the clear checkbox, 
+         submits the form and verifies that it fails with a \"This field is required\" error message. 
+         Additionally, confirms that the clear checkbox remains selected after the form submission failure.
+        """
         from selenium.webdriver.common.by import By
 
         self._run_image_upload_path()

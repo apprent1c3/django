@@ -57,6 +57,19 @@ class MiddlewareMixinTests(SimpleTestCase):
     ]
 
     def test_repr(self):
+        """
+
+        Test the string representation of MiddlewareMixin and CsrfViewMiddleware instances.
+
+        This test case verifies that the repr() method of MiddlewareMixin and CsrfViewMiddleware
+        returns a string that accurately represents the object, including the get_response callable.
+        The test checks the representation of instances initialized with both a class instance
+        and a function, ensuring the output is consistent and descriptive in both cases.
+
+        The expected output includes the class name and the name of the get_response callable,
+        providing a clear and readable representation of the object's state.
+
+        """
         class GetResponse:
             def __call__(self):
                 return HttpResponse()

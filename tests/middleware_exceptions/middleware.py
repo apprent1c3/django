@@ -14,6 +14,19 @@ log = []
 
 class BaseMiddleware:
     def __init__(self, get_response):
+        """
+        Initializes the middleware instance.
+
+        Parameters
+        ----------
+        get_response : callable
+            The response getter function, which should either be a regular function or a coroutine.
+
+        Notes
+        -----
+        The instance will be marked as a coroutine if `get_response` is an asynchronous function.
+
+        """
         self.get_response = get_response
         if iscoroutinefunction(self.get_response):
             markcoroutinefunction(self)
@@ -56,6 +69,16 @@ class AsyncProcessViewMiddleware(BaseMiddleware):
 
 class ProcessViewNoneMiddleware(BaseMiddleware):
     def process_view(self, request, view_func, view_args, view_kwargs):
+        """
+        Processes a view function during the request cycle, logging the function name for tracking purposes.
+
+        :param request: The current HTTP request
+        :param view_func: The view function being processed
+        :param view_args: Positional arguments for the view function
+        :param view_kwargs: Keyword arguments for the view function
+        :return: None
+        :note: This method is primarily used for logging and tracking view function invocations.
+        """
         log.append("processed view %s" % view_func.__name__)
         return None
 

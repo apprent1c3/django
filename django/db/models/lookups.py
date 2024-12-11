@@ -75,12 +75,35 @@ class Lookup(Expression):
         return [self.lhs, self.rhs]
 
     def set_source_expressions(self, new_exprs):
+        """
+        Sets the source expressions for an operation, updating the left-hand side (LHS) and right-hand side (RHS) attributes accordingly.
+
+         Parameters
+         ----------
+         new_exprs : list of expressions
+             A list containing the new expressions to be set.
+
+         Notes
+         -----
+         If only one expression is provided, it will be assigned to the LHS attribute. If two expressions are provided, they will be assigned to the LHS and RHS attributes, respectively.
+        """
         if len(new_exprs) == 1:
             self.lhs = new_exprs[0]
         else:
             self.lhs, self.rhs = new_exprs
 
     def get_prep_lookup(self):
+        """
+        Returns the prepared lookup value for this object.
+
+        This method prepares the right-hand side value of a lookup for use in a database query.
+        It checks if the right-hand side needs to be prepared and if so, uses the output field of the left-hand side to prepare it.
+        If the right-hand side is a direct value, it wraps it in a Value object.
+        Otherwise, it returns the right-hand side unchanged.
+
+        The purpose of this method is to ensure that the lookup value is in a format that can be used by the database backend.
+        It is used internally by the lookup system and should not be called directly by users.
+        """
         if not self.prepare_rhs or hasattr(self.rhs, "resolve_expression"):
             return self.rhs
         if hasattr(self.lhs, "output_field"):
@@ -169,6 +192,37 @@ class Lookup(Expression):
     def resolve_expression(
         self, query=None, allow_joins=True, reuse=None, summarize=False, for_save=False
     ):
+        """
+
+        Resolves an expression by recursively resolving its left-hand side (LHS) and right-hand side (RHS) components.
+
+        This method takes into account various parameters that control how the resolution process works, including:
+        - a query to apply during resolution
+        - whether to allow joins during resolution
+        - whether to reuse existing resolutions
+        - whether to summarize the result
+        - whether the resolution is for the purpose of saving the expression
+
+        The method returns a new expression with its components resolved according to the specified parameters.
+
+        Parameters
+        ----------
+        query : optional
+            The query to apply during resolution
+        allow_joins : bool, default=True
+            Whether to allow joins during resolution
+        reuse : optional
+            Whether to reuse existing resolutions
+        summarize : bool, default=False
+            Whether to summarize the result
+        for_save : bool, default=False
+            Whether the resolution is for the purpose of saving the expression
+
+        Returns
+        -------
+        The resolved expression
+
+        """
         c = self.copy()
         c.is_summary = summarize
         c.lhs = self.lhs.resolve_expression(
@@ -306,6 +360,20 @@ class FieldGetDbPrepValueIterableMixin(FieldGetDbPrepValueMixin):
         return prepared_values
 
     def process_rhs(self, compiler, connection):
+        """
+
+
+        Processes the right-hand side of a query or expression.
+
+        Decides whether to process the right-hand side as a direct value or delegate the processing to the parent class.
+
+        Returns the result of the processing, which may be a transformed or compiled representation of the right-hand side.
+
+        :param compiler: The compiler object used for processing.
+        :param connection: The database connection object.
+        :return: The result of the right-hand side processing.
+
+        """
         if self.rhs_is_direct_value():
             # rhs should be an iterable of values. Use batch_process_rhs()
             # to prepare/transform those values.
@@ -442,6 +510,16 @@ class IntegerFieldFloatRounding:
     """
 
     def get_prep_lookup(self):
+        """
+        \".. method:: get_prep_lookup()
+
+            Prepares and returns a prepared lookup value by rounding up any floating-point numbers to the nearest integer.
+
+            If the right-hand side of the lookup is a floating-point number, it is converted to an integer by rounding up to the nearest whole number.
+
+            :return: A prepared lookup value
+            :rtype: object\"
+        """
         if isinstance(self.rhs, float):
             self.rhs = math.ceil(self.rhs)
         return super().get_prep_lookup()
@@ -479,6 +557,13 @@ class In(FieldGetDbPrepValueIterableMixin, BuiltinLookup):
     lookup_name = "in"
 
     def get_refs(self):
+        """
+        Returns a set of references associated with this object.
+
+        This method builds upon the parent class's :meth:`get_refs` implementation and extends it by recursively collecting references from the right-hand side (RHS) of a direct value. The RHS references are combined with the parent's references using a union operation, ensuring that all relevant references are accounted for.
+
+        The returned set of references can be used to determine the dependencies or relationships between this object and other entities.
+        """
         refs = super().get_refs()
         if self.rhs_is_direct_value():
             for rhs in self.rhs:
@@ -751,6 +836,13 @@ class UUIDTextMixin:
     """
 
     def process_rhs(self, qn, connection):
+        """
+        Process the right-hand side (RHS) of a query, handling native UUID fields and replacing hyphens if necessary.
+
+        This method is responsible for preparing the RHS of a query for execution, taking into account the capabilities of the underlying database connection. If the connection does not support native UUID fields, it will convert the RHS to a suitable format. Specifically, it replaces hyphens with empty strings to ensure compatibility.
+
+        The method returns the processed RHS and any associated parameters, ready for use in the query.
+        """
         if not connection.features.has_native_uuid_field:
             from django.db.models.functions import Replace
 

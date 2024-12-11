@@ -269,6 +269,21 @@ class AdvancedTests(TestCase):
         )
 
     def test_update_negated_f_conditional_annotation(self):
+        """
+        Tests updating a model field with a negated conditional annotation.
+
+        This test case verifies that a model's field can be updated based on a conditional annotation,
+        where the annotation is negated. It checks that the update operation correctly inverts the
+        boolean value of the annotated field for each instance, and that the resulting values match
+        the expected output.
+
+        The test covers the use of the `Case` and `When` expressions from the Django ORM to create
+        a conditional annotation, and the use of the `~F` expression to negate the annotated value.
+        It also checks that the updated values are correctly persisted to the database.
+
+        The expected outcome is that the 'is_active' field is updated to `True` for instances where
+        the 'is_d2' annotation is `False`, and to `False` where the 'is_d2' annotation is `True`.
+        """
         DataPoint.objects.annotate(
             is_d2=Case(When(name="d2", then=True), default=False)
         ).update(is_active=~F("is_d2"))
@@ -292,6 +307,13 @@ class MySQLUpdateOrderByTest(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for the class.
+
+        This class method is used to create initial data for testing purposes. It populates the UniqueNumber model with a set of predefined numbers, allowing for consistent testing across different test cases.
+
+        The setup includes creating two UniqueNumber instances with numbers 1 and 2. This data is utilized as a foundation for subsequent tests, providing a predictable and reproducible environment for evaluating the class's functionality.
+        """
         UniqueNumber.objects.create(number=1)
         UniqueNumber.objects.create(number=2)
 
@@ -337,6 +359,14 @@ class MySQLUpdateOrderByTest(TestCase):
     def test_order_by_update_on_related_field(self):
         # Ordering by related fields is omitted because joined fields cannot be
         # used in the ORDER BY clause.
+        """
+        Tests that an update statement with order_by on a related field does not include the ORDER BY clause in the generated SQL.
+
+        This ensures that the database query is optimized and only performs the necessary updates without unnecessary sorting, 
+        while still returning the correct number of updated rows and making the changes visible after refreshing the related objects.
+
+        Checks that the update is applied correctly to the related objects and that the database query count is minimized.
+        """
         data = DataPoint.objects.create(name="d0", value="apple")
         related = RelatedPoint.objects.create(name="r0", data=data)
         with self.assertNumQueries(1) as ctx:

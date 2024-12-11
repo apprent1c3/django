@@ -146,6 +146,20 @@ class DateTimesTests(TestCase):
         )
 
     def test_datetimes_has_lazy_iterator(self):
+        """
+        Tests that the datetimes method on a QuerySet has a lazy iterator.
+
+        This test case creates multiple Article instances with different publication dates
+        and then checks if the iterator returned by Article.objects.datetimes() yields
+        the expected datetimes in the correct order. The test also verifies that the
+        iterator only executes a single database query when iterating over its results.
+
+        The expected behavior is that the iterator returns a list of datetimes,
+        truncated to the specified kind (in this case, 'day'), in descending order.
+        The test asserts that the returned datetimes match the expected results and
+        that the iterator is lazy, meaning it only executes a database query when its
+        results are actually accessed.
+        """
         pub_dates = [
             datetime.datetime(2005, 7, 28, 12, 15),
             datetime.datetime(2005, 7, 29, 2, 15),

@@ -141,6 +141,21 @@ class ListViewTests(TestCase):
         self.assertEqual(len(res.context["object_list"]), 7)
 
     def test_paginated_orphaned_queryset(self):
+        """
+        Tests the paginated view for retrieving orphaned authors.
+
+        This test case creates a set of authors, then queries the paginated view to retrieve them.
+        It checks that the view returns the correct page of results, and that invalid page numbers
+        are handled correctly. Specifically, it tests navigation to the first page, the last page,
+        and a valid page number, as well as attempting to access a non-existent page.
+
+        The test expects the following outcomes:
+        - A successful response (200 status code) when retrieving the first page.
+        - A successful response when retrieving the last page.
+        - A successful response when retrieving a specific page by number.
+        - A not found response (404 status code) when attempting to retrieve a non-existent page.
+
+        """
         self._make_authors(92)
         res = self.client.get("/list/authors/paginated-orphaned/")
         self.assertEqual(res.status_code, 200)

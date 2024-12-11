@@ -11,6 +11,14 @@ from django.test import SimpleTestCase
 
 class TestSRS:
     def __init__(self, wkt, **kwargs):
+        """
+        Initializes a geographic object with a Well-Known Text (WKT) representation and additional keyword arguments.
+
+        :param wkt: The Well-Known Text representation of the geographic object.
+        :param kwargs: Additional keyword arguments to be set as instance attributes.
+        :returns: None
+        :raises: No exceptions are explicitly raised by this method.
+        """
         self.wkt = wkt
         for key, value in kwargs.items():
             setattr(self, key, value)
@@ -356,6 +364,12 @@ class SpatialRefTest(SimpleTestCase):
             self.assertIn("Langschoß", srs.xml)
 
     def test_axis_order(self):
+        """
+        Tests the transformation of a point between different spatial references 
+        with varying axis orders, specifically WGS84 with traditional (longitude, latitude) 
+        and authority (latitude, longitude) orders. Verifies that the point's coordinates 
+        are correctly transformed and that the axis order is respected during the transformation process.
+        """
         wgs84_trad = SpatialReference(4326, axis_order=AxisOrder.TRADITIONAL)
         wgs84_auth = SpatialReference(4326, axis_order=AxisOrder.AUTHORITY)
         # Coordinate interpretation may depend on the srs axis predicate.
@@ -377,6 +391,21 @@ class SpatialRefTest(SimpleTestCase):
             SpatialReference(4326, axis_order="other")
 
     def test_esri(self):
+        """
+
+        Tests the conversion of a SpatialReference object to and from ESRI format.
+
+        This test case checks the successful conversion of a SpatialReference object 
+        initially set to 'NAD83' to ESRI format and verifies that the resulting 
+        Well-Known Text (WKT) representation contains the expected DATUM information. 
+        It then converts the object back to the original format and checks for the 
+        correct DATUM representation.
+
+        The test ensures that the `to_esri` and `from_esri` methods work correctly 
+        and that the resulting WKT representations match the expected values after 
+        each conversion.
+
+        """
         srs = SpatialReference("NAD83")
         pre_esri_wkt = srs.wkt
         srs.to_esri()

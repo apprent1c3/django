@@ -18,6 +18,19 @@ class PostGISSchemaEditor(DatabaseSchemaEditor):
         return self.connection.ops.geo_quote_name(name)
 
     def _field_should_be_indexed(self, model, field):
+        """
+
+        Determines whether a given field in a model should be indexed.
+
+        This method checks if the field has a spatial index attribute set to True.
+        If it does, the field is indexed regardless of other considerations.
+        Otherwise, it defers to the default indexing logic of the parent class.
+
+        :param model: The model that the field belongs to.
+        :param field: The field to check for indexing.
+        :returns: True if the field should be indexed, False otherwise.
+
+        """
         if getattr(field, "spatial_index", False):
             return True
         return super()._field_should_be_indexed(model, field)

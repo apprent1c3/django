@@ -647,6 +647,25 @@ class SQLCompiler:
         return part_sql, part_args
 
     def get_qualify_sql(self):
+        """
+
+        Generates a SQL statement for the QUALIFY clause.
+
+        The QUALIFY clause is used in conjunction with window functions to filter the results
+        of a query based on the values calculated by the window function. This method
+        constructs the necessary SQL to apply the QUALIFY clause to a query.
+
+        It analyzes the given query, extract the WHERE and HAVING conditions, and
+        combines them with the QUALIFY condition to generate the final SQL statement.
+
+        The method also takes into account any ORDER BY clauses and ensures that the
+        resulting SQL statement is properly formatted and executable.
+
+        Returns:
+            A tuple containing the generated SQL statement as a list of strings and
+            the parameters to be used with the SQL statement.
+
+        """
         where_parts = []
         if self.where:
             where_parts.append(self.where)

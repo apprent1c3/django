@@ -50,6 +50,13 @@ class DebugSQLTextTestResult(unittest.TextTestResult):
         super().__init__(stream, descriptions, verbosity)
 
     def startTest(self, test):
+        """
+        Starts a test and sets up the debugging environment for SQL.
+
+        This method prepares the test by initializing a stream for SQL debug output and
+        adding a handler to the logger to capture SQL statements during the test.
+
+        """
         self.debug_sql_stream = StringIO()
         self.handler = logging.StreamHandler(self.debug_sql_stream)
         self.logger.addHandler(self.handler)
@@ -165,6 +172,13 @@ class RemoteTestResult(unittest.TestResult):
         # Make this class picklable by removing the file-like buffer
         # attributes. This is possible since they aren't used after unpickling
         # after being sent to ParallelTestSuite.
+        """
+        Returns a dictionary representing the current state of the object, excluding certain internal buffers and original stream references.
+
+        This method is used for serialization purposes, allowing the object's state to be saved and restored. The returned state dictionary contains all the object's attributes, except for the internal buffers and original stream references, which are not necessary for the object's state to be reconstructed correctly.
+
+        The excluded attributes include the standard output and error buffers, as well as the original standard output and error stream references. By excluding these attributes, the object's state can be safely serialized and deserialized without affecting the underlying streams or buffers.
+        """
         state = self.__dict__.copy()
         state.pop("_stdout_buffer", None)
         state.pop("_stderr_buffer", None)
@@ -271,6 +285,13 @@ failure and get a correct traceback.
             raise
 
     def startTestRun(self):
+        """
+
+        Signals the start of a test run, inheriting the base implementation and recording the event for tracking purposes.
+
+        The event is logged with a tuple containing the string 'startTestRun', allowing for further processing or analysis of test run milestones.
+
+        """
         super().startTestRun()
         self.events.append(("startTestRun",))
 
@@ -279,6 +300,16 @@ failure and get a correct traceback.
         self.events.append(("stopTestRun",))
 
     def startTest(self, test):
+        """
+        Signals the start of a test.
+
+        This method is called at the beginning of a test and records the event in the list of events. 
+        It also calls the startTest method of the parent class, ensuring that any necessary setup or 
+        initialization is performed.
+
+        :param test: The test being started.
+
+        """
         super().startTest(test)
         self.events.append(("startTest", self.test_index))
 
@@ -846,6 +877,15 @@ class DiscoverRunner:
         unittest.installHandler()
 
     def setup_shuffler(self):
+        """
+        Initializes and configures the shuffler component if shuffling is enabled.
+
+        This method checks if shuffling is activated and, if so, creates a new Shuffler instance
+        with the provided seed. The shuffle seed used is then logged for reference.
+        The configured shuffler is stored for later use.
+
+        :note: If shuffling is disabled, this method returns immediately without taking any action.
+        """
         if self.shuffle is False:
             return
         shuffler = Shuffler(seed=self.shuffle)

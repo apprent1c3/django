@@ -408,6 +408,18 @@ class MultiPartParser:
         # FIXME: this currently assumes that upload handlers store the file as 'file'
         # We should document that...
         # (Maybe add handler.free_file to complement new_file)
+        """
+        Closes all open files associated with the upload handlers.
+
+        This method iterates over the list of upload handlers and closes the file
+        object associated with each handler, if one exists. This ensures that all
+        file resources are properly released, helping to prevent file descriptor leaks
+        and other issues related to file handling.
+
+        Note: This method is intended for internal use and should not be called directly.
+        It is part of the internal state management of the object and is used to
+        maintain a clean and consistent state.
+        """
         for handler in self._upload_handlers:
             if hasattr(handler, "file"):
                 handler.file.close()
@@ -441,6 +453,19 @@ class LazyStream:
         return self.position
 
     def read(self, size=None):
+        """
+
+        Read data from the current position in the data stream.
+
+        If the optional `size` parameter is specified, read up to the given number of bytes.
+        Otherwise, read the remaining data in the stream.
+
+        The function returns the read data as a bytes object.
+
+        Note: If the end of the stream is reached before reading the requested number of bytes,
+              the function will return all available data.
+
+        """
         def parts():
             remaining = self._remaining if size is None else size
             # do the whole thing in one shot if no limit was provided.
@@ -744,6 +769,17 @@ def parse_boundary_stream(stream, max_header_size):
 
 class Parser:
     def __init__(self, stream, boundary):
+        """
+        Initializes a multipart message parser.
+
+            :param stream: The input stream containing the multipart message data.
+            :param boundary: The boundary string used to separate parts of the multipart message.
+            :ivar _stream: The input stream, stored for internal use.
+            :ivar _separator: The separator bytes used to identify part boundaries, constructed from the provided boundary string.
+
+            This constructor sets up the parser to process the input stream and identify individual parts based on the specified boundary.
+
+        """
         self._stream = stream
         self._separator = b"--" + boundary
 

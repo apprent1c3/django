@@ -107,6 +107,24 @@ class TestUtilsHashPass(SimpleTestCase):
         PASSWORD_HASHERS=["django.contrib.auth.hashers.MD5PasswordHasher"]
     )
     def test_md5(self):
+        """
+
+        Test case for MD5 password hashing functionality.
+
+        This test validates the creation, usage, and characteristics of MD5 hashed passwords.
+        It ensures that MD5 encoded passwords are correctly generated, checked, and identified,
+        and that the usability and security of these passwords are properly assessed.
+
+        The test covers the following aspects:
+
+        * Generation of MD5 encoded passwords with a given salt
+        * Verification of password usability
+        * Checking of passwords against their encoded equivalents
+        * Identification of the hashing algorithm used in a given encoded password
+        * Handling of blank passwords
+        * Detection of weak salts and suggestions for updates
+
+        """
         encoded = make_password("lètmein", "seasalt", "md5")
         self.assertEqual(encoded, "md5$seasalt$3f86d0d3d465b7b458c231bf3555c0e3")
         self.assertTrue(is_password_usable(encoded))
@@ -208,6 +226,17 @@ class TestUtilsHashPass(SimpleTestCase):
         PASSWORD_HASHERS=["django.contrib.auth.hashers.BCryptPasswordHasher"]
     )
     def test_bcrypt_harden_runtime(self):
+        """
+
+        Tests the harden_runtime method of the BCryptPasswordHasher to ensure it
+        correctly strengthens the given password against timing attacks.
+
+        The test verifies that the harden_runtime method calls the encode method
+        the expected number of times with the provided wrong password, ensuring
+        that the time it takes to verify the password is independent of whether
+        the first characters of the password are correct or not.
+
+        """
         hasher = get_hasher("bcrypt")
         self.assertEqual("bcrypt", hasher.algorithm)
 
@@ -267,6 +296,15 @@ class TestUtilsHashPass(SimpleTestCase):
             identify_hasher("lolcat$salt$hash")
 
     def test_is_password_usable(self):
+        """
+        Tests whether the :func:`is_password_usable` function correctly identifies usable passwords.
+
+        This test case checks the function's behavior with various input passwords, 
+        including empty strings, None values, and passwords containing special characters.
+
+        It verifies that all test passwords are considered usable by the function, 
+        regardless of their content or encoding.
+        """
         passwords = ("lètmein_badencoded", "", None)
         for password in passwords:
             with self.subTest(password=password):
@@ -323,6 +361,21 @@ class TestUtilsHashPass(SimpleTestCase):
                 self.assertTrue(state["upgraded"])
 
     def test_no_upgrade(self):
+        """
+
+        Tests the password checking functionality when the provided password is incorrect.
+
+        This function verifies that the password checking mechanism correctly identifies an
+        incorrect password and does not trigger a password upgrade in such cases.
+
+        The function uses a test password with non-ASCII characters to ensure that the
+        password checking is Unicode-aware.
+
+        It checks two key conditions:
+        - The password verification returns False when given an incorrect password.
+        - The upgrade state remains unchanged (i.e., 'upgraded' stays False) after the incorrect password attempt.
+
+        """
         encoded = make_password("lètmein")
         state = {"upgraded": False}
 

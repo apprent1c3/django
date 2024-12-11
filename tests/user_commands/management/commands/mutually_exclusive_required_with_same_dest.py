@@ -8,6 +8,12 @@ class Command(BaseCommand):
         group.add_argument("--until", action="store")
 
     def handle(self, *args, **options):
+        """
+        ..: Handles the given command-line options and prints their corresponding values.
+
+            This function takes in a variable number of arguments and keyword arguments representing command-line options.
+            It iterates over the provided options, filtering out those with a value of None, and outputs the remaining options and their values to the standard output.
+        """
         for option, value in options.items():
             if value is not None:
                 self.stdout.write("%s=%s" % (option, value))

@@ -15,11 +15,31 @@ class NodelistTest(SimpleTestCase):
         self.assertEqual(len(vars), 1)
 
     def test_if(self):
+        """
+        #: Tests if an if statement in a template renders correctly as a single VariableNode.
+        #: 
+        #: This test case ensures that the templating engine correctly interprets 
+        #: conditional statements and translates them into the expected number of 
+        #: VariableNodes. The test creates a simple template with an if statement, 
+        #: parses it, and then verifies that only one VariableNode is produced.
+        """
         template = self.engine.from_string("{% if x %}{{ a }}{% endif %}")
         vars = template.nodelist.get_nodes_by_type(VariableNode)
         self.assertEqual(len(vars), 1)
 
     def test_ifchanged(self):
+        """
+
+        Tests the functionality of the ifchanged template tag.
+
+        This test case verifies that the ifchanged tag behaves as expected by rendering
+        a template with a variable inside the tag and checking if the correct number
+        of variable nodes are generated.
+
+        The ifchanged tag is used to check if a value has changed since the last iteration
+        of a loop. In this test, the tag is used to render a template with a single variable.
+
+        """
         template = self.engine.from_string("{% ifchanged x %}{{ a }}{% endifchanged %}")
         vars = template.nodelist.get_nodes_by_type(VariableNode)
         self.assertEqual(len(vars), 1)
@@ -27,6 +47,15 @@ class NodelistTest(SimpleTestCase):
 
 class TextNodeTest(SimpleTestCase):
     def test_textnode_repr(self):
+        """
+
+        Tests the representation of TextNode objects.
+
+        Verifies that the repr() function returns the expected string representation for TextNode objects, 
+        containing the node type and its text content. The test covers simple text nodes with and without 
+        newline characters, ensuring that special characters are properly escaped in the representation.
+
+        """
         engine = Engine()
         for temptext, reprtext in [
             ("Hello, world!", "<TextNode: 'Hello, world!'>"),

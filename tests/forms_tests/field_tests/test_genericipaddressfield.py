@@ -63,6 +63,22 @@ class GenericIPAddressFieldTest(SimpleTestCase):
             f.clean("1:2")
 
     def test_generic_ipaddress_as_ipv4_only(self):
+        """
+        Tests the GenericIPAddressField when restricted to IPv4 protocol.
+
+        This test case ensures the field behaves correctly for various input scenarios,
+        including empty values, invalid IPv4 addresses, and IPv6 addresses.
+
+        The test checks for the following conditions:
+        - Required field validation: The field raises an error when no input is provided.
+        - Input validation: The field only accepts valid IPv4 addresses and raises an error for invalid inputs, such as:
+          - Non-integer or out-of-range values
+          - Incorrect number of octets
+          - IPv6 addresses
+
+        The test verifies that valid IPv4 addresses are accepted and cleaned of any leading or trailing whitespace.
+
+        """
         f = GenericIPAddressField(protocol="IPv4")
         with self.assertRaisesMessage(ValidationError, "'This field is required.'"):
             f.clean("")

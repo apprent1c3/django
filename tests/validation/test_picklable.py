@@ -6,6 +6,22 @@ from django.core.exceptions import ValidationError
 
 class PickableValidationErrorTestCase(TestCase):
     def test_validationerror_is_picklable(self):
+        """
+
+        Tests whether ValidationError instances are picklable.
+
+        This test case ensures that ValidationError objects can be successfully serialized and deserialized using the pickle module.
+        It covers various scenarios, including:
+
+        * ValidationErrors with a single error message
+        * ValidationErrors with multiple error messages
+        * ValidationErrors with nested ValidationErrors
+        * ValidationErrors with a message dictionary
+
+        The test checks that the original and unpickled ValidationError instances have the same attributes and properties,
+        including error messages, codes, and message dictionaries.
+
+        """
         original = ValidationError("a", code="something")
         unpickled = pickle.loads(pickle.dumps(original))
         self.assertIs(unpickled, unpickled.error_list[0])

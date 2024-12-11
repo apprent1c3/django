@@ -48,6 +48,16 @@ except ImportError:
 @isolate_apps("postgres_tests")
 class BasicTests(PostgreSQLSimpleTestCase):
     def test_get_field_display(self):
+        """
+
+        Tests the get_field_display method for fields with choices.
+
+        Verifies that the method returns the human-readable display value for a given field value.
+        The test covers various input types, including lists and tuples, and ensures that the display value is correctly formatted.
+
+        The function uses a test model with an ArrayField that has predefined choices, and runs a series of sub-tests to validate the get_field_display method's behavior.
+
+        """
         class MyModel(PostgreSQLModel):
             field = ArrayField(
                 models.CharField(max_length=16),
@@ -69,6 +79,20 @@ class BasicTests(PostgreSQLSimpleTestCase):
                 self.assertEqual(instance.get_field_display(), display)
 
     def test_get_field_display_nested_array(self):
+        """
+        Tests the get_field_display method for a model field that is a nested array.
+
+        This method verifies that the get_field_display method correctly returns a human-readable representation of a nested array field value.
+        The test covers various nested array structures, including arrays of characters, tuples, and arrays of arrays, to ensure the method handles different data types correctly.
+
+        The test cases include:
+
+        * Nested arrays with character and tuple values
+        * Nested arrays with arrays as values
+        * Edge cases with empty or single element arrays
+
+        The test validates that the get_field_display method returns the expected display value for each test case, ensuring that the method is working as expected for nested array fields.
+        """
         class MyModel(PostgreSQLModel):
             field = ArrayField(
                 ArrayField(models.CharField(max_length=16)),
@@ -155,6 +179,23 @@ class TestSaveLoad(PostgreSQLTestCase):
         self.assertEqual(instance.field, loaded.field)
 
     def test_other_array_types(self):
+        """
+        Tests the `OtherTypesArrayModel` to ensure that various array fields are correctly saved and loaded from the database.
+
+        The test creates an instance of the model with sample data for IP addresses, UUIDs, decimal numbers, tags, JSON objects, integer ranges, and big integer ranges. It then saves the instance to the database and retrieves it, checking that the values of all array fields are preserved.
+
+        This test case covers the following array fields:
+
+        * IPs: list of IP addresses
+        * UUIDs: list of UUIDs
+        * Decimals: list of decimal numbers
+        * Tags: list of tag objects
+        * JSON: list of JSON objects
+        * Integer ranges: list of numeric ranges with integer values
+        * Big integer ranges: list of numeric ranges with big integer values
+
+        The test validates the correctness of the save and load process for these fields by comparing the original instance data with the loaded instance data.
+        """
         instance = OtherTypesArrayModel(
             ips=["192.168.0.1", "::1"],
             uuids=[uuid.uuid4()],
@@ -305,6 +346,14 @@ class TestQuerying(PostgreSQLTestCase):
         )
 
     def test_in_subquery(self):
+        """
+
+        Tests filtering a model by a subquery on an integer array field.
+
+        Checks that a model instance with a nullable integer array field can be filtered
+        by an 'in' lookup containing the values of an integer array field from another model.
+
+        """
         IntegerArrayModel.objects.create(field=[2, 3])
         self.assertSequenceEqual(
             NullableIntegerArrayModel.objects.filter(
@@ -497,6 +546,15 @@ class TestQuerying(PostgreSQLTestCase):
 
     @unittest.expectedFailure
     def test_index_used_on_nested_data(self):
+        """
+
+        Tests if the index lookup can be used on nested data in a model field.
+
+        This test creates a model instance with a nested integer array field, then attempts to filter the model by the value at a specific index in the nested array. It asserts that the correct instance is returned when using the index lookup.
+
+        The test is marked as expected to fail, likely due to a known limitation or bug in the model's filtering functionality.
+
+        """
         instance = NestedIntegerArrayModel.objects.create(field=[[1, 2], [3, 4]])
         self.assertSequenceEqual(
             NestedIntegerArrayModel.objects.filter(field__0=[1, 2]), [instance]
@@ -637,6 +695,9 @@ class TestQuerying(PostgreSQLTestCase):
         )
 
     def test_enum_lookup(self):
+        """
+        Tests the lookup functionality of an Enum field in a model by creating an instance with a specific Enum value, then querying the model for instances containing that value and asserting the result matches the original instance.
+        """
         class TestEnum(enum.Enum):
             VALUE_1 = "value_1"
 
@@ -818,6 +879,9 @@ class TestOtherTypesExactQuerying(PostgreSQLTestCase):
 @isolate_apps("postgres_tests")
 class TestChecks(PostgreSQLSimpleTestCase):
     def test_field_checks(self):
+        """
+        Tests that the ArrayField in a PostgreSQLModel correctly raises an error when a CharField with a negative max_length is defined, ensuring that invalid field configurations are properly validated.
+        """
         class MyModel(PostgreSQLModel):
             field = ArrayField(models.CharField(max_length=-1))
 
@@ -923,6 +987,14 @@ class TestMigrations(TransactionTestCase):
         self.assertEqual(new.size, field.size)
 
     def test_deconstruct_args(self):
+        """
+        Tests deconstruction of ArrayField arguments to ensure correct field recreation.
+
+        Deconstruction is the process of breaking down a field into its constituent parts, such as its arguments and keyword arguments. 
+        This test verifies that an ArrayField can be successfully deconstructed and then used to create a new, identical field.
+        The test checks that the max_length attribute of the base field remains consistent after deconstruction and recreation.
+        This ensures that the field's properties are preserved and can be reliably serialized or deserialized.
+        """
         field = ArrayField(models.CharField(max_length=20))
         name, path, args, kwargs = field.deconstruct()
         new = ArrayField(*args, **kwargs)
@@ -1090,6 +1162,9 @@ class TestValidation(PostgreSQLSimpleTestCase):
 
 class TestSimpleFormField(PostgreSQLSimpleTestCase):
     def test_valid(self):
+        """
+        Tests the validation of a SimpleArrayField when passed a comma-separated string of values, verifying that the field correctly splits the string into a list of individual values.
+        """
         field = SimpleArrayField(forms.CharField())
         value = field.clean("a,b,c")
         self.assertEqual(value, ["a", "b", "c"])
@@ -1104,6 +1179,14 @@ class TestSimpleFormField(PostgreSQLSimpleTestCase):
         )
 
     def test_validate_fail(self):
+        """
+        Tests that validation fails when an empty item is provided in the array.
+
+        This test ensures that a :class:`ValidationError` is raised when a SimpleArrayField
+        contains an empty item. It verifies that the error message accurately describes
+        the location and nature of the validation failure.
+
+        """
         field = SimpleArrayField(forms.CharField(required=True))
         with self.assertRaises(exceptions.ValidationError) as cm:
             field.clean("a,b,")
@@ -1175,6 +1258,15 @@ class TestSimpleFormField(PostgreSQLSimpleTestCase):
         )
 
     def test_min_length(self):
+        """
+        Tests the validation of a SimpleArrayField with a minimum length constraint.
+
+        Verifies that attempting to clean a value that is shorter than the minimum length
+        raises a ValidationError with a message indicating the correct minimum length.
+
+        The test ensures that the field enforces its minimum length requirement and
+        provides a clear error message when the constraint is not met.
+        """
         field = SimpleArrayField(forms.CharField(), min_length=4)
         with self.assertRaises(exceptions.ValidationError) as cm:
             field.clean("a,b,c")
@@ -1237,6 +1329,16 @@ class TestSimpleFormField(PostgreSQLSimpleTestCase):
 
 class TestSplitFormField(PostgreSQLSimpleTestCase):
     def test_valid(self):
+        """
+
+        Tests the validation of a form with a SplitArrayField.
+
+        This test case checks if a form with a SplitArrayField is valid when populated with data.
+        It verifies that the form's cleaned data is correctly populated with the expected array values.
+
+        The test confirms that the SplitArrayField correctly handles the splitting of the input data into an array.
+
+        """
         class SplitForm(forms.Form):
             array = SplitArrayField(forms.CharField(), size=3)
 
@@ -1310,6 +1412,14 @@ class TestSplitFormField(PostgreSQLSimpleTestCase):
             SplitArrayField(forms.IntegerField(max_value=100), size=2).clean([0, 101])
 
     def test_rendering(self):
+        """
+        Tests the rendering of a SplitArrayField within a Django form.
+
+        The test form, SplitForm, contains an array field composed of three CharField instances.
+
+        The function verifies that the form's HTML output matches the expected string representation,
+        ensuring that the array field is correctly rendered as a set of input fields with the required attributes.
+        """
         class SplitForm(forms.Form):
             array = SplitArrayField(forms.CharField(), size=3)
 
@@ -1436,6 +1546,17 @@ class TestSplitFormWidget(PostgreSQLWidgetTestCase):
         )
 
     def test_checkbox_get_context_attrs(self):
+        """
+
+        Test that the get_context method of SplitArrayWidget returns the correct context 
+        attributes for a checkbox input.
+
+        This test case verifies that the 'value' attribute in the returned context is 
+        correctly formatted as a string representation of a list, and that the 'attrs' 
+        dictionary of each subwidget contains the expected 'checked' attribute based on 
+        the input values.
+
+        """
         context = SplitArrayWidget(
             forms.CheckboxInput(),
             size=2,
@@ -1472,6 +1593,15 @@ class TestSplitFormWidget(PostgreSQLWidgetTestCase):
         )
 
     def test_value_omitted_from_data(self):
+        """
+        Checks whether a field's value is missing from the provided data.
+
+        This method is used to determine if a field's value has been omitted from the submitted data.
+        It takes into account the widget's split field structure and checks for the presence of 
+        the specified field's value in the data. The check is performed by verifying the existence 
+        of the field's subfields (e.g., 'field_0', 'field_1') in the data. If any of the subfields 
+        are present, the field's value is considered not omitted.
+        """
         widget = SplitArrayWidget(forms.TextInput(), size=2)
         self.assertIs(widget.value_omitted_from_data({}, {}, "field"), True)
         self.assertIs(

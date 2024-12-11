@@ -184,12 +184,28 @@ class FormsUtilsTestCase(SimpleTestCase):
         self.assertEqual(e, e_deepcopy)
 
     def test_error_dict_html_safe(self):
+        """
+        Tests that the ErrorDict class returns HTML-safe output when converted to a string.
+
+        This test ensures that the ErrorDict class has an __html__ method and that its string representation matches the output of this method, confirming that the dict can be safely used in HTML templates without risking cross-site scripting (XSS) vulnerabilities.
+
+        The test verifies that the ErrorDict instance, which stores validation error messages, can be properly rendered as a string, allowing for secure display of these errors in a web application's user interface.
+        """
         e = ErrorDict()
         e["username"] = "Invalid username."
         self.assertTrue(hasattr(ErrorDict, "__html__"))
         self.assertEqual(str(e), e.__html__())
 
     def test_error_list_html_safe(self):
+        """
+
+        Tests that the ErrorList class returns HTML-safe output when converted to a string.
+
+        The function checks that the ErrorList class has an __html__ method, which is used to render HTML content.
+        It then verifies that the string representation of an ErrorList instance is equivalent to its HTML representation.
+        This ensures that ErrorList instances can be safely used in HTML templates without introducing security vulnerabilities.
+
+        """
         e = ErrorList(["Invalid username."])
         self.assertTrue(hasattr(ErrorList, "__html__"))
         self.assertEqual(str(e), e.__html__())
@@ -254,12 +270,20 @@ class FormsUtilsTestCase(SimpleTestCase):
         )
 
     def test_get_context_must_be_implemented(self):
+        """
+        Tests that RenderableMixin's get_context method correctly raises a NotImplementedError when not implemented in a subclass, ensuring that subclasses provide their own implementation of this method.
+        """
         mixin = RenderableMixin()
         msg = "Subclasses of RenderableMixin must provide a get_context() method."
         with self.assertRaisesMessage(NotImplementedError, msg):
             mixin.get_context()
 
     def test_field_mixin_as_hidden_must_be_implemented(self):
+        """
+        Tests if the as_hidden method is implemented in subclasses of RenderableFieldMixin.
+
+        This test case ensures that any class inheriting from RenderableFieldMixin properly defines the as_hidden method, which is expected to handle field rendering when it's hidden. If a subclass fails to implement this method, it should raise a NotImplementedError with a specific message indicating that the method must be provided.
+        """
         mixin = RenderableFieldMixin()
         msg = "Subclasses of RenderableFieldMixin must provide an as_hidden() method."
         with self.assertRaisesMessage(NotImplementedError, msg):
@@ -272,6 +296,19 @@ class FormsUtilsTestCase(SimpleTestCase):
             mixin.as_widget()
 
     def test_pretty_name(self):
+        """
+
+        Tests the functionality of the pretty_name function.
+
+        This function checks that the pretty_name function correctly formats strings
+        into a human-readable format, handling different edge cases such as None and empty strings.
+
+        The test cases cover the following scenarios:
+            - A valid string is converted to title case.
+            - A None input returns an empty string.
+            - An empty string input returns an empty string.
+
+        """
         self.assertEqual(pretty_name("john_doe"), "John doe")
         self.assertEqual(pretty_name(None), "")
         self.assertEqual(pretty_name(""), "")

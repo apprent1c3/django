@@ -136,6 +136,16 @@ class FilterNode(Node):
         self.nodelist = nodelist
 
     def render(self, context):
+        """
+        Renders the template node list with the given context and filters the output.
+
+        The rendering process involves executing the node list within the provided context.
+        The result is then used to update the context with a variable.
+        Finally, the filtered output is resolved and returned, allowing for further processing or display.
+
+        :param context: The context in which to render the node list
+        :returns: The filtered output of the node list rendering
+        """
         output = self.nodelist.render(context)
         # Apply filters.
         with context.push(var=output):
@@ -166,6 +176,17 @@ class ForNode(Node):
     def __init__(
         self, loopvars, sequence, is_reversed, nodelist_loop, nodelist_empty=None
     ):
+        """
+        Initializes a loop controller object.
+
+        :param loopvars: Variables used in the loop.
+        :param sequence: The sequence to be iterated over.
+        :param is_reversed: Flag indicating whether the sequence should be iterated in reverse.
+        :param nodelist_loop: The list of nodes to be executed during each loop iteration.
+        :param nodelist_empty: Optional list of nodes to be executed when the sequence is empty. If None, an empty NodeList is created.
+
+        This initializer sets up the necessary state for controlling a loop, including the loop variables, sequence, iteration order, and node lists for handling loop iterations and empty sequences.
+        """
         self.loopvars = loopvars
         self.sequence = sequence
         self.is_reversed = is_reversed
@@ -186,6 +207,29 @@ class ForNode(Node):
         )
 
     def render(self, context):
+        """
+
+        Renders a for loop within a template context.
+
+        This method takes in a context and uses it to resolve a sequence of values.
+        It then iterates over these values, updating the context with loop variables and rendering a node list for each item.
+
+        The loop variables made available to the context include:
+            - counter0: the zero-based index of the current item
+            - counter: the one-based index of the current item
+            - revcounter: the one-based index of the current item from the end of the sequence
+            - revcounter0: the zero-based index of the current item from the end of the sequence
+            - first: whether the current item is the first in the sequence
+            - last: whether the current item is the last in the sequence
+            - parentloop: a dictionary of variables from the parent loop, if applicable
+
+        If the sequence is empty, the method renders an empty node list. If the values are in reverse order, they are reversed before being iterated over.
+
+        The method can also unpack items in the sequence into multiple variables, if the sequence contains items with the correct number of values.
+
+        The rendered node list is then joined into a single string and marked as safe for rendering in the template.
+
+        """
         if "forloop" in context:
             parentloop = context["forloop"]
         else:
@@ -365,6 +409,19 @@ class RegroupNode(Node):
         return self.expression.resolve(context, ignore_failures=True)
 
     def render(self, context):
+        """
+
+        Renders the grouped results of the target objects within the provided context.
+
+        This function resolves the target objects, groups them based on a key determined by the resolving expression, 
+        and assigns the grouped results to a variable in the context. If no objects are found, an empty list is assigned.
+
+        The grouped results are stored in a list of GroupedResult objects, where each object contains a grouper (key) 
+        and a list of corresponding values.
+
+        The function returns an empty string, indicating that it is primarily used for its side effects on the context.
+
+        """
         obj_list = self.target.resolve(context, ignore_failures=True)
         if obj_list is None:
             # target variable wasn't found in context; fail silently.
@@ -507,6 +564,22 @@ class WidthRatioNode(Node):
         self.asvar = asvar
 
     def render(self, context):
+        """
+
+        Render a width ratio based on the provided context.
+
+        This function calculates the ratio of a given value to a maximum value and scales it 
+        to a specified maximum width. The result is then returned as a string, or stored in 
+        a variable if specified.
+
+        The width ratio calculation involves resolving the value, maximum value, and maximum 
+        width from the provided context. The function handles potential errors, such as 
+        missing variables, invalid numbers, and division by zero.
+
+        :arg context: The context in which to resolve the value, maximum value, and maximum width.
+        :raises TemplateSyntaxError: If the maximum width is not a number.
+
+        """
         try:
             value = self.val_expr.resolve(context)
             max_value = self.max_expr.resolve(context)

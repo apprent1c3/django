@@ -195,6 +195,17 @@ class RawQuery:
         return self.sql % self.params_type(self.params)
 
     def _execute_query(self):
+        """
+        Execute a SQL query on a specified database connection.
+
+        This method prepares the query parameters according to their type (tuple or dictionary),
+        adapt them to the database using the database adapter, and then execute the query
+        using the provided SQL statement and parameters. The query execution is performed
+        using a database cursor.
+
+        :raises RuntimeError: If the type of query parameters is not recognized.
+
+        """
         connection = connections[self.using]
 
         # Adapt parameters to the database, as much as possible considering
@@ -833,6 +844,20 @@ class Query(BaseExpression):
         return select_mask
 
     def _get_only_select_mask(self, opts, mask, select_mask=None):
+        """
+        Builds a select mask dictionary by recursively iterating over the fields in the given mask.
+
+        The resulting select mask is used to determine which fields should be included in the query.
+        It traverses the fields and their relationships, applying the given mask to each related model.
+        If a field is not a relation, a FieldError is raised.
+
+        The select mask is constructed based on the provided options (opts) and the initial mask.
+        If an initial select mask is not provided, an empty dictionary is used.
+
+        Returns:
+            dict: A dictionary representing the constructed select mask.
+
+        """
         if select_mask is None:
             select_mask = {}
         select_mask[opts.pk] = {}
@@ -1183,6 +1208,12 @@ class Query(BaseExpression):
         return alias or seen[None]
 
     def check_alias(self, alias):
+        """
+        Checks if a given column alias is valid.
+
+        Validates the provided alias against a set of forbidden patterns, ensuring it does not contain whitespace characters, quotation marks, semicolons, or SQL comments.
+        If the alias is invalid, raises a ValueError with a descriptive error message.
+        """
         if FORBIDDEN_ALIAS_PATTERN.search(alias):
             raise ValueError(
                 "Column aliases cannot contain whitespace characters, quotation marks, "
@@ -1202,6 +1233,32 @@ class Query(BaseExpression):
             self.selected[alias] = alias
 
     def resolve_expression(self, query, *args, **kwargs):
+        """
+
+        Resolve an expression within a query, propagating changes through the query tree.
+
+        The expression is resolved in the context of the current query, taking into account
+        any aliases, subqueries, and combined queries. This method ensures that all
+        necessary parts of the query are updated to reflect the resolved expression.
+
+        The resolved query is returned as a new instance, leaving the original query
+        unchanged.
+
+        Parameters
+        ----------
+        query : Query
+            The query in which to resolve the expression
+        *args : any
+            Variable number of positional arguments to pass to the resolver
+        **kwargs : any
+            Variable number of keyword arguments to pass to the resolver
+
+        Returns
+        -------
+        Query
+            A new query instance with the resolved expression
+
+        """
         clone = self.clone()
         # Subqueries need to use a different set of aliases than the outer query.
         clone.bump_prefix(query)
@@ -1231,6 +1288,15 @@ class Query(BaseExpression):
         return clone
 
     def get_external_cols(self):
+        """
+        Returns a list of external columns related to this object.
+
+        The function generates a set of columns based on annotations and conditions (where clauses), 
+        and filters them to only include those that have an external alias.
+
+        :rtype: list
+        :return: A list of external columns
+        """
         exprs = chain(self.annotations.values(), self.where.children)
         return [
             col
@@ -1251,6 +1317,15 @@ class Query(BaseExpression):
     def as_sql(self, compiler, connection):
         # Some backends (e.g. Oracle) raise an error when a subquery contains
         # unnecessary ORDER BY clause.
+        """
+        Returns the SQL representation of the query, adapted for the given database connection.
+
+        This method takes into account whether the query is a subquery and the database connection's behaviour regarding unnecessary `ORDER BY` clauses in subqueries. If the connection does not ignore such clauses, any ordering specified in the query is removed.
+
+        The resulting SQL string is then wrapped in parentheses if the query is a subquery, as required by SQL syntax.
+
+        The method returns a tuple containing the adapted SQL string and the parameters to be used with it.
+        """
         if (
             self.subquery
             and not connection.features.ignores_unnecessary_order_by_in_subqueries
@@ -1854,6 +1929,19 @@ class Query(BaseExpression):
         # fields to the appropriate wrapped version.
 
         def final_transformer(field, alias):
+            """
+            Retrieves a column from a database field, applying an optional alias if available.
+
+            Args:
+                field: The database field to retrieve the column from.
+                alias (str): The alias to apply to the column, if applicable.
+
+            Returns:
+                The column from the field, with the alias applied if specified and allowed by the current configuration.
+
+            Note:
+                If aliasing is disabled (i.e., `self.alias_cols` is `False`), the alias will be ignored and `None` will be used instead.
+            """
             if not self.alias_cols:
                 alias = None
             return field.get_col(alias)
@@ -1884,6 +1972,23 @@ class Query(BaseExpression):
         for name in transforms:
 
             def transform(field, alias, *, name, previous):
+                """
+                Apply transformation to a field, handling potential errors.
+
+                Transforms a given field by applying a previous transformation function and 
+                then attempting to apply an additional transformation. If the transformation 
+                process fails, it catches the FieldError and handles it according to the state 
+                of the final field and the presence of a last field exception.
+
+                :param field: The field to be transformed.
+                :param alias: The alias associated with the field.
+                :param name: The name of the transformation to apply.
+                :param previous: The previous transformation function to apply to the field.
+                :raises FieldError: If the transformation process fails and no specific error 
+                    handling is specified.
+                :returns: The transformed field if successful, or raises an exception if 
+                    transformation fails.
+                """
                 try:
                     wrapped = previous(field, alias)
                     return self.try_transform(wrapped, name)
@@ -2101,6 +2206,12 @@ class Query(BaseExpression):
         return condition, needed_inner
 
     def set_empty(self):
+        """
+        Sets the current query to an empty state, ensuring it returns no results.
+        This is achieved by adding a condition that can never be met to the query filter.
+        Additionally, if the query is part of a larger combined query, this operation is
+        recursively applied to all sub-queries, effectively clearing their results as well.
+        """
         self.where.add(NothingNode(), AND)
         for query in self.combined_queries:
             query.set_empty()
@@ -2673,6 +2784,21 @@ class JoinPromoter:
     """
 
     def __init__(self, connector, num_children, negated):
+        """
+
+        Initialize a node in a decision tree.
+
+        This class represents a node in a decision tree, which can have multiple children and a logical connector.
+        The node can also be negated, which flips the logical connector.
+
+        :param connector: The logical connector to use for the node (e.g. AND or OR)
+        :param num_children: The number of children this node has
+        :param negated: Whether the node is negated, which flips the logical connector
+
+        The node maintains an `effective_connector` property, which is the logical connector after taking negation into account.
+        It also keeps track of votes using a Counter.
+
+        """
         self.connector = connector
         self.negated = negated
         if self.negated:

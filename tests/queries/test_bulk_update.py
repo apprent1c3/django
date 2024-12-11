@@ -84,6 +84,17 @@ class BulkUpdateNoteTests(TestCase):
         self.assertSequenceEqual(Note.objects.filter(tag__isnull=False), self.notes)
 
     def test_set_field_to_null(self):
+        """
+        Tests setting the tag field to null for multiple notes.
+
+        Verifies that the respective database entries are updated correctly,
+        Specifically checks that the notes are properly updated and that the
+        desired number of notes with a null tag field are returned by the database query.
+
+        Asserts that after updating the tag field to null, the filtered query returns
+        the same set of notes that were originally updated.
+
+        """
         self.create_tags()
         Note.objects.update(tag=self.tags[0])
         for note in self.notes:
@@ -166,6 +177,15 @@ class BulkUpdateTests(TestCase):
         self.assertEqual(rows_updated, 2)
 
     def test_only_concrete_fields_allowed(self):
+        """
+        Tests that bulk_update() method can only be used with concrete fields.
+
+        Checks that attempting to perform a bulk update on non-concrete fields, such as foreign key fields,
+        raises a ValueError with a descriptive error message.
+
+        Verifies this behavior for multiple model instances, including Detail, Paragraph, and Valid objects,
+        ensuring that the limitation is consistently enforced across different models and fields.
+        """
         obj = Valid.objects.create(valid="test")
         detail = Detail.objects.create(data="test")
         paragraph = Paragraph.objects.create(text="test")
@@ -179,6 +199,17 @@ class BulkUpdateTests(TestCase):
             Valid.objects.bulk_update([obj], fields=["parent"])
 
     def test_custom_db_columns(self):
+        """
+
+        Tests the update functionality of custom database columns.
+
+        Verifies that updating a custom database column using bulk update
+        successfully modifies the value in the database. This test creates a
+        CustomDbColumn instance, modifies its custom_column attribute, updates the
+        modification in the database using bulk update, and then checks if the updated
+        value matches the expected result.
+
+        """
         model = CustomDbColumn.objects.create(custom_column=1)
         model.custom_column = 2
         CustomDbColumn.objects.bulk_update([model], fields=["custom_column"])
@@ -232,6 +263,14 @@ class BulkUpdateTests(TestCase):
         self.assertCountEqual(Number.objects.filter(num=1), numbers)
 
     def test_f_expression(self):
+        """
+
+        Tests that using F-expressions to update fields in Note objects works as expected.
+
+        This test creates multiple Note objects, then updates their 'misc' field to match their 'note' field using an F-expression.
+        The test verifies that the update was successful by checking that the filtered Note objects match the expected results.
+
+        """
         notes = [
             Note.objects.create(note="test_note", misc="test_misc") for _ in range(10)
         ]
@@ -241,6 +280,15 @@ class BulkUpdateTests(TestCase):
         self.assertCountEqual(Note.objects.filter(misc="test_note"), notes)
 
     def test_booleanfield(self):
+        """
+        Tests the functionality of a boolean field in an Individual model instance.
+
+        Verifies that the boolean field can be updated successfully for multiple instances
+        using a bulk update operation. The test creates multiple individual instances with
+        the boolean field initially set to False, then updates the field to True for each
+        instance and saves the changes in bulk. It finally checks if all the updated
+        instances are correctly retrieved based on their updated boolean field value.
+        """
         individuals = [Individual.objects.create(alive=False) for _ in range(10)]
         for individual in individuals:
             individual.alive = True
@@ -323,6 +371,19 @@ class BulkUpdateTests(TestCase):
 
     @override_settings(DATABASE_ROUTERS=[WriteToOtherRouter()])
     def test_database_routing_batch_atomicity(self):
+        """
+        Tests the atomicity of batch operations when using database routing.
+
+        This test case verifies that when using a custom database router and performing batch
+        operations, the database remains in a consistent state even if an integrity error occurs.
+        It specifically checks that a bulk update operation with a batch size of 1 does not
+        partially update the database when a duplicate value error is raised.
+
+        The test creates two food objects, updates their names to be the same, and then attempts
+        to bulk update them. It asserts that an IntegrityError is raised and that the database
+        does not contain any food objects with the updated name, ensuring that the update was
+        not partially applied.
+        """
         f1 = Food.objects.create(name="Banana")
         f2 = Food.objects.create(name="Apple")
         f1.name = "Kiwi"

@@ -171,11 +171,31 @@ class NonAggregateAnnotationTestCase(TestCase):
             self.assertEqual(book.is_book, 1)
 
     def test_basic_f_annotation(self):
+        """
+        Tests the basic functionality of the F expression annotation in Django ORM.
+
+        This test case checks that the annotated field 'another_rating' is correctly
+        populated with the value from the 'rating' field for each Book object. The test
+        ensures that the F expression annotation is working as expected, allowing for
+        efficient and flexible data analysis and manipulation.
+
+        It verifies that the annotated field returns the same value as the original field,
+        demonstrating a fundamental use case for F expression annotations in Django ORM
+        queries.
+        """
         books = Book.objects.annotate(another_rating=F("rating"))
         for book in books:
             self.assertEqual(book.another_rating, book.rating)
 
     def test_joined_annotation(self):
+        """
+
+        Tests that annotations joined from related models are correctly applied.
+
+        Verifies that the 'num_awards' annotation, which is derived from the 'publisher' 
+        related model, matches the actual 'num_awards' value of the publisher for each book.
+
+        """
         books = Book.objects.select_related("publisher").annotate(
             num_awards=F("publisher__num_awards")
         )
@@ -270,6 +290,15 @@ class NonAggregateAnnotationTestCase(TestCase):
         self.assertEqual(b.combined, combined)
 
     def test_empty_expression_annotation(self):
+        """
+        Tests the annotation of a queryset with an empty expression.
+
+            This test case verifies that annotating a queryset with an empty expression, 
+            either by using an empty list or an empty queryset, results in all objects 
+            in the queryset being annotated with False. The test checks that 
+            the length of the annotated queryset remains the same as the original 
+            queryset and that all objects have the 'selected' attribute set to False.
+        """
         books = Book.objects.annotate(
             selected=ExpressionWrapper(Q(pk__in=[]), output_field=BooleanField())
         )
@@ -443,6 +472,15 @@ class NonAggregateAnnotationTestCase(TestCase):
             self.assertEqual(book.other_rating, 3.5)
 
     def test_filter_annotation_with_double_f(self):
+        """
+        Tests the annotation and filtering of Book objects with duplicate rating fields.
+
+        This test case verifies that the 'other_rating' annotation is correctly applied to Book objects
+        and that the filtered results match the expected rating values.
+
+        The test asserts that each Book object in the filtered queryset has its 'other_rating' attribute
+        equal to its 'rating' attribute, ensuring the accuracy of the annotation and filtering process.
+        """
         books = Book.objects.annotate(other_rating=F("rating")).filter(
             other_rating=F("rating")
         )
@@ -710,6 +748,15 @@ class NonAggregateAnnotationTestCase(TestCase):
                 )
 
     def test_annotate_exists(self):
+        """
+
+        Tests that no Authors have duplicate ID annotations.
+
+        This test case checks for the existence of Authors with more than one ID annotation.
+        It queries the database for Authors with an annotation count greater than 1 and 
+        asserts that no such Authors exist, ensuring data integrity.
+
+        """
         authors = Author.objects.annotate(c=Count("id")).filter(c__gt=1)
         self.assertFalse(authors.exists())
 
@@ -773,6 +820,25 @@ class NonAggregateAnnotationTestCase(TestCase):
         )
 
     def test_column_field_ordering_with_deferred(self):
+        """
+        Tests that deferred fields and column ordering are correctly applied to querysets.
+
+        This test case creates two Employee objects with different attributes, and then 
+        constructs a queryset that includes extra select fields, select related fields, 
+        and annotated fields. The queryset is then ordered and deferred, and the result 
+        is compared to an expected set of rows to verify that the correct data is returned 
+        in the correct order.
+
+        The test checks that the 'age' field is correctly deferred and that the data is 
+        ordered by the 'id' column, with the remaining columns in the expected order. 
+
+        The `select_related` method is used to include related fields, the `extra` method 
+        to include extra fields, and the `annotate` method to include annotated fields. 
+
+        The result is verified using the `assertQuerySetEqual` method, which checks that 
+        the data returned by the queryset matches the expected data, with the specified 
+        fields in the correct order.
+        """
         store = Store.objects.first()
         Employee.objects.create(
             id=1,
@@ -1171,6 +1237,18 @@ class NonAggregateAnnotationTestCase(TestCase):
 class AliasTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for testing purposes.
+
+        This method is a class method and is used to create a set of core data that can be used throughout the testing process.
+        It creates a number of authors, books, and stores, and establishes relationships between them.
+        The created data includes five authors, four books with their respective authors, publishers, and other relevant details,
+        and two stores with their original opening and closing times.
+
+        The test data is stored as class attributes, making it accessible to all test methods within the class.
+        This allows for efficient reuse of the data and reduces the need to recreate it for each individual test.
+
+        """
         cls.a1 = Author.objects.create(name="Adrian Holovaty", age=34)
         cls.a2 = Author.objects.create(name="Jacob Kaplan-Moss", age=35)
         cls.a3 = Author.objects.create(name="James Bennett", age=34)
@@ -1242,6 +1320,21 @@ class AliasTests(TestCase):
         self.assertIs(hasattr(qs.first(), "is_book"), False)
 
     def test_basic_alias_annotation(self):
+        """
+
+        Verify basic alias annotation functionality in query operations.
+
+        This test case checks that an aliased annotation is correctly applied to a
+        queryset and that the original alias is not accessible as an attribute on
+        the resulting objects. The test ensures that the annotated field is
+        properly populated with the expected value.
+
+        The test covers the following key aspects:
+        - Creation of an alias in a queryset
+        - Usage of the alias in an annotation
+        - Expected behavior when accessing alias and annotated fields
+
+        """
         qs = Book.objects.alias(
             is_book_alias=Value(1),
         ).annotate(is_book=F("is_book_alias"))
@@ -1296,6 +1389,16 @@ class AliasTests(TestCase):
                 self.assertEqual(book.is_book, 1)
 
     def test_alias_default_alias_expression(self):
+        """
+
+        tests that default alias expression does not generate an alias on the model instance.
+
+        Checks that when using the :func:`alias` method to perform an aggregation, 
+        the resulting queryset does not include the aggregated field as an attribute 
+        on the model instances. Instead, it verifies the queryset contains the correct 
+        results based on the filter criteria.
+
+        """
         qs = Author.objects.alias(
             Sum("book__pages"),
         ).filter(book__pages__sum__gt=2000)
@@ -1332,6 +1435,14 @@ class AliasTests(TestCase):
                 self.assertEqual(book.rating_count, 1)
 
     def test_filter_alias_with_f(self):
+        """
+        Tests that aliasing a field with an alias does not add the alias as an attribute to the model instance.
+
+        Verifies that the filtered queryset only contains the expected object, in this case, a Book with a rating of 4.5. 
+
+        This ensures that aliased fields are not directly accessible as attributes on the model instances returned by the queryset, 
+        but rather allows for filtering on those aliased fields in the database query
+        """
         qs = Book.objects.alias(
             other_rating=F("rating"),
         ).filter(other_rating=4.5)

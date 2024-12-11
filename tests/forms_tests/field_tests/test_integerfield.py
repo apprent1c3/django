@@ -51,6 +51,19 @@ class IntegerFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertIsNone(f.min_value)
 
     def test_integerfield_3(self):
+        """
+
+        Tests the functionality of an IntegerField.
+
+        This function checks the rendering of the IntegerField widget to HTML, 
+        ensuring that it includes the specified maximum value and required attributes.
+        It also verifies that the field raises the expected validation errors 
+        when given invalid input, such as null or out-of-range values. 
+        The function checks that valid integer values are cleaned and returned correctly, 
+        including values provided as strings. 
+        Finally, it confirms that the field's max_value attribute is set as expected.
+
+        """
         f = IntegerField(max_value=10)
         self.assertWidgetRendersTo(
             f, '<input max="10" type="number" name="f" id="id_f" required>'

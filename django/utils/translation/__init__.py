@@ -124,6 +124,21 @@ def lazy_number(func, resultclass, number=None, **kwargs):
                 return bool(kwargs["singular"])
 
             def _get_number_value(self, values):
+                """
+                Retrieves a numeric value associated with a specific key from a dictionary.
+
+                This method attempts to fetch a value from the provided dictionary using a predefined key. 
+                If the key is not present in the dictionary, it raises an exception indicating that the key is required.
+
+                Args:
+                    values (dict): A dictionary containing numeric values.
+
+                Raises:
+                    KeyError: If the dictionary lacks the required key.
+
+                Returns:
+                    The numeric value associated with the key if it exists in the dictionary.
+                """
                 try:
                     return values[number]
                 except KeyError:

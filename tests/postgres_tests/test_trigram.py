@@ -77,6 +77,15 @@ class TrigramTest(PostgreSQLTestCase):
         )
 
     def test_trigram_word_similarity(self):
+        """
+
+        Tests the similarity between words based on trigram word similarity.
+        This function utilizes a trigram algorithm to find the similarity between words in a field
+        and a given search term, annotating the results with a word similarity score.
+        The results are then ordered in descending order based on the word similarity score,
+        enabling easy identification of the most similar words.
+
+        """
         search = "mat"
         self.assertSequenceEqual(
             self.Model.objects.filter(

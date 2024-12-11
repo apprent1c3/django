@@ -21,6 +21,22 @@ class OrderableAggMixin:
         return super().get_source_expressions() + [self.order_by]
 
     def set_source_expressions(self, exprs):
+        """
+        Sets the source expressions for this object, separating the last expression as an 'order by' condition.
+
+        Parameters
+        ----------
+        exprs : list
+            List of expressions where the last expression will be used as the order by condition.
+
+        Returns
+        -------
+        The result of the superclass's set_source_expressions method with all expressions except the last one.
+
+        Note
+        ----
+        The 'order by' condition is assumed to be the last expression in the list.
+        """
         *exprs, self.order_by = exprs
         return super().set_source_expressions(exprs)
 

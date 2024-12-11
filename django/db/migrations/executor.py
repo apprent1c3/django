@@ -265,6 +265,22 @@ class MigrationExecutor:
 
     def record_migration(self, migration):
         # For replacement migrations, record individual statuses
+        """
+
+        Records the application of a migration.
+
+        This function tracks the migrations that have been applied, which is necessary for 
+        determining the current state of the database and planning future migrations.
+
+        The function checks if the migration being recorded replaces any previous migrations. 
+        If replacements are specified, it records each of the replaced migrations as applied. 
+        Otherwise, it simply records the current migration as applied, using its application 
+        label and name.
+
+        The recorded information is used by the migration recorder to maintain a history of 
+        all applied migrations.
+
+        """
         if migration.replaces:
             for app_label, name in migration.replaces:
                 self.recorder.record_applied(app_label, name)

@@ -67,6 +67,23 @@ class SimpleArrayField(forms.CharField):
         return values
 
     def validate(self, value):
+        """
+        Validates a collection of values.
+
+        This method checks each item in the given value against the base field's validation rules.
+        If any item fails validation, a :class:`ValidationError` is raised with a list of error messages,
+        each carrying information about the invalid item's position in the collection.
+
+        The error messages are prefixed with a message indicating that an item in the collection is invalid,
+        followed by the base field's error message for the specific invalid item.
+
+         Args:
+            value: The collection of values to be validated.
+
+         Raises:
+            ValidationError: If any item in the collection fails validation.
+
+        """
         super().validate(value)
         errors = []
         for index, item in enumerate(value):
@@ -206,6 +223,15 @@ class SplitArrayField(forms.Field):
         return values, index
 
     def to_python(self, value):
+        """
+        Converts a value to its Python representation, applying the base field's conversion to each item in the value. 
+
+        This method first delegates the conversion to its superclass, then maps the base field's conversion function over the resulting value, returning a list of converted items. 
+
+        :param value: The value to be converted
+        :returns: A list of converted items in Python representation
+        :rtype: list
+        """
         value = super().to_python(value)
         return [self.base_field.to_python(item) for item in value]
 

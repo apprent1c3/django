@@ -129,6 +129,17 @@ class LastExecutedQueryTest(TestCase):
 
     @skipUnlessDBFeature("supports_paramstyle_pyformat")
     def test_last_executed_query_dict_overlap_keys(self):
+        """
+
+        Tests whether the last executed query string is correctly generated when the parameter dictionary contains overlapping keys.
+
+        This test ensures that the database driver correctly handles parameters with duplicate keys
+        in the parameter dictionary. It creates a query string, executes it with a parameter dictionary,
+        and then checks if the generated last executed query string matches the expected result.
+
+        The test is skipped unless the database driver supports the 'pyformat' parameter style.
+
+        """
         square_opts = Square._meta
         sql = "INSERT INTO %s (%s, %s) VALUES (%%(root)s, %%(root2)s)" % (
             connection.introspection.identifier_converter(square_opts.db_table),
@@ -286,6 +297,21 @@ class EscapingChecks(TestCase):
             self.assertEqual(cursor.fetchall()[0][0], "%s")
 
     def test_parameter_escaping(self):
+        """
+
+        Tests whether parameters are properly escaped in database queries.
+
+        Verifies that the database driver correctly handles escaped and unescaped 
+        parameter placeholders, ensuring that queries are executed securely and 
+        as intended. This test checks the prevention of potential SQL injection 
+        vulnerabilities by confirming that escape sequences are treated as literal 
+        characters rather than as special commands. 
+
+        The test uses a predefined query suffix and a parameterized query to 
+        validate the driver's behavior, confirming that the results match the 
+        expected output, which demonstrates proper escaping and handling of query parameters.
+
+        """
         with connection.cursor() as cursor:
             cursor.execute("SELECT '%%', %s" + self.bare_select_suffix, ("%d",))
             self.assertEqual(cursor.fetchall()[0], ("%", "%d"))
@@ -334,6 +360,13 @@ class BackendTestCase(TransactionTestCase):
 
     def test_cursor_executemany_with_empty_params_list(self):
         # Test executemany with params=[] does nothing #4765
+        """
+        Tests that executing a query with an empty parameters list results in no database operations.
+
+        Verifies that passing an empty list of parameters to the :meth:`create_squares_with_executemany` method does not create any new Square objects in the database.
+
+        The expected outcome is that the count of Square objects remains zero, ensuring that no unnecessary database operations are performed when no parameters are provided.
+        """
         args = []
         self.create_squares_with_executemany(args)
         self.assertEqual(Square.objects.count(), 0)
@@ -360,6 +393,17 @@ class BackendTestCase(TransactionTestCase):
     @skipUnlessDBFeature("supports_paramstyle_pyformat")
     def test_cursor_executemany_with_pyformat(self):
         # Support pyformat style passing of parameters #10070
+        """
+
+        Tests the execution of multiple SQL queries using the 'pyformat' parameter style.
+
+        The test creates a set of objects with integer roots and their corresponding squares,
+        then uses the `executemany` method to insert these objects into the database.
+        It validates that all objects are successfully inserted and that their attributes
+        are correctly stored. This ensures that the 'pyformat' parameter style is properly
+        supported by the database backend.
+
+        """
         args = [{"root": i, "square": i**2} for i in range(-5, 6)]
         self.create_squares(args, "pyformat", multiple=True)
         self.assertEqual(Square.objects.count(), 11)
@@ -582,12 +626,30 @@ class BackendTestCase(TransactionTestCase):
         self.assertEqual(tuple(kwargs["extra"].values()), params[1:])
 
     def test_queries_bare_where(self):
+        """
+        Tests the execution of SQL queries containing a bare WHERE clause.
+
+        Verifies that the database connection can successfully execute a SELECT query
+        with a minimal WHERE condition, ensuring that the query returns the expected
+        result without raising any errors. The test case checks for the correct
+        fetching of query results, confirming that the database interaction is
+        functioning as expected.
+
+        :raises AssertionError: if the query result does not match the expected output
+        """
         sql = f"SELECT 1{connection.features.bare_select_suffix} WHERE 1=1"
         with connection.cursor() as cursor:
             cursor.execute(sql)
             self.assertEqual(cursor.fetchone(), (1,))
 
     def test_timezone_none_use_tz_false(self):
+        """
+        Tests the behavior of the database connection when the time zone is set to None and the USE_TZ setting is False.
+
+        This test case verifies how the connection handles the absence of a time zone and the disabled timezone awareness.
+        It covers the initialization of the connection state under these specific settings, ensuring correct database connectivity.
+
+        """
         connection.ensure_connection()
         with self.settings(TIME_ZONE=None, USE_TZ=False):
             connection.init_connection_state()
@@ -808,6 +870,19 @@ class ThreadTests(TransactionTestCase):
             connections_dict[id(conn)] = conn
 
         def runner():
+            """
+
+            Initialize database connections for thread-safe operation.
+
+            This function iterates over all available database connections, marking them as
+            thread-shareable. It also stores the connections in a dictionary for future
+            reference, keyed by their unique identifier.
+
+            The purpose of this function is to prepare the database connections for use in a
+            multithreaded environment, ensuring that each connection can be safely shared
+            between threads without compromising data integrity.
+
+            """
             from django.db import connections
 
             for conn in connections.all():
@@ -881,6 +956,18 @@ class ThreadTests(TransactionTestCase):
         exceptions = set()
 
         def runner1():
+            """
+
+            Closes the database connection in a separate thread to prevent blocking the main thread.
+
+            This function creates a new thread that targets the runner2 function, passing the default database connection.
+            The runner2 function attempts to close the provided database connection. If a DatabaseError occurs during this process,
+            the exception is caught and added to the exceptions collection.
+
+            The main thread then waits for the new thread to finish before proceeding, ensuring that the connection is properly closed
+            before continuing execution.
+
+            """
             def runner2(other_thread_connection):
                 try:
                     other_thread_connection.close()
@@ -923,6 +1010,22 @@ class ThreadTests(TransactionTestCase):
         self.assertEqual(len(exceptions), 0)
 
     def test_thread_sharing_count(self):
+        """
+
+        Tests the thread sharing count functionality of the connection object.
+
+        This test case verifies that the thread sharing count is properly incremented and decremented,
+        and that attempting to decrement the count below zero raises a RuntimeError.
+
+        The test covers the following scenarios:
+
+        * Initial state of thread sharing count is False
+        * Incrementing the count sets it to True
+        * Multiple increments do not change the state of the count
+        * Decrementing the count reduces it to False after multiple increments
+        * Attempting to decrement the count below zero raises an exception with a descriptive message
+
+        """
         self.assertIs(connection.allow_thread_sharing, False)
         connection.inc_thread_sharing()
         self.assertIs(connection.allow_thread_sharing, True)

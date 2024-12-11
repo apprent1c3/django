@@ -311,6 +311,12 @@ class SerializersTestBase:
         self.assertEqual(deserial_objs[0].object.score, Approximate(3.4, places=1))
 
     def test_deferred_field_serialization(self):
+        """
+        Tests that fields deferred during serialization are correctly deserialized.
+
+        This test case creates an Author object, defers the 'name' field, serializes the object, 
+        and then deserializes it to verify that the deserialized object is an instance of Author.
+        """
         author = Author.objects.create(name="Victor Hugo")
         author = Author.objects.defer("name").get(pk=author.pk)
         serial_str = serializers.serialize(self.serializer_name, [author])

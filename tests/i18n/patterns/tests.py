@@ -85,6 +85,17 @@ class URLPrefixTests(URLTestCaseBase):
 
     @override_settings(ROOT_URLCONF="i18n.patterns.urls.wrong")
     def test_invalid_prefix_use(self):
+        """
+        Tests that using i18n_patterns in an included URLconf raises an ImproperlyConfigured exception.
+
+        Verifies that the ``reverse`` function correctly detects and prevents the usage of
+        i18n_patterns in an included URL configuration, ensuring that internationalization
+        patterns are properly applied at the root level of the URL configuration.
+
+        The test checks that attempting to reverse a URL when i18n_patterns is used in an
+        included URLconf results in an exception with a message indicating that this usage
+        is not allowed.
+        """
         msg = "Using i18n_patterns in an included URLconf is not allowed."
         with self.assertRaisesMessage(ImproperlyConfigured, msg):
             reverse("account:register")
@@ -238,6 +249,16 @@ class URLNamespaceTests(URLTestCaseBase):
     """
 
     def test_account_register(self):
+        """
+
+        Tests the registration URL patterns for accounts in different languages.
+
+        This test case checks if the URL reverse function correctly generates the 
+        expected URLs for the account registration page in English and Dutch.
+        It verifies that the URLs are correctly translated and formatted according 
+        to the language set by the translation override.
+
+        """
         with translation.override("en"):
             self.assertEqual(reverse("account:register"), "/en/account/register/")
             self.assertEqual(
@@ -302,6 +323,14 @@ class URLRedirectTests(URLTestCaseBase):
 
     def test_pl_pl_redirect(self):
         # language from outside of the supported LANGUAGES list
+        """
+
+        Tests redirect behavior for account registration when the 'pl-pl' locale is requested.
+
+        This test confirms that when a user attempts to access the Polish version of the account registration page,
+        they are properly redirected to the English version of the page, and that the subsequent redirect results in a successful page load (200 status code).
+
+        """
         response = self.client.get(
             "/account/register/", headers={"accept-language": "pl-pl"}
         )
@@ -329,6 +358,13 @@ class URLVaryAcceptLanguageTests(URLTestCaseBase):
     """
 
     def test_no_prefix_response(self):
+        """
+        Tests that a GET request to a URL without a prefix returns a successful response.
+
+        The test verifies that the HTTP status code of the response is 200 (OK) and that the 'Vary' header in the response is set to 'Accept-Language', indicating that the response varies based on the language accepted by the client.
+
+        This test case covers a basic scenario where a URL without a specific prefix is accessed, ensuring that the application behaves as expected in such situations.
+        """
         response = self.client.get("/not-prefixed/")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.get("Vary"), "Accept-Language")
@@ -360,6 +396,22 @@ class URLRedirectWithoutTrailingSlashTests(URLTestCaseBase):
         self.assertRedirects(response, "/not-prefixed/", 301)
 
     def test_en_redirect(self):
+        """
+
+        Test the HTTP redirects for English language requests.
+
+        This test case verifies that the application correctly redirects requests
+        to their corresponding English language URLs when the 'accept-language' header
+        is set to 'en'. It checks the redirects for both HTML and XML content types.
+
+        The test covers the following scenarios:
+        - Redirect from a root URL to its English language equivalent
+        - Redirect from a prefixed URL to its English language equivalent
+
+        The expected redirect behavior is a 302 temporary redirect to the English
+        language version of the requested URL.
+
+        """
         response = self.client.get(
             "/account/register", headers={"accept-language": "en"}, follow=True
         )
@@ -453,10 +505,24 @@ class URLPrefixedFalseTranslatedTests(URLTestCaseBase):
         self.assertEqual(response.status_code, 200)
 
     def test_translated_path_prefixed_language_other_than_accepted_header(self):
+        """
+        Tests that a translated path with a prefixed language other than the accepted language header still returns a successful response.
+
+        This test checks if the application can handle a request where the language specified in the URL path does not match the language specified in the Accept-Language header. It verifies that the response status code is 200 (OK) in such cases, indicating that the request was successfully processed.
+
+        Parameters are not explicitly passed to this test, as it relies on a predefined client and a specific URL path (/en/users/) to simulate the request. The Accept-Language header is set to 'nl' to simulate the language mismatch scenario.
+        """
         response = self.client.get("/en/users/", headers={"accept-language": "nl"})
         self.assertEqual(response.status_code, 200)
 
     def test_translated_path_prefixed_language_other_than_cookie_language(self):
+        """
+        Tests that a translated path with a prefixed language other than the language stored in the cookie is correctly handled.
+
+        Checks that when a user visits a URL with a language prefix that does not match their preferred language (as stored in the cookie), the request is still successful and returns a status code of 200.
+
+        The test case covers a scenario where the user's preferred language is set to 'nl' (Dutch), but they access a URL with an 'en' (English) prefix. The expected behavior is that the server responds with a valid page and does not redirect or throw an error.
+        """
         self.client.cookies.load({settings.LANGUAGE_COOKIE_NAME: "nl"})
         response = self.client.get("/en/users/")
         self.assertEqual(response.status_code, 200)
@@ -494,6 +560,16 @@ class URLTagTests(URLTestCaseBase):
         )
 
     def test_context(self):
+        """
+
+        Test the context rendering of templates with language-specific URLs.
+
+        This function verifies that templates are correctly rendered with the language
+        codes provided in the context, and that the corresponding URLs are generated
+        accordingly. It checks that the language codes 'lang1' and 'lang2' are used to
+        render the template and produce the expected translated URLs.
+
+        """
         ctx = Context({"lang1": "nl", "lang2": "pt-br"})
         tpl = Template(
             """{% load i18n %}

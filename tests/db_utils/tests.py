@@ -35,6 +35,16 @@ class ConnectionHandlerTests(SimpleTestCase):
             conns[DEFAULT_DB_ALIAS].ensure_connection()
 
     def test_no_default_database(self):
+        """
+        Tests that an exception is raised when no default database is defined.
+
+        Verifies that the ConnectionHandler class correctly handles the case where no 'default'
+        database is specified in the given DATABASES configuration.
+
+        The test checks for an ImproperlyConfigured exception with a specific error message,
+        indicating that a 'default' database must be defined in the configuration for the 
+        connection to be established successfully.
+        """
         DATABASES = {"other": {}}
         conns = ConnectionHandler(DATABASES)
         msg = "You must define a 'default' database."
@@ -50,6 +60,11 @@ class ConnectionHandlerTests(SimpleTestCase):
         self.assertEqual(conn.settings, conn.databases)
 
     def test_nonexistent_alias(self):
+        """
+        Tests that attempting to access a nonexistent database connection alias raises a ConnectionDoesNotExist exception.
+
+        The function verifies that a meaningful error message is provided when trying to access a non-existent connection, ensuring that the ConnectionHandler correctly handles invalid aliases and provides informative feedback to the user.
+        """
         msg = "The connection 'nonexistent' doesn't exist."
         conns = ConnectionHandler(
             {
@@ -63,6 +78,14 @@ class ConnectionHandlerTests(SimpleTestCase):
 class DatabaseErrorWrapperTests(TestCase):
     @unittest.skipUnless(connection.vendor == "postgresql", "PostgreSQL test")
     def test_reraising_backend_specific_database_exception(self):
+        """
+
+        Test that backend-specific database exceptions are properly reraised when PostgreSQL is the database vendor.
+
+        This test checks that when a database exception occurs, it is wrapped in a :class:`django.db.ProgrammingError` and the original exception is preserved as the cause.
+        It also verifies that the wrapped exception contains relevant information about the error, such as the error message and SQL state or PostgreSQL error code, depending on the version of Psycopg used.
+
+        """
         from django.db.backends.postgresql.psycopg_any import is_psycopg3
 
         with connection.cursor() as cursor:
@@ -81,6 +104,19 @@ class DatabaseErrorWrapperTests(TestCase):
 
 class LoadBackendTests(SimpleTestCase):
     def test_load_backend_invalid_name(self):
+        """
+
+        Tests the load_backend function with an invalid database backend name.
+
+        Verifies that loading a non-existent backend raises an ImproperlyConfigured exception
+        with a meaningful error message, indicating the invalid backend name and providing
+        instructions on how to use built-in backends. Also checks that the underlying cause
+        of the exception is a module not being found.
+
+        This test case ensures that the load_backend function correctly handles and reports
+        invalid backend names, providing helpful feedback to users.
+
+        """
         msg = (
             "'foo' isn't an available database backend or couldn't be "
             "imported. Check the above exception. To use one of the built-in "

@@ -143,6 +143,31 @@ class QueryDictTests(SimpleTestCase):
         self.assertNotIn("name", q)
 
     def test_basic_mutable_operations(self):
+        """
+        Tests the functionality of a QueryDict instance with mutable operations.
+
+        This test case covers various operations such as setting, getting, and updating 
+        key-value pairs, as well as checking for key existence, getting lists of values, 
+        and iterating over the dictionary keys and values. Additionally, it tests the 
+        update, pop, and setdefault methods, as well as the urlencode method for 
+        converting the dictionary to a URL encoded string. The test also verifies that 
+        the QueryDict instance behaves as expected when cleared.
+
+        The test confirms that the mutable QueryDict handles key-value pairs correctly, 
+        including when dealing with single values, lists of values, and default values. 
+        It ensures that the dictionary can be updated, modified, and interrogated in 
+        various ways, and that its methods return the expected results.
+
+        The test case covers a range of scenarios, including:
+        - Setting and getting single values
+        - Getting lists of values
+        - Checking for key existence
+        - Updating key-value pairs
+        - Popping keys and returning their values
+        - Setting default values for missing keys
+        - Converting the dictionary to a URL encoded string
+        - Clearing the dictionary
+        """
         q = QueryDict(mutable=True)
         q["name"] = "john"
         self.assertEqual(q.get("foo", "default"), "default")
@@ -358,6 +383,15 @@ class HttpResponseTests(SimpleTestCase):
 
     def test_newlines_in_headers(self):
         # Bug #10188: Do not allow newlines in headers (CR or LF)
+        """
+
+        Tests that newlines are not allowed in HTTP response headers.
+
+        This test case checks that attempting to set a header with a key containing
+        a newline character (either '\\r' or '\\n') raises a BadHeaderError,
+        preventing potential security vulnerabilities.
+
+        """
         r = HttpResponse()
         with self.assertRaises(BadHeaderError):
             r.headers.__setitem__("test\rstr", "test")
@@ -403,6 +437,14 @@ class HttpResponseTests(SimpleTestCase):
         self.assertEqual(r.content, b"12345")
 
     def test_memoryview_content(self):
+        """
+        Tests that HttpResponse correctly handles memory views as content.
+
+        Verifies that when a memory view is passed to an HttpResponse, its underlying
+         bytes are correctly exposed as the response's content. This ensures that 
+        memory-efficient views of binary data can be used in HTTP responses without 
+        losing data or incurring unnecessary memory copies.
+        """
         r = HttpResponse(memoryview(b"memoryview"))
         self.assertEqual(r.content, b"memoryview")
 
@@ -458,6 +500,17 @@ class HttpResponseTests(SimpleTestCase):
         self.assertEqual(r.content, b"helloworld")
 
     def test_file_interface(self):
+        """
+        Tests the interface of the file-like HttpResponse object.
+
+        This function verifies that the HttpResponse object behaves as expected when writing data to it.
+        It checks that the tell method returns the correct position after writing different types of data, 
+        including bytes and strings. It also tests that the content of the response is correctly updated 
+        after writing to it, and that headers can be set without affecting the content. The function covers 
+        different scenarios, including writing to the response in multiple steps and checking the final 
+        content and position.
+
+        """
         r = HttpResponse()
         r.write(b"hello")
         self.assertEqual(r.tell(), 5)
@@ -617,6 +670,15 @@ class JsonResponseTests(SimpleTestCase):
         self.assertEqual(json.loads(response.content.decode()), data)
 
     def test_json_response_raises_type_error_with_default_setting(self):
+        """
+
+        Tests that the JsonResponse function raises a TypeError when a non-dict object is passed with the default safe setting.
+
+        The JsonResponse function is expected to only serialize dict objects by default. 
+        This test verifies that attempting to serialize a non-dict object, such as a list, 
+        raises a TypeError with a message indicating that the safe parameter must be set to False.
+
+        """
         with self.assertRaisesMessage(
             TypeError,
             "In order to allow non-dict objects to be serialized set the "
@@ -629,6 +691,23 @@ class JsonResponseTests(SimpleTestCase):
         self.assertEqual(json.loads(response.content.decode()), "foobar")
 
     def test_json_response_list(self):
+        """
+        Tests if a list is correctly serialized to JSON when using JsonResponse.
+
+        This test verifies that when a list is passed to JsonResponse with safe=False,
+        the resulting JSON response matches the original list, ensuring proper
+        serialization and deserialization of the data.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the deserialized JSON response does not match the original list.
+
+        """
         response = JsonResponse(["foo", "bar"], safe=False)
         self.assertEqual(json.loads(response.content.decode()), ["foo", "bar"])
 
@@ -638,6 +717,13 @@ class JsonResponseTests(SimpleTestCase):
         self.assertEqual(json.loads(response.content.decode()), str(u))
 
     def test_json_response_custom_encoder(self):
+        """
+        Tests the JSON response using a custom JSON encoder to validate the output.
+
+        This test case verifies that a custom JSON encoder can be successfully used with the JsonResponse object.
+        It checks that the response content is correctly encoded and can be parsed into a JSON object.
+        The test uses a custom encoder that returns a predefined JSON string, allowing for validation of the response content.
+        """
         class CustomDjangoJSONEncoder(DjangoJSONEncoder):
             def encode(self, o):
                 return json.dumps({"foo": "bar"})
@@ -722,6 +808,20 @@ class StreamingHttpResponseTests(SimpleTestCase):
 
     async def test_async_streaming_response(self):
         async def async_iter():
+            """
+            ``` 
+            Asynchronously generates an iterator yielding byte strings.
+
+            This function provides an asynchronous iterator that produces a sequence of byte strings.
+            Each call to the iterator yields a single byte string.
+
+            Yields:
+                bytes: The next byte string in the sequence.
+
+            Notes:
+                This function is designed to be used in an asynchronous context and should be iterated over using an async for loop.
+            ```
+            """
             yield b"hello"
             yield b"world"
 

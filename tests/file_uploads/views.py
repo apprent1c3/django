@@ -125,6 +125,16 @@ def file_stop_upload_temporary_file(request):
 
 
 def file_upload_interrupted_temporary_file(request):
+    """
+    Handles file upload interruptions by utilizing a temporary file upload handler.
+
+    This function modifies the request's upload handlers to use a TemporaryFileUploadHandler, 
+    replacing the existing handler at index 2. The request's uploaded files are then associated 
+    with this temporary file handler, allowing for retrieval of the temporary file path.
+
+    :return: A JSON response containing the path of the temporary file.
+
+    """
     request.upload_handlers.insert(0, TemporaryFileUploadHandler())
     request.upload_handlers.pop(2)
     request.FILES  # Trigger file parsing.
@@ -145,6 +155,17 @@ def file_upload_getlist_count(request):
 
 
 def file_upload_errors(request):
+    """
+    Simulates file upload errors by inserting an error-inducing upload handler
+    at the beginning of the request's upload handler chain and then processes the
+    request to trigger the error handling, echoing the result.
+
+    This function is useful for testing error scenarios in file upload functionality
+    by intentionally introducing an error during the upload process.
+
+    :param request: The request object containing the file upload data
+    :return: The result of the file upload echo operation after simulating the error
+    """
     request.upload_handlers.insert(0, ErroringUploadHandler())
     return file_upload_echo(request)
 

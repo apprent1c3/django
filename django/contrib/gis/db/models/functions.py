@@ -433,6 +433,13 @@ class IsValid(OracleToleranceMixin, GeoFuncMixin, Transform):
     output_field = BooleanField()
 
     def as_oracle(self, compiler, connection, **extra_context):
+        """
+        Converts the query to an Oracle-compatible SQL query that returns 1 for 'TRUE' and 0 for 'FALSE' values.
+
+        This method overrides the parent class method to adapt the query for Oracle databases, which do not support boolean return types. It takes a compiler, connection, and any additional context, then returns the modified SQL query and parameters.
+
+        The modified query uses a CASE statement to translate boolean values into integer values, with 'TRUE' mapping to 1 and 'FALSE' mapping to 0. This allows the query to be executed and return results in a format compatible with Oracle databases.
+        """
         sql, params = super().as_oracle(compiler, connection, **extra_context)
         return "CASE %s WHEN 'TRUE' THEN 1 ELSE 0 END" % sql, params
 
@@ -470,6 +477,20 @@ class Length(DistanceResultMixin, OracleToleranceMixin, GeoFunc):
         )
 
     def as_sqlite(self, compiler, connection, **extra_context):
+        """
+
+        Generate SQL query for calculating the length of a geometry field using SQLite database.
+
+        This method determines whether to use a geodesic or great circle distance calculation based on the geometry field's geodetic system.
+        If the geometry field is geodetic, it uses the 'GeodesicLength' function if a spheroid is specified, otherwise it uses the 'GreatCircleLength' function.
+        The generated SQL query is then passed to the parent class for further processing.
+
+        :param compiler: The query compiler instance.
+        :param connection: The database connection instance.
+        :param extra_context: Additional context parameters.
+        :return: The generated SQL query string.
+
+        """
         function = None
         if self.geo_field.geodetic(connection):
             function = "GeodesicLength" if self.spheroid else "GreatCircleLength"
@@ -531,6 +552,14 @@ class Reverse(GeoFunc):
 
 class Scale(SQLiteDecimalToFloatMixin, GeomOutputGeoFunc):
     def __init__(self, expression, x, y, z=0.0, **extra):
+        """
+        Initializes a new instance with an expression and spatial coordinates.
+
+        The function takes in a mathematical expression and three-dimensional coordinates (x, y, z), where z defaults to 0.0 if not provided.
+        The coordinates are expected to be numeric values.
+        Additional keyword arguments are also accepted and passed to the parent class.
+        The function handles the coordinates and expression internally, preparing them for use in the class.
+        """
         expressions = [
             expression,
             self._handle_param(x, "x", NUMERIC_TYPES),
@@ -567,6 +596,15 @@ class SymDifference(OracleToleranceMixin, GeomOutputGeoFunc):
 
 class Transform(GeomOutputGeoFunc):
     def __init__(self, expression, srid, **extra):
+        """
+        Initializes a geometric object with a given spatial reference system identifier (SRID) and optional output field parameters.
+
+        :param expression: The geometric expression to be initialized.
+        :param srid: The spatial reference system identifier.
+        :param extra: Additional keyword arguments to customize the output field, such as specifying a custom output field.
+
+        :note: If an output field is not specified in the `extra` parameters, a default `GeometryField` with the provided SRID will be used.
+        """
         expressions = [
             expression,
             self._handle_param(srid, "srid", int),

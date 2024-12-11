@@ -39,17 +39,48 @@ class DateTests(TimezoneTestCase):
     # ISO date formats
     @setup({"date04": '{{ d|date:"o" }}'})
     def test_date04(self):
+        """
+
+        Tests the date filter with the 'o' format specifier, which returns the ISO week-numbering year.
+
+        The function verifies that the engine correctly renders the date '2008-12-29' as '2009', 
+        accounting for the week numbering year that crosses into the next calendar year.
+
+        :param None:
+        :raises AssertionError: If the output does not match the expected result.
+        :return: None
+
+        """
         output = self.engine.render_to_string("date04", {"d": datetime(2008, 12, 29)})
         self.assertEqual(output, "2009")
 
     @setup({"date05": '{{ d|date:"o" }}'})
     def test_date05(self):
+        """
+        Tests rendering of the date filter with the \"o\" format specifier.
+
+        This test case verifies that the date filter correctly formats a date
+        according to the \"o\" format, which represents the year in the ISO week
+        date system. The input date is January 3, 2010, which falls within the
+        ISO week date year 2009. The test asserts that the rendered output
+        matches the expected value of '2009'.
+        """
         output = self.engine.render_to_string("date05", {"d": datetime(2010, 1, 3)})
         self.assertEqual(output, "2009")
 
     # Timezone name
     @setup({"date06": '{{ d|date:"e" }}'})
     def test_date06(self):
+        """
+        Tests the rendering of a date object with a fixed timezone offset.
+
+        This test case checks if the date object is correctly formatted with an offset
+        in the format '+HHMM' when rendered as a string, ensuring proper timezone
+        representation.
+
+        :raises AssertionError: if the rendered output does not match the expected
+            timezone offset string '+0030'
+        """
         output = self.engine.render_to_string(
             "date06",
             {"d": datetime(2009, 3, 12, tzinfo=timezone.get_fixed_timezone(30))},
@@ -58,12 +89,23 @@ class DateTests(TimezoneTestCase):
 
     @setup({"date07": '{{ d|date:"e" }}'})
     def test_date07(self):
+        """
+        Test the rendering of a date format string with the engine, where the date is formatted as the day of the week (e.g. Monday) and is expected to result in an empty string.
+        """
         output = self.engine.render_to_string("date07", {"d": datetime(2009, 3, 12)})
         self.assertEqual(output, "")
 
     # #19370: Make sure |date doesn't blow up on a midnight time object
     @setup({"date08": '{{ t|date:"H:i" }}'})
     def test_date08(self):
+        """
+        -tests if the date filter correctly formats a time object into hours and minutes.
+
+        The test case verifies that a time object is rendered as a string in the format \"H:i\", 
+        where \"H\" represents the hour in 24-hour format and \"i\" represents the minutes.
+
+        :raises AssertionError: if the rendered string does not match the expected output '00:01'
+        """
         output = self.engine.render_to_string("date08", {"t": time(0, 1)})
         self.assertEqual(output, "00:01")
 
@@ -74,6 +116,10 @@ class DateTests(TimezoneTestCase):
 
     @setup({"datelazy": '{{ t|date:_("H:i") }}'})
     def test_date_lazy(self):
+        """
+        Tests rendering of the 'datelazy' template using the date filter, 
+        verifying that the time is correctly formatted as hours and minutes.
+        """
         output = self.engine.render_to_string("datelazy", {"t": time(0, 0)})
         self.assertEqual(output, "00:00")
 

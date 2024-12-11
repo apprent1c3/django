@@ -222,6 +222,16 @@ class ManyToManyRawIdWidget(ForeignKeyRawIdWidget):
     template_name = "admin/widgets/many_to_many_raw_id.html"
 
     def get_context(self, name, value, attrs):
+        """
+        Gets the context for rendering a ManyToManyRawIdAdminField widget.
+
+        This method extends the base implementation by adding a custom CSS class to the widget's attributes when the related model is registered in the admin site.
+
+        :param name: The name of the field
+        :param value: The value of the field
+        :param attrs: The HTML attributes of the field
+        :return: The context dictionary used to render the widget
+        """
         context = super().get_context(name, value, attrs)
         if self.admin_site.is_registered(self.rel.model):
             # The related object is registered with the same AdminSite

@@ -12,6 +12,13 @@ class UrlencodeTests(SimpleTestCase):
 
     @setup({"urlencode02": '/test/{{ urlbit|urlencode:"" }}/'})
     def test_urlencode02(self):
+        """
+        Tests if the urlencode filter properly escapes special characters in URLs, ensuring they are correctly encoded according to URL standards. 
+
+         This test case specifically verifies that a forward slash character is correctly replaced with its corresponding escape sequence. 
+
+         It validates the output by comparing the rendered string with the expected encoded URL.
+        """
         output = self.engine.render_to_string("urlencode02", {"urlbit": "escape/slash"})
         self.assertEqual(output, "/test/escape%2Fslash/")
 

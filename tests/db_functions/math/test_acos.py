@@ -50,6 +50,19 @@ class ACosTests(TestCase):
         self.assertAlmostEqual(obj.big_acos, math.acos(obj.big))
 
     def test_transform(self):
+        """
+
+        Tests the transformation of decimal values using the inverse cosine function (acos).
+
+        This test case verifies that the acos lookup registration works correctly by 
+        creating DecimalModel instances with specific decimal values, then filters 
+        these instances based on the acos transformation of their n1 field. The test 
+        checks that the correct object is retrieved from the database.
+
+        The test scenario covers the application of the acos function to decimal 
+        values, ensuring that the transformed values can be used in database queries.
+
+        """
         with register_lookup(DecimalField, ACos):
             DecimalModel.objects.create(n1=Decimal("0.5"), n2=Decimal("0"))
             DecimalModel.objects.create(n1=Decimal("-0.9"), n2=Decimal("0"))

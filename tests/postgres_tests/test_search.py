@@ -26,6 +26,20 @@ except ImportError:
 class GrailTestData:
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Sets up test data for the application.
+
+        This method creates various scenes, characters, and lines for testing purposes.
+        It establishes two main scenes: 'Scene 10' (the dark forest of Ewing) and 'Scene 5' (Sir Bedemir's Castle),
+        with associated characters and lines of dialogue.
+
+        Additionally, it creates another scene, 'Scene 8' (the castle of Our Master Ruiz' de lu la Ramper),
+        with a character and a line of dialogue in French.
+
+        The created test data is stored as class attributes, making it accessible for subsequent tests.
+
+        """
         cls.robin = Scene.objects.create(
             scene="Scene 10", setting="The dark forest of Ewing"
         )
@@ -129,6 +143,17 @@ class SimpleSearchTest(GrailTestData, PostgreSQLTestCase):
 
     def test_search_with_F_expression(self):
         # Non-matching query.
+        """
+
+        Tests searching for LineSavedSearch objects using F expressions.
+
+        This test creates LineSavedSearch objects with specific queries, then filters these objects using F expressions.
+        It verifies that the filtered results match the expected objects, ensuring that the search functionality works correctly.
+
+        The test covers two types of query expressions: simple F expressions and SearchQuery with F expressions.
+        It checks that both types of expressions can successfully filter the LineSavedSearch objects based on the query.
+
+        """
         LineSavedSearch.objects.create(line=self.verse1, query="hearts")
         # Matching query.
         match = LineSavedSearch.objects.create(line=self.verse1, query="elbows")
@@ -203,6 +228,13 @@ class MultipleFieldsTest(GrailTestData, PostgreSQLTestCase):
         self.assertSequenceEqual(searched, [self.verse2])
 
     def test_terms_adjacent(self):
+        """
+        Test that search terms are correctly identified as adjacent in the database.
+
+        The function checks two scenarios: 
+        1. When multiple terms are adjacent in a single field (e.g. 'character__name', 'dialogue'), it verifies that the search results are correctly returned and match the expected output.
+        2. When terms are adjacent across multiple fields (e.g. 'scene__setting', 'dialogue'), it checks that no results are returned, as the search is intended to find terms within a single field, not across different fields.
+        """
         searched = Line.objects.annotate(
             search=SearchVector("character__name", "dialogue"),
         ).filter(search="minstrel")
@@ -354,6 +386,17 @@ class TestCombinations(GrailTestData, PostgreSQLTestCase):
         )
 
     def test_vector_add_multi(self):
+        """
+
+        Tests the addition of multiple search vectors for annotating model instances.
+
+        This test case verifies that multiple search vectors can be combined using the
+        addition operator (+) to create a new search vector. The test searches for a
+        specific term ('bedemir') in the 'scene__setting', 'character__name', and
+        'dialogue' fields of the Line model, and checks that the resulting query returns
+        the expected set of instances.
+
+        """
         searched = Line.objects.annotate(
             search=(
                 SearchVector("scene__setting")
@@ -568,6 +611,15 @@ class TestRankingAndWeights(GrailTestData, PostgreSQLTestCase):
         )
 
     def test_ranking_with_normalization(self):
+        """
+
+        Tests the ranking functionality with normalization in search queries.
+
+        This function verifies that lines of dialogue are correctly ranked based on their relevance to a given search query, 
+        with the normalization factor influencing the scoring. It checks that the lines are ordered by their rank, 
+        with the most relevant lines appearing first.
+
+        """
         short_verse = Line.objects.create(
             scene=self.robin,
             character=self.minstrel,
@@ -591,6 +643,13 @@ class TestRankingAndWeights(GrailTestData, PostgreSQLTestCase):
         )
 
     def test_ranking_with_masked_normalization(self):
+        """
+        Tests the ranking functionality with masked normalization, verifying that lines of dialogue are correctly ordered based on their relevance to a search query. 
+
+        The function creates a new dialogue line with specific content and then searches for lines containing the phrase 'brave sir robin', applying a masked normalization to the search ranking. 
+
+        It checks that the result sequence matches the expected order, which is determined by the search rank. The test case covers the interaction between the search query, normalization, and the resulting ranking of dialogue lines.
+        """
         short_verse = Line.objects.create(
             scene=self.robin,
             character=self.minstrel,
@@ -617,6 +676,20 @@ class TestRankingAndWeights(GrailTestData, PostgreSQLTestCase):
 
 class SearchQueryTests(PostgreSQLSimpleTestCase):
     def test_str(self):
+        """
+
+        Tests the string representation of SearchQuery objects.
+
+        This test checks that the string representation of various SearchQuery 
+        objects is correctly generated. It covers different query types, 
+        including negated queries, disjunctions (OR operations), and 
+        conjunctions (AND operations), as well as nested queries.
+
+        The test ensures that the generated strings accurately reflect the 
+        structure and content of the SearchQuery objects, which is essential 
+        for correct serialization, deserialization, and debugging of these objects.
+
+        """
         tests = (
             (~SearchQuery("a"), "~SearchQuery(Value('a'))"),
             (
@@ -751,6 +824,13 @@ class SearchHeadlineTests(GrailTestData, PostgreSQLTestCase):
         )
 
     def test_headline_fragments_words_options(self):
+        """
+        Tests that the SearchHeadline function correctly generates headline fragments with the specified word options.
+
+        The test verifies that the headline fragments are generated based on the provided search query, with a maximum of 4 fragments and 3 words per fragment, and a minimum of 1 word per fragment. The fragment delimiter is also customized to include a line break.
+
+        The function checks the generated headline against an expected output, ensuring that the search query terms are highlighted in bold and that the fragments are properly truncated and separated by the delimiter.
+        """
         self.check_default_text_search_config()
         searched = Line.objects.annotate(
             headline=SearchHeadline(

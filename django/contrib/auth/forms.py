@@ -75,6 +75,19 @@ class ReadOnlyPasswordHashField(forms.Field):
 
 class UsernameField(forms.CharField):
     def to_python(self, value):
+        """
+        Converts a value to its Python representation, applying normalization if necessary.
+
+        The function first delegates the conversion to the parent class, then checks if the resulting string exceeds a certain maximum length.
+        If a maximum length is specified and the string is longer, it is returned unchanged. 
+        Otherwise, the function returns the input value normalized to the NFKC Unicode form, which replaces compatibility characters with their base equivalents and composes them into a single code point.
+
+        This ensures that the resulting string is in a standardized format, which can be useful for comparison, sorting, and other string operations.
+
+        :param value: The value to be converted to its Python representation.
+        :returns: The converted and possibly normalized value.
+
+        """
         value = super().to_python(value)
         if self.max_length is not None and len(value) > self.max_length:
             # Normalization can increase the string length (e.g.
@@ -144,6 +157,28 @@ class SetPasswordMixin:
         password2_field_name="password2",
         usable_password_field_name="usable_password",
     ):
+        """
+        Validate password fields to ensure they are correctly set and match, 
+        if the password is intended to be usable.
+
+        This function first checks if the password is intended to be usable. If not, 
+        it returns the cleaned data without performing any further checks.
+
+        If the password is intended to be usable, it checks for the presence of 
+        two password fields. If either field is missing, it adds an error to 
+        the corresponding field.
+
+        It then checks if the two password fields match. If they do not, 
+        it adds a password mismatch error to the second password field.
+
+        The function uses the following field names by default: 
+        'password1' and 'password2' for the two password fields, 
+        and 'usable_password' to determine if the password is usable. 
+        These field names can be customized when calling the function. 
+
+        The function modifies the `cleaned_data` and `errors` attributes of the 
+        instance, and returns the modified `cleaned_data`.
+        """
         usable_password = (
             self.cleaned_data.pop(usable_password_field_name, None) != "false"
         )
@@ -208,6 +243,9 @@ class BaseUserCreationForm(SetPasswordMixin, forms.ModelForm):
         field_classes = {"username": UsernameField}
 
     def __init__(self, *args, **kwargs):
+        """
+        Initializes the form instance, setting autofocus to the username field if present, to enhance user experience by automatically focusing on the username input when the form is displayed.
+        """
         super().__init__(*args, **kwargs)
         if self._meta.model.USERNAME_FIELD in self.fields:
             self.fields[self._meta.model.USERNAME_FIELD].widget.attrs[

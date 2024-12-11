@@ -154,6 +154,22 @@ class CharFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         )
 
     def test_null_characters_prohibited(self):
+        """
+        Checks that null characters are not allowed in CharField input.
+
+        This test ensures that when a null character is present in the input to a CharField,
+        a ValidationError is raised with an appropriate error message, preventing null
+        characters from being processed or stored.
+
+        Args:
+            None
+
+        Raises:
+            AssertionError: If a ValidationError is not raised when null characters are present.
+            ValidationError: If null characters are found in the input, with a message indicating
+                             that null characters are not allowed.
+
+        """
         f = CharField()
         msg = "Null characters are not allowed."
         with self.assertRaisesMessage(ValidationError, msg):

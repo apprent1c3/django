@@ -61,6 +61,23 @@ class Cast(Func):
         )
 
     def as_oracle(self, compiler, connection, **extra_context):
+        """
+
+        Adapts the current object to be compiled as an Oracle query.
+
+        This method is used to generate SQL for Oracle databases, taking into account any
+        necessary modifications for JSON fields.
+
+        If the output field is a JSONField, it uses the JSON_QUERY function to extract
+        the JSON data. Otherwise, it falls back to the default as_sql method.
+
+        :param compiler: The compiler object used to generate the SQL.
+        :param connection: The database connection object.
+        :param extra_context: Additional context parameters to be passed to the compiler.
+
+        :return: The compiled SQL query as a string.
+
+        """
         if self.output_field.get_internal_type() == "JSONField":
             # Oracle doesn't support explicit cast to JSON.
             template = "JSON_QUERY(%(expressions)s, '$')"
@@ -134,6 +151,18 @@ class Greatest(Func):
     function = "GREATEST"
 
     def __init__(self, *expressions, **extra):
+        """
+
+        Initializes an instance of the class, creating a Greatest expression.
+
+        This class requires at least two expressions to be provided, which are then used
+        to determine the greatest value. If fewer than two expressions are provided, a
+        ValueError is raised.
+
+        :param expressions: A variable number of expressions to compare.
+        :param extra: Additional keyword arguments to be passed to the superclass.
+
+        """
         if len(expressions) < 2:
             raise ValueError("Greatest must take at least two expressions")
         super().__init__(*expressions, **extra)

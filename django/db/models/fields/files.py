@@ -27,6 +27,12 @@ class FieldFile(File, AltersData):
     def __eq__(self, other):
         # Older code may be expecting FileField values to be simple strings.
         # By overriding the == operator, it can remain backwards compatibility.
+        """
+        Defines equality between the current object and another object. 
+        Two objects are considered equal if they have the same name. 
+        If the other object has a 'name' attribute, its value is compared with the name of the current object; 
+        otherwise, the other object itself is compared with the name of the current object.
+        """
         if hasattr(other, "name"):
             return self.name == other.name
         return self.name == other
@@ -127,10 +133,29 @@ class FieldFile(File, AltersData):
 
     @property
     def closed(self):
+        """
+        Indicates whether the associated file is closed.
+
+        This property checks if a file object is associated with the instance and
+        verifies its current state. It returns True if no file object is found or
+        if the file is closed, and False otherwise.
+
+        :rtype: bool
+
+        """
         file = getattr(self, "_file", None)
         return file is None or file.closed
 
     def close(self):
+        """
+        Closes the associated file.
+
+        This method ensures that the file connected to the current object is properly closed,
+        preventing any potential file descriptor leaks or data corruption.
+
+        Raises no exceptions if no file is associated with the object.
+
+        """
         file = getattr(self, "_file", None)
         if file is not None:
             file.close()
@@ -169,6 +194,19 @@ class FileDescriptor(DeferredAttribute):
     """
 
     def __get__(self, instance, cls=None):
+        """
+        .. method:: __get__(self, instance, cls=None)
+
+           Retrieves the file attribute for the given instance and class. If the instance is None, returns the descriptor itself.
+
+           This method handles different types of file attributes, including strings, None, and File objects. If the file attribute is a string or None, it creates a new attribute instance with the given file value.
+
+           For File objects that are not FieldFile instances, it creates a copy of the file and assigns it to the instance's dictionary.
+
+           If the file attribute is already a FieldFile instance, it updates the instance and field attributes as necessary to ensure consistency.
+
+           Returns the retrieved or created file attribute instance.
+        """
         if instance is None:
             return self
 
@@ -355,6 +393,13 @@ class FileField(Field):
         # This subtle distinction (rather than a more explicit marker) is
         # needed because we need to consume values that are also sane for a
         # regular (non Model-) Form to find in its cleaned_data dictionary.
+        """
+        Saves form data to an instance attribute.
+
+        Updates the instance with the provided data, associated with this form field.
+        If data is not None, it sets the instance attribute identified by the field's name to the provided data.
+        If the data is empty or considered falsey, it defaults to an empty string.
+        """
         if data is not None:
             # This value will be converted to str and stored in the
             # database, so leaving False as-is is not acceptable.
@@ -456,6 +501,18 @@ class ImageField(FileField):
         return name, path, args, kwargs
 
     def contribute_to_class(self, cls, name, **kwargs):
+        """
+        Contribute this field to the given class, setting up any necessary relationships.
+
+        This method is responsible for adding the field to the class and configuring any
+        necessary signals to update dependent fields. If the class is not abstract and
+        either the width or height field is specified, it connects a signal to update the
+        dimension fields after initialization.
+
+        :param cls: The class to which the field is being contributed
+        :param name: The name of the field on the class
+        :param kwargs: Additional keyword arguments to pass to the superclass method
+        """
         super().contribute_to_class(cls, name, **kwargs)
         # Attach update_dimension_fields so that dimension fields declared
         # after their corresponding image field don't stay cleared by

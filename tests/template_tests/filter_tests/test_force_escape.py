@@ -54,6 +54,13 @@ class ForceEscapeTests(SimpleTestCase):
         }
     )
     def test_force_escape05(self):
+        """
+        ..: Test case for the force_escape filter within an autoescaped template block.
+
+            Verifies that the force_escape filter correctly escapes special characters when 
+            used in conjunction with the escape filter, while autoescaping is turned off. 
+            The output should contain the escaped versions of special characters.
+        """
         output = self.engine.render_to_string("force-escape05", {"a": "x&y"})
         self.assertEqual(output, "x&amp;y")
 
@@ -75,12 +82,24 @@ class ForceEscapeTests(SimpleTestCase):
 
     @setup({"force-escape08": "{{ a|escape|force_escape }}"})
     def test_force_escape08(self):
+        """
+        Tests the force_escape filter in templating, verifying it correctly escapes 
+        ampersand characters (&) to their corresponding HTML entity (&amp;).
+        """
         output = self.engine.render_to_string("force-escape08", {"a": "x&y"})
         self.assertEqual(output, "x&amp;amp;y")
 
 
 class FunctionTests(SimpleTestCase):
     def test_escape(self):
+        """
+
+        Tests the escape functionality to prevent XSS attacks by ensuring HTML and special characters are properly escaped.
+
+        The function verifies that the escaping process correctly converts special characters into their corresponding HTML entities, 
+        resulting in a string that can be safely used in HTML contexts without introducing security vulnerabilities.
+
+        """
         escaped = force_escape("<some html & special characters > here")
         self.assertEqual(escaped, "&lt;some html &amp; special characters &gt; here")
         self.assertIsInstance(escaped, SafeData)

@@ -27,6 +27,19 @@ class FullyDecoratedTranTestCase(TransactionTestCase):
     available_apps = []
 
     def test_override(self):
+        """
+
+        Tests the override of settings by verifying the correct values for various configuration items.
+
+        This function checks that the following settings have been overridden correctly:
+        - ITEMS: a list of string values
+        - ITEMS_OUTER: a list of integer values
+        - TEST: a string value indicating an override has occurred
+        - TEST_OUTER: a string value indicating an outer setting
+
+        The function uses assertions to ensure these settings match the expected values, providing a basic sanity check for the override mechanism.
+
+        """
         self.assertEqual(settings.ITEMS, ["b", "c", "d"])
         self.assertEqual(settings.ITEMS_OUTER, [1, 2, 3])
         self.assertEqual(settings.TEST, "override")
@@ -40,6 +53,12 @@ class FullyDecoratedTranTestCase(TransactionTestCase):
         }
     )
     def test_method_list_override(self):
+        """
+        Tests the override functionality of the ITEMS setting by modifying its list.
+
+        The test appends elements 'e' and 'f', prepends element 'a', and removes elements 'd' and 'c' from the ITEMS list.
+        It then verifies that the modified ITEMS list is correctly updated and that the ITEMS_OUTER list remains unchanged.
+        """
         self.assertEqual(settings.ITEMS, ["a", "b", "e", "f"])
         self.assertEqual(settings.ITEMS_OUTER, [1, 2, 3])
 
@@ -86,6 +105,15 @@ class FullyDecoratedTranTestCase(TransactionTestCase):
 @override_settings(ITEMS=["a", "c", "e"], TEST="override")
 class FullyDecoratedTestCase(TestCase):
     def test_override(self):
+        """
+        Tests that default settings have been overridden correctly.
+
+        This test case verifies that the ITEMS setting has been updated to include the
+        expected list of items ['b', 'c', 'd'] and that the TEST setting has been
+        set to 'override', as specified in the overrides. The purpose of this test
+        is to ensure that the default settings can be successfully overridden with
+        custom values.
+        """
         self.assertEqual(settings.ITEMS, ["b", "c", "d"])
         self.assertEqual(settings.TEST, "override")
 
@@ -154,11 +182,40 @@ class ChildDecoratedTestCase(ParentDecoratedTestCase):
 
 class SettingsTests(SimpleTestCase):
     def setUp(self):
+        """
+        Sets up the test environment by initializing test variables and connecting to the setting_changed signal.
+
+        This method is used to prepare the test setup before each test case, ensuring a clean start. It connects to the setting_changed signal, allowing the test to respond to changes in settings, and automatically disconnects from the signal when the test is cleaned up.
+
+        :return: None
+        """
         self.testvalue = None
         signals.setting_changed.connect(self.signal_callback)
         self.addCleanup(signals.setting_changed.disconnect, self.signal_callback)
 
     def signal_callback(self, sender, setting, value, **kwargs):
+        """
+
+        Handles signals emitted by the sender when a setting is changed.
+
+        This callback function is triggered when a setting's value is updated. It checks if the changed setting is 'TEST' and, if so, updates the test value accordingly.
+
+        Parameters
+        ----------
+        sender : object
+            The object that emitted the signal.
+        setting : str
+            The name of the setting that was changed.
+        value : any
+            The new value of the setting.
+        **kwargs
+            Additional keyword arguments passed by the signal.
+
+        Note
+        ----
+        The function currently only reacts to changes of the 'TEST' setting.
+
+        """
         if setting == "TEST":
             self.testvalue = value
 
@@ -180,6 +237,14 @@ class SettingsTests(SimpleTestCase):
         del settings.TEST
 
     def test_override_doesnt_leak(self):
+        """
+        Tests that overriding a setting does not persist after the override is removed.
+
+        Verifies that attempting to access a non-existent setting raises an AttributeError,
+        that a setting can be successfully overridden, and that the override is properly
+        cleared after the override context is exited, restoring the original behavior of
+        raising an AttributeError for the non-existent setting.
+        """
         with self.assertRaises(AttributeError):
             getattr(settings, "TEST")
         with self.settings(TEST="override"):
@@ -193,6 +258,22 @@ class SettingsTests(SimpleTestCase):
         self.assertEqual("override", settings.TEST)
 
     def test_context_manager(self):
+        """
+
+        Tests the context manager functionality of overriding settings.
+
+        This function verifies that an AttributeError is raised when attempting to access a non-existent setting.
+        It then ensures that the override functionality correctly sets the setting to a specified value, and
+        that the setting reverts back to its original state after the override is disabled.
+
+        The test covers three main scenarios:
+        - The initial state, where the setting does not exist.
+        - The overridden state, where the setting has a specified value.
+        - The reverted state, where the setting no longer exists after the override is disabled.
+
+        This test provides confidence that the context manager correctly manages setting overrides.
+
+        """
         with self.assertRaises(AttributeError):
             getattr(settings, "TEST")
         override = override_settings(TEST="override")
@@ -245,6 +326,11 @@ class SettingsTests(SimpleTestCase):
             getattr(settings, "TEST")
 
     def test_settings_delete_wrapped(self):
+        """
+        Tests that attempting to delete the _wrapped attribute of the settings object raises a TypeError.
+
+        This test case verifies that the _wrapped attribute is protected from deletion and that the expected error message is displayed when such an attempt is made. The test ensures the integrity of the settings object and its internal state by checking for the correct exception type and message. 
+        """
         with self.assertRaisesMessage(TypeError, "can't delete _wrapped."):
             delattr(settings, "_wrapped")
 
@@ -297,6 +383,9 @@ class SettingsTests(SimpleTestCase):
 
     @override_settings(SECRET_KEY="")
     def test_no_secret_key(self):
+        """
+        Tests that an ImproperlyConfigured exception is raised when the SECRET_KEY setting is empty, ensuring a valid secret key is provided for the application's security.
+        """
         msg = "The SECRET_KEY setting must not be empty."
         with self.assertRaisesMessage(ImproperlyConfigured, msg):
             settings.SECRET_KEY
@@ -335,16 +424,42 @@ class SettingsTests(SimpleTestCase):
     @requires_tz_support
     @mock.patch("django.conf.global_settings.TIME_ZONE", "test")
     def test_incorrect_timezone(self):
+        """
+        Test that Django's settings setup correctly raises an error when an invalid timezone is configured.
+
+        :param self: Test case instance
+        :raises ValueError: If the timezone setting is invalid
+        :note: This test requires timezone support and temporarily overrides the TIME_ZONE setting to 'test' for the duration of the test.
+        """
         with self.assertRaisesMessage(ValueError, "Incorrect timezone setting: test"):
             settings._setup()
 
 
 class TestComplexSettingOverride(SimpleTestCase):
     def setUp(self):
+        """
+
+        Sets up the environment for testing by preserving the current complex override settings and adding 'TEST_WARN' to the settings.
+
+        This method is used to ensure that the original settings are restored after the test, and provides a way to test the behavior of the system with the 'TEST_WARN' setting enabled.
+
+        """
         self.old_warn_override_settings = signals.COMPLEX_OVERRIDE_SETTINGS.copy()
         signals.COMPLEX_OVERRIDE_SETTINGS.add("TEST_WARN")
 
     def tearDown(self):
+        """
+
+        Teardown method to restore the original warning override settings after a test.
+
+        Restores :data:`signals.COMPLEX_OVERRIDE_SETTINGS` to its original value
+         stored in :attr:`old_warn_override_settings` before the test, ensuring that
+         any modifications made during the test do not affect subsequent tests.
+
+        Additionally, it verifies that 'TEST_WARN' is not present in the restored
+         :data:`signals.COMPLEX_OVERRIDE_SETTINGS`.
+
+        """
         signals.COMPLEX_OVERRIDE_SETTINGS = self.old_warn_override_settings
         self.assertNotIn("TEST_WARN", signals.COMPLEX_OVERRIDE_SETTINGS)
 
@@ -365,6 +480,17 @@ class SecureProxySslHeaderTest(SimpleTestCase):
 
     @override_settings(SECURE_PROXY_SSL_HEADER=("HTTP_X_FORWARDED_PROTO", "https"))
     def test_set_without_xheader(self):
+        """
+
+        Tests that an HttpRequest instance reports itself as insecure when the 
+        'HTTP_X_FORWARDED_PROTO' header is not present.
+
+        This test ensures the correct behavior of the is_secure() method in the 
+        absence of the 'HTTP_X_FORWARDED_PROTO' header, which is typically used to 
+        indicate that a request was made over a secure connection (e.g., HTTPS) 
+        when the request is proxied through a load balancer or other intermediary.
+
+        """
         req = HttpRequest()
         self.assertIs(req.is_secure(), False)
 
@@ -390,6 +516,19 @@ class SecureProxySslHeaderTest(SimpleTestCase):
 
     @override_settings(SECURE_PROXY_SSL_HEADER=("HTTP_X_FORWARDED_PROTO", "https"))
     def test_set_with_xheader_leftmost_not_secure(self):
+        """
+
+        Tests the behavior of the HttpRequest is_secure method when the leftmost value in the 
+        X-Forwarded-Proto header is not 'https'. 
+
+        The test case simulates a scenario where the X-Forwarded-Proto header contains multiple 
+        values, with 'http' as the leftmost value. It verifies that the is_secure method 
+        correctly returns False in this case, indicating that the request is not secure.
+
+        This test ensures that the is_secure method prioritizes the leftmost value in the 
+        X-Forwarded-Proto header when determining the security of the request.
+
+        """
         req = HttpRequest()
         req.META["HTTP_X_FORWARDED_PROTO"] = "http, https"
         self.assertIs(req.is_secure(), False)
@@ -444,6 +583,14 @@ class IsOverriddenTest(SimpleTestCase):
         self.assertEqual(repr(lazy_settings), expected)
 
     def test_evaluated_lazysettings_repr(self):
+        """
+        :test_evaluated_lazysettings_repr:
+            Tests the representation of LazySettings after accessing one of its attributes.
+
+            Verifies that the string representation of a LazySettings instance matches the expected
+            format after an attribute has been accessed, specifically when the environment variable
+            is set. This checks that the representation reflects the name of the settings module.
+        """
         lazy_settings = LazySettings()
         module = os.environ.get(ENVIRONMENT_VARIABLE)
         expected = '<LazySettings "%s">' % module
@@ -452,12 +599,31 @@ class IsOverriddenTest(SimpleTestCase):
         self.assertEqual(repr(lazy_settings), expected)
 
     def test_usersettingsholder_repr(self):
+        """
+        Tests the representation of a UserSettingsHolder instance.
+
+        Verifies that the repr method returns the expected string, 
+        '<UserSettingsHolder>', for a LazySettings instance after it has been configured.
+        This ensures that the string representation of the UserSettingsHolder is 
+        consistent and useful for debugging purposes.
+        """
         lazy_settings = LazySettings()
         lazy_settings.configure(APPEND_SLASH=False)
         expected = "<UserSettingsHolder>"
         self.assertEqual(repr(lazy_settings._wrapped), expected)
 
     def test_settings_repr(self):
+        """
+
+        Checks that the repr of a Settings instance returns the expected string representation.
+
+        The function tests if the Settings object is properly represented as a string,
+        which includes the name of the module used to initialize the Settings instance.
+
+        This test case ensures that the repr function of the Settings class is working correctly,
+        making it easier to identify and debug instances of the class.
+
+        """
         module = os.environ.get(ENVIRONMENT_VARIABLE)
         lazy_settings = Settings(module)
         expected = '<Settings "%s">' % module
@@ -479,6 +645,16 @@ class TestListSettings(SimpleTestCase):
     )
 
     def test_tuple_settings(self):
+        """
+
+        Verifies that specified settings must be defined as lists or tuples.
+
+        This test checks each setting in :attr:`list_or_tuple_settings` to ensure it raises
+        an :exc:`ImproperlyConfigured` exception when set to a non-list or non-tuple value.
+        The test creates a fake settings module, sets the invalid value, and then attempts
+        to instantiate a :class:`Settings` object, confirming the expected exception is raised.
+
+        """
         settings_module = ModuleType("fake_settings_module")
         settings_module.SECRET_KEY = "foo"
         msg = "The %s setting must be a list or a tuple."
@@ -601,12 +777,36 @@ class OverrideSettingsIsolationOnExceptionTests(SimpleTestCase):
 
 class MediaURLStaticURLPrefixTest(SimpleTestCase):
     def set_script_name(self, val):
+        """
+        Sets the script name for the current context.
+
+        This method updates the script name to the provided value. If the value is not None, it sets the script prefix accordingly. Otherwise, it clears any existing script prefix.
+
+        :param val: The new script name to be set.
+
+        """
         clear_script_prefix()
         if val is not None:
             set_script_prefix(val)
 
     def test_not_prefixed(self):
         # Don't add SCRIPT_NAME prefix to absolute paths, URLs, or None.
+        """
+
+        Tests that the :data:`MEDIA_URL` and :data:`STATIC_URL` settings are not modified by script prefix.
+
+        This test checks various combinations of URLs and script names to ensure that the
+        URL settings remain unchanged, even when a script prefix is applied.
+
+        The test cases cover different URL formats, including absolute and relative URLs,
+        as well as scenarios where the URL is not set (i.e., ``None``). Additionally, the
+        test checks the behavior with different script names, including those with and
+        without a trailing slash.
+
+        By verifying that the URL settings are not prefixed, this test helps to ensure that
+        static and media files are correctly served in various deployment scenarios.
+
+        """
         tests = (
             "/path/",
             "http://myhost.com/path/",

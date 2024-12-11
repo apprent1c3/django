@@ -189,6 +189,13 @@ class GeographyFunctionTests(FuncTestMixin, TestCase):
     @skipUnlessDBFeature("has_Area_function")
     @skipIfDBFeature("supports_area_geodetic")
     def test_geodetic_area_raises_if_not_supported(self):
+        """
+        Tests that attempting to calculate the area of a geodetic coordinate system raises a NotSupportedError.
+
+        This test ensures that the expected error is thrown when trying to use the Area function on a geodetic coordinate system, 
+        which is not supported by the database. The test checks for the specific error message and confirms that it is 
+        raised as expected when trying to annotate a queryset with the area of a polygon for a specific zipcode.
+        """
         with self.assertRaisesMessage(
             NotSupportedError, "Area on geodetic coordinate systems not supported."
         ):

@@ -41,6 +41,21 @@ class FilePathFieldTest(SimpleTestCase):
         self.assertEqual(fix_os_paths(self.path), ("/filepathfield_test_dir/"))
 
     def test_nonexistent_path(self):
+        """
+        Tests that creating a FilePathField instance with a nonexistent path raises a FileNotFoundError.
+
+        The test verifies that the error message includes the name of the nonexistent path, ensuring that the error is informative and useful for debugging purposes.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            FileNotFoundError: If the specified path does not exist.
+
+        """
         with self.assertRaisesMessage(FileNotFoundError, "nonexistent"):
             FilePathField(path="nonexistent")
 
@@ -93,6 +108,13 @@ class FilePathFieldTest(SimpleTestCase):
         )
 
     def test_recursive_no_folders_or_files(self):
+        """
+        Tests that a FilePathField with recursive selection disabled for both folders and files returns an empty list of choices.
+
+         This test case verifies the behavior of the FilePathField class when configured to recursively traverse a directory path, 
+         but with neither folders nor files allowed as selection options. The expected result is an empty list, indicating that 
+         no valid choices are available under these constraints.
+        """
         f = FilePathField(
             path=self.path, recursive=True, allow_folders=False, allow_files=False
         )

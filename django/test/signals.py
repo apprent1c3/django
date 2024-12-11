@@ -113,6 +113,21 @@ def reset_template_engines(*, setting, **kwargs):
 
 @receiver(setting_changed)
 def storages_changed(*, setting, **kwargs):
+    """
+
+    Reset Django storage configurations when relevant settings change.
+
+    This function is triggered when certain Django settings are updated, such as
+    STORAGES, STATIC_ROOT, or STATIC_URL. It ensures that the changes are properly
+    reflected in the Django storage system by clearing the existing storage
+    backends and reinitializing the storage configurations.
+
+    The affected storage configurations include default storage, staticfiles storage,
+    and other registered storage backends. This reset process helps to prevent
+    inconsistent or outdated storage configurations from causing issues in the
+    application.
+
+    """
     from django.contrib.staticfiles.storage import staticfiles_storage
     from django.core.files.storage import default_storage, storages
 

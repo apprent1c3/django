@@ -139,6 +139,15 @@ class DataSourceTest(SimpleTestCase):
                 ds.__getitem__("invalid")
 
     def test_ds_input_pathlib(self):
+        """
+        Verifies the functionality of DataSource with a Pathlib object.
+
+        Tests that the DataSource class can correctly handle a pathlib Path object as input.
+        It checks if the DataSource object is created successfully and contains the expected number of items.
+
+        This test case covers the scenario where the data source is a shapefile ('.shp') and 
+        ensures that the DataSource class behaves as expected when working with pathlib Path objects.
+        """
         test_shp = Path(get_ds_file("test_point", "shp"))
         ds = DataSource(test_shp)
         self.assertEqual(len(ds), 1)
@@ -237,6 +246,19 @@ class DataSourceTest(SimpleTestCase):
             # This DataSource object is not accessible outside this
             # scope.  However, a reference should still be kept alive
             # on the `Layer` returned.
+            """
+            Retrieves the first data layer from the configured data source.
+
+            Returns:
+                The first layer object from the data source.
+
+            Note:
+                This function assumes that the data source has been properly configured and contains at least one layer.
+
+            Hint:
+                The returned layer object can be used for further processing or analysis.
+
+            """
             ds = DataSource(source.ds)
             return ds[0]
 
@@ -348,6 +370,11 @@ class DataSourceTest(SimpleTestCase):
         self.assertEqual(676586997978, feat.get("ALAND10"))
 
     def test_nonexistent_field(self):
+        """
+        Tests that accessing a nonexistent field in a data source raises a GDALException with the expected error message. 
+
+        This function verifies that the get_fields method behaves correctly when an invalid field name is provided, ensuring that it fails with a meaningful error message instead of producing unexpected behavior or crashing.
+        """
         source = ds_list[0]
         ds = DataSource(source.ds)
         msg = "invalid field name: nonexistent"

@@ -13,6 +13,18 @@ class SessionStore(SessionBase):
     cache_key_prefix = KEY_PREFIX
 
     def __init__(self, session_key=None):
+        """
+        Initializes a new session instance.
+
+            :param session_key: The key for the session, defaults to None.
+            :return: A new session instance with the specified key.
+
+            This constructor sets up a new session by connecting to the cache specified
+            in the project settings (SESSION_CACHE_ALIAS) and calling the parent class
+            constructor with the provided session key. The cache is used to store and
+            retrieve session data.
+
+        """
         self._cache = caches[settings.SESSION_CACHE_ALIAS]
         super().__init__(session_key)
 
@@ -79,6 +91,19 @@ class SessionStore(SessionBase):
         )
 
     def save(self, must_create=False):
+        """
+
+        Saves the current session to the cache.
+
+        This method will create a new session if none exists, or update an existing one.
+        If :param:`must_create` is True, the session will be created even if one already exists.
+        If the session does not exist in the cache and :param:`must_create` is False, an UpdateError will be raised.
+
+        :param bool must_create: Whether to create a new session even if one already exists.
+        :raises UpdateError: If the session does not exist in the cache and must_create is False.
+        :raises CreateError: If the session could not be created and must_create is True.
+
+        """
         if self.session_key is None:
             return self.create()
         if must_create:

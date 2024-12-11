@@ -44,6 +44,14 @@ class TestPostGISVersionCheck(unittest.TestCase):
     """
 
     def test_get_version(self):
+        """
+        Tests the retrieval of the PostGIS library version.
+
+        This method verifies that the version of the PostGIS library is correctly obtained.
+        It sets up a test scenario with a predefined version and checks that the 
+        returned version matches the expected one, ensuring the correctness of the 
+        version retrieval functionality.
+        """
         expect = "1.0.0"
         ops = FakePostGISOperations(expect)
         actual = ops.postgis_lib_version()

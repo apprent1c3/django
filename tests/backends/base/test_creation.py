@@ -220,6 +220,15 @@ class TestDeserializeDbFromString(TransactionTestCase):
     def test_circular_reference_with_natural_key(self):
         # serialize_db_to_string() and deserialize_db_from_string() handles
         # circular references for models with natural keys.
+        """
+
+        Tests the proper handling of circular references when using natural keys.
+
+        This test case creates a circular reference between two objects, serializes the database state,
+        and then deserializes it. It verifies that the circular reference is correctly restored after
+        deserialization, ensuring that the objects still point to each other as expected.
+
+        """
         obj_a = CircularA.objects.create(key="A")
         obj_b = CircularB.objects.create(key="B", obj=obj_a)
         obj_a.obj = obj_b

@@ -73,6 +73,14 @@ class TableColumns(Table):
     """Base class for references to multiple columns of a table."""
 
     def __init__(self, table, columns):
+        """
+        Initializes a database query object.
+
+        :param table: The name of the database table to query.
+        :param columns: A list of column names to include in the query.
+        :returns: None
+        :description: This constructor sets up the basic parameters for a database query, specifying the table to query and the columns to retrieve. It provides the foundation for building more complex queries.
+        """
         self.table = table
         self.columns = columns
 
@@ -176,6 +184,17 @@ class ForeignKeyName(TableColumns):
         ) or self.to_reference.references_column(table, column)
 
     def rename_table_references(self, old_table, new_table):
+        """
+
+        Updates table references in the object to use a new table name instead of an old one.
+
+        This method replaces all occurrences of the old table name with the new table name,
+        ensuring that all table references are kept up-to-date.
+
+        :param old_table: The name of the table to be replaced.
+        :param new_table: The new name for the table.
+
+        """
         super().rename_table_references(old_table, new_table)
         self.to_reference.rename_table_references(old_table, new_table)
 
@@ -265,6 +284,17 @@ class Expressions(TableColumns):
         self.expressions = expressions
 
     def __str__(self):
+        """
+        Returns a string representation of the compiled SQL query.
+
+        This method generates the SQL query string by compiling the given expressions and
+        then parameterizing the values. The values are properly quoted to ensure SQL syntax
+        correctness. The resulting string is a complete SQL query that can be executed
+        directly.
+
+        :returns: A string representing the compiled SQL query with parameterized values.
+        :rtype: str
+        """
         sql, params = self.compiler.compile(self.expressions)
         params = map(self.quote_value, params)
         return sql % tuple(params)

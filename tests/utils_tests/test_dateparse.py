@@ -155,6 +155,17 @@ class DurationParseTests(unittest.TestCase):
         )
 
     def test_days(self):
+        """
+        Tests parsing of duration strings into time intervals.
+
+        Verifies that the parse_duration function correctly interprets strings with 
+        days and time components, handling both 12-hour and 24-hour formats, 
+        and returns a timedelta object representing the duration.
+
+        The test cases cover durations with days and time specified in hours, 
+        minutes, and seconds, as well as durations with only days, minutes, and seconds.
+
+        """
         self.assertEqual(
             parse_duration("4 15:30"), timedelta(days=4, minutes=15, seconds=30)
         )

@@ -638,6 +638,32 @@ def create_generic_related_manager(superclass, rel):
             return self.get_prefetch_querysets(instances, [queryset])
 
         def get_prefetch_querysets(self, instances, querysets=None):
+            """
+
+            Get prefetch querysets for a list of instances.
+
+            This method generates a queryset and related functions for prefetching related objects.
+            It takes a list of instances and an optional list of querysets as input.
+            If querysets is provided, it must contain a single queryset.
+
+            The method returns a tuple containing:
+
+            * The generated queryset
+            * A function to convert related object IDs
+            * A function to generate IDs for the instances
+            * A flag indicating whether the queryset should be used in a single database query
+            * The name of the prefetch cache
+            * A flag indicating whether the queryset should use a single database query
+
+            The generated queryset is configured to use the same database as the provided queryset or the current instance's database.
+            It also applies hints to the queryset based on the first instance in the list.
+
+            The functions returned in the tuple can be used to convert related object IDs and to generate IDs for the instances.
+            These functions are used to match the related objects with the instances in the list.
+
+            The prefetch cache name is used to store the prefetched objects.
+
+            """
             if querysets and len(querysets) != 1:
                 raise ValueError(
                     "querysets argument of get_prefetch_querysets() should have a "
@@ -742,6 +768,18 @@ def create_generic_related_manager(superclass, rel):
         aclear.alters_data = True
 
         def _clear(self, queryset, bulk):
+            """
+            Clears a specified queryset from the database.
+
+            This method removes the objects specified in the queryset, using the database 
+            associated with the model instance. If bulk deletion is specified, it deletes 
+            the objects in a single database operation. Otherwise, it deletes each object 
+            individually within a transaction, ensuring data consistency.
+
+            :param queryset: The queryset of objects to be removed.
+            :param bulk: A boolean indicating whether to perform a bulk deletion.
+
+            """
             self._remove_prefetched_objects()
             db = router.db_for_write(self.model, instance=self.instance)
             queryset = queryset.using(db)

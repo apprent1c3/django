@@ -27,6 +27,18 @@ class warn_about_renamed_method:
 
     def __call__(self, f):
         def wrapper(*args, **kwargs):
+            """
+            Deprecation wrapper function.
+
+            Wraps an original function to emit a deprecation warning when called, 
+            informing users of the recommended replacement method. The function 
+            still executes the original method with the provided arguments and 
+            keyword arguments, but alerts users to update their code to use the 
+            new approach.
+
+            :raises: DeprecationWarning
+            :returns: The result of the original function call
+            """
             warnings.warn(
                 "`%s.%s` is deprecated, use `%s` instead."
                 % (self.class_name, self.old_method_name, self.new_method_name),

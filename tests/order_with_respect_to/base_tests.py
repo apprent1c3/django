@@ -113,6 +113,9 @@ class BaseOrderWithRespectToTests:
         self.assertSequenceEqual(q1.answer_set.all(), [a2, a4, new_answer])
 
     def test_database_routing(self):
+        """
+        测试数据库路由是否正常工作。该测试创建一个自定义的数据库路由器（WriteToOtherRouter），它强制所有写入操作去往名为\"other\"的数据库。测试用例将数据库设置为使用这个自定义路由器，然后测试更新模型（q1）时的数据库查询行为。预期结果是，默认数据库没有任何查询，而\"other\"数据库则会有一个查询，表明数据成功路由到了正确的数据库。
+        """
         class WriteToOtherRouter:
             def db_for_write(self, model, **hints):
                 return "other"

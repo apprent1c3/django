@@ -25,6 +25,14 @@ class XViewMiddlewareTest(TestDataMixin, AdminDocsTestCase):
         self.assertNotIn("X-View", response)
 
     def test_xview_class(self):
+        """
+
+        Tests the XViewClass by simulating HTTP requests to the '/xview/class/' endpoint.
+        Verifies that the 'X-View' header is present in the response only when an authenticated 
+        staff user with active status is making the request.
+        Ensures that the 'X-View' header contains the correct view class identifier.
+
+        """
         user = User.objects.get(username="super")
         response = self.client.head("/xview/class/")
         self.assertNotIn("X-View", response)

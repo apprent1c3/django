@@ -195,6 +195,16 @@ class QTests(SimpleTestCase):
         self.assertEqual(Q(*args, **kwargs), q)
 
     def test_reconstruct_and(self):
+        """
+        Tests that a :class:`Q` object can be reconstructed from its deconstructed components.
+
+        The test creates a compound query using logical AND (&) operator, deconstructs it into its constituent parts, 
+        and then reconstructs a new :class:`Q` object from these parts. It then verifies that the original and 
+        reconstructed queries are equivalent by comparing them using the :meth:`assertEqual` method.
+
+        This ensures that the deconstruction and reconstruction process of :class:`Q` objects works correctly, 
+        allowing for safe serialization and deserialization of complex queries.
+        """
         q1 = Q(price__gt=F("discounted_price"))
         q2 = Q(price=F("discounted_price"))
         q = q1 & q2

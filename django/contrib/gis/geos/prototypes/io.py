@@ -251,6 +251,16 @@ class WKBWriter(IOBase):
     geos_version = geos_version_tuple()
 
     def __init__(self, dim=2):
+        """
+        Initializes the object.
+
+        The constructor sets up the object with a specified dimensionality.
+        The dimensionality of the object is determined by the :param dim: parameter, which defaults to 2 if not provided.
+        The dimensionality is stored in the :attr outdim: attribute.
+
+        :param dim: The dimensionality of the object (default is 2)
+        :attr outdim: The dimensionality of the object
+        """
         super().__init__()
         self.outdim = dim
 
@@ -348,6 +358,17 @@ def wkt_w(dim=2, trim=False, precision=None):
 
 
 def wkb_r():
+    """
+
+    Returns the thread-local Well-Known Binary (WKB) reader instance.
+
+    This function provides a convenient way to access the WKB reader in a thread-safe manner.
+    It lazily initializes the reader if it has not been created yet, ensuring that each thread
+    has its own instance. The returned reader can be used to parse WKB data.
+
+    :rtype: _WKBReader
+
+    """
     thread_context.wkb_r = thread_context.wkb_r or _WKBReader()
     return thread_context.wkb_r
 

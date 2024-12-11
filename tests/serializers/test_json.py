@@ -318,6 +318,14 @@ class DjangoJSONEncoderTests(SimpleTestCase):
             )
 
     def test_timedelta(self):
+        """
+
+        Tests the serialization of datetime.timedelta objects to JSON using the DjangoJSONEncoder.
+
+        Verifies that timedelta objects are correctly encoded into the ISO 8601 duration format.
+        The test cases cover both non-zero and zero duration values to ensure proper handling of edge cases.
+
+        """
         duration = datetime.timedelta(days=1, hours=2, seconds=3)
         self.assertEqual(
             json.dumps({"duration": duration}, cls=DjangoJSONEncoder),

@@ -219,6 +219,14 @@ class ASGITest(SimpleTestCase):
         class TestASGIRequest(ASGIRequest):
 
             def __init__(self, scope, body_file):
+                """
+                Initialize an object, inheriting from a parent class, but immediately raise an exception to signal that the requested data exceeds a size limit, indicating that the request cannot be processed.
+
+                :param scope: The scope of the object being initialized
+                :param body_file: The file containing the body of the request
+
+                :raises RequestDataTooBig: Always raised upon initialization to indicate the data is too large to process
+                """
                 super().__init__(scope, body_file)
                 raise RequestDataTooBig()
 
@@ -300,6 +308,17 @@ class ASGITest(SimpleTestCase):
         self.assertEqual(outcome, [{"request_body": b"Body data!"}])
 
     async def test_untouched_request_body_gets_closed(self):
+        """
+
+        Test that a request body is properly closed when it is untouched by the application.
+
+        This test covers the scenario where the application does not read the request body.
+        It verifies that the request body is closed correctly, ensuring that system resources are released as expected.
+
+        The test sends a POST request to the application and checks the response status code and body.
+        It then waits for the request to complete, ensuring that the request body is properly closed.
+
+        """
         application = get_asgi_application()
         scope = self.async_request_factory._base_scope(method="POST", path="/post/")
         communicator = ApplicationCommunicator(application, scope)
@@ -375,6 +394,17 @@ class ASGITest(SimpleTestCase):
             await communicator.receive_output()
 
     async def test_assert_in_listen_for_disconnect(self):
+        """
+
+        Tests that an assertion error is raised when a disallowed ASGI message type 
+        ('http.not_a_real_message') is sent after the request body, while waiting 
+        for a disconnect.
+
+        The function verifies that the application properly handles invalid message 
+        types, ensuring that it raises an AssertionError with a descriptive error 
+        message when such an invalid message is received.
+
+        """
         application = get_asgi_application()
         scope = self.async_request_factory._base_scope(path="/")
         communicator = ApplicationCommunicator(application, scope)
@@ -394,6 +424,15 @@ class ASGITest(SimpleTestCase):
             await communicator.receive_output()
 
     async def test_wrong_connection_type(self):
+        """
+        Tests that an error is raised when a wrong connection type is used.
+
+        This test case checks the behavior of the application when an unsupported connection type is specified.
+        It verifies that a ValueError is raised with a descriptive message indicating that Django can only handle ASGI/HTTP connections.
+
+        The test scenario involves creating a communicator with a non-HTTP connection type and then attempting to receive output from it.
+        The expected result is a ValueError exception with a message explaining the limitation of Django's connection handling capabilities.
+        """
         application = get_asgi_application()
         scope = self.async_request_factory._base_scope(path="/", type="other")
         communicator = ApplicationCommunicator(application, scope)

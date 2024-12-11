@@ -36,6 +36,17 @@ class DegreesTests(TestCase):
         self.assertAlmostEqual(obj.f2_degrees, math.degrees(obj.f2))
 
     def test_integer(self):
+        """
+
+        Tests the conversion of integer fields to degrees in the IntegerModel.
+
+        This test case creates an instance of IntegerModel with example values for small, normal, and big integer fields.
+        It then annotates these fields with their corresponding degree values using the Degrees function.
+        The test asserts that the resulting degree values are of type float and match the expected conversion from radians to degrees using the math library.
+
+        The purpose of this test is to ensure that the Degrees function correctly converts integer fields to degrees and returns the result as a floating point number.
+
+        """
         IntegerModel.objects.create(small=-20, normal=15, big=-1)
         obj = IntegerModel.objects.annotate(
             small_degrees=Degrees("small"),

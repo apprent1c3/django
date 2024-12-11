@@ -70,6 +70,20 @@ class MeasureBase:
     standard = property(_get_standard, _set_standard)
 
     def __getattr__(self, name):
+        """
+        Returns a conversion factor for a given unit type.
+
+        This method allows for dynamic access to conversion factors for different
+        units. It checks if the requested unit type is valid, and if so, returns the
+        conversion factor relative to the standard unit. If the unit type is not
+        recognized, an AttributeError is raised with a message indicating the unknown
+        unit type.
+
+        :param name: The name of the unit type to retrieve the conversion factor for.
+        :raises AttributeError: If the requested unit type is not valid.
+        :return: The conversion factor for the given unit type.
+
+        """
         if name in self.UNITS:
             return self.standard / self.UNITS[name]
         else:
@@ -105,6 +119,13 @@ class MeasureBase:
     # **** Operators methods ****
 
     def __add__(self, other):
+        """
+        Add two objects of the same class together.
+
+        This operation creates a new instance of the class, combining the standard values of the two operands. The resulting object has the same default unit as the original objects.
+
+        The operation is only valid when both operands are of the same class. If an attempt is made to add an object of this class with an object of a different class, a TypeError is raised.
+        """
         if isinstance(other, self.__class__):
             return self.__class__(
                 default_unit=self._default_unit,
@@ -357,6 +378,17 @@ class Area(MeasureBase):
     LALIAS = {k.lower(): v for k, v in ALIAS.items()}
 
     def __truediv__(self, other):
+        """
+
+        Divide the current quantity by a numeric value.
+
+        This operation returns a new instance of the same class, with the standard unit value divided by the provided divisor.
+
+        :param other: The numeric value to divide by.
+        :rtype: An instance of the same class as the current object.
+        :raises TypeError: If the divisor is not a number.
+
+        """
         if isinstance(other, NUMERIC_TYPES):
             return self.__class__(
                 default_unit=self._default_unit,

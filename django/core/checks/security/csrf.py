@@ -34,6 +34,17 @@ def check_csrf_middleware(app_configs, **kwargs):
 
 @register(Tags.security, deploy=True)
 def check_csrf_cookie_secure(app_configs, **kwargs):
+    """
+    Checks if CSRF cookie is secure.
+
+    This function verifies that the CSRF cookie is set to be secure, according to the application's settings.
+    It checks the following conditions:
+    - CSRF protection is handled through sessions
+    - CSRF middleware is not in use
+    - The CSRF cookie is explicitly set to be secure
+    If any of these conditions are met, the check is considered passed, otherwise a security warning (W016) is raised.
+    The purpose of this check is to ensure that sensitive CSRF cookies are transmitted over a secure connection, reducing the risk of tampering and eavesdropping.
+    """
     passed_check = (
         settings.CSRF_USE_SESSIONS
         or not _csrf_middleware()

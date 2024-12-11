@@ -207,6 +207,21 @@ class MemoryFileUploadHandler(FileUploadHandler):
         self.activated = content_length <= settings.FILE_UPLOAD_MAX_MEMORY_SIZE
 
     def new_file(self, *args, **kwargs):
+        """
+        Initializes a new file while handling activation and future event handlers.
+
+        When this function is called, it first delegates to the parent class's 
+        implementation of :meth:`new_file` to ensure any necessary setup is performed. 
+        If this object is currently activated, it then sets up an in-memory binary file 
+        stream and interrupts any future event handlers to prevent further processing.
+
+        This method is typically used as part of the workflow for creating and managing 
+        files within the context of the class it is a part of. It does not return any 
+        value, but rather modifies the object's state and potentially raises an 
+        exception to control the flow of the program.
+
+        :raises StopFutureHandlers: when the object is activated
+        """
         super().new_file(*args, **kwargs)
         if self.activated:
             self.file = BytesIO()

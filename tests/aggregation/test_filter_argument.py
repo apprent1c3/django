@@ -89,6 +89,17 @@ class FilteredAggregateTests(TestCase):
         self.assertEqual(Author.objects.aggregate(age=agg)["age"], 60)
 
     def test_excluded_aggregates(self):
+        """
+
+        Tests the exclusion of certain aggregates in database queries.
+
+        This test case verifies that aggregates can be calculated while excluding 
+        specific data based on a filter. It checks if the sum of a particular field 
+        ('age') can be computed correctly after filtering out records where 'name' 
+        matches a certain value ('test2'). The result of the aggregate operation 
+        is then compared to an expected value for validation.
+
+        """
         agg = Sum("age", filter=~Q(name="test2"))
         self.assertEqual(Author.objects.aggregate(age=agg)["age"], 140)
 
@@ -131,6 +142,24 @@ class FilteredAggregateTests(TestCase):
             Count("*", filter=Q(age=40))
 
     def test_filtered_reused_subquery(self):
+        """
+        Tests if a subquery with a filter is correctly reused in a database query.
+
+        This test case verifies that a complicated query using annotations and filtering 
+        produces the expected results. It ensures that the database query correctly identifies 
+        authors who have at least 2 friends older than themselves and that the filtered query 
+        correctly returns the expected author object.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Note:
+            This test relies on the presence of Author objects and their relationships in the database.
+
+        """
         qs = Author.objects.annotate(
             older_friends_count=Count("friends", filter=Q(friends__age__gt=F("age"))),
         ).filter(
@@ -194,6 +223,20 @@ class FilteredAggregateTests(TestCase):
         self.assertEqual(aggregate, {"max_rating": 4.5})
 
     def test_filtered_aggregate_empty_condition(self):
+        """
+
+        Tests the filtering of aggregate functions with an empty condition.
+
+        This test case verifies the behavior of Django's ORM when applying an empty filter
+        to an aggregate function, such as Count or Max. It checks that the expected result
+        is returned when the filter condition is empty, ensuring that the aggregate function
+        behaves correctly in this edge case.
+
+        The test covers two scenarios: annotating a queryset with an aggregate function
+        and using an aggregate function in a queryset's aggregate method. In both cases,
+        it asserts that the result is as expected when the filter condition is empty.
+
+        """
         book = Book.objects.annotate(
             authors_count=Count(
                 "authors",

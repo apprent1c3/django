@@ -35,6 +35,14 @@ class ComplexMultiWidget(MultiWidget):
         super().__init__(widgets, attrs)
 
     def decompress(self, value):
+        """
+        Decompresses a given value into a list containing three elements: 
+        a string, a list of strings, and a datetime object. 
+        The input value should be in a comma-separated format where 
+        the first part is a string, the second part is a comma-separated list of strings, 
+        and the third part is a datetime string in the format '%Y-%m-%d %H:%M:%S'. 
+        If the input value is empty or None, the function returns a list of three None values.
+        """
         if value:
             data = value.split(",")
             return [
@@ -221,6 +229,13 @@ class MultiWidgetTest(WidgetTest):
         )
 
     def test_value_from_datadict_subwidgets_name(self):
+        """
+        Tests the `value_from_datadict` method of the `MultiWidget` class to ensure it correctly retrieves values from a data dictionary for subwidgets.
+
+         The test method validates the function's behavior with various input data dictionaries and subwidget names, checking that the returned values match the expected output. 
+         The `MultiWidget` instance used for testing contains two subwidgets: one named 'x' and one unnamed. 
+         The test cases cover different combinations of input data, including empty dictionaries, dictionaries with the field name, dictionaries with the field name and a specific subwidget, and dictionaries with both the field name and a subwidget.
+        """
         widget = MultiWidget(widgets={"x": TextInput(), "": TextInput()})
         tests = [
             ({}, [None, None]),

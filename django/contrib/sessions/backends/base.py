@@ -143,6 +143,14 @@ class SessionBase:
         return {}
 
     def update(self, dict_):
+        """
+        Updates the object's session data with the provided dictionary and marks the object as modified.
+
+        :param dict_: Dictionary containing the updated data
+        :type dict_: dict
+        :returns: None
+        :rtype: None
+        """
         self._session.update(dict_)
         self.modified = True
 

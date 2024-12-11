@@ -276,6 +276,14 @@ class Tests(TestCase):
 
     @unittest.skipUnless(is_psycopg3, "psycopg3 specific test")
     def test_connect_pool_set_to_true(self):
+        """
+        Tests that a connection pool is created when the 'pool' option is set to True.
+
+        Verifies that when the 'pool' setting is explicitly set to True in the connection options,
+        a connection pool instance is successfully created and can be accessed via the connection object.
+
+        This test is specific to the psycopg3 database adapter and will only run if the adapter is available.
+        """
         new_connection = no_pool_connection(alias="default_pool")
         new_connection.settings_dict["OPTIONS"]["pool"] = True
         try:
@@ -285,6 +293,18 @@ class Tests(TestCase):
 
     @unittest.skipUnless(is_psycopg3, "psycopg3 specific test")
     def test_connect_pool_with_timezone(self):
+        """
+        Tests connecting to a PostgreSQL database using a connection pool with a specific time zone.
+
+        This test case verifies that the database connection pool correctly applies a time zone
+        setting when connecting to the database. It first checks the default time zone without
+        a pool, then configures the connection to use a pool and sets a new time zone, checking
+        that the time zone is correctly applied.
+
+        The test ensures that the connection pool handles time zone settings as expected, by
+        comparing the time zone retrieved from the database with the expected time zone setting.
+
+        """
         new_time_zone = "Africa/Nairobi"
         new_connection = no_pool_connection(alias="default_pool")
 
@@ -500,6 +520,14 @@ class Tests(TestCase):
                 self.assertIn("::text", do.lookup_cast(lookup))
 
     def test_lookup_cast_isnull_noop(self):
+        """
+        Tests the lookup_cast method of DatabaseOperations for 'isnull' lookups on various field types.
+
+        This test case ensures that the lookup_cast method returns the expected casting string, '%s', for 
+        'isnull' lookups on character-based field types, including CharField, EmailField, and TextField. The 
+        test verifies that the lookup_cast method does not perform any additional operations for 'isnull' 
+        lookups on these field types, confirming that it behaves as a no-op in these cases.
+        """
         from django.db.backends.postgresql.operations import DatabaseOperations
 
         do = DatabaseOperations(connection=None)
@@ -559,6 +587,16 @@ class Tests(TestCase):
         self.assertTrue(mocked_get_database_version.called)
 
     def test_compose_sql_when_no_connection(self):
+        """
+        Tests the composition of SQL queries when there is no active database connection.
+
+        Verifies that the compose_sql method correctly formats a SQL query by replacing
+        placeholders with the provided values, even when using a connection that does not
+        use a connection pool.
+
+        The test checks that the composed SQL query matches the expected output, ensuring
+        that the method behaves as expected in this specific scenario.
+        """
         new_connection = no_pool_connection()
         try:
             self.assertEqual(

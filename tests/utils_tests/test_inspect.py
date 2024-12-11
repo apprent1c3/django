@@ -46,6 +46,15 @@ class TestInspectMethods(unittest.TestCase):
         )
 
     def test_get_func_full_args_all_arguments_method(self):
+        """
+        Tests that the inspect.get_func_full_args function correctly retrieves all 
+        arguments of the all_kinds method in the Person class, including positional, default, 
+        variable, and keyword arguments.
+
+        It verifies the function's behavior when provided with both the class method 
+        and an instance method, ensuring consistency in argument retrieval regardless 
+        of the method's invocation context.
+        """
         arguments = [
             ("name",),
             ("address", "home"),
@@ -72,6 +81,19 @@ class TestInspectMethods(unittest.TestCase):
         self.assertIs(inspect.func_accepts_var_args(Person().just_args), True)
 
     def test_func_accepts_var_args_no_var_args(self):
+        """
+        Tests that the one_argument method does not accept variable arguments.
+
+        This test checks the function signature of the one_argument method 
+        in the Person class and an instance of the Person class to verify 
+        it does not accept any variable arguments, ensuring its usage 
+        conforms to the expected function signature.
+
+        It utilizes the inspect module to check the function's parameters 
+        and asserts that the result matches the expected behavior, 
+        providing confidence in the function's implementation and usage.
+
+        """
         self.assertIs(inspect.func_accepts_var_args(Person.one_argument), False)
         self.assertIs(inspect.func_accepts_var_args(Person().one_argument), False)
 
@@ -82,6 +104,14 @@ class TestInspectMethods(unittest.TestCase):
         self.assertIs(inspect.method_has_no_args(Person().one_argument), False)
 
     def test_func_supports_parameter(self):
+        """
+        Tests whether the all_kinds function of the Person class supports a given parameter.
+
+        This function checks if the all_kinds function can accept a specific parameter, 
+        such as 'address' or 'zone', when called as a class method or an instance method.
+        It verifies that the function correctly identifies supported and unsupported parameters.
+        The test cases cover both class-level and instance-level function calls to ensure consistent behavior.
+        """
         self.assertIs(
             inspect.func_supports_parameter(Person.all_kinds, "address"), True
         )

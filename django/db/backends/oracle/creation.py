@@ -401,6 +401,17 @@ class DatabaseCreation(BaseDatabaseCreation):
         return self._test_settings_get("USER", prefixed="USER")
 
     def _test_database_passwd(self):
+        """
+        Retrieve or generate a password for testing the database.
+
+        This function checks if a password is already defined in the test settings.
+        If no password is found and a test user can be created, it generates a random
+        password. The generated password is 30 characters long.
+
+        Returns:
+            str: The password to use for testing the database.
+
+        """
         password = self._test_settings_get("PASSWORD")
         if password is None and self._test_user_create():
             # Oracle passwords are limited to 30 chars and can't contain symbols.

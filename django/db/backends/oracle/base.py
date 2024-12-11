@@ -233,6 +233,15 @@ class DatabaseWrapper(BaseDatabaseWrapper):
     validation_class = DatabaseValidation
 
     def __init__(self, *args, **kwargs):
+        """
+        Initializes the object, inheriting from its parent class and configuring features based on settings.
+
+        The initialization process includes setting up the ability to return columns from insert operations, 
+        which is controlled by the 'use_returning_into' option in the settings dictionary. If this option 
+        is set to True (default), the object will be able to return columns from insert operations; 
+        otherwise, this feature will be disabled. This configuration is stored in the 'features' attribute 
+        of the object for future reference.
+        """
         super().__init__(*args, **kwargs)
         use_returning_into = self.settings_dict["OPTIONS"].get(
             "use_returning_into", True
@@ -334,6 +343,17 @@ class DatabaseWrapper(BaseDatabaseWrapper):
             cursor.execute("SET CONSTRAINTS ALL DEFERRED")
 
     def is_usable(self):
+        """
+        Checks if the database connection is usable.
+
+        Returns:
+            bool: True if the connection is active and can be used, False otherwise.
+
+        Notes:
+            This method attempts to ping the database to verify its availability.
+            If the ping operation fails due to a database error, the method returns False.
+            Otherwise, it returns True, indicating that the connection is usable.
+        """
         try:
             self.connection.ping()
         except Database.Error:
@@ -577,6 +597,23 @@ class FormatStylePlaceholderCursor:
             return self.cursor.execute(query, self._param_generator(params))
 
     def executemany(self, query, params=None):
+        """
+
+        Executes a SQL query repeatedly with different parameters.
+
+        This method prepares and executes a SQL query multiple times with the
+        given parameters. The query is modified to work with the provided
+        parameters, and the parameters are formatted and resized as needed.
+
+        The query is executed with each set of parameters using the Oracle
+        cursor's executemany method, and any errors that occur during execution
+        are caught and handled.
+
+        :param query: The SQL query to be executed
+        :param params: An iterable of parameter sets to be used with the query
+        :rtype: The result of the cursor's executemany method, or None if params is empty
+
+        """
         if not params:
             # No params given, nothing to do
             return None
@@ -593,6 +630,14 @@ class FormatStylePlaceholderCursor:
             )
 
     def close(self):
+        """
+        Closes the current database cursor.
+
+        This method ensures the database cursor is properly closed, releasing any system resources it holds.
+        If a database interface error occurs during the closure process, it is silently ignored.
+
+        Note: This operation does not automatically release the database connection, but only the cursor object itself.
+        """
         try:
             self.cursor.close()
         except Database.InterfaceError:

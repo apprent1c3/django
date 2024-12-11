@@ -105,6 +105,19 @@ class TestSigner(SimpleTestCase):
                 signer.unsign(transform(signed_value))
 
     def test_sign_unsign_object(self):
+        """
+        Tests the signing and unsigned functionality of an object.
+
+        Verifies that the signing process modifies the original object and that the
+        unsigned object matches the original. The test covers various object types,
+        including lists, strings, and dictionaries, with and without compression.
+
+        The test ensures the following:
+
+        * The signed object is different from the original object
+        * The unsigned object matches the original object
+        * Compression does not affect the correctness of the signing and unsigned process
+        """
         signer = signing.Signer(key="predictable-secret")
         tests = [
             ["a", "list"],
@@ -161,6 +174,13 @@ class TestSigner(SimpleTestCase):
         )
 
     def test_valid_sep(self):
+        """
+        Tests the valid separators used by the Signer class to ensure correct signature generation.
+
+        The function iterates over a list of predefined separators and creates a Signer instance with each separator.
+        It then checks if the generated signature matches the expected output for a given input string and a predictable secret key.
+        This test case validates that the Signer class works correctly with different separator values.
+        """
         separators = ["/", "*sep*", ","]
         for sep in separators:
             signer = signing.Signer(key="predictable-secret", sep=sep)

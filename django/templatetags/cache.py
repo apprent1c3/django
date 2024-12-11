@@ -14,6 +14,33 @@ class CacheNode(Node):
         self.cache_name = cache_name
 
     def render(self, context):
+        """
+        Render a template fragment and cache the result.
+
+        This method takes a context and renders a template fragment, caching the output to 
+        improve performance. The cache expiration time and name can be specified using 
+        template variables. The cache is stored with a generated key based on the fragment 
+        name and a list of variables to vary on.
+
+        The method first resolves the expiration time variable and checks it is a valid 
+        integer. If the cache name is specified, it resolves the cache name and retrieves 
+        the corresponding cache backend. If no cache name is specified, it falls back to 
+        the 'template_fragments' or 'default' cache.
+
+        The method then generates a cache key based on the fragment name and variables to 
+        vary on, and checks if a valid cached value exists. If not, it renders the 
+        template fragment, caches the result, and returns the rendered value.
+
+        Args:
+            context: The template context.
+
+        Returns:
+            The rendered template fragment.
+
+        Raises:
+            TemplateSyntaxError: If an unknown variable or invalid cache name is used.
+            InvalidCacheBackendError: If the specified cache backend is invalid.
+        """
         try:
             expire_time = self.expire_time_var.resolve(context)
         except VariableDoesNotExist:

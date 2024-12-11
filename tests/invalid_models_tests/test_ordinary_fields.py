@@ -351,6 +351,11 @@ class CharFieldTests(TestCase):
         )
 
     def test_choices_named_group_lazy(self):
+        """
+        Tests that choices defined in a named group for a model field are correctly validated when using lazy translation for the group name and choices. 
+
+        Checks if the field validation passes without any errors when the choices contain a named group, ensuring the lazy translation of both the group name and the choices do not interfere with the validation process.
+        """
         class Model(models.Model):
             field = models.CharField(
                 max_length=10,
@@ -792,6 +797,17 @@ class GenericIPAddressFieldTests(SimpleTestCase):
 @isolate_apps("invalid_models_tests")
 class ImageFieldTests(SimpleTestCase):
     def test_pillow_installed(self):
+        """
+        Tests whether the Pillow library is installed and usable with Django's ImageField.
+
+        This test checks for the presence of the Pillow library, which is required for
+        using ImageField in Django models. If Pillow is not installed, it verifies that
+        the expected error is raised when checking the field for errors. The test passes
+        if the correct error is reported, or if no error is raised when Pillow is installed.
+
+        The test creates a temporary model with an ImageField, checks the field for errors,
+        and compares the result with the expected outcome based on the presence of Pillow.
+        """
         try:
             from PIL import Image  # NOQA
         except ImportError:
@@ -851,6 +867,12 @@ class IntegerFieldTests(SimpleTestCase):
                 )
 
     def test_non_iterable_choices(self):
+        """
+        Tests that a non-iterable value for the 'choices' argument in a model field raises a validation error.
+
+        The 'choices' argument is expected to be either a mapping, such as a dictionary, or an iterable, such as a list or tuple.
+        This test ensures that passing a non-iterable value, such as an integer, results in an error with the correct message and identifier (fields.E004).
+        """
         class Model(models.Model):
             field = models.IntegerField(choices=123)
 
@@ -1310,6 +1332,18 @@ class GeneratedFieldTests(TestCase):
 
     @skipUnlessDBFeature("supports_virtual_generated_columns")
     def test_not_supported_stored(self):
+        """
+        Tests the behavior of persisted generated fields when the database does not support them.
+
+        This test case verifies that an error is raised when attempting to create a model
+        with a persisted generated field on a database that does not support this feature.
+        The error is checked to ensure it contains the expected message and hint.
+
+        The test checks the `check` method of the model's field to ensure the correct error
+        is raised, depending on whether the database supports stored generated columns.
+        If the database does not support this feature, the error message should include
+        a hint to set `db_persist=False` on the field.
+        """
         class Model(models.Model):
             name = models.IntegerField()
             field = models.GeneratedField(
@@ -1363,6 +1397,15 @@ class GeneratedFieldTests(TestCase):
 
     @skipUnlessDBFeature("supports_stored_generated_columns")
     def test_output_field_charfield_unlimited_error(self):
+        """
+        Tests that the output field of a GeneratedField raises an error when the model field does not support unlimited character fields.
+
+        The test creates a model with a GeneratedField that uses a CharField as its output field.
+        It checks if the database supports unlimited character fields and raises an error if the CharField does not define a 'max_length' attribute.
+        The test ensures that the error is correctly reported by the model's field validation.
+
+        The expected behavior is that the test passes on databases that support unlimited character fields and fails on those that do not, with a specific error message indicating that the CharField must define a 'max_length' attribute.
+        """
         class Model(models.Model):
             name = models.CharField(max_length=255)
             field = models.GeneratedField(

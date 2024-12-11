@@ -26,6 +26,17 @@ class ListOptionAction(argparse.Action):
     """
 
     def __call__(self, parser, namespace, value, option_string=None):
+        """
+        Sets an attribute in the provided namespace based on the given value.
+
+        If the value is 'true' (case-insensitive), the attribute will be set to a boolean True.
+        Otherwise, the attribute will be set to a list of values split by commas from the provided string. 
+
+        :param parser: The parser object associated with this action.
+        :param namespace: The namespace object that will have an attribute set.
+        :param value: The value to be parsed and potentially split into a list.
+        :param option_string: The option string that triggers this action (optional).
+        """
         if value.lower() == "true":
             setattr(namespace, self.dest, True)
         else:

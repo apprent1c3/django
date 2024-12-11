@@ -188,6 +188,14 @@ class UserPassesTestTests(SimpleTestCase):
             view(request)
 
     def test_raise_exception_custom_message_function(self):
+        """
+
+        Tests that a custom permission denied message is raised as an exception when access is denied.
+
+        This test case verifies that when a view is configured to raise an exception on permission denial, 
+        the correct custom message is included in the raised PermissionDenied exception.
+
+        """
         msg = "You don't have access here"
 
         class AView(AlwaysFalseView):
@@ -290,6 +298,19 @@ class PermissionsRequiredMixinTests(TestCase):
         self.assertEqual(resp.status_code, 302)
 
     def test_permissioned_denied_exception_raised(self):
+        """
+
+        Tests that a PermissionDenied exception is raised when a view requires permissions that the user does not have.
+
+        This test case covers the scenario where a view is decorated with PermissionRequiredMixin and 
+        the permission_required attribute includes a non-existent permission. It verifies that the 
+        PermissionDenied exception is raised when the view is accessed with a user that does not have 
+        the required permissions.
+
+        The test uses a sample view class AView that requires multiple permissions, including a 
+        non-existent one, to test the exception handling behavior.
+
+        """
         class AView(PermissionRequiredMixin, EmptyResponseView):
             permission_required = [
                 "auth_tests.add_customuser",

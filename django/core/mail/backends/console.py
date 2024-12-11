@@ -15,6 +15,14 @@ class EmailBackend(BaseEmailBackend):
         super().__init__(*args, **kwargs)
 
     def write_message(self, message):
+        """
+        Writes a formatted message to the output stream.
+
+        This method takes a message object, extracts its content, and encodes it to a string using the message's specified charset or 'utf-8' by default.
+        The message content is then written to the stream, followed by a line of hyphens to visually separate it from subsequent output.
+        The output is formatted with a newline character after each message and separator line for better readability.
+
+        """
         msg = message.message()
         msg_data = msg.as_bytes()
         charset = (

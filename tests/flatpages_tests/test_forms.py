@@ -59,6 +59,14 @@ class FlatpageAdminFormTests(TestCase):
         )
 
     def test_flatpage_requires_leading_slash(self):
+        """
+
+        Tests that the FlatpageForm validation correctly fails when the provided URL does not start with a leading slash.
+
+        The test case ensures that the form will raise a validation error when a URL without a leading slash is submitted,
+        enforcing the requirement that Flatpage URLs must begin with a slash.
+
+        """
         form = FlatpageForm(data=dict(url="no_leading_slash/", **self.form_data))
         with translation.override("en"):
             self.assertFalse(form.is_valid())

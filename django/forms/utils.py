@@ -160,6 +160,13 @@ class ErrorList(UserList, list, RenderableErrorMixin):
         return ValidationError(self.data).error_list
 
     def copy(self):
+        """
+        Creates a deep copy of the current object, preserving the error class attribute.
+
+        Returns:
+            A new instance of the same class, with all attributes copied from the original object.
+
+        """
         copy = super().copy()
         copy.error_class = self.error_class
         return copy
@@ -203,6 +210,15 @@ class ErrorList(UserList, list, RenderableErrorMixin):
         # `list` for `isinstance` backward compatibility (Refs #17413) we
         # nullify this iterator as it would otherwise result in duplicate
         # entries. (Refs #23594)
+        """
+
+        Custom implementation of the reduction protocol to support serialization of UserList instances.
+
+        This method is used to reduce the object state to a tuple that can be used for pickling or other forms of serialization.
+        The reduction process involves calling the superclass's reduction method and then modifying the resulting information tuple.
+        The returned tuple contains the necessary information to recreate the UserList instance, with the last two elements set to None to prevent the execution of any custom reduction code.
+
+        """
         info = super(UserList, self).__reduce_ex__(*args, **kwargs)
         return info[:3] + (None, None)
 

@@ -37,6 +37,17 @@ class ManyToManyFieldTests(SimpleTestCase):
                 abstract = True
 
         def assert_app_model_resolved(label):
+            """
+
+            Verifies that an application model is correctly resolved.
+
+            This function ensures that the relationships between models in an application are properly established.
+            It checks that the `reference` field of the `ConcreteReferent` model is correctly linked to the `Referred` model,
+            and that the through model used by this relationship is indeed the `Through` model.
+
+            :param label: The label of the application.
+
+            """
             class Referred(models.Model):
                 class Meta:
                     app_label = label
@@ -63,6 +74,14 @@ class ManyToManyFieldTests(SimpleTestCase):
         assert_app_model_resolved("tests")
 
     def test_invalid_to_parameter(self):
+        """
+        Tests that passing an invalid argument to the ManyToManyField's 'to' parameter raises a TypeError.
+
+            This test case verifies that the ManyToManyField's 'to' parameter must be either a model, a model name, or the string 'self', 
+            and that passing any other type of argument, such as an integer, results in a TypeError with a descriptive error message.
+
+            The error message should clearly indicate that the 'to' parameter is invalid and provide guidance on the expected input types.
+        """
         msg = (
             "ManyToManyField(1) is invalid. First parameter to "
             "ManyToManyField must be either a model, a model name, or the "
@@ -95,6 +114,15 @@ class ManyToManyFieldTests(SimpleTestCase):
 
 class ManyToManyFieldDBTests(TestCase):
     def test_value_from_object_instance_without_pk(self):
+        """
+
+        Tests the retrieval of a value from an object instance for a many-to-many field without a primary key.
+
+        This test case verifies that the value_from_object method of a many-to-many field returns an empty list when called on an object instance that lacks a primary key.
+
+        The test creates an instance of the ManyToMany class and checks that the value_from_object method of the 'm2m' field returns an empty list, as expected.
+
+        """
         obj = ManyToMany()
         self.assertEqual(obj._meta.get_field("m2m").value_from_object(obj), [])
 

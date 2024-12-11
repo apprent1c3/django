@@ -662,6 +662,20 @@ TEST_DATA.extend((URLValidator(), url, ValidationError) for url in INVALID_URLS)
 
 class TestValidators(SimpleTestCase):
     def test_validators(self):
+        """
+
+        Tests the functionality of various validators by passing in test data and verifying the expected output.
+
+        Each test case involves a validator function or class, a value to be validated, and an expected result.
+        The test checks if the validator correctly returns the expected result or raises the expected exception.
+        If an exception is expected to be raised, the test ensures that it is indeed raised with the correct type.
+        Otherwise, the test checks if the returned value matches the expected result.
+
+        The test also handles the case where the Pillow library is not installed, in which case a specific validator test is skipped.
+
+        The test data is defined in the TEST_DATA variable and consists of tuples containing the validator, value, and expected result.
+
+        """
         for validator, value, expected in TEST_DATA:
             name = (
                 validator.__name__
@@ -698,6 +712,11 @@ class TestValidators(SimpleTestCase):
         )
 
     def test_message_dict(self):
+        """
+        Tests the string representation of a ValidationError object initialized with a dictionary containing a list of error messages for a specific field. 
+
+        The function ensures the string and representation outputs match the expected formats, validating the object's initialization and stringification behavior.
+        """
         v = ValidationError({"first": ["First Problem"]})
         self.assertEqual(str(v), "{'first': ['First Problem']}")
         self.assertEqual(repr(v), "ValidationError({'first': ['First Problem']})")
@@ -708,6 +727,14 @@ class TestValidators(SimpleTestCase):
             RegexValidator(re.compile("a"), flags=re.IGNORECASE)
 
     def test_max_length_validator_message(self):
+        """
+        Tests the MaxLengthValidator to ensure it raises a ValidationError with a 
+        customized error message when the input value exceeds the specified maximum length.
+
+        The test verifies that the validator correctly replaces placeholders in the 
+        error message with the actual value and limit value, providing informative 
+        feedback to the user about the validation failure.
+        """
         v = MaxLengthValidator(
             16, message='"%(value)s" has more than %(limit_value)d characters.'
         )
@@ -723,6 +750,18 @@ class TestValidatorEquality(TestCase):
     """
 
     def test_regex_equality(self):
+        """
+        Tests the equality of two RegexValidator objects.
+
+        Checks that two RegexValidator objects are considered equal when they have the same 
+        regular expression pattern, error message, and inverse match setting, and not equal 
+        when any of these parameters differ. Also verifies that additional parameters such 
+        as flags are taken into account during equality comparison.
+
+        The test cases cover various scenarios including identical patterns, different patterns, 
+        same and different error messages, and the influence of flags and inverse match on equality.
+
+        """
         self.assertEqual(
             RegexValidator(r"^(?:[a-z0-9.-]*)://"),
             RegexValidator(r"^(?:[a-z0-9.-]*)://"),
@@ -772,6 +811,11 @@ class TestValidatorEquality(TestCase):
         )
 
     def test_email_equality(self):
+        """
+        Tests the equality of EmailValidator objects based on their attributes.
+
+        The test cases verify that two EmailValidator instances are considered equal if they have the same attributes, including message and code. Additionally, it checks that the order of items in the allowlist does not affect the equality comparison.
+        """
         self.assertEqual(
             EmailValidator(),
             EmailValidator(),
@@ -790,6 +834,18 @@ class TestValidatorEquality(TestCase):
         )
 
     def test_basic_equality(self):
+        """
+
+        Tests the equality comparison of validator objects.
+
+        This function checks that validator objects with the same parameters are considered equal,
+        and that validator objects with different parameters are considered not equal.
+        It also verifies that a validator object is considered equal when compared to a mock object.
+
+        The test cases cover different validator types, including MaxValueValidator, MinValueValidator, and StepValueValidator,
+        to ensure that the equality comparison works correctly across various validator classes.
+
+        """
         self.assertEqual(
             MaxValueValidator(44),
             MaxValueValidator(44),
@@ -813,6 +869,15 @@ class TestValidatorEquality(TestCase):
         )
 
     def test_decimal_equality(self):
+        """
+
+        Tests the equality of DecimalValidator instances.
+
+        Verifies that DecimalValidator instances with the same minimum and maximum values are considered equal,
+        while instances with different minimum or maximum values, or instances of different validator classes,
+        are considered not equal.
+
+        """
         self.assertEqual(
             DecimalValidator(1, 2),
             DecimalValidator(1, 2),
@@ -831,6 +896,14 @@ class TestValidatorEquality(TestCase):
         )
 
     def test_file_extension_equality(self):
+        """
+        Tests the equality of two FileExtensionValidator instances.
+
+        This method checks that instances of FileExtensionValidator with the same allowed extensions are considered equal, 
+        regardless of the order or case of the extensions. It also verifies that instances with different allowed extensions 
+        or error codes/messages are not considered equal. The tests cover various scenarios, including empty lists of 
+        extensions, single extensions, and multiple extensions, to ensure the equality comparison works as expected.
+        """
         self.assertEqual(FileExtensionValidator(), FileExtensionValidator())
         self.assertEqual(
             FileExtensionValidator(["txt"]), FileExtensionValidator(["txt"])
@@ -883,6 +956,13 @@ class TestValidatorEquality(TestCase):
         )
 
     def test_domain_name_equality(self):
+        """
+        Tests the equality of DomainNameValidator instances.
+
+        This method checks that two DomainNameValidator objects are considered equal when they have the same attributes, 
+        and not equal when they have different attributes, such as a custom error code or message. It also verifies that 
+        equality is correctly checked against other types of validators, like EmailValidator.
+        """
         self.assertEqual(
             DomainNameValidator(),
             DomainNameValidator(),

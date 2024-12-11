@@ -69,6 +69,18 @@ class RequestsTests(SimpleTestCase):
         self.assertEqual(request.get_full_path_info(), "/prefix/foo%23bar?baz#quux")
 
     def test_httprequest_repr(self):
+        """
+
+        Tests the string representation of a standard HttpRequest object.
+
+        Verifies that the repr function returns a string that accurately represents the HttpRequest,
+        including the HTTP method and path, while omitting other details such as query parameters, 
+        body data, and request metadata.
+
+        The resulting string should be in the format \"<HttpRequest: {method} '{path}'>\", where {method} 
+        is the HTTP method (e.g., GET, POST, PUT, DELETE) and {path} is the URL path of the request.
+
+        """
         request = HttpRequest()
         request.path = "/somepath/"
         request.method = "GET"
@@ -963,6 +975,20 @@ class RequestsTests(SimpleTestCase):
             request.POST
 
     def test_multipart_with_header_fields_too_large(self):
+        """
+        Tests that a MultiPartParserError is raised when the total header size of a multipart form request exceeds the maximum allowed size.
+
+        The test sends a POST request with a payload containing a form-data header field that is larger than the maximum allowed size. 
+
+        The test verifies that a MultiPartParserError with a message indicating that the request's max total header size has been exceeded is raised when attempting to parse the request's POST data.
+
+        Args: None
+
+        Returns: None
+
+        Raises: 
+            MultiPartParserError: if the request's total header size exceeds the maximum allowed size
+        """
         payload = FakePayload(
             "\r\n".join(
                 [
@@ -1072,6 +1098,15 @@ class RequestsTests(SimpleTestCase):
             request.FILES
 
     def test_copy(self):
+        """
+
+        Tests that copying an HttpRequest instance correctly copies the resolver match.
+
+        This test case verifies that the copy of an HttpRequest object shares the same
+        resolver match as the original object, ensuring that the copied request behaves
+        consistently with the original request in terms of URL resolution.
+
+        """
         request = HttpRequest()
         request_copy = copy.copy(request)
         self.assertIs(request_copy.resolver_match, request.resolver_match)
@@ -1242,6 +1277,20 @@ class HostValidationTests(SimpleTestCase):
 
     @override_settings(USE_X_FORWARDED_PORT=False)
     def test_get_port(self):
+        """
+
+        Tests the get_port method of an HttpRequest object.
+
+        This test function checks how the get_port method handles cases where the 
+        HTTP_X_FORWARDED_PORT header is present or absent in the request's metadata.
+        It ensures that the method returns the correct port number based on the 
+        SERVER_PORT variable, regardless of the presence of the 
+        HTTP_X_FORWARDED_PORT header.
+
+        The test is performed with USE_X_FORWARDED_PORT set to False to isolate the 
+        behavior of the get_port method in this specific scenario.
+
+        """
         request = HttpRequest()
         request.META = {
             "SERVER_PORT": "8080",
@@ -1394,6 +1443,15 @@ class BuildAbsoluteURITests(SimpleTestCase):
 
     def test_request_path_begins_with_two_slashes(self):
         # //// creates a request with a path beginning with //
+        """
+
+        Tests that the request path resolves correctly to an absolute URI.
+
+        Checks various scenarios for constructing absolute URIs from relative paths,
+        including those with multiple leading slashes, absolute URIs, and paths
+        containing dots or parents.
+
+        """
         request = self.factory.get("////absolute-uri")
         tests = (
             # location isn't provided

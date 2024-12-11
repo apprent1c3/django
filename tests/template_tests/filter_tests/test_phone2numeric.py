@@ -23,6 +23,19 @@ class Phone2numericTests(SimpleTestCase):
         }
     )
     def test_phone2numeric02(self):
+        """
+
+        Tests the phone2numeric template filter by rendering a template string 
+        with HTML-unsafe and safe input values and asserting the output is correct.
+
+        The filter is expected to convert the input phone numbers to their numeric 
+        equivalents, ignoring HTML tags and other non-numeric characters.
+
+        The test covers two cases: one with a string containing HTML tags and 
+        another with a string marked as safe, to ensure the filter behaves as 
+        expected in both scenarios.
+
+        """
         output = self.engine.render_to_string(
             "phone2numeric02",
             {"a": "<1-800-call-me>", "b": mark_safe("<1-800-call-me>")},

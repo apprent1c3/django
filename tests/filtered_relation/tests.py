@@ -438,6 +438,15 @@ class FilteredRelationTests(TestCase):
             )
 
     def test_as_subquery(self):
+        """
+
+        Tests the usage of a subquery to filter authors based on the existence of a specific book.
+
+        This test case verifies that authors are correctly filtered when using a subquery to check for the presence of a book with a specific title, in this case 'poem by alice'. The subquery annotates authors with a relation to their books and then filters those authors who have at least one book matching the specified condition.
+
+        The expected result is a list of authors who have written the specified book, which in this test case should return only one author.
+
+        """
         inner_qs = Author.objects.annotate(
             book_alice=FilteredRelation(
                 "book", condition=Q(book__title__iexact="poem by alice")
@@ -730,6 +739,15 @@ class FilteredRelationTests(TestCase):
         self.assertSequenceEqual(qs, [self.author1])
 
     def test_conditional_expression_with_case(self):
+        """
+
+        Tests the use of a conditional expression with a case statement in a database query, 
+        specifically when annotating a QuerySet with a FilteredRelation. 
+
+        Verifies that the query correctly filters Books based on the condition that the author's name is 'Alice', 
+        resulting in the expected set of Books being returned.
+
+        """
         qs = Book.objects.annotate(
             alice_author=FilteredRelation(
                 "author",
@@ -784,6 +802,15 @@ class FilteredRelationTests(TestCase):
         self.assertSequenceEqual(qs, [self.author1])
 
     def test_conditional_expression_with_multiple_fields(self):
+        """
+
+        Tests the usage of a conditional expression with multiple fields in a FilteredRelation.
+
+        Verifies that an annotated queryset using FilteredRelation, with a condition that 
+        compares a field to itself, effectively filters out the results when no related 
+        objects are found. The expectation is that the resulting queryset should be empty.
+
+        """
         qs = Author.objects.annotate(
             my_books=FilteredRelation(
                 "book__author",
@@ -820,6 +847,18 @@ class FilteredRelationTests(TestCase):
         self.assertSequenceEqual(qs, [])
 
     def test_conditional_expression_lhs_contains_relation_name(self):
+        """
+        Tests that a conditional expression's left-hand side can contain a relation name.
+
+        This test checks that the Django ORM correctly handles annotated relations
+        in the left-hand side of a conditional expression. It creates a queryset
+        that annotates a relation and then filters on that relation, verifying
+        that the resulting queryset is empty.
+
+        The test case ensures that the `FilteredRelation` annotation is properly
+        evaluated and that the relation name can be used as the left-hand side
+        of a conditional expression in the ORM filter method.
+        """
         qs = Book.objects.annotate(
             rel=FilteredRelation(
                 "editor",

@@ -79,6 +79,15 @@ class SystemCheckFrameworkTests(SimpleTestCase):
                 pass
 
     def test_register_run_checks_non_iterable(self):
+        """
+        Test that registering a check function which returns a non-iterable value raises an error.
+
+        This function verifies that attempting to run checks with a function registered that 
+        does not return an iterable (in this case, a list) will result in a TypeError being raised.
+        The test confirms the error message is correctly formatted to inform the user which 
+        function caused the issue. The intent is to ensure that all functions registered with 
+        the CheckRegistry adhere to the expected interface of returning a list. 
+        """
         registry = CheckRegistry()
 
         @registry.register
@@ -212,6 +221,17 @@ class CheckCommandTests(SimpleTestCase):
 
     @override_system_checks([simple_system_check, tagged_system_check])
     def test_given_tag(self):
+        """
+
+        Tests the behavior of system checks when a given tag is provided.
+
+        This test case verifies that the simple system check is executed without any keyword arguments,
+        and the tagged system check is executed with the expected keyword arguments.
+
+        The test scenario involves running the 'check' command with a specific tag ('simpletag') and
+        then asserting the expected behavior of the system checks.
+
+        """
         call_command("check", tags=["simpletag"])
         self.assertIsNone(simple_system_check.kwargs)
         self.assertEqual(
@@ -220,6 +240,13 @@ class CheckCommandTests(SimpleTestCase):
 
     @override_system_checks([simple_system_check, tagged_system_check])
     def test_invalid_tag(self):
+        """
+        Tests that the system checks functionality correctly handles an invalid tag.
+
+        This test case verifies that when an unknown or non-existent tag is provided to the system checks command, 
+        it raises a :class:`CommandError` with an informative error message indicating that no system check 
+        with the specified tag exists.
+        """
         msg = 'There is no system check with the "missingtag" tag.'
         with self.assertRaisesMessage(CommandError, msg):
             call_command("check", tags=["missingtag"])
@@ -231,6 +258,18 @@ class CheckCommandTests(SimpleTestCase):
 
     @override_system_checks([tagged_system_check])
     def test_list_tags(self):
+        """
+
+        Checks the functionality of listing tags for system checks.
+
+        This test case verifies that the system check command can correctly list tags.
+        It ensures that the expected output, which includes a specific tag 'simpletag', 
+        is produced when the list_tags option is enabled.
+
+        The test utilizes the command-line interface to invoke the check command with 
+        the list_tags option and then asserts that the output matches the expected result.
+
+        """
         call_command("check", list_tags=True)
         self.assertEqual("simpletag\n", sys.stdout.getvalue())
 
@@ -313,6 +352,13 @@ class CheckFrameworkReservedNamesTests(SimpleTestCase):
     @isolate_apps("check_framework", kwarg_name="apps")
     @override_system_checks([checks.model_checks.check_all_models])
     def test_model_check_method_not_shadowed(self, apps):
+        """
+        Tests whether the 'check' method of the Model class is not overridden by model attributes, fields, or related managers.
+
+        This test ensures that the 'check' method, which is crucial for model validation, is not inadvertently overridden by other model components, 
+        leading to runtime errors or silent failures. The test creates several test models with different 'check' components and runs Django's system checks 
+        to verify that the expected errors are raised when the 'check' method is overridden.
+        """
         class ModelWithAttributeCalledCheck(models.Model):
             check = 42
 

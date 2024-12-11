@@ -35,6 +35,13 @@ class ApiTests(SimpleTestCase):
         self.assertEqual(self.storage.store, [])
 
     def test_middleware_missing_silently(self):
+        """
+        Tests that middleware handles missing messages silently.
+
+        Verifies that when a message is added with the fail_silently flag set to True,
+        the middleware does not store any messages, thus preventing potential errors.
+        The test case ensures the message storage remains empty in such scenarios.
+        """
         messages.add_message(
             self.request, messages.DEBUG, "some message", fail_silently=True
         )

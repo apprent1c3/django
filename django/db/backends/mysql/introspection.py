@@ -230,6 +230,22 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
         return result[0]
 
     def _parse_constraint_columns(self, check_clause, columns):
+        """
+        Parses a given CHECK clause to extract the columns it constrains.
+
+        The function takes a CHECK clause and a list of columns as input, and returns an
+        OrderedSet of columns that are present in the CHECK clause. It uses SQL parsing
+        to identify the columns, ensuring accurate results even with complex CHECK clauses.
+
+        The returned columns are the ones that are used in the CHECK constraint, and can
+        be used for further processing or validation. The function handles quoted column
+        names correctly, and only returns columns that are present in the provided list
+        of columns.
+
+        :returns: An OrderedSet of columns that are constrained by the CHECK clause
+        :param check_clause: The CHECK clause to parse
+        :param columns: A list of columns to check against
+        """
         check_columns = OrderedSet()
         statement = sqlparse.parse(check_clause)[0]
         tokens = (token for token in statement.flatten() if not token.is_whitespace)

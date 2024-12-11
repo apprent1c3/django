@@ -162,6 +162,16 @@ class PaginationTests(SimpleTestCase):
 
     def test_no_content_allow_empty_first_page(self):
         # With no content and allow_empty_first_page=True, 1 is a valid page number
+        """
+
+        Tests the Paginator's validate_number method when no content exists, 
+        allowing for an empty first page. Verifies that validating page number 1 
+        returns 1, effectively confirming the handling of an empty page. 
+
+        :raises AssertionError: if validation fails
+        :return: None
+
+        """
         paginator = Paginator([], 2)
         self.assertEqual(paginator.validate_number(1), 1)
 
@@ -563,6 +573,14 @@ class ModelPaginationTests(TestCase):
         self.assertEqual(cm.filename, __file__)
 
     def test_paginating_empty_queryset_does_not_warn(self):
+        """
+        Tests that paginating an empty queryset does not trigger any warnings.
+
+        This test case ensures that the Paginator class handles empty querysets
+        correctly, without issuing unnecessary warnings. The Paginator is tested
+        with an empty queryset and a page size of 5, verifying that no warnings
+        are raised during this process.
+        """
         with warnings.catch_warnings(record=True) as recorded:
             Paginator(Article.objects.none(), 5)
         self.assertEqual(len(recorded), 0)

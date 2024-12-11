@@ -7,6 +7,22 @@ from .models import Article, Author
 class CustomColumnsTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Set up test data for the test class.
+
+        This method creates common test data that can be used across multiple test cases.
+        It populates the database with two authors and one article, and assigns both authors to the article.
+
+        The created data includes:
+
+        * Two authors with first and last names
+        * A list of all created authors
+        * An article with a headline and primary author, as well as multiple authors assigned to it
+
+        The test data is stored as class attributes, making it easily accessible to all test methods within the class.
+
+        """
         cls.a1 = Author.objects.create(first_name="John", last_name="Smith")
         cls.a2 = Author.objects.create(first_name="Peter", last_name="Jones")
         cls.authors = [cls.a1, cls.a2]
@@ -32,6 +48,14 @@ class CustomColumnsTests(TestCase):
         )
 
     def test_field_error(self):
+        """
+        Tests that a FieldError is raised when using an invalid field name in a query.
+
+        Verifies that the ORM correctly identifies and reports fields that do not exist on the model,
+        providing a helpful error message with available field choices.
+
+        :raises: FieldError
+        """
         msg = (
             "Cannot resolve keyword 'firstname' into field. Choices are: "
             "Author_ID, article, first_name, last_name, primary_set"
@@ -40,6 +64,17 @@ class CustomColumnsTests(TestCase):
             Author.objects.filter(firstname__exact="John")
 
     def test_attribute_error(self):
+        """
+        Tests that accessing certain attributes raises an AttributeError.
+
+        This test case verifies that attempting to access the 'firstname' and partial 'last'
+        attributes on an object results in an AttributeError, indicating that these attributes
+        do not exist or are not accessible.
+
+        Raises:
+            AssertionError: If accessing the attributes does not raise an AttributeError.
+
+        """
         with self.assertRaises(AttributeError):
             self.a1.firstname
 
@@ -79,6 +114,18 @@ class CustomColumnsTests(TestCase):
         self.assertEqual(self.a1, Author.objects.get(first_name__exact="John"))
 
     def test_filter_on_nonexistent_field(self):
+        """
+        Tests that a FieldError is raised when attempting to filter on a non-existent field.
+
+        This test case verifies that the ORM correctly handles invalid field names by raising
+        an exception with a descriptive error message, including the available field choices.
+
+        Args: None
+
+        Raises: FieldError
+
+        Returns: None
+        """
         msg = (
             "Cannot resolve keyword 'firstname' into field. Choices are: "
             "Author_ID, article, first_name, last_name, primary_set"
@@ -101,6 +148,21 @@ class CustomColumnsTests(TestCase):
             getattr(a, "last")
 
     def test_m2m_table(self):
+        """
+        Tests the many-to-many relationship table between articles and authors.
+
+        Verifies that authors are correctly associated with articles and that 
+        articles can be correctly filtered by author properties. The test checks 
+        the order of authors, ensures that an author is associated with the 
+        correct article, and confirms that articles can be filtered by author 
+        last name.
+
+        The test case covers the following scenarios:
+
+        * Authors are ordered by last name in the correct sequence.
+        * An author's article set contains the expected article.
+        * Filtering articles by author last name returns the expected author instance.
+        """
         self.assertSequenceEqual(
             self.article.authors.order_by("last_name"),
             [self.a2, self.a1],

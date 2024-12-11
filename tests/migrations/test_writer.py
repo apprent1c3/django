@@ -83,6 +83,16 @@ class IntFlagEnum(enum.IntFlag):
 
 def decorator(f):
     @functools.wraps(f)
+    """
+
+    A decorator that preserves the original function's metadata.
+
+    This decorator serves as a basic identity function, applying no modifications 
+    to the input function's behavior. It can be used as a placeholder or a building 
+    block for more complex decorators, ensuring that the original function's name, 
+    docstring, and other attributes are retained in the wrapped function.
+
+    """
     def wrapper(*args, **kwargs):
         return f(*args, **kwargs)
 
@@ -127,6 +137,14 @@ class OperationWriterTests(SimpleTestCase):
         )
 
     def test_kwargs_signature(self):
+        """
+        Tests the serialization of an operation that contains keyword arguments.
+
+        This test case verifies that keyword arguments are properly formatted and 
+        included in the generated output, and that the required import statement is 
+        correctly identified. The test checks the generated import statements and 
+        the serialized operation against expected values to ensure correctness.
+        """
         operation = custom_migration_operations.operations.KwargsOperation(kwarg1=1)
         buff, imports = OperationWriter(operation, indentation=0).serialize()
         self.assertEqual(imports, {"import custom_migration_operations.operations"})
@@ -138,6 +156,9 @@ class OperationWriterTests(SimpleTestCase):
         )
 
     def test_args_kwargs_signature(self):
+        """
+        Tests the ArgsKwargsOperation class's ability to handle different types of arguments by creating an instance with both positional and keyword arguments, then serializing it to verify its correct representation and required imports.
+        """
         operation = custom_migration_operations.operations.ArgsKwargsOperation(
             1, 2, kwarg2=4
         )
@@ -206,6 +227,16 @@ class OperationWriterTests(SimpleTestCase):
         )
 
     def test_expand_args_signature(self):
+        """
+        Tests the serialization of ExpandArgsOperation and its imports.
+
+        Verifies that the ExpandArgsOperation is correctly converted into a string 
+        representation and that the necessary imports are generated. The test 
+        operation is initialized with a list of arguments and then serialized using 
+        OperationWriter. The resulting imports and serialized buffer are compared 
+        against the expected values to ensure correct serialization and import 
+        generation. 
+        """
         operation = custom_migration_operations.operations.ExpandArgsOperation([1, 2])
         buff, imports = OperationWriter(operation, indentation=0).serialize()
         self.assertEqual(imports, {"import custom_migration_operations.operations"})
@@ -324,6 +355,17 @@ class WriterTests(SimpleTestCase):
         self.assertEqual(string, "'foobar'")
 
     def test_serialize_multiline_strings(self):
+        """
+        Tests the serialization of multiline strings.
+
+        This function checks that the MigrationWriter.serialize method correctly handles 
+        multiline strings, ensuring that newline characters are properly escaped. It 
+        covers both byte string and Unicode string inputs, verifying that the output is 
+        a valid Python string literal that accurately represents the original input string.
+
+        The test cases include serialization of byte strings and Unicode strings with 
+        ASCII and non-ASCII characters, respectively.
+        """
         self.assertSerializedEqual(b"foo\nbar")
         string, imports = MigrationWriter.serialize(b"foo\nbar")
         self.assertEqual(string, "b'foo\\nbar'")
@@ -464,6 +506,17 @@ class WriterTests(SimpleTestCase):
         )
 
     def test_serialize_choices(self):
+        """
+
+        Tests the serialization of model field choices.
+
+        This function checks that the choices for various model fields, including text, integer, and date choices,
+        are correctly serialized and represented in the resulting migration code.
+
+        The serialization is tested for both the individual choice values and the entire field definition,
+        ensuring that the choices are correctly formatted and imported in the generated migration code.
+
+        """
         class TextChoices(models.TextChoices):
             A = "A", "A value"
             B = "B", "B value"
@@ -516,6 +569,18 @@ class WriterTests(SimpleTestCase):
                 )
 
     def test_serialize_callable_choices(self):
+        """
+        Tests the serialization of model fields with callable choices.
+
+        Checks if the MigrationWriter correctly serializes an IntegerField with a
+        callable choices function, ensuring that the function reference is properly
+        represented in the serialized string. This is essential for preserving the
+        original model field configuration during migration operations.
+
+        The test verifies that the serialized string accurately reflects the field's
+        definition, including the reference to the choices function, enabling
+        correct reconstruction of the model field during deserialization.
+        """
         field = models.IntegerField(choices=get_choices)
         string = MigrationWriter.serialize(field)[0]
         self.assertEqual(
@@ -625,6 +690,24 @@ class WriterTests(SimpleTestCase):
         self.assertSerializedEqual(function_with_lru_cache)
 
     def test_serialize_datetime(self):
+        """
+
+        Tests the serialization of datetime objects.
+
+        This function checks that various datetime objects, including those from the
+        datetime module and those with timezones, can be properly serialized and
+        deserialized. It also tests that the serialization result is as expected, 
+        including the import statements required to reconstruct the original object.
+
+        The test cases cover a range of scenarios, including serialization of:
+        - Current date and time
+        - Current date
+        - Specific datetime objects with and without timezones
+        - Time objects
+        - Datetime objects with and without timezones, and with different timezone
+          sources (e.g. datetime.timezone.utc, zoneinfo.ZoneInfo).
+
+        """
         self.assertSerializedEqual(datetime.datetime.now())
         self.assertSerializedEqual(datetime.datetime.now)
         self.assertSerializedEqual(datetime.datetime.today())
@@ -768,6 +851,21 @@ class WriterTests(SimpleTestCase):
             MigrationWriter.serialize(validator)
 
     def test_serialize_complex_func_index(self):
+        """
+        Tests the serialization of complex database index functionality.
+
+        This test case covers the conversion of a custom database index definition into 
+        a string representation and the associated import statements. The index 
+        includes functions like absolute value calculation, conditional statements,
+        expression wrapping, and ordering, showcasing a range of database operations.
+
+        The expected output includes the correct syntax for defining the index using 
+        Django's model syntax, along with the required import statement for the 
+        Django models module.
+
+        This test ensures that the serialization process accurately translates complex 
+        index definitions into a format that can be used in database migrations.
+        """
         index = models.Index(
             models.Func("rating", function="ABS"),
             models.Case(
@@ -807,6 +905,21 @@ class WriterTests(SimpleTestCase):
         self.assertSerializedEqual(many_items_tuple)
 
     def test_serialize_range(self):
+        """
+        Test the serialization of a range object.
+
+        This function verifies that the MigrationWriter can correctly serialize a range object
+        into a string representation, and that no additional imports are required for this operation.
+
+        The test checks if the serialized string matches the expected output, and if the set of imports
+        is empty, confirming that the serialization process does not depend on any external modules.
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the serialized string or imports do not match the expected output.
+        """
         string, imports = MigrationWriter.serialize(range(1, 5))
         self.assertEqual(string, "range(1, 5)")
         self.assertEqual(imports, set())
@@ -866,6 +979,17 @@ class WriterTests(SimpleTestCase):
         self.assertSerializedEqual(datetime.timedelta(minutes=42))
 
     def test_serialize_functools_partial(self):
+        """
+        Tests serialization of functools.partial objects.
+
+        Verifies that the serialization process correctly captures the properties of a partial function,
+        including the underlying function, positional arguments, and keyword arguments, and reconstructs
+        them accurately after a round-trip serialization.
+
+        The test confirms that the deserialized partial function is identical to the original,
+        with matching function reference, positional arguments, and keyword arguments.
+
+        """
         value = functools.partial(datetime.timedelta, 1, seconds=2)
         result = self.serialize_round_trip(value)
         self.assertEqual(result.func, value.func)

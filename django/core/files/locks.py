@@ -83,6 +83,29 @@ if os.name == "nt":
     UnlockFileEx.argtypes = [HANDLE, DWORD, DWORD, DWORD, LPOVERLAPPED]
 
     def lock(f, flags):
+        """
+
+        Acquires an exclusive or shared lock on a file.
+
+        Parameters
+        ----------
+        f : file descriptor
+            The file to be locked.
+        flags : int
+            The type of lock to acquire, specified as a combination of flag values.
+
+        Returns
+        -------
+        bool
+            True if the lock was acquired successfully, False otherwise.
+
+        Notes
+        -----
+        This function uses the Windows LockFileEx API to lock the file. The type of lock
+        to acquire is specified by the flags parameter. The function returns immediately
+        with a boolean result indicating whether the lock was acquired.
+
+        """
         hfile = msvcrt.get_osfhandle(_fd(f))
         overlapped = OVERLAPPED()
         ret = LockFileEx(hfile, flags, 0, 0, 0xFFFF0000, byref(overlapped))

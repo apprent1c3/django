@@ -165,6 +165,13 @@ def _sqlite_time_trunc(lookup_type, dt, tzname, conn_tzname):
 
 
 def _sqlite_datetime_cast_date(dt, tzname, conn_tzname):
+    """
+    Converts a datetime string to a date string in ISO format.
+
+    This function takes a datetime string, its timezone name, and the connection's timezone name, 
+    parses the datetime string into a datetime object, and then returns the date part of the 
+    datetime object as a string in ISO format. If parsing fails, the function returns None.
+    """
     dt = _sqlite_datetime_parse(dt, tzname, conn_tzname)
     if dt is None:
         return None
@@ -179,6 +186,38 @@ def _sqlite_datetime_cast_time(dt, tzname, conn_tzname):
 
 
 def _sqlite_datetime_extract(lookup_type, dt, tzname=None, conn_tzname=None):
+    """
+
+    Extract specific date component from a given datetime object.
+
+    This function takes a date/time string or object, parses it into a datetime object,
+    and then extracts the specified component according to the provided lookup type.
+
+    The lookup type can be one of the following:
+        - 'week_day': Returns the day of the week as an integer (Monday = 1, Sunday = 7).
+        - 'iso_week_day': Returns the day of the week as an integer (Monday = 1, Sunday = 7), following ISO 8601.
+        - 'week': Returns the week number of the year, following ISO 8601.
+        - 'quarter': Returns the quarter of the year (1-4).
+        - 'iso_year': Returns the year, following ISO 8601.
+        - Any other valid datetime attribute, such as 'year', 'month', 'day', 'hour', 'minute', 'second'.
+
+    Parameters
+    ----------
+    lookup_type : str
+        Type of date component to extract.
+    dt : str or datetime object
+        Date/time string or object to extract from.
+    tzname : str, optional
+        Timezone name to use for parsing.
+    conn_tzname : str, optional
+        Timezone name to use for the connection.
+
+    Returns
+    -------
+    int or None
+        Extracted date component, or None if parsing fails.
+
+    """
     dt = _sqlite_datetime_parse(dt, tzname, conn_tzname)
     if dt is None:
         return None
@@ -466,6 +505,14 @@ def _sqlite_sha384(text):
 
 
 def _sqlite_sha512(text):
+    """
+    Computes the SHA-512 hash of the given text and returns it as a hexadecimal string.
+
+    If the input text is None, the function returns None. This function is useful for generating a fixed-size string that uniquely represents the input text, and can be used for data integrity and authentication purposes.
+
+    :returns: A hexadecimal string representing the SHA-512 hash of the input text, or None if the input text is None.
+    :rtype: str or None
+    """
     if text is None:
         return None
     return sha512(text.encode()).hexdigest()

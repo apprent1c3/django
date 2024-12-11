@@ -214,6 +214,27 @@ class ModelDetailView(BaseAdminDocsView):
     template_name = "admin_doc/model_detail.html"
 
     def get_context_data(self, **kwargs):
+        """
+
+        Get context data for a Django model.
+
+        This method retrieves information about a Django model and returns it as context data.
+        It fetches the model's application configuration, retrieves the model itself, and then
+        extracts relevant information such as the model's title, body, and metadata from its
+        docstring. It also collects information about the model's fields, including their names,
+        data types, and verbose names. Additionally, it looks for methods and properties on the
+        model and includes them in the context data if they meet certain criteria.
+
+        The context data is then returned and can be used to generate documentation for the model.
+
+        The following keys are included in the context data:
+        - `name`: The label of the model.
+        - `summary`: A brief summary of the model.
+        - `description`: A longer description of the model.
+        - `fields`: A list of dictionaries, each containing information about a field on the model.
+        - `methods`: A list of dictionaries, each containing information about a method on the model.
+
+        """
         model_name = self.kwargs["model_name"]
         # Get the model class.
         try:

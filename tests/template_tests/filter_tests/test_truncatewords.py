@@ -15,6 +15,19 @@ class TruncatewordsTests(SimpleTestCase):
         }
     )
     def test_truncatewords01(self):
+        """
+        Tests the truncatewords filter by rendering a template that applies the filter to two different strings.
+
+        The test checks if the filter correctly truncates the input strings to the specified number of words and handles HTML entities properly.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Asserts that the rendered template output matches the expected truncated string.
+        """
         output = self.engine.render_to_string(
             "truncatewords01",
             {"a": "alpha & bravo", "b": mark_safe("alpha &amp; bravo")},
@@ -23,6 +36,20 @@ class TruncatewordsTests(SimpleTestCase):
 
     @setup({"truncatewords02": '{{ a|truncatewords:"2" }} {{ b|truncatewords:"2"}}'})
     def test_truncatewords02(self):
+        """
+
+        Tests the truncatewords template filter with two input strings.
+        The filter truncates each string to a specified number of words, 
+        appending an ellipsis if the string is longer than the limit. 
+
+        In this case, the test renders a template with two variables, 
+        'a' and 'b', which are truncated to 2 words each. 
+
+        The expected output is compared to the actual rendered string 
+        to ensure the filter is working correctly with both escaped 
+        and unescaped HTML entities. 
+
+        """
         output = self.engine.render_to_string(
             "truncatewords02",
             {"a": "alpha & bravo", "b": mark_safe("alpha &amp; bravo")},

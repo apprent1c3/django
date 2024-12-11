@@ -160,6 +160,27 @@ class URLValidator(RegexValidator):
             self.schemes = schemes
 
     def __call__(self, value):
+        """
+        Validate a URL string.
+
+        This function checks if the provided URL string meets certain criteria, including:
+
+        * Being a string of valid length
+        * Not containing any forbidden characters
+        * Having a valid scheme (e.g., http, https)
+        * Having a valid network location (e.g., hostname or IP address)
+        * Not exceeding maximum hostname length
+
+        The function performs multiple checks and normalizations on the URL, including:
+
+        * Splitting the URL into its components
+        * Checking the scheme and network location for validity
+        * Handling internationalized domain names (IDNs) and IPv6 addresses
+
+        If any check fails, a ValidationError is raised with a descriptive message and code.
+
+        The function returns nothing if the URL string is valid.
+        """
         if not isinstance(value, str) or len(value) > self.max_length:
             raise ValidationError(self.message, code=self.code, params={"value": value})
         if self.unsafe_chars.intersection(value):
@@ -254,6 +275,17 @@ class EmailValidator:
     def __call__(self, value):
         # The maximum length of an email is 320 characters per RFC 3696
         # section 3.
+        """
+
+        Validate an email address.
+
+        This function checks if the provided email address is valid and complies with the defined rules.
+        It verifies that the address is not empty, contains exactly one '@' symbol, and does not exceed 320 characters in length.
+        The function also checks if the user part (before '@') matches a predefined regular expression and if the domain part (after '@') is either in the allowlist or passes a domain validation check.
+        If the domain part is not valid, it attempts to convert it to punycode and recheck the validity.
+        If any of these checks fail, a :class:`ValidationError` is raised with a corresponding error message and code.
+
+        """
         if not value or "@" not in value or len(value) > 320:
             raise ValidationError(self.message, code=self.code, params={"value": value})
 
@@ -331,6 +363,21 @@ def validate_ipv4_address(value):
 
 
 def validate_ipv6_address(value):
+    """
+    Validate an IPv6 address.
+
+    Args:
+        value: The IPv6 address to be validated.
+
+    Raises:
+        ValidationError: If the provided address is not a valid IPv6 address.
+
+    Description:
+        Checks whether the given value is a valid IPv6 address. If it is not, 
+        the function raises a validation error with an appropriate error message. 
+        This function is useful for ensuring that IPv6 addresses provided by users 
+        or external systems are correctly formatted and valid.
+    """
     if not is_valid_ipv6_address(value):
         raise ValidationError(
             _("Enter a valid %(protocol)s address."),
@@ -400,11 +447,29 @@ class BaseValidator:
     code = "limit_value"
 
     def __init__(self, limit_value, message=None):
+        """
+        Initializes the object with a limit value and an optional custom message.
+
+        :param limit_value: The maximum allowed value.
+        :param message: A custom message to be used when the limit is exceeded. If not provided, a default message will be used.
+        :returns: None
+        :rtype: None
+        """
         self.limit_value = limit_value
         if message:
             self.message = message
 
     def __call__(self, value):
+        """
+        Validate a given value against a predefined limit.
+
+        This function checks if the provided value exceeds a certain limit. 
+        It first cleans the input value, then compares it with the limit value. 
+        If the cleaned value exceeds the limit, it raises a :class:`ValidationError` 
+        with a message and parameters that include the cleaned value, the original value, 
+        and the limit value. 
+        The comparison and limit value are determined by the object's configuration.
+        """
         cleaned = self.clean(value)
         limit_value = (
             self.limit_value() if callable(self.limit_value) else self.limit_value
@@ -550,6 +615,16 @@ class DecimalValidator:
     }
 
     def __init__(self, max_digits, decimal_places):
+        """
+
+        Initialize a numeric field with specific precision settings.
+
+        :param max_digits: The total number of digits allowed in the field, including both integer and fractional parts.
+        :param decimal_places: The number of digits reserved for the fractional part.
+
+        This initializer sets up the basic configuration for a numeric field, defining its overall size and decimal precision.
+
+        """
         self.max_digits = max_digits
         self.decimal_places = decimal_places
 
@@ -655,6 +730,15 @@ class FileExtensionValidator:
 
 
 def get_available_image_extensions():
+    """
+    Return a list of available image file extensions supported by the Python Imaging Library (PIL).
+
+    This function checks if PIL is installed and if so, returns a list of file extensions that can be opened and processed. The extensions are returned in lowercase, without the leading dot.
+
+    :raises: No exception is explicitly raised, but an empty list is returned if PIL is not installed.
+    :returns: A list of strings representing the available image file extensions.
+    :rtype: list
+    """
     try:
         from PIL import Image
     except ImportError:

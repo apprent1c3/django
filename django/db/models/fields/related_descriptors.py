@@ -448,6 +448,24 @@ class ReverseOneToOneDescriptor:
         return self.related.related_model._base_manager.db_manager(hints=hints).all()
 
     def get_prefetch_queryset(self, instances, queryset=None):
+        """
+
+        Retrieves a queryset for prefetching related objects.
+
+        This method is deprecated and will be removed in Django 6.0. It is recommended to use :meth:`get_prefetch_querysets` instead.
+
+        It takes in a list of model instances and an optional queryset. If no queryset is provided, 
+        it calls :meth:`get_prefetch_querysets` without specifying a queryset. If a queryset is provided, 
+        it wraps the queryset in a list and passes it to :meth:`get_prefetch_querysets`.
+
+        Args:
+            instances (list): A list of model instances
+            queryset (QuerySet, optional): An optional queryset to use for prefetching. Defaults to None.
+
+        Returns:
+            QuerySet: The queryset for prefetching related objects
+
+        """
         warnings.warn(
             "get_prefetch_queryset() is deprecated. Use get_prefetch_querysets() "
             "instead.",
@@ -628,6 +646,13 @@ class ReverseManyToOneDescriptor:
     """
 
     def __init__(self, rel):
+        """
+        Initializes a relationship object.
+
+        :param rel: The relationship to be associated with this object
+        :ivar rel: The relationship associated with this object
+        :ivar field: The field associated with the relationship, automatically set based on the provided relationship.
+        """
         self.rel = rel
         self.field = rel.field
 
@@ -742,6 +767,14 @@ def create_reverse_many_to_one_manager(superclass, rel):
             return queryset
 
         def _remove_prefetched_objects(self):
+            """
+            Removes prefetched objects associated with the current field from the instance's cache.
+
+            This method is used to clean up the cache after handling prefetched objects,
+            preventing unnecessary data from being stored and potentially causing memory issues.
+            It safely attempts to remove the cached objects, ignoring any errors that may occur
+            if the cache entry does not exist or is not accessible.
+            """
             try:
                 self.instance._prefetched_objects_cache.pop(
                     self.field.remote_field.cache_name
@@ -767,6 +800,20 @@ def create_reverse_many_to_one_manager(superclass, rel):
                 return self._apply_rel_filters(queryset)
 
         def get_prefetch_queryset(self, instances, queryset=None):
+            """
+
+            Retrieves a prefetch queryset for a given set of instances.
+
+            This method is deprecated and will be removed in Django 6.0. It is recommended to use :meth:`get_prefetch_querysets` instead.
+
+            The method takes a list of instances and an optional queryset. If no queryset is provided, it will return the result of :meth:`get_prefetch_querysets` called with the instances.
+            If a queryset is provided, it will be passed to :meth:`get_prefetch_querysets` along with the instances.
+
+            The returned value can be used for prefetching related objects in a query, improving performance by reducing the number of database queries.
+
+            :return: A prefetch queryset for the given instances.
+
+            """
             warnings.warn(
                 "get_prefetch_queryset() is deprecated. Use get_prefetch_querysets() "
                 "instead.",
@@ -873,6 +920,16 @@ def create_reverse_many_to_one_manager(superclass, rel):
         aget_or_create.alters_data = True
 
         def update_or_create(self, **kwargs):
+            """
+            Update or create an instance of the related model.
+
+            This method checks the foreign key value and then attempts to get or create an instance 
+            of the related model that matches the given keyword arguments. If an instance is found, 
+            it is updated with the given keyword arguments. If no instance is found, a new one is created.
+
+            :param kwargs: The keyword arguments to be used to update or create an instance.
+            :returns: A tuple containing the instance and a boolean indicating whether the instance was created.
+            """
             self._check_fk_val()
             kwargs[self.field.name] = self.instance
             db = router.db_for_write(self.model, instance=self.instance)
@@ -1287,6 +1344,22 @@ def create_forward_many_to_many_manager(superclass, rel, reverse):
         aremove.alters_data = True
 
         def clear(self):
+            """
+
+            Clears the many-to-many relationship between the instance and the model.
+
+            This function removes all objects from the many-to-many relationship, 
+            effectively clearing the association. It takes care of sending the 
+            necessary pre and post-clear signals and handles the removal of 
+            prefetched objects.
+
+            The operation is executed within a transaction to ensure data 
+            consistency and integrity.
+
+            :param None:
+            :returns: None
+
+            """
             db = router.db_for_write(self.through, instance=self.instance)
             with transaction.atomic(using=db, savepoint=False):
                 signals.m2m_changed.send(

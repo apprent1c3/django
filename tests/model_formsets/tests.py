@@ -50,6 +50,15 @@ from .models import (
 
 class DeletionTests(TestCase):
     def test_deletion(self):
+        """
+
+        Test the deletion of a Poet instance via a ModelFormSet.
+
+        This test case verifies that a Poet instance can be successfully deleted using a ModelFormSet
+        with deletion enabled. It creates a Poet instance, then uses the formset to mark the instance for
+        deletion and verifies that the instance is actually removed from the database after saving the formset.
+
+        """
         PoetFormSet = modelformset_factory(Poet, fields="__all__", can_delete=True)
         poet = Poet.objects.create(name="test")
         data = {
@@ -491,6 +500,21 @@ class ModelFormsetTest(TestCase):
         self.assertEqual(len(formset.forms), 1)
 
     def test_custom_save_method(self):
+        """
+
+        Tests the custom save method of a model form.
+
+        This test case creates a formset with a custom save method that overrides the default save behavior.
+        It verifies that the custom save method is called correctly and that the resulting objects are saved to the database.
+        The test checks that the custom save method modifies the object's attributes as expected and that the formset validation and saving work as intended.
+
+        It covers the following scenarios:
+        - Creating a formset with a custom save method
+        - Validating the formset data
+        - Saving the formset data to the database
+        - Verifying the custom save method's effects on the saved objects
+
+        """
         class PoetForm(forms.ModelForm):
             def save(self, commit=True):
                 # change the name to "Vladimir Mayakovsky" just to be a jerk.
@@ -1423,6 +1447,13 @@ class ModelFormsetTest(TestCase):
         self.assertTrue(formset.is_valid())
 
     def test_modelformset_min_num_equals_max_num_less_than(self):
+        """
+        Tests the behavior of a ModelFormSet when the minimum number of forms required equals the maximum number allowed, 
+        but the actual number of forms submitted is greater than the maximum.
+
+        This test case verifies that the formset is invalid when the number of forms submitted exceeds the maximum allowed, 
+        even if the minimum number of forms required is met. It also checks that the correct error message is displayed in this scenario.
+        """
         data = {
             "form-TOTAL_FORMS": "3",
             "form-INITIAL_FORMS": "0",
@@ -1673,6 +1704,13 @@ class ModelFormsetTest(TestCase):
         self.assertEqual(player1.name, "Bobby")
 
     def test_inlineformset_with_arrayfield(self):
+        """
+
+        Tests the use of an inline formset with a model form containing an array field.
+        The formset is populated with data containing duplicate values, which are expected to be validated and raised as errors.
+        Verifies that the formset correctly identifies and reports duplicate values in the array field, ensuring data integrity and consistency.
+
+        """
         class SimpleArrayField(forms.CharField):
             """A proxy for django.contrib.postgres.forms.SimpleArrayField."""
 
@@ -1974,6 +2012,16 @@ class ModelFormsetTest(TestCase):
         )
 
     def test_validation_with_invalid_id(self):
+        """
+         Tests the validation of the Author formset with an invalid id.
+
+            This test case creates an instance of the Author formset with a single form,
+            containing an invalid id ('abc') and a valid name ('Charles'). It then checks
+            if the formset correctly identifies the invalid id and returns the expected error message.
+
+            Asserts that the formset validation correctly raises an error for an invalid choice.
+
+        """
         AuthorFormSet = modelformset_factory(Author, fields="__all__")
         data = {
             "form-TOTAL_FORMS": "1",
@@ -2126,6 +2174,19 @@ class ModelFormsetTest(TestCase):
 
 class TestModelFormsetOverridesTroughFormMeta(TestCase):
     def test_modelformset_factory_widgets(self):
+        """
+
+        Tests the creation of a ModelFormSet with custom widgets.
+
+        This function verifies that the modelformset_factory correctly applies custom
+        widgets to the generated form fields. It creates a ModelFormSet for the Poet
+        model, specifying a custom widget for the 'name' field, and then checks that the
+        rendered HTML for this field matches the expected output.
+
+        The test ensures that the custom widget is properly applied, including the
+        inclusion of any specified HTML attributes, such as CSS classes.
+
+        """
         widgets = {"name": forms.TextInput(attrs={"class": "poet"})}
         PoetFormSet = modelformset_factory(Poet, fields="__all__", widgets=widgets)
         form = PoetFormSet.form()
@@ -2181,6 +2242,11 @@ class TestModelFormsetOverridesTroughFormMeta(TestCase):
         self.assertEqual(form["title"].help_text, "Choose carefully.")
 
     def test_inlineformset_factory_help_text_overrides(self):
+        """
+        Tests that the help_text parameter in inlineformset_factory overrides the default help text for a given field. 
+
+                This function creates an inline formset for the Book model related to Author, specifying custom help text for the 'title' field. It then verifies that the custom help text is correctly applied to the 'title' field in the resulting form.
+        """
         BookFormSet = inlineformset_factory(
             Author, Book, fields="__all__", help_texts={"title": "Choose carefully."}
         )
@@ -2255,6 +2321,18 @@ class TestModelFormsetOverridesTroughFormMeta(TestCase):
         )
 
     def test_modelformset_factory_absolute_max_with_max_num(self):
+        """
+
+        Tests the functionality of modelformset_factory when absolute_max is set and max_num is exceeded.
+
+        This function verifies that when the number of submitted forms exceeds the maximum allowed number (max_num), 
+        the formset is invalid and an error message is displayed. Additionally, it checks that the number of forms 
+        displayed does not exceed the absolute maximum (absolute_max), even if the submitted data attempts to 
+        exceed this limit.
+
+        The test case ensures that the formset behaves as expected in this scenario, providing a valid and 
+        informative error message to the user. 
+        """
         AuthorFormSet = modelformset_factory(
             Author,
             fields="__all__",
@@ -2318,6 +2396,9 @@ class TestModelFormsetOverridesTroughFormMeta(TestCase):
         )
 
     def test_modelformset_factory_can_delete_extra(self):
+        """
+        Tests the ModelFormSet factory to ensure that extra forms can be deleted when using a modelformset_factory with can_delete and can_delete_extra set to True. Verifies that the generated formset contains the specified number of extra forms and that each form includes a 'DELETE' field.
+        """
         AuthorFormSet = modelformset_factory(
             Author,
             fields="__all__",
@@ -2331,6 +2412,15 @@ class TestModelFormsetOverridesTroughFormMeta(TestCase):
         self.assertIn("DELETE", formset.forms[1].fields)
 
     def test_modelformset_factory_disable_delete_extra(self):
+        """
+        .Tests whether a model formset factory correctly disables the \"delete\" field for extra forms when can_delete_extra is set to False.
+
+            This test case verifies that when creating a model formset with modelformset_factory, 
+            the \"can_delete_extra\" parameter successfully prevents the inclusion of a \"delete\" field 
+            in the extra forms, while still allowing deletion of the initial forms. It checks the 
+            resulting formset for the expected number of forms and ensures the \"DELETE\" field is 
+            not present in any of the forms.
+        """
         AuthorFormSet = modelformset_factory(
             Author,
             fields="__all__",
@@ -2393,6 +2483,18 @@ class TestModelFormsetOverridesTroughFormMeta(TestCase):
         self.assertEqual(formset.renderer, renderer)
 
     def test_modelformset_factory_default_renderer(self):
+        """
+
+        Tests that a ModelFormSet rendered by modelformset_factory uses the default 
+        renderer specified on the ModelForm class.
+
+        Verifies that both the forms in the formset and the empty form use the 
+        designated default renderer, and that the formset itself falls back to the 
+        DjangoTemplates renderer when no renderer is explicitly specified.
+
+        This ensures consistency in the rendering of forms within a formset.
+
+        """
         class CustomRenderer(DjangoTemplates):
             pass
 

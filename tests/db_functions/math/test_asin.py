@@ -16,6 +16,14 @@ class ASinTests(TestCase):
         self.assertIsNone(obj.null_asin)
 
     def test_decimal(self):
+        """
+
+        Tests the functionality of calculating the arcsine of decimal fields in a model.
+
+        Checks that the annotated fields are of the correct type (Decimal) and that the
+        calculated arcsine values match the expected results using the math.asin function.
+
+        """
         DecimalModel.objects.create(n1=Decimal("0.9"), n2=Decimal("0.6"))
         obj = DecimalModel.objects.annotate(
             n1_asin=ASin("n1"), n2_asin=ASin("n2")

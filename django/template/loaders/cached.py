@@ -66,6 +66,17 @@ class Loader(BaseLoader):
         return template
 
     def get_template_sources(self, template_name):
+        """
+        Retrieve sources for a given template name.
+
+        This method iterates over the available template loaders and yields sources 
+        for the specified template name. It allows for multiple template loaders to 
+        be used, providing flexibility in template source retrieval.
+
+        :param template_name: The name of the template for which to retrieve sources.
+        :yield: Template sources found by the loaders.
+
+        """
         for loader in self.loaders:
             yield from loader.get_template_sources(template_name)
 

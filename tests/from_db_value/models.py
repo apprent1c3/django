@@ -9,6 +9,13 @@ class Cash(decimal.Decimal):
 
 class CashField(models.DecimalField):
     def __init__(self, **kwargs):
+        """
+        Initializes a numeric field with specific settings for decimal precision.
+
+        This constructor sets default configurations for a numeric field, including 
+        a maximum of 20 digits and 2 decimal places, and then passes any additional 
+        keyword arguments to the parent class's initializer.
+        """
         kwargs["max_digits"] = 20
         kwargs["decimal_places"] = 2
         super().__init__(**kwargs)

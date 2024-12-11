@@ -448,6 +448,16 @@ class ModelFormBaseTest(TestCase):
                 fields = ("name", "age")
 
     def test_extra_field_modelform_factory(self):
+        """
+
+        Tests that modelform_factory raises a FieldError when an unknown field is specified.
+
+        This test case checks that the factory correctly handles invalid field names when
+        creating a model form for the Person model. It verifies that a FieldError is raised
+        with an appropriate error message when a non-existent field ('no-field') is included
+        in the fields list, along with a valid field ('name').
+
+        """
         with self.assertRaisesMessage(
             FieldError, "Unknown field(s) (no-field) specified for Person"
         ):
@@ -505,6 +515,10 @@ class ModelFormBaseTest(TestCase):
         self.assertTrue(wf.is_valid())
 
     def test_limit_nonexistent_field(self):
+        """
+        Tests that attempting to create a ModelForm with a nonexistent field raises a FieldError, 
+        verifying that Django correctly identifies and reports invalid field names for the Category model.
+        """
         expected_msg = "Unknown field(s) (nonexistent) specified for Category"
         with self.assertRaisesMessage(FieldError, expected_msg):
 
@@ -514,6 +528,18 @@ class ModelFormBaseTest(TestCase):
                     fields = ["nonexistent"]
 
     def test_limit_fields_with_string(self):
+        """
+
+        Tests that CategoryForm raises a TypeError when its Meta.fields attribute is set to a string.
+
+        This test case verifies that the ModelForm correctly enforces the requirement that Meta.fields must be 
+        an iterable (e.g. a tuple or list), rather than a string. It checks that a TypeError is raised with 
+        a specific error message, indicating the correct format for the fields attribute.
+
+        The test ensures that the developer is notified of the mistake and can correct it by replacing the 
+        string with an iterable, such as a tuple containing the desired field name(s).
+
+        """
         msg = (
             "CategoryForm.Meta.fields cannot be a string. Did you mean to type: "
             "('url',)?"
@@ -526,6 +552,11 @@ class ModelFormBaseTest(TestCase):
                     fields = "url"  # note the missing comma
 
     def test_exclude_fields(self):
+        """
+        Tests that the exclude attribute in a ModelForm's Meta class correctly excludes specified model fields from the form fields.
+
+        The test verifies that when the 'url' field is excluded from the Category model, only the 'name' and 'slug' fields are present in the form.
+        """
         class ExcludeFields(forms.ModelForm):
             class Meta:
                 model = Category
@@ -599,6 +630,13 @@ class ModelFormBaseTest(TestCase):
         self.assertEqual(list(ConfusedForm.base_fields), ["name"])
 
     def test_mixmodel_form(self):
+        """
+        Tests that a form derived from BaseCategoryForm with a model set in its Meta class does not introduce duplicate 'model' definitions in the inheritance hierarchy.
+
+        The test verifies that the resulting form only contains the expected fields from the specified model, ensuring that the form's save method will function correctly and not cause unexpected behavior when dealing with multiple model objects.
+
+        The expected fields are validated against the list of base fields in the form, which should match the attributes of the model being tested (Article in this case).
+        """
         class MixModelForm(BaseCategoryForm):
             """Don't allow more than one 'model' definition in the
             inheritance hierarchy.  Technically, it would generate a valid
@@ -674,6 +712,13 @@ class ModelFormBaseTest(TestCase):
             InvalidModelForm(instance=Category)
 
     def test_subcategory_form(self):
+        """
+        Tests that a subcategory form class without a specified Meta uses the parent's Meta.
+
+        This checks that the correct base fields are inherited from the parent class, 
+        including 'name', 'slug', and 'url'. The test ensures that the form functions 
+        as expected when subclassing without explicitly defining a Meta class.
+        """
         class SubCategoryForm(BaseCategoryForm):
             """Subclassing without specifying a Meta on the class will use
             the parent's Meta (or the first parent in the MRO if there are
@@ -726,6 +771,11 @@ class ModelFormBaseTest(TestCase):
         )
 
     def test_orderfields2_form(self):
+        """
+        Tests that the fields specified in the exclude Meta option are correctly removed from the base fields of a ModelForm.
+
+        The test creates a ModelForm subclass with a Meta class that defines fields to include and exclude, then verifies that the excluded field is not present in the base fields of the form. This ensures that the form's field ordering and exclusion work as expected.
+        """
         class OrderFields2(forms.ModelForm):
             class Meta:
                 model = Category
@@ -949,6 +999,17 @@ class FieldOverridesByFormMetaForm(forms.ModelForm):
 
 class TestFieldOverridesByFormMeta(SimpleTestCase):
     def test_widget_overrides(self):
+        """
+
+        Tests the HTML output of form fields in the FieldOverridesByFormMetaForm.
+
+        This test case verifies that the form fields for 'name', 'url', and 'slug' are correctly rendered as HTML elements
+        with the expected attributes, such as id, type, name, maxlength, and required attributes.
+
+        The test checks that the 'name' field is rendered as a textarea, the 'url' field as a text input with a 'url' class,
+        and the 'slug' field as a text input with an associated help text.
+
+        """
         form = FieldOverridesByFormMetaForm()
         self.assertHTMLEqual(
             str(form["name"]),
@@ -1200,6 +1261,15 @@ class UniqueTest(TestCase):
         )
 
     def test_abstract_inherited_unique(self):
+        """
+
+        Tests that attempting to create a new DerivedBook instance with a unique ISBN 
+        that is already associated with an existing DerivedBook raises a validation error.
+
+        Verifies that the form is invalid and that the error message correctly indicates 
+        that a DerivedBook with the given ISBN already exists.
+
+        """
         title = "Boss"
         isbn = "12345"
         DerivedBook.objects.create(title=title, author=self.writer, isbn=isbn)
@@ -1338,6 +1408,12 @@ class UniqueTest(TestCase):
         self.assertTrue(form.is_valid())
 
     def test_inherited_unique_for_date(self):
+        """
+        Tests the validation of the DerivedPostForm, ensuring that certain fields are unique for specific date ranges. 
+        Verifies that titles must be unique for a given posted date, and slug fields must be unique for a given posted year. 
+        Additionally, checks that subtitles must be unique for a given posted month. 
+        The test also covers cases where the form is initialized with an existing instance, allowing for updates to existing posts while maintaining validation rules.
+        """
         p = Post.objects.create(
             title="Django 1.0 is released",
             slug="Django 1.0",
@@ -1506,6 +1582,17 @@ class ModelFormBasicTests(TestCase):
         )
 
     def test_auto_id(self):
+        """
+        Tests the rendering of a form as an unordered list when auto ID generation is disabled.
+
+        Verifies that the form fields are correctly rendered without IDs and that the
+        expected HTML structure is produced. The test checks the field names, input types,
+        max lengths, and required attributes to ensure they match the expected output.
+
+        The test case covers a specific scenario where auto ID generation is turned off,
+        providing assurance that the form is still rendered correctly in this situation.
+
+        """
         f = BaseCategoryForm(auto_id=False)
         self.assertHTMLEqual(
             str(f.as_ul()),
@@ -1714,6 +1801,13 @@ class ModelFormBasicTests(TestCase):
             f.save()
 
     def test_multi_fields(self):
+        """
+        Test that the ArticleForm class renders correctly with multiple fields and can be used to create and edit Article objects.
+
+        The test verifies that the form contains the expected fields, including headline, slug, publication date, writer, article, categories, and status. It also checks that the form can be used to create a new Article object and that the object's fields are correctly populated.
+
+        Additionally, the test checks that the form can be used to edit an existing Article object, and that the form's fields are correctly populated with the object's data. The test uses the assertHTMLEqual method to compare the expected and actual HTML output of the form, ensuring that the form is rendered correctly in both cases.
+        """
         self.create_basic_data()
         self.maxDiff = None
         # ManyToManyFields are represented by a MultipleChoiceField, ForeignKeys and any
@@ -1811,6 +1905,21 @@ class ModelFormBasicTests(TestCase):
         # that are _not_ on the form have default values, or are allowed to have
         # a value of None. If a field isn't specified on a form, the object created
         # from the form can't provide a value for that field!
+        """
+        Tests that a ModelForm can successfully include a subset of fields from its model.
+
+        Verifies that the form renders the correct fields, binds data to the form, validates the form data,
+        and saves changes to the instance correctly. The test covers both an empty form and a form populated
+        with instance data, ensuring that the form behaves as expected in both scenarios.
+
+        In particular, it checks that the form:
+
+        * Renders the specified fields in the correct format
+        * Correctly populates the form fields with instance data
+        * Validates the form data successfully
+        * Saves the validated data back to the instance, updating its fields correctly
+
+        """
         class PartialArticleForm(forms.ModelForm):
             class Meta:
                 model = Article
@@ -1944,6 +2053,13 @@ class ModelFormBasicTests(TestCase):
         self.assertEqual(Category.objects.get(id=cat.id).name, "Third")
 
     def test_runtime_choicefield_populated(self):
+        """
+        Test that the runtime choice field is populated correctly for the ArticleForm.
+
+        The test creates basic data, instantiates an ArticleForm, and checks that the form's HTML representation matches the expected HTML. This test case verifies that the form's select fields, including writer and categories, are populated with the correct options based on the data created in the test.
+
+        Specifically, the test checks that the writer field includes all writer instances, and the categories field includes all category instances, in the form's initial state and after creating new writer and category instances. The test uses the assertHTMLEqual method to compare the actual HTML with the expected HTML.
+        """
         self.maxDiff = None
         # Here, we demonstrate that choices for a ForeignKey ChoiceField are determined
         # at runtime, based on the data in the database when the form is displayed, not
@@ -2330,6 +2446,17 @@ class ModelMultipleChoiceFieldTests(TestCase):
         self.assertEqual(len(params), 1)
 
     def test_to_field_name_with_initial_data(self):
+        """
+
+        Tests the rendering of a ModelMultipleChoiceField in a Modelform when the to_field_name parameter is specified.
+
+        This test ensures that when the to_field_name parameter is set to a model field (in this case, 'slug'),
+        the field in the form will display the corresponding value from the related model instance (instead of the default primary key).
+        The test verifies that the form's initial data is correctly populated with the expected values.
+
+        Validates the correct functionality of the to_field_name parameter in the context of ModelMultipleChoiceFields.
+
+        """
         class ArticleCategoriesForm(forms.ModelForm):
             categories = forms.ModelMultipleChoiceField(
                 Category.objects.all(), to_field_name="slug"
@@ -2353,6 +2480,14 @@ class ModelMultipleChoiceFieldTests(TestCase):
 
 class ModelOneToOneFieldTests(TestCase):
     def test_modelform_onetoonefield(self):
+        """
+
+        Tests the functionality of ModelForms when working with one-to-one fields.
+
+        This test case creates two ModelForms: one for the ImprovedArticle model and one for the ImprovedArticleWithParentLink model.
+        It then verifies that the base fields of each form are as expected, checking for the presence of the 'article' field in the ImprovedArticleForm and the absence of fields in the ImprovedArticleWithParentLinkForm.
+
+        """
         class ImprovedArticleForm(forms.ModelForm):
             class Meta:
                 model = ImprovedArticle
@@ -3015,6 +3150,17 @@ class OtherModelFormTests(TestCase):
     def test_media_on_modelform(self):
         # Similar to a regular Form class you can define custom media to be used on
         # the ModelForm.
+        """
+
+        Tests the media property of a ModelFormWithMedia instance.
+
+        Verifies that the media attribute of the form returns the expected HTML
+        content, including a link tag for stylesheet and a script tag for javascript,
+        with correct href and src attributes respectively.
+
+        This test ensures that the form's media is properly rendered as HTML.
+
+        """
         f = ModelFormWithMedia()
         self.assertHTMLEqual(
             str(f.media),
@@ -3024,6 +3170,14 @@ class OtherModelFormTests(TestCase):
 
     def test_choices_type(self):
         # Choices on CharField and IntegerField
+        """
+        Tests the validation of choice field types.
+
+        Verifies that a ValueError (specifically, a ValidationError) is raised when 
+        an invalid choice value is provided for the 'status' field in both the 
+        ArticleForm and ArticleStatusForm. This ensures that the form validation 
+        correctly enforces the expected choice values for the 'status' field.
+        """
         f = ArticleForm()
         with self.assertRaises(ValidationError):
             f.fields["status"].clean("42")
@@ -3120,6 +3274,13 @@ class OtherModelFormTests(TestCase):
         self.assertSequenceEqual(form.cleaned_data["items"], [core, pear])
 
     def test_model_field_that_returns_none_to_exclude_itself_with_explicit_fields(self):
+        """
+        Tests that a model field which returns None is excluded from the form when explicit fields are defined.
+
+        This test case verifies that when a form is defined with explicit fields, a model field that returns None is not included in the form's base fields or rendered HTML.
+
+        It checks the form's base fields and the rendered HTML to ensure that only the explicitly defined field ('name') is present, and that the field that returns None is successfully excluded.
+        """
         self.assertEqual(list(CustomFieldForExclusionForm.base_fields), ["name"])
         self.assertHTMLEqual(
             str(CustomFieldForExclusionForm()),
@@ -3215,6 +3376,17 @@ class ModelFormCustomErrorTests(SimpleTestCase):
         )
 
     def test_model_clean_error_messages(self):
+        """
+
+        Tests the custom error messages of a model during the form validation process.
+
+        This test checks that the model's clean method raises errors with custom messages
+        when invalid data is provided. It verifies that the form returns the expected
+        error messages for different types of invalid input, including model-level errors
+        and field-specific errors. The test covers cases with both complex and simple
+        error message syntax, as well as global error messages.
+
+        """
         data = {"name1": "FORBIDDEN_VALUE", "name2": "ABC"}
         form = CustomErrorMessageForm(data)
         self.assertFalse(form.is_valid())
@@ -3282,6 +3454,21 @@ class CustomCleanTests(TestCase):
 
 class ModelFormInheritanceTests(SimpleTestCase):
     def test_form_subclass_inheritance(self):
+        """
+
+        Tests that a ModelForm subclass can inherit fields from a forms.Form subclass.
+
+        This test case verifies the ability to create a ModelForm that inherits fields 
+        from a parent Form class, allowing for the combination of model fields and 
+        custom form fields in a single form. The expected behavior is that the 
+        resulting ModelForm will contain all fields from both the model and the 
+        parent Form class. 
+
+        Args: None
+
+        Returns: None
+
+        """
         class Form(forms.Form):
             age = forms.IntegerField()
 
@@ -3580,6 +3767,18 @@ class FormFieldCallbackTests(SimpleTestCase):
 
     def test_inherit_after_custom_callback(self):
         def callback(db_field, **kwargs):
+            """
+            Generates a Django form field for a given database field.
+
+            This function takes a database field as input and returns a corresponding Django form field.
+            If the database field is a CharField, it returns a Textarea form field. 
+            For other field types, it delegates the creation of the form field to the database field's formfield method.
+
+            :param db_field: The database field for which to generate a form field.
+            :param kwargs: Additional keyword arguments to pass to the formfield method.
+            :return: A Django form field corresponding to the given database field.
+
+            """
             if isinstance(db_field, models.CharField):
                 return forms.CharField(widget=forms.Textarea)
             return db_field.formfield(**kwargs)
@@ -3692,6 +3891,16 @@ class CustomMetaclassForm(forms.ModelForm, metaclass=CustomMetaclass):
 
 class CustomMetaclassTestCase(SimpleTestCase):
     def test_modelform_factory_metaclass(self):
+        """
+        Tests the creation of a model form using a custom metaclass.
+
+        This test case verifies that the modelform_factory function correctly generates a model form
+        with the specified fields and form class. The test checks that the base fields of the
+        generated form are empty, which is the expected behavior when using the custom metaclass.
+
+        The test is useful for ensuring that the custom metaclass does not interfere with the
+        model form generation process and that the resulting form has the correct structure.
+        """
         new_cls = modelform_factory(Person, fields="__all__", form=CustomMetaclassForm)
         self.assertEqual(new_cls.base_fields, {})
 

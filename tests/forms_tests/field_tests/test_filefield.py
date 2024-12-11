@@ -67,6 +67,19 @@ class FileFieldTest(SimpleTestCase):
         )
 
     def test_filefield_2(self):
+        """
+
+        Tests the functionality of the FileField class.
+
+        This test case checks the following scenarios:
+
+        * Validation of filename length: ensures that a ValidationError is raised when the filename exceeds the maximum allowed length.
+        * Cleaning of empty and null file values: verifies that empty and null values are handled correctly and the default filename is returned.
+        * Cleaning of uploaded file objects: confirms that a SimpleUploadedFile object is returned when cleaning an uploaded file.
+
+        These test cases cover the core functionality of the FileField class, ensuring that it correctly handles file uploads, validates filename lengths, and returns expected file objects.
+
+        """
         f = FileField(max_length=5)
         with self.assertRaisesMessage(
             ValidationError,
@@ -81,6 +94,23 @@ class FileFieldTest(SimpleTestCase):
         )
 
     def test_filefield_3(self):
+        """
+        Tests that the FileField allows empty files to be cleaned successfully.
+
+        Verifies that when the allow_empty_file parameter is enabled, the clean method
+        returns a SimpleUploadedFile instance even when the file is empty. This ensures
+        that the field behaves as expected and does not raise any errors when dealing
+        with empty files.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the cleaned file is not an instance of SimpleUploadedFile
+        """
         f = FileField(allow_empty_file=True)
         self.assertIsInstance(
             f.clean(SimpleUploadedFile("name", b"")), SimpleUploadedFile
@@ -114,6 +144,20 @@ class FileFieldTest(SimpleTestCase):
         )
 
     def test_disabled_has_changed(self):
+        """
+        Tests if the has_changed method of a FileField returns False when the field is disabled.
+
+        This test case verifies that the has_changed method behaves correctly for a disabled 
+        FileField, regardless of the values passed to it. It ensures that the method returns 
+        False, indicating that the field's value has not changed, even if different values are provided.
+
+        Args:
+            None
+
+        Returns:
+            bool: The result of the assertion that the has_changed method returns False.
+
+        """
         f = FileField(disabled=True)
         self.assertIs(f.has_changed("x", "y"), False)
 
@@ -141,6 +185,11 @@ class MultipleFileField(FileField):
 
 class MultipleFileFieldTest(SimpleTestCase):
     def test_file_multiple(self):
+        """
+        Tests that the MultipleFileField properly handles a list of uploaded files.
+
+        The function checks that the field's clean method returns the original list of files without modification, ensuring that multiple file uploads are validated and processed correctly.
+        """
         f = MultipleFileField()
         files = [
             SimpleUploadedFile("name1", b"Content 1"),

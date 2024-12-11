@@ -527,6 +527,13 @@ class BCryptSHA256PasswordHasher(BasePasswordHasher):
         return constant_time_compare(encoded, encoded_2)
 
     def safe_summary(self, encoded):
+        """
+        ..:param encoded: The encoded data to be summarized
+        ..:return: A dictionary containing a human-readable summary of the encoded data
+            The summary includes the algorithm used, work factor, salt, and checksum.
+            Note that the salt and checksum are masked for security reasons, 
+            and are not returned in plain text.
+        """
         decoded = self.decode(encoded)
         return {
             _("algorithm"): decoded["algorithm"],

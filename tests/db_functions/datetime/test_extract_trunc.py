@@ -464,6 +464,15 @@ class DateFunctionTests(TestCase):
         )
 
     def test_extract_iso_year_func(self):
+        """
+
+        Tests the extraction of the ISO year from datetime fields.
+
+        This function verifies that the ExtractIsoYear function correctly extracts the ISO year
+        from both datetime fields ('start_datetime' and 'start_date') in the DTModel, 
+        and that the extracted year can be used for ordering and filtering querysets.
+
+        """
         start_datetime = datetime(2015, 6, 15, 14, 30, 50, 321)
         end_datetime = datetime(2016, 6, 15, 14, 10, 50, 123)
         if settings.USE_TZ:
@@ -539,6 +548,15 @@ class DateFunctionTests(TestCase):
         self.assertSequenceEqual(qs, [obj_1_iso_2014])
 
     def test_extract_month_func(self):
+        """
+        Tests the extraction of the month from datetime fields in the DTModel.
+
+        The test covers both datetime and date fields, ensuring that the ExtractMonth function works correctly in various scenarios.
+        It creates test data, annotates the queryset with the extracted month, and then asserts that the extracted month matches the expected values.
+        Additionally, it verifies that filtering by the extracted month returns the correct number of results.
+        The test also handles both timezone-aware and naive datetime objects, depending on the USE_TZ setting.
+        Overall, this test ensures that the ExtractMonth function behaves as expected and can be used reliably in the DTModel.
+        """
         start_datetime = datetime(2015, 6, 15, 14, 30, 50, 321)
         end_datetime = datetime(2016, 6, 15, 14, 10, 50, 123)
         if settings.USE_TZ:
@@ -725,6 +743,22 @@ class DateFunctionTests(TestCase):
         )
 
     def test_extract_weekday_func(self):
+        """
+        Tests the extraction of the weekday from datetime and date fields in the model.
+
+        This test case verifies that the ExtractWeekDay function correctly extracts the weekday
+        from both DateTimeField and DateField. It also checks that the extracted weekday can be
+        used for ordering and filtering querysets.
+
+        The test uses a custom model with start_datetime and start_date fields to test the
+        extraction of the weekday. It creates two model instances with different start dates and
+        then asserts that the extracted weekdays are correct. Additionally, it tests that the
+        extracted weekdays can be used to filter the queryset and that the count of filtered
+        results is correct.
+
+        The test covers both cases where timezone support is enabled and disabled, ensuring that
+        the ExtractWeekDay function works correctly in both scenarios.
+        """
         start_datetime = datetime(2015, 6, 15, 14, 30, 50, 321)
         end_datetime = datetime(2016, 6, 15, 14, 10, 50, 123)
         if settings.USE_TZ:
@@ -760,6 +794,24 @@ class DateFunctionTests(TestCase):
         )
 
     def test_extract_iso_weekday_func(self):
+        """
+        Tests the extraction of ISO weekday from datetime fields.
+
+        This test case verifies the functionality of the ExtractIsoWeekDay database function 
+        by annotating a queryset with the extracted weekday and comparing the results with 
+        the expected values. It also checks the filtering of datetime fields based on the 
+        extracted weekday.
+
+        The test covers various scenarios, including timezone-aware and naive datetime objects, 
+        to ensure the correctness of the extraction process. Additionally, it tests the 
+        extraction from both 'start_datetime' and 'start_date' fields to confirm the 
+        function's flexibility and accuracy.
+
+        The test asserts the following:
+        - The annotated queryset returns the correct extracted weekday for each datetime object.
+        - The queryset can be correctly filtered based on the week day of a datetime field.
+
+        """
         start_datetime = datetime(2015, 6, 15, 14, 30, 50, 321)
         end_datetime = datetime(2016, 6, 15, 14, 10, 50, 123)
         if settings.USE_TZ:
@@ -894,6 +946,15 @@ class DateFunctionTests(TestCase):
         )
 
     def test_extract_second_func_no_fractional(self):
+        """
+        Tests the extraction of second component from datetime fields.
+
+        This test case verifies that the database query can accurately extract and compare the seconds from the start and end datetime fields.
+        It covers both cases where the datetime fields are aware of the timezone and where they are not.
+        The test creates a model object with matching seconds in the start and end datetime fields and then checks if the object can be correctly filtered based on this condition.
+
+        The test ensures that the filtering works as expected for both the `start_datetime` and `start_time` fields, which represent the full datetime and time components respectively.
+        """
         start_datetime = datetime(2015, 6, 15, 14, 30, 50, 321)
         end_datetime = datetime(2016, 6, 15, 14, 30, 50, 783)
         if settings.USE_TZ:
@@ -940,6 +1001,25 @@ class DateFunctionTests(TestCase):
         self.create_model(end_datetime, start_datetime)
 
         def assertDatetimeKind(kind):
+            """
+
+            Asserts that datetime values are correctly truncated to a specified kind.
+
+            The function takes a kind parameter that determines the level of truncation, 
+            such as hour, day, or month. It then compares the truncated datetime values 
+            with the original values to ensure they match the expected output.
+
+            Args:
+                kind (str): The level of truncation, e.g. 'hour', 'day', 'month', etc.
+
+            Notes:
+                The function uses a database queryset to retrieve the datetime values 
+                and then truncates them according to the specified kind.
+
+            Raises:
+                AssertionError: If the truncated datetime values do not match the expected output.
+
+            """
             truncated_start = truncate_to(start_datetime, kind)
             truncated_end = truncate_to(end_datetime, kind)
             queryset = DTModel.objects.annotate(
@@ -1343,6 +1423,15 @@ class DateFunctionTests(TestCase):
         )
 
     def test_trunc_time_func(self):
+        """
+        Test the functionality of the TruncTime function.
+
+        This test case verifies the correct truncation of datetime fields to time fields.
+        It checks if the TruncTime function correctly extracts the time component from datetime fields,
+        and if it raises the expected errors when attempting to truncate date fields to time fields.
+        The test covers the usage of TruncTime in both annotate and filter methods.
+
+        """
         start_datetime = datetime(2015, 6, 15, 14, 30, 50, 321)
         end_datetime = datetime(2016, 6, 15, 14, 10, 50, 123)
         if settings.USE_TZ:
@@ -1382,6 +1471,13 @@ class DateFunctionTests(TestCase):
             )
 
     def test_trunc_time_none(self):
+        """
+
+        Tests the behavior of the TruncTime annotation when the input datetime field is None.
+
+        Verifies that when the 'start_datetime' field is None, the truncated time returned by the TruncTime annotation is also None.
+
+        """
         self.create_model(None, None)
         self.assertIsNone(
             DTModel.objects.annotate(truncated=TruncTime("start_datetime"))

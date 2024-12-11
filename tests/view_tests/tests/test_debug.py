@@ -98,6 +98,19 @@ class DebugViewTests(SimpleTestCase):
 
     def test_400(self):
         # When DEBUG=True, technical_500_template() is called.
+        """
+        Tests that a 400 Bad Request response is correctly handled.
+
+        This test case checks that when a request is made to a view that raises a 400
+        status code, the response contains the expected HTML elements and the correct
+        status code is returned. Additionally, it verifies that a warning log message
+        is emitted by the django.security logger, indicating that a 400 error occurred.
+
+        The test uses the test client to simulate a GET request to a URL that triggers
+        a 400 response and asserts that the response contains specific HTML elements
+        and has the correct status code.
+
+        """
         with self.assertLogs("django.security", "WARNING"):
             response = self.client.get("/raises400/")
         self.assertContains(response, '<div class="context" id="', status_code=400)
@@ -121,6 +134,19 @@ class DebugViewTests(SimpleTestCase):
         ]
     )
     def test_403(self):
+        """
+
+        Checks that the '/raises403/' URL returns a 403 Forbidden response.
+
+        Verifies that the Django template backend correctly handles and displays the 
+        403 Forbidden error page, including the expected '<h1>403 Forbidden</h1>' 
+        heading, when a request to the specified URL is made.
+
+        The test case uses a custom template backend setting to ensure consistent 
+        results. It sends a GET request to the '/raises403/' URL and asserts that the 
+        response contains the expected error message and status code.
+
+        """
         response = self.client.get("/raises403/")
         self.assertContains(response, "<h1>403 Forbidden</h1>", status_code=403)
 
@@ -151,6 +177,9 @@ class DebugViewTests(SimpleTestCase):
         self.assertContains(response, "(Insufficient Permissions).", status_code=403)
 
     def test_404(self):
+        """
+        Tests that a 404 error page is displayed with the expected content when accessing a URL that does not match any defined routes.
+        """
         response = self.client.get("/raises404/")
         self.assertNotContains(
             response,
@@ -243,6 +272,23 @@ class DebugViewTests(SimpleTestCase):
         )
 
     def test_technical_500(self):
+        """
+
+        Tests the technical 500 error page.
+
+        This test case simulates a request to a view that intentionally raises a 500 error.
+        It verifies that the error page is rendered correctly, including the presence of 
+        expected HTML elements and the correct display of information about the error, 
+        such as the view where the error occurred.
+
+        The test also checks the error page's behavior when the request's Accept header 
+        is set to text/plain, ensuring that the error message is rendered in plain text 
+        as expected.
+
+        The test validates the error page's content and structure, but does not delve 
+        into the underlying implementation details of the view or error handling mechanisms.
+
+        """
         with self.assertLogs("django.request", "ERROR"):
             response = self.client.get("/raises500/")
         self.assertContains(response, '<header id="summary">', status_code=500)
@@ -501,6 +547,14 @@ class NonDjangoTemplatesDebugViewTests(SimpleTestCase):
 
     def test_400_bad_request(self):
         # When DEBUG=True, technical_500_template() is called.
+        """
+
+        Tests the response to a GET request to a URL that raises a 400 Bad Request error.
+
+        Verifies that the request logs a warning message with the expected error syntax,
+        and that the response contains the expected HTML structure with a 400 status code.
+
+        """
         with self.assertLogs("django.request", "WARNING") as cm:
             response = self.client.get("/raises400_bad_request/")
         self.assertContains(response, '<div class="context" id="', status_code=400)
@@ -514,6 +568,15 @@ class NonDjangoTemplatesDebugViewTests(SimpleTestCase):
         self.assertContains(response, "<h1>403 Forbidden</h1>", status_code=403)
 
     def test_404(self):
+        """
+        Tests that a 404 status code is returned when accessing the /raises404/ endpoint.
+
+        This test case verifies that the server correctly handles requests to the specified endpoint
+        and returns a 'Not Found' response with a status code of 404, indicating that the requested resource does not exist.
+
+        :returns: None
+        :raises: AssertionError if the status code is not 404
+        """
         response = self.client.get("/raises404/")
         self.assertEqual(response.status_code, 404)
 
@@ -755,6 +818,18 @@ class ExceptionReporterTests(SimpleTestCase):
         )
 
     def test_reporting_of_nested_exceptions(self):
+        """
+
+        Tests that nested exceptions are properly reported in the traceback.
+
+        This test simulates a scenario where multiple exceptions are raised and
+        reraised, resulting in a nested exception chain. It then verifies that the
+        exception reporter correctly identifies and displays the causal relationships
+        between the exceptions, including both explicit (raised using 'from') and
+        implicit (raised during exception handling) relationships. The test checks
+        both HTML and plain text representations of the traceback.
+
+        """
         request = self.rf.get("/test_view/")
         try:
             try:
@@ -799,6 +874,23 @@ class ExceptionReporterTests(SimpleTestCase):
     )
     @skipUnless(PY311, "Fine-grained error locations were added in Python 3.11.")
     def test_highlight_error_position(self):
+        """
+        Tests the functionality of highlighting error positions in exception tracebacks.
+
+        This test case verifies that the exception reporter correctly generates
+        HTML and text representations of the traceback, including fine-grained
+        error locations with highlighted code lines. It simulates a nested
+        exception scenario with multiple raise statements and checks that the
+        reporter accurately captures and displays the error positions.
+
+        The test checks for the presence of specific HTML and text patterns in
+        the generated tracebacks, ensuring that the error positions are correctly
+        highlighted and the code lines are properly formatted.
+
+        Requires Python 3.11 or later, as fine-grained error locations were
+        introduced in this version. The test is skipped if fine-grained error
+        locations are disabled via environment variables or command-line options.
+        """
         request = self.rf.get("/test_view/")
         try:
             try:
@@ -1589,6 +1681,15 @@ class ExceptionReporterFilterTests(
             self.verify_safe_email(async_sensitive_view)
 
     def test_async_sensitive_nested_request(self):
+        """
+        Test asynchronous sensitive nested request functionality under different debugging modes.
+
+        This test case verifies the behavior of a specific asynchronous view when 
+        debug mode is enabled or disabled, assessing the safety of both the HTTP 
+        response and email notifications generated by this view. It ensures that 
+        the view exhibits expected behavior in terms of security and information 
+        disclosure under various configuration settings.
+        """
         with self.settings(DEBUG=True):
             self.verify_unsafe_response(async_sensitive_view_nested)
             self.verify_unsafe_email(async_sensitive_view_nested)
@@ -1812,6 +1913,18 @@ class ExceptionReporterFilterTests(
                 )
 
     def test_cleanse_setting_basic(self):
+        """
+        Tests the basic functionality of the cleanse_setting method in the SafeExceptionReporterFilter class.
+
+        This test checks that the cleanse_setting method correctly identifies and redacts sensitive settings, 
+        replacing them with a standardized cleansed substitute, while leaving non-sensitive settings unchanged. 
+
+        The test covers two main cases: 
+        - The cleansing of a non-sensitive setting, which should be left unchanged.
+        - The cleansing of a sensitive setting, such as a password, which should be replaced with the cleansed substitute.
+
+        The goal of this test is to ensure the proper handling of sensitive information by the SafeExceptionReporterFilter class.
+        """
         reporter_filter = SafeExceptionReporterFilter()
         self.assertEqual(reporter_filter.cleanse_setting("TEST", "TEST"), "TEST")
         self.assertEqual(
@@ -1938,6 +2051,13 @@ class CustomExceptionReporterFilterTests(SimpleTestCase):
         )
 
     def test_hidden_settings_override(self):
+        """
+
+        Tests the override behavior of hidden settings in exception reporting.
+
+        Verifies that sensitive configuration values, such as database URLs, are properly cleansed and replaced with a substitute value when processed by the exception reporter filter.
+
+        """
         reporter_filter = get_default_exception_reporter_filter()
         self.assertEqual(
             reporter_filter.cleanse_setting("database_url", "super_secret"),

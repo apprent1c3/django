@@ -20,6 +20,19 @@ class Overlap(PostgresOperatorLookup):
     postgres_operator = "&&"
 
     def get_prep_lookup(self):
+        """
+
+        Prepare the lookup for the operator.
+
+        In the case where the right-hand side of the operator is a Query, 
+        this method converts it into an ArraySubquery to enable array 
+        comparisons. The actual preparation of the lookup is then 
+        delegated to the parent class.
+
+        Returns:
+            The prepared lookup.
+
+        """
         from .expressions import ArraySubquery
 
         if isinstance(self.rhs, Query):
@@ -56,6 +69,15 @@ class SearchLookup(SearchVectorExact):
     lookup_name = "search"
 
     def process_lhs(self, qn, connection):
+        """
+        Process the left-hand side (LHS) of a search query.
+
+        This method ensures that the LHS is properly configured to work with search queries. 
+        If the LHS does not already have a SearchVectorField, it is wrapped in a SearchVector 
+        using the configuration defined by the right-hand side (RHS) if available. 
+        It then delegates the actual processing to its parent class, returning the 
+        processed LHS and its parameters.
+        """
         if not isinstance(self.lhs.output_field, SearchVectorField):
             config = getattr(self.rhs, "config", None)
             self.lhs = SearchVector(self.lhs, config=config)

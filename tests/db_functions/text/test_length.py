@@ -22,6 +22,16 @@ class LengthTests(TestCase):
         self.assertEqual(authors.filter(alias_length__lte=Length("name")).count(), 1)
 
     def test_ordering(self):
+        """
+
+        Tests the ordering of Author objects based on the length of their names and aliases.
+
+        The function creates several Author objects with varying name and alias lengths, 
+        then queries the database for these objects ordered by the length of their names 
+        and aliases. The test passes if the returned authors are in the expected order, 
+        which should prioritize shorter names and then shorter aliases.
+
+        """
         Author.objects.create(name="John Smith", alias="smithj")
         Author.objects.create(name="John Smith", alias="smithj1")
         Author.objects.create(name="Rhonda", alias="ronny")
@@ -37,6 +47,15 @@ class LengthTests(TestCase):
         )
 
     def test_transform(self):
+        """
+
+        Tests the transform functionality by filtering Authors based on the length of their name.
+
+        This test creates a couple of authors, one with a long name and one with a short name.
+        It then uses Django's ORM to filter authors whose names are longer than 7 characters.
+        The test asserts that only the author with the long name 'John Smith' is returned in the result set.
+
+        """
         with register_lookup(CharField, Length):
             Author.objects.create(name="John Smith", alias="smithj")
             Author.objects.create(name="Rhonda")

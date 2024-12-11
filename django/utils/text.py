@@ -100,6 +100,13 @@ class TruncateHTMLParser(HTMLParser):
         pass
 
     def __init__(self, *, length, replacement, convert_charrefs=True):
+        """
+        Initializes an HTML parser with a specified length and replacement string.
+
+        The parser will process HTML data up to the given length and replace any remaining data with the provided replacement string.
+        The parser also handles character references and provides options to enable or disable this feature.
+        The parser maintains an internal state, including a queue of tags and the current output, to facilitate efficient parsing.
+        """
         super().__init__(convert_charrefs=convert_charrefs)
         self.tags = deque()
         self.output = ""
@@ -118,6 +125,17 @@ class TruncateHTMLParser(HTMLParser):
             self.handle_endtag(tag)
 
     def handle_starttag(self, tag, attrs):
+        """
+        Handle the start of an HTML tag.
+
+        This method is responsible for processing the opening tag of an HTML element. It generates the text for the start tag and appends it to the output. If the tag is not a void element (i.e., it requires a closing tag), it is added to the stack of open tags to ensure proper nesting and closure. 
+
+        :param tag: The name of the HTML tag being processed
+        :param attrs: The attributes of the HTML tag being processed
+        :ivar output: The accumulated output of the HTML parsing process
+        :ivar tags: A stack of open HTML tags 
+        :ivar void_elements: A set of HTML void elements that do not require a closing tag
+        """
         self.output += self.get_starttag_text()
         if tag not in self.void_elements:
             self.tags.appendleft(tag)
@@ -369,6 +387,19 @@ def compress_string(s, *, max_random_bytes=None):
 
 class StreamingBuffer(BytesIO):
     def read(self):
+        """
+        Read the entire contents of the internal buffer and reset it.
+
+        Returns the current contents of the buffer as a string. After reading, 
+        the buffer is cleared and the cursor is moved back to the beginning, 
+        ready for new data to be written.
+
+        Note that this operation is destructive, meaning that the original 
+        contents of the buffer are lost after being read. 
+
+        :returns: The contents of the buffer as a string.
+
+        """
         ret = self.getvalue()
         self.seek(0)
         self.truncate()
@@ -377,6 +408,23 @@ class StreamingBuffer(BytesIO):
 
 # Like compress_string, but for iterators of strings.
 def compress_sequence(sequence, *, max_random_bytes=None):
+    """
+
+    Compresses an input sequence of data on-the-fly using gzip compression.
+
+    This function takes in a sequence of data and yields the compressed data in chunks.
+    It uses a gzip file object to perform the compression, allowing for efficient
+    streaming of compressed data. The compressed data is yielded as it becomes
+    available, making it suitable for use in streaming or pipelined applications.
+
+    The function accepts an optional parameter, max_random_bytes, which if provided,
+    will cause the compressed data to be written to a temporary file instead of
+    being stored in memory.
+
+    Returns:
+        An iterator yielding the compressed data in chunks, as bytes.
+
+    """
     buf = StreamingBuffer()
     filename = _get_random_filename(max_random_bytes) if max_random_bytes else None
     with GzipFile(

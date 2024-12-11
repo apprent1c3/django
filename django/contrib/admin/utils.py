@@ -415,6 +415,18 @@ def label_for_field(name, model, model_admin=None, return_attr=False, form=None)
 
 
 def help_text_for_field(name, model):
+    """
+    Retrieves the help text for a given field in a model.
+
+    :param name: The name of the field for which help text should be retrieved.
+    :param model: The model that contains the field.
+
+    :returns: The help text for the specified field if available, otherwise an empty string.
+
+    :raises: This function does not raise any exceptions directly but may encounter `FieldDoesNotExist` or `FieldIsAForeignKeyColumnName` exceptions internally, which are handled and ignored. 
+
+    :note: Only non-generic foreign key fields are considered for help text retrieval. Generic foreign key fields are skipped.
+    """
     help_text = ""
     try:
         field = _get_non_gfk_field(model._meta, name)
@@ -489,6 +501,23 @@ class NotRelationField(Exception):
 
 
 def get_model_from_relation(field):
+    """
+
+    Retrieves the model associated with a given relation field.
+
+    This function takes a relation field as input and returns the model instance
+    linked to it. The relationship path is traversed to obtain the target model.
+
+    Args:
+        field: The relation field to extract the model from.
+
+    Returns:
+        The model instance associated with the relation field.
+
+    Raises:
+        NotRelationField: If the provided field is not a relation field.
+
+    """
     if hasattr(field, "path_infos"):
         return field.path_infos[-1].to_opts.model
     else:

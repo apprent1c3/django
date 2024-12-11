@@ -9,6 +9,15 @@ from .base import Loader as BaseLoader
 
 class Loader(BaseLoader):
     def __init__(self, engine, templates_dict):
+        """
+        Initializes the object with a template engine and a dictionary of templates.
+
+        :param engine: The template engine to be used.
+        :param templates_dict: A dictionary containing the available templates.
+
+        The templates dictionary is stored as an instance variable, allowing for easy access to the templates.
+        The initialization also incorporates the parent class's initialization through the engine parameter.
+        """
         self.templates_dict = templates_dict
         super().__init__(engine)
 

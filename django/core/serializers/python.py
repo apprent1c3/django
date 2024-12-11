@@ -18,6 +18,17 @@ class Serializer(base.Serializer):
     internal_use_only = True
 
     def start_serialization(self):
+        """
+
+        Initializes the serialization process by resetting the internal state.
+
+        This method prepares the object for a new serialization cycle by clearing any existing data.
+        It resets the current object being processed and empties the list of objects to be serialized.
+
+        Returns:
+            None
+
+        """
         self._current = None
         self.objects = []
 
@@ -32,6 +43,20 @@ class Serializer(base.Serializer):
         self._current = None
 
     def get_dump_object(self, obj):
+        """
+
+        Get a dictionary representation of the given database object.
+
+        This method constructs a dictionary containing the model's metadata and primary key information.
+        It also includes the current field values for the object.
+
+        The primary key value is included in the dictionary unless natural primary keys are being used
+        and the object has a defined natural key.
+
+        Returns:
+            dict: A dictionary containing the model's metadata, primary key (if applicable), and field values.
+
+        """
         data = {"model": str(obj._meta)}
         if not self.use_natural_primary_keys or not hasattr(obj, "natural_key"):
             data["pk"] = self._value_from_field(obj, obj._meta.pk)
@@ -39,6 +64,18 @@ class Serializer(base.Serializer):
         return data
 
     def _value_from_field(self, obj, field):
+        """
+        Return the value of the given field from the provided object.
+
+        This function retrieves the value of a specific field from an object and returns it.
+        If the value is of a protected type, it is returned as is; otherwise, it is converted to a string representation.
+
+        :param obj: The object from which to retrieve the field value.
+        :param field: The field for which to retrieve the value.
+
+        :return: The value of the field, either as a protected type or a string representation.
+
+        """
         value = field.value_from_object(obj)
         # Protected types (i.e., primitives like None, numbers, dates,
         # and Decimals) are passed through as is. All other values are

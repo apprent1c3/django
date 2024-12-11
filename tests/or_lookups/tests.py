@@ -55,6 +55,17 @@ class OrLookupsTests(TestCase):
     def test_stages(self):
         # You can shorten this syntax with code like the following,  which is
         # especially useful if building the query in stages:
+        """
+
+        Tests the correctness of query filtering on Article objects.
+
+        This test case verifies that the intersection of articles with headlines 
+        starting with 'Hello' and 'Goodbye' is empty, as these are mutually exclusive. 
+        It also checks that filtering articles with headlines starting with 'Hello' and 
+        containing 'bye' returns the expected result, specifically the article with 
+        the headline 'Hello and goodbye'.
+
+        """
         articles = Article.objects.all()
         self.assertQuerySetEqual(
             articles.filter(headline__startswith="Hello")
@@ -187,6 +198,19 @@ class OrLookupsTests(TestCase):
 
     def test_other_arg_queries(self):
         # Try some arg queries with operations other than filter.
+        """
+
+        Tests database queries with Django's ORM using the Q object.
+
+        This test suite evaluates the behavior of various queries, including:
+        - Retrieving objects with multiple filter conditions using the '&' operator
+        - Filtering objects with either of multiple conditions using the '|' operator
+        - Retrieving specific object attributes using the values method
+        - Retrieving objects in bulk using the in_bulk method
+
+        The tests verify that the expected objects are returned based on the provided query conditions.
+
+        """
         self.assertEqual(
             Article.objects.get(
                 Q(headline__startswith="Hello"), Q(headline__contains="bye")

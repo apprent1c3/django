@@ -302,6 +302,18 @@ class FileStorageTests(SimpleTestCase):
         self.assertIs(os.path.exists(os.path.join(self.temp_dir, f_name)), True)
 
     def test_save_doesnt_close(self):
+        """
+
+        Tests whether the save operation preserves the state of the uploaded file, 
+        specifically ensuring that the file remains open after saving.
+
+        The purpose of this test is to verify that the storage mechanism does not 
+        inadvertently close the uploaded file during the saving process, which would 
+        lead to issues with further file processing or handling.
+
+        Two types of uploaded files are tested: TemporaryUploadedFile and InMemoryUploadedFile.
+
+        """
         with TemporaryUploadedFile("test", "text/plain", 1, "utf8") as file:
             file.write(b"1")
             file.seek(0)
@@ -470,6 +482,27 @@ class FileStorageTests(SimpleTestCase):
         # Monkey-patch os.remove, to simulate a normal call, a raced call,
         # and an error.
         def fake_remove(path):
+            """
+
+            Simulates the removal of a file at the specified path, emulating different behaviors for specific files.
+
+            This function is designed to mimic the effect of removing files in a controlled environment.
+            It recognizes three special files and handles their deletion accordingly:
+
+            * 'normal.file' is deleted without any issues
+            * 'raced.file' is deleted, but the removal is immediately followed by an error indicating the file no longer exists
+            * 'error.file' cannot be deleted due to a permission error
+
+            Any other file paths passed to this function will result in a test failure, indicating an unexpected argument.
+
+            Args:
+                path (str): The path to the file to be removed
+
+            Raises:
+                FileNotFoundError: If the file 'raced.file' is removed
+                PermissionError: If an attempt is made to remove 'error.file'
+
+            """
             if path == os.path.join(self.temp_dir, "normal.file"):
                 real_remove(path)
             elif path == os.path.join(self.temp_dir, "raced.file"):
@@ -601,6 +634,20 @@ class CustomStorageTests(FileStorageTests):
     storage_class = CustomStorage
 
     def test_custom_get_available_name(self):
+        """
+        Tests the custom get available name functionality of a storage system.
+
+        This test case verifies that when a file is saved with a custom name, the storage system
+        assigns the provided name if available. If the name is already taken, it appends a 
+        numeric suffix to ensure uniqueness. The test also confirms that the storage system 
+        correctly deletes files by their assigned names.
+
+        The test covers the following scenarios:
+
+        * Saving a file with a custom name that is available
+        * Saving a file with a custom name that is already taken
+        * Deleting files by their assigned names
+        """
         first = self.storage.save("custom_storage", ContentFile("custom contents"))
         self.assertEqual(first, "custom_storage")
         second = self.storage.save("custom_storage", ContentFile("more contents"))
@@ -786,6 +833,19 @@ class FileFieldStorageTests(TestCase):
             return 255  # Should be safe on most backends
 
     def test_files(self):
+        """
+        Tests the functionality of the Storage class, specifically the 'normal' attribute which represents a file descriptor.
+
+        The test covers the following scenarios:
+
+        * Initialization of a new Storage object and its 'normal' attribute
+        * Saving a file to the 'normal' attribute and verifying its properties (name, size, contents)
+        * Handling file conflicts by automatically renaming files with the same name
+        * Listing files in the storage directory
+        * Deleting files from the storage directory
+
+        The goal of this test is to ensure that the Storage class properly handles file operations, including saving, reading, and deleting files, as well as managing file conflicts and directory listings.
+        """
         self.assertIsInstance(Storage.normal, FileDescriptor)
 
         # An object without a file has limited functionality.
@@ -831,6 +891,20 @@ class FileFieldStorageTests(TestCase):
 
     def test_filefield_read(self):
         # Files can be read in a little at a time, if necessary.
+        """
+
+        Tests the functionality of a FileField by reading from an uploaded file.
+
+        This test case verifies that a stored file can be successfully read in chunks 
+        or as a whole, and that the file object behaves as expected when 
+        reading its content. It also checks that the file can be properly 
+        closed after reading.
+
+        The test creates a new Storage object with a SimpleUploadedFile, 
+        then reads the file's content in various ways to ensure correct 
+        functionality.
+
+        """
         obj = Storage.objects.create(
             normal=SimpleUploadedFile("assignment.txt", b"content")
         )
@@ -931,6 +1005,16 @@ class FileFieldStorageTests(TestCase):
 
     def test_filefield_default(self):
         # Default values allow an object to access a single file.
+        """
+        Tests the behavior of the default field in the Storage model.
+
+        Verifies that a file can be stored in the default field, and that the file's
+        content is retrieved correctly. Also checks that the file persists even after
+        the model instance is deleted and recreated.
+
+        The test ensures that the file name and content are set correctly, and that the
+        file can be read and closed without errors.
+        """
         temp_storage.save("tests/default.txt", ContentFile("default content"))
         obj = Storage.objects.create()
         self.assertEqual(obj.default.name, "tests/default.txt")
@@ -988,6 +1072,20 @@ class FileFieldStorageTests(TestCase):
 
     def test_file_object(self):
         # Create sample file
+        """
+
+        Tests the functionality of saving and retrieving a file object.
+
+        This function verifies that a file object can be successfully saved to and
+        retrieved from the storage system. It first creates a temporary file with
+        some content, then saves it to the storage system. The saved file is then
+        retrieved as a file object and its contents are verified to match the
+        original content.
+
+        The function also checks for the existence of the saved file object in the
+        storage system.
+
+        """
         temp_storage.save("tests/example.txt", ContentFile("some content"))
 
         # Load it as Python file object
@@ -1052,6 +1150,14 @@ class FieldCallableFileStorageTests(SimpleTestCase):
         self.assertIsInstance(obj.storage, BaseStorage)
 
     def test_callable_storage_file_field_in_model(self):
+        """
+
+        Tests the callable storage file field in a model.
+
+        Verifies that the storage callable and storage callable class attributes are correctly set
+        and have the expected properties, such as storage location and type.
+
+        """
         obj = Storage()
         self.assertEqual(obj.storage_callable.storage, temp_storage)
         self.assertEqual(obj.storage_callable.storage.location, temp_storage_location)
@@ -1089,6 +1195,16 @@ class SlowFile(ContentFile):
 
 class FileSaveRaceConditionTest(SimpleTestCase):
     def setUp(self):
+        """
+        ':param self: instance of the class this method belongs to
+            :return: None
+
+            Sets up the test environment by creating a temporary storage directory, 
+            initializing a FileSystemStorage object with this directory, and 
+            creating a thread that targets the save_file method to handle file 
+            conflict scenarios. The temporary directory is scheduled for removal 
+            after the test is completed.'
+        """
         self.storage_dir = tempfile.mkdtemp()
         self.addCleanup(shutil.rmtree, self.storage_dir)
         self.storage = FileSystemStorage(self.storage_dir)
@@ -1235,11 +1351,28 @@ class StorageHandlerTests(SimpleTestCase):
         }
     )
     def test_same_instance(self):
+        """
+        Tests that the storages dictionary returns the same instance for the same storage backend.
+
+        This test ensures that the custom storage instance is reused when accessed multiple times through the storages dictionary, 
+        instead of creating a new instance each time. This is verified by comparing the instances returned by the dictionary 
+        and asserting that they are the same object.
+        """
         cache1 = storages["custom_storage"]
         cache2 = storages["custom_storage"]
         self.assertIs(cache1, cache2)
 
     def test_defaults(self):
+        """
+
+        Tests the default storage settings.
+
+        Verifies that the StorageHandler instance is correctly initialized with the default 
+        storage backends for media and static files. The expected default storage backends are 
+        django.core.files.storage.FileSystemStorage for media files and 
+        django.contrib.staticfiles.storage.StaticFilesStorage for static files.
+
+        """
         storages = StorageHandler()
         self.assertEqual(
             storages.backends,

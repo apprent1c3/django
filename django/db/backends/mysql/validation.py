@@ -5,6 +5,16 @@ from django.utils.version import get_docs_version
 
 class DatabaseValidation(BaseDatabaseValidation):
     def check(self, **kwargs):
+        """
+        Checks the object for potential issues.
+
+        This method extends the parent class's check functionality by also verifying the SQL mode.
+        It returns a list of issues found during the checking process, which can be used for further analysis or debugging.
+
+        :param kwargs: Additional keyword arguments to be passed to the parent class's check method and the SQL mode verification.
+        :return: A list of issues detected by the check.
+
+        """
         issues = super().check(**kwargs)
         issues.extend(self._check_sql_mode(**kwargs))
         return issues

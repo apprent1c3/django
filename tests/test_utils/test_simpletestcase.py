@@ -60,6 +60,18 @@ class DebugInvocationTests(SimpleTestCase):
         self.assertFalse(_post_teardown.called)
 
     def test_run_post_teardown_error(self, _pre_setup, _post_teardown):
+        """
+
+        Tests that an error occurring in the post-teardown phase of a test case is properly handled and reported.
+
+        This test case simulates an exception being raised during the post-teardown phase and verifies that
+        the error is captured and included in the test result. It also checks that the pre-setup and post-teardown
+        methods are called as expected.
+
+        The test ensures that the test runner correctly handles exceptions in the post-teardown phase and provides
+        detailed information about the error, including the exception message and traceback.
+
+        """
         _post_teardown.side_effect = Exception("Exception in _post_teardown.")
         test_suite = unittest.TestSuite()
         test_suite.addTest(ErrorTestCase("simple_test"))

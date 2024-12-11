@@ -29,6 +29,13 @@ class SessionTests(BaseTests, TestCase):
     storage_class = SessionStorage
 
     def get_request(self):
+        """
+        Retrieves an HTTP request object, initializing a new session if necessary.
+
+        This function extends the base class's request retrieval behavior by creating a new, empty session and assigning it to the request object. The resulting request object is then returned, allowing for further processing or inspection.
+
+        The session is stored in the instance's `session` attribute, making it accessible for subsequent requests or operations.
+        """
         self.session = {}
         request = super().get_request()
         request.session = self.session

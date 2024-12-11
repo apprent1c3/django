@@ -25,6 +25,23 @@ simple_option_desc_re = re.compile(r"([-_a-zA-Z0-9]+)(\s*.*?)(?=,\s+(?:/|-|--)|$
 
 
 def setup(app):
+    """
+
+    Setup function for integrating Django specific directives and functionality with Sphinx.
+
+    This function customizes the Sphinx application by adding new cross-reference types,
+    object types, directives, and translators. It enables support for documenting Django
+    settings, template tags, filters, and field lookups. Additionally, it adds directives for
+    documenting Django admin commands and console output.
+
+    The function also sets up support for versioning information, such as version added and
+    changed directives, and configures the HTML builder and translators for Django-specific
+    output.
+
+    By using this setup function, Django projects can leverage Sphinx's documentation
+    capabilities with project-specific features and conventions.
+
+    """
     app.add_crossref_type(
         directivename="setting",
         rolename="setting",
@@ -123,11 +140,33 @@ class DjangoHTMLTranslator(HTMLTranslator):
         self.body.append(self.starttag(node, "table", CLASS="docutils"))
 
     def depart_table(self, node):
+        """
+        Closes a table element in the document body.
+
+        This method is responsible for terminating a table structure, ensuring proper closure of the table tag in the generated output. It restores the previous compact paragraph state and cleans up internal tracking of table row indices, ultimately appending the closing table tag to the document body.
+        """
         self.compact_p = self.context.pop()
         self._table_row_indices.pop()
         self.body.append("</table>\n")
 
     def visit_desc_parameterlist(self, node):
+        """
+
+        Visit a description parameter list node.
+
+        This function is responsible for initializing the documentation generation process 
+        for a parameter list in a description. It sets up the necessary state to handle 
+        the parameters correctly, including tracking the number of required parameters 
+        left to process, handling optional parameters, and managing the parameter 
+        separator.
+
+        The function handles differences in behavior based on the Sphinx version, 
+        ensuring compatibility across different versions.
+
+        The output of this function contributes to the overall documentation string for 
+        the described object, ensuring accurate representation of its parameters.
+
+        """
         self.body.append("(")  # by default sphinx puts <big> around the "("
         self.optional_param_level = 0
         self.param_separator = node.child_text_separator
@@ -165,6 +204,16 @@ class DjangoHTMLTranslator(HTMLTranslator):
     }
 
     def visit_versionmodified(self, node):
+        """
+
+        Visits a version modified node and appends the corresponding HTML to the document body.
+
+        This function is responsible for rendering version information in the output document. 
+        It checks the node type to determine the version text to display, and appends a div element 
+        with the version text and a title to the document body. The title includes the version number 
+        and a colon if the node has children, or a period otherwise.
+
+        """
         self.body.append(self.starttag(node, "div", CLASS=node["type"]))
         version_text = self.version_text.get(node["type"])
         if version_text:
@@ -176,6 +225,16 @@ class DjangoHTMLTranslator(HTMLTranslator):
 
     # Give each section a unique ID -- nice for custom CSS hooks
     def visit_section(self, node):
+        """
+        Modify node IDs of a section by prefixing them temporarily.
+
+        This function visits a section node, modifies its IDs by prefixing them with 's-', 
+        and then calls the parent class's method to process the node. After the node has 
+        been processed, it restores the original IDs to maintain consistency.
+
+        :param node: The section node being visited
+
+        """
         old_ids = node.get("ids", [])
         node["ids"] = ["s-" + i for i in old_ids]
         node["ids"].extend(old_ids)
@@ -233,6 +292,28 @@ class ConsoleNode(nodes.literal_block):
         self.wrapped = litblk_obj
 
     def __getattr__(self, attr):
+        """
+        Override attribute access to proxy attributes from the wrapped object.
+
+        This method allows accessing attributes that are not explicitly defined in this
+        class, by forwarding the access to the wrapped object. If the attribute is
+        'wrapped', it returns the wrapped object itself. Otherwise, it delegates the
+        attribute access to the wrapped object.
+
+        There are two main use cases for this method:
+
+        * Accessing attributes that are defined in the wrapped object but not in this class.
+        * Accessing the wrapped object itself through the 'wrapped' attribute.
+
+        Example use cases are not included here to avoid low-level details, but this
+        method is typically used to implement a proxy or decorator pattern, allowing
+        for a seamless interaction with the wrapped object while still providing
+        additional functionality or control through this class. 
+
+        Attributes are forwarded in a transparent way, meaning that attribute access
+        looks and feels like accessing attributes directly on the wrapped object.
+
+        """
         if attr == "wrapped":
             return self.__dict__.wrapped
         return getattr(self.wrapped, attr)

@@ -105,6 +105,25 @@ def create_reference_role(rolename, urlbase):
     is_case_sensitive = rolename in ["template", "view"]
 
     def _role(name, rawtext, text, lineno, inliner, options=None, content=None):
+        """
+
+        Role to create a custom reference node.
+
+        This function generates a reference node that links to a URL constructed from the provided text.
+        The URL is created by formatting the :data:`urlbase` string with the link base from the document settings and the provided text.
+        The link is case-sensitive if :data:`is_case_sensitive` is True, otherwise it is case-insensitive.
+
+        :param name: The name of the role.
+        :param rawtext: The raw text of the role.
+        :param text: The text to be used for the reference.
+        :param lineno: The line number where the role is used.
+        :param inliner: The inliner object that is using this role.
+        :param options: Additional options for the reference node.
+        :param content: The content of the role.
+
+        :return: A tuple containing a list of nodes (in this case, a single reference node) and a list of system messages (which is empty in this case).
+
+        """
         if options is None:
             options = {}
         node = docutils.nodes.reference(

@@ -45,6 +45,19 @@ def _contains_subclass(class_path, candidate_paths):
 
 
 def check_admin_app(app_configs, **kwargs):
+    """
+    Checks the admin application configurations for any errors.
+
+    This function iterates over all registered admin sites and runs their configuration checks.
+    It aggregates any error messages found during these checks and returns them as a list.
+
+    The checks are performed for the given application configurations.
+
+    :param app_configs: The application configurations to be checked
+    :param kwargs: Additional keyword arguments (currently not used)
+    :returns: A list of error messages found during the checks
+    :rtype: list[str]
+    """
     from django.contrib.admin.sites import all_sites
 
     errors = []
@@ -608,6 +621,13 @@ class BaseModelAdminChecks:
             return []
 
     def _check_view_on_site_url(self, obj):
+        """
+        Checks if the 'view_on_site' attribute of an object is a valid type.
+
+        The 'view_on_site' attribute must be either a callable function or a boolean value.
+        If the type is invalid, a list containing an error message is returned; otherwise, an empty list is returned.
+        This check is used to ensure the 'view_on_site' attribute can be used correctly in administrative interfaces.
+        """
         if not callable(obj.view_on_site) and not isinstance(obj.view_on_site, bool):
             return [
                 checks.Error(
@@ -772,6 +792,18 @@ class BaseModelAdminChecks:
             )
 
     def _check_readonly_fields_item(self, obj, field_name, label):
+        """
+        Checks if a field name refers to a valid attribute or model field.
+
+        This method takes an object, a field name, and a label as input and returns a list of error messages.
+        If the field name is callable, or an attribute of the object or its model, no errors are raised.
+        If the field name is not a valid model field, an error message is generated, indicating that the
+        field name is not recognized as a callable, an attribute of the object, or an attribute of its model.
+
+        The method is used to validate the field name and prevent potential errors when working with readonly fields.
+        It returns a list of :class:`checks.Error` objects, which can be used for further processing or display.
+
+        """
         if callable(field_name):
             return []
         elif hasattr(obj, field_name):

@@ -16,6 +16,20 @@ class CastTests(TestCase):
         Author.objects.create(name="Bob", age=1, alias="1")
 
     def test_cast_from_value(self):
+        """
+        Tests the ability to cast a value to an integer type.
+
+        This test ensures that a string value can be successfully cast to an integer, 
+        resulting in the expected output. It verifies the correctness of the Cast function 
+        from Django's database functions, which allows converting a value from one type to another.
+
+        The test covers the scenario where the cast operation is applied to a model instance, 
+        annotating the instance with the cast result. The annotated value is then retrieved 
+        and its correctness is asserted.
+
+        The expected outcome of this test is that the cast operation yields the correct 
+        integer value, which in this case is 0, given the string value '0' as input.
+        """
         numbers = Author.objects.annotate(
             cast_integer=Cast(models.Value("0"), models.IntegerField())
         )
@@ -86,6 +100,17 @@ class CastTests(TestCase):
         self.assertEqual(numbers.get().cast_fk, 0)
 
     def test_cast_to_duration(self):
+        """
+
+        Tests the casting of a time delta object to a duration field.
+
+        Verifies that a datetime.timedelta object can be successfully cast to a duration field,
+        and that the resulting duration object accurately represents the original time delta.
+
+        Additionally, this test checks that casting the negative of a time delta object results
+        in a duration object that correctly represents the negated time delta.
+
+        """
         duration = datetime.timedelta(days=1, seconds=2, microseconds=3)
         DTModel.objects.create(duration=duration)
         dtm = DTModel.objects.annotate(

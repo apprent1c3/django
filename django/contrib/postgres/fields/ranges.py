@@ -76,6 +76,13 @@ class RangeField(models.Field):
 
     @model.setter
     def model(self, model):
+        """
+
+        Sets the model associated with the current instance.
+
+        This property setter updates the internal model reference and propagates the change to the base field.
+
+        """
         self.__dict__["model"] = model
         self.base_field.model = model
 
@@ -280,6 +287,11 @@ class RangeContainedBy(PostgresOperatorLookup):
         return "%s::%s" % (rhs, cast_type), rhs_params
 
     def process_lhs(self, compiler, connection):
+        """
+        Modify the output of a left-hand side expression during database query compilation to ensure compatibility with the target database system.
+
+        This function takes a compiler and a connection as input, and returns a modified left-hand side expression and its associated parameters. The modification involves casting the left-hand side to a specific data type if it is a FloatField or SmallIntegerField, to match the requirements of the underlying database system.
+        """
         lhs, lhs_params = super().process_lhs(compiler, connection)
         if isinstance(self.lhs.output_field, models.FloatField):
             lhs = "%s::numeric" % lhs

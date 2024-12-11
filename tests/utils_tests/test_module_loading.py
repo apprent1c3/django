@@ -130,6 +130,16 @@ class EggLoader(unittest.TestCase):
 
 class ModuleImportTests(SimpleTestCase):
     def test_import_string(self):
+        """
+
+        Tests the functionality of importing a string representing a Python module or object path.
+
+        Verifies that the function correctly imports a module or object when given a valid string path.
+        Checks for proper error handling when encountering an invalid path or a module that does not define the specified attribute.
+
+        The import string is expected to be in the dotted notation format (e.g. 'module_name.attribute_name').
+
+        """
         cls = import_string("django.utils.module_loading.import_string")
         self.assertEqual(cls, import_string)
 

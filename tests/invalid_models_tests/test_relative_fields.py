@@ -91,6 +91,17 @@ class RelativeFieldTests(SimpleTestCase):
 
     @isolate_apps("invalid_models_tests")
     def test_auto_created_through_model(self):
+        """
+
+        Tests the auto-created through model for Many-To-Many relationships when a One-To-One relationship is established with it.
+
+        This test case verifies that the auto-created through model does not raise any errors during the validation of the One-To-One relationship field.
+
+        It creates a Many-To-Many relationship between two models, and then establishes a One-To-One relationship with the auto-created through model. The test asserts that the validation of the One-To-One relationship field passes without any errors.
+
+        The purpose of this test is to ensure that Django's model validation handles auto-created through models correctly in the context of One-To-One relationships.
+
+        """
         class OtherModel(models.Model):
             pass
 
@@ -302,6 +313,11 @@ class RelativeFieldTests(SimpleTestCase):
         )
 
     def test_missing_relationship_model_on_model_check(self):
+        """
+        Tests for the condition when a model is defined with a many-to-many relationship but the intermediate model specified by the 'through' parameter is missing.
+
+        This test case checks that the correct error is raised when the model for the many-to-many relationship is not defined. The error message includes the name of the missing model and the field on the model where the missing relationship is defined.
+        """
         class Person(models.Model):
             pass
 
@@ -619,6 +635,17 @@ class RelativeFieldTests(SimpleTestCase):
         )
 
     def test_foreign_object_to_unique_field_with_meta_constraint(self):
+        """
+
+        Tests that a foreign object to a unique field with a meta constraint is properly validated.
+
+        This test case ensures that a foreign object pointing to a unique field in another model,
+        with a meta constraint defined to enforce uniqueness, does not raise any validation errors.
+        The test models include a Person model with a unique constraint on the country_id and city_id fields,
+        and an MMembership model with a foreign object referencing the Person model.
+        The test asserts that the check method on the foreign object field returns an empty list, indicating no validation errors.
+
+        """
         class Person(models.Model):
             country_id = models.IntegerField()
             city_id = models.IntegerField()
@@ -688,6 +715,19 @@ class RelativeFieldTests(SimpleTestCase):
         )
 
     def test_nullable_primary_key(self):
+        """
+
+        Test that a primary key field with null=True raises an appropriate error.
+
+        This test case checks the validation of a model field that is both a primary key
+        and nullable. Since primary keys must uniquely identify each object and cannot
+        be null, this combination is invalid and should raise an error.
+
+        The test verifies that the error message is correctly generated, including a
+        hint on how to fix the issue, which is to either set null=False on the field or
+        remove the primary_key=True argument.
+
+        """
         class Model(models.Model):
             field = models.IntegerField(primary_key=True, null=True)
 
@@ -915,6 +955,14 @@ class RelativeFieldTests(SimpleTestCase):
         )
 
     def test_to_fields_not_checked_if_related_model_doesnt_exist(self):
+        """
+
+        Checks that model validation does not test 'to_fields' for a foreign object if the related model does not exist.
+
+        The test case creates a model with a foreign key referencing a non-existent parent model, 
+        and verifies that the expected validation error is raised.
+
+        """
         class Child(models.Model):
             a = models.PositiveIntegerField()
             b = models.PositiveIntegerField()
@@ -1620,6 +1668,15 @@ class ComplexClashTests(SimpleTestCase):
     # New tests should not be included here, because this is a single,
     # self-contained sanity check, not a test of everything.
     def test_complex_clash(self):
+        """
+        Tests that Django model validation correctly identifies and reports name clashes 
+        between foreign key and many-to-many fields on a model and fields on the related model, 
+        including fields that are automatically created by Django for reverse relationships. 
+        The test checks clashes between field names and the automatically generated reverse 
+        accessor names, and between multiple fields that use the same related_name. The test 
+        verifies that the validation errors reported are correct, including the error messages 
+        and the fields or objects to which the errors are related.
+        """
         class Target(models.Model):
             tgt_safe = models.CharField(max_length=10)
             clash = models.CharField(max_length=10)
@@ -1787,6 +1844,15 @@ class ComplexClashTests(SimpleTestCase):
         )
 
     def test_clash_parent_link(self):
+        """
+
+        Tests whether a child model with a OneToOneField to its parent model raises the expected errors due to clashed reverse relationships.
+
+        The test verifies that the check method of the child model returns a list of errors indicating the conflict between the implicit 'parent_ptr' reverse relationship and the explicit 'other_parent' relationship. 
+
+        The expected errors cover both the accessor and query name clashes, providing hints for resolving the issue by adding or changing the related_name argument in the field definitions.
+
+        """
         class Parent(models.Model):
             pass
 

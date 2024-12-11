@@ -139,6 +139,19 @@ class InMemoryDirNode(TimingMixin):
         return current_node
 
     def _resolve_child(self, path_segment, create_if_missing, child_cls):
+        """
+
+        Resolves a child object based on the given path segment.
+
+        :param path_segment: The segment of the path to resolve.
+        :param create_if_missing: Whether to create the child object if it does not exist.
+        :param child_cls: The class of the child object to be created or retrieved.
+
+        :returns: The resolved child object, or None if create_if_missing is False and the child object does not exist.
+
+        :note: If create_if_missing is True, the accessed and modified times of the parent object are updated.
+
+        """
         if create_if_missing:
             self._update_accessed_time()
             self._update_modified_time()
@@ -146,6 +159,12 @@ class InMemoryDirNode(TimingMixin):
         return self._children.get(path_segment)
 
     def listdir(self):
+        """
+        List the contents of the current directory.
+
+        This function separates the directory contents into two lists: one for subdirectories and one for files. It returns a tuple containing these two lists, where the first element is a list of subdirectory names and the second element is a list of file names. 
+        The lists only include names of items directly within the current directory and do not recursively traverse subdirectories.
+        """
         directories, files = [], []
         for name, entry in self._children.items():
             if isinstance(entry, InMemoryDirNode):

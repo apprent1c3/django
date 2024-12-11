@@ -30,6 +30,16 @@ class ParserTests(SimpleTestCase):
         )
 
     def test_repr(self):
+        """
+
+        Tests the string representation of various objects in the template parsing system.
+
+        This test ensures that the repr() function returns a human-readable and
+        informative string for Token, Parser, FilterExpression, and Lexer objects.
+        The output of repr() is expected to provide a concise yet meaningful summary
+        of the object's state, including any relevant attributes or contents.
+
+        """
         token = Token(TokenType.BLOCK, "some text")
         self.assertEqual(repr(token), '<Block token: "some text...">')
         parser = Parser([token], builtins=[filter_library])
@@ -105,6 +115,14 @@ class ParserTests(SimpleTestCase):
             Variable({})
 
     def test_filter_args_count(self):
+        """
+        Tests the functionality of filter arguments count in the template parser.
+        Verifies that the parser correctly raises a :exc:`TemplateSyntaxError` when a filter 
+        is provided with the wrong number of arguments, including both required and optional arguments.
+        Checks that filters with the correct number of arguments are successfully parsed, 
+        covering various scenarios such as filters with no arguments, required arguments, 
+        and optional arguments.
+        """
         parser = Parser("")
         register = Library()
 

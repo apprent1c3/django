@@ -237,6 +237,32 @@ class HasKeyLookup(PostgresOperatorLookup):
         return sql % tuple(params), []
 
     def as_postgresql(self, compiler, connection):
+        """
+        Converts the current object to a PostgreSQL-specific representation.
+
+        This method is responsible for adapting the object to the PostgreSQL database 
+        dialect, handling any necessary transformations for keys and other objects.
+
+        It takes into account the right-hand side (RHS) of the expression, specifically 
+        when it involves key transformations. In such cases, the method applies the 
+        necessary transformations to the left-hand side (LHS) and the RHS to ensure 
+        compatibility with PostgreSQL.
+
+        The resulting representation can be used for compilation and execution on a 
+        PostgreSQL database connection. 
+
+        Parameters
+        ----------
+        compiler : object
+            The compiler object used for the conversion process.
+        connection : object
+            The database connection object.
+
+        Returns
+        -------
+        object
+            The PostgreSQL-specific representation of the current object.
+        """
         if isinstance(self.rhs, KeyTransform):
             *_, rhs_key_transforms = self.rhs.preprocess_lhs(compiler, connection)
             for key in rhs_key_transforms[:-1]:
@@ -311,6 +337,18 @@ class JSONExact(lookups.Exact):
         return rhs, rhs_params
 
     def as_oracle(self, compiler, connection):
+        """
+        Compiles a JSON comparison operation into a SQL expression compatible with Oracle.
+
+        This function processes the left and right hand sides of the comparison, 
+        adding any necessary type conversions based on the capabilities of the database connection.
+        The resulting SQL expression utilizes the JSON_EQUAL function to compare the two JSON values.
+
+        :param compiler: The compiler object used to generate the SQL expression.
+        :param connection: The database connection object, used to determine the capabilities of the database.
+
+        :return: A tuple containing the compiled SQL expression and a list of parameters to be bound to the query.
+        """
         lhs, lhs_params = self.process_lhs(compiler, connection)
         rhs, rhs_params = self.process_rhs(compiler, connection)
         if connection.features.supports_primitives_in_json_field:

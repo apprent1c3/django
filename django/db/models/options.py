@@ -276,6 +276,19 @@ class Options:
         return pk_class
 
     def _prepare(self, model):
+        """
+
+        Prepares the model for further operations by setting up ordering and primary key fields.
+
+        If the `order_with_respect_to` attribute is set, it attempts to resolve the corresponding field in the model.
+        If the field is found, it sets up the model's ordering and adds an OrderWrt field if necessary.
+        If the field is not found, it raises a FieldDoesNotExist exception.
+
+        Additionally, if the model does not have a primary key field, it attempts to set one up.
+        If the model has parents, it promotes one of the parent fields to be the primary key.
+        Otherwise, it creates a default primary key field named 'id' with auto-incrementing behavior.
+
+        """
         if self.order_with_respect_to:
             # The app registry will not be ready at this point, so we cannot
             # use get_field().
@@ -328,6 +341,23 @@ class Options:
         # the "creation_counter" attribute of the field.
         # Move many-to-many related fields from self.fields into
         # self.many_to_many.
+        """
+
+        Adds a field to the model's metadata.
+
+        This method handles the addition of fields to the model, including private fields and fields that represent relationships between models.
+        It determines the appropriate storage location for the field based on its properties, such as whether it is a many-to-many relationship.
+
+        The method also takes care of setting up the primary key for the field and updating the model's cache as necessary.
+
+        Parameters
+        ----------
+        field : Field
+            The field to be added to the model's metadata.
+        private : bool, optional
+            Whether the field should be considered private (default is False).
+
+        """
         if private:
             self.private_fields.append(field)
         elif field.is_relation and field.many_to_many:

@@ -11,6 +11,15 @@ logger = logging.getLogger("django.dispatch")
 
 
 def _make_id(target):
+    """
+    Returns a unique identifier for the given target object.
+
+    If the target is a bound method, the identifier is a tuple containing the ids of the
+    instance and the function. Otherwise, the identifier is the id of the target object itself.
+
+    This allows for distinct identification of bound methods, which have the same function
+    but different instances, versus other objects with a single, unique identifier.
+    """
     if hasattr(target, "__func__"):
         return (id(target.__self__), id(target.__func__))
     return id(target)
@@ -370,6 +379,23 @@ class Signal:
 
             @sync_to_async
             def sync_send():
+                """
+
+                Send a signal to a list of receivers in a synchronous manner.
+
+                This function iterates over the list of registered receivers, calling each one 
+                with the signal instance, sender, and any additional keyword arguments. 
+
+                If a receiver raises an exception, the error is logged and the exception is 
+                captured and returned along with the receiver that failed.
+
+                The function returns a list of tuples, where each tuple contains a receiver 
+                and either the response from the receiver if it was successful, or the 
+                exception that was raised if it failed.
+
+                The list of receivers to be called is defined in the `sync_receivers` variable.
+
+                """
                 responses = []
                 for receiver in sync_receivers:
                     try:
@@ -405,6 +431,12 @@ class Signal:
 
     def _clear_dead_receivers(self):
         # Note: caller is assumed to hold self.lock.
+        """
+        Removes any dead receivers from the list of receivers.
+
+        This method is used to clean up the list of receivers by filtering out any receivers that are no longer valid, 
+        i.e., those that have been garbage collected. It returns the updated list of active receivers.
+        """
         if self._dead_receivers:
             self._dead_receivers = False
             self.receivers = [

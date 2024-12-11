@@ -105,6 +105,20 @@ class NestedForeignKeysTests(TestCase):
     # This test failed in #16715 because in some cases INNER JOIN was selected
     # for the second foreign key relation instead of LEFT OUTER JOIN.
     def test_explicit_ForeignKey(self):
+        """
+        Tests the functionality of explicit ForeignKey relationships in the Package model.
+
+        This test case exercises various QuerySet methods to ensure they correctly handle 
+        ForeignKey relationships, including select_related for fetching related objects, 
+        values for retrieving specific fields, and filter/exclude for querying based on 
+        related object attributes.
+
+        The test scenario creates a Package, a Screening, and another Package linked to 
+        the Screening, and then verifies that the expected results are returned from 
+        different QuerySet operations, demonstrating proper functionality of the 
+        ForeignKey relationship between Package and Screening, and further between 
+        Screening and Movie. 
+        """
         Package.objects.create()
         screening = Screening.objects.create(movie=self.movie)
         Package.objects.create(screening=screening)

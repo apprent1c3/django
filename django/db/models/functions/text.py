@@ -74,6 +74,13 @@ class ConcatPair(Func):
     function = "CONCAT"
 
     def pipes_concat_sql(self, compiler, connection, **extra_context):
+        """
+        Concatenates a pair of SQL expressions and produces the SQL representation of the concatenation operation.
+
+        This method takes the compiler and connection as input, then generates the SQL string that represents the concatenation of the pair of expressions. It uses the coalesce operation to handle null values and produces the final SQL string by joining the expressions with the ' || ' operator.
+
+        The generated SQL string can be used directly in database queries. The method also accepts additional context parameters that can be used to customize the generated SQL.
+        """
         coalesced = self.coalesce()
         return super(ConcatPair, coalesced).as_sql(
             compiler,
@@ -234,6 +241,17 @@ class Repeat(Func):
     output_field = CharField()
 
     def __init__(self, expression, number, **extra):
+        """
+        Initialize a new instance of the class.
+
+        Args:
+            expression: The expression to be used in the instance.
+            number: The number associated with the instance. It must be greater or equal to 0, or an object with a `resolve_expression` method. A ValueError is raised if the number is negative and does not have a `resolve_expression` method.
+            **extra: Additional keyword arguments to be passed to the superclass.
+
+        Note:
+            This method is responsible for setting up the basic attributes of the instance and ensures that the `number` argument is valid before proceeding with the initialization.
+        """
         if (
             not hasattr(number, "resolve_expression")
             and number is not None

@@ -112,6 +112,16 @@ class Base36IntTests(SimpleTestCase):
             int_to_base36(-1)
 
     def test_to_base36_errors(self):
+        """
+
+        Test that the int_to_base36 function raises a TypeError for invalid input types.
+
+        This test case checks that the function correctly handles non-integer inputs, including
+        strings, dictionaries, tuples, and floating point numbers. It verifies that an error is
+        raised when attempting to convert these types to base36, ensuring the function's robustness
+        and input validation.
+
+        """
         for n in ["1", "foo", {1: 2}, (1, 2, 3), 3.141]:
             with self.assertRaises(TypeError):
                 int_to_base36(n)
@@ -215,6 +225,15 @@ class URLHasAllowedHostAndSchemeTests(unittest.TestCase):
 
     def test_no_allowed_hosts(self):
         # A path without host is allowed.
+        """
+        Tests the behavior of the url_has_allowed_host_and_scheme function when no allowed hosts are specified.
+
+        This test case checks two scenarios: 
+        1. A URL without a scheme, but with an email address, which should be considered valid.
+        2. A URL with an 'at' symbol in the domain, which should be considered invalid.
+
+        It ensures that the function correctly handles these edge cases when no allowed hosts are provided, verifying that the function returns True for the first scenario and False for the second. 
+        """
         self.assertIs(
             url_has_allowed_host_and_scheme(
                 "/confirm/me@example.com", allowed_hosts=None
@@ -295,6 +314,9 @@ class IsSameDomainTests(unittest.TestCase):
             self.assertIs(is_same_domain(*pair), True)
 
     def test_bad(self):
+        """
+        Tests if the is_same_domain function correctly identifies when two URLs do not have the same domain, including cases with varying subdomains, ports, and empty strings.
+        """
         for pair in (
             ("example2.com", "example.com"),
             ("foo.example.com", "example.com"),
@@ -316,6 +338,14 @@ class ETagProcessingTests(unittest.TestCase):
         self.assertEqual(parse_etags(r'"etag", "e\"t\"ag"'), ['"etag"'])
 
     def test_quoting(self):
+        """
+
+        Tests the quote_etag function to ensure it correctly handles ETag quoting as per HTTP specifications.
+
+        The function validates that the function quote_etag returns the correct quoted ETag values for different input scenarios, 
+        including unquoted tags, already quoted tags, and weak ETags.
+
+        """
         self.assertEqual(quote_etag("etag"), '"etag"')  # unquoted
         self.assertEqual(quote_etag('"etag"'), '"etag"')  # quoted
         self.assertEqual(quote_etag('W/"etag"'), 'W/"etag"')  # quoted, weak

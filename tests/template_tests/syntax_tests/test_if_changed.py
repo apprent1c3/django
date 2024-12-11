@@ -26,6 +26,18 @@ class IfChangedTagTests(SimpleTestCase):
         }
     )
     def test_ifchanged02(self):
+        """
+
+        Tests the ifchanged template tag functionality.
+
+        This test case evaluates the rendering of a template that utilizes the ifchanged tag.
+        The ifchanged tag is used to check if a value has changed since the last iteration in a loop.
+        In this specific test, it checks the output of a template that iterates over a tuple of numbers (1, 1, 3) and only outputs the changed numbers.
+
+        The expected output of this test is '13', indicating that the first number '1' is output,
+        no change is detected for the second '1', and '3' is output as it is different from the previous value.
+
+        """
         output = self.engine.render_to_string("ifchanged02", {"num": (1, 1, 3)})
         self.assertEqual(output, "13")
 
@@ -37,6 +49,9 @@ class IfChangedTagTests(SimpleTestCase):
         }
     )
     def test_ifchanged03(self):
+        """
+        Tests the ifchanged template tag to verify that it correctly removes duplicates from a sequence of numbers. The test case checks that when a list of identical numbers is passed to the template, only the first occurrence of the number is rendered in the output.
+        """
         output = self.engine.render_to_string("ifchanged03", {"num": (1, 1, 1)})
         self.assertEqual(output, "1")
 
@@ -88,6 +103,17 @@ class IfChangedTagTests(SimpleTestCase):
         }
     )
     def test_ifchanged07(self):
+        """
+        Tests the ifchanged template tag with nested for loops.
+
+        This function checks the rendering of a template that uses multiple ifchanged tags
+        within nested for loops. The test data includes lists of identical numbers to verify
+        that the ifchanged tag correctly handles these scenarios and only outputs the
+        first occurrence of each unique value.
+
+        The expected output is compared to the actual rendered string to confirm the
+        correct functioning of the ifchanged tag in this specific context.
+        """
         output = self.engine.render_to_string(
             "ifchanged07", {"num": (1, 1, 1), "numx": (2, 2, 2), "numy": (3, 3, 3)}
         )
@@ -137,6 +163,18 @@ class IfChangedTagTests(SimpleTestCase):
         }
     )
     def test_ifchanged_param02(self):
+        """
+
+        Tests the ifchanged template tag with multiple for loops and variables as parameters.
+
+        Checks if the ifchanged tag correctly detects changes in the 'num' variable 
+        and renders the expected '..' string whenever a change occurs, 
+        while iterating over both 'num' and 'numx' variables.
+
+        The test case verifies the output of the template rendering against the expected string '..567..567..567', 
+        ensuring the ifchanged tag behaves as expected in a nested loop scenario.
+
+        """
         output = self.engine.render_to_string(
             "ifchanged-param02", {"num": (1, 2, 3), "numx": (5, 6, 7)}
         )
@@ -222,6 +260,18 @@ class IfChangedTagTests(SimpleTestCase):
         }
     )
     def test_ifchanged_else02(self):
+        """
+
+        Tests the ifchanged template tag with an else clause.
+
+        This test case verifies that the ifchanged tag correctly alternates between two values
+        when the input is unchanged, and switches to a new value when the input changes.
+        The test also checks that the else clause is executed when the input remains the same.
+
+        The test input is a list of IDs with repeating values, and the expected output is a comma-separated string
+        where each ID is followed by a color that changes when the ID changes, and remains the same color (gray) when the ID remains the same.
+
+        """
         output = self.engine.render_to_string(
             "ifchanged-else02", {"ids": [1, 1, 2, 2, 2, 3]}
         )
@@ -235,6 +285,26 @@ class IfChangedTagTests(SimpleTestCase):
         }
     )
     def test_ifchanged_else03(self):
+        """
+
+        Tests the ifchanged-else syntax in the templating engine.
+
+        This test case verifies that the ifchanged-else statement correctly 
+        alternates between two values when the input data changes, and 
+        appends nothing when the data remains the same. The test checks 
+        if the engine accurately handles a list of repeated and distinct 
+        values, producing a string with the expected output pattern.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Checks:
+            The output string against the expected pattern.
+
+        """
         output = self.engine.render_to_string(
             "ifchanged-else03", {"ids": [1, 1, 2, 2, 2, 3]}
         )
@@ -248,6 +318,19 @@ class IfChangedTagTests(SimpleTestCase):
         }
     )
     def test_ifchanged_else04(self):
+        """
+
+        Tests the ifchanged template tag with an else clause.
+
+        Checks that the template engine correctly renders a list of items, 
+        changing the output when the value changes, and displaying a default 
+        message when the value remains the same.
+
+        The test verifies that the template correctly handles a sequence of 
+        repeated and unique values, ensuring that the ifchanged tag behaves 
+        as expected.
+
+        """
         output = self.engine.render_to_string(
             "ifchanged-else04", {"ids": [1, 1, 2, 2, 2, 3, 4]}
         )
@@ -271,6 +354,14 @@ class IfChangedTagTests(SimpleTestCase):
 class IfChangedTests(SimpleTestCase):
     @classmethod
     def setUpClass(cls):
+        """
+        Sets up the test class by initializing the engine and calling the superclass's setup method.
+
+        This class method is invoked before any tests in the class are executed and is responsible for preparing the necessary resources.
+        It creates an instance of the Engine class and assigns it to the class attribute, making it available for use in subsequent tests.
+        The superclass's setup method is also called to ensure that any additional setup required by the parent class is performed.
+        This method is typically used in test cases where the engine needs to be initialized once for all tests in the class.
+        """
         cls.engine = Engine()
         super().setUpClass()
 

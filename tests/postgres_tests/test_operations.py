@@ -198,6 +198,18 @@ class CreateExtensionTests(PostgreSQLTestCase):
 
     @override_settings(DATABASE_ROUTERS=[NoMigrationRouter()])
     def test_no_allow_migrate(self):
+        """
+
+        Test that the CreateExtension operation does not allow migrations.
+
+        This test case verifies that the CreateExtension operation for the 'tablefunc'
+        extension does not execute any database queries when applied or reversed.
+
+        It checks the formatted description of the operation and then simulates the
+        application and reversal of the operation in a test environment, verifying
+        that no database queries are executed in either case.
+
+        """
         operation = CreateExtension("tablefunc")
         self.assertEqual(
             operation.formatted_description(), "+ Creates extension tablefunc"
@@ -277,6 +289,19 @@ class CreateCollationTests(PostgreSQLTestCase):
 
     @override_settings(DATABASE_ROUTERS=[NoMigrationRouter()])
     def test_no_allow_migrate(self):
+        """
+
+        Tests the CreateCollation operation when migration is not allowed.
+
+        This test simulates the creation of a collation and then immediately reverses it,
+        verifying that no database queries are executed during these operations, as expected
+        when migration is not permitted.
+
+        It checks both the forward and backward operations to ensure that neither results
+        in any database queries being run, confirming the operation's behavior under these
+        conditions.
+
+        """
         operation = CreateCollation("C_test", locale="C")
         project_state = ProjectState()
         new_state = project_state.clone()

@@ -825,6 +825,11 @@ class ManyToOneTests(TestCase):
         self.assertSequenceEqual(city.districts.all(), [])
 
     def test_add_after_prefetch(self):
+        """
+        Tests the behavior of adding a district to a city after prefetching its districts.
+
+        This tests ensures that the district count is correctly updated when a new district is added to a city that has already prefetched its districts. The test case covers the scenario where a city has an initial district, a new district is created without a city, and then added to the city's districts. The test verifies that the city's district count is correctly updated after adding the new district.
+        """
         c = City.objects.create(name="Musical City")
         District.objects.create(name="Ladida", city=c)
         d2 = District.objects.create(name="Ladidu")
@@ -864,6 +869,11 @@ class ManyToOneTests(TestCase):
         self.assertEqual(self.a.reporter, self.r2)
 
     def test_cached_foreign_key_with_to_field_not_cleared_by_save(self):
+        """
+        Checks that a cached foreign key relation is preserved when the related object's field is specified using the 'to_field' argument and the child object is queried after its parent has been saved. 
+
+        This test ensures that the parent object is correctly retrieved from the cache and not re-fetched from the database, resulting in zero additional queries.
+        """
         parent = Parent.objects.create(name="a")
         child = ToFieldChild.objects.create(parent=parent)
         with self.assertNumQueries(0):
@@ -898,6 +908,11 @@ class ManyToOneTests(TestCase):
             City.country.get_prefetch_queryset(cities)
 
     def test_get_prefetch_queryset_reverse_warning(self):
+        """
+        Tests that using get_prefetch_queryset() with reverse relationships raises a RemovedInDjango60Warning.
+
+        This function verifies that the deprecation warning is triggered when attempting to use the outdated method with a queryset of Country objects, ensuring backward compatibility and guiding developers towards the recommended replacement, get_prefetch_querysets().
+        """
         usa = Country.objects.create(name="United States")
         City.objects.create(name="Chicago")
         countries = Country.objects.all()
@@ -921,6 +936,14 @@ class ManyToOneTests(TestCase):
             )
 
     def test_get_prefetch_querysets_reverse_invalid_querysets_length(self):
+        """
+
+        Tests the get_prefetch_querysets method to ensure it raises a ValueError when the length of the querysets argument is not 1.
+
+        The test case creates a country and a city, then attempts to call get_prefetch_querysets on the country's cities with multiple querysets.
+        This tests the method's validation of the querysets argument, verifying that it correctly handles invalid input by raising an exception with a descriptive error message.
+
+        """
         usa = Country.objects.create(name="United States")
         City.objects.create(name="Chicago")
         countries = Country.objects.all()

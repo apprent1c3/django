@@ -263,6 +263,18 @@ class FlatValuesListIterable(BaseIterable):
     """
 
     def __iter__(self):
+        """
+        Returns an iterator over the results of the queryset, yielding each result one at a time.
+
+        The iterator fetches results in chunks, allowing for more memory-efficient handling of large querysets.
+
+        Yields:
+            object: The next result in the queryset.
+
+        Note:
+            The exact chunk size can be controlled by the `chunk_size` attribute.
+
+        """
         queryset = self.queryset
         compiler = queryset.query.get_compiler(queryset.db)
         for row in compiler.results_iter(
@@ -275,6 +287,24 @@ class QuerySet(AltersData):
     """Represent a lazy database lookup for a set of objects."""
 
     def __init__(self, model=None, query=None, using=None, hints=None):
+        """
+
+        Initializes a query object for retrieving data from the database.
+
+        The query object can be customized with various parameters, including the model to query,
+        an optional query object, the database to use, and hints to optimize the query.
+
+        Attributes set by this constructor include the model, database, query hints, and caches for results and related objects.
+        Furthermore, flags are set to control the query's behavior, such as whether to prefetch related objects, 
+        and whether the query is intended for reading or writing.
+
+        The following parameters can be used to tailor the query:
+            - model: The model to query
+            - query: An optional query object
+            - using: The database to use for the query
+            - hints: Optional hints to optimize the query
+
+        """
         self.model = model
         self._db = using
         self._hints = hints or {}
@@ -300,6 +330,15 @@ class QuerySet(AltersData):
 
     @query.setter
     def query(self, value):
+        """
+        Setter for the query attribute.
+
+        Sets the query object for the current instance. If the query specifies selecting values, 
+        the internal iterable class is updated to ValuesIterable accordingly. 
+
+        :param value: The query object to be set.
+        :type value: Query object
+        """
         if value.values_select:
             self._iterable_class = ValuesIterable
         self._query = value
@@ -392,6 +431,13 @@ class QuerySet(AltersData):
         return generator()
 
     def __bool__(self):
+        """
+        ..:bool:
+            Indicates whether the object contains any results.
+
+            This method triggers a fetch of all data if it has not been fetched previously, 
+            and then returns True if there are any results, False otherwise.
+        """
         self._fetch_all()
         return bool(self._result_cache)
 
@@ -490,6 +536,19 @@ class QuerySet(AltersData):
     ####################################
 
     def _iterator(self, use_chunked_fetch, chunk_size):
+        """
+        Returns an iterator over the results, allowing for efficient iteration over large datasets.
+
+        The iterator can be configured to use chunked fetching, where results are fetched in batches of a specified size.
+        This can help improve performance by reducing the number of database queries.
+
+        Optionally, prefetch related lookups can be applied to the results, to eager-load related objects.
+
+        The iterator yields the individual results, with prefetching applied if configured.
+
+        :arg bool use_chunked_fetch: Whether to use chunked fetching
+        :arg int chunk_size: The size of each chunk, defaults to 2000 if not specified and chunked fetching is used
+        """
         iterable = self._iterable_class(
             self,
             chunked_fetch=use_chunked_fetch,
@@ -684,6 +743,23 @@ class QuerySet(AltersData):
     def _check_bulk_create_options(
         self, ignore_conflicts, update_conflicts, update_fields, unique_fields
     ):
+        """
+        .. method:: _check_bulk_create_options(ignore_conflicts, update_conflicts, update_fields, unique_fields)
+
+            Checks the validity of bulk create options and determines the conflict resolution strategy.
+
+            This method examines the provided options and the capabilities of the database backend to determine whether to ignore conflicts, update existing records, or raise an error.
+
+            It verifies that the provided options are mutually exclusive and supported by the database backend, and that the required fields are provided.
+
+            :param bool ignore_conflicts: Whether to ignore conflicts during bulk creation.
+            :param bool update_conflicts: Whether to update existing records during bulk creation.
+            :param update_fields: The fields that will be updated when a row insertion fails on conflicts.
+            :param unique_fields: The unique fields that can trigger the upsert.
+            :return: The conflict resolution strategy (OnConflict.IGNORE or OnConflict.UPDATE) or None if no conflict resolution is specified.
+            :raises ValueError: If the provided options are invalid or mutually exclusive.
+            :raises NotSupportedError: If the database backend does not support the specified conflict resolution strategy.
+        """
         if ignore_conflicts and update_conflicts:
             raise ValueError(
                 "ignore_conflicts and update_conflicts are mutually exclusive."
@@ -2073,6 +2149,18 @@ class RawQuerySet:
         return clone
 
     def _prefetch_related_objects(self):
+        """
+
+        Prefetches related objects to improve query performance.
+
+        This internal method populates the result cache with related objects specified
+        by the prefetch related lookups, reducing the need for subsequent database queries.
+        After completion, it marks the prefetch operation as done.
+
+        .. note::
+            This method is intended for internal use and should not be called directly.
+
+        """
         prefetch_related_objects(self._result_cache, *self._prefetch_related_lookups)
         self._prefetch_done = True
 
@@ -2097,6 +2185,11 @@ class RawQuerySet:
             self._prefetch_related_objects()
 
     def __len__(self):
+        """
+        Returns the total number of items in the collection, fetching all data if necessary. 
+
+        This method ensures that all relevant data is retrieved before providing a count, allowing for accurate calculations and subsequent operations. The returned value represents the total count of items in the collection.
+        """
         self._fetch_all()
         return len(self._result_cache)
 
@@ -2196,6 +2289,11 @@ class Prefetch:
         self.to_attr = to_attr
 
     def __getstate__(self):
+        """
+        Return a dictionary representing the object's state, suitable for serialization.
+
+        This method creates a copy of the object's internal dictionary and modifies the 'queryset' attribute to ensure it can be properly pickled. If a queryset is present, it is chained and its result cache is cleared, while also marking any prefetch operations as done. The resulting dictionary can be used to recreate the object in a new context.
+        """
         obj_dict = self.__dict__.copy()
         if self.queryset is not None:
             queryset = self.queryset._chain()

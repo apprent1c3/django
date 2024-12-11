@@ -13,6 +13,16 @@ class Command(BaseCommand):
     requires_system_checks = []
 
     def add_arguments(self, parser):
+        """
+
+        Add arguments to the parser for managing and comparing Django settings.
+
+        This function populates the parser with options that allow users to customize the 
+        display and comparison of settings. Available options include displaying all 
+        settings, comparing against a specific settings module, and selecting the output 
+        format for the comparison results.
+
+        """
         parser.add_argument(
             "--all",
             action="store_true",

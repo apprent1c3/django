@@ -59,6 +59,17 @@ class FileBasedCache(BaseCache):
                 os.remove(tmp_path)
 
     def touch(self, key, timeout=DEFAULT_TIMEOUT, version=None):
+        """
+        Update the timeout of a given key if it exists, returning True on success and False otherwise.
+
+        :param key: The key to update the timeout for.
+        :param timeout: The new timeout value, defaults to DEFAULT_TIMEOUT.
+        :param version: The version of the key, if any.
+
+        :returns: True if the key's timeout was updated successfully, False if the key does not exist or has expired.
+
+        :note: This function acquires an exclusive lock on the underlying file to ensure thread safety. If the file is not found or the key has expired, the function returns False without modifying any data.
+        """
         try:
             with open(self._key_to_file(key, version), "r+b") as f:
                 try:

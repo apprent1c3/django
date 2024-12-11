@@ -418,6 +418,18 @@ class EmptyLabelTestCase(TestCase):
         )
 
     def test_empty_field_char_none(self):
+        """
+
+        Tests that an empty char field and a choice field with 'none' options are correctly rendered in HTML.
+
+        This test case checks the generation of HTML for an empty character field and a choice field 
+        that includes a 'No Preference' option for cases where the user does not want to make a selection.
+        The expected output includes HTML for a text input field and a select dropdown with the specified options.
+
+        The test ensures that the HTML output matches the expected structure and content, 
+        including input field attributes such as id, name, and type, as well as select options.
+
+        """
         f = EmptyCharLabelNoneChoiceForm()
         self.assertHTMLEqual(
             f.as_p(),

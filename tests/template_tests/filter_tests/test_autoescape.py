@@ -23,6 +23,13 @@ class AutoescapeStringfilterTests(SimpleTestCase):
         }
     )
     def test_autoescape_stringfilter02(self):
+        """
+        Test the autoescape functionality with string filtering, specifically testing the interaction between autoescaping and the capfirst filter. 
+
+        Verifies that when autoescaping is disabled, the output is rendered without escaping special characters, but still applies capitalization to the first character of the filtered string.
+
+        It checks if the rendered output matches the expected result 'You & me' when the 'unsafe' variable is an instance of UnsafeClass and the 'capfirst' filter is applied.
+        """
         output = self.engine.render_to_string(
             "autoescape-stringfilter02", {"unsafe": UnsafeClass()}
         )

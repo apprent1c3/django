@@ -140,11 +140,31 @@ class URLFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertIsNone(f.clean(None))
 
     def test_urlfield_unable_to_set_strip_kwarg(self):
+        """
+        Tests that attempting to set the 'strip' keyword argument on a URLField raises a TypeError.
+
+        The 'strip' keyword argument should not be passed explicitly to a URLField as it is 
+        automatically handled internally. This test ensures that setting 'strip' results 
+        in the correct error message being raised, preventing potential misuse of the field.
+
+        """
         msg = "got multiple values for keyword argument 'strip'"
         with self.assertRaisesMessage(TypeError, msg):
             URLField(strip=False)
 
     def test_urlfield_assume_scheme(self):
+        """
+
+        Tests the functionality of the URLField's assume_scheme parameter.
+
+        This function verifies that when a URL without a scheme is provided to the URLField, 
+        it correctly assumes a scheme and prepends it to the URL. The test covers cases 
+        where the default scheme is used as well as when a custom scheme is specified.
+
+        The function checks that the cleaned URL returned by the URLField matches the 
+        expected URL with the assumed scheme.
+
+        """
         f = URLField()
         # RemovedInDjango60Warning: When the deprecation ends, replace with:
         # "https://example.com"
@@ -184,6 +204,16 @@ class URLFieldAssumeSchemeDeprecationTest(FormFieldAssertionsMixin, SimpleTestCa
                 pass
 
     def test_settings_init_forms_urlfield_assume_https_warning(self):
+        """
+
+        Tests that initializing the Settings class with the FORMS_URLFIELD_ASSUME_HTTPS setting
+        raises a RemovedInDjango60Warning when set to True.
+
+        This test case covers the deprecation of the FORMS_URLFIELD_ASSUME_HTTPS setting and 
+        ensures that a warning is raised when this setting is used, to inform developers of 
+        its upcoming removal in Django 6.0.
+
+        """
         settings_module = ModuleType("fake_settings_module")
         settings_module.FORMS_URLFIELD_ASSUME_HTTPS = True
         sys.modules["fake_settings_module"] = settings_module

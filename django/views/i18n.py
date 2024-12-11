@@ -112,6 +112,20 @@ class JavaScriptCatalog(View):
     packages = None
 
     def get(self, request, *args, **kwargs):
+        """
+        Handles HTTP GET requests to retrieve translated content.
+
+        Retrieves the current locale and extracts optional keyword arguments for the domain and packages.
+        If packages are provided, they are split into individual packages and used to determine translation paths.
+        A DjangoTranslation object is created using the locale, domain, and translation paths.
+        The function then retrieves the context data and uses it to render a response.
+
+        :param request: The incoming HTTP request.
+        :param args: Variable length argument list.
+        :param kwargs: Arbitrary keyword arguments, including 'domain' and 'packages' for customizing translation settings.
+        :returns: The rendered HTTP response.
+
+        """
         locale = get_language()
         domain = kwargs.get("domain", self.domain)
         # If packages are not provided, default to all installed packages, as

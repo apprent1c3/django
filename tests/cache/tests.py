@@ -258,6 +258,19 @@ class DummyCacheTests(SimpleTestCase):
         self.assertIsNone(cache.get_or_set("mykey", None))
 
     def test_get_or_set_callable(self):
+        """
+
+        Tests the get_or_set method of the cache object.
+
+        This method retrieves a value from the cache if it exists, or sets the value 
+        using the provided callable if it does not exist. The test verifies that the 
+        method correctly stores and retrieves values, and handles cases where the 
+        callable is provided with or without invoking it.
+
+        The test uses a simple callable that returns a default string value to 
+        validate the method's behavior.
+
+        """
         def my_callable():
             return "default"
 
@@ -311,6 +324,14 @@ class BaseCacheTests:
 
     def test_simple(self):
         # Simple cache set/get works
+        """
+        Tests the basic functionality of setting and retrieving a value from the cache.
+
+         Verifies that a value stored using a key can be successfully retrieved using the same key.
+
+         This test case ensures the cache's set and get operations are working as expected, 
+         providing a foundation for more complex cache testing scenarios.
+        """
         cache.set("key", "value")
         self.assertEqual(cache.get("key"), "value")
 
@@ -507,6 +528,21 @@ class BaseCacheTests:
 
     def test_unicode(self):
         # Unicode values can be cached
+        """
+
+        Tests the caching functionality with unicode keys and values.
+
+        This function verifies that the cache can successfully store, retrieve, and delete items with keys and values containing unicode characters.
+        It checks the behavior of the cache with a dictionary containing various keys, including those with ascii, unicode, and nested data structures.
+
+        The test covers the following scenarios:
+
+        * Setting and getting values with unicode keys and values
+        * Deleting keys and verifying that the deletion was successful
+        * Adding new values to previously deleted keys and verifying that the addition was successful
+        * Setting multiple items in the cache at once using the set_many method and verifying that all items are correctly stored
+
+        """
         stuff = {
             "ascii": "ascii_value",
             "unicode_ascii": "Iñtërnâtiônàlizætiøn1",
@@ -536,6 +572,20 @@ class BaseCacheTests:
 
     def test_binary_string(self):
         # Binary strings should be cacheable
+        """
+
+        Tests the caching and retrieval of binary strings in the cache system.
+
+        The test case checks the following scenarios:
+        - Compressing a string using zlib and storing it in the cache.
+        - Verifying that the compressed value is correctly stored and retrieved from the cache.
+        - Decompressing the retrieved value and ensuring it matches the original string.
+        - Using the 'add' method to store a compressed value and verifying its correctness.
+        - Using the 'set_many' method to store a compressed value and verifying its correctness.
+
+        The test confirms that binary strings can be successfully compressed, cached, retrieved, and decompressed without data loss or corruption.
+
+        """
         from zlib import compress, decompress
 
         value = "value_to_be_compressed"
@@ -1021,6 +1071,24 @@ class BaseCacheTests:
         self.assertEqual(cache.incr_version("null"), 2)
 
     def test_decr_version(self):
+        """
+
+        Decrements the version of a cached item.
+
+        Decreases the version of an item stored in the cache and returns the new version number.
+        If the item's version is already at the minimum version, it will not be changed.
+
+        When the version is decremented, newer versions of the item are garbage collected.
+
+        Note that attempting to decrement the version of a non-existent item will raise a ValueError.
+
+        The behavior of this function can be demonstrated by the following key characteristics:
+        - If the key exists with a given version, decrement the version for that key.
+        - After decrementing the version, verify the key exists at the new version and is inaccessible at the old version.
+        - If a key does not exist at a given version, or after decrementing a version, verify the key's behavior at both new and old versions.
+        - Test behavior for keys with None values and non-existent keys.
+
+        """
         cache.set("answer", 42, version=2)
         self.assertIsNone(cache.get("answer"))
         self.assertIsNone(cache.get("answer", version=1))
@@ -1061,6 +1129,20 @@ class BaseCacheTests:
 
     @override_settings(CACHE_MIDDLEWARE_ALIAS=DEFAULT_CACHE_ALIAS)
     def test_cache_write_unpicklable_object(self):
+        """
+
+        Tests the cache write functionality when dealing with unpicklable objects, such as HttpResponse objects with set cookies.
+
+        This test case verifies that the cache middleware correctly handles the serialization and deserialization of cache data,
+        ensuring that the content and cookies of the response are properly stored and retrieved from the cache.
+
+        The test covers the following scenarios:
+        - An initial request to an empty cache
+        - A response with set cookies being written to the cache
+        - A subsequent request to the cache, verifying that the cached response is returned with the correct content and cookies
+        - A test of updating the cache with a cached response object, ensuring that the cache is properly updated and the response is returned correctly
+
+        """
         fetch_middleware = FetchFromCacheMiddleware(empty_response)
 
         request = self.factory.get("/cache/test")
@@ -1073,6 +1155,17 @@ class BaseCacheTests:
         content = "Testing cookie serialization."
 
         def get_response(req):
+            """
+
+            Returns an HTTP response based on the provided request.
+
+            The response is generated with specific content and includes a custom cookie 'foo' with value 'bar'.
+            This function is designed to handle requests and return a formatted HTTP response with the included cookie.
+
+            :param req: The request object to be processed
+            :rtype: HttpResponse
+
+            """
             response = HttpResponse(content)
             response.set_cookie("foo", "bar")
             return response
@@ -1153,6 +1246,14 @@ class DBCacheTests(BaseCacheTests, TransactionTestCase):
 
     def setUp(self):
         # The super calls needs to happen first for the settings override.
+        """
+        Set up the test environment by creating a table and scheduling its cleanup after the test.
+
+        This method is called before each test to ensure a fresh and isolated testing environment.
+        It inherits the setup behavior from its parent class and extends it by creating a table.
+        After the test is completed, the table will be automatically dropped to maintain a clean state.
+
+        """
         super().setUp()
         self.create_table()
         self.addCleanup(self.drop_table)
@@ -1239,6 +1340,12 @@ class DBCacheTests(BaseCacheTests, TransactionTestCase):
         )
     )
     def test_createcachetable_dry_run_mode(self):
+        """
+        Tests the behavior of the 'createcachetable' management command when run in dry run mode, 
+        verifying that it generates the correct SQL command to create a cache table without actually 
+        executing the creation. The test checks that the output starts with 'CREATE TABLE', confirming 
+        that the command is producing the expected SQL query.
+        """
         out = io.StringIO()
         management.call_command("createcachetable", dry_run=True, stdout=out)
         output = out.getvalue()
@@ -1727,6 +1834,21 @@ class FileBasedCacheTests(BaseCacheTests, TestCase):
         "Windows only partially supports umasks and chmod.",
     )
     def test_cache_dir_permissions(self):
+        """
+
+        Tests the permissions of directories created by the cache system.
+
+        Verifies that the cache directory and its parents are created with the expected permissions.
+        The test checks the existence and permissions of the directories after setting a cache value.
+        It ensures that the directories have the correct umask, which is crucial for security and data protection.
+
+        The test covers the following scenarios:
+        - Cache directory existence after setting a cache value
+        - Permissions of the cache directory and its parent directories
+
+        The expected permissions for the directories are set to 0o700 (448 in decimal), which corresponds to read, write, and execute permissions for the owner only.
+
+        """
         os.rmdir(self.dirname)
         dir_path = Path(self.dirname) / "nested" / "filebasedcache"
         for cache_params in settings.CACHES.values():
@@ -1745,11 +1867,30 @@ class FileBasedCacheTests(BaseCacheTests, TestCase):
                 self.assertEqual(dir_mode, 0o700)
 
     def test_get_does_not_ignore_non_filenotfound_exceptions(self):
+        """
+
+        Tests that the cache's get method does not ignore non-FileNotFoundError exceptions.
+
+        Verifies that when attempting to retrieve a value from the cache, if an OSError occurs
+        during the retrieval process (e.g., when trying to open a file), the error is properly
+        propagated and an OSError is raised, rather than being silently ignored.
+
+        """
         with mock.patch("builtins.open", side_effect=OSError):
             with self.assertRaises(OSError):
                 cache.get("foo")
 
     def test_empty_cache_file_considered_expired(self):
+        """
+
+        Tests that an empty cache file is considered expired.
+
+        This test checks the behavior of the cache expiration mechanism when
+        encountering an empty cache file. It verifies that the cache is properly
+        identified as expired in this scenario, ensuring that the cache is refreshed
+        with new data instead of relying on stale or incomplete information.
+
+        """
         cache_file = cache._key_to_file("foo")
         with open(cache_file, "wb") as fh:
             fh.write(b"")
@@ -1865,6 +2006,13 @@ class RedisCacheTests(BaseCacheTests, TestCase):
         )
     )
     def test_redis_pool_options(self):
+        """
+
+        Tests the Redis pool options by overriding the cache settings and verifying the connection pool's keyword arguments.
+
+        This test ensures that the Redis cache connection pool is properly configured with the specified database, socket timeout, and retry on timeout settings.
+
+        """
         pool = cache._cache._get_connection_pool(write=False)
         self.assertEqual(pool.connection_kwargs["db"], 5)
         self.assertEqual(pool.connection_kwargs["socket_timeout"], 0.1)
@@ -2094,6 +2242,18 @@ class CacheUtils(SimpleTestCase):
         )
 
     def test_get_cache_key_with_query(self):
+        """
+        Tests the functionality of getting and learning cache keys for HTTP requests.
+
+        This test case checks that the cache key is initially None for a given request,
+        and then updates the cache key after a response is received. The test verifies 
+        that the resulting cache key matches the expected format, which includes the 
+        request method, query parameters, and other relevant settings.
+
+        The test covers the interaction between the get_cache_key and learn_cache_key 
+        functions, ensuring that they work together correctly to generate and store 
+        cache keys for HTTP requests with query parameters.
+        """
         request = self.factory.get(self.path, {"test": 1})
         response = HttpResponse()
         # Expect None if no headers have been set yet.
@@ -2292,6 +2452,15 @@ class CacheI18nTest(SimpleTestCase):
 
     @override_settings(USE_I18N=True, USE_TZ=False)
     def test_cache_key_i18n_translation_accept_language(self):
+        """
+
+        Tests the cache key generation when internationalization is enabled and the 'Accept-Language' HTTP header is present.
+
+        This test case verifies that the cache key includes the language name and properly handles various combinations of 'Accept-Language' headers.
+        The test covers different language codes, case sensitivity, and order of languages in the 'Accept-Language' header.
+        It ensures that the cache key is correctly generated when the 'Vary' header includes 'accept-encoding' and the request contains an 'HTTP_ACCEPT_ENCODING' header.
+
+        """
         lang = translation.get_language()
         self.assertEqual(lang, "en")
         request = self.factory.get(self.path)
@@ -2338,6 +2507,9 @@ class CacheI18nTest(SimpleTestCase):
 
     @override_settings(USE_I18N=False, USE_TZ=True)
     def test_cache_key_i18n_timezone(self):
+        """
+        Tests the generation of cache keys when internationalization and timezone settings are applied, ensuring that the timezone name is correctly included in the cache key.
+        """
         request = self.factory.get(self.path)
         tz = timezone.get_current_timezone_name()
         response = HttpResponse()
@@ -2903,6 +3075,20 @@ class TestMakeTemplateFragmentKey(SimpleTestCase):
         self.assertEqual(key, "template.cache.bar.17c1a507a0cb58384f4c639067a93520")
 
     def test_proper_escaping(self):
+        """
+
+        Tests if template fragment keys are properly escaped.
+
+        This function ensures that special characters in template fragment keys are correctly
+        escaped to prevent any potential errors or security issues. The test uses a key
+        with a percentage (%) character to verify that the escaping mechanism is working
+        as expected.
+
+        The goal of this test is to guarantee the accuracy and consistency of template
+        fragment keys, which are crucial for caching and other optimizations in the
+        application.
+
+        """
         key = make_template_fragment_key("spam", ["abc:def%"])
         self.assertEqual(key, "template.cache.spam.06c8ae8e8c430b69fb0a6443504153dc")
 
@@ -2911,6 +3097,15 @@ class TestMakeTemplateFragmentKey(SimpleTestCase):
         self.assertEqual(key, "template.cache.foo.7ae8fd2e0d25d651c683bdeebdb29461")
 
     def test_with_unicode_vary_on(self):
+        """
+
+        Tests the generation of a template fragment key with Unicode characters.
+
+        This test case verifies that the make_template_fragment_key function can handle
+        a key name and a list of values containing Unicode characters, such as degrees
+        symbols and emojis, and produces a correctly formatted cache key.
+
+        """
         key = make_template_fragment_key("foo", ["42º", "😀"])
         self.assertEqual(key, "template.cache.foo.7ced1c94e543668590ba39b3c08b0237")
 
@@ -2952,6 +3147,17 @@ class CacheHandlerTest(SimpleTestCase):
             caches["nonexistent"]
 
     def test_nonexistent_backend(self):
+        """
+
+        Tests the behavior of the CacheHandler when attempting to access a non-existent cache backend.
+
+        This function checks that an InvalidCacheBackendError is raised with an informative error message when trying to access a cache backend that does not exist.
+
+        The error message includes the name of the missing backend, along with information about the underlying module import error that occurred.
+
+        The test case ensures that the CacheHandler correctly handles invalid backend configurations, providing a clear and actionable error message to help with debugging and troubleshooting.
+
+        """
         test_caches = CacheHandler(
             {
                 "invalid_backend": {

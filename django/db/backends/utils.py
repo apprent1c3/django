@@ -16,6 +16,13 @@ logger = logging.getLogger("django.db.backends")
 
 class CursorWrapper:
     def __init__(self, cursor, db):
+        """
+        Initializes a new instance of the class.
+
+        :param cursor: A database cursor object used for executing queries.
+        :param db: A database object representing the connection to the database.
+        :returns: None
+        """
         self.cursor = cursor
         self.db = db
 
@@ -35,6 +42,16 @@ class CursorWrapper:
             return cursor_attr
 
     def __iter__(self):
+        """
+        .. method:: __iter__(self)
+
+           Returns an iterator over the result set of a query, allowing iteration over the rows of the result.
+
+           This iterator is context managed to catch and handle any database-related errors that may occur during iteration.
+
+           Yields:
+              Each row in the result set, as returned by the database cursor.
+        """
         with self.db.wrap_database_errors:
             yield from self.cursor
 

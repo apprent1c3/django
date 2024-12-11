@@ -152,6 +152,11 @@ class BaseModelAdmin(metaclass=forms.MediaDefiningClass):
     def __init__(self):
         # Merge FORMFIELD_FOR_DBFIELD_DEFAULTS with the formfield_overrides
         # rather than simply overwriting.
+        """
+        Initializes the form field overrides.
+
+        The function starts with a set of default overrides defined in FORMFIELD_FOR_DBFIELD_DEFAULTS. It then updates these defaults with any custom overrides provided in the formfield_overrides attribute. The result is a comprehensive set of overrides that is stored in the formfield_overrides attribute of the instance. This allows for flexible customization of form fields based on database fields.
+        """
         overrides = copy.deepcopy(FORMFIELD_FOR_DBFIELD_DEFAULTS)
         for k, v in self.formfield_overrides.items():
             overrides.setdefault(k, {}).update(v)
@@ -450,6 +455,20 @@ class BaseModelAdmin(metaclass=forms.MediaDefiningClass):
     # RemovedInDjango60Warning: when the deprecation ends, replace with:
     # def lookup_allowed(self, lookup, value, request):
     def lookup_allowed(self, lookup, value, request=None):
+        """
+
+        Determines whether a given lookup is allowed for a model instance.
+
+        Checks if the provided lookup and value combination are valid for the model's 
+        fields, relationships, and filters. The function also considers the current 
+        request and model's list filters when determining the allowed lookups.
+
+        :param lookup: The lookup to validate.
+        :param value: The value associated with the lookup.
+        :param request: The current request, defaults to None.
+        :return: True if the lookup is allowed, False otherwise.
+
+        """
         from django.contrib.admin.filters import SimpleListFilter
 
         model = self.model
@@ -694,6 +713,28 @@ class ModelAdmin(BaseModelAdmin):
         )
 
     def get_inline_instances(self, request, obj=None):
+        """
+        Get a list of inline instances for a model.
+
+        This method returns a list of inline instances associated with the model, 
+        filtered by the current request and object. The filtering process checks 
+        the user's permissions to view, change, add, or delete inlines.
+
+        The returned inline instances are instances of inline classes, 
+        configured for the associated model and admin site. 
+
+        If the request is not empty, checks the user's permissions to add, 
+        change or delete instances of the inline class. If the user lacks 
+        the necessary permissions, the inline instance is skipped. If the 
+        user does not have add permission, inlining is disabled by setting 
+        the maximum number of instances to 0. 
+
+        :param request: The current HTTP request.
+        :param obj: The object being displayed (optional).
+        :rtype: list
+        :return: A list of inline instances.
+
+        """
         inline_instances = []
         for inline_class in self.get_inlines(request, obj):
             inline = inline_class(self.model, self.admin_site)
@@ -1726,6 +1767,19 @@ class ModelAdmin(BaseModelAdmin):
         return HttpResponseRedirect(post_url)
 
     def render_delete_form(self, request, context):
+        """
+
+        Renders a delete confirmation form for the given request and context.
+
+        This function is used to display a form that confirms the deletion of an object.
+        It updates the context with necessary variables, such as the name of the field to return to after deletion,
+        and the medium to render the template. The function then returns a TemplateResponse object,
+        which is used to render the delete confirmation template with the updated context.
+
+        The delete confirmation template is determined by the model's app label and name,
+        falling back to a default template if a model-specific template is not found.
+
+        """
         app_label = self.opts.app_label
 
         request.current_app = self.admin_site.name
@@ -2544,6 +2598,13 @@ class InlineModelAdmin(BaseModelAdmin):
         )
 
     def has_add_permission(self, request, obj):
+        """
+        Determines whether the user has permission to add an object.
+
+        This method checks the user's permissions based on the current request and object.
+        If the object is automatically created, it grants add permission if the user has change permission for the target model.
+        Otherwise, it defers to the parent class's implementation for determining add permission.
+        """
         if self.opts.auto_created:
             # Auto-created intermediate models don't have their own
             # permissions. The user needs to have the change permission for the
@@ -2553,6 +2614,19 @@ class InlineModelAdmin(BaseModelAdmin):
         return super().has_add_permission(request)
 
     def has_change_permission(self, request, obj=None):
+        """
+
+        Determine whether a user has permission to change an object.
+
+        This method checks if the user has the necessary permissions to modify the given object.
+        If the object's model was automatically created, it checks for 'change' permissions on the target model.
+        Otherwise, it delegates the permission check to the superclass.
+
+        :param request: The current request object.
+        :param obj: The object to check permissions for, or None if no specific object is being checked.
+        :return: True if the user has permission to change the object, False otherwise.
+
+        """
         if self.opts.auto_created:
             # Same comment as has_add_permission().
             return self._has_any_perms_for_target_model(request, ["change"])

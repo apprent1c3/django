@@ -6,6 +6,15 @@ from .models import Issue, StringReferenceModel, User
 
 class RelatedObjectTests(TestCase):
     def test_related_objects_have_name_attribute(self):
+        """
+
+         Tests that related objects have a 'name' attribute.
+
+         This function checks that the related query name for specific fields in the User model matches the field name.
+         It verifies that the related objects, such as those accessed through 'test_issue_client' and 'test_issue_cc' fields, 
+         have a related query name that is consistent with their field names, ensuring consistency in object relationships.
+
+        """
         for field_name in ("test_issue_client", "test_issue_cc"):
             obj = User._meta.get_field(field_name)
             self.assertEqual(field_name, obj.field.related_query_name())

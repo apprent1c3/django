@@ -103,6 +103,16 @@ class DatesTests(TestCase):
             Article.objects.dates("invalid_field", "year")
 
     def test_dates_fails_when_given_invalid_kind_argument(self):
+        """
+
+        Tests that a ValueError is raised when an invalid 'kind' argument is passed to the dates method.
+
+        This test verifies that the function correctly handles invalid input by raising an exception with a descriptive error message, 
+        indicating that the 'kind' argument must be one of 'year', 'month', 'week', or 'day'.
+
+        :raises ValueError: If the 'kind' argument is not one of the allowed values.
+
+        """
         msg = "'kind' must be one of 'year', 'month', 'week', or 'day'."
         with self.assertRaisesMessage(ValueError, msg):
             Article.objects.dates("pub_date", "bad_kind")

@@ -41,6 +41,20 @@ class FlatpageForm(forms.ModelForm):
         )
 
     def clean_url(self):
+        """
+
+        Validate and clean the provided URL.
+
+        This function checks if the URL starts with a leading slash and if it ends with a trailing slash
+        when required. If the leading or trailing slash is missing, it raises a ValidationError with
+        the corresponding error code.
+
+        The function returns the cleaned URL if it passes the validation checks.
+
+        Raises:
+            ValidationError: If the URL is missing a leading or trailing slash.
+
+        """
         url = self.cleaned_data["url"]
         if not url.startswith("/"):
             raise ValidationError(

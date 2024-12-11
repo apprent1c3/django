@@ -72,6 +72,18 @@ class PickleabilityTestCase(TestCase):
 
     def test_forward_relatedobjectdoesnotexist_class(self):
         # ForwardManyToOneDescriptor
+        """
+
+        Tests that the RelatedObjectDoesNotExist class can be successfully pickled and unpickled.
+
+        This test ensures that instances of RelatedObjectDoesNotExist from both Event and Happening
+        modules can be serialized and deserialized without losing their identity, verifying that
+        the class can be correctly reconstructed after being pickled.
+
+        The test checks for the equality of the original and unpickled class objects, guaranteeing
+        that the class remains intact throughout the serialization process.
+
+        """
         klass = Event.group.RelatedObjectDoesNotExist
         self.assertIs(pickle.loads(pickle.dumps(klass)), klass)
         # ForwardOneToOneDescriptor
@@ -154,6 +166,15 @@ class PickleabilityTestCase(TestCase):
     def test_pickle_prefetch_queryset_usable_outside_of_prefetch(self):
         # Prefetch shouldn't affect the fetch-on-pickle behavior of the
         # queryset passed to it.
+        """
+
+        Tests whether a prefetched queryset can be pickled and still be usable outside of the prefetch context.
+
+        This test case checks if a queryset that has been prefetched can be successfully pickled, loaded, and then evaluated without triggering additional database queries.
+
+        It verifies that the pickled queryset retains the prefetching benefits, allowing it to be used efficiently even after being serialized and deserialized.
+
+        """
         Group.objects.create(name="foo")
         events = Event.objects.order_by("id")
         Group.objects.prefetch_related(models.Prefetch("event_set", queryset=events))
@@ -230,6 +251,18 @@ class PickleabilityTestCase(TestCase):
             self.assert_pickles(groups)
 
     def test_pickle_exists_kwargs_queryset_not_evaluated(self):
+        """
+        Tests whether a queryset with an Exists subquery keyword argument can be pickled.
+
+        This test case checks that a queryset annotated with an Exists subquery,
+        where the subquery is not evaluated until the queryset is iterated over,
+        can be successfully pickled without triggering any database queries.
+
+        The test scenario involves creating a group and an associated event, then
+        annotating a queryset of groups with an Exists subquery to check for the
+        presence of events. After evaluating the queryset, we verify that pickling
+        the resultant queryset does not trigger any additional database queries.
+        """
         group = Group.objects.create(name="group")
         Event.objects.create(title="event", group=group)
         groups = Group.objects.annotate(
@@ -242,6 +275,13 @@ class PickleabilityTestCase(TestCase):
             self.assert_pickles(groups)
 
     def test_pickle_subquery_queryset_not_evaluated(self):
+        """
+        Tests that a queryset with a subquery is not evaluated when pickled.
+
+        The test creates a group and an event associated with the group, then creates a queryset of groups annotated with the title of their associated event. It verifies that the queryset is not evaluated when pickled, by checking that no database queries are executed when the pickled queryset is unpickled.
+
+        This test ensures that the queryset's lazy evaluation is preserved when it is pickled and unpickled, which is important for avoiding unnecessary database queries and improving performance.
+        """
         group = Group.objects.create(name="group")
         Event.objects.create(title="event", group=group)
         groups = Group.objects.annotate(

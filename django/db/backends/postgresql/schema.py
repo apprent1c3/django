@@ -120,6 +120,17 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         return None
 
     def _using_sql(self, new_field, old_field):
+        """
+
+        Generates a SQL USING clause string if necessary for a field type change.
+
+        This method compares the internal types of the old and new fields and determines
+        if a USING clause is required to perform the type change. It checks for changes 
+        in the field's data type, including changes within an ArrayField's base data type.
+        If a USING clause is necessary, the method returns a string in the format 
+        'USING %(column)s::%(type)s'; otherwise, it returns an empty string.
+
+        """
         using_sql = " USING %(column)s::%(type)s"
         new_internal_type = new_field.get_internal_type()
         old_internal_type = old_field.get_internal_type()
@@ -134,6 +145,18 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         return ""
 
     def _get_sequence_name(self, table, column):
+        """
+
+        Retrieve the name of a sequence associated with a given table and column.
+
+        :param table: The name of the table to search for the sequence.
+        :param column: The name of the column to search for the sequence.
+
+        :return: The name of the sequence if found, otherwise None.
+
+        :note: This function iterates through all sequences associated with the given table and returns the name of the sequence that corresponds to the specified column.
+
+        """
         with self.connection.cursor() as cursor:
             for sequence in self.connection.introspection.get_sequences(cursor, table):
                 if sequence["column"] == column:

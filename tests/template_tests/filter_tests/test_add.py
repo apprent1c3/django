@@ -19,6 +19,9 @@ class AddTests(SimpleTestCase):
 
     @setup({"add02": '{{ i|add:"napis" }}'})
     def test_add02(self):
+        """
+        Tests the addition filter by applying it to an integer value. The filter is expected to concatenate the provided string 'napis' to the integer value. The test validates that the output is rendered correctly.
+        """
         output = self.engine.render_to_string("add02", {"i": 2000})
         self.assertEqual(output, "")
 
@@ -39,6 +42,16 @@ class AddTests(SimpleTestCase):
 
     @setup({"add06": "{{ t1|add:t2 }}"})
     def test_add06(self):
+        """
+
+        Tests the addition of two tuples using the |add filter.
+
+        The |add filter is used to concatenate the elements of two tuples, t1 and t2.
+        It returns a new tuple containing all elements from both input tuples.
+
+        The test case verifies that the filter correctly combines the tuples and returns the expected output.
+
+        """
         output = self.engine.render_to_string("add06", {"t1": (3, 4), "t2": (1, 2)})
         self.assertEqual(output, "(3, 4, 1, 2)")
 
@@ -51,6 +64,14 @@ class AddTests(SimpleTestCase):
 
     @setup({"add08": "{{ s1|add:lazy_s2 }}"})
     def test_add08(self):
+        """
+        Tests the addition of a string and a lazy translation string using the 'add' filter.
+
+        Verifies that the 'add' filter correctly concatenates a static string with a lazy translation string,
+        and that the result is rendered as expected. The test case checks that the output of the rendering
+        process matches the expected concatenated string. This ensures that the 'add' filter handles lazy
+        translation strings correctly, even when used in conjunction with static strings.
+        """
         output = self.engine.render_to_string(
             "add08",
             {"s1": "string", "lazy_s2": gettext_lazy("lazy")},
@@ -59,6 +80,15 @@ class AddTests(SimpleTestCase):
 
     @setup({"add09": "{{ lazy_s1|add:lazy_s2 }}"})
     def test_add09(self):
+        """
+
+        Tests the addition of two lazy translation strings using the |add filter.
+
+        Checks if the template engine correctly concatenates the two lazy strings and outputs the expected result.
+
+        The test case verifies that the translation strings 'string' and 'lazy' are rendered together as 'stringlazy' when using the |add filter in a template.
+
+        """
         output = self.engine.render_to_string(
             "add09",
             {"lazy_s1": gettext_lazy("string"), "lazy_s2": gettext_lazy("lazy")},

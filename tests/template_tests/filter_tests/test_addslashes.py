@@ -15,6 +15,15 @@ class AddslashesTests(SimpleTestCase):
         }
     )
     def test_addslashes01(self):
+        """
+
+        Tests the custom template filter 'addslashes' to ensure it correctly escapes special characters.
+
+        It verifies that the filter properly escapes characters in both auto-escaped and marked safe contexts.
+
+        The expected output is a string where single quotes are replaced with their escaped equivalents.
+
+        """
         output = self.engine.render_to_string(
             "addslashes01", {"a": "<a>'", "b": mark_safe("<a>'")}
         )
@@ -22,6 +31,16 @@ class AddslashesTests(SimpleTestCase):
 
     @setup({"addslashes02": "{{ a|addslashes }} {{ b|addslashes }}"})
     def test_addslashes02(self):
+        """
+        писание
+            Test the addslashes filter in the templating engine.
+
+            This test verifies that the addslashes filter correctly escapes special characters 
+            in string variables and respects the mark_safe mark to prevent double escaping. 
+
+            :return: None
+            :rtype: None
+        """
         output = self.engine.render_to_string(
             "addslashes02", {"a": "<a>'", "b": mark_safe("<a>'")}
         )

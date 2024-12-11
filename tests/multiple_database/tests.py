@@ -1503,6 +1503,16 @@ class RouterTestCase(TestCase):
         self.assertEqual(Book.objects.using("other").count(), 1)
 
     def test_invalid_set_foreign_key_assignment(self):
+        """
+
+        Tests the behavior of assigning an unsaved foreign key instance to a set of edited books.
+
+        This test case checks that a ValueError is raised when attempting to assign an unsaved Book instance to a Person's edited set.
+        The error message indicates that the Book instance must be saved first or bulk=False must be used.
+
+        The test covers cross-database assignment, where the Person and Book instances are created in different databases ('default' and 'other' respectively).
+
+        """
         marty = Person.objects.using("default").create(name="Marty Alchin")
         dive = Book.objects.using("other").create(
             title="Dive into Python",
@@ -2256,6 +2266,15 @@ class RouterModelArgumentTestCase(TestCase):
         b.delete()
 
     def test_foreignkey_collection(self):
+        """
+
+        Tests the behavior of a foreign key collection when the referenced object is deleted.
+
+        This test case verifies that the expected behavior occurs when an object that is referenced by a foreign key is deleted.
+        It creates a Person object, then creates a Pet object that has a foreign key referencing the Person.
+        Finally, it deletes the Person object and checks for the correct handling of the foreign key relationship.
+
+        """
         person = Person.objects.create(name="Bob")
         Pet.objects.create(owner=person, name="Wart")
         # test related FK collection
@@ -2324,6 +2343,15 @@ class RouteForWriteTestCase(TestCase):
         )
 
     def test_fk_delete(self):
+        """
+        Tests the deletion of a foreign key owner object to ensure it raises a RouterUsed exception.
+
+        This test case verifies that when an owner object, which has a foreign key relationship with another model, is deleted, 
+        the delete operation raises an exception because it is being executed through a router. 
+
+        The test checks that the raised exception has the correct mode (WRITE), model (Person), and hints, 
+        containing the instance that triggered the exception (the owner object).
+        """
         owner = Person.objects.create(name="Someone")
         pet = Pet.objects.create(name="fido", owner=owner)
         with self.assertRaises(RouterUsed) as cm:
@@ -2449,6 +2477,16 @@ class RouteForWriteTestCase(TestCase):
         self.assertEqual(e.hints, {"instance": book})
 
     def test_reverse_m2m_add(self):
+        """
+
+        Tests the reverse many-to-many relationship when adding a book to an author, 
+        ensuring that the correct router is used and expected exceptions are raised.
+
+        Verifies that attempting to add a book to an author raises a RouterUsed exception
+        with the correct mode, model, and hints. This ensures that the custom router 
+        is properly handling many-to-many relationships and providing useful error messages.
+
+        """
         auth = Person.objects.create(name="Someone")
         book = Book.objects.create(
             title="Pro Django", published=datetime.date(2008, 12, 16)
@@ -2552,6 +2590,16 @@ class RelationAssignmentTests(SimpleTestCase):
             pet.owner = person
 
     def test_reverse_one_to_one_relation(self):
+        """
+        Tests the reverse one-to-one relation between User and UserProfile models.
+
+        This function verifies that attempting to assign a UserProfile instance to a User
+        instance's 'userprofile' attribute raises a ValueError, as this relationship is
+        prevented by the router. The test confirms the expected error message is raised
+        when trying to establish this prohibited relationship.
+
+        :raises: ValueError with a message indicating the router prevents this action.
+        """
         user = User(username="Someone", password="fake_hash")
         profile = UserProfile()
         with self.assertRaisesMessage(ValueError, self.router_prevents_msg):

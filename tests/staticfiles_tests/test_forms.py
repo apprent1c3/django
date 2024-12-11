@@ -23,6 +23,15 @@ class StaticTestStorage(storage.StaticFilesStorage):
 )
 class StaticFilesFormsMediaTestCase(SimpleTestCase):
     def test_absolute_url(self):
+        """
+        Tests the rendering of absolute URLs for media assets.
+
+        This test case verifies that absolute URLs are correctly generated for CSS and JavaScript files, 
+        including cases where the URLs are absolute, relative, or already point to a secure or external host.
+
+        The test checks the output of the Media object against an expected HTML string, 
+        ensuring that all URLs are properly formatted and that the resulting HTML is as expected.
+        """
         m = Media(
             css={"all": ("path/to/css1", "/path/to/css2")},
             js=(

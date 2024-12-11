@@ -199,11 +199,24 @@ class DateFieldTest(SimpleTestCase):
 
     def test_datefield_5(self):
         # Test null bytes (#18982)
+        """
+        Tests that the DateField raises a ValidationError when given an invalid date string containing a null character.
+
+        The function creates a DateField instance and attempts to clean an input string that contains a null byte, expecting a ValidationError to be raised with a message indicating that the input is not a valid date.
+        """
         f = DateField()
         with self.assertRaisesMessage(ValidationError, "'Enter a valid date.'"):
             f.clean("a\x00b")
 
     def test_datefield_changed(self):
+        """
+        Tests whether a date field has changed when the date string matches the input format.
+
+        Checks if the DateField has_changed method correctly identifies a date as unchanged when it is provided in the correct input format.
+
+        :param None
+        :returns: None
+        """
         format = "%d/%m/%Y"
         f = DateField(input_formats=[format])
         d = date(2007, 9, 17)

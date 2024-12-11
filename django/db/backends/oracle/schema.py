@@ -71,6 +71,19 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         )
 
     def alter_field(self, model, old_field, new_field, strict=False):
+        """
+
+        Alter a field in the database.
+
+        This method modifies an existing field in the database to match the provided new field definition.
+        It handles various database-specific errors and applies necessary workarounds to ensure a successful alteration.
+
+        :param model: The model containing the field to be altered.
+        :param old_field: The existing field to be modified.
+        :param new_field: The new field definition to be applied.
+        :param strict: A flag indicating whether to raise an exception if the alteration fails.
+
+        """
         try:
             super().alter_field(model, old_field, new_field, strict)
         except DatabaseError as e:
@@ -201,6 +214,11 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         return self.quote_value(value)
 
     def _field_should_be_indexed(self, model, field):
+        """
+        Determines if a model field should be indexed, taking into account the field's database type and potential limitations.
+
+        The function first retrieves the result from the parent class's method, then checks if the field's database type is in the list of limited data types supported by the current connection. If it is, indexing is disabled, otherwise the result from the parent class is returned. This allows for adaptation to database-specific indexing constraints.
+        """
         create_index = super()._field_should_be_indexed(model, field)
         db_type = field.db_type(self.connection)
         if (
@@ -211,6 +229,15 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         return create_index
 
     def _is_identity_column(self, table_name, column_name):
+        """
+
+        Checks if a column in a database table is an identity column.
+
+        :param table_name: The name of the table to check.
+        :param column_name: The name of the column to check.
+        :returns: 1 if the column is an identity column, 0 if not, and False if the table or column does not exist.
+
+        """
         with self.connection.cursor() as cursor:
             cursor.execute(
                 """

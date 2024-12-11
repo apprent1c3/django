@@ -25,6 +25,17 @@ class NormalizeTests(unittest.TestCase):
         self.assertEqual(result, expected)
 
     def test_group_noncapturing(self):
+        """
+        Tests the normalization of a non-capturing group in a regular expression pattern.
+
+        The function verifies that the regex_helper.normalize function correctly handles a non-capturing group,
+        defined by the `(?:)` syntax, and returns the expected result.
+
+        This test case checks that the normalization process identifies the group content and returns it
+        along with an empty list of capturing groups, as non-capturing groups do not capture any values.
+
+        The expected output is a list containing a tuple with the group content and an empty list of captures.
+        """
         pattern = r"(?:non-capturing)"
         expected = [("non-capturing", [])]
         result = regex_helper.normalize(pattern)

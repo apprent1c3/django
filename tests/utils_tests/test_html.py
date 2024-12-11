@@ -32,6 +32,17 @@ class TestUtilsHtml(SimpleTestCase):
         self.assertEqual(function(value), output)
 
     def test_escape(self):
+        """
+
+        Tests the escape function to ensure it correctly escapes special characters in strings.
+
+        The function checks the escaping of special HTML characters, including ampersand (&), less-than (<), greater-than (>), double quotes (\"), and single quotes ('), and verifies that they are replaced with their corresponding HTML entity codes.
+
+        It also tests the function's behavior with various input patterns, including the special characters at the start, middle, and end of strings, and checks that the function correctly handles lazy strings.
+
+        Additionally, it includes edge cases such as consecutive special characters and specific character combinations, to ensure the function behaves as expected in a variety of scenarios.
+
+        """
         items = (
             ("&", "&amp;"),
             ("<", "&lt;"),
@@ -94,6 +105,23 @@ class TestUtilsHtml(SimpleTestCase):
                 self.check_output(linebreaks, lazystr(value), output)
 
     def test_strip_tags(self):
+        """
+
+        Tests the functionality of the strip_tags function.
+
+        The strip_tags function removes HTML tags from a given string, leaving only the text content.
+        This test case checks the function's ability to handle various input scenarios, including:
+
+        * Text wrapped in HTML tags
+        * Tags with attributes
+        * Entities and escaped characters
+        * HTML tags with no closing tags
+        * Text containingangle brackets (\"<>\") that are not part of HTML tags
+        * Various edge cases to ensure the function behaves as expected
+
+        It verifies that the function correctly removes HTML tags and entities, while preserving the original text content.
+
+        """
         items = (
             (
                 "<p>See: &#39;&eacute; is an apostrophe followed by e acute</p>",
@@ -277,6 +305,13 @@ class TestUtilsHtml(SimpleTestCase):
 
     def test_html_safe(self):
         @html_safe
+        """
+        Tests whether a class decorated with @html_safe correctly implements the __html__ method.
+
+        The test checks if both the class and its instances have the __html__ attribute after decoration. It also verifies that 
+        the string representation of the instance matches the result of calling the __html__ method, ensuring that the object 
+        is marked as HTML-safe and its representation is rendered correctly in HTML context.
+        """
         class HtmlClass:
             def __str__(self):
                 return "<h1>I'm a html class!</h1>"

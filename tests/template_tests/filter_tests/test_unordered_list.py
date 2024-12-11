@@ -27,6 +27,19 @@ class UnorderedListTests(SimpleTestCase):
 
     @setup({"unordered_list03": "{{ a|unordered_list }}"})
     def test_unordered_list03(self):
+        """
+
+        Render an unordered list with nested elements.
+
+        This function tests the rendering of an unordered list containing a nested list.
+        It checks that the output is correctly formatted as HTML, with proper escaping of special characters and correct indentation.
+
+        The input list contains a string and a nested list, which is rendered as a nested unordered list.
+        The expected output is a string representation of the rendered HTML list.
+
+        :raises: AssertionError if the rendered output does not match the expected output.
+
+        """
         output = self.engine.render_to_string(
             "unordered_list03", {"a": ["x>", [mark_safe("<y")]]}
         )
@@ -42,6 +55,12 @@ class UnorderedListTests(SimpleTestCase):
         }
     )
     def test_unordered_list04(self):
+        """
+        fundraising(not relevant to this context) 
+        Test that unordered list filter correctly renders nested lists containing HTML-safe strings. 
+
+        The unordered_list filter is expected to generate HTML for an unordered list, handling nested lists and HTML-safe strings as input. This test case verifies that the filter behaves as expected when given a list with an item containing an HTML tag and a nested list with an HTML-safe string, ensuring the output is correctly formatted and the HTML tags are preserved.
+        """
         output = self.engine.render_to_string(
             "unordered_list04", {"a": ["x>", [mark_safe("<y")]]}
         )
@@ -55,6 +74,14 @@ class UnorderedListTests(SimpleTestCase):
         }
     )
     def test_unordered_list05(self):
+        """
+
+        Tests the rendering of an unordered list with nested items and escaped HTML characters.
+
+        This function verifies that the unordered list filter correctly handles nested lists and 
+        escaped HTML characters in the list items, producing the expected output with proper indentation and HTML tags.
+
+        """
         output = self.engine.render_to_string("unordered_list05", {"a": ["x>", ["<y"]]})
         self.assertEqual(output, "\t<li>x>\n\t<ul>\n\t\t<li><y</li>\n\t</ul>\n\t</li>")
 
@@ -150,6 +177,11 @@ class FunctionTests(SimpleTestCase):
             yield from ("B", "C")
 
         def item_generator():
+            """
+            Generates a sequence of items, including a nested generator, in a specific order. 
+            Yields string items one at a time, allowing for memory-efficient iteration. 
+            The sequence starts with 'A', followed by items from an inner generator, and ends with 'D'.
+            """
             yield "A"
             yield inner_generator()
             yield "D"

@@ -1026,6 +1026,20 @@ class AggregationTests(TestCase):
     def test_more_more_more(self):
         # Regression for #10199 - Aggregate calls clone the original query so
         # the original query can still be used
+        """
+        Test a sequence of database queries to ensure they return the expected results.
+
+        This test case covers various aspects of Django's ORM functionality, including:
+        - Querying all books and verifying their names
+        - Calculating the average age of authors
+        - Filtering books based on the number of authors
+        - Ordering books by a calculated field
+        - Filtering publishers based on their IDs and annotating them with the number of books they have published
+        - Retrieving books from a specific set of publishers
+        - Using aggregate functions to calculate the total number of pages in a set of hardback books
+        - Annotating hardback books with the number of authors and verifying the results
+        - Checking for the correct error message when attempting to use an aggregate function on another aggregate function.
+        """
         books = Book.objects.all()
         books.aggregate(Avg("authors__age"))
         self.assertQuerySetEqual(
@@ -1189,6 +1203,14 @@ class AggregationTests(TestCase):
 
     def test_f_expression_annotation(self):
         # Books with less than 200 pages per author.
+        """
+
+        Tests the usage of F expressions in annotations to filter query results.
+
+        This function creates a queryset of books where the number of authors is greater than the number of pages divided by 200.
+        It then checks if the resulting queryset matches the expected book, 'Python Web Development with Django', by comparing the names of the books in the querysets.
+
+        """
         qs = (
             Book.objects.values("name")
             .annotate(n_authors=Count("authors"))
@@ -1697,6 +1719,15 @@ class AggregationTests(TestCase):
         )
 
     def test_filter_aggregates_or_connector(self):
+        """
+        Tests the filtering of aggregates using the 'or' connector.
+
+        This test verifies that a query can correctly filter Book objects based on 
+        two conditions: a price greater than 50, or having more than one author. 
+        The query uses the 'or' operator to combine these conditions and returns 
+        a queryset of Book objects that match either condition, ordered by their 
+        primary key.
+        """
         q1 = Q(price__gt=50)
         q2 = Q(authors__count__gt=1)
         query = Book.objects.annotate(Count("authors")).filter(q1 | q2).order_by("pk")
@@ -1814,6 +1845,11 @@ class AggregationTests(TestCase):
         self.assertSequenceEqual(qs, [29])
 
     def test_allow_distinct(self):
+        """
+        Tests the behavior of the Aggregate class when the distinct parameter is provided, specifically 
+        to verify that an Aggregate subclass raises a TypeError if it does not support distinct values, 
+        and that it allows distinct values if its allow_distinct attribute is set to True.
+        """
         class MyAggregate(Aggregate):
             pass
 
@@ -1834,6 +1870,18 @@ class AggregationTests(TestCase):
         self.assertEqual(set(books), {self.b1, self.b4})
 
     def test_aggregate_and_annotate_duplicate_columns(self):
+        """
+
+        Tests the aggregation and annotation of duplicate columns in a database query.
+
+        This test case verifies that the query correctly aggregates books by ISBN, 
+        annotates the results with the publisher's name and the number of authors, 
+        and returns the results in the correct order. The expected output is a list 
+        of dictionaries, each containing the ISBN, publisher's name, and the number 
+        of authors for a book. The test checks that the query returns the expected 
+        results, including the correct number of authors for each book.
+
+        """
         books = (
             Book.objects.values("isbn")
             .annotate(

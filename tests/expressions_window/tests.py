@@ -132,6 +132,19 @@ class WindowFunctionTests(TestCase):
                 )
 
     def test_department_salary(self):
+        """
+
+        Tests that the total salary for each department is correctly calculated and ordered.
+
+        This testcase verifies that the 'department_sum' annotation is accurately 
+        calculated as a running total of salaries within each department, and that 
+        the results are ordered by department and the running total of salaries.
+
+        The test uses a set of predefined employee data to validate the 
+        intermediate and final results, confirming that the department-wise 
+        salary aggregation and sorting are performed correctly.
+
+        """
         qs = Employee.objects.annotate(
             department_sum=Window(
                 expression=Sum("salary"),
@@ -264,6 +277,19 @@ class WindowFunctionTests(TestCase):
         )
 
     def test_avg_salary_department(self):
+        """
+        Tests the calculation of average salary for each department.
+
+        This test case verifies that the average salary for each department is correctly 
+        calculated and assigned to each employee in that department. 
+
+        The results include the employee's name, salary, department, and the average salary 
+        of their department, sorted by department, salary in descending order, and then name.
+
+        The test covers various departments, including Accounting, IT, Management, Marketing, and Sales. 
+        It ensures that the average salary is accurately calculated for each department 
+        and that the results are ordered as expected.
+        """
         qs = Employee.objects.annotate(
             avg_salary=Window(
                 expression=Avg("salary"),
@@ -1436,6 +1462,15 @@ class WindowFunctionTests(TestCase):
 
     @skipUnlessDBFeature("supports_frame_exclusion")
     def test_row_range_rank_exclude_ties(self):
+        """
+        Tests the use of row range window frame exclusion to handle ties when calculating the sum of salaries for employees.
+
+        This test case verifies that the calculated sum of salaries for each employee is correct when using a row range window frame that excludes ties. The test covers various scenarios, including different departments and hire dates.
+
+        The test validates the generated SQL query and compares the result with the expected output to ensure that the window frame exclusion is applied correctly.
+
+        :raises: AssertionError if the SQL query or result set does not match the expected output
+        """
         qs = Employee.objects.annotate(
             sum_salary_cohort=Window(
                 expression=Sum("salary"),
@@ -1717,6 +1752,13 @@ class WindowFunctionTests(TestCase):
             )
 
     def test_window_expression_within_subquery(self):
+        """
+        Tests that a window expression can be used within a subquery to retrieve the highest salary employee per department.
+
+        Verifies that the `Window` expression with `FirstValue` and `partition_by` correctly annotates the subquery, allowing the main query to filter for employees with the highest salary in each department.
+
+        The test ensures that the resulting query returns the expected employees, with the highest salary in their respective departments, demonstrating the correct application of window functions in subqueries. 
+        """
         subquery_qs = Employee.objects.annotate(
             highest=Window(
                 FirstValue("id"),
@@ -1796,6 +1838,15 @@ class WindowFunctionTests(TestCase):
             )
 
     def test_invalid_end_value_range(self):
+        """
+        Tests that a ValueError is raised when an invalid end value is specified in the Window frame range.
+
+        This test verifies that the Window function correctly validates the end value of the frame range.
+        It checks that a ValueError is raised when the end value is not a positive integer, zero, or None.
+        The test uses aWindow with a Sum expression and an ascending order by 'hire_date', attempting to set the end value to -3, which is an invalid input.
+
+        :raises ValueError: If the end argument is not a valid value (positive integer, zero, or None)
+        """
         msg = "end argument must be a positive integer, zero, or None, but got '-3'."
         with self.assertRaisesMessage(ValueError, msg):
             list(
@@ -1809,6 +1860,16 @@ class WindowFunctionTests(TestCase):
             )
 
     def test_invalid_start_end_value_for_row_range(self):
+        """
+
+        Tests that a ValueError is raised when an invalid start and end value for a row range window function is provided.
+
+        Specifically, it checks that when start is greater than end in a RowRange window frame, 
+        the function correctly raises a ValueError with a message indicating the problem.
+
+        This test ensures that the window function is validated correctly to prevent incorrect usage.
+
+        """
         msg = "start cannot be greater than end."
         with self.assertRaisesMessage(ValueError, msg):
             list(
@@ -1822,6 +1883,17 @@ class WindowFunctionTests(TestCase):
             )
 
     def test_invalid_type_end_value_range(self):
+        """
+        Tests that an invalid type for the end value of a window frame range raises a ValueError.
+
+        This test case verifies that passing a non-integer, non-zero, or non-None value as the end argument
+        of a window frame range results in a ValueError being raised, with a message indicating the valid
+        types for the end argument.
+
+        The test ensures that the function correctly handles invalid input and provides informative error
+        messages to users.
+
+        """
         msg = "end argument must be a positive integer, zero, or None, but got 'a'."
         with self.assertRaisesMessage(ValueError, msg):
             list(
@@ -1961,6 +2033,27 @@ class NonQueryWindowTests(SimpleTestCase):
         )
 
     def test_window_frame_repr(self):
+        """
+
+        Tests the string representation of window frame objects.
+
+        Verification is performed for different types of window frames, including rows and values,
+        with various start and end values, as well as exclusion parameters.
+
+        The expected output is compared to the actual representation of the window frame objects,
+        ensuring they match the expected string format.
+
+        These tests cover a range of scenarios, such as:
+
+        * Unbounded preceding and following ranges
+        * Preceding and following rows with specific offsets
+        * Current row and exclusion cases
+        * Unbounded and bounded value ranges
+
+        This function ensures that the string representation of window frame objects accurately reflects
+        their configuration and can be reliably used for logging, debugging, or other purposes.
+
+        """
         self.assertEqual(
             repr(RowRange(start=-1)),
             "<RowRange: ROWS BETWEEN 1 PRECEDING AND UNBOUNDED FOLLOWING>",
@@ -1999,10 +2092,28 @@ class NonQueryWindowTests(SimpleTestCase):
         self.assertFalse(window.contains_aggregate)
 
     def test_frame_empty_group_by_cols(self):
+        """
+        Tests that an empty WindowFrame instance returns an empty list for group by columns.
+
+        Verifies the expected behavior of a newly created WindowFrame, 
+        ensuring that its group by columns are initialized correctly 
+        when no columns have been specified for grouping.
+        """
         frame = WindowFrame()
         self.assertEqual(frame.get_group_by_cols(), [])
 
     def test_frame_window_frame_notimplemented(self):
+        """
+
+        Tests that the window_frame_start_end method of the WindowFrame class is not implemented.
+
+        Verifies that calling window_frame_start_end on an instance of WindowFrame raises a
+        NotImplementedError with a message indicating that subclasses must implement this method.
+
+        This test ensures that the abstract method is properly declared and that subclasses are
+        required to provide their own implementation.
+
+        """
         frame = WindowFrame()
         msg = "Subclasses must implement window_frame_start_end()."
         with self.assertRaisesMessage(NotImplementedError, msg):

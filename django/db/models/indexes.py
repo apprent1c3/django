@@ -135,6 +135,21 @@ class Index:
         return schema_editor._delete_index_sql(model, self.name, **kwargs)
 
     def deconstruct(self):
+        """
+        Deconstruct the current index object into its constituting parts.
+
+        This method breaks down the index into a tuple containing the path to the index class, 
+        the expressions that define the index, and keyword arguments that can be used to recreate the index.
+
+        The returned path is a string representation of the index class's module and name, 
+        adjusted to point to the 'django.db.models' module for compatibility.
+
+        The keyword arguments include the index's name, fields, database tablespace, 
+        operator classes, condition, and included columns, if applicable.
+
+        Returns:
+            tuple: A tuple containing the path, expressions, and keyword arguments.
+        """
         path = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
         path = path.replace("django.db.models.indexes", "django.db.models")
         kwargs = {"name": self.name}

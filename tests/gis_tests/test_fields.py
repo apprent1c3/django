@@ -7,6 +7,13 @@ from django.test import SimpleTestCase
 
 class FieldsTests(SimpleTestCase):
     def test_area_field_deepcopy(self):
+        """
+
+        Checks that the AreaField object can be successfully deep copied.
+
+        This test verifies that creating a deep copy of an AreaField instance using the copy module's deepcopy function results in an object that is equal to the original, ensuring that all internal state is properly replicated.
+
+        """
         field = AreaField(None)
         self.assertEqual(copy.deepcopy(field), field)
 

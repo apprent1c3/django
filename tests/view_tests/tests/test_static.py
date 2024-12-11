@@ -118,6 +118,14 @@ class StaticTests(SimpleTestCase):
         self.assertEqual(len(response_content), int(response.headers["Content-Length"]))
 
     def test_404(self):
+        """
+
+        Tests that a 404 status code is returned when attempting to access a non-existent resource.
+
+        This test case verifies that the application correctly handles requests for resources that do not exist, 
+        by checking if the HTTP status code of the response is 404 (Not Found).
+
+        """
         response = self.client.get("/%s/nonexistent_resource" % self.prefix)
         self.assertEqual(404, response.status_code)
 
@@ -151,6 +159,13 @@ class StaticTests(SimpleTestCase):
         ]
     )
     def test_index_custom_template(self):
+        """
+        Tests that the application index page renders with a custom template.
+
+        Verifies that the index page at the application's root URL returns the expected custom template content.
+        The test case checks for a specific response content, ensuring that the custom template is loaded correctly.
+        This test is useful for confirming that the template override settings are applied as expected in the application.
+        """
         response = self.client.get("/%s/" % self.prefix)
         self.assertEqual(response.content, b"Test index")
 

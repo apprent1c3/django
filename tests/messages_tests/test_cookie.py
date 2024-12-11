@@ -215,6 +215,21 @@ class BisectTests(TestCase):
         self.assertEqual(bisect_keep_left([], fn=lambda arr: sum(arr) != 0), 0)
 
     def test_bisect_keep_right(self):
+        """
+
+        Perform a binary search on a list to find the insertion point where the predicate function is False.
+
+        This function is designed to find the rightmost position in the list where the given condition (defined by the `fn` function) becomes False.
+
+        The `fn` function should take a list as input and return a boolean value. It is used to determine the condition that needs to be met.
+
+        The function returns the index at which the condition becomes False, or the length of the list if the condition is never met.
+
+        For example, if the input list is `[1, 1, 1]` and the `fn` function checks if the sum of the list is not equal to 2, the function will return 1, because that is the rightmost index where the sum of the list to the left of the index is less than or equal to 2.
+
+        This function is primarily used for testing purposes to verify the correctness of the `bisect_keep_right` function.
+
+        """
         self.assertEqual(bisect_keep_right([1, 1, 1], fn=lambda arr: sum(arr) != 2), 1)
         self.assertEqual(
             bisect_keep_right([1, 1, 1, 1], fn=lambda arr: sum(arr) != 2), 2

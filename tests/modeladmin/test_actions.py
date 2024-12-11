@@ -28,6 +28,13 @@ class AdminActionsTests(TestCase):
             setattr(cls, username, user)
 
     def test_get_actions_respects_permissions(self):
+        """
+        Tests that the get_actions method of a ModelAdmin instance respects custom permissions defined on admin actions.
+
+        This test case checks that the get_actions method returns the correct set of actions based on the permissions of the current user. It covers various scenarios, including different permission levels (e.g. view, add, change, delete) and custom permissions defined on specific actions.
+
+        The test verifies that the get_actions method correctly filters out actions that the user does not have permission to perform, and includes actions that the user is allowed to perform. This ensures that the ModelAdmin instance only exposes actions to users who have the necessary permissions to execute them.
+        """
         class MockRequest:
             pass
 

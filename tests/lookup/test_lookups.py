@@ -12,6 +12,15 @@ class CustomLookup(Lookup):
 
 class LookupTests(SimpleTestCase):
     def test_equality(self):
+        """
+        Tests the equality of Lookup objects.
+
+        Verifies that Lookup instances are equal when they have the same left and right hand side values.
+        Checks for reflexivity, where an object is equal to itself, and symmetry, where an object is equal to another object with the same attributes.
+        Also tests that Lookup objects are not equal when their attributes differ, including when either the left or right hand side value is different.
+        Additionally, confirms that Lookup objects are not equal to instances of other classes, even if those classes have the same attributes.
+        Ensures that Lookup objects behave as expected when compared for equality with mock objects.
+        """
         lookup = Lookup(Value(1), Value(2))
         self.assertEqual(lookup, lookup)
         self.assertEqual(lookup, Lookup(lookup.lhs, lookup.rhs))

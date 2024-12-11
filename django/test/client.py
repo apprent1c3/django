@@ -110,6 +110,17 @@ class FakePayload(IOBase):
         return content
 
     def write(self, b, /):
+        """
+        Writes a byte string to the internal content buffer.
+
+        This method allows adding data to the buffer. It ensures that data is not written
+        after a read operation has been initiated, to prevent data corruption.
+
+        :raises ValueError: If an attempt is made to write data after a read operation
+                             has started.
+        :param b: The byte string to be written to the buffer.
+
+        """
         if self.read_started:
             raise ValueError("Unable to write a payload after it's been read")
         content = force_bytes(b)
@@ -458,6 +469,14 @@ class RequestFactory:
         return json.dumps(data, cls=self.json_encoder) if should_encode else data
 
     def _get_path(self, parsed):
+        """
+        ..:method:: _get_path(parsed)
+            Extracts the path from the given parsed request data and returns it as a string.
+
+            :param parsed: The parsed request data containing the path information.
+            :return: The extracted path decoded from bytes to a string using the iso-8859-1 encoding.
+            :rtype: str
+        """
         path = unquote_to_bytes(parsed.path)
         # Replace the behavior where non-ASCII values in the WSGI environ are
         # arbitrarily decoded with ISO-8859-1.
@@ -867,6 +886,19 @@ class ClientMixin:
                 return backend_path
 
     def _login(self, user, backend=None):
+        """
+        Logs a user into the system.
+
+         Perfoms the authentication and login of a specified user. This function
+         handles the session creation or retrieval and updates the session to
+         include the logged in user. The provided user object is used to 
+         authenticate with the optionally specified backend. After a successful 
+         login, the session is saved and login cookies are set.
+
+         :param user: The user object to be logged in
+         :param backend: The authentication backend to use, defaults to None
+
+        """
         from django.contrib.auth import login
 
         # Create a fake request to store login details.

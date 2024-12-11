@@ -20,6 +20,22 @@ class DateHierarchyTests(TestCase):
         )
 
     def assertDateParams(self, query, expected_from_date, expected_to_date):
+        """
+        Verify that date filter parameters are correctly applied to a changelist query.
+
+        This method checks that the provided date range in the query is converted to 
+        expected 'date__gte' (greater than or equal to) and 'date__lt' (less than) 
+        parameters, which define the date range for filtering events.
+
+        :param query: A dictionary containing date field and value to be used for filtering.
+        :param expected_from_date: The expected 'date__gte' value.
+        :param expected_to_date: The expected 'date__lt' value.
+
+        It simulates a GET request with the provided query, applies it to the event 
+        changelist, and asserts that the resulting lookup parameters match the 
+        expected date range. This ensures that the date filtering functionality 
+        is working as expected in the EventAdmin interface. 
+        """
         query = {"date__%s" % field: val for field, val in query.items()}
         request = self.factory.get("/", query)
         request.user = self.superuser
@@ -54,6 +70,21 @@ class DateHierarchyTests(TestCase):
                 self.assertDateParams(query, expected_from_date, expected_to_date)
 
     def test_bounded_params_with_time_zone(self):
+        """
+        Tests handling of date parameters with time zone awareness enabled.
+
+        Verifies that date parameters are correctly bounded when the TIME_ZONE setting is
+        set to 'Asia/Jerusalem' and USE_TZ is True. The test checks that a date range
+        spanning February 28, 2017 to March 1, 2017 is correctly evaluated, considering
+        the time zone offset.
+
+        Currently tests the following date parameters:
+            - Start date: February 28, 2017
+            - End date: March 1, 2017
+
+        Ensures that the date bounds are correctly applied and that the dates are
+        interpreted in the 'Asia/Jerusalem' time zone.
+        """
         with self.settings(USE_TZ=True, TIME_ZONE="Asia/Jerusalem"):
             self.assertDateParams(
                 {"year": 2017, "month": 2, "day": 28},

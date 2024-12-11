@@ -132,6 +132,18 @@ class SimpleListFilter(FacetsMixin, ListFilter):
         return [self.parameter_name]
 
     def get_facet_counts(self, pk_attname, filtered_qs):
+        """
+
+        Generates facet counts for each lookup choice, allowing for filtering and grouping of results.
+
+        This function takes a primary key attribute name and a filtered queryset as input.
+        It iterates over each lookup choice, applying the choice as a filter to the queryset and counting the number of matching objects.
+        The resulting counts are stored in a dictionary, where each key corresponds to a specific lookup choice.
+
+        Returns:
+            dict: A dictionary containing the facet counts for each lookup choice, keyed by their zero-based index suffix ('__c').
+
+        """
         original_value = self.used_parameters.get(self.parameter_name)
         counts = {}
         for i, choice in enumerate(self.lookup_choices):
@@ -199,6 +211,20 @@ class FieldListFilter(FacetsMixin, ListFilter):
 
     @classmethod
     def register(cls, test, list_filter_class, take_priority=False):
+        """
+
+        Registers a new list filter with the class.
+
+        The filter is defined by a test function and a corresponding list filter class.
+        If take_priority is True, the filter will be inserted at the current priority index,
+        allowing it to take precedence over previously registered filters.
+        Otherwise, the filter will be appended to the end of the list of filters.
+
+        :param test: The test function for the filter.
+        :param list_filter_class: The class for the filter.
+        :param take_priority: Whether to insert the filter at the priority index. Defaults to False.
+
+        """
         if take_priority:
             # This is to allow overriding the default filters for certain types
             # of fields with some custom filters. The first found in the list
@@ -527,6 +553,17 @@ class DateFieldListFilter(FieldListFilter):
         super().__init__(field, request, params, model, model_admin, field_path)
 
     def expected_parameters(self):
+        """
+
+        Returns a list of expected parameter names for the lookup operation.
+
+        The list includes parameters for specifying date ranges, such as start and end dates.
+        If the field allows null values, an additional parameter for filtering by null status is also included.
+
+        :returns: A list of parameter names
+        :rtype: list[str]
+
+        """
         params = [self.lookup_kwarg_since, self.lookup_kwarg_until]
         if self.field.null:
             params.append(self.lookup_kwarg_isnull)

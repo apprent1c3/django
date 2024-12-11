@@ -16,6 +16,19 @@ class TermColorTests(unittest.TestCase):
         self.assertEqual(parse_color_setting(""), PALETTES[DEFAULT_PALETTE])
 
     def test_simple_palette(self):
+        """
+        Tests the functionality of parsing color settings to determine the appropriate palette.
+
+        This function checks that the parse_color_setting function correctly returns the expected palette for 'light' and 'dark' settings, and that it returns None when an invalid setting ('nocolor') is provided.
+
+        It verifies that the color settings are properly mapped to their corresponding palettes, ensuring that the expected visual styling is applied.
+
+        The test covers the following scenarios:
+
+        * Parsing 'light' color setting
+        * Parsing 'dark' color setting
+        * Handling an invalid color setting ('nocolor')
+        """
         self.assertEqual(parse_color_setting("light"), PALETTES[LIGHT_PALETTE])
         self.assertEqual(parse_color_setting("dark"), PALETTES[DARK_PALETTE])
         self.assertIsNone(parse_color_setting("nocolor"))
@@ -119,6 +132,16 @@ class TermColorTests(unittest.TestCase):
         self.assertIsNone(parse_color_setting("unknown"))
 
     def test_bad_role(self):
+        """
+
+        Tests the parse_color_setting function with invalid role names.
+
+        Verifies that the function correctly handles unknown role names by:
+        - Returning None when only an unknown role is provided.
+        - Returning None when an unknown role is provided with a color.
+        - Merging a partial palette with a known role (e.g. sql_field) when an unknown role is provided with a color and a known role.
+
+        """
         self.assertIsNone(parse_color_setting("unknown="))
         self.assertIsNone(parse_color_setting("unknown=green"))
         self.assertEqual(
@@ -218,6 +241,14 @@ class TermColorTests(unittest.TestCase):
         self.assertEqual(colorize(text="Test", other="red"), "\x1b[mTest\x1b[0m")
 
     def test_colorize_opts(self):
+        """
+
+        Tests the colorize function to ensure correct application of ANSI escape codes based on provided options.
+
+        The function checks if the colorize function correctly applies different text styles, such as bold, underscore, and blink, to a given text. 
+        It also verifies the function's behavior when an invalid option is provided, ensuring that the text is still rendered without any styles.
+
+        """
         self.assertEqual(
             colorize(text="Test", opts=("bold", "underscore")),
             "\x1b[1;4mTest\x1b[0m",

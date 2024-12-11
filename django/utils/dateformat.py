@@ -54,6 +54,15 @@ class Formatter:
 
 class TimeFormat(Formatter):
     def __init__(self, obj):
+        """
+        Initializes a new instance of the class, setting its internal data and determining its timezone.
+
+        The function takes an object as input, which can be of any type, but is specifically designed to handle datetime objects.
+        If a datetime object is provided, it will be inspected to determine its timezone. If the datetime object is naive (i.e., it does not have any timezone information), the default timezone will be used.
+        Otherwise, the timezone will be extracted directly from the datetime object. The function ensures that the resulting timezone is valid and not ambiguous or imaginary.
+
+        The class instance's internal data and timezone attributes will be set based on the input object and its timezone. The timezone will be stored as an attribute of the class instance for future use.
+        """
         self.data = obj
         self.timezone = None
 

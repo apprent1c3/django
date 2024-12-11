@@ -16,6 +16,9 @@ class TimesinceTests(TimezoneTestCase):
     # Default compare with datetime.now()
     @setup({"timesince01": "{{ a|timesince }}"})
     def test_timesince01(self):
+        """
+        Tests the timesince filter functionality in a templating engine, verifying that it correctly calculates and displays the time difference between the current time and a given datetime object in a human-readable format.
+        """
         output = self.engine.render_to_string(
             "timesince01", {"a": datetime.now() + timedelta(minutes=-1, seconds=-10)}
         )
@@ -39,6 +42,20 @@ class TimesinceTests(TimezoneTestCase):
     # Compare to a given parameter
     @setup({"timesince04": "{{ a|timesince:b }}"})
     def test_timesince04(self):
+        """
+
+        Render a time difference using the timesince filter.
+
+        The timesince filter calculates the time difference between two dates and returns a human-readable string.
+        It takes two arguments, the time to calculate from and the time to calculate to.
+
+        The output will be a string describing the time difference, such as \"1 day\" or \"1 hour\".
+        This filter is useful for displaying time differences in a user-friendly format.
+
+        For example, if the current time is 2 days ago, and the reference time is 1 day ago, 
+        the filter will output \"1 day\" to indicate the time difference between the two dates.
+
+        """
         output = self.engine.render_to_string(
             "timesince04",
             {"a": self.now - timedelta(days=2), "b": self.now - timedelta(days=1)},
@@ -47,6 +64,24 @@ class TimesinceTests(TimezoneTestCase):
 
     @setup({"timesince05": "{{ a|timesince:b }}"})
     def test_timesince05(self):
+        """
+        Tests the timesince filter to check if it correctly calculates the time difference in minutes.
+
+        The function renders a template string with the timesince filter, passing two datetime objects as input.
+        It then asserts that the output is equal to the expected time difference string, in this case '1 minute'.
+
+        This test case covers the scenario where the time difference is less than an hour, and the output should display the difference in minutes.
+
+        Args:
+            a (datetime): The first datetime object.
+            b (datetime): The second datetime object.
+
+        Returns:
+            str: The rendered template string with the time difference.
+
+        Example:
+            The timesince filter can be used in a template as {{ a|timesince:b }} to display the time difference between two datetime objects a and b.
+        """
         output = self.engine.render_to_string(
             "timesince05",
             {
@@ -59,6 +94,15 @@ class TimesinceTests(TimezoneTestCase):
     # Timezone is respected
     @setup({"timesince06": "{{ a|timesince:b }}"})
     def test_timesince06(self):
+        """
+
+        Tests the timesince filter functionality, which calculates the time difference between two dates.
+
+        The filter takes two arguments: the earlier date and the later date, and returns a human-readable string
+        representing the time elapsed between them, such as '8 hours'. This test case checks if the filter correctly
+        handles time differences in hours.
+
+        """
         output = self.engine.render_to_string(
             "timesince06", {"a": self.now_tz - timedelta(hours=8), "b": self.now_tz}
         )
@@ -74,6 +118,9 @@ class TimesinceTests(TimezoneTestCase):
 
     @setup({"timesince08": "{{ earlier|timesince:now }}"})
     def test_timesince08(self):
+        """
+        Tests the rendering of time differences in a human-readable format, specifically the \"timesince\" filter, with a past date that is one week ago, ensuring it correctly displays as \"1 week\".
+        """
         output = self.engine.render_to_string(
             "timesince08", {"now": self.now, "earlier": self.now - timedelta(days=7)}
         )
@@ -88,6 +135,18 @@ class TimesinceTests(TimezoneTestCase):
 
     @setup({"timesince10": "{{ later|timesince:now }}"})
     def test_timesince10(self):
+        """
+        Tests the 'timesince' filter by rendering a template string with a future date.
+
+         The 'timesince' filter calculates the time difference between two dates. This test case 
+         specifically checks the output when the time difference is less than one hour, 
+         verifying that the result is displayed in minutes. 
+
+         :return: None. The test passes if the rendered output matches the expected string '0 minutes', 
+                  indicating that the 'timesince' filter functions correctly for time differences 
+                  less than one hour.
+
+        """
         output = self.engine.render_to_string(
             "timesince10", {"now": self.now, "later": self.now + timedelta(days=7)}
         )
@@ -96,6 +155,9 @@ class TimesinceTests(TimezoneTestCase):
     # Differing timezones are calculated correctly.
     @setup({"timesince11": "{{ a|timesince }}"})
     def test_timesince11(self):
+        """
+        Tests the timesince filter in the templating engine, verifying that it correctly displays the time difference between the current time and a given timestamp, in this case, the current time itself, resulting in an output of '0 minutes'.
+        """
         output = self.engine.render_to_string("timesince11", {"a": self.now})
         self.assertEqual(output, "0\xa0minutes")
 
@@ -127,6 +189,11 @@ class TimesinceTests(TimezoneTestCase):
 
     @setup({"timesince16": "{{ a|timesince:b }}"})
     def test_timesince16(self):
+        """
+        Tests the behavior of the timesince filter when the provided date is in the future, relative to the reference date. 
+
+        This test case ensures that when the input date 'a' is later than the reference date 'b', the timesince filter correctly returns an empty string.
+        """
         output = self.engine.render_to_string(
             "timesince16", {"a": self.now_tz_i, "b": self.now}
         )
@@ -142,6 +209,14 @@ class TimesinceTests(TimezoneTestCase):
 
     @setup({"timesince18": "{{ a|timesince:b }}"})
     def test_timesince18(self):
+        """
+        Tests the 'timesince' filter with a timestamp that is one day in the future.
+
+        This test case verifies that the 'timesince' filter correctly calculates the time difference
+        between two dates and returns the result in a human-readable format.
+
+        It checks that when the time difference is 24 hours, the output is displayed as '1 day'. 
+        """
         output = self.engine.render_to_string(
             "timesince18", {"a": self.today, "b": self.today + timedelta(hours=24)}
         )
@@ -150,6 +225,14 @@ class TimesinceTests(TimezoneTestCase):
     # Tests for #33879 (wrong results for 11 months + several weeks).
     @setup({"timesince19": "{{ earlier|timesince }}"})
     def test_timesince19(self):
+        """
+
+        Tests the timesince filter by rendering a template with a date that is approximately 11 months and 3 weeks prior to the current date.
+        The test verifies that the output matches the expected human-readable time difference string.
+
+        :returns: None
+
+        """
         output = self.engine.render_to_string(
             "timesince19", {"earlier": self.today - timedelta(days=358)}
         )
@@ -157,6 +240,14 @@ class TimesinceTests(TimezoneTestCase):
 
     @setup({"timesince20": "{{ a|timesince:b }}"})
     def test_timesince20(self):
+        """
+
+        Tests the timesince filter, which calculates the time difference between two dates.
+
+        The test case verifies that the filter correctly returns a human-readable string
+        representing the time elapsed between two dates, taking into account years and months.
+
+        """
         now = datetime(2018, 5, 9)
         output = self.engine.render_to_string(
             "timesince20",

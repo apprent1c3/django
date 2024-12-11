@@ -20,6 +20,31 @@ class RestrictedError(IntegrityError):
 
 
 def CASCADE(collector, field, sub_objs, using):
+    """
+
+    CASCADE action to be taken when a relationship is deleted or updated.
+
+    This function handles the cascade action for a given field by collecting and updating
+    sub-objects associated with it. It ensures that the related objects are properly
+    handled when the parent object is deleted or updated, according to the specified
+    field's properties.
+
+    Parameters
+    ----------
+    collector : object
+        The collector object responsible for handling the cascade action.
+    field : object
+        The field that defines the relationship and its properties.
+    sub_objs : list
+        The list of sub-objects associated with the relationship.
+    using : str
+        The database connection alias being used for the operation.
+
+    Returns
+    -------
+    None
+
+    """
     collector.collect(
         sub_objs,
         source=field.remote_field.model,
@@ -412,6 +437,17 @@ class Collector:
                 yield model, obj
 
     def sort(self):
+        """
+
+        Sorts the models in the data collection based on their dependencies.
+
+        This function orders the models in a way that a model is placed after all its dependencies.
+        It uses topological sorting to achieve this, iterating over the models until all have been sorted.
+        If a circular dependency is detected, the function stops and the sorting is incomplete.
+
+        The sorted models are then used to update the data collection, ensuring that models are processed in a valid order.
+
+        """
         sorted_models = []
         concrete_models = set()
         models = list(self.data)

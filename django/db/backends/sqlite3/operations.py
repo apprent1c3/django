@@ -195,6 +195,17 @@ class DatabaseOperations(BaseDatabaseOperations):
         return -1
 
     def __references_graph(self, table_name):
+        """
+        Retrieves a list of table names that reference the specified table in the database.
+
+        This function utilizes a recursive query to traverse the database schema, identifying all tables that have foreign key references to the given table. The query searches the sqlite_master table for references to the specified table, and returns a list of table names that match this criteria.
+
+        The results can be used to determine the dependencies between tables, and to identify potential cascading effects of modifications or deletions.
+
+        :arg str table_name: The name of the table for which to retrieve referencing tables.
+        :return: A list of table names that reference the specified table.
+        :rtype: list[str]
+        """
         query = """
         WITH tables AS (
             SELECT %s name
@@ -340,12 +351,41 @@ class DatabaseOperations(BaseDatabaseOperations):
         else:
 
             def converter(value, expression, connection):
+                """
+
+                Converts a given value to a decimal object if it is not None.
+
+                :param value: The value to be converted
+                :param expression: The expression related to the conversion (currently not utilized in the conversion process)
+                :param connection: The connection object (currently not utilized in the conversion process)
+                :return: A decimal object representation of the given value, or None if the input value is None
+
+                """
                 if value is not None:
                     return create_decimal(value)
 
         return converter
 
     def convert_uuidfield_value(self, value, expression, connection):
+        """
+        Converts the UUID field value to a standard UUID object.
+
+        This function takes a value and verifies if it's not None. If it's not None, it converts the value into a UUID object using the uuid.UUID class. The function returns the resulting UUID object, or None if the input value was None. It's used internally to ensure that UUID field values are consistently represented as UUID objects, facilitating further processing and comparison.
+
+        Parameters
+        ----------
+        value : str or UUID
+            The UUID value to be converted.
+        expression : unused
+            This parameter is not used within the function.
+        connection : unused
+            This parameter is not used within the function.
+
+        Returns
+        -------
+        uuid.UUID or None
+            The converted UUID object, or None if the input value was None.
+        """
         if value is not None:
             value = uuid.UUID(value)
         return value

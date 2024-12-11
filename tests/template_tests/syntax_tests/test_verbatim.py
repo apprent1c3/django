@@ -19,6 +19,16 @@ class VerbatimTagTests(SimpleTestCase):
         {"verbatim-tag03": "{% verbatim %}It's the {% verbatim %} tag{% endverbatim %}"}
     )
     def test_verbatim_tag03(self):
+        """
+
+        Tests the rendering of the verbatim tag in a template.
+
+        This test ensures that the verbatim tag is properly escaped when rendered,
+        allowing it to be displayed as its literal value rather than being interpreted
+        as a template tag. The test verifies that the output of the rendering process
+        matches the expected string, which includes the verbatim tag itself.
+
+        """
         output = self.engine.render_to_string("verbatim-tag03")
         self.assertEqual(output, "It's the {% verbatim %} tag")
 
@@ -41,6 +51,14 @@ class VerbatimTagTests(SimpleTestCase):
         }
     )
     def test_verbatim_tag05(self):
+        """
+        Test the rendering of the verbatim tag with nested tags.
+
+        This test case checks if the template engine correctly handles the verbatim tag 
+        when it contains other verbatim tags. The expected output is an empty string, 
+        indicating that the verbatim tags are properly escaped and do not interfere 
+        with the rendering process.
+        """
         output = self.engine.render_to_string("verbatim-tag05")
         self.assertEqual(output, "")
 

@@ -15,6 +15,12 @@ class SeparateDatabaseAndState(Operation):
     serialization_expand_args = ["database_operations", "state_operations"]
 
     def __init__(self, database_operations=None, state_operations=None):
+        """
+        Initializes an instance of the class, setting up the operations to be performed on a database and the state.
+
+        :param database_operations: Optional list of operations to be executed on the database. Defaults to an empty list if not provided.
+        :param state_operations: Optional list of operations to be executed on the state. Defaults to an empty list if not provided.
+        """
         self.database_operations = database_operations or []
         self.state_operations = state_operations or []
 
@@ -27,11 +33,46 @@ class SeparateDatabaseAndState(Operation):
         return (self.__class__.__qualname__, [], kwargs)
 
     def state_forwards(self, app_label, state):
+        """
+        Applies state forwards operations for the given application label and state.
+
+        This method iterates over a series of state operations and delegates the state 
+        forwards action to each operation. It relies on the configured state operations 
+        to perform the actual actions necessary to move the state forwards for the 
+        specified application label.
+
+        :param app_label: The label of the application to apply the state forwards operation to.
+        :param state: The state to apply the forwards operation for.
+
+        """
         for state_operation in self.state_operations:
             state_operation.state_forwards(app_label, state)
 
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
         # We calculate state separately in here since our state functions aren't useful
+        """
+        Apply database operations sequentially to transition the schema from one state to another.
+
+        This method takes the current state of the database schema and applies each operation
+        in a series of database operations to transition it to a new state. It iterates over
+        each operation, updating the schema state and applying the operation to the database,
+        resulting in a cumulative application of all operations in sequence.
+
+        Parameters
+        ----------
+        app_label : str
+            The label of the application to which these operations belong.
+        schema_editor : object
+            The editor responsible for applying the operations to the database.
+        from_state : object
+            The initial state of the database schema.
+        to_state : object
+            The final state of the database schema, updated after applying all operations.
+
+        Returns
+        -------
+        None
+        """
         for database_operation in self.database_operations:
             to_state = from_state.clone()
             database_operation.state_forwards(app_label, to_state)
@@ -185,6 +226,24 @@ class RunPython(Operation):
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
         # RunPython has access to all models. Ensure that all models are
         # reloaded in case any are delayed.
+        """
+        Apply database migration forwards for the given application label.
+
+        This method is responsible for updating the database schema to match the new state
+        defined in the application model. It first clears any cached delayed applications
+        from the previous state, then checks if migration is allowed for the given application
+        label and database connection. If migration is allowed, it applies the necessary
+        database changes using the provided schema editor.
+
+        Parameters:
+            app_label (str): The label of the application to migrate.
+            schema_editor: The schema editor to use for the migration.
+            from_state: The previous state of the application models.
+            to_state: The new state of the application models.
+
+        Returns:
+            None
+        """
         from_state.clear_delayed_apps_cache()
         if router.allow_migrate(
             schema_editor.connection.alias, app_label, **self.hints

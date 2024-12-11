@@ -207,6 +207,20 @@ class LastExecutedQueryTest(TestCase):
     def test_parameter_quoting(self):
         # The implementation of last_executed_queries isn't optimal. It's
         # worth testing that parameters are quoted (#14091).
+        """
+        Tests that parameters are correctly quoted in database queries.
+
+        This test checks if the database connection properly escapes special characters
+        in parameters passed to SQL queries, ensuring that they are safely included in
+        the executed query string.
+
+        It verifies that the final executed query matches the expected query with
+        correctly quoted parameters, helping to prevent SQL injection vulnerabilities.
+
+        The test specifically covers the case of parameters containing quotes and
+        backslashes, which are commonly used in SQL syntax and require proper
+        escaping to avoid security issues.
+        """
         query = "SELECT %s"
         params = ["\"'\\"]
         with connection.cursor() as cursor:
@@ -296,6 +310,16 @@ class TestTransactionMode(SimpleTestCase):
                 new_connection.ensure_connection()
 
     def test_valid_transaction_modes(self):
+        """
+
+            Tests the validity of different transaction modes.
+
+            This function verifies that the database connection correctly supports 
+            and applies 'deferred', 'immediate', and 'exclusive' transaction modes.
+            For each mode, it checks that the corresponding SQL command is generated 
+            and executed as expected, ensuring that the transaction is properly started.
+
+        """
         valid_transaction_modes = ("deferred", "immediate", "exclusive")
         for transaction_mode in valid_transaction_modes:
             with (

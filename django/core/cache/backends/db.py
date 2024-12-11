@@ -30,6 +30,18 @@ class Options:
 
 class BaseDatabaseCache(BaseCache):
     def __init__(self, table, params):
+        """
+
+        Initializes the object with the specified table and parameters.
+
+        The table is stored internally and used to configure a cache model class.
+        This cache model class, accessible as `cache_model_class`, encapsulates metadata options
+        specifically tailored for the provided table, allowing for efficient data caching and retrieval.
+
+        :param table: The table to be used for caching purposes.
+        :param params: Additional parameters used to initialize the object.
+
+        """
         super().__init__(params)
         self._table = table
 
@@ -207,6 +219,16 @@ class DatabaseCache(BaseDatabaseCache):
         return self._base_delete_many([key])
 
     def delete_many(self, keys, version=None):
+        """
+        Deletes multiple key-value pairs from the data store.
+
+        This method takes a list of keys and an optional version number. It 
+        validates each key and then deletes the corresponding data from the store.
+
+        :param keys: A list of keys to delete
+        :param version: Optional version number to use for the delete operation
+
+        """
         keys = [self.make_and_validate_key(key, version=version) for key in keys]
         self._base_delete_many(keys)
 

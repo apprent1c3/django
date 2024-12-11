@@ -54,6 +54,16 @@ class HStoreField(CheckFieldDefaultMixin, Field):
         )
 
     def get_prep_value(self, value):
+        """
+
+        Prepares a value for use in a database query by applying necessary type conversions.
+
+        This method takes a value as input, recursively converts dictionaries and lists to their string representations,
+        and returns the prepared value. Specifically, it converts dictionary keys and non-None values to strings,
+        and converts list items to strings. If the input value is neither a dictionary nor a list, it is returned unchanged,
+        having first been passed to the superclass's get_prep_value method for any additional preparation.
+
+        """
         value = super().get_prep_value(value)
 
         if isinstance(value, dict):
@@ -82,6 +92,14 @@ class KeyTransform(Transform):
     output_field = TextField()
 
     def __init__(self, key_name, *args, **kwargs):
+        """
+        Initializes an instance of the class, setting the key name and inheriting properties from its parent class.
+
+         :param key_name: The name of the key to be associated with this instance
+         :param args: Variable length argument list, passed to the parent class initializer
+         :param kwargs: Arbitrary keyword arguments, passed to the parent class initializer
+         :return: None
+        """
         super().__init__(*args, **kwargs)
         self.key_name = key_name
 

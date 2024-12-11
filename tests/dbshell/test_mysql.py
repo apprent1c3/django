@@ -44,6 +44,20 @@ class MySqlDbshellCommandTestCase(SimpleTestCase):
         )
 
     def test_options_override_settings_proper_values(self):
+        """
+
+        Tests that the OPTIONS dictionary in the settings overrides the corresponding settings dictionary values.
+
+        The purpose of this test is to ensure that the OPTIONS dictionary values are correctly applied when
+        they conflict with the top-level settings dictionary values. This test checks that the resulting command
+        arguments and environment variables are generated as expected, using the values from the OPTIONS dictionary.
+
+        It verifies that the resulting command arguments and environment variables are correctly generated using
+        the values from the OPTIONS dictionary, which includes 'database', 'user', 'password', 'host', and 'port' keys.
+
+        The test uses different keys for database and password to ensure robustness and flexibility in overriding values.
+
+        """
         settings_port = 444
         options_port = 555
         self.assertNotEqual(settings_port, options_port, "test pre-req")

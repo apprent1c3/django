@@ -433,6 +433,18 @@ class ListFiltersTests(TestCase):
         self.assertEqual(choices[-1]["query_string"], "?none_or_null__isnull=True")
 
     def test_datefieldlistfilter(self):
+        """
+
+        Tests filtering of a changelist using a DateFieldListFilter.
+
+        This test case checks the behavior of the DateFieldListFilter in various scenarios,
+        including filtering by date ranges (today, this month, this year, past 7 days),
+        and filtering by the presence or absence of a date.
+
+        It verifies that the correct queryset is returned for each filter option and that
+        the filter choices are correctly selected and updated in the changelist.
+
+        """
         modeladmin = BookAdmin(Book, site)
 
         request = self.request_factory.get("/")
@@ -887,6 +899,17 @@ class ListFiltersTests(TestCase):
         self.assertEqual(len(filterspec), 0)
 
     def test_relatedfieldlistfilter_reverse_relationships_default_ordering(self):
+        """
+
+         Tests the RelatedFieldListFilter when using reverse relationships with default ordering.
+
+         Verifies that the filter correctly returns a list of choices for related objects,
+         ordered according to the default ordering specified on the related model.
+
+         Specifically, this test checks that the choices are ordered based on the 'title' field
+         of the Book model, and that the expected list of choices is returned.
+
+        """
         self.addCleanup(setattr, Book._meta, "ordering", Book._meta.ordering)
         Book._meta.ordering = ("title",)
         modeladmin = CustomUserAdmin(User, site)
@@ -904,6 +927,13 @@ class ListFiltersTests(TestCase):
         self.assertEqual(filterspec.lookup_choices, expected)
 
     def test_relatedonlyfieldlistfilter_foreignkey(self):
+        """
+        Tests the RelatedOnlyFieldListFilter for a ForeignKey field to ensure it returns the correct choices based on the current user's related objects. 
+
+            Specifically, this function verifies that the RelatedOnlyFieldListFilter returns a list of tuples containing the primary key and string representation of the related objects, and that this list matches the expected choices for the given user.
+
+            The test covers the scenario where the filter is applied to a model administered by a custom ModelAdmin instance, and the request is made by a user with specific related objects. The test checks that the filter returns the expected list of choices, sorted in a consistent manner.
+        """
         modeladmin = BookAdminRelatedOnlyFilter(Book, site)
 
         request = self.request_factory.get("/")
@@ -1002,6 +1032,21 @@ class ListFiltersTests(TestCase):
         self.assertEqual(filterspec.lookup_choices, expected)
 
     def test_relatedonlyfieldlistfilter_underscorelookup_foreignkey(self):
+        """
+
+        Tests the functionality of the RelatedOnlyFieldListFilter with foreign key underscore lookup.
+
+        This test case creates a set of dependencies including departments and employees, 
+        then uses the BookAdminRelatedOnlyFilter to verify that the filter only shows 
+        the related departments for a specific user.
+
+        The test checks that the filter returns the expected list of department choices, 
+        which are sorted and compared to the predefined expected list.
+
+        It ensures that the RelatedOnlyFieldListFilter correctly handles foreign key lookups 
+        with underscore notation, returning the desired data for the user.
+
+        """
         Department.objects.create(code="TEST", description="Testing")
         self.djangonaut_book.employee = self.john
         self.djangonaut_book.save()
@@ -1023,6 +1068,14 @@ class ListFiltersTests(TestCase):
         self.assertEqual(sorted(filterspec.lookup_choices), sorted(expected))
 
     def test_relatedonlyfieldlistfilter_manytomany(self):
+        """
+        Checks the filtering functionality of the RelatedOnlyFieldListFilter for many-to-many relationships in the admin interface.
+
+        This test case ensures that the filter options are correctly populated with related objects, 
+        allowing users to narrow down the results based on specific relationships. In this scenario, 
+        it verifies that the filter choices are correctly generated for a many-to-many field, 
+        returning the expected list of related objects.
+        """
         modeladmin = BookAdminRelatedOnlyFilter(Book, site)
 
         request = self.request_factory.get("/")
@@ -1917,6 +1970,17 @@ class ListFiltersTests(TestCase):
                 self.assertCountEqual(queryset, expected_result)
 
     def test_emptylistfieldfilter_reverse_relationships(self):
+        """
+        Tests the EmptyFieldListFilter functionality in Django admin interfaces.
+
+        This test case validates the correct filtering of objects based on the presence or absence of related objects.
+        It covers various admin interfaces for different models, including books, departments, and users.
+        The test checks that the filter correctly identifies objects with empty related fields (e.g., books without improved editions, departments without employees, users without contributed books) and objects with non-empty related fields.
+
+        The tests are performed by simulating GET requests to the admin changelist views with query strings that activate the EmptyFieldListFilter.
+        The resulting querysets are then compared to the expected results to ensure that the filter is working as intended.
+
+        """
         class UserAdminReverseRelationship(UserAdmin):
             list_filter = (("books_contributed", EmptyFieldListFilter),)
 

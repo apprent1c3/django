@@ -75,6 +75,19 @@ class DjangoTemplates(BaseEngine):
         return Template(self.engine.from_string(template_code), self)
 
     def get_template(self, template_name):
+        """
+
+        Retrieves a template by its name.
+
+        This method fetches a template from the template engine based on the provided template name.
+        If the template exists, a wrapped Template object is returned. If the template does not exist,
+        an exception is raised.
+
+        :param template_name: The name of the template to retrieve.
+        :raises TemplateDoesNotExist: If the template with the given name does not exist.
+        :return: A Template object representing the retrieved template.
+
+        """
         try:
             return Template(self.engine.get_template(template_name), self)
         except TemplateDoesNotExist as exc:

@@ -15,6 +15,20 @@ class LjustTests(SimpleTestCase):
         }
     )
     def test_ljust01(self):
+        """
+        Tests the ljust filter with HTML-unsafe and safe input.
+
+        This test case verifies that the ljust filter correctly left-justifies strings 
+        within a specified width, ensuring proper handling of HTML-unsafe strings and 
+        those marked as safe using mark_safe.
+
+        It checks the output of rendering a template with the ljust filter applied to 
+        both an HTML-unsafe string and a string marked as safe, confirming that the 
+        resulting output is accurately left-justified and rendered without escaping 
+        the safe string. The expected output is a string with the input values 
+        left-justified within a field of specified width, surrounded by dots for 
+        visibility. 
+        """
         output = self.engine.render_to_string(
             "ljust01", {"a": "a&b", "b": mark_safe("a&b")}
         )

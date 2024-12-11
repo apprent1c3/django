@@ -24,6 +24,15 @@ from .models import (
 
 class ModelTests(TestCase):
     def test_model_init_too_many_args(self):
+        """
+
+        Tests the initialization of the Worker model with too many arguments.
+
+        Verifies that an IndexError is raised when attempting to create a Worker instance with a number of arguments that exceeds the number of expected fields.
+
+        The expected error message indicates that the number of provided arguments is too high, preventing successful model initialization.
+
+        """
         msg = "Number of args exceeds number of fields"
         with self.assertRaisesMessage(IndexError, msg):
             Worker(1, 2, 3, 4)
@@ -55,6 +64,15 @@ class ModelTests(TestCase):
     def test_empty_choice(self):
         # NOTE: Part of the regression test here is merely parsing the model
         # declaration. The verbose_name, in particular, did not always work.
+        """
+
+        Tests that an Article object with an empty choice has a status display of None and its misc_data is an empty string.
+
+        Verifies the initial state of an Article object after creation, ensuring that the get_status_display method returns None 
+        and the misc_data attribute is set to an empty string. This test case checks the behavior of the Article object when 
+        no specific choice has been made.
+
+        """
         a = Article.objects.create(
             headline="Look at me!", pub_date=datetime.datetime.now()
         )
@@ -68,6 +86,14 @@ class ModelTests(TestCase):
     def test_long_textfield(self):
         # TextFields can hold more than 4000 characters (this was broken in
         # Oracle).
+        """
+        Tests the behavior of a text field when storing and retrieving a large amount of text.
+
+        This test ensures that text longer than the expected limit can be properly stored and retrieved from the database, 
+        and that the length of the text is as expected after retrieval.
+        Verifies the functionality of the Article model's text field when dealing with long text inputs.
+
+        """
         a = Article.objects.create(
             headline="Really, really big",
             pub_date=datetime.datetime.now(),
@@ -79,6 +105,14 @@ class ModelTests(TestCase):
     def test_long_unicode_textfield(self):
         # TextFields can hold more than 4000 bytes also when they are
         # less than 4000 characters
+        """
+
+        Tests the handling of long Unicode text fields in the Article model.
+
+        This test creates an Article instance with a large amount of Unicode text in its article_text field,
+        then retrieves the instance from the database and verifies that the text field's length is correctly preserved.
+
+        """
         a = Article.objects.create(
             headline="Really, really big",
             pub_date=datetime.datetime.now(),
@@ -174,6 +208,18 @@ class ModelTests(TestCase):
     def test_get_next_prev_by_field(self):
         # get_next_by_FIELD() and get_previous_by_FIELD() don't crash when
         # microseconds values are stored in the database.
+        """
+
+        Tests the functionality of retrieving the next and previous objects in a sequence 
+        based on a specific field, in this case 'when'. This method checks if the 
+        get_next_by_when and get_previous_by_when methods return the correct objects 
+        in the sequence by comparing their 'when' field values to the expected dates.
+
+        The test case creates multiple Event objects with different 'when' dates and 
+        then retrieves the next and previous objects for a specific Event object, 
+        verifying that the returned objects have the expected 'when' dates.
+
+        """
         Event.objects.create(when=datetime.datetime(2000, 1, 1, 16, 0, 0))
         Event.objects.create(when=datetime.datetime(2000, 1, 1, 6, 1, 1))
         Event.objects.create(when=datetime.datetime(2000, 1, 1, 13, 1, 1))
@@ -271,6 +317,15 @@ class EvaluateMethodTest(TestCase):
 
 class ModelFieldsCacheTest(TestCase):
     def test_fields_cache_reset_on_copy(self):
+        """
+
+        Tests that the fields cache is properly reset when a Worker object is copied.
+
+        Verifies that the department field is correctly preserved during the copy operation
+        and that subsequent changes to the copied worker's department do not affect the
+        original worker.
+
+        """
         department1 = Department.objects.create(id=1, name="department1")
         department2 = Department.objects.create(id=2, name="department2")
         worker1 = Worker.objects.create(name="worker", department=department1)

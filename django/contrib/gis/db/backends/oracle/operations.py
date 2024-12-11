@@ -210,6 +210,13 @@ class OracleOperations(BaseSpatialOperations, DatabaseOperations):
 
     # Routines for getting the OGC-compliant models.
     def geometry_columns(self):
+        """
+
+        Returns an instance of OracleGeometryColumns, which provides access to the geometry columns
+        in the Oracle Spatial database. This allows for inspection and manipulation of the spatial 
+        data stored in the database.
+
+        """
         from django.contrib.gis.db.backends.oracle.models import OracleGeometryColumns
 
         return OracleGeometryColumns

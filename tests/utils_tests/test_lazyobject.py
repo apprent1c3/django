@@ -76,6 +76,17 @@ class LazyObjectTestCase(unittest.TestCase):
 
     def test_setattr2(self):
         # Same as test_setattr but in reversed order
+        """
+        Tests that setting attributes on a lazily wrapped object persists the changes.
+
+        This test covers the basic functionality of setting attributes on an object 
+        that is wrapped using the lazy wrap mechanism, ensuring that the changes are 
+        successfully applied and can be retrieved later.
+
+        The test covers setting string attributes on the object and verifies that 
+        the changes are properly persisted by comparing the set values with the 
+        retrieved values using assertions.
+        """
         obj = self.lazy_wrap(Foo())
         obj.bar = "baz"
         obj.foo = "BAR"
@@ -164,6 +175,23 @@ class LazyObjectTestCase(unittest.TestCase):
             self.assertIn(self.lazy_wrap(needle), self.lazy_wrap(haystack))
 
     def test_getitem(self):
+        """
+        Tests the __getitem__ method of the lazy wrapped objects.
+
+        This test case verifies that the lazy wrapped list and dictionary objects behave 
+        as expected when accessed using indexing and slicing for lists and key lookup for 
+        dictionaries. The test checks that the correct values are returned and that 
+        appropriate exceptions are raised when attempting to access out-of-bounds 
+        indices or non-existent keys.
+
+        The test covers various scenarios, including:
+        - Accessing list elements by index
+        - Accessing list elements using negative indices
+        - Slicing lists
+        - Accessing dictionary values by key
+        - Attempting to access non-existent list indices
+        - Attempting to access non-existent dictionary keys
+        """
         obj_list = self.lazy_wrap([1, 2, 3])
         obj_dict = self.lazy_wrap({"a": 1, "b": 2, "c": 3})
 
@@ -180,6 +208,20 @@ class LazyObjectTestCase(unittest.TestCase):
             obj_dict["f"]
 
     def test_setitem(self):
+        """
+        Tests the behavior of the setitem method when used with lazy-wrapped lists and dictionaries.
+
+        This test case checks that assignments to specific indices or keys in wrapped lists and dictionaries are correctly propagated to the underlying data structures.
+
+        The following scenarios are verified:
+
+        * Setting a single value in a wrapped list
+        * Setting multiple values in a wrapped list using slice assignment
+        * Setting a value for a key in a wrapped dictionary
+        * Setting a value for a new key in a wrapped dictionary
+
+        The test assertions ensure that the wrapped objects behave as expected after each assignment operation, by comparing the resulting objects with the expected outcomes.
+        """
         obj_list = self.lazy_wrap([1, 2, 3])
         obj_dict = self.lazy_wrap({"a": 1, "b": 2, "c": 3})
 
@@ -307,6 +349,15 @@ class LazyObjectTestCase(unittest.TestCase):
 
     def test_deepcopy_class(self):
         # Deep copying a class works and returns the correct objects.
+        """
+        Tests the deepcopy functionality of a lazy wrapped class instance.
+
+        Verifies that the class instance is successfully copied and that the original and 
+        copied instances are distinct objects, with the copied instance being of the same 
+        type as the original, and having the same initial state as a newly created instance.
+
+        Ensures that the copying process preserves the class's properties and behavior.
+        """
         foo = Foo()
 
         obj = self.lazy_wrap(foo)
@@ -356,11 +407,31 @@ class SimpleLazyObjectTestCase(LazyObjectTestCase):
         self.assertEqual(obj1 + obj2, 3)
 
     def test_radd(self):
+        """
+
+        Tests the implementation of the right-hand side addition operator (__radd__) for the wrapped object.
+
+        This test ensures that when a wrapped object is added to an integer from the right-hand side, the operation yields the correct result.
+
+        """
         obj1 = self.lazy_wrap(1)
         self.assertEqual(1 + obj1, 2)
 
     def test_trace(self):
         # See ticket #19456
+        """
+
+        Test the tracing functionality by temporarily setting a custom trace function.
+
+        This function sets up a tracing environment, executes the lazy wrapping functionality,
+        and then restores the original tracing settings. The custom trace function is used to
+        access the class of the current object being executed, allowing for inspection of the
+        object's state during the tracing process.
+
+        The original tracing function is preserved and restored after the test, ensuring that
+        any existing tracing configurations remain unchanged.
+
+        """
         old_trace_func = sys.gettrace()
         try:
 
@@ -401,6 +472,20 @@ class SimpleLazyObjectTestCase(LazyObjectTestCase):
             lazydict["one"]
 
     def test_list_set(self):
+        """
+
+        Tests the functionality of lazy objects when wrapped around lists and sets.
+
+        Verifies that lazy list and set objects can be queried for membership and 
+        their length can be accurately determined, without forcing immediate 
+        evaluation of the lazy object until its contents are actually needed.
+
+        The test cases cover the following scenarios:
+        - Checking if an element is present in a lazy list or set
+        - Checking if an element is not present in a lazy list or set
+        - Determining the length of a lazy list or set
+
+        """
         lazy_list = SimpleLazyObject(lambda: [1, 2, 3, 4, 5])
         lazy_set = SimpleLazyObject(lambda: {1, 2, 3, 4})
         self.assertIn(1, lazy_list)
@@ -425,6 +510,16 @@ class BaseBaz:
         return super().__reduce__()
 
     def __eq__(self, other):
+        """
+
+        Checks if the current object is equal to another object.
+
+        Two objects are considered equal if they are instances of the same class and have the same attributes with the same values.
+        The attributes 'bar', 'baz', and 'quux' are compared. If either object is missing one of these attributes, or if the attribute values are different, the objects are not considered equal.
+
+        :return: True if the objects are equal, False otherwise
+
+        """
         if self.__class__ != other.__class__:
             return False
         for attr in ["bar", "baz", "quux"]:

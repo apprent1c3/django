@@ -9,6 +9,15 @@ from .models import RelatedModel, SimpleModel
 class GetListObjectOr404Test(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Sets up test data for the class.
+
+        This class method creates and stores instances of SimpleModel and RelatedModel to be used 
+        in tests. It creates two SimpleModel instances (s1 and s2) with different field values 
+        and one RelatedModel instance (r1) related to the first SimpleModel instance (s1).
+
+        """
         cls.s1 = SimpleModel.objects.create(field=0)
         cls.s2 = SimpleModel.objects.create(field=1)
         cls.r1 = RelatedModel.objects.create(simple=cls.s1)

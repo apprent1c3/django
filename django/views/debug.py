@@ -496,6 +496,16 @@ class ExceptionReporter:
 
     def get_traceback_frames(self):
         # Get the exception and all its causes
+        """
+        Retrieves the traceback frames associated with the exception chain.
+
+        This function iterates through the exception chain, tracking the exceptions encountered and their corresponding traceback frames.
+        If a cycle in the exception chain is detected, a warning is raised and the function breaks the cycle to prevent infinite recursion.
+        The retrieved frames are then compiled into a list and returned.
+
+        :returns: A list of traceback frames associated with the exception chain
+        :rtype: list
+        """
         exceptions = []
         exc_value = self.exc_value
         while exc_value:

@@ -190,6 +190,15 @@ class ParsingTests(TestCase):
                 self.assertConstraint(check, columns, check=True)
 
     def test_check_and_unique_column(self):
+        """
+        Tests the parsing of SQL column definitions containing CHECK and UNIQUE constraints.
+
+        Verifies that the function correctly identifies and separates the CHECK and UNIQUE constraints
+        from the column definition, and that the parsed constraints are correctly applied to the specified columns.
+
+        The test covers different possible orderings of the CHECK and UNIQUE keywords in the SQL definition.
+
+        """
         tests = (
             ('"ref" varchar(255) CHECK ("ref" != \'test\') UNIQUE,', ["ref"]),
             ("ref varchar(255) UNIQUE CHECK (ref != 'test'),", ["ref"]),

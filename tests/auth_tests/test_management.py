@@ -127,6 +127,11 @@ class GetDefaultUsernameTestCase(TestCase):
         self.assertIsInstance(management.get_system_username(), str)
 
     def test_simple(self):
+        """
+        Tests that the get_default_username function returns the system username when available.
+
+        The test case verifies that the get_default_username function correctly utilizes the system username as a fallback, ensuring that it returns the expected value under controlled conditions.
+        """
         management.get_system_username = lambda: "joe"
         self.assertEqual(management.get_default_username(), "joe")
 
@@ -174,6 +179,12 @@ class ChangepasswordManagementCommandTestCase(TestCase):
 
     @mock.patch.object(getpass, "getpass", return_value="")
     def test_get_pass_no_input(self, mock_get_pass):
+        """
+        Tests the changepassword command when no password input is provided.
+
+        Verifies that the command correctly handles the case where the user does not enter a new password,
+        resulting in the command aborting with an error message indicating that the operation was cancelled.
+        """
         with self.assertRaisesMessage(CommandError, "aborted"):
             call_command("changepassword", username="joe", stdout=self.stdout)
 
@@ -188,6 +199,15 @@ class ChangepasswordManagementCommandTestCase(TestCase):
         )
 
     def test_nonexistent_username(self):
+        """
+
+        Tests that changing the password of a nonexistent user raises an error.
+
+        This test case checks that attempting to change the password of a user that does not
+        exist in the system results in a CommandError being raised with a message indicating
+        that the specified user does not exist.
+
+        """
         with self.assertRaisesMessage(CommandError, "user 'test' does not exist"):
             call_command("changepassword", username="test", stdout=self.stdout)
 
@@ -283,6 +303,13 @@ class MultiDBChangepasswordManagementCommandTestCase(TestCase):
 )
 class CreatesuperuserManagementCommandTestCase(TestCase):
     def test_no_email_argument(self):
+        """
+        Tests that the createsuperuser command raises an error when --noinput is used without specifying the --email argument.
+
+        This test case ensures that the command behaves correctly when run non-interactively, by verifying that it correctly requires an email address for the new superuser.
+
+        It checks for the specific error message 'You must use --email with --noinput.' to be raised as a CommandError exception, indicating that the --email argument is mandatory when --noinput is provided.
+        """
         new_io = StringIO()
         with self.assertRaisesMessage(
             CommandError, "You must use --email with --noinput."
@@ -333,6 +360,19 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
             }
         )
         def test(self):
+            """
+
+            Tests the creation of a superuser with customized username field verbose name.
+
+            This test case verifies that the 'createsuperuser' command successfully creates a superuser
+            when the username field's verbose name is temporarily changed to a non-English string.
+            It checks that the command's output indicates successful creation of the superuser.
+
+            The test uses mock inputs to simulate user interaction with the command, including
+            username, password, and email. The test also ensures that the original verbose name
+            of the username field is restored after the test is completed.
+
+            """
             username_field = User._meta.get_field("username")
             old_verbose_name = username_field.verbose_name
             username_field.verbose_name = _("u\u017eivatel")
@@ -354,6 +394,12 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
 
     def test_verbosity_zero(self):
         # We can suppress output on the management command
+        """
+        Tests that creating a superuser with verbosity level 0 results in no output being generated. 
+        The test creates a new superuser with the given username and email, and then verifies that 
+        the output is empty and the user was created successfully with the correct email address and 
+        no usable password, as no password was set during the non-interactive creation process.
+        """
         new_io = StringIO()
         call_command(
             "createsuperuser",
@@ -370,6 +416,11 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
         self.assertFalse(u.has_usable_password())
 
     def test_email_in_username(self):
+        """
+        Tests the creation of a superuser with an email address in the username, verifying that the email address is correctly stored and the user does not have a usable password. 
+
+        The test checks that the `email` field of the created user instance is populated with the provided email, and that the `username` field contains the email address plus an additional component, while the password is not set.
+        """
         call_command(
             "createsuperuser",
             interactive=False,
@@ -434,7 +485,39 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
                 "password": "nopasswd",
             }
         )
+        """
+
+        Test that creating a superuser with a non-unique username is allowed when using a custom user model.
+
+        This test ensures that the createsuperuser command functions correctly when the username field is not unique,
+        allowing multiple users to have the same username. The test creates two superusers with the same username and
+        verifies that both are created successfully.
+
+        """
         def createsuperuser():
+            """
+
+            Deletes previous superusers and creates a new superuser.
+
+            This function simulates the creation of a new superuser using the `createsuperuser` command.
+            It sets up a mock input environment with a predefined username and password,
+            then executes the command with interactive mode enabled, specifying an email address.
+            The function captures and verifies the command's output, ensuring a successful superuser creation.
+
+            Parameters
+            ----------
+            None
+
+            Returns
+            -------
+            None
+
+            Notes
+            -----
+            This function is used for testing purposes and relies on a mock input setup.
+            The email address used is 'joe@somewhere.org' with the username 'joe' and password 'nopasswd'.
+
+            """
             new_io = StringIO()
             call_command(
                 "createsuperuser",
@@ -548,6 +631,16 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
             }
         )
         def test(self):
+            """
+
+            Tests the creation of a superuser using the createsuperuser command.
+
+            This test case simulates interactive input to create a superuser, verifying that the 
+            command executes successfully and creates a user with the expected email and group 
+            assignments. It checks that the output of the command indicates successful creation 
+            and that the resulting user's attributes match the provided input values.
+
+            """
             call_command(
                 "createsuperuser",
                 interactive=True,
@@ -565,6 +658,15 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomUserWithFK")
     def test_fields_with_fk_via_option_interactive(self):
+        """
+
+        Tests the creation of a superuser with foreign key fields via the interactive createsuperuser command.
+
+        The test creates a new group and email, then simulates an interactive createsuperuser command with the provided inputs, 
+        including the email's primary key as the username and the group's primary key. It verifies that the command output 
+        indicates successful creation and that the resulting CustomUserWithFK instance has the correct email and group attributes.
+
+        """
         new_io = StringIO()
         group = Group.objects.create(name="mygroup")
         email = Email.objects.create(email="mymail@gmail.com")
@@ -591,6 +693,16 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomUserWithFK")
     def test_validate_fk(self):
+        """
+
+        Tests the validation of foreign key values in the createsuperuser command.
+
+        Checks that a ValidationError is raised when a non-existent group id is provided.
+        The test creates an Email object, clears the Group table, and then attempts to
+        create a superuser with a non-existent group id, verifying that the expected
+        error message is displayed.
+
+        """
         email = Email.objects.create(email="mymail@gmail.com")
         Group.objects.all().delete()
         nonexistent_group_id = 1
@@ -1045,6 +1157,17 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
             {"password": return_passwords, "username": return_usernames, "email": ""}
         )
         def test(self):
+            """
+
+            Tests the creation of a superuser with invalid input.
+
+            This test case simulates the execution of the 'createsuperuser' command with
+            interactive input, providing a mock username, password, and empty email.
+            It verifies that the command correctly handles the invalid input and still
+            succeeds in creating the superuser, while displaying an error message about
+            the invalid username exceeding the maximum allowed length.
+
+            """
             call_command(
                 "createsuperuser",
                 interactive=True,
@@ -1264,6 +1387,11 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.NoPasswordUser")
     def test_usermodel_without_password(self):
+        """
+        Tests the creation of a superuser without a password, using a custom user model that does not require a password. 
+        This test case verifies that the `createsuperuser` management command can successfully create a superuser 
+        even when the user model does not have a password field, and that the command outputs a success message.
+        """
         new_io = StringIO()
         call_command(
             "createsuperuser",
@@ -1366,6 +1494,19 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
         # Environment variables are ignored in interactive mode.
         @mock_inputs({"password": "cmd_password"})
         def test(self):
+            """
+
+            Tests the creation of a superuser through the command line interface.
+
+            This test case verifies that a superuser can be successfully created using the 
+            command line command, and that the created user's email and password are set 
+            correctly.
+
+            The test Also checks the interaction is properly handled when creating a superuser
+            in a non-interactive environment, ensuring that the provided credentials are used 
+            correctly.
+
+            """
             call_command(
                 "createsuperuser",
                 interactive=True,

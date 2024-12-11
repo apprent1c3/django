@@ -20,6 +20,17 @@ class RegroupTagTests(SimpleTestCase):
         }
     )
     def test_regroup01(self):
+        """
+
+        Tests the regroup functionality of the templating engine.
+
+        This test case verifies that the regroup tag can correctly group a list of items by a common attribute.
+        The test data consists of a list of dictionaries with 'foo' and 'bar' keys, where 'bar' is used as the grouping key.
+        The expected output is a string where each group is represented by its grouper value followed by a comma-separated list of 'foo' values from the items in that group.
+
+        The test checks that the rendered output matches the expected string, ensuring that the regroup tag functions as intended.
+
+        """
         output = self.engine.render_to_string(
             "regroup01",
             {
@@ -113,11 +124,17 @@ class RegroupTagTests(SimpleTestCase):
     # Test syntax errors
     @setup({"regroup05": "{% regroup data by bar as %}"})
     def test_regroup05(self):
+        """
+        Tests that a :class:`TemplateSyntaxError` is raised when the 'regroup' template tag is used with an invalid syntax, specifically when the 'as' keyword is not followed by a valid variable name.
+        """
         with self.assertRaises(TemplateSyntaxError):
             self.engine.get_template("regroup05")
 
     @setup({"regroup06": "{% regroup data by bar thisaintright grouped %}"})
     def test_regroup06(self):
+        """
+        Raises a TemplateSyntaxError when attempting to regroup data by a non-existent variable in a template, testing the engine's handling of invalid regroup syntax.
+        """
         with self.assertRaises(TemplateSyntaxError):
             self.engine.get_template("regroup06")
 
@@ -128,6 +145,18 @@ class RegroupTagTests(SimpleTestCase):
 
     @setup({"regroup08": "{% regroup data by bar as grouped toomanyargs %}"})
     def test_regroup08(self):
+        """
+        Tests that the 'regroup' template tag raises a TemplateSyntaxError when passed too many arguments. 
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            TemplateSyntaxError: If the 'regroup' template tag is used with too many arguments.
+        """
         with self.assertRaises(TemplateSyntaxError):
             self.engine.get_template("regroup08")
 
@@ -143,6 +172,21 @@ class RegroupTagTests(SimpleTestCase):
         }
     )
     def test_regroup_unpack(self):
+        """
+
+        Tests the regroup unpack functionality in the templating engine.
+
+        This test case checks if the regroup tag can successfully group a list of dictionaries 
+        by a common key and then unpack the grouped items into a comma-separated string.
+
+        The test data consists of a list of dictionaries with 'foo' and 'bar' keys. The regroup 
+        tag groups the data by the 'bar' key, and the unpacked string contains the 'bar' key 
+        values followed by the corresponding 'foo' values.
+
+        The expected output is a string where each group is represented by the 'bar' value 
+        followed by the 'foo' values of the items in that group, separated by commas.
+
+        """
         output = self.engine.render_to_string(
             "regroup_unpack",
             {

@@ -167,6 +167,14 @@ class SafeMIMEText(MIMEMixin, MIMEText):
         MIMEText.__setitem__(self, name, val)
 
     def set_payload(self, payload, charset=None):
+        """
+        Sets the payload of the email message.
+
+        :param payload: The content of the email message
+        :param charset: The character set to use for the payload. If ``'utf-8'`` is specified and it's a string, the function will automatically determine whether to use quoted-printable encoding to ensure compliance with the maximum line length limit defined in RFC 5322.
+        :returns: None
+        :rtype: None
+        """
         if charset == "utf-8" and not isinstance(charset, Charset.Charset):
             has_long_lines = any(
                 len(line.encode(errors="surrogateescape"))

@@ -63,6 +63,26 @@ class NullBooleanFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertIsNone(f.cleaned_data["nullbool2"])
 
     def test_nullbooleanfield_changed(self):
+        """
+        Tests the logic of the NullBooleanField's has_changed method.
+
+        This method checks whether the NullBooleanField has changed between initial and 
+        new values. The field considers boolean values (True, False), None and string 
+        representations as possible inputs. It returns True if the field has changed 
+        and False otherwise.
+
+        The test cases cover various scenarios, including changes between boolean 
+        values, None, and string representations, as well as no changes between equal 
+        values. The goal is to ensure the has_changed method behaves correctly in 
+        different situations, providing accurate indications of field changes.
+
+        Examples of scenarios tested include:
+        - Changes from one boolean value to another
+        - Changes between boolean values and None
+        - Changes between boolean values and string representations
+        - No changes between equal values
+        - Invalid string representations
+        """
         f = NullBooleanField()
         self.assertTrue(f.has_changed(False, None))
         self.assertTrue(f.has_changed(None, False))

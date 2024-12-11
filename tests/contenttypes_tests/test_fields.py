@@ -13,6 +13,12 @@ from .models import Answer, Post, Question
 @isolate_apps("contenttypes_tests")
 class GenericForeignKeyTests(TestCase):
     def test_str(self):
+        """
+        Tests the string representation of a model field.
+
+        Verifies that the string representation of a GenericForeignKey field
+        in a model is correctly formatted as 'app_name.ModelName.field_name'.
+        """
         class Model(models.Model):
             field = GenericForeignKey()
 
@@ -46,6 +52,21 @@ class GenericForeignKeyTests(TestCase):
         self.assertIsNot(old_entity, new_entity)
 
     def test_clear_cached_generic_relation_explicit_fields(self):
+        """
+
+        Tests that the generic relation to a question is cleared from the answer's cache
+        when the question field is explicitly refreshed from the database.
+
+        This test ensures that refreshing a specific field from the database does not
+        affect other cached attributes, unless the field itself is refreshed. In this
+        case, the test checks that the generic relation to a question is preserved when
+        the `text` field is refreshed, but updated when the `question` field is
+        explicitly refreshed.
+
+        Verifies that the equality of the question object is maintained, even when the
+        cached reference is updated.
+
+        """
         question = Question.objects.create(text="question")
         answer = Answer.objects.create(text="answer", question=question)
         old_question_obj = answer.question
@@ -60,6 +81,17 @@ class GenericForeignKeyTests(TestCase):
 
 class GenericRelationTests(TestCase):
     def test_value_to_string(self):
+        """
+
+        Tests the conversion of answer set values to a string representation.
+
+        Verifies that the :meth:`value_to_string` method correctly returns a list of answer IDs 
+        belonging to a given question as a JSON string. 
+
+        This test case ensures data consistency and integrity by checking if the answer IDs 
+        retrieved from the database match the expected answer IDs.
+
+        """
         question = Question.objects.create(text="test")
         answer1 = Answer.objects.create(question=question)
         answer2 = Answer.objects.create(question=question)
@@ -92,6 +124,15 @@ class DeferredGenericRelationTests(TestCase):
 
 class GetPrefetchQuerySetDeprecation(TestCase):
     def test_generic_relation_warning(self):
+        """
+        Tests that a RemovedInDjango60Warning is raised when using the deprecated get_prefetch_queryset() method.
+
+        This test case creates a question object, retrieves all questions, and then attempts to use the deprecated method
+        on the answer set of the first question, verifying that the expected deprecation warning is issued.
+
+        The purpose of this test is to ensure that users are properly notified of the deprecation and can migrate to the
+        recommended replacement method, get_prefetch_querysets(), before it is removed in Django 6.0.
+        """
         Question.objects.create(text="test")
         questions = Question.objects.all()
         msg = (
@@ -102,6 +143,14 @@ class GetPrefetchQuerySetDeprecation(TestCase):
             questions[0].answer_set.get_prefetch_queryset(questions)
 
     def test_generic_foreign_key_warning(self):
+        """
+        Tests that using get_prefetch_queryset() with a GenericForeignKey raises a 
+        RemovedInDjango60Warning, with a message indicating that get_prefetch_querysets() should be used instead.
+
+        This test case ensures that a depreciation warning is properly raised when the 
+        deprecated method is called, for the purpose of encouraging migration to the 
+        recommended replacement method before it is removed in a future version of Django.
+        """
         answers = Answer.objects.all()
         msg = (
             "get_prefetch_queryset() is deprecated. Use get_prefetch_querysets() "

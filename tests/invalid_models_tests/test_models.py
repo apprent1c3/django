@@ -47,6 +47,11 @@ class UniqueTogetherTests(SimpleTestCase):
         )
 
     def test_list_containing_non_iterable(self):
+        """
+        Return a list of errors when the 'unique_together' Meta attribute in a Django model contains non-iterable elements.
+
+        The function tests that a model's validation correctly identifies and reports an error when the 'unique_together' attribute is not properly formatted, specifically when it contains elements that are not lists or tuples. This ensures that the model's unique constraints are properly defined and can be validated accordingly.
+        """
         class Model(models.Model):
             one = models.IntegerField()
             two = models.IntegerField()
@@ -363,6 +368,15 @@ class IndexesTests(TestCase):
 
     @skipUnlessDBFeature("supports_covering_indexes")
     def test_index_include_pointing_to_missing_field(self):
+        """
+        Tests that an error is raised when an index includes a field that does not exist on the model.
+
+        This test case covers the scenario where an index is defined with an 'include' parameter that references a field that is not defined on the model. It verifies that the check method returns the expected error message, indicating that the index refers to a nonexistent field.
+
+        The test is skipped unless the database feature 'supports_covering_indexes' is available, as this is a prerequisite for the 'include' parameter to be valid.
+
+        The expected error message is a Models.E012 error, which indicates that the 'indexes' refers to the nonexistent field.
+        """
         class Model(models.Model):
             class Meta:
                 indexes = [
@@ -382,6 +396,12 @@ class IndexesTests(TestCase):
 
     @skipUnlessDBFeature("supports_covering_indexes")
     def test_index_include_pointing_to_m2m_field(self):
+        """
+        (:func:`test_index_include_pointing_to_m2m_field`): 
+        Tests that a Belle encountered when including a Many-to-Many field in an index.
+        This covers the scenario in which ``include`` parameter of :class:`~django.db.models.Index` 
+        refers to a ManyToManyField which is not allowed.
+        """
         class Model(models.Model):
             m2m = models.ManyToManyField("self")
 
@@ -527,6 +547,17 @@ class IndexesTests(TestCase):
         )
 
     def test_func_index_pointing_to_m2m_field(self):
+        """
+
+        Checks the validation of a model with an index on a ManyToManyField.
+
+        Verifies that a model raises an error when an index is defined on a ManyToManyField,
+        as ManyToManyFields are not permitted in indexes.
+
+        Raises an Error (id 'models.E013') with a descriptive message indicating that
+        ManyToManyFields cannot be used in indexes.
+
+        """
         class Model(models.Model):
             m2m = models.ManyToManyField("self")
 
@@ -567,6 +598,13 @@ class IndexesTests(TestCase):
         )
 
     def test_func_index_pointing_to_fk(self):
+        """
+        Tests that index on a foreign key field correctly points to the related field's primary key.
+
+        Checks the case where a model has multiple foreign keys to the same model and an index is created
+        on one of these foreign keys. The test ensures that the index is correctly defined and does not
+        cause any errors when checked by the model's validation method.
+        """
         class Foo(models.Model):
             pass
 
@@ -942,6 +980,21 @@ class ShadowingFieldsTests(SimpleTestCase):
         )
 
     def test_diamond_mti_common_parent(self):
+        """
+        Tests the Multiple Table Inheritance (MTI) common parent validation.
+
+        Verifies that when a model inherits from a child model and its grandparent model
+        in MTI, an error is raised because the grandparent model's primary key field
+        clashes with the child model's primary key field. Ensures that the validation
+        check correctly identifies and reports this error, preventing potential data
+        integrity issues in the database schema.
+
+        The test scenario involves a grandparent model, a parent model inheriting from
+        the grandparent, a child model inheriting from the parent, and an MTI common
+        parent model that attempts to inherit from both the child and grandparent models,
+        resulting in a field clash that should be detected and reported by the validation
+        check.
+        """
         class GrandParent(models.Model):
             pass
 
@@ -1509,6 +1562,22 @@ class OtherModelTests(SimpleTestCase):
         DATABASE_ROUTERS=["invalid_models_tests.test_models.EmptyRouter"]
     )
     def test_m2m_table_name_clash_database_routers_installed(self):
+        """
+
+        Test for Many-To-Many table name clash when database routers are installed.
+
+        This test case checks if the intermediate table name for a Many-To-Many field
+        in a model clashes with the table name of another model in the system.
+        The test also verifies that the model validation correctly identifies the clash
+        and provides a hint regarding the potential cause when database routers are used.
+
+        It simulates a scenario where a Many-To-Many relationship between two models
+        ('Foo' and 'Bar') is defined, but the intermediary table name for the relationship
+        ('myapp_bar') conflicts with the table name of model 'Bar'. The test asserts
+        that the correct warning is raised, taking into account the settings.DATABASE_ROUTERS
+        configuration, which may affect the routing of the 'Bar' model's table to a separate database.
+
+        """
         class Foo(models.Model):
             bar = models.ManyToManyField("Bar", db_table="myapp_bar")
 
@@ -1828,6 +1897,16 @@ class MultipleAutoFieldsTests(TestCase):
 class JSONFieldTests(TestCase):
     @skipUnlessDBFeature("supports_json_field")
     def test_ordering_pointing_to_json_field_value(self):
+        """
+
+        Tests that ordering a model by a value within a JSON field is supported.
+
+        This test case checks if a model can be ordered by a specific value within a JSON field.
+        It creates a model with a JSON field and attempts to order it by a value within that field.
+        The test passes if no errors are raised during the model's validation, indicating that the database
+        supports ordering by JSON field values.
+
+        """
         class Model(models.Model):
             field = models.JSONField()
 
@@ -2737,6 +2816,22 @@ class ConstraintsTests(TestCase):
 
     @skipUnlessDBFeature("supports_expression_indexes")
     def test_func_unique_constraint_pointing_to_missing_field_nested(self):
+        """
+
+        Tests the uniqueness constraint checking functionality when a field is referenced 
+        that does not exist in the model.
+
+        This test case specifically covers a scenario where a nested expression, 
+        involving an absolute value and rounding operation, is used to define a unique 
+        constraint on a non-existent field. The expected behavior is for the model 
+        checking to identify this as an error, highlighting the reference to a 
+        non-existent field in the constraints definition.
+
+        The test verifies that the check function correctly raises an error when 
+        encountering this situation, and that the error message accurately reflects the 
+        issue, including the specific model, error code, and error description.
+
+        """
         class Model(models.Model):
             class Meta:
                 constraints = [

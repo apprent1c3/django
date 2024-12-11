@@ -32,6 +32,9 @@ class Serializer(PythonSerializer):
         self.json_kwargs.setdefault("ensure_ascii", False)
 
     def start_serialization(self):
+        """
+        Initiates the serialization process by setting up internal options and writing the opening bracket to the output stream, indicating the start of a serialized data structure.
+        """
         self._init_options()
         self.stream.write("[")
 

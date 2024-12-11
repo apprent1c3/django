@@ -783,6 +783,13 @@ class LookupTests(TestCase):
 
     def test_error_messages(self):
         # Programming errors are pointed out with nice error messages
+        """
+        Tests error handling for invalid keyword arguments in ORM queries.
+
+            Verifies that a FieldError is raised when attempting to filter on a non-existent field ('pub_date_year') and that the error message includes the available field choices for the model.
+
+            This test ensures that the ORM correctly handles invalid field names and provides informative error messages to aid in debugging.
+        """
         with self.assertRaisesMessage(
             FieldError,
             "Cannot resolve keyword 'pub_date_year' into field. Choices are: "
@@ -1190,6 +1197,17 @@ class LookupTests(TestCase):
         )
 
     def test_chain_date_time_lookups(self):
+        """
+        Tests date and time lookups on Article objects.
+
+        This test case verifies that date and time filtering works as expected for Article objects.
+        It checks various lookup types, including month, day, hour, and minute, to ensure that the 
+        correct articles are returned based on their publication dates.
+
+        Specifically, the test covers greater than, greater than or equal, less than, and less than or 
+        equal lookups, ensuring that the results match the expected list of articles in each scenario.
+
+        """
         self.assertCountEqual(
             Article.objects.filter(pub_date__month__gt=7),
             [self.a5, self.a6],
@@ -1241,6 +1259,16 @@ class LookupTests(TestCase):
     def test_exact_booleanfield(self):
         # MySQL ignores indexes with boolean fields unless they're compared
         # directly to a boolean value.
+        """
+
+        Tests the functionality of exact lookups for BooleanFields in the context of MySQL.
+
+        This test case creates a product and two stock entries with different 'short' statuses,
+        then uses the Django ORM to filter for stocks with 'short' set to True.
+        It verifies that the resulting query set contains the expected stock entry and
+        that the generated SQL query correctly represents the exact lookup for the Boolean field.
+
+        """
         product = Product.objects.create(name="Paper", qty_target=5000)
         Stock.objects.create(product=product, short=False, qty_available=5100)
         stock_1 = Stock.objects.create(product=product, short=True, qty_available=180)
@@ -1255,6 +1283,25 @@ class LookupTests(TestCase):
     def test_exact_booleanfield_annotation(self):
         # MySQL ignores indexes with boolean fields unless they're compared
         # directly to a boolean value.
+        """
+
+        Tests exact boolean field annotation in MySQL-specific workarounds.
+
+        This test case ensures that Django's QuerySet annotations work as expected when 
+        used with boolean fields in MySQL databases, specifically when using Case, 
+        ExpressionWrapper, and Exists annotations. It verifies that the resulting queries 
+        are correctly generated and filtered.
+
+        The test covers three different annotation scenarios:
+
+        * Using Case to annotate a boolean field
+        * Using ExpressionWrapper to annotate a boolean field
+        * Using Exists to annotate a boolean field
+
+        For each scenario, it checks that the resulting QuerySet contains the expected 
+        objects and that the generated SQL query is correct.
+
+        """
         qs = Author.objects.annotate(
             case=Case(
                 When(alias="a1", then=True),
@@ -1370,6 +1417,13 @@ class LookupTests(TestCase):
                     qs.exists()
 
     def test_isnull_textfield(self):
+        """
+        Tests the isnull lookup on the bio text field of the Author model.
+
+        This test case verifies that authors with and without bio information are correctly filtered.
+        It checks whether the authors with a null bio value are properly distinguished from those with a non-null bio value.
+        The test ensures data integrity by confirming that the filtered results match the expected authors.
+        """
         self.assertSequenceEqual(
             Author.objects.filter(bio__isnull=True),
             [self.au2],
@@ -1380,6 +1434,18 @@ class LookupTests(TestCase):
         )
 
     def test_lookup_rhs(self):
+        """
+
+        Tests the lookup functionality for the 'short' field on Stock objects.
+
+        Verifies that stocks are correctly identified as short when their available quantity 
+        is less than the target quantity of their associated Product, using both simple 
+        filtering and ExpressionWrapper with a BooleanField output.
+
+        Ensures that the resulting set of short stocks matches the expected output in 
+        both cases, confirming the functionality of the lookup.
+
+        """
         product = Product.objects.create(name="GME", qty_target=5000)
         stock_1 = Stock.objects.create(product=product, short=True, qty_available=180)
         stock_2 = Stock.objects.create(product=product, short=False, qty_available=5100)
@@ -1542,6 +1608,15 @@ class LookupQueryingTests(TestCase):
         self.assertCountEqual(qs, [self.s2, self.s3])
 
     def test_combined_lookups_in_filter(self):
+        """
+        Tests that combining lookup expressions using the bitwise OR operator in a filter method returns the correct results.
+
+        This test case checks that the filter method correctly applies the combined lookup expression, 
+        which includes an exact match and a greater-than comparison, and returns the expected query set.
+
+        The test queries for seasons with a year of 1942 or greater and verifies that the resulting 
+        query set matches the expected list of seasons.
+        """
         expression = Exact(F("year"), 1942) | GreaterThan(F("year"), 1942)
         qs = Season.objects.filter(expression)
         self.assertCountEqual(qs, [self.s1, self.s3])

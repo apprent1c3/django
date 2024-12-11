@@ -230,6 +230,19 @@ class CommonPasswordValidator:
         return Path(__file__).resolve().parent / "common-passwords.txt.gz"
 
     def __init__(self, password_list_path=DEFAULT_PASSWORD_LIST_PATH):
+        """
+
+        Initializes a CommonPasswordValidator instance.
+
+        This method loads a list of common passwords from a file specified by the password_list_path parameter.
+        If the provided path matches the default path, it uses the instance's default path instead.
+        The file can be either a plain text file or a gzip-compressed file, and it is expected to contain one password per line.
+        The loaded passwords are stored in the instance for later use in validation.
+
+        :param password_list_path: The path to the file containing the list of common passwords.
+                                    Defaults to DEFAULT_PASSWORD_LIST_PATH if not provided.
+
+        """
         if password_list_path is CommonPasswordValidator.DEFAULT_PASSWORD_LIST_PATH:
             password_list_path = self.DEFAULT_PASSWORD_LIST_PATH
         try:

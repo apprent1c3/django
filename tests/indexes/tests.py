@@ -89,6 +89,18 @@ class SchemaIndexesTests(TestCase):
 
     @skipUnlessDBFeature("can_create_inline_fk", "can_rollback_ddl")
     def test_alter_field_unique_false_removes_deferred_sql(self):
+        """
+
+        Tests the behavior of altering a field to remove its unique constraint.
+
+        Checks if the deferred SQL is correctly generated when adding fields and altering
+        one of them to remove its uniqueness. The test case ensures that after adding two
+        fields with unique constraints, the deferred SQL list has two entries. Then, it
+        alters one of the fields to remove its uniqueness and verifies that the deferred
+        SQL list is updated accordingly, with the remaining entry being related to the
+        other field that still has a unique constraint.
+
+        """
         field_added = CharField(max_length=127, unique=True)
         field_added.set_attributes_from_name("charfield_added")
 
@@ -189,6 +201,15 @@ class SchemaIndexesPostgreSQLTests(TransactionTestCase):
             )
 
     def test_ops_class_multiple_columns(self):
+        """
+
+        Test the functionality of adding an index with multiple columns and operator classes to a database table.
+
+        This test creates an index named 'test_ops_class_multiple' on the 'headline' and 'body' fields of the IndexedArticle2 model.
+        The index uses 'varchar_pattern_ops' and 'text_pattern_ops' operator classes, which enable efficient pattern matching on the indexed columns.
+        The test then verifies that the index has been successfully created by querying the database for the operator classes associated with the index and comparing them to the expected values.
+
+        """
         index = Index(
             name="test_ops_class_multiple",
             fields=["headline", "body"],
@@ -436,6 +457,13 @@ class PartialIndexTests(TransactionTestCase):
             editor.remove_index(index=index, model=Article)
 
     def test_boolean_restriction_partial(self):
+        """
+        Tests the creation of a partial index with a boolean restriction.
+
+        The function verifies that a partial index is correctly generated with a condition 
+        that filters based on a boolean field. It checks the SQL query for the index 
+        creation and ensures the index is added and removed from the database as expected.
+        """
         with connection.schema_editor() as editor:
             index = Index(
                 name="published_index",
@@ -493,6 +521,24 @@ class PartialIndexTests(TransactionTestCase):
             editor.remove_index(index=index, model=Article)
 
     def test_is_null_condition(self):
+        """
+
+        Test the creation of a database index with an 'is null' condition.
+
+        This test case verifies that an index is correctly created with a condition
+        that filters out rows where a specified field is null. It checks the SQL
+        statement used to create the index and ensures the index is properly added
+        and removed from the database schema.
+
+        The test covers the following scenarios:
+        - The index is created with the correct SQL condition.
+        - The index is successfully added to the database schema.
+        - The index is correctly removed from the database schema.
+
+        It provides assurance that database indexes with conditional statements
+        are properly handled by the database abstraction layer.
+
+        """
         with connection.schema_editor() as editor:
             index = Index(
                 name="recent_article_idx",
@@ -559,6 +605,13 @@ class CoveringIndexTests(TransactionTestCase):
     available_apps = ["indexes"]
 
     def test_covering_index(self):
+        """
+
+        Tests the creation of a covering index on the 'headline' field of the Article model.
+        The covering index includes the 'pub_date' and 'published' fields, allowing for faster query performance.
+        Verifies that the index is correctly created and added to the database schema, and that it is properly removed when no longer needed.
+
+        """
         index = Index(
             name="covering_headline_idx",
             fields=["headline"],
@@ -676,6 +729,15 @@ class CoveringIndexIgnoredTests(TransactionTestCase):
     available_apps = ["indexes"]
 
     def test_covering_ignored(self):
+        """
+
+        Tests that an index created with an 'include' clause does not generate an INCLUDE statement 
+        for the specified columns within the indexed table.
+
+        This test case verifies the correct behavior of the database schema editor when 
+        adding an index to a model, specifically when certain fields are marked for inclusion.
+
+        """
         index = Index(
             name="test_covering_ignored",
             fields=["headline"],

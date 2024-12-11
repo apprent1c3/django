@@ -109,6 +109,20 @@ class MySQLOperations(BaseSpatialOperations, DatabaseOperations):
         return f.geom_type
 
     def get_distance(self, f, value, lookup_type):
+        """
+        :param f: 
+            The instance used for distance computation.
+        :param value: 
+            A single value to calculate the distance from. This can be either a numeric value or an instance of :class:`Distance`.
+        :param lookup_type: 
+            The type of lookup to perform.
+        :returns: 
+            A list containing the distance parameter used for the computation.
+        :raises ValueError: 
+            If a geodetic distance query is attempted with a non-numeric value, or a :class:`Distance` instance with degree units.
+        :note: 
+            The function normalizes the input value to a numeric distance parameter, which can then be used for further computations.
+        """
         value = value[0]
         if isinstance(value, Distance):
             if f.geodetic(self.connection):
@@ -131,6 +145,15 @@ class MySQLOperations(BaseSpatialOperations, DatabaseOperations):
         geom_class = expression.output_field.geom_class
 
         def converter(value, expression, connection):
+            """
+            Converts a given binary geometry value into a GEOSGeometryBase object.
+
+            :param value: The binary geometry value to be converted.
+            :param expression: The geometry expression.
+            :param connection: The database connection.
+            :returns: A GEOSGeometryBase object representing the converted geometry, or None if the input value is None.
+            :note: If a spatial reference system identifier (SRID) is specified, it is assigned to the resulting geometry.
+            """
             if value is not None:
                 geom = GEOSGeometryBase(read(memoryview(value)), geom_class)
                 if srid:

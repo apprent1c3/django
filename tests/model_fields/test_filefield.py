@@ -137,6 +137,16 @@ class FileFieldTests(TestCase):
         self.assertEqual(d.myfile, d.myfile.open())
 
     def test_media_root_pathlib(self):
+        """
+
+            Tests if the media root directory is correctly configured to store files using pathlib.
+
+            This test creates a temporary directory and overrides the MEDIA_ROOT setting to point to it.
+            It then creates a temporary uploaded file, assigns it to a Document instance, and verifies
+            that the file is stored in the designated media root directory. The test also checks if
+            the storage backend correctly reports the existence of the uploaded file.
+
+        """
         with tempfile.TemporaryDirectory() as tmp_dir:
             with override_settings(MEDIA_ROOT=Path(tmp_dir)):
                 with TemporaryUploadedFile(

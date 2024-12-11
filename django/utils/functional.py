@@ -61,6 +61,13 @@ class classproperty:
         return self.fget(cls)
 
     def getter(self, method):
+        """
+        Sets the getter method for an attribute and returns the object itself.
+
+        :param method: The function that will be used to get the attribute value.
+        :return: The object instance to allow method chaining.
+
+        """
         self.fget = method
         return self
 
@@ -139,6 +146,27 @@ def lazy(func, *resultclasses):
             return self.__cast() <= other
 
         def __gt__(self, other):
+            """
+            Compares the current object with another object using the greater than operator.
+
+            This comparison operator allows for the comparison of the current object with either another instance of the same class or a Promise object.
+            If the other object is a Promise, it is first resolved to its actual value before the comparison is made.
+            The comparison is then performed between the resolved values, returning True if the current object's value is greater than the other object's value, and False otherwise.
+
+            Parameters
+            ----------
+            other : object
+                The object to compare with the current object.
+
+            Returns
+            -------
+            bool
+                True if the current object is greater than the other object, False otherwise.
+
+            Note
+            ----
+            This comparison operator is used in the context of instances of the same class, and is intended to provide a way to compare their values in a meaningful way.
+            """
             if isinstance(other, Promise):
                 other = other.__cast()
             return self.__cast() > other
@@ -184,6 +212,18 @@ def lazy(func, *resultclasses):
                 def __wrapper__(self, *args, __method_name=method_name, **kw):
                     # Automatically triggers the evaluation of a lazy value and
                     # applies the given method of the result type.
+                    """
+                    ормs a wrapper around a function to extend its behavior by delegating the actual call to a contained object.
+
+                    This method takes in arbitrary arguments and keyword arguments, applies them to the contained object's result, and invokes the specified method on that result.
+
+                    The contained object is expected to be the result of a prior operation, stored as instance attributes (``_args`` and ``_kw``).
+
+                    :param \*args: Variable number of positional arguments to be passed to the delegated method
+                    :param str __method_name: The name of the method to be invoked on the contained object's result
+                    :param \**kw: Variable number of keyword arguments to be passed to the delegated method
+                    :returns: Result of invoking the specified method on the contained object's result
+                    """
                     result = func(*self._args, **self._kw)
                     return getattr(result, __method_name)(*args, **kw)
 
@@ -274,6 +314,18 @@ class LazyObject:
         self._wrapped = empty
 
     def __getattribute__(self, name):
+        """
+
+        Gets an attribute from the object, applying attribute masking.
+
+        This method overrides the default attribute access to introduce attribute masking.
+        It checks if the requested attribute has the `_mask_wrapped` flag set to `False`.
+        If the flag is `False`, it raises an `AttributeError` to prevent access to the attribute.
+        Otherwise, it returns the attribute value as usual.
+
+        The special attribute `_wrapped` is exempt from attribute masking and is accessed directly.
+
+        """
         if name == "_wrapped":
             # Avoid recursion when getting wrapped object.
             return super().__getattribute__(name)
@@ -330,6 +382,16 @@ class LazyObject:
         return (unpickle_lazyobject, (self._wrapped,))
 
     def __copy__(self):
+        """
+        ..: copying:
+            Creates a copy of the current object.
+
+            If the object is currently empty, a new instance of the same type is returned.
+            Otherwise, a shallow copy of the wrapped object is created and returned.
+
+            :return: A copy of the current object.
+            :rtype: type(self)
+        """
         if self._wrapped is empty:
             # If uninitialized, copy the wrapper. Use type(self), not
             # self.__class__, because the latter is proxied.
@@ -339,6 +401,11 @@ class LazyObject:
             return copy.copy(self._wrapped)
 
     def __deepcopy__(self, memo):
+        """
+        Creates a deep copy of the current object, ensuring that all nested objects are also copied, rather than referenced. 
+        The memo dictionary is used to keep track of objects that have already been copied to prevent infinite recursion.
+        If the wrapped object is empty, a new instance of the same type is created; otherwise, the standard library's deepcopy function is used to recursively copy the wrapped object.
+        """
         if self._wrapped is empty:
             # We have to use type(self), not self.__class__, because the
             # latter is proxied.
@@ -422,6 +489,22 @@ class SimpleLazyObject(LazyObject):
             return copy.copy(self._wrapped)
 
     def __deepcopy__(self, memo):
+        """
+
+        Creates a deep copy of the current object.
+
+        This method is used to create a new, independent copy of the object, ensuring that any changes made to the copy do not affect the original.
+
+        The copying process uses a memoization technique to optimize performance by avoiding redundant copies of the same object.
+
+        If the object is in an uninitialized state (i.e., its internal state is considered \"empty\"), a new lazy object is created with the same setup function, allowing for deferred initialization.
+
+        Otherwise, the method falls back to the standard `copy.deepcopy` function to create a comprehensive copy of the object's internal state.
+
+        :param memo: A dictionary used for memoization to keep track of objects that have already been copied.
+        :returns: A deep copy of the current object.
+
+        """
         if self._wrapped is empty:
             # We have to use SimpleLazyObject, not self.__class__, because the
             # latter is proxied.

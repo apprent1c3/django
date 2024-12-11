@@ -63,6 +63,16 @@ class ModelInstanceCreationTests(TestCase):
         self.assertEqual(a.pub_date, datetime(2005, 7, 29, 0, 0))
 
     def test_can_create_instance_using_kwargs(self):
+        """
+        Tests the creation of an Article instance using keyword arguments.
+
+        Verifies that an Article object can be successfully created with a headline and publication date, 
+        and that these attributes are correctly saved and retrieved. The test also checks that 
+        the generated instance attributes match the expected values.
+
+        Note: This test ensures the correct initialization and saving of Article objects 
+        using keyword arguments, which is essential for creating new articles with specific attributes.
+        """
         a = Article(
             id=None,
             headline="Third article",
@@ -102,6 +112,15 @@ class ModelInstanceCreationTests(TestCase):
             Article(None, "Seventh article", datetime(2021, 3, 1), pub_date=None)
 
     def test_cannot_create_instance_with_invalid_kwargs(self):
+        """
+
+        Verifies that the Article class cannot be instantiated with invalid keyword arguments.
+
+        This test checks that passing unexpected keyword arguments to the Article constructor raises a TypeError with a message indicating the unexpected keyword arguments.
+
+        The test covers scenarios where one or multiple unexpected keyword arguments are passed, ensuring that the constructor correctly identifies and reports all invalid arguments.
+
+        """
         msg = "Article() got unexpected keyword arguments: 'foo'"
         with self.assertRaisesMessage(TypeError, msg):
             Article(
@@ -194,6 +213,12 @@ class ModelInstanceCreationTests(TestCase):
 
     def test_save_primary_with_db_default(self):
         # An UPDATE attempt is skipped when a primary key has db_default.
+        """
+        Tests the saving of a PrimaryKeyWithDbDefault object to the database.
+
+        Verifies that only one database query is executed when saving the object.
+
+        """
         with self.assertNumQueries(1):
             PrimaryKeyWithDbDefault().save()
 
@@ -377,6 +402,11 @@ class ModelTest(TestCase):
         )
 
     def test_microsecond_precision(self):
+        """
+        Checks if the model persists microseconds precision in datetime fields.
+
+        This test verifies that when an article with a specific publication date, including microseconds, is saved to the database, the date is stored accurately and can be retrieved without losing the original microsecond precision.
+        """
         a9 = Article(
             headline="Article 9",
             pub_date=datetime(2005, 7, 31, 12, 30, 45, 180),
@@ -895,6 +925,11 @@ class ManagerTest(SimpleTestCase):
         )
 
     def test_manager_method_attributes(self):
+        """
+        Tests that the method attributes of the Article manager are as expected, 
+        specifically that the docstring of the get method and the name of the count method 
+        match the corresponding attributes of the parent QuerySet class.
+        """
         self.assertEqual(Article.objects.get.__doc__, models.QuerySet.get.__doc__)
         self.assertEqual(Article.objects.count.__name__, models.QuerySet.count.__name__)
 
@@ -990,6 +1025,9 @@ class ModelRefreshTests(TestCase):
             self.assertEqual(a.pub_date, new_pub_date)
 
     def test_unknown_kwarg(self):
+        """
+        Tests that calling refresh_from_db() with an unknown keyword argument raises a TypeError with a descriptive error message. This ensures that invalid arguments are properly handled and reported, preventing silent failures or unexpected behavior.
+        """
         s = SelfRef.objects.create()
         msg = "refresh_from_db() got an unexpected keyword argument 'unknown_kwarg'"
         with self.assertRaisesMessage(TypeError, msg):
@@ -1072,6 +1110,15 @@ class ModelRefreshTests(TestCase):
         self.assertTrue(hasattr(article, "featured"))
 
     def test_refresh_clears_one_to_one_field(self):
+        """
+        Tests that the refresh method of a model instance correctly updates its one-to-one field.
+
+        This test case verifies that when a model with a one-to-one relationship has its related object updated,
+        the changes are reflected in the main object after a call to refresh_from_db. 
+
+        The test creates an article, sets it as a featured article, updates the article's headline, 
+        and then checks that the changes are correctly retrieved when the featured article is refreshed from the database.
+        """
         article = Article.objects.create(
             headline="Parrot programs in Python",
             pub_date=datetime(2005, 7, 28),
@@ -1084,6 +1131,23 @@ class ModelRefreshTests(TestCase):
         self.assertEqual(featured.article.headline, "Parrot programs in Python 2.0")
 
     def test_prefetched_cache_cleared(self):
+        """
+
+        Tests that the prefetched cache is correctly cleared when the underlying data changes.
+
+        This test creates an Article and a SelfRef instance, then queries the Article with
+        prefetched related objects. It checks that the prefetched data is correct before and
+        after updating the SelfRef instance. The test also verifies that the prefetched cache
+        is cleared when the Article is refreshed from the database, and that the correct data
+        is returned after refreshing.
+
+        It covers the following scenarios:
+        - The initial data is correctly prefetched and accessible.
+        - Updating the related objects does not immediately affect the prefetched cache.
+        - Refreshing the object from the database clears the prefetched cache.
+        - Refreshing specific fields of the object updates the prefetched cache accordingly.
+
+        """
         a = Article.objects.create(pub_date=datetime(2005, 7, 28))
         s = SelfRef.objects.create(article=a, article_cited=a)
         # refresh_from_db() without fields=[...]

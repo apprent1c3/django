@@ -27,6 +27,16 @@ class ContextTests(SimpleTestCase):
         self.assertEqual(c, mock.ANY)
 
     def test_push_context_manager(self):
+        """
+
+        Tests the functionality of the context manager's push method.
+
+        Verifies that changes made to the context within the 'with' block are properly 
+        isolated and reset after exiting the block, ensuring the original context 
+        values are restored. Additionally, it checks that keyword arguments passed to 
+        the push method correctly update the context values within the block.
+
+        """
         c = Context({"a": 1})
         with c.push():
             c["a"] = 2
@@ -38,6 +48,20 @@ class ContextTests(SimpleTestCase):
         self.assertEqual(c["a"], 1)
 
     def test_update_context_manager(self):
+        """
+
+        Tests the functionality of the Context class's update context manager.
+
+        The update context manager is used to temporarily modify the context, 
+        ensuring that changes are reverted when exiting the 'with' block. This 
+        allows for safe and controlled manipulation of the context without 
+        permanently altering its state.
+
+        The test verifies that changes made within the 'with' block are 
+        reflected in the context and that the context reverts to its original 
+        state once the block is exited.
+
+        """
         c = Context({"a": 1})
         with c.update({}):
             c["a"] = 2
@@ -49,12 +73,29 @@ class ContextTests(SimpleTestCase):
         self.assertEqual(c["a"], 1)
 
     def test_push_context_manager_with_context_object(self):
+        """
+        Tests that the push context manager correctly modifies and reverts the context object.
+
+            The push context manager is used to temporarily override values in a context object.
+            When entered, it replaces the current values in the context with new ones.
+            When exited, it reverts the context back to its original state.
+
+            This test case verifies that the context object is correctly modified while the context manager is active,
+            and that it returns to its original state after the context manager is exited.
+        """
         c = Context({"a": 1})
         with c.push(Context({"a": 3})):
             self.assertEqual(c["a"], 3)
         self.assertEqual(c["a"], 1)
 
     def test_update_context_manager_with_context_object(self):
+        """
+        Tests the update context manager functionality when used with a context object.
+
+        Verifies that the context is updated within the 'with' block and reverts back to its original state once the block is exited, ensuring that changes are properly scoped and isolated.
+
+        The test confirms that the context manager correctly handles updates to existing keys, ensuring that the original values are preserved outside the 'with' block and the updated values are visible within the block.
+        """
         c = Context({"a": 1})
         with c.update(Context({"a": 3})):
             self.assertEqual(c["a"], 3)
@@ -75,6 +116,15 @@ class ContextTests(SimpleTestCase):
         )
 
     def test_update_proper_layering(self):
+        """
+
+        Tests that the context update method properly layers new dictionaries on top of existing ones.
+
+        The function verifies that when multiple updates are performed, the resulting context contains all the key-value pairs from the original context and the updated contexts, in the correct order.
+
+        This ensures that the layering of contexts behaves as expected, allowing for the creation of complex, nested contexts where each layer can override or extend the previous ones.
+
+        """
         c = Context({"a": 1})
         c.update(Context({"b": 2}))
         c.update(Context({"c": 3, "d": {"z": "26"}}))
@@ -131,6 +181,14 @@ class ContextTests(SimpleTestCase):
         self.assertIsNone(test_context.get("fruit"))
 
     def test_flatten_context(self):
+        """
+        Tests the flatten functionality of the Context class.
+
+         This function creates a new Context object, updates it with several key-value pairs, 
+         and then checks that the resulting dictionary returned by the flatten method 
+         contains the expected values, including boolean and None values, in addition to 
+         the user-provided key-value pairs.
+        """
         a = Context()
         a.update({"a": 2})
         a.update({"b": 4})
@@ -159,6 +217,20 @@ class ContextTests(SimpleTestCase):
         )
 
     def test_flatten_context_with_context_copy(self):
+        """
+
+        Tests the functionality of flattening a context with a context copy.
+
+        This test case verifies that when a new context is created from an existing one,
+        the resulting context's flatten method correctly merges the dictionaries from both contexts.
+        The test checks that the flattened context contains all key-value pairs from the base context
+        and the new context, without any duplicate keys or values.
+
+        The test scenario specifically covers the case where the base context contains default boolean and None values,
+        and the new context contains additional key-value pairs. The expected outcome is a flattened context that
+        contains all default values and the additional key-value pairs from the new context.
+
+        """
         ctx1 = Context({"a": 2})
         ctx2 = ctx1.new(Context({"b": 4}))
         self.assertEqual(
@@ -202,6 +274,15 @@ class ContextTests(SimpleTestCase):
         RequestContext(HttpRequest()).new().new()
 
     def test_set_upward(self):
+        """
+        Tests the set_upward method of the Context class.
+
+        This test verifies that setting a key-value pair using set_upward updates the parent context.
+        It checks that the value of the key is correctly updated after calling set_upward.
+
+        The expected behavior is that the new value is propagated and can be retrieved using the get method.
+
+        """
         c = Context({"a": 1})
         c.set_upward("a", 2)
         self.assertEqual(c.get("a"), 2)

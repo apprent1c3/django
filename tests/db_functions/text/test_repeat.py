@@ -29,6 +29,13 @@ class RepeatTests(TestCase):
                 )
 
     def test_negative_number(self):
+        """
+        Tests that creating a Repeat object with a negative number raises a ValueError.
+
+        The Repeat class requires a non-negative number to be initialized. This test checks
+        that passing a negative number results in a ValueError with a specific error message,
+        indicating that the input 'number' must be greater or equal to 0.
+        """
         with self.assertRaisesMessage(
             ValueError, "'number' must be greater or equal to 0."
         ):

@@ -8,6 +8,22 @@ from .models import Article, Author
 
 class GetObjectOr404Tests(TestCase):
     def test_get_object_or_404(self):
+        """
+
+        Tests the functionality of the get_object_or_404 function, which retrieves an object from the database or raises a 404 error if it is not found.
+
+        The function is tested with various queries, including filtering by exact and partial matches, as well as querying through related objects. It also tests edge cases, such as when no objects or multiple objects match the query, and when using custom querysets.
+
+        The tests cover the following scenarios:
+
+        * Retrieving an object by exact match
+        * Retrieving an object by partial match
+        * Retrieving an object through a related object
+        * Handling cases where no object is found
+        * Handling cases where multiple objects are found
+        * Using custom querysets and database lookups
+
+        """
         a1 = Author.objects.create(name="Brave Sir Robin")
         a2 = Author.objects.create(name="Patsy")
 

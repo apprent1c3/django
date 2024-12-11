@@ -15,6 +15,16 @@ class CenterTests(SimpleTestCase):
         }
     )
     def test_center01(self):
+        """
+
+        Test the center filter with special characters in the input string.
+
+        This test case checks if the center filter correctly handles strings containing
+        special characters like '&' and ensures that the output is properly escaped.
+        The test verifies that the filter centers the input string within a specified width,
+        producing the expected output with special characters preserved.
+
+        """
         output = self.engine.render_to_string(
             "center01", {"a": "a&b", "b": mark_safe("a&b")}
         )

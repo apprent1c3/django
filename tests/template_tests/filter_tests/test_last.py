@@ -16,6 +16,17 @@ class LastTests(SimpleTestCase):
         {"last02": "{% autoescape off %}{{ a|last }} {{ b|last }}{% endautoescape %}"}
     )
     def test_last02(self):
+        """
+
+        Tests the 'last' filter on list elements with special characters.
+
+        Verifies that the 'last' filter correctly returns the last element of a list,
+        even when the element contains special characters such as ampersands, and
+        that the output is not autoescaped, allowing for any HTML entities to be rendered
+        as is, and that the mark_safe function allows the rendering of strings containing
+        special characters without being autoescaped.
+
+        """
         output = self.engine.render_to_string(
             "last02", {"a": ["x", "a&b"], "b": ["x", mark_safe("a&b")]}
         )

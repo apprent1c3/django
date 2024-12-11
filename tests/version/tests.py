@@ -51,6 +51,15 @@ class VersionTests(SimpleTestCase):
         self.assertEqual(get_version_tuple("1.2.3b2.dev0"), (1, 2, 3))
 
     def test_get_version_invalid_version(self):
+        """
+
+        Test the get_complete_version function with invalid version inputs.
+
+        This test case checks that an AssertionError is raised when the function is called with version information that is not recognized as a valid version format.
+
+        The test iterates over a set of predefined invalid version tuples, which include major, minor, patch, pre-release, build, and date components, covering various invalid pre-release version strings ('alpha' and 'gamma').
+
+        """
         tests = [
             # Invalid length.
             (3, 2, 0, "alpha", 1, "20210315111111"),

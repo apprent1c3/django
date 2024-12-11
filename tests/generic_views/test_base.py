@@ -416,6 +416,14 @@ class TemplateViewTest(SimpleTestCase):
         self.assertEqual(match.func.view_initkwargs["content_type"], "text/plain")
 
     def test_resolve_login_required_view(self):
+        """
+
+        Tests the resolution of a login required view.
+
+        Verifies that the view function returned by the URL resolver for the
+        /template/login_required/ path is an instance of TemplateView.
+
+        """
         match = resolve("/template/login_required/")
         self.assertIs(match.func.view_class, TemplateView)
 
@@ -492,6 +500,13 @@ class RedirectViewTest(SimpleTestCase):
         self.assertEqual(response.headers["Location"], "/detail/artist/1/")
 
     def test_named_url_pattern_using_args(self):
+        """
+        Tests that the named URL pattern 'artist_detail' can be resolved using 
+         arguments by checking the HTTP response status code and redirect location 
+         of a RedirectView instance. The test verifies that the redirect is 
+         successful (status code 302) and that the 'Location' header contains the 
+         correct URL pattern with the provided argument.
+        """
         response = RedirectView.as_view(pattern_name="artist_detail")(
             self.rf.get("/foo/"), 1
         )
@@ -582,6 +597,20 @@ class UseMultipleObjectMixinTest(SimpleTestCase):
     rf = RequestFactory()
 
     def test_use_queryset_from_view(self):
+        """
+
+        Tests that the queryset from a view is correctly used in the context data.
+
+        This test verifies that the view's queryset is properly passed to the template
+        context, allowing for accurate rendering of the view's data. The test checks
+        for equality between the 'object_list' in the context data and the view's
+        queryset, ensuring that the data is correctly retrieved and passed to the template.
+
+        :param None
+        :raises AssertionError: If the object_list in the context data does not match the view's queryset
+        :return: None
+
+        """
         test_view = views.CustomMultipleObjectMixinView()
         test_view.get(self.rf.get("/"))
         # Don't pass queryset as argument

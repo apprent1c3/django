@@ -24,6 +24,15 @@ class FrenchTestCase(SimpleTestCase):
         activate("fr")
 
     def tearDown(self):
+        """
+
+        Reverts the translation setup to its original state after a test.
+
+        Restores the original translations and activates the previously set language.
+        This method is used to clean up after a test, ensuring that the translation
+        configuration is reset to its initial state.
+
+        """
         trans_real._translations = self._translations
         activate(self._language)
 
@@ -39,6 +48,16 @@ class ExtractingStringsWithPercentSigns(POFileAssertionMixin, FrenchTestCase):
     """
 
     def setUp(self):
+        """
+
+        Sets up the test environment by reading the contents of a PO file.
+
+        This method is called before each test to initialize the required resources.
+        It reads the entire PO file specified by :attr:`PO_FILE` into memory and stores its contents in the :attr:`po_contents` attribute.
+
+        Details about the PO file, such as its location and structure, are assumed to be predefined and accessible through the :attr:`PO_FILE` attribute.
+
+        """
         super().setUp()
         with open(self.PO_FILE) as fp:
             self.po_contents = fp.read()

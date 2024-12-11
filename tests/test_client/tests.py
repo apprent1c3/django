@@ -54,6 +54,16 @@ def middleware_urlconf(get_response):
 
 @async_only_middleware
 def async_middleware_urlconf(get_response):
+    """
+    Async middleware that modifies the URL configuration for incoming requests.
+
+    This middleware sets the URL configuration to 'test_client.urls_middleware_urlconf' for all requests,
+    allowing for a customized URL resolution process. It then passes the modified request to the next middleware
+    or view in the call chain, awaiting the response before returning it.
+
+    :returns: An asynchronous middleware function that wraps the original get_response function.
+
+    """
     async def middleware(request):
         request.urlconf = "test_client.urls_middleware_urlconf"
         return await get_response(request)
@@ -1021,6 +1031,19 @@ class ClientTest(TestCase):
                 self.assertEqual(response.wsgi_request.GET["example"], "data")
 
     def test_cannot_use_data_and_query_params_together(self):
+        """
+
+        Verifies that the `data` and `query_params` arguments cannot be used simultaneously 
+        in GET and HEAD client methods.
+
+        This test checks that attempting to pass both `data` and `query_params` to 
+        GET or HEAD requests results in a ValueError, ensuring that these mutually 
+        exclusive arguments are not used together.
+
+        :param none:
+        :raises ValueError: If both `data` and `query_params` are provided.
+
+        """
         tests = ["get", "head"]
         msg = "query_params and data arguments are mutually exclusive."
         for method in tests:
@@ -1220,6 +1243,13 @@ class AsyncClientTest(TestCase):
         self.assertEqual(len(response.redirect_chain), 2)
 
     async def test_get_data(self):
+        """
+        Tests the retrieval of data from the '/get_view/' endpoint.
+
+        This test sends a GET request to the '/get_view/' endpoint with a query parameter 'var' set to 'val' and verifies that the response contains the expected string 'This is a test. val is the value.'.
+
+        Checks that the endpoint returns the correct data based on the provided query parameter.
+        """
         response = await self.async_client.get("/get_view/", {"var": "val"})
         self.assertContains(response, "This is a test. val is the value.")
 
@@ -1228,6 +1258,14 @@ class AsyncClientTest(TestCase):
         self.assertContains(response, "Data received: 37 is the value.")
 
     async def test_body_read_on_get_data(self):
+        """
+
+        Tests that a GET request to the '/post_view/' endpoint returns the expected response body.
+
+        The function sends a GET request to the specified endpoint and verifies that the response contains the string 'Viewing GET page.'.
+        This ensures that the endpoint is correctly handling GET requests and returning the expected data.
+
+        """
         response = await self.async_client.get("/post_view/")
         self.assertContains(response, "Viewing GET page.")
 
@@ -1295,6 +1333,18 @@ class AsyncRequestFactoryTest(SimpleTestCase):
         self.assertEqual(response.content, b'{"example": "data"}')
 
     async def test_request_limited_read(self):
+        """
+
+        Tests the behavior of limited read operations on HTTP requests.
+
+        This test case verifies that reading from a request object with a limited
+        number of bytes to be read returns an empty bytes object. The test covers
+        both GET and POST request methods.
+
+        The test scope includes validating the read method's behavior when the
+        requested number of bytes exceeds the available data in the request body.
+
+        """
         tests = ["GET", "POST"]
         for method in tests:
             with self.subTest(method=method):
@@ -1328,6 +1378,15 @@ class AsyncRequestFactoryTest(SimpleTestCase):
         self.assertIn("HTTP_X_ANOTHER_HEADER", request.META)
 
     def test_request_factory_query_string(self):
+        """
+
+        Test that the request factory correctly handles query strings in GET requests.
+
+        Verifies that query parameters are properly encoded in the request URL and 
+        accessible through the request's GET dictionary, without being included in the 
+        request headers as a 'Query-String' header.
+
+        """
         request = self.request_factory.get("/somewhere/", {"example": "data"})
         self.assertNotIn("Query-String", request.headers)
         self.assertEqual(request.GET["example"], "data")
@@ -1350,6 +1409,9 @@ class AsyncRequestFactoryTest(SimpleTestCase):
                 self.assertEqual(request.GET["example"], "data")
 
     def test_cannot_use_data_and_query_params_together(self):
+        """
+        Tests that using both data and query parameters in a request is not allowed for HTTP GET and HEAD methods, as they are mutually exclusive. This check ensures that the request factory correctly raises a ValueError with a descriptive message when both arguments are provided together.
+        """
         tests = ["get", "head"]
         msg = "query_params and data arguments are mutually exclusive."
         for method in tests:

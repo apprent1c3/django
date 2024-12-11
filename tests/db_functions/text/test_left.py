@@ -8,6 +8,15 @@ from ..models import Author
 class LeftTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Sets up initial test data for the test suite.
+
+        This class method populates the database with default author instances 
+        to provide a consistent starting point for tests. It creates two 
+        authors: 'John Smith' with alias 'smithj' and 'Rhonda'. 
+
+        """
         Author.objects.create(name="John Smith", alias="smithj")
         Author.objects.create(name="Rhonda")
 

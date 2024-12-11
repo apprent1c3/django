@@ -109,6 +109,17 @@ class VariableDoesNotExist(Exception):
 
 class Origin:
     def __init__(self, name, template_name=None, loader=None):
+        """
+        Initializes an instance of the class.
+
+        :param name: The name to be assigned to the instance.
+        :param template_name: The optional name of the template to be used, defaults to None.
+        :param loader: The optional loader object to be used, defaults to None.
+
+        This method sets up the initial state of the instance with the provided parameters, 
+        laying the groundwork for further configuration and usage. The name is always required, 
+        while the template name and loader are optional and can be configured later if needed.
+        """
         self.name = name
         self.template_name = template_name
         self.loader = loader
@@ -128,6 +139,17 @@ class Origin:
 
     @property
     def loader_name(self):
+        """
+        Gets the name of the loader associated with this object.
+
+        The loader name is a string representation of the loader's module and class,
+        in the format 'module_name.ClassName'. If no loader is associated with this
+        object, the property returns None. This property can be used to identify
+        the type of loader being used, which can be useful for logging, debugging,
+        or other purposes where the loader's identity is relevant.
+
+        :rtype: str or None
+        """
         if self.loader:
             return "%s.%s" % (
                 self.loader.__module__,
@@ -322,6 +344,15 @@ class Token:
         )
 
     def split_contents(self):
+        """
+        Split the contents of the object into individual parts, handling translation strings that may span multiple lines.
+
+        The function iterates through the contents, identifying bits that start with translation markers and concatenating them until a matching sentinel is found. All parts, including translated strings, are then returned as a list of individual elements.
+
+        Note:
+            This function relies on the `smart_split` function to initially split the contents into bits.
+            It assumes that translation strings are properly formatted with a matching sentinel.
+        """
         split = []
         bits = smart_split(self.contents)
         for bit in bits:
@@ -605,6 +636,21 @@ class Parser:
         return FilterExpression(token, self)
 
     def find_filter(self, filter_name):
+        """
+        Retrieve a filter by its name.
+
+        Args:
+            filter_name (str): The name of the filter to be retrieved.
+
+        Returns:
+            The filter object associated with the given name.
+
+        Raises:
+            TemplateSyntaxError: If the filter with the given name does not exist.
+
+        This method allows you to access a filter by its name, raising an error if the filter is not found. It is used to manage and retrieve filters from a collection.
+
+        """
         if filter_name in self.filters:
             return self.filters[filter_name]
         else:

@@ -23,6 +23,15 @@ class PreviousDjangoVersionQuerySet(models.QuerySet):
 
 class MissingDjangoVersionQuerySet(models.QuerySet):
     def __getstate__(self):
+        """
+        Override the default pickle serialization behavior to exclude Django version information.
+
+        This method is used to control the state of the object when it is being pickled, allowing for customization of the serialization process.
+        It removes the Django version from the pickled state, ensuring compatibility and flexibility when working with different Django versions.
+
+        Returns:
+            dict: The updated state of the object, excluding Django version information.
+        """
         state = super().__getstate__()
         del state[DJANGO_VERSION_PICKLE_KEY]
         return state

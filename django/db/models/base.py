@@ -629,6 +629,21 @@ class Model(AltersData, metaclass=ModelBase):
         return state
 
     def __setstate__(self, state):
+        """
+
+        Restore the state of the object from the given state.
+
+        This method is used for unpickling instances of the class. It checks the Django version
+        of the pickled object and issues a warning if it does not match the current version.
+        It also updates the object's attributes based on the provided state.
+
+        The state dictionary may contain a '_memoryview_attrs' key, which is used to restore
+        memory view attributes that were pickled separately.
+
+        Warnings are raised if the Django version of the pickled object is not specified or
+        does not match the current version.
+
+        """
         pickled_version = state.get(DJANGO_VERSION_PICKLE_KEY)
         if pickled_version:
             if pickled_version != django.__version__:
@@ -651,6 +666,16 @@ class Model(AltersData, metaclass=ModelBase):
         self.__dict__.update(state)
 
     def _get_pk_val(self, meta=None):
+        """
+        Retrieves the primary key value of an object.
+
+        This method returns the value of the primary key attribute for the current object, 
+        as defined in the model's metadata. If no custom metadata is provided, 
+        it defaults to the object's own metadata.
+
+        :param meta: Optional custom metadata to use instead of the object's own metadata
+        :return: The primary key value of the object
+        """
         meta = meta or self._meta
         return getattr(self, meta.pk.attname)
 
@@ -1282,6 +1307,17 @@ class Model(AltersData, metaclass=ModelBase):
     adelete.alters_data = True
 
     def _get_FIELD_display(self, field):
+        """
+        Returns the human-readable display value for a given model field.
+
+        This method retrieves the value of the specified field from the current instance,
+        then looks up the corresponding display value in the field's choices dictionary.
+        If a matching choice is found, its display value is returned; otherwise, the
+        original value is returned.
+
+        :param field: The model field for which to retrieve the display value
+        :return: The display value for the given field, or the original value if no match is found
+        """
         value = getattr(self, field.attname)
         choices_dict = dict(make_hashable(field.flatchoices))
         # force_str() to coerce lazy strings.
@@ -2398,6 +2434,21 @@ class Model(AltersData, metaclass=ModelBase):
 
     @classmethod
     def _get_expr_references(cls, expr):
+        """
+
+        Extracts references from a given expression.
+
+        This method takes in an expression and recursively yields the references
+        found within it. It supports Django's Q and F objects, as well as other
+        expressions that provide source expressions.
+
+        The yielded references are tuples representing the lookup path, where
+        each path component is a string separated by the lookup separator.
+
+        For example, if the expression refers to a field `foo__bar`, the yielded
+        reference would be `('foo', 'bar')`.
+
+        """
         if isinstance(expr, Q):
             for child in expr.children:
                 if isinstance(child, tuple):
@@ -2414,6 +2465,18 @@ class Model(AltersData, metaclass=ModelBase):
 
     @classmethod
     def _check_constraints(cls, databases):
+        """
+        Checks constraints for a model class across multiple databases.
+
+        This method iterates over a list of databases, skipping those that are not allowed
+        to migrate the model class according to the router. For each allowed database,
+        it retrieves the database connection and checks all constraints defined in the
+        model's metadata, collecting any error messages encountered during these checks.
+        The accumulated list of errors is then returned.
+
+        :param databases: A list of database aliases to check constraints against
+        :return: A list of error messages for constraints that failed to check
+        """
         errors = []
         for db in databases:
             if not router.allow_migrate_model(db, cls):

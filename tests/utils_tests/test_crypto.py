@@ -184,6 +184,15 @@ class TestUtilsCryptoPBKDF2(unittest.TestCase):
             self.assertEqual(result.hex(), vector["result"])
 
     def test_default_hmac_alg(self):
+        """
+
+        Tests the PBKDF2 function with default HMAC algorithm settings.
+
+        Verifies that the function produces the same output as the hashlib.pbkdf2_hmac function
+        when using the default HMAC algorithm (SHA-256) and a set of predefined input parameters.
+        The test case checks for consistency in the derived key length and overall output.
+
+        """
         kwargs = {
             "password": b"password",
             "salt": b"salt",

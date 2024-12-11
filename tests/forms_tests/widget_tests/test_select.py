@@ -11,6 +11,11 @@ class SelectTest(ChoiceWidgetTest):
     widget = Select
 
     def test_render(self):
+        """
+        Checks the rendering of the widget with the provided choices, specifically a select dropdown containing the names of the Beatles. 
+
+        The test verifies that the widget is correctly rendered in HTML, with the expected options and the initial selection set to 'John'. The test covers both a dictionary and a dictionary-like object as input choices.
+        """
         html = """
         <select name="beatle">
           <option value="J" selected>John</option>
@@ -394,6 +399,16 @@ class SelectTest(ChoiceWidgetTest):
         self.assertEqual(index, 2)
 
     def test_optgroups(self):
+        """
+        Tests the functionality of optgroups with different input formats.
+
+        This test checks the compatibility of optgroups with various data structures, 
+        including dictionaries, lists of tuples, and nested dictionaries. It ensures 
+        that the optgroups functionality works as expected across these different 
+        input formats.
+
+
+        """
         choices_dict = {
             "Audio": [
                 ("vinyl", "Vinyl"),

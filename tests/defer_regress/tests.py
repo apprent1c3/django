@@ -106,6 +106,17 @@ class DeferRegressionTest(TestCase):
 
     def test_ticket_16409(self):
         # Regression for #16409 - make sure defer() and only() work with annotate()
+        """
+        Tests the functionality of annotating and deferring fields in database queries.
+
+        Checks that queries with annotation and either deferring or only selecting specific fields return a list of objects. 
+
+        Specifically, it verifies that the results of two types of queries are valid lists: 
+        - One query annotates the count of 'feature' and defers the 'name' field.
+        - The other query annotates the count of 'feature' and only selects the 'name' field. 
+
+        Both queries are performed on SimpleItem objects.
+        """
         self.assertIsInstance(
             list(SimpleItem.objects.annotate(Count("feature")).defer("name")), list
         )
@@ -288,6 +299,9 @@ class DeferRegressionTest(TestCase):
             self.assertEqual(Request.objects.defer("items").get(), request)
 
     def test_only_many_to_many_ignored(self):
+        """
+        Tests that using the only() method with a many-to-many field ('items') does not result in an additional database query for the related objects, instead it ignores the many-to-many field and only fetches the requested fields from the model.
+        """
         location = Location.objects.create()
         request = Request.objects.create(location=location)
         with self.assertNumQueries(1):

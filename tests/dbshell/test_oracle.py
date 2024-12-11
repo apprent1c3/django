@@ -27,6 +27,17 @@ class OracleDbshellTests(SimpleTestCase):
         )
 
     def test_with_rlwrap(self):
+        """
+        Tests that the settings_to_cmd_args_env function correctly constructs the command-line arguments when rlwrap is enabled.
+
+        This test case verifies that the function returns the expected list of arguments, including the path to the rlwrap executable, sqlplus command, and the connection string, when rlwrap is set to True.
+
+         Args: None
+
+         Returns: None
+
+         Raises: AssertionError if the constructed command-line arguments do not match the expected arguments.
+        """
         expected_args = [
             "/usr/bin/rlwrap",
             "sqlplus",

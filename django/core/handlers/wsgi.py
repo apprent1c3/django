@@ -85,10 +85,25 @@ class WSGIRequest(HttpRequest):
     @cached_property
     def GET(self):
         # The WSGI spec says 'QUERY_STRING' may be absent.
+        """
+        Retrieves the query string from the current request as a QueryDict object.
+
+        The query string is decoded using the specified encoding. This property provides
+        convenient access to the query parameters, allowing for easy parsing and
+        manipulation of the request data.
+
+        :rtype: QueryDict
+
+        """
         raw_query_string = get_bytes_from_wsgi(self.environ, "QUERY_STRING", "")
         return QueryDict(raw_query_string, encoding=self._encoding)
 
     def _get_post(self):
+        """
+        Returns the POST data associated with the current object, loading it if necessary. 
+
+        This method checks if the POST data has been loaded and stored in the object's state, and if not, triggers the loading process before returning the data.
+        """
         if not hasattr(self, "_post"):
             self._load_post_and_files()
         return self._post

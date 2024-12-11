@@ -184,6 +184,22 @@ class SelectRelatedTests(TestCase):
             self.assertEqual(obj.parent_2, parent_2)
 
     def test_reverse_relation_caching(self):
+        """
+
+        Tests the caching behavior of reverse relations in Django models.
+
+        This test case verifies that using select_related() to fetch a related object 
+        can prevent additional database queries when accessing its attributes. It also 
+        checks that the fields cache of the related object is properly updated.
+
+        The test covers two main scenarios: 
+
+        1. Accessing attributes of a related object that was fetched using select_related(), 
+           verifying that no additional database queries are made.
+        2. Accessing a reverse relation of the related object, verifying that a database 
+           query is made to fetch the related objects.
+
+        """
         species = (
             Species.objects.select_related("genus").filter(name="melanogaster").first()
         )
@@ -225,6 +241,12 @@ class SelectRelatedValidationTests(SimpleTestCase):
     )
 
     def test_non_relational_field(self):
+        """
+        Tests the behavior of select_related() when used with non-relational fields.
+
+        This test ensures that a FieldError is raised when attempting to select related fields on a non-relational field.
+        It covers three scenarios: selecting a non-existent related field, selecting a non-relational field directly, and selecting a non-relational field with no related model.
+        """
         with self.assertRaisesMessage(
             FieldError, self.non_relational_error % ("name", "genus")
         ):
@@ -253,6 +275,14 @@ class SelectRelatedValidationTests(SimpleTestCase):
             list(Pizza.objects.select_related("toppings"))
 
     def test_reverse_relational_field(self):
+        """
+        Tests whether selecting a non-existent related field raises a FieldError.
+
+        Verifies that an attempt to use select_related on a non-existent field 'child_1' 
+        related to 'genus' results in a FieldError being raised with an appropriate error message.
+
+        This test ensures correct error handling for relational field querying in the Species model.
+        """
         with self.assertRaisesMessage(
             FieldError, self.invalid_error % ("child_1", "genus")
         ):

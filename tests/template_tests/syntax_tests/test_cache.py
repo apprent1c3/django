@@ -70,26 +70,59 @@ class CacheTagTests(SimpleTestCase):
     # Raise exception if we don't have at least 2 args, first one integer.
     @setup({"cache11": "{% load cache %}{% cache %}{% endcache %}"})
     def test_cache11(self):
+        """
+        Test that using the cache tag without parameters raises a TemplateSyntaxError.
+
+        Raised exception is tested to ensure proper error handling when attempting to use the cache template tag without the required parameters.
+        """
         with self.assertRaises(TemplateSyntaxError):
             self.engine.get_template("cache11")
 
     @setup({"cache12": "{% load cache %}{% cache 1 %}{% endcache %}"})
     def test_cache12(self):
+        """
+        Tests that a TemplateSyntaxError is raised when the cache duration in a template tag is not a valid integer.
+
+        This test case ensures that the template engine correctly handles invalid cache duration values and raises an exception as expected.
+
+        The test template contains a cache tag with an invalid duration value, and this function verifies that attempting to load the template results in a TemplateSyntaxError being raised.
+        """
         with self.assertRaises(TemplateSyntaxError):
             self.engine.get_template("cache12")
 
     @setup({"cache13": "{% load cache %}{% cache foo bar %}{% endcache %}"})
     def test_cache13(self):
+        """
+        Tests if the template engine correctly raises a TemplateSyntaxError when encountering an invalid cache template tag. Specifically, verifies that the engine fails to render a template with a malformed cache declaration that is missing required arguments.
+        """
         with self.assertRaises(TemplateSyntaxError):
             self.engine.render_to_string("cache13")
 
     @setup({"cache14": "{% load cache %}{% cache foo bar %}{% endcache %}"})
     def test_cache14(self):
+        """
+        Tests rendering of a template that uses the cache tag with invalid syntax, verifying that a TemplateSyntaxError is raised when the template engine attempts to render the template. The test case specifically checks the handling of cache tag with missing or incorrect end tag.
+        """
         with self.assertRaises(TemplateSyntaxError):
             self.engine.render_to_string("cache14", {"foo": "fail"})
 
     @setup({"cache15": "{% load cache %}{% cache foo bar %}{% endcache %}"})
     def test_cache15(self):
+        """
+        Tests that a TemplateSyntaxError is raised when rendering a template with a cache tag that has a variable as a cache key, where the variable is an empty list.
+
+        This test ensures that the template engine correctly handles invalid cache key values and raises an exception when necessary, preventing potential caching issues.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            TemplateSyntaxError: When rendering a template with an invalid cache key value.
+
+        """
         with self.assertRaises(TemplateSyntaxError):
             self.engine.render_to_string("cache15", {"foo": []})
 
@@ -163,10 +196,42 @@ class CacheTagTests(SimpleTestCase):
 class CacheTests(SimpleTestCase):
     @classmethod
     def setUpClass(cls):
+        """
+        Sets up the class-level test environment.
+
+        This method is called once before running all tests in the class. It initializes 
+        the engine with support for Django's cache templating tag and calls the parent 
+        class's setup method to perform any additional setup.
+
+        The engine is configured to include the 'cache' library from 'django.templatetags.cache', 
+        enabling the use of caching functionality in the tests.
+
+        Returns:
+            None
+        """
         cls.engine = Engine(libraries={"cache": "django.templatetags.cache"})
         super().setUpClass()
 
     def test_cache_regression_20130(self):
+        """
+        Tests the cache regression for issue 20130.
+
+        This test case verifies that the cache fragment name is correctly set when
+        using the cache template tag. It ensures that the fragment name is properly
+        assigned and matches the expected output, helping to prevent cache-related
+        regressions.
+
+         Args:
+            None
+
+         Returns:
+            None
+
+         Raises:
+            AssertionError: If the cache fragment name does not match the expected
+                             value 'regression_20130'.
+
+        """
         t = self.engine.from_string(
             "{% load cache %}{% cache 1 regression_20130 %}foo{% endcache %}"
         )

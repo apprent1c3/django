@@ -12,6 +12,13 @@ class MyBigAutoField(models.BigAutoField):
 class TestDefaultPK(SimpleTestCase):
     @override_settings(DEFAULT_AUTO_FIELD="django.db.models.NonexistentAutoField")
     def test_default_auto_field_setting_nonexistent(self):
+        """
+
+        Tests the behavior of the DEFAULT_AUTO_FIELD setting when set to a nonexistent model field.
+
+        Verifies that an ImproperlyConfigured exception is raised when the specified model field cannot be imported.
+
+        """
         msg = (
             "DEFAULT_AUTO_FIELD refers to the module "
             "'django.db.models.NonexistentAutoField' that could not be "
@@ -79,6 +86,14 @@ class TestDefaultPK(SimpleTestCase):
     @isolate_apps("model_options.apps.ModelDefaultPKConfig")
     @override_settings(DEFAULT_AUTO_FIELD="django.db.models.SmallAutoField")
     def test_default_auto_field_setting(self):
+        """
+
+        Tests the default auto field setting in the ModelDefaultPKConfig app.
+
+        This test case verifies that the DEFAULT_AUTO_FIELD setting is correctly applied
+        to models, ensuring that the primary key is an instance of SmallAutoField by default.
+
+        """
         class Model(models.Model):
             pass
 

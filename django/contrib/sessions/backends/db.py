@@ -52,6 +52,15 @@ class SessionStore(SessionBase):
             self._session_key = None
 
     def load(self):
+        """
+        Loads session data from the database.
+
+        Retrieves the session from the database and decodes its associated data.
+        If no session is found, an empty dictionary is returned.
+
+        :returns: A dictionary containing the decoded session data, or an empty dictionary if no session is available.
+        :rtype: dict
+        """
         s = self._get_session_from_db()
         return self.decode(s.session_data) if s else {}
 

@@ -124,6 +124,16 @@ class UserManagerTestCase(TransactionTestCase):
     def test_create_user_email_domain_normalize_rfc3696(self):
         # According to RFC 3696 Section 3 the "@" symbol can be part of the
         # local part of an email address.
+        """
+        Test the normalization of an email address according to RFC 3696.
+
+        This test checks that the email address is converted to its normalized form,
+        with the domain name in lowercase, while preserving non-alphanumeric
+        characters in the local part of the address.
+
+        The function being tested ensures that email addresses are standardized,
+        making it easier to compare and store them in a consistent manner.
+        """
         returned = UserManager.normalize_email(r"Abc\@DEF@EXAMPLE.com")
         self.assertEqual(returned, r"Abc\@DEF@example.com")
 
@@ -140,6 +150,15 @@ class UserManagerTestCase(TransactionTestCase):
             User.objects.create_user(username="")
 
     def test_create_user_is_staff(self):
+        """
+
+        Tests the creation of a user with staff privileges.
+
+        This function verifies that a user with 'is_staff' status set to True can be successfully created.
+        It checks that the provided email address and username are correctly assigned to the new user,
+        and that the user's staff status is correctly set.
+
+        """
         email = "normal@normal.com"
         user = User.objects.create_user("user", email, is_staff=True)
         self.assertEqual(user.email, email)
@@ -167,7 +186,36 @@ class UserManagerTestCase(TransactionTestCase):
             )
 
     def test_runpython_manager_methods(self):
+        """
+
+        Tests the runpython manager methods in the context of Django migrations.
+
+        This test case verifies the correct execution of a RunPython operation within a 
+        migration, specifically when creating a new user. It checks if the user is 
+        successfully created with the specified credentials and if the user model 
+        instance is of the correct type.
+
+        The test also ensures that the user's password is correctly set and verified 
+        using the check_password method.
+
+        """
         def forwards(apps, schema_editor):
+            """
+
+            Forwards migration function to create a default user.
+
+            This function creates a new user instance using the auth User model and 
+            assigns it a username and password. It ensures that the created user 
+            is an instance of the User model.
+
+            Args:
+                apps: The configuration of the applications in the project.
+                schema_editor: The editor used to apply the migration to the database.
+
+            Returns:
+                None
+
+            """
             UserModel = apps.get_model("auth", "User")
             user = UserModel.objects.create_user("user1", password="secure")
             self.assertIsInstance(user, UserModel)
@@ -220,6 +268,11 @@ class AbstractBaseUserTests(SimpleTestCase):
         self.assertEqual(AbstractBaseUser.get_email_field_name(), "email")
 
     def test_custom_email(self):
+        """
+        Tests the custom email field functionality to ensure it returns the correct email field name.
+
+        The test instance checks that the email field name retrieved from the custom email field object matches the expected value 'email_address', thus validating the correctness of the custom email field implementation.
+        """
         user = CustomEmailField()
         self.assertEqual(user.get_email_field_name(), "email_address")
 
@@ -256,6 +309,16 @@ class AbstractUserTestCase(TestCase):
         self.assertIsNone(user2.last_login)
 
     def test_user_clean_normalize_email(self):
+        """
+        Tests that the User model's clean method properly normalizes email addresses.
+
+        Verifies that the email address stored in the User instance is converted to lowercase,
+        ensuring consistency in email address storage and comparison.
+
+        This test case covers the scenario where an email address with uppercase characters
+        is provided during User creation, and verifies that the clean method correctly
+        normalizes the email address to its lowercase equivalent.
+        """
         user = User(username="user", password="foo", email="foo@BAR.com")
         user.clean()
         self.assertEqual(user.email, "foo@bar.com")
@@ -383,6 +446,14 @@ class UserWithPermTestCase(TestCase):
                 User.objects.with_perm(perm)
 
     def test_invalid_backend_type(self):
+        """
+
+        Tests that passing an invalid backend type to User.objects.with_perm raises a TypeError.
+
+        The function checks that providing a backend that is not a dotted import path string
+        results in an error. It verifies this behavior for different types of invalid backends.
+
+        """
         msg = "backend must be a dotted import path string (got %r)."
         for backend in (b"auth_tests.CustomModelBackend", object()):
             with self.subTest(backend):
@@ -448,6 +519,15 @@ class UserWithPermTestCase(TestCase):
         AUTHENTICATION_BACKENDS=["auth_tests.test_models.CustomModelBackend"]
     )
     def test_custom_backend_pass_obj(self):
+        """
+        TESTS if the custom auth backend correctly assigns object level permissions.
+
+            Tests that the custom authentication backend correctly handles object level
+            permissions by checking that the correct user is returned when querying 
+            User.objects.with_perm for a given permission on a specific object.
+            The test iterates over a set of permissions and verifies that the expected 
+            user is returned for each permission.
+        """
         for perm in ("auth.test", self.permission):
             with self.subTest(perm):
                 self.assertSequenceEqual(
@@ -577,6 +657,15 @@ class AnonymousUserTests(SimpleTestCase):
             self.user.save()
 
     def test_set_password(self):
+        """
+        Tests that setting a password on a user object raises a NotImplementedError.
+
+        This test case verifies that attempting to set a password on a user instance
+        results in an error, indicating that password management is not implemented.
+        The error message is checked to ensure it matches the expected message.
+
+        :raises: NotImplementedError when attempting to set a password
+        """
         with self.assertRaisesMessage(NotImplementedError, self.no_repr_msg):
             self.user.set_password("password")
 
@@ -587,6 +676,13 @@ class AnonymousUserTests(SimpleTestCase):
 
 class GroupTests(SimpleTestCase):
     def test_str(self):
+        """
+        Tests that the string representation of a Group object is equal to its name.
+
+        This ensures that when a Group object is converted to a string, it returns a
+        human-readable representation that matches its name, allowing for easy
+        identification and display of the group in various contexts.
+        """
         g = Group(name="Users")
         self.assertEqual(str(g), "Users")
 

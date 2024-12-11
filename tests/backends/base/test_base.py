@@ -156,6 +156,20 @@ class ExecuteWrapperTests(TestCase):
         self.assertEqual(context["connection"], connection)
 
     def test_database_queried(self):
+        """
+
+        Tests if the database can be queried successfully.
+
+        This test function verifies that a SQL query can be executed against the database
+        and that the result can be fetched correctly. It checks if the query returns the
+        expected value. Additionally, it tests the executemany method of the database
+        connection.
+
+        The test uses a mock wrapper and a cursor object to simulate a database query.
+        It executes a simple SQL query that selects a constant value and then asserts
+        that the result matches the expected value.
+
+        """
         wrapper = self.mock_wrapper()
         with connection.execute_wrapper(wrapper):
             with connection.cursor() as cursor:
@@ -166,6 +180,19 @@ class ExecuteWrapperTests(TestCase):
             self.call_executemany(connection)
 
     def test_nested_wrapper_invoked(self):
+        """
+        Tests the invocation of nested execute wrappers.
+
+        This test case verifies that when multiple execute wrappers are used in a nested manner,
+        each wrapper is invoked as expected. It checks the call count of the inner wrapper after
+        executing a query and executing multiple queries, ensuring that the inner wrapper is
+        called the correct number of times.
+
+        The test covers the scenario where two wrappers, an outer wrapper and an inner wrapper,
+        are used together to wrap the execution of database queries. The inner wrapper's call
+        count is asserted after each type of query execution to confirm the correct behavior
+        of the nested wrappers.
+        """
         outer_wrapper = self.mock_wrapper()
         inner_wrapper = self.mock_wrapper()
         with (
@@ -309,6 +336,17 @@ class ConnectionHealthChecksTests(SimpleTestCase):
 
     @skipUnlessDBFeature("test_db_allows_multiple_connections")
     def test_health_checks_disabled(self):
+        """
+        Tests the behavior of database connections when health checks are disabled.
+
+        This test case verifies that when connection health checks are turned off,
+        the connection is not replaced even if it is unusable or obsolete.
+        It checks the connection state before and after running a query,
+        ensuring that the same connection is reused even if it raises an AssertionError
+        when checking its usability. This simulates a scenario where the connection
+        is not properly closed or replaced, allowing the test to assert that
+        the connection remains unchanged despite being potentially unusable.
+        """
         self.patch_settings_dict(conn_health_checks=False)
         self.assertIsNone(connection.connection)
         # Newly created connections are considered healthy without performing

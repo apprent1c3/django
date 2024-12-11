@@ -35,6 +35,19 @@ class Aggregate(Func):
     def __init__(
         self, *expressions, distinct=False, filter=None, default=None, **extra
     ):
+        """
+        Initializes the object with various parameters to support data aggregation operations.
+
+        :param expressions: Variable number of expressions to be used in the aggregation operation
+        :param distinct: Indicates whether to return distinct values; defaults to False
+        :param filter: Optional filter condition to apply to the aggregation operation
+        :param default: Optional default value to return when the aggregation result is empty; defaults to None
+        :param extra: Additional keyword arguments to be passed to the parent class
+
+        :raises TypeError: If distinct is True and the class does not support distinct results, or if a default value is provided when the class does not support it
+
+        :note: The object's behavior and allowed parameters may vary depending on the specific class implementation.
+        """
         if distinct and not self.allow_distinct:
             raise TypeError("%s does not allow distinct." % self.__class__.__name__)
         if default is not None and self.empty_result_set_value is not None:
@@ -115,6 +128,29 @@ class Aggregate(Func):
         return []
 
     def as_sql(self, compiler, connection, **extra_context):
+        """
+        Generates the SQL string representation of this aggregate expression.
+
+        This method handles conversion of the aggregate to SQL, taking into account
+        any applied filters and the specific capabilities of the connection's database
+        backend. The resulting SQL string and its corresponding parameters are returned
+        as a tuple.
+
+        The process involves constructing the SQL string by combining the aggregate's
+        template with any applied filters, if the database backend supports the
+        aggregate filter clause. If not, the filter is applied by modifying the
+        source expressions of the aggregate.
+
+        The `extra_context` dictionary can be used to provide additional context for
+        the SQL generation process, such as custom templates or flags for distinct
+        results.
+
+        :returns: A tuple containing the generated SQL string and its parameters.
+        :param compiler: The compiler to use for generating the SQL.
+        :param connection: The database connection to generate the SQL for.
+        :param extra_context: Additional context to consider during SQL generation.
+
+        """
         extra_context["distinct"] = "DISTINCT " if self.distinct else ""
         if self.filter:
             if connection.features.supports_aggregate_filter_clause:
@@ -146,6 +182,17 @@ class Aggregate(Func):
         return super().as_sql(compiler, connection, **extra_context)
 
     def _get_repr_options(self):
+        """
+
+        Returns a dictionary of options for generating a string representation of the object.
+
+        The options are extended from the parent class and include additional information
+        such as whether the object represents distinct data and any applied filters.
+
+        :return: A dictionary of options for generating a string representation
+        :rtype: dict
+
+        """
         options = super()._get_repr_options()
         if self.distinct:
             options["distinct"] = self.distinct

@@ -6,6 +6,17 @@ from .models import Comment, Forum, Item, Post, PropertyValue, SystemDetails, Sy
 
 class NullFkTests(TestCase):
     def test_null_fk(self):
+        """
+
+        Tests the handling of null foreign key relationships in the Comment model.
+
+        Verifies that comments with associated posts are correctly retrieved,
+        and that comments without associated posts have their post field set to None.
+
+        Additionally, tests the functionality of select_related() method when fetching
+        comments with their related posts, forums, and system information.
+
+        """
         d = SystemDetails.objects.create(details="First details")
         s = SystemInfo.objects.create(system_name="First forum", system_details=d)
         f = Forum.objects.create(system_info=s, forum_name="First forum")

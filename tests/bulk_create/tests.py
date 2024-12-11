@@ -48,6 +48,15 @@ class BulkCreateTests(TestCase):
         ]
 
     def test_simple(self):
+        """
+        Tests the bulk creation of Country objects.
+
+        This test case verifies that multiple Country objects can be created in a single operation
+        and that the created objects are correctly persisted in the database.
+        It also checks that an empty list can be passed to the bulk creation method without errors.
+        The test asserts that the created objects are returned in the correct order and that
+        the total count of Country objects in the database is updated accordingly after bulk creation.
+        """
         created = Country.objects.bulk_create(self.data)
         self.assertEqual(created, self.data)
         self.assertQuerySetEqual(
@@ -160,6 +169,20 @@ class BulkCreateTests(TestCase):
 
     @skipUnlessDBFeature("has_bulk_insert")
     def test_non_auto_increment_pk_efficiency(self):
+        """
+
+        Tests the efficiency of bulk inserting non-auto incrementing primary key records.
+
+        This test case verifies that a bulk insert operation can efficiently create multiple 
+        State records in a single database query. It then checks that the created records are 
+        correctly ordered by their two-letter code.
+
+        The test covers the performance aspect of bulk creation, ensuring that only one 
+        database query is executed for the entire operation.
+
+        Note: This test requires a database that supports bulk insert operations.
+
+        """
         with self.assertNumQueries(1):
             State.objects.bulk_create(
                 [State(two_letter_code=s) for s in ["IL", "NY", "CA", "ME"]]
@@ -191,6 +214,13 @@ class BulkCreateTests(TestCase):
     def test_batch_same_vals(self):
         # SQLite had a problem where all the same-valued models were
         # collapsed to one insert.
+        """
+        Tests that bulk creation of restaurants with the same values results in the expected number of objects in the database.
+
+        Verifies that creating multiple restaurants in a single batch operation correctly populates the database, by checking the total count of restaurants after the bulk creation.
+
+        This test ensures data integrity and correct functionality of the bulk creation method, specifically when dealing with duplicate values.
+        """
         Restaurant.objects.bulk_create([Restaurant(name="foo") for i in range(0, 2)])
         self.assertEqual(Restaurant.objects.count(), 2)
 
@@ -269,6 +299,14 @@ class BulkCreateTests(TestCase):
         self.assertEqual(TwoFields.objects.count(), num_objs)
 
     def test_empty_model(self):
+        """
+        Tests the creation of multiple model instances with no fields.
+
+        Verifies that bulk creation of objects without any fields results in the correct
+        number of objects being stored in the database. This test case ensures that the
+        model's basic functionality is working as expected, specifically the ability to
+        create and count objects in the database.
+        """
         NoFields.objects.bulk_create([NoFields() for i in range(2)])
         self.assertEqual(NoFields.objects.count(), 2)
 
@@ -315,6 +353,23 @@ class BulkCreateTests(TestCase):
 
     @skipUnlessDBFeature("has_bulk_insert")
     def test_bulk_insert_nullable_fields(self):
+        """
+
+        Tests the bulk insertion of model instances with nullable fields.
+
+        This test case verifies that bulk creation of model instances with nullable fields
+        successfully creates the expected number of instances in the database.
+        It also checks that each nullable field is correctly populated with a null value.
+        The test covers various types of nullable fields, ensuring that the bulk insertion
+        mechanism handles them correctly.
+
+        The test scenario includes creating a set of foreign key values to auto fields,
+        then using these to create a list of model instances with each nullable field set
+        to null. After bulk creating these instances, the test asserts that the correct
+        number of instances have been created and that each nullable field has been
+        correctly set to null.
+
+        """
         fk_to_auto_fields = {
             "auto_field": NoFields.objects.create(),
             "small_auto_field": SmallAutoFieldModel.objects.create(),
@@ -514,6 +569,14 @@ class BulkCreateTests(TestCase):
         "supports_update_conflicts_with_target",
     )
     def test_update_conflicts_invalid_update_fields(self):
+        """
+        Tests the validation of update fields in bulk create operations when update conflicts are enabled.
+
+        This test case ensures that bulk creation with update conflicts fails when attempting to update non-concrete fields.
+        It verifies that a ValueError is raised when the update_fields parameter includes fields that are not concrete, 
+        such as related model fields or big auto fields, in accordance with the expected error message.
+
+        """
         msg = "bulk_create() can only be used with concrete fields in update_fields."
         # Reverse one-to-one relationship.
         with self.assertRaisesMessage(ValueError, msg):
@@ -551,6 +614,19 @@ class BulkCreateTests(TestCase):
         "supports_update_conflicts_with_target",
     )
     def test_update_conflicts_invalid_unique_fields(self):
+        """
+
+        Tests the validation of update_conflicts parameter in bulk_create method.
+
+        Specifically, it checks that bulk_create raises a ValueError when update_conflicts is True and unique_fields contain non-concrete fields.
+
+        It covers two scenarios: 
+        1. when unique_fields references a related model field ('relatedmodel'), 
+        2. when unique_fields references an auto-field ('big_auto_fields').
+
+        The test ensures that the bulk_create method correctly enforces the constraint that unique_fields must be concrete fields when update_conflicts is enabled.
+
+        """
         msg = "bulk_create() can only be used with concrete fields in unique_fields."
         # Reverse one-to-one relationship.
         with self.assertRaisesMessage(ValueError, msg):
@@ -662,6 +738,18 @@ class BulkCreateTests(TestCase):
         self._test_update_conflicts_two_fields([])
 
     def _test_update_conflicts_unique_two_fields(self, unique_fields):
+        """
+
+        Tests updating conflicts with unique constraints on two fields when bulk creating Country objects.
+
+        The test data is first created with bulk creation, then new data is prepared with updated descriptions for countries with known unique fields.
+        It then bulk creates the new data with update conflicts option enabled and checks if the number of results is equal to the new data count.
+        The function asserts that primary keys are generated for each instance, if supported by the database backend.
+        Finally, it checks the total count of Country objects and the resulting iso_two_letter and description fields.
+
+        :param unique_fields: The fields that are unique for the Country model.
+
+        """
         Country.objects.bulk_create(self.data)
         self.assertEqual(Country.objects.count(), 4)
 
@@ -731,6 +819,15 @@ class BulkCreateTests(TestCase):
         "supports_update_conflicts", "supports_update_conflicts_with_target"
     )
     def test_update_conflicts_unique_two_fields_unique_fields_one(self):
+        """
+
+        Tests if the database backend supports update conflicts on unique fields with two fields marked as unique, 
+        in this case with only one of the fields provided as the target.
+
+        Raises:
+            OperationalError or ProgrammingError: If the database backend does not support update conflicts with the specified target.
+
+        """
         with self.assertRaises((OperationalError, ProgrammingError)):
             self._test_update_conflicts_unique_two_fields(["iso_two_letter"])
 
@@ -810,6 +907,16 @@ class BulkCreateTests(TestCase):
         "supports_update_conflicts", "supports_update_conflicts_with_target"
     )
     def test_update_conflicts_unique_fields_update_fields_db_column(self):
+        """
+
+        Tests the functionality of bulk creating objects with update conflicts on unique fields.
+
+        This test case verifies that when attempting to bulk create objects with conflicts 
+        on unique fields, the update conflicts parameter correctly updates the existing 
+        objects with the specified fields. It ensures the test database is left in a 
+        consistent state after the test, with the correct objects updated.
+
+        """
         FieldsWithDbColumns.objects.bulk_create(
             [
                 FieldsWithDbColumns(rank=1, name="a"),

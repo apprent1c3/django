@@ -24,6 +24,19 @@ class CosTests(TestCase):
         self.assertAlmostEqual(obj.n2_cos, Decimal(math.cos(obj.n2)))
 
     def test_float(self):
+        """
+
+        Tests the calculation of the cosine of floating point numbers using the Cos database function.
+
+        This test creates an instance of FloatModel with sample floating point values, 
+        annotates the model with the cosine of these values, and then verifies that 
+        the calculated cosine values are correct and of the expected type.
+
+        The test checks for the following conditions:
+        - The cosine values are of type float.
+        - The cosine values match the expected results calculated using the math.cos function.
+
+        """
         FloatModel.objects.create(f1=-27.5, f2=0.33)
         obj = FloatModel.objects.annotate(f1_cos=Cos("f1"), f2_cos=Cos("f2")).first()
         self.assertIsInstance(obj.f1_cos, float)

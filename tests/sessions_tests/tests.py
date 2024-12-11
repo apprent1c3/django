@@ -306,6 +306,19 @@ class SessionTestsMixin:
         self.assertCountEqual(self.session.items(), prev_data)
 
     async def test_cycle_with_no_session_cache_async(self):
+        """
+
+        Tests that the session cycle operation works correctly without using session caching.
+
+        This test case verifies that the session data remains intact after a cycle operation,
+        when no session cache is used. It checks that the session data is preserved and
+        restored correctly, by comparing the data before and after the cycle operation.
+
+        The test workflow involves setting session data, saving the session, cycling the
+        session key, and then verifying that the original data is still present in the
+        session.
+
+        """
         await self.session.aset("a", "c")
         await self.session.aset("b", "d")
         await self.session.asave()
@@ -342,6 +355,21 @@ class SessionTestsMixin:
     async def test_invalid_key_async(self):
         # Submitting an invalid session key (either by guessing, or if the db has
         # removed the key) results in a new key being generated.
+        """
+        Tests the behavior of the backend when an invalid key is used asynchronously.
+
+        This test case creates a session with an invalid key, attempts to save the session,
+        and verifies that the assigned session key is different from the provided key.
+        It also checks that attempting to retrieve a value from the session using an
+        invalid key returns None. Finally, the test ensures that the session is properly
+        deleted, regardless of the outcome.
+
+        The test covers the following scenarios:
+
+        * Saving a session with an invalid key
+        * Retrieving a value from the session using an invalid key
+        * Deleting a session with an invalid key
+        """
         try:
             session = self.backend("1")
             await session.asave()
@@ -482,6 +510,16 @@ class SessionTestsMixin:
         self.assertEqual(self.session.get_expiry_age(), settings.SESSION_COOKIE_AGE)
 
     async def test_custom_expiry_reset_async(self):
+        """
+
+        Tests the custom expiry reset functionality for the session.
+
+        Verifies that setting a custom expiry, resetting it, and then setting it again
+        correctly updates the session's expiry age. The test also ensures that resetting
+        the custom expiry reverts the session's expiry age to its default value, which
+        is defined by the SESSION_COOKIE_AGE setting.
+
+        """
         await self.session.aset_expiry(None)
         await self.session.aset_expiry(10)
         await self.session.aset_expiry(None)
@@ -542,6 +580,13 @@ class SessionTestsMixin:
         self.assertEqual(self.session.decode(encoded), data)
 
     def test_decode_failure_logged_to_security(self):
+        """
+        .Tests if session decoding failures are properly logged to the security log.
+
+        This function checks that when invalid session data is provided to the :meth:`decode` method, 
+        it correctly returns an empty dictionary and logs a warning to the 'django.security.SuspiciousSession' logger.
+        The logged warning indicates that the session data was corrupted.
+        """
         tests = [
             base64.b64encode(b"flaskdj:alkdjf").decode("ascii"),
             "bad:encoded:value",
@@ -561,6 +606,20 @@ class SessionTestsMixin:
         self.assertEqual(self.session.decode(encoded), {})
 
     def test_actual_expiry(self):
+        """
+        Tests that session data is removed after expiration.
+
+        This test function verifies that when a session's expiry time is set to a time
+        in the past, the session data is successfully removed and a new session is
+        created with a different session key. It checks that the data stored in the
+        original session is no longer accessible after expiration.
+
+        The test covers the following scenarios:
+
+        * Setting a session to expire in the past
+        * Verifying that the session data is removed after expiration
+        * Confirming that a new session is created with a different session key
+        """
         old_session_key = None
         new_session_key = None
         try:
@@ -1057,6 +1116,19 @@ class SessionMiddlewareTests(TestCase):
 
     def test_session_save_on_500(self):
         def response_500(request):
+            """
+
+            Handles an internal server error by returning a 500 status code response.
+
+            The function constructs an HTTP response with a generic error message,
+            sets the response status code to 500, indicating a server-side error,
+            and updates the user's session with a test key-value pair.
+            The returned response informs the client of the server's error state.
+
+            :param request: The current HTTP request object
+            :return: An HttpResponse object with a 500 status code
+
+            """
             response = HttpResponse("Horrible error")
             response.status_code = 500
             request.session["hello"] = "world"
@@ -1306,6 +1378,17 @@ class SessionBaseTests(SimpleTestCase):
         self.session = SessionBase()
 
     def test_create(self):
+        """
+        Test that a NotImplementedError is raised when attempting to create an object.
+
+        Verifies that the create method is not implemented by checking for a specific
+        error message indicating that the create operation is not supported.
+
+        Raises:
+            AssertionError: If the create method does not raise a NotImplementedError
+            with the expected error message.
+
+        """
         msg = self.not_implemented_msg % "a create"
         with self.assertRaisesMessage(NotImplementedError, msg):
             self.session.create()

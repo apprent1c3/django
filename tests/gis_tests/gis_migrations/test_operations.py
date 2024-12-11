@@ -42,6 +42,18 @@ class OperationTestCase(TransactionTestCase):
         return True
 
     def get_table_description(self, table):
+        """
+        Retrieves a detailed description of a database table.
+
+        This method queries the database to obtain a description of the specified table, 
+        including information about its columns, data types, and other relevant details.
+
+        Args:
+            table (str): The name of the database table to describe.
+
+        Returns:
+            A description of the table, as provided by the database introspection system.
+        """
         with connection.cursor() as cursor:
             return connection.introspection.get_table_description(cursor, table)
 
@@ -290,6 +302,11 @@ class OperationTests(OperationTestCase):
         "supports_column_check_constraints", "can_introspect_check_constraints"
     )
     def test_add_check_constraint(self):
+        """
+        Tests the addition of a check constraint to a model field, specifically a geographic spatial constraint, and verifies that it can be successfully introspected from the database. 
+
+         The test case adds a check constraint named 'geom_within_constraint' to the 'Neighborhood' model, ensuring that the 'geom' field falls within a predefined polygon boundary. It then checks that the added constraint is correctly reflected in the database by introspecting the constraints on the 'Neighborhood' model's database table.
+        """
         Neighborhood = self.current_state.apps.get_model("gis", "Neighborhood")
         poly = Polygon(((0, 0), (0, 1), (1, 1), (1, 0), (0, 0)))
         constraint = models.CheckConstraint(
@@ -315,6 +332,17 @@ class NoRasterSupportTests(OperationTestCase):
             self.set_up_test_model(force_raster_creation=True)
 
     def test_add_raster_field_on_db_without_raster_support(self):
+        """
+        Tests that adding a raster field to a model using a database backend 
+        without raster support raises an ImproperlyConfigured exception.
+
+        Verifies that the expected error message is returned when attempting to 
+        add a RasterField to a model using a backend that does not support raster data.
+
+        The expected error message indicates that raster fields require a database 
+        backend with raster support, ensuring that users are informed of the 
+        compatibility requirements for using raster fields in their models.
+        """
         msg = "Raster fields require backends with raster support."
         with self.assertRaisesMessage(ImproperlyConfigured, msg):
             self.set_up_test_model()

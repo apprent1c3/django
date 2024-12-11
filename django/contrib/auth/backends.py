@@ -153,6 +153,20 @@ class ModelBackend(BaseBackend):
         return UserModel._default_manager.filter(user_q)
 
     def get_user(self, user_id):
+        """
+        Retrieve a user by ID if the requesting user has permission to authenticate them.
+
+        Args:
+            user_id (int): The ID of the user to retrieve.
+
+        Returns:
+            UserModel: The user object if the requesting user can authenticate them, otherwise None.
+
+        Note:
+            The function checks if the user exists and if the requesting user has the necessary permissions to authenticate them.
+            If either condition is not met, it returns None.
+
+        """
         try:
             user = UserModel._default_manager.get(pk=user_id)
         except UserModel.DoesNotExist:

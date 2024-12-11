@@ -27,6 +27,14 @@ site.register(Book)
 
 
 def book(request, book_id):
+    """
+    Retrieves a book by its unique identifier and returns its title as an HTTP response.
+
+     :param request: The current HTTP request
+     :param book_id: The unique identifier of the book to retrieve
+     :return: An HTTP response containing the title of the book
+     :raises: Book.DoesNotExist if a book with the given ID does not exist
+    """
     b = Book.objects.get(id=book_id)
     return HttpResponse(b.title)
 
@@ -80,6 +88,18 @@ class MultiDatabaseTests(TestCase):
 
     @mock.patch("django.contrib.admin.options.transaction")
     def test_read_only_methods_add_view(self, mock):
+        """
+
+        Tests that read-only methods for adding views do not trigger database transactions.
+
+        This test case iterates over multiple databases and a set of read-only HTTP methods,
+        verifying that each method can successfully access the add view without attempting to
+        create a database transaction. It ensures that the view is accessible and returns a
+        successful response (200 OK) while confirming that no database transaction is initiated.
+
+        The tested read-only methods are: :attr:`~.READ_ONLY_METHODS`.
+
+        """
         for db in self.databases:
             for method in self.READ_ONLY_METHODS:
                 with self.subTest(db=db, method=method):

@@ -74,5 +74,11 @@ class MultipleChoiceFieldTest(SimpleTestCase):
         self.assertTrue(f.has_changed([1, 2], ["1", "3"]))
 
     def test_disabled_has_changed(self):
+        """
+        Tests whether a disabled MultipleChoiceField returns False when checking if its value has changed.
+
+        Checks the behavior of the has_changed method when applied to a disabled MultipleChoiceField, 
+        verifying that it correctly indicates no change regardless of the provided old and new values.
+        """
         f = MultipleChoiceField(choices=[("1", "One"), ("2", "Two")], disabled=True)
         self.assertIs(f.has_changed("x", "y"), False)

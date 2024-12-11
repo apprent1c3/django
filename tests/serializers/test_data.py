@@ -90,6 +90,19 @@ def data_create(pk, klass, data):
 
 
 def generic_create(pk, klass, data):
+    """
+
+    Create a new instance of a given model class and save it to the database.
+
+    :param pk: The primary key to assign to the new instance.
+    :param klass: The model class to instantiate.
+    :param data: A list containing the data to associate with the new instance.
+                 The first element is used as the instance's data, and any subsequent
+                 elements are created as tags associated with the instance.
+
+    :return: A list containing the newly created instance.
+
+    """
     instance = klass(id=pk)
     instance.data = data[0]
     models.Model.save_base(instance, raw=True)
@@ -99,6 +112,16 @@ def generic_create(pk, klass, data):
 
 
 def fk_create(pk, klass, data):
+    """
+    ..:param int pk: The primary key of the instance to be created.
+    :param class klass: The class of the instance to be created.
+    :param data: The data to be associated with the created instance.
+    :returns: A list containing the newly created instance.
+    :rtype: list
+    :raises: None
+
+    Creates a new instance of the given class with the specified primary key and associates it with the provided data. The instance is then saved to the database. This function provides a basic way to create instances programmatically, handling the primary key and data association in a single step.
+    """
     instance = klass(id=pk)
     setattr(instance, "data_id", data)
     models.Model.save_base(instance, raw=True)
@@ -143,6 +166,19 @@ def pk_create(pk, klass, data):
 
 
 def inherited_create(pk, klass, data):
+    """
+
+    Create an instance of a given model class, save it to the database, and retrieve its inherited instances.
+
+    :param pk: The primary key to be used for the new instance
+    :param klass: The model class to be instantiated
+    :param data: Additional data to be used when creating the instance
+
+    :return: A list of instances, including the newly created instance and its inherited instances
+
+    :rtype: list
+
+    """
     instance = klass(id=pk, **data)
     # This isn't a raw save because:
     #  1) we're testing inheritance, not field behavior, so none
@@ -191,17 +227,65 @@ def data_compare(testcase, pk, klass, data):
 
 
 def generic_compare(testcase, pk, klass, data):
+    """
+
+    Compare an instance of a model with expected data.
+
+    This function retrieves an instance of the given model class from the database
+    using the provided primary key. It then asserts that the instance's data matches
+    the expected data and that the instance's tags (ordered by id) match the
+    remaining expected data.
+
+    Args:
+        testcase: The test case object to use for assertions.
+        pk (int): The primary key of the instance to retrieve.
+        klass: The model class of the instance to retrieve.
+        data (tuple): A tuple containing the expected data for the instance and its tags.
+
+
+    """
     instance = klass.objects.get(id=pk)
     testcase.assertEqual(data[0], instance.data)
     testcase.assertEqual(data[1:], [t.data for t in instance.tags.order_by("id")])
 
 
 def fk_compare(testcase, pk, klass, data):
+    """
+    Compares the expected data with the data of a database instance.
+
+    This function retrieves a database instance of the specified class and primary key,
+    then asserts that its data matches the provided expected data.
+
+    Args:
+        testcase: The test case object used for assertion.
+        pk (int): The primary key of the instance to compare.
+        klass: The class of the instance to compare.
+        data: The expected data to compare with the instance's data.
+
+    Raises:
+        AssertionError: If the instance's data does not match the expected data.
+
+    """
     instance = klass.objects.get(id=pk)
     testcase.assertEqual(data, instance.data_id)
 
 
 def m2m_compare(testcase, pk, klass, data):
+    """
+
+    Compares the expected data with the actual data from a many-to-many relationship.
+
+    This function checks if the provided data matches the ids of objects in a many-to-many
+    field of a specific model instance. It retrieves the instance from the database using
+    the provided primary key and model class, then asserts that the provided data is
+    equal to the list of ids of the related objects, ordered by their id.
+
+    :param testcase: The test case object used for assertion.
+    :param pk: The primary key of the instance to compare.
+    :param klass: The model class of the instance.
+    :param data: The expected list of ids to compare with the actual data.
+
+    """
     instance = klass.objects.get(id=pk)
     testcase.assertEqual(data, [obj.id for obj in instance.data.order_by("id")])
 

@@ -112,6 +112,15 @@ class ClearableFileInputTest(WidgetTest):
         )
 
     def test_render_checked(self):
+        """
+        Tests the rendering of a widget when it is in a checked state.
+
+        This test case verifies that the widget produces the correct HTML output
+        when the checked attribute is set to True. The expected HTML includes
+        a link, a checkbox to clear the current value, and a file input field.
+        The test ensures that all these elements are correctly rendered and
+        contain the expected attributes and text.
+        """
         self.widget.checked = True
         self.check_html(
             self.widget,
@@ -227,6 +236,14 @@ class ClearableFileInputTest(WidgetTest):
         self.assertIs(self.widget.use_required_attribute("resume.txt"), False)
 
     def test_value_omitted_from_data(self):
+        """
+        Determine whether a file value has been omitted from the data.
+
+        This method checks if a file input field has been intentionally cleared by the user.
+        It considers the presence of the field name and the 'clear' suffix in the data to make this determination.
+
+        :returns: True if the file value has been omitted, False otherwise
+        """
         widget = ClearableFileInput()
         self.assertIs(widget.value_omitted_from_data({}, {}, "field"), True)
         self.assertIs(

@@ -47,6 +47,9 @@ class TemplateUtilsTests(SimpleTestCase):
         ]
     )
     def test_backend_names_must_be_unique(self):
+        """
+        Tests that Django raises an ImproperlyConfigured exception when multiple template backends have the same name in the TEMPLATES setting. Verifies that setting multiple backends with duplicate names, specifically 'django', results in an error with a message indicating that template engine aliases must be unique.
+        """
         msg = (
             "Template engine aliases aren't unique, duplicates: django. Set "
             "a unique NAME for each engine in settings.TEMPLATES."

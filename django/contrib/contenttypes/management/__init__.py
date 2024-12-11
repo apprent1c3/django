@@ -4,12 +4,55 @@ from django.db import DEFAULT_DB_ALIAS, IntegrityError, migrations, router, tran
 
 class RenameContentType(migrations.RunPython):
     def __init__(self, app_label, old_model, new_model):
+        """
+        .. init:: __init__(app_label, old_model, new_model)
+           :noindex:
+
+           Initializes a model rename operation.
+
+           :param app_label: The label of the application where the model resides.
+           :param old_model: The original name of the model to be renamed.
+           :param new_model: The new name for the model.
+
+           This initializer sets up the necessary state for renaming a model, 
+           including the application label and the old and new model names, 
+           and calls the superclass initializer with the forward and backward 
+           rename operations.
+        """
         self.app_label = app_label
         self.old_model = old_model
         self.new_model = new_model
         super().__init__(self.rename_forward, self.rename_backward)
 
     def _rename(self, apps, schema_editor, old_model, new_model):
+        """
+
+        Rename a content type in the database.
+
+        This function updates the model associated with a given content type to reflect
+        a name change. It retrieves the content type from the database using the old model
+        name, updates its model name to the new one, and saves the changes. If the update
+        fails due to an integrity error, the model name is reverted to its original value.
+
+        The function only proceeds with the rename operation if the router allows migration
+        of the ContentType model on the current database connection.
+
+        Parameters
+        ----------
+        apps : ~django.apps.registry.Apps
+            The Django apps registry.
+        schema_editor : ~django.db.backends.base.schema.BaseDatabaseSchemaEditor
+            The database schema editor.
+        old_model : str
+            The old name of the model.
+        new_model : str
+            The new name of the model.
+
+        Returns
+        -------
+        None
+
+        """
         ContentType = apps.get_model("contenttypes", "ContentType")
         db = schema_editor.connection.alias
         if not router.allow_migrate_model(db, ContentType):

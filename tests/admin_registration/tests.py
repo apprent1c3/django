@@ -22,6 +22,27 @@ class TestRegistration(SimpleTestCase):
         self.site = admin.AdminSite()
 
     def test_bare_registration(self):
+        """
+        Test registration of a model with the admin site.
+
+        This method verifies the basic registration workflow for a model. It checks that
+        registering a model with the admin site correctly creates a ModelAdmin instance,
+        and that unregistering the model removes it from the site's registry, resulting
+        in an empty registry.
+
+        May be used to ensure that the admin site is functioning correctly and that
+        models can be properly registered and unregistered. 
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the registration or unregistration process fails.
+
+        """
         self.site.register(Person)
         self.assertIsInstance(self.site.get_model_admin(Person), admin.ModelAdmin)
         self.site.unregister(Person)
@@ -34,6 +55,13 @@ class TestRegistration(SimpleTestCase):
         self.assertEqual(self.site._registry, {})
 
     def test_prevent_double_registration(self):
+        """
+        Tests that attempting to register a model with the site more than once raises an AlreadyRegistered exception.
+
+        Verifies that the site prevents double registration by registering a model, then attempting to register the same model again and checking that the expected error message is raised.
+
+        The test ensures that the model registration process correctly handles duplicate registrations and provides a clear error message in such cases.
+        """
         self.site.register(Person)
         msg = "The model Person is already registered in app 'admin_registration'."
         with self.assertRaisesMessage(AlreadyRegistered, msg):
@@ -135,6 +163,17 @@ class TestRegistrationDecorator(SimpleTestCase):
         )
 
     def test_multiple_registration(self):
+        """
+
+        Tests the registration of multiple models with the admin interface.
+
+        This test case verifies that multiple models can be successfully registered with the admin site,
+        and that the registration of one model does not interfere with the registration of another.
+        It also checks that the models can be properly unregistered from the admin site.
+
+        Validates that the models are correctly associated with their respective ModelAdmin instances.
+
+        """
         register(Traveler, Place)(NameAdmin)
         self.assertIsInstance(
             self.default_site.get_model_admin(Traveler), admin.ModelAdmin

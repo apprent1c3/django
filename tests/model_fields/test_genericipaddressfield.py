@@ -29,6 +29,15 @@ class GenericIPAddressFieldTests(TestCase):
         self.assertIsNone(o.ip)
 
     def test_blank_string_saved_as_null(self):
+        """
+        Tests that a blank string for an IP address is saved as null in the database.
+
+        Verifies that when a GenericIPAddress object is created with an empty string,
+        it is stored as null, and that this behavior is consistent when updating
+        existing objects. Ensures data integrity by checking the IP address value
+        after refreshing the object from the database.
+
+        """
         o = GenericIPAddress.objects.create(ip="")
         o.refresh_from_db()
         self.assertIsNone(o.ip)
@@ -37,6 +46,14 @@ class GenericIPAddressFieldTests(TestCase):
         self.assertIsNone(o.ip)
 
     def test_save_load(self):
+        """
+
+        Tests the save and load functionality of the GenericIPAddress model.
+
+        Ensures that an instance of GenericIPAddress can be successfully saved to the database and then loaded back,
+        with its attributes remaining intact. Specifically, it verifies that the IP address is correctly persisted.
+
+        """
         instance = GenericIPAddress.objects.create(ip="::1")
         loaded = GenericIPAddress.objects.get()
         self.assertEqual(loaded.ip, instance.ip)

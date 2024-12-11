@@ -76,6 +76,16 @@ class PoFileContentsTests(MessageCompilationTests):
     MO_FILE = "locale/%s/LC_MESSAGES/django.mo" % LOCALE
 
     def test_percent_symbol_in_po_file(self):
+        """
+
+        Tests that a percent symbol in a.po translation file is correctly handled during compilation.
+
+        This test case checks that the compilation of translation messages succeeds when a percent symbol is present in a.po file.
+        It verifies that the compiled.mo file is generated after running the compilemessages command.
+
+        The test covers the locale specified by the LOCALE attribute and validates the existence of the resulting MO_FILE.
+
+        """
         call_command("compilemessages", locale=[self.LOCALE], verbosity=0)
         self.assertTrue(os.path.exists(self.MO_FILE))
 
@@ -127,6 +137,17 @@ class ExcludedLocaleCompilationTests(MessageCompilationTests):
         self.assertFalse(os.path.exists(self.MO_FILE % "it"))
 
     def test_multiple_locales_excluded(self):
+        """
+
+        Test compilation of translation messages while excluding specific locales.
+
+        Verifies that the `compilemessages` command correctly compiles translation messages 
+        for the default locale ('en') while excluding the specified locales ('it' and 'fr'). 
+
+        Expects the compiled translation file to exist for the default locale and not for 
+        the excluded locales.
+
+        """
         call_command("compilemessages", exclude=["it", "fr"], verbosity=0)
         self.assertTrue(os.path.exists(self.MO_FILE % "en"))
         self.assertFalse(os.path.exists(self.MO_FILE % "fr"))
@@ -182,6 +203,14 @@ class IgnoreDirectoryCompilationTests(MessageCompilationTests):
         self.assertAllExist(self.NESTED_DIR, ["en", "fr", "it"])
 
     def test_multiple_locale_dirs_ignored(self):
+        """
+
+        Tests that multiple locale directories are properly handled and ignored during the compilation of messages.
+
+        Verifies that when compiling messages, only the expected locale directories are processed, while others are ignored.
+        The test checks for the existence of compiled messages in the expected locale directories and ensures that they do not exist in the ignored directories.
+
+        """
         call_command(
             "compilemessages", ignore=["cache/locale", "outdated"], verbosity=0
         )
@@ -257,12 +286,33 @@ class IgnoreDirectoryCompilationTests(MessageCompilationTests):
 class CompilationErrorHandling(MessageCompilationTests):
     def test_error_reported_by_msgfmt(self):
         # po file contains wrong po formatting.
+        """
+        Tests that an error is reported by msgfmt when compiling messages for the Japanese locale.
+
+        This test case verifies that the compilemessages command raises a CommandError when
+        attempting to compile messages for the Japanese locale, indicating that an error
+        occurred during the compilation process.
+
+        :raises: CommandError
+        :returns: None
+        """
         with self.assertRaises(CommandError):
             call_command("compilemessages", locale=["ja"], verbosity=0)
 
     def test_msgfmt_error_including_non_ascii(self):
         # po file contains invalid msgstr content (triggers non-ascii error content).
         # Make sure the output of msgfmt is unaffected by the current locale.
+        """
+
+        Tests that a message catalog compilation error occurs and is correctly reported 
+        when a non-ASCII character is used as a field name in a message format string.
+
+        This test ensures that the system correctly handles the case where a non-ASCII 
+        character is present in a field name and verifies that the `compilemessages` 
+        command raises a `CommandError` with the expected error message when such a 
+        character is encountered.
+
+        """
         env = os.environ.copy()
         env.update({"LC_ALL": "C"})
         with mock.patch(
@@ -312,6 +362,16 @@ class FuzzyTranslationTest(ProjectAndAppTests):
 
 class AppCompilationTest(ProjectAndAppTests):
     def test_app_locale_compiled(self):
+        """
+
+        Tests if the locale files for the application are successfully compiled.
+
+        This test case checks if the compiled locale files (.mo files) exist after running the compilemessages command.
+        The test covers both the project and application level locale files. 
+
+        :raises AssertionError: If either of the locale files does not exist after compilation.
+
+        """
         call_command("compilemessages", locale=[self.LOCALE], verbosity=0)
         self.assertTrue(os.path.exists(self.PROJECT_MO_FILE))
         self.assertTrue(os.path.exists(self.APP_MO_FILE))

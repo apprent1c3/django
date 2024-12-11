@@ -78,6 +78,14 @@ class AddField(FieldOperation):
     category = OperationCategory.ADDITION
 
     def __init__(self, model_name, name, field, preserve_default=True):
+        """
+        Initializes a new instance of the class.
+
+        :param model_name: The name of the model associated with this instance.
+        :param name: The name of this instance.
+        :param field: The field associated with this instance.
+        :param preserve_default: If True, the default value of the field will be preserved. Defaults to True.
+        """
         self.preserve_default = preserve_default
         super().__init__(model_name, name, field)
 
@@ -189,6 +197,15 @@ class RemoveField(FieldOperation):
         return "remove_%s_%s" % (self.model_name_lower, self.name_lower)
 
     def reduce(self, operation, app_label):
+        """
+        Reduce an operation for the model.
+
+        This method is responsible for reducing an operation for the model. If the operation is a delete operation for the current model, it returns the operation itself. Otherwise, it delegates the reduction to the parent class.
+
+        :param operation: The operation to be reduced.
+        :param app_label: The label of the application.
+        :returns: A list of reduced operations.
+        """
         from .models import DeleteModel
 
         if (

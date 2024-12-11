@@ -303,6 +303,30 @@ class BaseDatabaseSchemaEditor:
     def _iter_column_sql(
         self, column_db_type, params, model, field, field_db_params, include_default
     ):
+        """
+
+        Generates SQL for a database column.
+
+        This function yields the SQL components for a database column based on the column's properties, such as its data type, default value, nullability, and constraints.
+
+        It considers various database features and settings, including collation, comments, and support for inline comments.
+
+        It also handles special cases, such as generated columns, primary keys, and unique constraints, and appends the required SQL elements accordingly.
+
+        The generated SQL is tailored to the specific database connection being used, taking into account its capabilities and requirements.
+
+        Parameters:
+            column_db_type (str): The database type of the column.
+            params (list): A list of parameters to be used in the SQL query.
+            model: The model to which the column belongs.
+            field: The field representing the column.
+            field_db_params (dict): Additional database parameters for the field.
+            include_default (bool): Whether to include the default value in the SQL.
+
+        Yields:
+            str: The SQL components for the database column.
+
+        """
         yield column_db_type
         if collation := field_db_params.get("collation"):
             yield self._collate_sql(collation)
@@ -571,6 +595,18 @@ class BaseDatabaseSchemaEditor:
         self.execute(index.remove_sql(model, self))
 
     def rename_index(self, model, old_index, new_index):
+        """
+        Renames an index on a model.
+
+        Renames an existing index on a model from the specified old index name to a new index name.
+        The operation is performed by executing the corresponding SQL statement if the database 
+        backend supports renaming indexes. If renaming is not supported, the old index is removed 
+        and a new one with the desired name is added to the model.
+
+        :param model: The model on which the index is to be renamed
+        :param old_index: The existing index to be renamed
+        :param new_index: The new index with the desired name
+        """
         if self.connection.features.can_rename_index:
             self.execute(
                 self._rename_index_sql(model, old_index.name, new_index.name),
@@ -1574,6 +1610,12 @@ class BaseDatabaseSchemaEditor:
         table = model._meta.db_table
 
         def create_index_name(*args, **kwargs):
+            """
+            Creates and returns a quoted index name. If the index name does not already exist, 
+            it is generated using the provided arguments. The resulting name is then 
+            properly quoted to ensure compatibility with the database system. The 
+            generated name is cached for future use.
+            """
             nonlocal name
             if name is None:
                 name = self._create_index_name(*args, **kwargs)
@@ -1747,6 +1789,16 @@ class BaseDatabaseSchemaEditor:
         return self._delete_constraint_sql(self.sql_delete_fk, model, name)
 
     def _deferrable_constraint_sql(self, deferrable):
+        """
+        Return the SQL string for a deferrable constraint.
+
+        The returned string depends on the deferrable mode, which can be one of the following:
+            - If deferrable is None, an empty string is returned.
+            - If deferrable is DEFERRABLE.DEFERRED, the string ' DEFERRABLE INITIALLY DEFERRED' is returned.
+            - If deferrable is DEFERRABLE.IMMEDIATE, the string ' DEFERRABLE INITIALLY IMMEDIATE' is returned.
+
+        This function is used to generate the SQL syntax for deferrable constraints in database queries.
+        """
         if deferrable is None:
             return ""
         if deferrable == Deferrable.DEFERRED:
@@ -1941,6 +1993,21 @@ class BaseDatabaseSchemaEditor:
         )
 
     def _delete_check_sql(self, model, name):
+        """
+        Deletes a check constraint for the specified SQL model.
+
+        Args:
+            model: The model associated with the check constraint.
+            name: The name of the check constraint.
+
+        Returns:
+            A SQL string to delete the check constraint if the database backend supports it,
+            otherwise returns None.
+
+        Note:
+            This functionality is dependent on the database backend's support for table check constraints.
+
+        """
         if not self.connection.features.supports_table_check_constraints:
             return None
         return self._delete_constraint_sql(self.sql_delete_check, model, name)

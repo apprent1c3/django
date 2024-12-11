@@ -65,6 +65,16 @@ def module_name_to_file_path(module_name):
     # Avoid importlib machinery as locating a module involves importing its
     # parent, which would trigger import side effects.
 
+    """
+    Resolves a module name to its corresponding file path.
+
+    Given a module name, this function searches for a matching file in the parent directories. 
+    It attempts to locate the file by appending '.py' and '/__init__.py' suffixes to the module path.
+    The search is performed relative to the current file's directory.
+
+    :raises CodeNotFound: If no matching file is found for the given module name
+    :return: The path to the module's file as a pathlib.Path object
+    """
     for suffix in [".py", "/__init__.py"]:
         file_path = pathlib.Path(__file__).parents[2] / (
             module_name.replace(".", "/") + suffix
@@ -76,6 +86,25 @@ def module_name_to_file_path(module_name):
 
 
 def get_path_and_line(module, fullname):
+    """
+
+    Find the file path and line number of a given Python module and fullname.
+
+    This function takes a module and a fullname as input, where fullname is a fully qualified Python name (e.g., a class, function, or variable). 
+    It recursively searches for the fullname in the given module and its imported modules, returning the file path and line number where the fullname is defined.
+
+    Args:
+        module (str): The name of the Python module to search in.
+        fullname (str): The fully qualified name of the object to find.
+
+    Returns:
+        tuple: A tuple containing the file path and line number where the fullname is defined.
+
+    Raises:
+        CodeNotFound: If the fullname is not found in the module or any of its imports.
+        ImportError: If an import error occurs while trying to resolve the fullname.
+
+    """
     path = module_name_to_file_path(module_name=module)
 
     locator = get_locator(path)
@@ -123,6 +152,16 @@ def get_path_and_line(module, fullname):
 
 
 def get_branch(version, next_version):
+    """
+    Determines the branch name based on the provided version and next version.
+
+    Args:
+        version (str): The current version.
+        next_version (str): The next version.
+
+    Returns:
+        str: The branch name. If the version and next version are the same, returns 'main'. Otherwise, returns a stable branch name in the format 'stable/{version}.x'.
+    """
     if version == next_version:
         return "main"
     else:

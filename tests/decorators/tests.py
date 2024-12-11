@@ -36,6 +36,18 @@ def compose(*functions):
     functions = list(reversed(functions))
 
     def _inner(*args, **kwargs):
+        """
+        Applies a series of functions to the input arguments in a chained manner.
+
+        This function takes in any number of positional and keyword arguments, applies the first function in the series to these arguments, 
+        and then applies each subsequent function to the result of the previous one, effectively creating a pipeline of transformations.
+
+        The final result of this pipeline is returned as the output of the function.
+
+        .. note::
+            The series of functions to be applied is predefined and not configurable through this function's arguments.
+
+        """
         result = functions[0](*args, **kwargs)
         for f in functions[1:]:
             result = f(result)
@@ -181,6 +193,21 @@ class MethodDecoratorTests(SimpleTestCase):
     def test_preserve_attributes(self):
         # Sanity check myattr_dec and myattr2_dec
         @myattr_dec
+        """
+        Tests the preservation of attributes when using function and class decorators.
+
+        This test ensures that attributes are correctly set and retrieved when applying 
+        decorators to functions and classes. It covers various scenarios, including:
+        - Applying a single decorator to a function
+        - Applying multiple decorators to a function
+        - Applying decorators to a class method
+        - Using different decorator application methods, such as `@method_decorator`
+        - Verifying that the original method name and docstring are preserved
+
+        The test checks that the expected attributes are set on both the instance method 
+        and the class method, and that the method's name and docstring remain unchanged.
+
+        """
         def func():
             pass
 
@@ -287,6 +314,25 @@ class MethodDecoratorTests(SimpleTestCase):
 
     def test_descriptors(self):
         def original_dec(wrapped):
+            """
+            A decorator function that preserves the original functionality of a wrapped function.
+
+            This decorator takes in a function as an argument and returns a new function that calls the original function with the provided argument.
+            The original function's behavior and return value are unchanged, making this decorator useful for creating a basic wrapping layer without modifying the wrapped function's behavior.
+
+            Args:
+                wrapped (function): The function to be wrapped.
+
+            Returns:
+                function: A new function that calls the original function with the provided argument.
+
+            Example:
+                To use this decorator, pass a function to it like so: 
+                @original_dec
+                def my_function(arg):
+                   ...
+
+            """
             def _wrapped(arg):
                 return wrapped(arg)
 

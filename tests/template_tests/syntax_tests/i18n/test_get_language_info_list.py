@@ -20,6 +20,18 @@ class GetLanguageInfoListTests(SimpleTestCase):
         }
     )
     def test_i18n30(self):
+        """
+
+        Tests the rendering of language information using the i18n template tag.
+
+        This test verifies that the i18n template tag correctly renders a list of languages,
+        including their codes, names, and bidirectional information.
+
+        The test case uses a predefined setup with a list of language codes and checks
+        that the rendered output matches the expected string. The expected output includes
+        the language codes, names, and bidirectional information for each language in the list.
+
+        """
         output = self.engine.render_to_string("i18n30", {"langcodes": ["it", "no"]})
         self.assertEqual(
             output, "it: Italian/italiano bidi=False; no: Norwegian/norsk bidi=False; "

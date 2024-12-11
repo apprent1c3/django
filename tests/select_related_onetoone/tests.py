@@ -160,6 +160,21 @@ class ReverseSelectRelatedTestCase(TestCase):
             self.assertEqual(p.child1.name2, "Child1 Parent2")
 
     def test_onetoone_with_subclass(self):
+        """
+
+        Tests the one-to-one relationship between Parent2 and Child2 models 
+        using select_related to reduce database queries.
+
+        This test case verifies that a Parent2 instance can be retrieved 
+        with its associated Child2 instance in a single database query, 
+        and that the name attribute of the Child2 instance is correctly 
+        associated with the Parent2 instance.
+
+        Validates the performance optimization of using select_related 
+        to fetch related objects in a single query, and checks the data 
+        integrity of the one-to-one relationship.
+
+        """
         with self.assertNumQueries(1):
             p = Parent2.objects.select_related("child2").get(name2="Child2 Parent2")
             self.assertEqual(p.child2.name1, "Child2 Parent1")

@@ -123,6 +123,14 @@ class ChoicesTests(SimpleTestCase):
         self.assertEqual(Gender.NOT_SPECIFIED.label, "Not Specified")
 
     def test_textchoices_empty_label(self):
+        """
+        Tests that the empty label is correctly set for the Gender choices.
+
+        Verifies that the first element in the Gender choices, labels, values, and names lists corresponds to an undeclared or empty value.
+
+        The expected values are: an empty value, a human-readable label '(Undeclared)', a None value, and a name '__empty__' respectively.
+
+        """
         self.assertEqual(Gender.choices[0], (None, "(Undeclared)"))
         self.assertEqual(Gender.labels[0], "(Undeclared)")
         self.assertIsNone(Gender.values[0])
@@ -149,6 +157,17 @@ class ChoicesTests(SimpleTestCase):
         self.assertEqual(BlankStr.names, ["EMPTY", "ONE"])
 
     def test_invalid_definition(self):
+        """
+
+        Tests the validation of model IntegerChoices definitions.
+
+        This method checks that the framework correctly raises exceptions when 
+        IntegerChoices definitions are invalid. Specifically, it verifies that:
+
+        * A TypeError is raised when a non-integer value is used in an IntegerChoices definition.
+        * A ValueError is raised when duplicate values are found in an IntegerChoices definition.
+
+        """
         msg = "'str' object cannot be interpreted as an integer"
         with self.assertRaisesMessage(TypeError, msg):
 
@@ -164,6 +183,13 @@ class ChoicesTests(SimpleTestCase):
                 PINEAPPLE = 1, "Pineapple"
 
     def test_str(self):
+        """
+        Tests the string representation of enumeration members.
+
+        This function verifies that the string representation of each member in a set of enumerations (Gender, Suit, YearInSchool, Vehicle) matches its expected value. It ensures consistency in how these enumeration members are represented as strings, which is essential for readability and correct functionality in various use cases.
+
+        The test covers each member of the specified enumerations, using a sub-test for each member to provide detailed information in case of any failures. The test result indicates whether the string representations of the enumeration members are as expected, helping to maintain the correctness and reliability of the code that uses these enumerations.
+        """
         for test in [Gender, Suit, YearInSchool, Vehicle]:
             for member in test:
                 with self.subTest(member=member):
@@ -187,6 +213,12 @@ class ChoicesTests(SimpleTestCase):
 
     def test_do_not_call_in_templates_member(self):
         # do_not_call_in_templates is not implicitly treated as a member.
+        """
+        Test the do_not_call_in_templates member of an IntegerChoices instance.
+
+        This test case verifies that the specified member is recognized as a valid choice within the Special choices instance. 
+        It checks that the member is present in the Special.__members__ dictionary and that its attributes (label, value, name) are correctly set.
+        """
         Special = models.IntegerChoices("Special", "do_not_call_in_templates")
         self.assertIn("do_not_call_in_templates", Special.__members__)
         self.assertEqual(

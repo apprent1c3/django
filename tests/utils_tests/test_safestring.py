@@ -20,6 +20,12 @@ class SafeStringTest(SimpleTestCase):
         self.assertEqual(tpl.render(context), expected)
 
     def test_mark_safe(self):
+        """
+        Tests the behavior of the mark_safe function, which marks a string as safe to output without HTML escaping.
+
+        This test checks two scenarios: rendering a marked safe string directly, verifying it is not escaped; 
+        and rendering the string after applying the force_escape filter, ensuring the original string is properly escaped.
+        """
         s = mark_safe("a&b")
 
         self.assertRenderEqual("{{ s }}", "a&b", s=s)
@@ -117,6 +123,11 @@ class SafeStringTest(SimpleTestCase):
             s.dynamic_attr = True
 
     def test_default_safe_data_additional_attrs(self):
+        """
+        Tests that attempting to assign a value to a non-existent attribute on a SafeData object raises an AttributeError.
+
+        This test verifies that SafeData objects do not allow dynamic attribute creation, and instead raise a meaningful error when attempting to set an attribute that does not exist. The expected error message is checked to ensure it accurately reflects the issue. 
+        """
         s = SafeData()
         msg = "object has no attribute 'dynamic_attr'"
         with self.assertRaisesMessage(AttributeError, msg):

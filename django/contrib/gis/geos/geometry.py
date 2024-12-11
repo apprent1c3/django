@@ -118,6 +118,24 @@ class GEOSGeometryBase(GEOSBase):
 
     @staticmethod
     def from_ewkt(ewkt):
+        """
+
+        Creates a GEOSGeometry object from an Extended Well-Known Text (EWKT) string.
+
+        The EWKT string is parsed to extract the Spatial Reference System Identifier (SRID)
+        and the underlying Well-Known Text (WKT) geometry representation. If the SRID is
+        not provided in the EWKT string, it defaults to `None`.
+
+        Args:
+            ewkt: The Extended Well-Known Text string representing the geometry.
+
+        Returns:
+            A GEOSGeometry object representing the geometry described by the EWKT string.
+
+        Raises:
+            ValueError: If the EWKT string has an invalid SRID part or if the WKT part is empty.
+
+        """
         ewkt = force_bytes(ewkt)
         srid = None
         parts = ewkt.split(b";", 1)

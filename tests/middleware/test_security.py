@@ -14,6 +14,20 @@ class SecurityMiddlewareTest(SimpleTestCase):
         return {"wsgi.url_scheme": "https"}
 
     def response(self, *args, headers=None, **kwargs):
+        """
+
+        Returns a function that generates an HttpResponse object.
+
+        This function creates a closure that wraps the creation of an HttpResponse object.
+        It accepts any number of positional arguments and keyword arguments, which are
+        passed directly to the HttpResponse constructor.
+
+        Additionally, an optional 'headers' dictionary can be provided, where each key-value
+        pair is used to set a corresponding header in the resulting HttpResponse object.
+
+        The returned function, when called, returns the constructed HttpResponse object.
+
+        """
         def get_response(req):
             response = HttpResponse(*args, **kwargs)
             if headers:
@@ -24,6 +38,15 @@ class SecurityMiddlewareTest(SimpleTestCase):
         return get_response
 
     def process_response(self, *args, secure=False, request=None, **kwargs):
+        """
+        Processes an HTTP response by sending a request through a middleware pipeline.
+
+            :param secure: If True, the request will use secure connection settings. Defaults to False.
+            :param request: Optional pre-constructed request object, used if provided. Otherwise, a new request will be created.
+            :param args: Additional positional arguments passed to the middleware pipeline.
+            :param kwargs: Additional keyword arguments passed to the middleware pipeline.
+            :return: The processed response, or the result of the middleware pipeline if it returns a non-false value.
+        """
         request_kwargs = {}
         if secure:
             request_kwargs.update(self.secure_request_kwargs)
@@ -37,6 +60,21 @@ class SecurityMiddlewareTest(SimpleTestCase):
     request = RequestFactory()
 
     def process_request(self, method, *args, secure=False, **kwargs):
+        """
+
+        Process an HTTP request.
+
+        This method constructs and processes an HTTP request using the specified method and parameters.
+        It optionally applies security settings to the request if the `secure` parameter is set to True.
+        The request is then passed through a middleware processor before being returned.
+
+        :param method: The HTTP method to use for the request (e.g. 'GET', 'POST', etc.)
+        :param args: Variable number of position arguments to pass to the request function
+        :param secure: Whether to apply security settings to the request, defaults to False
+        :param kwargs: Additional keyword arguments to pass to the request function
+        :return: The processed HTTP request
+
+        """
         if secure:
             kwargs.update(self.secure_request_kwargs)
         req = getattr(self.request, method.lower())(*args, **kwargs)

@@ -15,6 +15,20 @@ class CapfirstTests(SimpleTestCase):
         }
     )
     def test_capfirst01(self):
+        """
+
+        Tests the capfirst template filter when autoescape is turned off.
+
+        This function checks that the capfirst filter correctly capitalizes the first letter of input strings,
+        even when the input contains HTML special characters and when the input is marked as safe.
+
+        It verifies that the filter produces the expected output for two different input cases:
+        a string with an HTML special character ('>') and a string with an HTML entity ('&gt;') that is marked as safe.
+
+        The function ensures that the capfirst filter works correctly with autoescape turned off,
+        producing the expected capitalized output without altering the HTML special characters or entities.
+
+        """
         output = self.engine.render_to_string(
             "capfirst01", {"a": "fred>", "b": mark_safe("fred&gt;")}
         )

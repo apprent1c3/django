@@ -16,6 +16,20 @@ class WordwrapTests(SimpleTestCase):
         }
     )
     def test_wordwrap01(self):
+        """
+
+        Tests the wordwrap filter functionality in the templating engine.
+
+        The wordwrap filter is expected to wrap the input string at the specified width, 
+        inserting newline characters to separate the lines. This test checks the filter's 
+        behavior with strings containing special characters, such as ampersands, and 
+        strings that have been marked as safe.
+
+        The test verifies that the wordwrap filter correctly handles HTML-escaped and 
+        unescaped input strings, ensuring that the output matches the expected wrapped 
+        string.
+
+        """
         output = self.engine.render_to_string(
             "wordwrap01", {"a": "a & b", "b": mark_safe("a & b")}
         )
@@ -23,6 +37,11 @@ class WordwrapTests(SimpleTestCase):
 
     @setup({"wordwrap02": '{{ a|wordwrap:"3" }} {{ b|wordwrap:"3" }}'})
     def test_wordwrap02(self):
+        """
+        Tests the wordwrap template filter with wrapped strings containing HTML special characters.
+
+        The test renders a template with two input strings, one of which is marked as safe, and checks the output to ensure that the wordwrap filter correctly wraps the strings while escaping any HTML special characters.
+        """
         output = self.engine.render_to_string(
             "wordwrap02", {"a": "a & b", "b": mark_safe("a & b")}
         )

@@ -111,6 +111,15 @@ class ProjectState:
 
     @property
     def relations(self):
+        """
+        #: Returns the relations of the current object.
+        #: 
+        #: This property provides access to the relations associated with the instance.
+        #: If the relations have not been resolved previously, it will trigger their resolution before returning them.
+        #: 
+        #: :return: The relations of the object.
+        #: :rtype: list or dict
+        """
         if self._relations is None:
             self.resolve_fields_and_relations()
         return self._relations
@@ -206,6 +215,19 @@ class ProjectState:
         self.reload_model(app_label, model_name, delay=True)
 
     def _remove_option(self, app_label, model_name, option_name, obj_name):
+        """
+
+        Remove an object from the specified model option.
+
+        :param app_label: Application label of the model to modify.
+        :param model_name: Name of the model to modify.
+        :param option_name: Name of the option to modify.
+        :param obj_name: Name of the object to remove from the option.
+
+        Removes the specified object from the given model option and reloads the model.
+        The object must exist in the specified option and model to be successfully removed.
+
+        """
         model_state = self.models[app_label, model_name]
         objs = model_state.options[option_name]
         model_state.options[option_name] = [obj for obj in objs if obj.name != obj_name]
@@ -263,6 +285,21 @@ class ProjectState:
         self.reload_model(*model_key, delay=delay)
 
     def alter_field(self, app_label, model_name, name, field, preserve_default):
+        """
+
+        Alters an existing model field by replacing it with a new field instance.
+
+        This method modifies the specified field of a model by replacing it with a new
+        field instance. If the `preserve_default` flag is set to `False`, it clones the
+        new field and removes any default value.
+
+        It updates the model's field dictionary and handles any relations associated
+        with the field. If the field is a relation, it resolves any model field relations
+        after updating the field. Finally, it reloads the model to reflect the changes,
+        delaying the reload if the field is not a relation and is not referenced by any
+        other fields.
+
+        """
         if not preserve_default:
             field = field.clone()
             field.default = NOT_PROVIDED
@@ -557,6 +594,14 @@ class ProjectState:
         return new_state
 
     def clear_delayed_apps_cache(self):
+        """
+        Clears the cache of delayed applications if the current object is delayed.
+
+        This method removes the cached 'apps' attribute from the object's dictionary to 
+        ensure freshness and prevent stale data from being used. It checks if the object 
+        is in a delayed state and if the 'apps' attribute exists before clearing the cache.
+
+        """
         if self.is_delayed and "apps" in self.__dict__:
             del self.__dict__["apps"]
 
@@ -639,6 +684,18 @@ class StateApps(Apps):
     def bulk_update(self):
         # Avoid clearing each model's cache for each change. Instead, clear
         # all caches when we're finished updating the model instances.
+        """
+        Context manager to temporarily disable and re-enable the ready state of the object.
+
+        This context manager is useful for performing bulk updates on the object, allowing multiple operations to be executed without interruptions.
+        It ensures that the object's ready state is restored to its original value after the bulk update is complete, regardless of whether an exception occurs or not.
+        Additionally, the cache is cleared at the end of the context to maintain data consistency.
+
+        Example usage:
+            with obj.bulk_update():
+                # Perform multiple operations here
+
+        """
         ready = self.ready
         self.ready = False
         try:
@@ -761,6 +818,19 @@ class ModelState:
         return self.name.lower()
 
     def get_field(self, field_name):
+        """
+        Retrieves a field object from the current collection of fields.
+
+        The field is identified by its `field_name` parameter. In special cases,
+        when the requested field is '_order' and an ordering relation is defined
+        through the 'order_with_respect_to' option, the function returns the field
+        object that corresponds to the ordering relation instead. This allows for
+        a more dynamic and flexible way to handle ordering in the context of related
+        objects.
+
+        :param field_name: The name of the field to be retrieved
+        :return: The field object associated with the given `field_name`
+        """
         if (
             field_name == "_order"
             and self.options.get("order_with_respect_to") is not None

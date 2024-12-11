@@ -213,10 +213,20 @@ class HandlerRequestTests(SimpleTestCase):
         )
 
     def test_environ_path_info_type(self):
+        """
+        Verify that the PATH_INFO value in the WSGI environment dictionary is a string.
+
+        This test case checks the data type of the PATH_INFO key in the environ dictionary,
+        which is populated when a request is made to the server. It ensures that the value
+        is correctly represented as a string, regardless of any special characters in the URL path.
+        """
         environ = self.request_factory.get("/%E2%A8%87%87%A5%E2%A8%A0").environ
         self.assertIsInstance(environ["PATH_INFO"], str)
 
     def test_handle_accepts_httpstatus_enum_value(self):
+        """
+        Tests the handle method of the WSGIHandler class to ensure it correctly sets the HTTP status code in the response when handling a request. Specifically, this test verifies that the handler sets the status code to '200 OK' when processing a request to the '/httpstatus_enum/' endpoint. The test uses a mock start_response function to capture the status code set by the handler.
+        """
         def start_response(status, headers):
             start_response.status = status
 
@@ -356,6 +366,18 @@ class AsyncHandlerRequestTests(SimpleTestCase):
             )
 
     async def test_async_streaming(self):
+        """
+        Tests asynchronous streaming functionality by making a GET request to the '/async_streaming/' endpoint.
+
+        This test checks if the server responds with a 200 status code and if the streamed content matches the expected output.
+
+         Returns:
+            None
+
+         Raises:
+            AssertionError: If the status code or the streamed content does not match the expected output.
+
+        """
         response = await self.async_client.get("/async_streaming/")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(

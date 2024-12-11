@@ -203,6 +203,9 @@ class CsrfViewMiddleware(MiddlewareMixin):
         # Avoid checking the request twice by adding a custom attribute to
         # request.  This will be relevant when both decorator and middleware
         # are used.
+        """
+        Marks the given request as having completed CSRF processing, indicating that any necessary checks or validations have been performed. This function is used internally to track the state of request processing and does not return any value.
+        """
         request.csrf_processing_done = True
         return None
 
